@@ -17,7 +17,7 @@
 2. Run:
 
    ```bash
-   cd alumni-tracker
+   cd CMSC128-A24L-Backend
    ```
 
 3. Run:
