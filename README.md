@@ -12,7 +12,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone
+   git clone https://github.com/rdadormeo/CMSC128-A24L-Backend.git
    ```
 2. Run:
 
