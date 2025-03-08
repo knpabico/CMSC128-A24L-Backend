@@ -8,10 +8,23 @@ import {
   User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-const AuthContext = createContext({});
-
 import { ReactNode } from "react";
 import { FirebaseError } from "firebase/app";
+
+const AuthContext = createContext<{
+  user: User | null;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; message: string }>;
+  loading: boolean;
+  logOut: () => Promise<void>;
+}>({
+  user: null,
+  signIn: async () => ({ success: false, message: "" }),
+  logOut: async () => {},
+  loading: false,
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

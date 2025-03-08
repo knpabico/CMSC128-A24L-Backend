@@ -12,7 +12,6 @@ import { useAuth } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/Loading";
-import Link from "next/link";
 
 export default function Login() {
   const { signIn, user, loading } = useAuth();
@@ -22,18 +21,14 @@ export default function Login() {
   const [password, setPassword] = useState<string>("");
   const [emailError, setEmailError] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(`Email: ${email}\nPassword: ${password}`);
     const { success, message } = await signIn(email, password);
     setMessage(message);
-    if (success) {
-      setSuccess(true);
-    } else {
+    if (!success) {
       console.log(message);
       setError(true);
     }
