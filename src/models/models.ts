@@ -1,35 +1,42 @@
 export interface Alumnus {
-  status: boolean; //active or not
+  alumniId: string;
+  regStatus: string; //accepted, pending, or rejected registration
+  activeStatus: boolean; //active or not
   studentNumber: string;
-  address: string;
+  address: string[];
   email: string;
   name: string;
-  age: string;
-  birthDate: string;
+  age: number;
+  birthDate: Date;
   companyName: string;
   jobTitle: string;
   fieldOfWork: string;
   graduationYear: string;
-  affiliation: string;
+  affiliation: string[];
 }
 
 export interface Admin {
-  lastLogin: string;
   username: string;
+  lastLogin: string;
   password: string;
 }
 
+export interface Invitation {
+  invitationId: string;
+  dateSent: Date;
+}
+
 export interface Announcement {
-  datePosted: string;
+  datePosted: Date;
   announcementId: string;
-  type: string;
+  type: string[];
 }
 
 export interface Event {
   postId: string;
   status: boolean;
-  dateApproved: string;
-  dateSent: string;
+  dateApproved: Date;
+  dateSent: Date;
   title: string;
   description: string;
   date: string;
@@ -38,40 +45,40 @@ export interface Event {
 export interface DonationDrive {
   postId: string;
   status: boolean;
-  dateApproved: string;
-  dateSent: string;
+  dateApproved: Date;
+  dateSent: Date;
   description: string;
-  beneficiary: string;
+  beneficiary: string[];
   campaignName: string;
   totalAmount: number;
 }
 
 export interface Donation {
   donationId: string;
+  postId: string;
+  alumniId: string;
   paymentMethod: string;
   amount: number;
-  postId: string;
-  alumniEmail: string;
 }
 
 export interface NewsletterItem {
-  category: string;
   newsletterId: string;
-  dateSent: string;
+  category: string[];
+  dateSent: Date;
 }
 
 export interface RSVP {
   rsvpId: string;
   status: boolean;
   postId: string;
-  alumniEmail: string;
+  alumniId: string;
 }
 
 export interface JobOffering {
   jobId: string;
-  alumniEmail: string;
+  alumniId: string;
   salaryRange: string;
-  requiredSkill: string;
+  requiredSkill: string[];
   experienceLevel: string;
   position: string;
   company: string;
@@ -79,4 +86,11 @@ export interface JobOffering {
   jobDescription: string;
   datePosted: string;
   jobType: string;
+}
+
+export interface Bookmark {
+  bookmarkId: string;
+  alumniId: string;
+  type: string;
+  entryId: string;
 }

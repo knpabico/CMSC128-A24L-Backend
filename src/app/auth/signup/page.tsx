@@ -1,43 +1,47 @@
 "use client";
 import LoadingPage from "@/components/Loading";
+import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
-import { User } from "@/models/user";
+import { Alumnus } from "@/models/models";
 import { Box, Button, Stack, TextField } from "@mui/material";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function SignUp() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [address, setAddress] = useState<string[]>([]);
+  const [name, setName] = useState<string>("");
+  const [age, setAge] = useState<number | null>(null);
+  const [birthDate, setBirthdate] = useState<Date | null>(null);
+  const [companyName, setCompanyName] = useState<string>("");
+  const [jobTitle, setJobTitle] = useState<string>("");
+  const [fieldOfWork, setFieldOfWork] = useState<string>("");
+  const [graduationYear, setGraduationYear] = useState<string>("");
+  const [affiliation, setAffiliations] = useState<string[]>([]);
+  const [studentNumber, setStudentNumber] = useState<string>("");
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [confirmPasswordError, setConfirmPasswordError] =
     useState<boolean>(false);
   const upMail: RegExp = new RegExp(/^[a-zA-Z0-9._%+-]+@up\.edu\.ph$/);
-  const router = useRouter();
-  const handleSignup = async (email: string, password: string) => {
-    const newUser: User = { email, password, id: 1 } as User;
+  const { user, loading, signUp } = useAuth();
+  const { addAlumnus } = useAlums();
+  const route = useRouter();
+  const handleSignup = async (password: string, alum: object) => {
+    const newAlum: Alumnus = alum as Alumnus;
     try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        body: JSON.stringify(newUser),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status != 200) {
-        const data = await response.json();
-        alert(data.message);
-      } else {
-        router.push("/");
+      const credentials = await signUp(newAlum.email, password);
+      if (credentials != undefined) {
+        console.log("user uid", credentials?.user.uid);
+        const res = await addAlumnus(newAlum, credentials.user.uid);
+        if (res.success) console.log("Added to firestore!");
+        if (!res.success) console.log(res.message);
       }
     } catch (error) {
-      alert((error as Error).message);
+      console.error(error);
     }
   };
-  const { user, loading } = useAuth();
-  const route = useRouter();
 
   useEffect(() => {
     if (user) {
@@ -101,10 +105,92 @@ export default function SignUp() {
                 } else setConfirmPasswordError(false);
               }}
             />
+            <TextField
+              required
+              label="Name"
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+            />
+            <TextField
+              required
+              label="Age"
+              onChange={(e) => {
+                setAge(Number(e.target.value));
+              }}
+            />
+            <TextField
+              required
+              label="Birthdate"
+              onChange={(e) => {
+                setBirthdate(new Date(e.target.value));
+              }}
+            />
+            <TextField
+              required
+              label="Student Number"
+              onChange={(e) => {
+                setStudentNumber(e.target.value);
+              }}
+            />
+            <TextField
+              required
+              label="Company Name"
+              onChange={(e) => {
+                setCompanyName(e.target.value);
+              }}
+            />
+            <TextField
+              required
+              label="Job Title"
+              onChange={(e) => {
+                setJobTitle(e.target.value);
+              }}
+            />
+            <TextField
+              required
+              label="Field of Work"
+              onChange={(e) => {
+                setFieldOfWork(e.target.value);
+              }}
+            />
+            <TextField
+              required
+              label="Graduation Year"
+              onChange={(e) => {
+                setGraduationYear(e.target.value);
+              }}
+            />
+            <TextField
+              required
+              label="Affiliation"
+              onChange={(e) => {
+                setAffiliations([e.target.value]);
+              }}
+            />
+            <TextField
+              required
+              label="Address"
+              onChange={(e) => {
+                setAddress([e.target.value]);
+              }}
+            />
             <Button
               variant="contained"
               onClick={() => {
-                handleSignup(email, password);
+                handleSignup(password, {
+                  email,
+                  name,
+                  age,
+                  birthDate,
+                  studentNumber,
+                  address,
+                  companyName,
+                  jobTitle,
+                  fieldOfWork,
+                  graduationYear,
+                  affiliation,
+                });
               }}
             >
               Sign Up
