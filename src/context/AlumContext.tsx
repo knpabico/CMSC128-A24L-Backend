@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Alumnus } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import Error from "next/error";
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -30,16 +31,29 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
-  const addAlumnus = async (alum: Alumnus, userId: string) => {
+  const addAlumnus = async (token:string,alum: Alumnus, userId: string) => {
     try {
-      alum.alumniId = userId;
-      alum.activeStatus = true;
-      alum.regStatus = "Pending";
-      console.log(alum);
-      await setDoc(doc(db, "alumni", userId), alum);
-      return { success: true, message: "success" };
-    } catch (error) {
-      return { success: false, message: error.message };
+      const response = await fetch("/api/alumni",{
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json",
+        },
+        body:JSON.stringify({
+          token:token,
+          ...alum,
+          alumniId: userId,
+          activeStatus: true,
+          regStatus: "Pending"
+        }),
+      });
+      const data = await response.json();
+
+      if(!response.ok){
+        throw new Error(data.message || "Failed to add Alumni");
+      }
+      return {success: true, message: "Alumnus Added Successfully", data };
+    }catch(error:any){
+      return {success: false, message: error.message };
     }
   };
 
@@ -75,4 +89,5 @@ export const useAlums = () => useContext(AlumContext);
 /*
 References:
 https://firebase.google.com/docs/firestore/query-data/listen
+https://firebase.google.com/docs/firestore/manage-data/add-data
 */
