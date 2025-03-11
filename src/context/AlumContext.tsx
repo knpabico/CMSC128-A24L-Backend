@@ -33,7 +33,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
 
   const addAlumnus = async (token:string,alum: Alumnus, userId: string) => {
     try {
-      const response = await fetch("/api/alumni",{
+      const response = await fetch("/api/session/alumn_route",{
         method: "POST",
         headers: {
           "Content-Type":"application/json",
