@@ -9,12 +9,15 @@ import {
   createUserWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { ReactNode } from "react";
 import { FirebaseError } from "firebase/app";
+import { Alumnus } from "@/models/models";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 
 const AuthContext = createContext<{
   user: User | null;
+  alumInfo: Alumnus | null;
   signIn: (
     email: string,
     password: string
@@ -27,6 +30,7 @@ const AuthContext = createContext<{
   ) => Promise<UserCredential | undefined>;
 }>({
   user: null,
+  alumInfo: null,
   signIn: async () => ({ success: false, message: "" }),
   logOut: async () => {},
   loading: false,
@@ -35,12 +39,29 @@ const AuthContext = createContext<{
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [alumInfo, setAlumInfo] = useState<Alumnus | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
+
+        // //get info if alumnus
+        // const alumni = collection(db, "alumni");
+
+        // //create the query using the user's uid in the alumni collection
+        // const q = query(alumni, where("uid", "==", user.uid));
+
+        //get alum data from the "alumni" collection
+        const alumniDoc = doc(db, "alumni", user.uid);
+
+        //listen to changes on the data
+        onSnapshot(alumniDoc, (doc) => {
+          console.log(doc.data());
+          setAlumInfo(doc.data() as Alumnus);
+        });
+
         const token = await user.getIdToken();
         await fetch("/api/session", {
           method: "POST",
@@ -102,7 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
   return (
-    <AuthContext.Provider value={{ user, signIn, logOut, loading, signUp }}>
+    <AuthContext.Provider
+      value={{ user, alumInfo, signIn, logOut, loading, signUp }}
+    >
       {children}
     </AuthContext.Provider>
   );
