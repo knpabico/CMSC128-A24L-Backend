@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 
-export default async function AdminDashboard() {
-  const links = [
-    { label: " Manage Users", link: "manage-users" },
-    { label: "Organize Events", link: "organize-events" },
-    { label: "Send Newsletters", link: "send-newsletters" },
-    { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
-    { label: "Site Settings", link: "site-settings" },
-  ];
+const links = [
+  { label: " Manage Users", link: "manage-users" },
+  { label: "Organize Events", link: "organize-events" },
+  { label: "Send Newsletters", link: "send-newsletters" },
+  { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
+  { label: "Site Settings", link: "site-settings" },
+];
 
+export default async function AdminDashboard() {
   return (
     <>
       <Breadcrumbs

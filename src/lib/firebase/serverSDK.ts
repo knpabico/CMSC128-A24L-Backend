@@ -21,7 +21,7 @@
    "universe_domain": "googleapis.com"
  };
  
- let firestore: Firestore;
+ let serverFirestoreDB: Firestore;
  let auth: Auth;
  
  const currentApps = getApps();
@@ -34,7 +34,7 @@
      credential: admin.credential.cert(serviceAccount as ServiceAccount)
    });
    // initialize firestore
-   firestore = getFirestore(app);
+   serverFirestoreDB = getFirestore(app);
    // initialize firebase auth
    auth = getAuth(app);
  } else {
@@ -42,9 +42,9 @@
    // initialized apps
    const app = currentApps[0];
    // initialize firestore
-   firestore = getFirestore(app);
+   serverFirestoreDB = getFirestore(app);
    // initialize firebase auth
    auth = getAuth(app);
  }
  
- export { firestore, auth };
+ export { serverFirestoreDB, auth };
