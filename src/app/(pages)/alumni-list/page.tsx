@@ -1,6 +1,7 @@
 "use client";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus } from "@/models/models";
+import Link from "next/link";
 
 export default function Users() {
   const { alums, isLoading } = useAlums();
@@ -11,7 +12,7 @@ export default function Users() {
       {isLoading && <h1>Loading</h1>}
       {alums.map((user: Alumnus, index: any) => (
         <div key={index} className="p-1">
-          <h2>{user.name}</h2>
+          <Link href={`/alumni-list/${user.alumniId}`}>{user.name}</Link>
           <h1>{user.email}</h1>
           <h2>{user.graduationYear}</h2>
           <h2>{user.fieldOfWork}</h2>
