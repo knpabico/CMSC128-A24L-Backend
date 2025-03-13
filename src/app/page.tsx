@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 export default function Home() {
   const { user, loading, alumInfo } = useAuth();
 
-  if (loading) return <LoadingPage />;
+  if (loading || !alumInfo) return <LoadingPage />;
   if (!user) {
     return (
       <div className="flex flex-row min-h-screen justify-center items-center">

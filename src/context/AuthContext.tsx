@@ -40,7 +40,7 @@ const AuthContext = createContext<{
   alumInfo: null,
   signIn: async () => ({ success: false, message: "" }),
   logOut: async () => {},
-  loading: false,
+  loading: true,
   signUp: async () => undefined,
 });
 
