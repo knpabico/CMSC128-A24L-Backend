@@ -60,6 +60,16 @@ export default function Navbar() {
           <button className=" cursor-pointer">Sign Out</button>
         </div>
       )}
+      {user && (
+        <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
+            router.push("/events");
+          }}
+        >
+          <button className=" cursor-pointer">See Events</button>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { AlumProvider } from "@/context/AlumContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
+import { EventProvider } from "@/context/EventContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,14 +32,16 @@ export default function RootLayout({
       <AuthProvider>
         <AlumProvider>
           <NewsLetterProvider>
-            <body
-              className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-            >
-              <div className="bg-blue-200 ">
-                <Navbar />
-              </div>
-              {children}
-            </body>
+            <EventProvider>
+              <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+              >
+                <div className="bg-blue-200 ">
+                  <Navbar />
+                </div>
+                {children}
+              </body>
+            </EventProvider>
           </NewsLetterProvider>
         </AlumProvider>
       </AuthProvider>

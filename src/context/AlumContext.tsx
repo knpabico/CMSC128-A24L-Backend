@@ -5,11 +5,10 @@ import { collection, onSnapshot, query, setDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Alumnus } from "@/models/models";
-import { FirebaseError } from "firebase/app";
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
-  const [alums, setAlums] = useState<any[]>([]);
+  const [alums, setAlums] = useState<Alumnus[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
 
@@ -51,7 +50,9 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     const unsubscribeUsers = onSnapshot(
       q,
       (querySnapshot: any) => {
-        const userList = querySnapshot.docs.map((doc: any) => doc.data());
+        const userList = querySnapshot.docs.map(
+          (doc: any) => doc.data() as Alumnus
+        );
         setAlums(userList);
         setLoading(false);
       },

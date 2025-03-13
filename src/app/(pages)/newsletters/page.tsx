@@ -1,7 +1,7 @@
 "use client";
 import { useNewsLetters } from "@/context/NewsLetterContext";
 
-export default function Announcements() {
+export default function NewsLetters() {
   const { newsLetters, isLoading } = useNewsLetters();
 
   return (

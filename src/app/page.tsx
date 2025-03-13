@@ -1,7 +1,6 @@
 "use client";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { Alumni_Sans } from "next/font/google";
 
 export default function Home() {
   const { user, loading, alumInfo } = useAuth();

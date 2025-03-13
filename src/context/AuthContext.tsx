@@ -13,7 +13,14 @@ import { auth, db } from "@/lib/firebase";
 import { ReactNode } from "react";
 import { FirebaseError } from "firebase/app";
 import { Alumnus } from "@/models/models";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 
 const AuthContext = createContext<{
   user: User | null;
@@ -54,13 +61,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // const q = query(alumni, where("uid", "==", user.uid));
 
         //get alum data from the "alumni" collection
-        const alumniDoc = doc(db, "alumni", user.uid);
-
+        const alumniRef = doc(db, "alumni", user.uid);
+        const alumniDoc = await getDoc(alumniRef);
         //listen to changes on the data
-        onSnapshot(alumniDoc, (doc) => {
-          console.log(doc.data());
-          setAlumInfo(doc.data() as Alumnus);
-        });
+        if (alumniDoc.exists()) {
+          console.log("Document data:", alumniDoc.data());
+          setAlumInfo(alumniDoc.data() as Alumnus);
+        } else {
+          // docSnap.data() will be undefined in this case
+          console.log("No such document!");
+        }
 
         const token = await user.getIdToken();
         await fetch("/api/session", {
