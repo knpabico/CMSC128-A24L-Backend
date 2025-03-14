@@ -38,7 +38,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       await setDoc(doc(db, "alumni", userId), alum);
       return { success: true, message: "success" };
     } catch (error) {
-      return { success: false, message: error.message };
+      return { success: false, message: (error as FirebaseError).message };
     }
   };
 

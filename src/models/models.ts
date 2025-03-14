@@ -29,6 +29,8 @@ export interface Invitation {
 export interface Announcement {
   datePosted: Date;
   announcementId: string;
+  title: string;
+  description: string;
   type: string[];
 }
 
@@ -86,6 +88,7 @@ export interface JobOffering {
   jobDescription: string;
   datePosted: string;
   jobType: string;
+  status: string;
 }
 
 export interface Bookmark {

@@ -5,6 +5,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { AlumProvider } from "@/context/AlumContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
+import { JobOfferProvider } from "@/context/JobOfferContext";
+import { AnnouncementProvider } from "@/context/AnnouncementContext";
 import { EventProvider } from "@/context/EventContext";
 
 const geistSans = Geist({
@@ -30,20 +32,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AuthProvider>
-        <AlumProvider>
-          <NewsLetterProvider>
-            <EventProvider>
-              <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-              >
-                <div className="bg-blue-200 ">
-                  <Navbar />
-                </div>
-                {children}
-              </body>
-            </EventProvider>
-          </NewsLetterProvider>
-        </AlumProvider>
+        <JobOfferProvider>
+          <AnnouncementProvider>
+            <AlumProvider>
+              <NewsLetterProvider>
+                <EventProvider>
+                  <body
+                    className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                  >
+                    <div className="bg-blue-200 ">
+                      <Navbar />
+                    </div>
+                    {children}
+                  </body>
+                </EventProvider>
+              </NewsLetterProvider>
+            </AlumProvider>
+          </AnnouncementProvider>
+        </JobOfferProvider>
       </AuthProvider>
     </html>
   );
