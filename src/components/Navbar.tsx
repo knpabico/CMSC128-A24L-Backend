@@ -50,6 +50,16 @@ export default function Navbar() {
       )}
       {user && (
         <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
+            router.push("/joboffer-list");
+          }}
+        >
+          <button className=" cursor-pointer">See Job Offers</button>
+        </div>
+      )}
+      {user && (
+        <div
           onClick={async () => {
             await logOut();
             router.push("/");

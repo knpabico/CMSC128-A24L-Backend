@@ -86,6 +86,7 @@ export interface JobOffering {
   jobDescription: string;
   datePosted: string;
   jobType: string;
+  status: string;
 }
 
 export interface Bookmark {
