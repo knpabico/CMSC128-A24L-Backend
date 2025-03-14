@@ -58,7 +58,7 @@ export default function Navbar() {
           <button className=" cursor-pointer">See Job Offers</button>
         </div>
       )}
-            {user && (
+      {user && (
         <div
           className="p-3 text-black font-bold"
           onClick={async () => {
@@ -66,6 +66,26 @@ export default function Navbar() {
           }}
         >
           <button className=" cursor-pointer">ANNOUNCEMENTS</button>
+        </div>
+      )}
+      {user && (
+        <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
+            router.push("/donationdrive-list");
+          }}
+        >
+          <button className=" cursor-pointer">Donation Drives</button>
+        </div>
+      )}
+      {user && (
+        <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
+            router.push("/bookmark-list");
+          }}
+        >
+          <button className=" cursor-pointer">Bookmarks</button>
         </div>
       )}
       {user && (
