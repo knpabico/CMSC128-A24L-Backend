@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { AlumProvider } from "@/context/AlumContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
 import { JobOfferProvider } from "@/context/JobOfferContext";
+import { AnnouncementProvider } from "@/context/AnnouncementContext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="en">
       <AuthProvider>
         <JobOfferProvider>
+          <AnnouncementProvider>
         <AlumProvider>
           <NewsLetterProvider>
             <body
@@ -42,6 +44,7 @@ export default function RootLayout({
             </body>
           </NewsLetterProvider>
         </AlumProvider>
+        </AnnouncementProvider>
         </JobOfferProvider>
       </AuthProvider>
     </html>

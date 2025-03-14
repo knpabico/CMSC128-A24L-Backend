@@ -29,6 +29,8 @@ export interface Invitation {
 export interface Announcement {
   datePosted: Date;
   announcementId: string;
+  title: string;
+  description: string;
   type: string[];
 }
 
