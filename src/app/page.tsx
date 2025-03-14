@@ -16,29 +16,37 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex flex-row min-h-screen justify-center items-center">
-        <h1 className="text-black text-[70px] font-bold">
-          Welcome, {alumInfo!.name}!
-        </h1>
-      </div>
-      <div>
-        <p className="text-black text-[25px] font-bold">
-          Email: {alumInfo!.email}
-        </p>
-        <p className="text-black text-[25px] font-bold">
-          You are {alumInfo!.age} years old
-        </p>
-        <p className="text-black text-[25px] font-bold">
-          You graduated in {alumInfo!.graduationYear}
-        </p>
-        <p className="text-black text-[25px] font-bold">
-          Your student number is {alumInfo!.studentNumber}
-        </p>
-        <p className="text-black text-[25px] font-bold">
-          You are currently working as a {alumInfo!.jobTitle} for{" "}
-          {alumInfo?.companyName}
-        </p>
-      </div>
-    </>
+    <div className="flex flex-row min-h-screen justify-center items-center">
+      <h1 className="text-black text-[70px] font-bold">
+        Welcome, {alumInfo!.name}!
+      </h1>
+    </div>
+    <div>
+      <p className="text-black text-[25px] font-bold">
+        Email: {alumInfo!.email}
+      </p>
+      <p className="text-black text-[25px] font-bold">
+        Age: {alumInfo!.age}
+      </p>
+      <p className="text-black text-[25px] font-bold">
+        Graduation Year: {alumInfo!.graduationYear}
+      </p>
+      <p className="text-black text-[25px] font-bold">
+        Birthdate: {alumInfo!.birthDate.toString()}
+      </p>
+      <p className="text-black text-[25px] font-bold">
+        Student Number: {alumInfo!.studentNumber}
+      </p>
+      <p className="text-black text-[25px] font-bold">
+        Job Title: {alumInfo!.jobTitle}
+      </p>
+      <p className="text-black text-[25px] font-bold">
+        Field of Work: {alumInfo!.fieldOfWork}
+      </p>
+      <p className="text-black text-[25px] font-bold">
+        Affiliation: {alumInfo!.affiliation}
+      </p>
+    </div>
+  </>
   );
 }
