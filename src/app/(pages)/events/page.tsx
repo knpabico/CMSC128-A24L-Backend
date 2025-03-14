@@ -14,6 +14,7 @@ export default function Events() {
         <div key={index}>
           <h1>{event.date}</h1>
           <h2>{event.title}</h2>
+          <h2>{event.description}</h2>
         </div>
       ))}
     </div>
