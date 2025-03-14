@@ -58,7 +58,7 @@ export default function Navbar() {
           <button className=" cursor-pointer">See Job Offers</button>
         </div>
       )}
-            {user && (
+      {user && (
         <div
           className="p-3 text-black font-bold"
           onClick={async () => {
@@ -66,6 +66,17 @@ export default function Navbar() {
           }}
         >
           <button className=" cursor-pointer">ANNOUNCEMENTS</button>
+        </div>
+      )}
+
+      {user && (
+        <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
+            router.push("/events");
+          }}
+        >
+          <button className=" cursor-pointer">See Events</button>
         </div>
       )}
       {user && (
@@ -78,16 +89,6 @@ export default function Navbar() {
           className="p-3 text-black font-bold"
         >
           <button className=" cursor-pointer">Sign Out</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/events");
-          }}
-        >
-          <button className=" cursor-pointer">See Events</button>
         </div>
       )}
     </div>

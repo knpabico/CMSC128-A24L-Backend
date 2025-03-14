@@ -12,7 +12,12 @@ export default function Users() {
       {isLoading && <h1>Loading</h1>}
       {alums.map((user: Alumnus, index: any) => (
         <div key={index} className="p-1">
-          <Link href={`/alumni-list/${user.alumniId}`}>{user.name}</Link>
+          <Link
+            href={`/alumni-list/${user.alumniId}`}
+            className="text-blue-700 underline"
+          >
+            {user.name}
+          </Link>
           <h1>{user.email}</h1>
           <h2>{user.graduationYear}</h2>
           <h2>{user.fieldOfWork}</h2>
