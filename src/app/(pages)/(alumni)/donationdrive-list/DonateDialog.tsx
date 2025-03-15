@@ -137,7 +137,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
                 name="paymentMethod"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount (₱)</FormLabel>
+                    <FormLabel>Payment Method</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
