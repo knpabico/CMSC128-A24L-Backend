@@ -12,8 +12,9 @@ export default function Events() {
       {isLoading && <h1>Loading</h1>}
       {events.map((event: Event, index) => (
         <div key={index}>
-          <h1>{event.date}</h1>
-          <h2>{event.title}</h2>
+          <h1>{event.title}</h1>
+          <h2>{event.date}</h2>
+          <h2>{event.description}</h2>
         </div>
       ))}
     </div>
