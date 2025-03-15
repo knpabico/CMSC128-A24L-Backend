@@ -17,15 +17,15 @@ export default function DonationDrivesPage() {
       {isLoading && <h1>Loading...</h1>}
 
       {donationDrives.map((drive: DonationDrive) => (
-        <div key={drive.id} className="p-4 border rounded-lg">
+        <div key={drive.donationDriveId} className="p-4 border rounded-lg">
           <h2>Name: {drive.campaignName}</h2>
-          <p>ID: {drive.id}</p>
+          <p>ID: {drive.donationDriveId}</p>
           <p>Description: {drive.description}</p>
           <p>Total Amount: ${drive.totalAmount}</p>
           <p>Posted on: {drive.datePosted.toDate().toLocaleString()}</p>
 
           <button
-            onClick={() => addBookmark(drive.id, "donation_drive")}
+            onClick={() => addBookmark(drive.donationDriveId, "donation_drive")}
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition mr-5"
           >
             Bookmark
