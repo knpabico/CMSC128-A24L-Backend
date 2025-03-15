@@ -40,7 +40,7 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
         (querySnapshot: any) => {
             // const donationDriveList = querySnapshot.docs.map((doc: any) => doc.data() as DonationDrive);
             const donationDriveList = querySnapshot.docs.map((doc: any) => ({
-                id: doc.id, // ✅ Add Firestore document ID
+              donationDriveId: doc.id, // ✅ Add Firestore document ID
                 ...doc.data(),
             })) as DonationDrive[];
             setDonationDrives(donationDriveList);

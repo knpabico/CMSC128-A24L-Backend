@@ -93,6 +93,16 @@ export default function Navbar() {
         <div
           className="p-3 text-black font-bold"
           onClick={async () => {
+            router.push("/donations");
+          }}
+        >
+          <button className=" cursor-pointer">Donations</button>
+        </div>
+      )}
+      {user && (
+        <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
             router.push("/bookmark-list");
           }}
         >

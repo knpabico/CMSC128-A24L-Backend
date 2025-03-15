@@ -11,6 +11,8 @@ import { EventProvider } from "@/context/EventContext";
 
 import { DonationDriveProvider } from "@/context/DonationDriveContext";
 import { BookmarkProvider } from "@/context/BookmarkContext";
+import { Toaster } from "sonner";
+import { DonationContextProvider } from "@/context/DonationContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +44,7 @@ export default function RootLayout({
                 <AlumProvider>
                   <NewsLetterProvider>
                     <EventProvider>
+                      <DonationContextProvider>
                       <body
                         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
                       >
@@ -49,7 +52,10 @@ export default function RootLayout({
                           <Navbar />
                         </div>
                         {children}
+                        {/* Toaster is required here for toast/sonner component to work */}
+                        <Toaster />       
                       </body>
+                      </DonationContextProvider>
                     </EventProvider>
                   </NewsLetterProvider>
                 </AlumProvider>
