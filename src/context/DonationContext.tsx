@@ -8,6 +8,7 @@ import { useAuth } from "./AuthContext";
 type DonationContextType = {
   userDonations: Donation[] | null;
   isLoading: boolean;
+  error: string | null;
 };
 
 const DonationContext = createContext<DonationContextType | null>(null);
@@ -19,6 +20,7 @@ export const DonationContextProvider = ({
 }) => {
   const [userDonations, setUserDonations] = useState<Donation[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { alumInfo } = useAuth();
   const alumniId = alumInfo?.alumniId;
@@ -27,10 +29,16 @@ export const DonationContextProvider = ({
     if (!alumniId) return;
 
     setIsLoading(true);
-    getUserDonations(alumniId).then((data) => {
-      setUserDonations(data);
-      setIsLoading(false);
-    });
+    getUserDonations(alumniId)
+      .then((data) => {
+        setUserDonations(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(err.message);
+        setIsLoading(false);
+      });
   }, [alumniId]);
 
   return (
@@ -38,6 +46,7 @@ export const DonationContextProvider = ({
       value={{
         userDonations,
         isLoading,
+        error
       }}
     >
       {children}

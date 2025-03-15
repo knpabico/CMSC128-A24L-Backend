@@ -9,5 +9,5 @@ export const donationDataSchema = z.object({
     .min(1, "Minimum amount is PHP 1 in order to donate."),
   paymentMethod: z.enum(["gcash", "maya", "debit card"]),
   postId: z.string(),
-  alumId: z.string(),
+  alumniId: z.string(),
 });

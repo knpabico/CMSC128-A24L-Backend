@@ -63,6 +63,7 @@ export interface Donation {
   alumniId: string;
   paymentMethod: string;
   amount: number;
+  date: Date;
 }
 
 export interface NewsletterItem {
