@@ -35,13 +35,12 @@ export interface Announcement {
 }
 
 export interface Event {
-  postId: string;
-  status: boolean;
-  dateApproved: Date;
-  dateSent: Date;
+  eventId: string;
+  datePosted: Date;
   title: string;
   description: string;
   date: string;
+  rsvps: string[];
 }
 
 export interface DonationDrive {
