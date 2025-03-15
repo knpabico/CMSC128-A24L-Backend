@@ -26,21 +26,58 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
-import { DonationDrive } from "@/models/models";
+import { Donation, DonationDrive } from "@/models/models";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/context/AuthContext";
+import { createDonation } from "./actions";
+import { donationDataSchema } from "@/validation/donation/donationSchemas";
+import { useState } from "react";
 
-
-const donationFormSchema = z.object({
+export const donationFormSchema = z.object({
   amount: z.coerce
     .number()
     .min(1, "Minimum amount is PHP 1 in order to donate."),
   paymentMethod: z.enum(["gcash", "maya", "debit card"]),
 });
 
-
 export function DonateDialog({ drive }: { drive: DonationDrive }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // grab the details about the current user
+  const { user, alumInfo } = useAuth();
+
+  const handleSubmit = async (data: z.infer<typeof donationFormSchema>) => {
+    const token = await user?.getIdToken();
+
+    // add the ID of the donation event and the ID of the user to the
+    // donation data
+    const donationData: z.infer<typeof donationDataSchema> = {
+      ...data,
+      postId: drive.donationDriveId,
+      alumId: alumInfo?.alumniId!,
+    };
+
+    const response = await createDonation(donationData);
+
+    // if there is an error, then display error toast
+    if (response.error) {
+      toastError(response.message);
+      return;
+    }
+
+    // if there is no error, then display a success toast message
+    toastSuccess(`You have donated ₱${data.amount} to ${drive.campaignName}.`)
+
+    // clear the input fields
+    form.reset();
+
+    // close the dialog box
+    setIsDialogOpen(false);
+  };
+
+  // react hook form
   const form = useForm<z.infer<typeof donationFormSchema>>({
     resolver: zodResolver(donationFormSchema),
     defaultValues: {
@@ -49,18 +86,8 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
     },
   });
 
-  const handleSubmit = async (data: z.infer<typeof donationFormSchema>) => {
-    if (!result.success) {
-      toastError("Error occurred");
-      return;
-    } else {
-      // if no error
-      toastSuccess(`You have donated ₱${amount} to ${drive.campaignName}.`);
-    }
-  };
-
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Donate</Button>
       </DialogTrigger>
@@ -122,7 +149,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
                 )}
               />
 
-            {/* end of grid layout div */}
+              {/* end of grid layout div */}
             </div>
 
             <DialogFooter>
