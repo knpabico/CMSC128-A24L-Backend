@@ -9,6 +9,9 @@ import { JobOfferProvider } from "@/context/JobOfferContext";
 import { AnnouncementProvider } from "@/context/AnnouncementContext";
 import { EventProvider } from "@/context/EventContext";
 
+import { DonationDriveProvider } from "@/context/DonationDriveContext";
+import { BookmarkProvider } from "@/context/BookmarkContext";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,24 +35,28 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AuthProvider>
-        <JobOfferProvider>
-          <AnnouncementProvider>
-            <AlumProvider>
-              <NewsLetterProvider>
-                <EventProvider>
-                  <body
-                    className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                  >
-                    <div className="bg-blue-200 ">
-                      <Navbar />
-                    </div>
-                    {children}
-                  </body>
-                </EventProvider>
-              </NewsLetterProvider>
-            </AlumProvider>
-          </AnnouncementProvider>
-        </JobOfferProvider>
+        <DonationDriveProvider>
+          <BookmarkProvider>
+            <JobOfferProvider>
+              <AnnouncementProvider>
+                <AlumProvider>
+                  <NewsLetterProvider>
+                    <EventProvider>
+                      <body
+                        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                      >
+                        <div className="bg-blue-200 ">
+                          <Navbar />
+                        </div>
+                        {children}
+                      </body>
+                    </EventProvider>
+                  </NewsLetterProvider>
+                </AlumProvider>
+              </AnnouncementProvider>
+            </JobOfferProvider>
+          </BookmarkProvider>
+        </DonationDriveProvider>
       </AuthProvider>
     </html>
   );

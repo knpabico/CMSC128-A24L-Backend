@@ -45,10 +45,8 @@ export interface Event {
 }
 
 export interface DonationDrive {
-  postId: string;
-  status: boolean;
-  dateApproved: Date;
-  dateSent: Date;
+  donationDriveId: string;
+  datePosted: Date;
   description: string;
   beneficiary: string[];
   campaignName: string;
