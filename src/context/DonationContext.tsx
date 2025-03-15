@@ -1,7 +1,8 @@
 "use client";
 import { Donation } from "@/models/models";
 import { createContext, useContext, useEffect, useState } from "react";
-import { getUserDonations } from "@/data/donation";
+import { collection, onSnapshot, query, setDoc, doc, orderBy, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 
 // type of context
@@ -27,18 +28,35 @@ export const DonationContextProvider = ({
 
   useEffect(() => {
     if (!alumniId) return;
-
     setIsLoading(true);
-    getUserDonations(alumniId)
-      .then((data) => {
-        setUserDonations(data);
+
+    const donationsQuery = query(
+      collection(db, "donation"),
+      where("alumniId", "==", alumniId),
+      orderBy("date", "desc"),
+    );
+
+    // set up the real time data collection listener
+    const unsubscribe =  onSnapshot(
+      donationsQuery,
+      (snapshot) => {
+        const donations = snapshot.docs.map((doc) => ({
+          donationId: doc.id,
+          ...doc.data(),
+          date: doc.data().date.toDate().toISOString(), // Convert Firestore Timestamp
+        } as Donation));
+
+        setUserDonations(donations);
         setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setError(err.message);
+      },
+      (error) => {
+        console.error("Error fetching donations:", error);
+        setError("Failed to fetch donations.");
         setIsLoading(false);
-      });
+      }
+    );
+
+    return () => unsubscribe();
   }, [alumniId]);
 
   return (
@@ -46,7 +64,7 @@ export const DonationContextProvider = ({
       value={{
         userDonations,
         isLoading,
-        error
+        error,
       }}
     >
       {children}
