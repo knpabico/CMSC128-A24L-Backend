@@ -49,11 +49,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [alumInfo, setAlumInfo] = useState<Alumnus | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  //function for converting date format to YYYY-MM-DD
-  const formatDate = (date: Date) => {
-    return date.toISOString().slice(0, 10);
-  };
-
   //function for getting currently logged in user info from the "alumni" collection
   const getAlumInfo = async (user: User) => {
     //get alum data from the "alumni" collection
@@ -68,8 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       alumniCopy.birthDate = alumniDoc
         .data()
         .birthDate.toDate()
-        .toISOString()
-        .slice(0, 10);
+        .toISOString().slice(0,10).replaceAll("-", "/");
 
       setAlumInfo(alumniCopy);
     } else {

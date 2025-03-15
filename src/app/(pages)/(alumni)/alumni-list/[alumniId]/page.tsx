@@ -29,7 +29,7 @@ export default function AlumPage() {
       <h1>{alum.companyName}</h1>
       <h1>{alum.address}</h1>
       <h1>{alum.age}</h1>
-      <h1>{alum.birthDate.toString()}</h1>
+      <h1>{alum.birthDate.toDate().toISOString().slice(0,10).replaceAll("-", "/")}</h1>
       <h1>{alum.fieldOfWork}</h1>
       <h1>{alum.companyName}</h1>
       <h1>{alum.jobTitle}</h1>

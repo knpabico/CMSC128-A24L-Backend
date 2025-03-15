@@ -2,8 +2,8 @@
 // for the alumni collection/data
 
 import { serverFirestoreDB } from "@/lib/firebase/serverSDK";
-import { Alumni } from "@/types/alumni/alumni";
 import { getTotalPages } from "./pagination";
+import { Alumnus } from "@/models/models";
 
 // data type of the props argument of getAlumni()
 type GetAlumniOptions = {
@@ -63,9 +63,9 @@ export const getAlumni = async (options?: GetAlumniOptions) => {
   const alumni = alumniSnapshot.docs.map(
     doc => (
       {
-        id: doc.id,
+        alumniId: doc.id,
         ...doc.data(),
-    } as Alumni)
+    } as Alumnus)
   );
   
   return {data: alumni, totalPages};

@@ -1,6 +1,11 @@
+// this file contains the type of an Alumni document
+import { RegStatus } from "@/types/alumni/regStatus";
+import { Timestamp } from "firebase-admin/firestore";
+
+
 export interface Alumnus {
   alumniId: string;
-  regStatus: string; //accepted, pending, or rejected registration
+  regStatus: RegStatus; //accepted, pending, or rejected registration
   activeStatus: boolean; //active or not
   studentNumber: string;
   address: string[];
