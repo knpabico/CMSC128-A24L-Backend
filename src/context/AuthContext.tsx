@@ -49,15 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [alumInfo, setAlumInfo] = useState<Alumnus | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-
   //function for converting date format to YYYY-MM-DD
-  const formatDate = (date:Date) => {
-    return date.toISOString().slice(0,10);
-  }
+  const formatDate = (date: Date) => {
+    return date.toISOString().slice(0, 10);
+  };
 
-   //function for getting currently logged in user info from the "alumni" collection
-   const getAlumInfo = async (user: User) => {
-
+  //function for getting currently logged in user info from the "alumni" collection
+  const getAlumInfo = async (user: User) => {
     //get alum data from the "alumni" collection
     const alumniRef = doc(db, "alumni", user.uid);
     const alumniDoc = await getDoc(alumniRef);
@@ -65,12 +63,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (alumniDoc.exists()) {
       console.log("Document data:", alumniDoc.data());
       var alumniCopy = alumniDoc.data() as Alumnus;
-      
+
       //convert date format to YYY-MM-DD
-      alumniCopy.birthDate = alumniDoc.data().birthDate.toDate().toISOString().slice(0,10);
+      alumniCopy.birthDate = alumniDoc
+        .data()
+        .birthDate.toDate()
+        .toISOString()
+        .slice(0, 10);
 
       setAlumInfo(alumniCopy);
-  
     } else {
       // docSnap.data() will be undefined in this case
       console.log("No such document!");
@@ -81,7 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-
 
         //get alumInfo of currently logged in user
         await getAlumInfo(user);
