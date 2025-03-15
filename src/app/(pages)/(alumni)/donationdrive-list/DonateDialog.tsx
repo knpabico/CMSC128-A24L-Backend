@@ -69,7 +69,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
     }
 
     // if there is no error, then display a success toast message
-    toastSuccess(`You have donated ₱${data.amount} to ${drive.campaignName}.`)
+    toastSuccess(`You have donated ₱${data.amount} to ${drive.campaignName}.`);
 
     // clear the input fields
     form.reset();
@@ -88,7 +88,15 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
   });
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog
+      open={isDialogOpen}
+      onOpenChange={(isOpen) => {
+        setIsDialogOpen(isOpen);
+        if (!isOpen) {
+          form.reset(); // Reset any state when closing
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline">Donate</Button>
       </DialogTrigger>
