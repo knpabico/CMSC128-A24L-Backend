@@ -25,7 +25,7 @@ export const getUserDonations = async (alumniId: string) => {
       } as Donation)
   );
 
-  console.log({userDonations});
+  // console.log({userDonations});
 
   return userDonations;
 };
