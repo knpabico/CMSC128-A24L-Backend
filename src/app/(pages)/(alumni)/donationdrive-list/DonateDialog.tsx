@@ -31,7 +31,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
-import { createDonation } from "./actions";
+import { createDonation } from "@/data/donation";
 import { donationDataSchema } from "@/validation/donation/donationSchemas";
 import { useState } from "react";
 
@@ -50,13 +50,14 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
 
   const handleSubmit = async (data: z.infer<typeof donationFormSchema>) => {
     const token = await user?.getIdToken();
+    if (!token) return;
 
     // add the ID of the donation event and the ID of the user to the
     // donation data
     const donationData: z.infer<typeof donationDataSchema> = {
       ...data,
       postId: drive.donationDriveId,
-      alumId: alumInfo?.alumniId!,
+      alumniId: alumInfo?.alumniId!,
     };
 
     const response = await createDonation(donationData);
