@@ -44,11 +44,13 @@ export const donationFormSchema = z.object({
 
 export function DonateDialog({ drive }: { drive: DonationDrive }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // grab the details about the current user
   const { user, alumInfo } = useAuth();
 
   const handleSubmit = async (data: z.infer<typeof donationFormSchema>) => {
+    setIsLoading(true);
     const token = await user?.getIdToken();
     if (!token) return;
 
@@ -65,6 +67,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
     // if there is an error, then display error toast
     if (response.error) {
       toastError(response.message);
+      setIsLoading(false);
       return;
     }
 
@@ -76,6 +79,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
 
     // close the dialog box
     setIsDialogOpen(false);
+    setIsLoading(false);
   };
 
   // react hook form
@@ -116,53 +120,57 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             {/* use grid layout */}
             <div className="grid gap-4 py-4">
-              {/* amount form field */}
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount (₱)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <fieldset disabled={form.formState.isSubmitting}>
+                {/* amount form field */}
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount (₱)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* payment method form field */}
-              <FormField
-                control={form.control}
-                name="paymentMethod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Method</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gcash">GCash</SelectItem>
-                          <SelectItem value="Maya">Maya</SelectItem>
-                          <SelectItem value="debit card">Debit Card</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                {/* payment method form field */}
+                <FormField
+                  control={form.control}
+                  name="paymentMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Method</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="gcash">GCash</SelectItem>
+                            <SelectItem value="Maya">Maya</SelectItem>
+                            <SelectItem value="debit card">
+                              Debit Card
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+              </fieldset>
               {/* end of grid layout div */}
             </div>
 
             <DialogFooter>
-              <Button type="submit">Donate</Button>
+              <Button type="submit" disabled={isLoading}>Donate</Button>
             </DialogFooter>
           </form>
         </Form>
