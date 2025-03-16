@@ -37,6 +37,7 @@ export interface Announcement {
   title: string;
   description: string;
   type: string[];
+  userReference: string;
 }
 
 export interface Event {

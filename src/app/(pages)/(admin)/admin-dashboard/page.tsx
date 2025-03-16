@@ -4,11 +4,13 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 
 const links = [
-  { label: " Manage Users", link: "manage-users" },
+  { label: "Manage Users", link: "manage-users" },
   { label: "Organize Events", link: "organize-events" },
+  { label: "Create Announcement", link: "create-announcements" },
   { label: "Send Newsletters", link: "send-newsletters" },
   { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
   { label: "Site Settings", link: "site-settings" },
+  
 ];
 
 export default async function AdminDashboard() {
