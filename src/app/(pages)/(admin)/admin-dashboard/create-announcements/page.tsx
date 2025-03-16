@@ -14,7 +14,7 @@ export default function Users() {
         <div key={index} className="p-1 flex justify-between items-center border-b pb-2">
         <div>
           <h1>{user.title}</h1>
-          <h2>{user.datePosted.toDate().toLocaleString()}</h2>
+          <h2>{user.datePosted.toLocaleString()}</h2>
           <h2>{user.description}</h2>
           <h2>Announcement Type: {user.type.join(", ")}</h2>
         </div>
