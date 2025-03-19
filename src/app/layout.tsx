@@ -13,6 +13,7 @@ import { DonationDriveProvider } from "@/context/DonationDriveContext";
 import { BookmarkProvider } from "@/context/BookmarkContext";
 import { Toaster } from "sonner";
 import { DonationContextProvider } from "@/context/DonationContext";
+import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,22 +43,24 @@ export default function RootLayout({
             <JobOfferProvider>
               <AnnouncementProvider>
                 <AlumProvider>
-                  <NewsLetterProvider>
-                    <EventProvider>
-                      <DonationContextProvider>
-                      <body
-                        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                      >
-                        <div className="bg-blue-200 ">
-                          <Navbar />
-                        </div>
-                        {children}
-                        {/* Toaster is required here for toast/sonner component to work */}
-                        <Toaster />       
-                      </body>
-                      </DonationContextProvider>
-                    </EventProvider>
-                  </NewsLetterProvider>
+                  <WorkExperienceProvider>
+                    <NewsLetterProvider>
+                      <EventProvider>
+                        <DonationContextProvider>
+                          <body
+                            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                          >
+                            <div className="bg-blue-200 ">
+                              <Navbar />
+                            </div>
+                            {children}
+                            {/* Toaster is required here for toast/sonner component to work */}
+                            <Toaster />
+                          </body>
+                        </DonationContextProvider>
+                      </EventProvider>
+                    </NewsLetterProvider>
+                  </WorkExperienceProvider>
                 </AlumProvider>
               </AnnouncementProvider>
             </JobOfferProvider>

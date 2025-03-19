@@ -1,9 +1,12 @@
 "use client";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
+import { useWorkExperience } from "@/context/WorkExperienceContext";
+import { WorkExperience } from "@/models/models";
 
 export default function Home() {
   const { user, loading, alumInfo } = useAuth();
+  const { userWorkExperience, isLoading } = useWorkExperience();
 
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   if (!user) {
@@ -44,6 +47,38 @@ export default function Home() {
         <p className="text-black text-[25px] font-bold">
           Affiliation: {alumInfo!.affiliation}
         </p>
+      </div>
+      <div>
+        <p></p>
+        <p className="text-black text-[25px] font-bold">Work Experience: </p>
+        {isLoading && <h1>Loading</h1>}
+        {userWorkExperience.map(
+          (workExperience: WorkExperience, index: any) => (
+            <div key={index} className="p-1">
+              <p className="text-black text-[15px] font-bold">
+                Company: {workExperience.company}
+              </p>
+              <p className="text-black text-[15px] font-bold">
+                Location: {workExperience.location}
+              </p>
+              <p className="text-black text-[15px] font-bold">
+                Duration:{" "}
+                {workExperience.startingDate
+                  .toDate()
+                  .toISOString()
+                  .slice(0, 10)
+                  .replaceAll("-", "/")}
+                {" - "}
+                {workExperience.endingDate
+                  .toDate()
+                  .toISOString()
+                  .slice(0, 10)
+                  .replaceAll("-", "/")}
+              </p>
+              <h2> </h2>
+            </div>
+          )
+        )}
       </div>
     </>
   );

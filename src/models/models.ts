@@ -2,7 +2,6 @@
 import { RegStatus } from "@/types/alumni/regStatus";
 import { Timestamp } from "firebase-admin/firestore";
 
-
 export interface Alumnus {
   alumniId: string;
   regStatus: RegStatus; //accepted, pending, or rejected registration
@@ -99,4 +98,14 @@ export interface Bookmark {
   alumniId: string;
   type: string;
   entryId: string;
+}
+
+export interface WorkExperience {
+  workExperienceId: string;
+  alumniId: string;
+  company: String;
+  location: String;
+  details: string;
+  startingDate: Date;
+  endingDate: Date;
 }
