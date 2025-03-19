@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,30 +36,54 @@ import {
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 
+
+// =================================================== NOTES ==========================================================================
+// MODEL
+// export interface Alumnus {
+//   // personal information
+//   name: string;
+//   email: string;
+//   password: string;
+//   passwordConfirm: string;
+//   studentNumber: string;
+//   graduationYear: string;
+//   currentLocation: string;
+
+//   // career information
+//   employmentStatus: string;	// employed, self-employed, unemployed, retired, yung purely nag-a-aral like masters di pa considered
+//   companyName?: string;		// hide this if self-employed
+//   jobTitle?: string;
+//   workField?: string;
+//   workSetup?: string;		// onsite, wfh, hybrid, remote
+//   workLocation?: string;	// hide rin ata to if self employed
+//   skills?: string[];
+//   techStack?: string[];
+//   linkedinLink?: string;
+//   githubLink?: string;
+
+//   // additional information
+//   affiliations: string[];
+//   acceptTerms: boolean;
+//   subscribeToNewsletter: boolean;
+// }
+
+// add siguro years of experience
+
+// notes:
+// - yung acceptTerms, di siya i-istore sa database, required lang siya para mapindot sign up button
+// - optional yung ibang fields sa career information para sa mga retired
+// - pero kapag employed pinili, magiging required fields sila
+// - 1982 ata nagsimula ICS, so I assume na yung SN format sa year na yan ay same na nung sa ngayon??? XXXX-YYYYY
+// - Additional fields??? Years of experience? para mas maganda search filtering if may recruiter na naghahanap ng employees?
+// - Add ng 'looking for work' option sa Employment Status tapos ishow yung Field of Work at Years of Experience na input fields?
+// =====================================================================================================================================
+
+
 // this schema defines the name of the form's fields, their types,
 // and the conditions for those fields
 const baseSchema = z.object({
   name: z.string().min(1, "Please input your name"),
   email: z.string().email(),
-  studentNumber: z
-    .string()
-    .refine((input) => {
-      const regex = /^\d{4}-\d{5}$/;
-      return regex.test(input);
-    }, "Format: YYYY-XXXXX")
-    .refine((input) => {
-      const regex = /^(19[8-9]\d|20\d\d|2100)-\d{5}$/;
-      return regex.test(input);
-    }, "Please make sure that your student number is valid"),
-  // di ko malagyan ng custom error message tong graduation year para sa .number() condition
-  // pag walang input, 'Expected number, received nan' yung default error message, di ko mabago
-  graduationYear: z.coerce
-    .number()
-    .refine((input) => !isNaN(input), "Please input your graduation year")
-    .refine((input) => {
-      const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-      return regex.test(input.toString());
-    }, "Please input a valid graduation year"),
   currentLocation: z
     .tuple([
       z.string(),
@@ -111,6 +134,38 @@ const passwordSchema = z
     }
   });
 
+const studentNumberAndGraduationYearSchema = z
+  .object({
+    studentNumber: z
+      .string()
+      .refine((input) => {
+        const regex = /^\d{4}-\d{5}$/;
+        return regex.test(input);
+      }, "Format: YYYY-XXXXX")
+      .refine((input) => {
+        const regex = /^(19[8-9]\d|20\d\d|2100)-\d{5}$/;
+        return regex.test(input);
+      }, "Please make sure that your student number is valid"),
+    // di ko malagyan ng custom error message tong graduation year para sa .number() condition
+    // pag walang input, 'Expected number, received nan' yung default error message, di ko mabago
+    graduationYear: z.string().refine((input) => {
+      const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+      return regex.test(input);
+    }, "Please input a valid graduation year"),
+  })
+  .superRefine((data, ctx) => {
+    const studentYear = parseInt(data.studentNumber.substring(0, 4));
+    const graduationYear = parseInt(data.graduationYear);
+
+    if (graduationYear < studentYear + 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["graduationYear"],
+        message: "Please input a valid graduation year",
+      });
+    }
+  });
+
 const employmentSchema = z
   .object({
     employmentStatus: z.string().min(1, "Please select your employment status"),
@@ -124,9 +179,8 @@ const employmentSchema = z
     // use superRefine() if we need access to multiple fields in a form
     // data is for the form field values
     // ctx will be used for adding error messages to specific form fields
-    // show an error message if employed status is chosen and if any of the
-    // company name, jobTitle, workField, workSetup, or workLocation
-    // fields are empty
+
+    // companyName must be filled if 'employed' is chosen
     if (data.employmentStatus === "employed" && !data.companyName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -171,7 +225,10 @@ const employmentSchema = z
 // combine the schemas shown above into a single schema
 // we split the schema into multiple schemas to make the validations for a single field
 // and the validations in the super refine run at the same time
-const formSchema = baseSchema.and(passwordSchema).and(employmentSchema);
+const formSchema = baseSchema
+  .and(passwordSchema)
+  .and(studentNumberAndGraduationYearSchema)
+  .and(employmentSchema);
 
 export default function RegistrationForm() {
   // needed for the location-input component
