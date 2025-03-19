@@ -7,6 +7,7 @@ const links = [
   { label: " Manage Users", link: "manage-users" },
   { label: "Organize Events", link: "organize-events" },
   { label: "Send Newsletters", link: "send-newsletters" },
+  { label: "Create Donation Drive", link: "donation-drive" },
   { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
   { label: "Site Settings", link: "site-settings" },
 ];

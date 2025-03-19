@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, doc, setDoc } from "firebase/firestore";
+import { collection, onSnapshot, query, doc, setDoc, deleteDoc, updateDoc} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { DonationDrive } from "@/models/models";
@@ -12,6 +12,10 @@ const DonationDriveContext = createContext<any>(null);
 export function DonationDriveProvider({ children }: { children: React.ReactNode }) {
     const [donationDrives, setDonationDrives] = useState<DonationDrive[]>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const [addDonoForm, setAddDonoForm] = useState(false);
+    const [donoDriveId, setDonoDriveId] = useState("");
+    const [campaignName, setCampaignName] = useState("");
+    const [description, setDescription] = useState("");
     const { user } = useAuth();
 
     useEffect(() => {
@@ -57,19 +61,71 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
 
     const addDonationDrive = async (driveData: Omit<DonationDrive, "id">, driveId: string) => {
         try {
-        await setDoc(doc(db, "donation_drive", driveId), {
-            ...driveData,
-            status: "Active",
-        });
-        console.log(`Donation drive added: ${driveId}`);
-        return { success: true, message: "Donation drive added successfully." };
+            await setDoc(doc(db, "donation_drive", driveId), {
+                datePosted: new Date(),
+                description: description,
+                beneficiary: [],
+                campaignName: campaignName,
+                totalAmount: 0
+            });
+            console.log(`Donation drive added: ${driveId}`);
+            return { success: true, message: "Donation drive added successfully." };
         } catch (error) {
-        return { success: false, message: (error as FirebaseError).message };
+            return { success: false, message: (error as FirebaseError).message };
+        }
+    };
+
+
+    // const editDonoDrive = async (donationDriveId: string) => {
+    //     try {
+    //         await updateDoc(doc(db, "donation_drive", donationDriveId), {
+    //             description: description,
+    //             campaignName: campaignName
+    //         });
+    //         console.log("Donation drive edited successfully");
+    //     } catch (error) {
+    //         console.error("Error adding donation drive:", (error as FirebaseError).message);
+    //     }
+    // };
+    
+
+
+    const deleteDonationDrive = async (donationDriveId: string) => {
+        try {
+            await deleteDoc(doc(db, "donation_drive", donationDriveId));
+            setDonationDrives((prev) => prev.filter((driveData) => driveData.donationDriveId !== donationDriveId));
+            return { success: true, message: "Donation drive deleted successfully." };
+        } catch (error) {
+            return { success: false, message: (error as FirebaseError).message };
+        }
+    };    
+
+    const submitDonationDrive = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const docRef = doc(collection(db, "donation_drive")); 
+        const donationDriveId = docRef.id;
+        const newDonoDrive: DonationDrive = {
+            donationDriveId: donationDriveId,
+            datePosted: new Date(),
+            description,
+            beneficiary: [],
+            campaignName,
+            totalAmount: 0
+        };
+        
+        const response = await addDonationDrive(newDonoDrive,donationDriveId);
+
+        if (response.success) {
+            setAddDonoForm(false);
+            setCampaignName("");
+            setDescription("");
+        } else {
+            console.error("Error adding donation drive:", response.message);
         }
     };
 
     return (
-        <DonationDriveContext.Provider value={{ donationDrives, isLoading, addDonationDrive }}>
+        <DonationDriveContext.Provider value={{ donationDrives, isLoading, addDonationDrive, deleteDonationDrive, submitDonationDrive, addDonoForm, setAddDonoForm, donoDriveId, setDonoDriveId, campaignName, setCampaignName, description, setDescription }}>
         {children}
         </DonationDriveContext.Provider>
     );
