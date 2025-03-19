@@ -1,7 +1,15 @@
 "use client";
 import { Donation } from "@/models/models";
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, setDoc, doc, orderBy, where } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  setDoc,
+  doc,
+  orderBy,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 
@@ -23,28 +31,53 @@ export const DonationContextProvider = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { alumInfo } = useAuth();
-  const alumniId = alumInfo?.alumniId;
+  const { alumInfo, user } = useAuth();
+
+  const alumniId = user?.uid;
 
   useEffect(() => {
-    if (!alumniId) return;
+    let unsubscribe: (() => void) | null | undefined;
+
+    if (user) {
+      unsubscribe = subscribeToDonations(); //maglilisten sa firestore
+    } else {
+      setUserDonations([]); //reset once logged out
+      setIsLoading(false);
+    }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe(); //stops listening after logg out
+      }
+    };
+  }, [user]);
+
+  const subscribeToDonations = () => {
+    if (!alumniId) {
+      console.log("HAAAAAAAAAAA");
+      return;
+    }
     setIsLoading(true);
 
     const donationsQuery = query(
       collection(db, "donation"),
       where("alumniId", "==", alumniId),
-      orderBy("date", "desc"),
+      orderBy("date", "desc")
     );
 
-    // set up the real time data collection listener
-    const unsubscribe =  onSnapshot(
+    console.log("DONATIONS:", donationsQuery);
+
+    const unsubscribeDonation = onSnapshot(
       donationsQuery,
       (snapshot) => {
-        const donations = snapshot.docs.map((doc) => ({
-          donationId: doc.id,
-          ...doc.data(),
-          date: doc.data().date.toDate().toISOString(), // Convert Firestore Timestamp
-        } as Donation));
+        const donations = snapshot.docs.map(
+          (doc) =>
+            ({
+              donationId: doc.id,
+              ...doc.data(),
+              date: doc.data().date.toDate().toISOString(), // Convert Firestore Timestamp
+            } as Donation)
+        );
 
         setUserDonations(donations);
         setIsLoading(false);
@@ -56,8 +89,8 @@ export const DonationContextProvider = ({
       }
     );
 
-    return () => unsubscribe();
-  }, [alumniId]);
+    return unsubscribeDonation;
+  };
 
   return (
     <DonationContext.Provider

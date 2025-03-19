@@ -113,7 +113,7 @@ export default function Navbar() {
         <div
           onClick={async () => {
             await logOut();
-            router.push("/");
+            router.refresh();
             // router.refresh();
           }}
           className="p-3 text-black font-bold"

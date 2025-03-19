@@ -12,6 +12,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/Loading";
+import { GoogleSign } from "@/context/AuthGoogleContext";
 
 export default function Login() {
   const { signIn, user, loading } = useAuth();
@@ -97,6 +98,9 @@ export default function Login() {
                 Sign In
               </Button>
             </FormControl>
+            <Button onClick={() => GoogleSign()} variant="contained">
+              Sign In With Google
+            </Button>
           </Stack>
         </Box>
       </div>
