@@ -1,9 +1,10 @@
 "use client";
+import { SignUpFormSchema } from "@/validation/auth/sign-up-form-schema";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -78,167 +79,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 // - Add ng 'looking for work' option sa Employment Status tapos ishow yung Field of Work at Years of Experience na input fields?
 // =====================================================================================================================================
 
-
-// this schema defines the name of the form's fields, their types,
-// and the conditions for those fields
-const baseSchema = z.object({
-  name: z.string().min(1, "Please input your name"),
-  email: z.string().email(),
-  currentLocation: z
-    .tuple([
-      z.string(),
-      z.string().optional(), // state is optional
-    ])
-    .refine((input) => input[0] !== "", "Please input your location"),
-  techStack: z.array(z.string()).optional(),
-  skills: z.array(z.string()).optional(),
-  linkedinLink: z
-    .string()
-    .optional()
-    .refine((link) => {
-      // if input is provided, then verify if it is valid
-      const linkedinRegex = /^((https?:)?\/\/(www\.)?)?linkedin\.com\/in\/..*$/;
-      return !link || linkedinRegex.test(link!);
-    }, "Please enter a valid LinkedIn link"),
-  githubLink: z
-    .string()
-    .optional()
-    .refine((link) => {
-      // if input is provided, then verify if it is valid
-      const linkedinRegex = /^((https?:)?\/\/(www\.)?)?github\.com\/..*$/;
-      return !link || linkedinRegex.test(link!);
-    }, "Please enter a valid GitHub link"),
-  affiliations: z.array(z.string()).optional(),
-  acceptTerms: z
-    .boolean()
-    .refine(
-      (isChecked) => isChecked,
-      "You must accept the terms and conditions"
-    ),
-  subscribeToNewsletter: z.boolean(),
-});
-
-const passwordSchema = z
-  .object({
-    password: z.string().min(8, "Password must contain at least 8 characters"),
-    passwordConfirm: z.string(),
-  })
-  .superRefine((data, ctx) => {
-    // check if passwords match
-    if (data.password !== data.passwordConfirm) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["passwordConfirm"],
-        message: "Passwords do not match",
-      });
-    }
-  });
-
-const studentNumberAndGraduationYearSchema = z
-  .object({
-    studentNumber: z
-      .string()
-      .refine((input) => {
-        const regex = /^\d{4}-\d{5}$/;
-        return regex.test(input);
-      }, "Format: YYYY-XXXXX")
-      .refine((input) => {
-        const regex = /^(19[8-9]\d|20\d\d|2100)-\d{5}$/;
-        return regex.test(input);
-      }, "Please make sure that your student number is valid"),
-    // di ko malagyan ng custom error message tong graduation year para sa .number() condition
-    // pag walang input, 'Expected number, received nan' yung default error message, di ko mabago
-    graduationYear: z.string().refine((input) => {
-      const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-      return regex.test(input);
-    }, "Please input a valid graduation year"),
-  })
-  .superRefine((data, ctx) => {
-    const studentYear = parseInt(data.studentNumber.substring(0, 4));
-    const graduationYear = parseInt(data.graduationYear);
-
-    if (graduationYear < studentYear + 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["graduationYear"],
-        message: "Please input a valid graduation year",
-      });
-    }
-  });
-
-const employmentSchema = z
-  .object({
-    employmentStatus: z.string().min(1, "Please select your employment status"),
-    companyName: z.string().optional(),
-    jobTitle: z.string().optional(),
-    workField: z.string().optional(),
-    workSetup: z.string().optional(),
-    workLocation: z.tuple([z.string(), z.string().optional()]),
-  })
-  .superRefine((data, ctx) => {
-    // use superRefine() if we need access to multiple fields in a form
-    // data is for the form field values
-    // ctx will be used for adding error messages to specific form fields
-
-    // companyName must be filled if 'employed' is chosen
-    if (data.employmentStatus === "employed" && !data.companyName) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["companyName"],
-        message: "Please input the name of your company",
-      });
-    }
-
-    if (
-      (data.employmentStatus === "employed" ||
-        data.employmentStatus === "self-employed") &&
-      !data.jobTitle
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["jobTitle"],
-        message: "Please input your job title",
-      });
-    }
-
-    if (
-      (data.employmentStatus === "employed" ||
-        data.employmentStatus === "self-employed") &&
-      !data.workField
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["workField"],
-        message: "Please input your field of work",
-      });
-    }
-
-    if (data.employmentStatus === "employed" && !data.workLocation[0]) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["workLocation"],
-        message: "Please input your work location",
-      });
-    }
-  });
-
-// combine the schemas shown above into a single schema
-// we split the schema into multiple schemas to make the validations for a single field
-// and the validations in the super refine run at the same time
-const formSchema = baseSchema
-  .and(passwordSchema)
-  .and(studentNumberAndGraduationYearSchema)
-  .and(employmentSchema);
-
 export default function RegistrationForm() {
   // needed for the location-input component
   const [countryName, setCountryName] = useState<string>("");
   const [stateName, setStateName] = useState<string>("");
 
   // create a react hook form
-  const form = useForm<z.infer<typeof formSchema>>({
+  // create the form definition using the SignUpFormSchema
+  const form = useForm<z.infer<typeof SignUpFormSchema>>({
     // use zod and the form schema above for validation
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(SignUpFormSchema),
     // default values of the fields in the form
     defaultValues: {
       name: "",
@@ -266,7 +116,7 @@ export default function RegistrationForm() {
   // this variable will store the current value of the employmentStatus input field
   const employmentStatus = form.watch("employmentStatus");
 
-  function handleSubmit(values: z.infer<typeof formSchema>) {
+  function handleSubmit(values: z.infer<typeof SignUpFormSchema>) {
     try {
       console.log(values);
       toast(
@@ -285,7 +135,7 @@ export default function RegistrationForm() {
     // create the UI of the form
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="text-3xl font-bold">Sign up</CardTitle>
+        <CardTitle className="text-3xl font-bold">Sign Up</CardTitle>
         {/* <CardDescription>Sign up for a new ICS-ARMS account</CardDescription> */}
       </CardHeader>
       <CardContent>
@@ -352,7 +202,7 @@ export default function RegistrationForm() {
               name="passwordConfirm"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>passwordConfirm</FormLabel>
+                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
                     <PasswordInput placeholder="••••••••" {...field} />
                   </FormControl>
@@ -370,7 +220,7 @@ export default function RegistrationForm() {
                   name="studentNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Student number</FormLabel>
+                      <FormLabel>Student Number</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="2025-12345"
@@ -391,7 +241,7 @@ export default function RegistrationForm() {
                   name="graduationYear"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Graduation year</FormLabel>
+                      <FormLabel>Graduation Year</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="2029"
@@ -417,7 +267,7 @@ export default function RegistrationForm() {
               name="currentLocation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current location</FormLabel>
+                  <FormLabel>Current Location</FormLabel>
                   <FormControl>
                     <LocationSelector
                       onCountryChange={(country) => {
@@ -448,7 +298,7 @@ export default function RegistrationForm() {
               name="employmentStatus"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Employment status</FormLabel>
+                  <FormLabel>Employment Status</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -487,7 +337,7 @@ export default function RegistrationForm() {
                       name="companyName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Company name</FormLabel>
+                          <FormLabel>Company Name</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Google"
@@ -508,7 +358,7 @@ export default function RegistrationForm() {
                     name="jobTitle"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Job title</FormLabel>
+                        <FormLabel>Job Title</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Junior backend developer"
@@ -527,7 +377,7 @@ export default function RegistrationForm() {
                     name="workField"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Field of work</FormLabel>
+                        <FormLabel>Field of Work</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Web development"
@@ -546,7 +396,7 @@ export default function RegistrationForm() {
                     name="workSetup"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Work setup</FormLabel>
+                        <FormLabel>Work Setup</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -578,7 +428,7 @@ export default function RegistrationForm() {
                       name="workLocation"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Work location</FormLabel>
+                          <FormLabel>Work Location</FormLabel>
                           <FormControl>
                             <LocationSelector
                               onCountryChange={(country) => {
@@ -613,7 +463,7 @@ export default function RegistrationForm() {
               name="techStack"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tech stack</FormLabel>
+                  <FormLabel>Tech Stack</FormLabel>
                   <FormControl>
                     <TagsInput
                       value={field.value ?? []}
@@ -651,7 +501,7 @@ export default function RegistrationForm() {
               name="linkedinLink"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>LinkedIn link</FormLabel>
+                  <FormLabel>LinkedIn Link</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="https://www.linkedin.com/in/juandelacruz"
@@ -670,7 +520,7 @@ export default function RegistrationForm() {
               name="githubLink"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>GitHub link</FormLabel>
+                  <FormLabel>GitHub Link</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="https://github.com/juandelacruz"
