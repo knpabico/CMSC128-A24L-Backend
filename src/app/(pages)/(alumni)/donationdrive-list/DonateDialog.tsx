@@ -153,7 +153,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="gcash">GCash</SelectItem>
-                            <SelectItem value="Maya">Maya</SelectItem>
+                            <SelectItem value="maya">Maya</SelectItem>
                             <SelectItem value="debit card">
                               Debit Card
                             </SelectItem>
