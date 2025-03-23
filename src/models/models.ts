@@ -47,6 +47,9 @@ export interface Event {
   date: string;
   rsvps: string[];
   status: string;
+  creatorId: string;
+  creatorName: string;
+  creatorType: string;
 }
 
 export interface DonationDrive {
