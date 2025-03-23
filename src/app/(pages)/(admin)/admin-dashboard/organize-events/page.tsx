@@ -26,10 +26,11 @@ export default function Events() {
           { label: 'Events' }
         ]}
       />
-
+    
       <div>
         <h1>Events</h1>
 
+        {/* Sort Buttons for different status*/}
         <div className="flex gap-5 mb-5">
           {["Accepted", "Pending", "Rejected"].map((status) => (
             <button
@@ -48,9 +49,10 @@ export default function Events() {
 
         <div>
         <button onClick={() => {
-            setEdit(false); // Ensure it's in create mode
-            setShowForm(true);
-            setEventTitle(""); // Reset form fields
+            setEdit(false); // Set the edit flag to false (create event)
+            setShowForm(true); // Show the form 
+            // Reset form fields
+            setEventTitle(""); 
             setEventDescription("");
             setEventDate("");
           }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
@@ -61,9 +63,9 @@ export default function Events() {
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (isEditing && editingEventId) {
-                  handleEdit(editingEventId, { title, description, date });
+                  handleEdit(editingEventId, { title, description, date }); // Pass the current value if it will be edited
                 } else {
-                  handleSave(e);
+                  handleSave(e); // Pass the value entered in the current form
                 }
                 setShowForm(false);
                 setEdit(false);
@@ -112,7 +114,7 @@ export default function Events() {
       </div>
 
       <div>
-          {filterEvents(activeTab).map((events: Event, index: number) => (
+          {filterEvents(activeTab).map((events: Event, index: number) => ( // Filter the events to be shown in the screen
             <div key={index} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "15px" }}>
               <strong><h2>{events.title}</h2></strong>
               <p>{events.date}</p>
@@ -155,6 +157,7 @@ export default function Events() {
                 <p>No RSVPs yet.</p>
               )}
 
+              {/* Status Filter */}
               {activeTab === "Accepted" && (
                 <button
                   onClick={() => handleDelete(events.eventId)}

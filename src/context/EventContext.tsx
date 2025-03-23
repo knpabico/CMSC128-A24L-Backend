@@ -71,6 +71,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Save the form (currently not finalize)
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -96,6 +97,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Function to be able to delete finalized events
   const handleDelete = async (eventId: string) => {
     try {
       await deleteDoc(doc(db, "event", eventId));
@@ -106,6 +108,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // 
   const handleEdit = async (eventId: string, updatedData: Partial<Event>) => {
     try {
       await updateDoc(doc(db, "event", eventId), updatedData);
@@ -118,6 +121,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Function to Reject the proposed / created Event
   const handleReject = async (eventId: string) => {
     try {
         const eventRef = doc(db, "event", eventId);
@@ -128,6 +132,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Function to Finalize the event to be posted
   const handleFinalize = async (eventId: string) => {
     try {
         const eventRef = doc(db, "event", eventId);
