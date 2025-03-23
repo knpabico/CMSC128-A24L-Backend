@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, setDoc, updateDoc, deleteDoc, doc} from "firebase/firestore";
+import { collection, onSnapshot, query, setDoc, updateDoc, deleteDoc, doc, getDoc} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Event } from "@/models/models";
@@ -15,7 +15,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [title, setEventTitle] = useState("");
   const [description, setEventDescription] = useState("");
   const [date, setEventDate] = useState("");
+  const [userType, setUserType] = useState("");
+  const [creatorId, setCreatorId] = useState("");
   const { user } = useAuth();
+
+
   useEffect(() => {
     let unsubscribe: (() => void) | null;
 
@@ -55,11 +59,29 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     return unsubscribeEvents;
   };
 
+  const checkUserRole = async (userId: string) => {
+    const adminRef = doc(db, "admin", userId);
+    const alumniRef = doc(db, "alumni", userId);
+  
+    const [adminSnap, alumniSnap] = await Promise.all([getDoc(adminRef), getDoc(alumniRef)]);
+  
+    if (adminSnap.exists()) {
+      return { role: "Admin", name: null };
+    } else {
+      const alumnusData = alumniSnap.data();
+      return { role: "Alumni", name: alumnusData?.name || "Unknown" };
+    } 
+  };
+  
   const addEvent = async (newEvent: Event) => {
     try {
+      const { role, name } = await checkUserRole(user.uid);
       const docRef = doc(collection(db, "event")); // Generate document reference
       newEvent.eventId = docRef.id; // Assign Firestore-generated ID
       newEvent.status = "Pending"; // Default status
+      newEvent.creatorId = user.uid
+      newEvent.creatorName = role === "Alumni" ? name : "Admin"; // Store alumni name
+      newEvent.creatorType = role;
   
       console.log("Event to be added:", newEvent);
       
@@ -82,7 +104,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         date,
         rsvps: [],
         eventId: "",
-        status: "Pending"
+        status: "Pending",
+        creatorId: "", 
+        creatorName: "",
+        creatorType: ""
     };
 
     const response = await addEvent(newEvent);
@@ -144,8 +169,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <EventContext.Provider value={{ events, isLoading, addEvent, setShowForm, showForm, handleSave, handleDelete, handleEdit, 
-    handleReject, handleFinalize, title, setEventTitle, description, setEventDescription, date, setEventDate }}>
+    <EventContext.Provider value={{ events, isLoading, userType, addEvent, setShowForm, showForm, handleSave, handleDelete, handleEdit, 
+    handleReject, handleFinalize, creatorId, title, setEventTitle, description, setEventDescription, date, setEventDate }}>
       {children}
     </EventContext.Provider>
   );
