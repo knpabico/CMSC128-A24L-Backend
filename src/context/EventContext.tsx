@@ -15,8 +15,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [title, setEventTitle] = useState("");
   const [description, setEventDescription] = useState("");
   const [date, setEventDate] = useState("");
-  const [userType, setUserType] = useState("");
-  const [creatorId, setCreatorId] = useState("");
   const { user } = useAuth();
 
 
@@ -169,8 +167,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <EventContext.Provider value={{ events, isLoading, userType, addEvent, setShowForm, showForm, handleSave, handleDelete, handleEdit, 
-    handleReject, handleFinalize, creatorId, title, setEventTitle, description, setEventDescription, date, setEventDate }}>
+    <EventContext.Provider value={{ events, isLoading, addEvent, setShowForm, showForm, handleSave, handleDelete, handleEdit, 
+    handleReject, handleFinalize, title, setEventTitle, description, setEventDescription, date, setEventDate }}>
       {children}
     </EventContext.Provider>
   );
