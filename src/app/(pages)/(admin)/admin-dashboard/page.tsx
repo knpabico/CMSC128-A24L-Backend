@@ -5,7 +5,6 @@ import Link from "next/link";
 
 const links = [
   { label: " Manage Users", link: "manage-users" },
-  { label: "Create Events", link: "create-events" },
   { label: "Organize Events", link: "organize-events" },
   { label: "Send Newsletters", link: "send-newsletters" },
   { label: "Monitor Engagement Metrics", link: "engagement-metrics" },

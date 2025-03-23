@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, addDoc} from "firebase/firestore";
+import { collection, onSnapshot, query, setDoc, updateDoc, deleteDoc, doc} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Event } from "@/models/models";
@@ -57,18 +57,21 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const addEvent = async (newEvent: Event) => {
     try {
-      const eventRef = collection(db, "event");
-      const docRef = await addDoc(eventRef, newEvent);
-      newEvent.eventId = docRef.id;
-      console.log('Event successfully added:', newEvent);
-      return { success: true, message: 'Event added successfully' };
+      const docRef = doc(collection(db, "event")); // Generate document reference
+      newEvent.eventId = docRef.id; // Assign Firestore-generated ID
+      newEvent.status = "Pending"; // Default status
+  
+      console.log("Event to be added:", newEvent);
+      
+      await setDoc(doc(db, "event", docRef.id), newEvent); // Save event to Firestore
+  
+      return { success: true, message: "Event added successfully" };
     } catch (error) {
-      console.error('Error adding event:', (error as FirebaseError).message);
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newEvent: Event = {
@@ -77,7 +80,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         description,
         date,
         rsvps: [],
-        eventId: ""
+        eventId: "",
+        status: "Pending"
     };
 
     const response = await addEvent(newEvent);
@@ -92,10 +96,51 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleDelete = async (eventId: string) => {
+    try {
+      await deleteDoc(doc(db, "event", eventId));
+      setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
+      return { success: true, message: "Event successfully deleted" };
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const handleEdit = async (eventId: string, updatedData: Partial<Event>) => {
+    try {
+      await updateDoc(doc(db, "event", eventId), updatedData);
+      setEvents((prev) =>
+        prev.map((event) => (event.eventId === eventId ? { ...event, ...updatedData } : event))
+      );
+      return { success: true, message: "Event successfully updated" };
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const handleReject = async (eventId: string) => {
+    try {
+        const eventRef = doc(db, "event", eventId);
+        await updateDoc(eventRef, { status: "Rejected" });
+        return { success: true, message: "Event successfully rejected" };
+    } catch (error) {
+        return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const handleFinalize = async (eventId: string) => {
+    try {
+        const eventRef = doc(db, "event", eventId);
+        await updateDoc(eventRef, { status: "Accepted" });
+        return { success: true, message: "Event successfully finalized" };
+    } catch (error) {
+        return { success: false, message: (error as FirebaseError).message };
+    }
+  };
 
   return (
-    <EventContext.Provider value={{ events, isLoading, addEvent, setShowForm, showForm, handleSubmit, 
-    title, setEventTitle, description, setEventDescription, date, setEventDate }}>
+    <EventContext.Provider value={{ events, isLoading, addEvent, setShowForm, showForm, handleSave, handleDelete, handleEdit, 
+    handleReject, handleFinalize, title, setEventTitle, description, setEventDescription, date, setEventDate }}>
       {children}
     </EventContext.Provider>
   );
