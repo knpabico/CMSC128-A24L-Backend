@@ -37,6 +37,7 @@ export interface Announcement {
   title: string;
   description: string;
   type: string[];
+  userReference: string;
 }
 
 export interface Event {
@@ -89,7 +90,7 @@ export interface JobOffering {
   company: string;
   employmentType: string;
   jobDescription: string;
-  datePosted: string;
+  datePosted: Date;
   jobType: string;
   status: string;
 }
