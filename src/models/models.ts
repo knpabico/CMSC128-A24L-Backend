@@ -46,6 +46,7 @@ export interface Event {
   description: string;
   date: string;
   rsvps: string[];
+  status: string;
 }
 
 export interface DonationDrive {
