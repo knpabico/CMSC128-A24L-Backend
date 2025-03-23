@@ -5,8 +5,8 @@ import { Event } from "@/models/models";
 
 
 export default function Events() {
-  const { events, isLoading, setShowForm, showForm, handleSave, handleEdit, handleDelete, date,
-    handleReject, handleFinalize, setEventDate, description, setEventDescription, title, setEventTitle } = useEvents();
+  const { events, isLoading, setShowForm, showForm, handleSave, date, creatorId,
+        setEventDate, description, setEventDescription, title, setEventTitle } = useEvents();
 
   return (
     <div>
@@ -60,13 +60,26 @@ export default function Events() {
           </div>
         )}
       </div>
-      {events.map((event: Event, index) => (
+      <div>
+      Approved
+      {events.filter((event: Event) => event.status === "Accepted").map((event: Event, index: number) => (
         <div key={index}>
           <h1>{event.title}</h1>
           <h2>{event.date}</h2>
           <h2>{event.description}</h2>
         </div>
       ))}
+      </div>
+      <div>
+      Pending
+      {events.filter((event: Event) => event.status === "Pending" && event.creatorId == creatorId).map((event: Event, index: number) => (
+        <div key={index}>
+          <h1>{event.title}</h1>
+          <h2>{event.date}</h2>
+          <h2>{event.description}</h2>
+        </div>
+      ))}
+      </div>
     </div>
   );
 }

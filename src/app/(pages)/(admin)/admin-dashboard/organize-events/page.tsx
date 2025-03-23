@@ -7,7 +7,7 @@ import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { useState } from "react";
 
 export default function Events() {
-  const { events, isLoading, setShowForm, showForm, handleSave, handleEdit, handleDelete, date,
+  const { events, isLoading, userType, setShowForm, showForm, handleSave, handleEdit, handleDelete, date,
     handleReject, handleFinalize, setEventDate, description, setEventDescription, title, setEventTitle } = useEvents();
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
   const [activeTab, setActiveTab] = useState("Pending");
@@ -120,6 +120,7 @@ export default function Events() {
               <p>{events.date}</p>
               <p>{events.description}</p>
               <p>{events.id}</p>
+              {events.creatorType === "Alumni" && <p>Proposed by: {events.creatorName}</p>}
               
               {/* Display RSVP Details */}
               <h3>RSVPs:</h3>
