@@ -52,7 +52,6 @@ export interface DonationDrive {
   donationDriveId: string;
   datePosted: Date;
   description: string;
-  beneficiary: string[];
   campaignName: string;
   totalAmount: number;
 }

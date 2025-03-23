@@ -13,6 +13,7 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
     const [donationDrives, setDonationDrives] = useState<DonationDrive[]>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [addDonoForm, setAddDonoForm] = useState(false);
+    const [editDonoForm, setEditDonoForm] = useState(false);
     const [donoDriveId, setDonoDriveId] = useState("");
     const [campaignName, setCampaignName] = useState("");
     const [description, setDescription] = useState("");
@@ -75,20 +76,37 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
         }
     };
 
+    const editDonoDrive = async () => {
+        try {
+            await updateDoc(doc(db, "donation_drive", donoDriveId), {
+                description: description,
+                campaignName: campaignName
+            });
+            console.log(`Donation drive edited: ${donoDriveId}`);
+            return { success: true, message: "Donation drive edited successfully." };
+        } catch (error) {
+            return { success: false, message: (error as FirebaseError).message };
+        }
+    };
 
-    // const editDonoDrive = async (donationDriveId: string) => {
-    //     try {
-    //         await updateDoc(doc(db, "donation_drive", donationDriveId), {
-    //             description: description,
-    //             campaignName: campaignName
-    //         });
-    //         console.log("Donation drive edited successfully");
-    //     } catch (error) {
-    //         console.error("Error adding donation drive:", (error as FirebaseError).message);
-    //     }
-    // };
-    
+    const subEditDonoDrive = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const response = await editDonoDrive();
+        if (response.success) {
+            setEditDonoForm(false);
+            setCampaignName("");
+            setDescription("");
+        } else {
+            console.error("Error editing donation drive:", response.message);
+        }
+    };
 
+    const editDonoDriveForm = async (donationDriveId: string, campaigname: string, drivedescription: string) => {
+        setEditDonoForm(!editDonoForm);
+        setDonoDriveId(donationDriveId);
+        setCampaignName(campaigname);
+        setDescription(drivedescription);
+    };
 
     const deleteDonationDrive = async (donationDriveId: string) => {
         try {
@@ -108,7 +126,6 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
             donationDriveId: donationDriveId,
             datePosted: new Date(),
             description,
-            beneficiary: [],
             campaignName,
             totalAmount: 0
         };
@@ -125,7 +142,7 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
     };
 
     return (
-        <DonationDriveContext.Provider value={{ donationDrives, isLoading, addDonationDrive, deleteDonationDrive, submitDonationDrive, addDonoForm, setAddDonoForm, donoDriveId, setDonoDriveId, campaignName, setCampaignName, description, setDescription }}>
+        <DonationDriveContext.Provider value={{ donationDrives, isLoading, addDonationDrive, editDonoDriveForm, editDonoDrive, editDonoForm, setEditDonoForm, deleteDonationDrive,subEditDonoDrive, submitDonationDrive, addDonoForm, setAddDonoForm, donoDriveId, setDonoDriveId, campaignName, setCampaignName, description, setDescription }}>
         {children}
         </DonationDriveContext.Provider>
     );
