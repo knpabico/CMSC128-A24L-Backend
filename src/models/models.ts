@@ -79,7 +79,7 @@ export interface NewsletterItem {
 
 export interface RSVP {
   rsvpId: string;
-  status: boolean;
+  status: string;
   postId: string;
   alumniId: string;
 }
