@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { collection, onSnapshot, query, doc, setDoc, deleteDoc, updateDoc} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { DonationDrive } from "@/models/models";
+import { DonationDrive, DonationDriveSuggestions } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 
 const DonationDriveContext = createContext<any>(null);
@@ -19,7 +19,7 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState("");
     const [beneficiary, setBeneficiary] = useState<string[]>([]);
-    const { user } = useAuth();
+    const { user, alumInfo } = useAuth();
 
     useEffect(() => {
         let unsubscribe: (() => void) | null;
@@ -167,8 +167,9 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
         e.preventDefault();
         const docRef = doc(collection(db, "donation_drive")); 
         const donationDriveId = docRef.id;
-        const newDonoDrive: DonationDrive = {
+        const newDonoDrive: DonationDriveSuggestions = {
             donationDriveId: donationDriveId,
+            suggestedBy: alumInfo?.alumniId!,
             datePosted: new Date(),
             description,
             beneficiary: [],
