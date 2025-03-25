@@ -36,7 +36,7 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
         announce.datePosted = new Date();
         announce.type = [];
       console.log(announce);
-      await setDoc(doc(db, "Announcement", userId), announce);
+      await setDoc(doc(db, "announcement", userId), announce);
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -45,7 +45,7 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
 
   const subscribeToUsers = () => {
     setLoading(true);
-    const q = query(collection(db, "Announcement"));
+    const q = query(collection(db, "announcement"));
 
     //listener for any changes
     const unsubscribeUsers = onSnapshot(
