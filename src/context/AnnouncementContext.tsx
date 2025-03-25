@@ -1,20 +1,32 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, setDoc, doc, deleteDoc, updateDoc} from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  setDoc,
+  doc,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Announcement } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 const AnnouncementContext = createContext<any>(null);
 
-export function AnnouncementProvider({ children }: { children: React.ReactNode }) {
+export function AnnouncementProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [announces, setAnnounce] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState<string[]>([])
+  const [type, setType] = useState<string[]>([]);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -36,11 +48,11 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
 
   const addAnnouncement = async (announce: Announcement, userId: string) => {
     try {
-      const docRef = doc(collection(db, "Announcement")); 
-      announce.announcementId = docRef.id; 
+      const docRef = doc(collection(db, "Announcement"));
+      announce.announcementId = docRef.id;
       announce.datePosted = new Date();
       console.log(announce);
-      await setDoc(doc(db, "Announcement", docRef.id), announce);
+      await setDoc(doc(db, "announcement", userId), announce);
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -50,8 +62,15 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
   const handleDelete = async (announcementId: string) => {
     try {
       await deleteDoc(doc(db, "Announcement", announcementId));
-      setAnnounce((prev) => prev.filter((announcement) => announcement.announcementId !== announcementId));
-      console.log("Succesfully deleted announcement with id of:", announcementId)
+      setAnnounce((prev) =>
+        prev.filter(
+          (announcement) => announcement.announcementId !== announcementId
+        )
+      );
+      console.log(
+        "Succesfully deleted announcement with id of:",
+        announcementId
+      );
     } catch (error) {
       console.error("Error deleting announcement:", error);
     }
@@ -70,7 +89,7 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
 
   const subscribeToUsers = () => {
     setLoading(true);
-    const q = query(collection(db, "Announcement"));
+    const q = query(collection(db, "announcement"));
 
     //listener for any changes
     const unsubscribeUsers = onSnapshot(
@@ -90,12 +109,11 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
 
   const handleCheckbox = (type_input: string) => {
     if (type.includes(type_input)) {
-      setType(type.filter((t) => t !== type_input)); 
+      setType(type.filter((t) => t !== type_input));
     } else {
-      setType([...type, type_input]); 
+      setType([...type, type_input]);
     }
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,12 +122,12 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
       title,
       description,
       datePosted: new Date(),
-      type, 
+      type,
       announcementId: "",
-      userReference: user!.uid
+      userReference: user!.uid,
     };
 
-    const response = await addAnnouncement(newAnnouncement, user!.uid );
+    const response = await addAnnouncement(newAnnouncement, user!.uid);
 
     if (response.success) {
       setShowForm(false);
@@ -121,7 +139,24 @@ export function AnnouncementProvider({ children }: { children: React.ReactNode }
   };
 
   return (
-    <AnnouncementContext.Provider value={{ announces, isLoading, addAnnouncement, handleSubmit, handleCheckbox, handleDelete, title, description, showForm, type, setTitle, setDescription, setShowForm, setType }}>
+    <AnnouncementContext.Provider
+      value={{
+        announces,
+        isLoading,
+        addAnnouncement,
+        handleSubmit,
+        handleCheckbox,
+        handleDelete,
+        title,
+        description,
+        showForm,
+        type,
+        setTitle,
+        setDescription,
+        setShowForm,
+        setType,
+      }}
+    >
       {children}
     </AnnouncementContext.Provider>
   );
