@@ -89,7 +89,7 @@ export interface JobOffering {
   company: string;
   employmentType: string;
   jobDescription: string;
-  datePosted: string;
+  datePosted: Date;
   jobType: string;
   status: string;
 }
