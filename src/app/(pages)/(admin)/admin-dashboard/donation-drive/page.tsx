@@ -6,7 +6,7 @@ import { DonationDrive } from "@/models/models";
 import React from "react";
 
 export default function Users() {
-  const { donationDrives, isLoading, addDonationDrive, editDonoDrive, editDonoDriveForm, editDonoForm, setEditDonoForm, deleteDonationDrive,subEditDonoDrive, submitDonationDrive, addDonoForm, setAddDonoForm, donoDriveId, setDonoDriveId, campaignName, setCampaignName, description, setDescription } = useDonationDrives();
+  const { donationDrives, isLoading, editDonoDriveForm, editDonoForm, deleteDonationDrive,subEditDonoDrive, submitDonationDrive, addDonoForm, setAddDonoForm, campaignName, setCampaignName, description, setDescription } = useDonationDrives();
 
   return (
     <div>
@@ -18,6 +18,7 @@ export default function Users() {
           <h1>Name: {drive.campaignName}</h1>
           <h2>ID: {drive.donationDriveId}</h2>
           <h2>Description: {drive.description}</h2>
+          <h2>Status: {drive.status}</h2>
           <h2>Total Amount: ${drive.totalAmount}</h2>
           <h2>Posted on: {drive.datePosted.toDate().toLocaleString()}</h2>
         </div>

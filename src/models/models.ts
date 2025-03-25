@@ -52,7 +52,19 @@ export interface DonationDrive {
   donationDriveId: string;
   datePosted: Date;
   description: string;
+  beneficiary: string[];
   campaignName: string;
+  totalAmount: number;
+  status: string;
+}
+
+export interface DonationDriveSuggestions {
+  donationDriveId: string;
+  datePosted: Date;
+  description: string;
+  beneficiary: string[];
+  campaignName: string;
+  status: string;
   totalAmount: number;
 }
 
