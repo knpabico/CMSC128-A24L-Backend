@@ -1,8 +1,10 @@
 "use client";
 import LoadingPage from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { WorkExperience } from "@/models/models";
+import Link from "next/link";
 
 export default function Home() {
   const { user, loading, alumInfo } = useAuth();
@@ -11,8 +13,16 @@ export default function Home() {
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   if (!user) {
     return (
-      <div className="flex flex-row min-h-screen justify-center items-center">
-        <h1 className="text-black text-[70px] font-bold">WELCOME, Guest!</h1>;
+      <div className="flex flex-col min-h-screen justify-center items-center">
+        <h1 className="text-black text-[70px] font-bold">WELCOME, Guest!</h1>
+        <div className="flex gap-3">
+          <Button asChild>
+            <Link href="/login">Log in</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/sign-up">Sign up</Link>
+          </Button>
+        </div>
       </div>
     );
   }

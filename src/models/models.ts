@@ -36,6 +36,7 @@ export interface Announcement {
   title: string;
   description: string;
   type: string[];
+  userReference: string;
 }
 
 export interface Event {
@@ -45,6 +46,10 @@ export interface Event {
   description: string;
   date: string;
   rsvps: string[];
+  status: string;
+  creatorId: string;
+  creatorName: string;
+  creatorType: string;
 }
 
 export interface DonationDrive {
@@ -73,7 +78,7 @@ export interface NewsletterItem {
 
 export interface RSVP {
   rsvpId: string;
-  status: boolean;
+  status: string;
   postId: string;
   alumniId: string;
 }
@@ -88,7 +93,7 @@ export interface JobOffering {
   company: string;
   employmentType: string;
   jobDescription: string;
-  datePosted: string;
+  datePosted: Date;
   jobType: string;
   status: string;
 }

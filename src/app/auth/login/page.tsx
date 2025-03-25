@@ -98,9 +98,9 @@ export default function Login() {
                 Sign In
               </Button>
             </FormControl>
-            <Button onClick={() => GoogleSign()} variant="contained">
+            {/* <Button onClick={() => GoogleSign()} variant="contained">
               Sign In With Google
-            </Button>
+            </Button> */}
           </Stack>
         </Box>
       </div>
