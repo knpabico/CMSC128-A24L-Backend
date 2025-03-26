@@ -162,7 +162,7 @@ export default function Events() {
                             {rsvpDetails[rsvpId].alumni_id && alumniDetails[rsvpDetails[rsvpId].alumni_id] && (
                               <div>
                                 <p>
-                                  <strong>Name:</strong> {alumniDetails[rsvpDetails[rsvpId].alumni_id].name || "Unknown Alumni"}
+                                  <strong>Name:</strong> {alumniDetails[rsvpDetails[rsvpId].alumni_id].firstName} {alumniDetails[rsvpDetails[rsvpId].alumni_id].lastName}
                                 </p>
                                 <p>
                                   <strong>Status:</strong> {rsvpDetails[rsvpId].Status}
