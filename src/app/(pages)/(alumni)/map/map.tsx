@@ -1,85 +1,67 @@
-import { MapContainer, Marker, Popup, TileLayer, Polyline,  useMap} from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import { LatLngTuple, } from "leaflet";
 import L from "leaflet";
+import { Button, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+
+function ResetCenterView(props) {
+  const { selectPosition } = props;
+  const map = useMap();
+  useEffect(() => {
+    if (selectPosition) {
+      map.setView(L.latLng(selectPosition?.lat, selectPosition?.lon), 17, {
+        animate: true,
+        duration: 0.5,
+        easeLinearity: 0.25,
+      });
+    }
+  }, [selectPosition]);
+
+  return null;
+}
 
 export default function MyMap(props: any) {
-  const { position, zoom } = props;
-
-  const blueOptions = { color: 'blue' }
-
-  const arrCoordinates: LatLngTuple[] = [
-    [31.2206, 121.4098],
-    [14.5526, 121.0450],
-    [43.6600, -79.4400],
-    [34.0337,-118.4521]
+  const { selectPosition } = props;
+  const locationSelection: LatLngTuple = [
+    selectPosition?.lat,
+    selectPosition?.lon,
   ];
+  const [isSatellite, setIsSatellite] = useState(false);
 
-
- const polyline = [
-  [31.2206, 121.4098],
-  [14.5526, 121.0450],
-  [43.6600, -79.4400],
-  [34.0337,-118.4521]
- ]
-  //Hard Coded
-  const places: string[] = ["Valve Company", "Garena Company Philipines", "Ubisoft Toronto", "Riot Games"];
-  // const 
-  const markerColors = ["red", "blue", "green", "Purple"];
-
-  function MultipleMarkers() {
-    const map= useMap();
-    return arrCoordinates.map((coordinata, index) => {
-      const color = markerColors[index % markerColors.length];
-      const icon = L.divIcon({
-        className: "",
-        html: `
-        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <svg width="40px" height="60px" viewBox="0 0 40 60">
-              <!-- Marker Background -->
-              <path fill="${color}" d="M20,1 C10,1 1,10 1,20 C1,35 20,58 20,58 C20,58 39,35 39,20 C39,10 30,1 20,1 Z"></path>
-              <!-- Circle inside the marker -->
-              <circle cx="20" cy="20" r="13" fill="white"></circle>
-              <!-- Number in center -->
-              <text x="20" y="27" font-size="20" font-weight="bold" text-anchor="middle" fill="${color}">${
-          index + 1
-        }</text>
-            </svg>
-          </div>
-      `,
-        iconSize: [25, 41],
-        iconAnchor: [10, 41],
-        popupAnchor: [2, -40],
-        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
-        shadowUrl:
-          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-shadow.png",
-      });
-
-      const handleMarkerClick = () => {
-        map.setView(coordinata, 15); // Zoom level 15 on click
-      };
-
-      return (
-        <Marker key={index} position={coordinata} icon={icon} eventHandlers={{ click: handleMarkerClick }}>
-          <Popup>{places[index]}</Popup>
-        </Marker>
-      );
-    });
-  }
   return (
-    <MapContainer
-      center={position}
-      zoom={zoom}
-      style={{ height: "100%", width: "100%" }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <MultipleMarkers />
-      <Polyline pathOptions={blueOptions} positions={polyline} />
-    </MapContainer>
+    <div className="relative w-full h-full">
+      <div className="absolute top-4 left-12 z-[1000]">
+        <button
+          onClick={() => setIsSatellite(!isSatellite)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
+        >
+          Click for {isSatellite ? "Basic" : "Satellite"} View
+        </button>
+      </div>
+
+      <MapContainer
+        center={[14.125, 121.14]}
+        zoom={4}
+        className="w-full h-full"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url={
+            isSatellite
+              ? "https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=doD1WKAsjysDh9sCkDeo"
+              : "https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=doD1WKAsjysDh9sCkDeo"
+          }
+        />
+        {selectPosition && (
+          <Marker position={locationSelection}>
+            <Popup>place</Popup>
+          </Marker>
+        )}
+        <ResetCenterView selectPosition={selectPosition} />
+      </MapContainer>
+    </div>
   );
 }
