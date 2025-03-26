@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import SearchBox from "./box";
 
 export default function MyPage() {
   const Map = useMemo(
@@ -12,11 +13,24 @@ export default function MyPage() {
     []
   );
 
+  const [selectPosition, setSelectPosition] = useState(null);
+  console.log(selectPosition);
   return (
     <div>
       <h1>Maps</h1>
-      <div style={{ height: "500px", width: "100%" }}>
-        <Map position={[14, 120]} zoom={13} />
+      <div
+        style={{
+          height: "500px",
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        <Map selectPosition={selectPosition} />
+        <SearchBox
+          selectPosition={selectPosition}
+          setSelectPosition={setSelectPosition}
+        />
       </div>
     </div>
   );

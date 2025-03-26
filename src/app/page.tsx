@@ -31,7 +31,7 @@ export default function Home() {
     <>
       <div className="flex flex-row min-h-screen justify-center items-center">
         <h1 className="text-black text-[70px] font-bold">
-          Welcome, {alumInfo!.name}!
+          Welcome, {alumInfo!.firstName}!
         </h1>
       </div>
       <div>
