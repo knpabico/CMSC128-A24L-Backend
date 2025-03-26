@@ -138,6 +138,8 @@ export default function Users() {
                 type="button"
                 onClick={() => {
                   setEditDonoForm(false);
+                  setCampaignName("");
+                  setDescription("");
                 }}
                 className="text-gray-500"
               >
