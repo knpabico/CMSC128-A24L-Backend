@@ -1,6 +1,7 @@
 "use client";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { WorkExperience } from "@/models/models";
+import MyMap from '../map/page';
 
 export default function WorkExperiencePage() {
   const { allWorkExperience, isLoading } = useWorkExperience();
@@ -8,7 +9,7 @@ export default function WorkExperiencePage() {
   return (
     <div>
       <h1>Work Experience (ALL)</h1>
-      {isLoading && <h1>Loading</h1>}
+      <MyMap position={[14.6531, 121.067]} zoom={13} />
       {allWorkExperience.map((workExperience: WorkExperience, index: any) => (
         <div key={index} className="p-1">
           <h1>Company: {workExperience.company}</h1>
