@@ -21,8 +21,8 @@ export function useRsvpDetails(events) {
       // Collect all unique RSVP IDs from all events
       const allRsvpIds = [];
       events.forEach(event => {
-        if (!event.rsvp) return;
-        event.rsvp.forEach(rsvpId => {
+        if (!event.rsvps) return;
+        event.rsvps.forEach(rsvpId => {
           if (!allRsvpIds.includes(rsvpId)) {
             allRsvpIds.push(rsvpId);
           }
