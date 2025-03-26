@@ -12,6 +12,7 @@ export default function MyPage() {
     []
   );
 
+
   return (
     <div>
       <h1>Maps</h1>

@@ -5,13 +5,15 @@ import MyMap from '../map/page';
 
 export default function WorkExperiencePage() {
   const { allWorkExperience, isLoading } = useWorkExperience();
-  console.log(allWorkExperience);
+  
+  //gets the positions of the places n the previous job
+  // const [position, setPosition] = useState([]);
   
 
   return (
     <div>
       <h1>Work Experience (ALL)</h1>
-      <MyMap position={[14.6531, 121.067]} zoom={13} />
+      <MyMap position={[0,0]} zoom={2} />
       {allWorkExperience.map((workExperience: WorkExperience, index: any) => (
         <div key={index} className="p-1">
           

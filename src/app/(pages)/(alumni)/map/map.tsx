@@ -1,8 +1,8 @@
-import { MapContainer, Marker, Popup, TileLayer, Polyline } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, Polyline,  useMap} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-import { LatLngTuple } from "leaflet";
+import { LatLngTuple, } from "leaflet";
 import L from "leaflet";
 
 export default function MyMap(props: any) {
@@ -30,6 +30,7 @@ export default function MyMap(props: any) {
   const markerColors = ["red", "blue", "green", "Purple"];
 
   function MultipleMarkers() {
+    const map= useMap();
     return arrCoordinates.map((coordinata, index) => {
       const color = markerColors[index % markerColors.length];
       const icon = L.divIcon({
@@ -55,8 +56,13 @@ export default function MyMap(props: any) {
         shadowUrl:
           "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-shadow.png",
       });
+
+      const handleMarkerClick = () => {
+        map.setView(coordinata, 15); // Zoom level 15 on click
+      };
+
       return (
-        <Marker key={index} position={coordinata} icon={icon}>
+        <Marker key={index} position={coordinata} icon={icon} eventHandlers={{ click: handleMarkerClick }}>
           <Popup>{places[index]}</Popup>
         </Marker>
       );
