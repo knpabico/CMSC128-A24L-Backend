@@ -29,7 +29,6 @@ function formatPostedDate(timestamp: Timestamp | any) {
 }
 
 function formatEventDate(dateString: string) {
- 
   const date = new Date(dateString);
   
   // FORMAT sample: March 22, 2025
@@ -39,6 +38,21 @@ function formatEventDate(dateString: string) {
     year: 'numeric'
   });
 }
+
+function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done' {
+  const eventDate = new Date(eventDateString);
+  const today = new Date();
+  
+  // normalize today's date to ignore time differences
+  today.setHours(0, 0, 0, 0);
+  eventDate.setHours(0, 0, 0, 0);
+
+  if (eventDate > today) return 'Upcoming';
+  if (eventDate.getTime() === today.getTime()) return 'Ongoing';
+  
+  return 'Done';
+}
+
 
 export default function Events() {
   const { 
@@ -58,6 +72,9 @@ export default function Events() {
 
   // Sorting states
   const [dateSortType, setDateSortType] = useState<'event-closest' | 'event-farthest' | 'posted-newest' | 'posted-oldest'>('event-closest');
+
+  // New state for date filtering
+  const [dateFilterType, setDateFilterType] = useState<'All' | 'Upcoming' | 'Ongoing' | 'Done'>('All');
 
   // Sorting function for events
   const sortEvents = (events: Event[]) => {
@@ -81,28 +98,59 @@ export default function Events() {
     });
   };
 
-  // Sorting dropdown (temporary lng)
-  const renderSortDropdown = () => (
-    <div className="mb-4">
-      <label htmlFor="sort-select" className="mr-2">Sort by:</label>
-      <select 
-        id="sort-select"
-        value={dateSortType}
-        onChange={(e) => setDateSortType(e.target.value as any)}
-        className="p-2 border rounded"
-      >
-        <option value="event-closest">Event Date (Closest First)</option>
-        <option value="event-farthest">Event Date (Farthest First)</option>
-        <option value="posted-newest">Date Posted (Newest First)</option>
-        <option value="posted-oldest">Date Posted (Oldest First)</option>
-      </select>
+  // Sorting and filtering dropdown
+  const renderFilterAndSortDropdowns = () => (
+    <div className="flex space-x-4 mb-4">
+      {/* Date Filter Dropdown */}
+      <div>
+        <label htmlFor="filter-select" className="mr-2">Filter by:</label>
+        <select 
+          id="filter-select"
+          value={dateFilterType}
+          onChange={(e) => setDateFilterType(e.target.value as any)}
+          className="p-2 border rounded"
+        >
+          <option value="All">All Events</option>
+          <option value="Upcoming">Upcoming</option>
+          <option value="Ongoing">Ongoing</option>
+          <option value="Done">Done</option>
+        </select>
+      </div>
+
+      {/* Sort Dropdown */}
+      <div>
+        <label htmlFor="sort-select" className="mr-2">Sort by:</label>
+        <select 
+          id="sort-select"
+          value={dateSortType}
+          onChange={(e) => setDateSortType(e.target.value as any)}
+          className="p-2 border rounded"
+        >
+          <option value="event-closest">Event Date (Closest First)</option>
+          <option value="event-farthest">Event Date (Farthest First)</option>
+          <option value="posted-newest">Date Posted (Newest First)</option>
+          <option value="posted-oldest">Date Posted (Oldest First)</option>
+        </select>
+      </div>
     </div>
   );
 
-  // Render event list with common structure
+  // Render event list with common structure and filtering
   const renderEventList = (filteredEvents: Event[]) => {
-    const sortedEvents = sortEvents(filteredEvents);
+    // First, filter by date status
+    const dateFilteredEvents = filteredEvents.filter(event => {
+      if (dateFilterType === 'All') return true;
+      return getEventStatus(event.date) === dateFilterType;
+    });
+
+    // Then sort the filtered events
+    const sortedEvents = sortEvents(dateFilteredEvents);
     
+    // If no events after filtering
+    if (sortedEvents.length === 0) {
+      return <p className="text-gray-500">No events found.</p>;
+    }
+
     return sortedEvents.map((event, index) => (
       <div 
         key={index} 
@@ -111,6 +159,9 @@ export default function Events() {
         <h2 className="text-xl font-bold mb-2">{event.title}</h2>
         <div className="mb-2">
           <strong>Event Date:</strong> {formatEventDate(event.date)}
+          {/* <span className="ml-2 text-sm text-gray-600">
+            ({getEventStatus(event.date)})
+          </span> */}
         </div>
         <div className="mb-2">
           <strong>Description:</strong> {event.description}
@@ -123,7 +174,6 @@ export default function Events() {
       </div>
     ));
   };
-
 
   return (
     <div className="container mx-auto p-4">
@@ -183,7 +233,7 @@ export default function Events() {
         )}
       </div>
 
-      {renderSortDropdown()}
+      {renderFilterAndSortDropdowns()}
 
       {/* Approved Events */}
       <div className="mb-6">
