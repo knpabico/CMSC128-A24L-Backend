@@ -53,12 +53,34 @@ export interface Event {
   creatorType: string;
 }
 
+export interface Sponsorship {
+  donationDriveId: string;
+  datePosted: Date;
+  description: string;
+  beneficiary: string[];
+  campaignName: string;
+  status: string;
+  totalAmount: number;
+}
+
 export interface DonationDrive {
   donationDriveId: string;
   datePosted: Date;
   description: string;
   beneficiary: string[];
   campaignName: string;
+  totalAmount: number;
+  status: string;
+}
+
+export interface DonationDriveSuggestions {
+  donationDriveId: string;
+  suggestedBy: string;
+  datePosted: Date;
+  description: string;
+  beneficiary: string[];
+  campaignName: string;
+  status: string;
   totalAmount: number;
 }
 
