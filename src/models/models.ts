@@ -9,7 +9,8 @@ export interface Alumnus {
   studentNumber: string;
   address: string[];
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   age: number;
   birthDate: Date;
   companyName: string;
