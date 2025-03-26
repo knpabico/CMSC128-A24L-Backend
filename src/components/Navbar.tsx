@@ -111,6 +111,16 @@ export default function Navbar() {
       )}
       {user && (
         <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
+            router.push("/workexperience-list");
+          }}
+        >
+          <button className=" cursor-pointer">Work Experience (All)</button>
+        </div>
+      )}
+      {user && (
+        <div
           onClick={async () => {
             await logOut();
             router.refresh();
