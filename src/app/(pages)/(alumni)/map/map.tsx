@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
@@ -8,14 +8,26 @@ import L from "leaflet";
 export default function MyMap(props: any) {
   const { position, zoom } = props;
 
+  const blueOptions = { color: 'blue' }
+
   const arrCoordinates: LatLngTuple[] = [
-    [14.6531, 121.067],
-    [14.5787, 120.9843],
-    [14.1674, 121.2436],
+    [31.2206, 121.4098],
+    [14.5526, 121.0450],
+    [43.6600, -79.4400],
+    [34.0337,-118.4521]
   ];
 
-  const places: string[] = ["UP Diliman", "UP Manila", "UP Los Banos"];
-  const markerColors = ["red", "blue", "green"];
+
+ const polyline = [
+  [31.2206, 121.4098],
+  [14.5526, 121.0450],
+  [43.6600, -79.4400],
+  [34.0337,-118.4521]
+ ]
+  //Hard Coded
+  const places: string[] = ["Valve Company", "Garena Company Philipines", "Ubisoft Toronto", "Riot Games"];
+  // const 
+  const markerColors = ["red", "blue", "green", "Purple"];
 
   function MultipleMarkers() {
     return arrCoordinates.map((coordinata, index) => {
@@ -61,6 +73,7 @@ export default function MyMap(props: any) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <MultipleMarkers />
+      <Polyline pathOptions={blueOptions} positions={polyline} />
     </MapContainer>
   );
 }
