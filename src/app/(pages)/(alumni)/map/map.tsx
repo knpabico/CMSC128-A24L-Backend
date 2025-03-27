@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -33,9 +34,7 @@ export default function MapComponent({ workExperienceList }: { workExperienceLis
               experience.location === selectedPlace ? undefined : experience.location
             )
           }
-          position={{lat:experience.latitude, lng:experience.longitude}}
         />
-
       ))}
     </GoogleMap>
   );
