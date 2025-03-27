@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { GoogleMap, InfoWindowF, MarkerF, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, InfoWindowF, MarkerF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
 import { WorkExperience } from "@/models/models";
 
 const containerStyle = {
   width: "100%",
   height: "500px",
 };
-
-
-
 
 export default function MapComponent({ workExperienceList }: { workExperienceList: WorkExperience[] }) {
   const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(null);
@@ -30,6 +27,12 @@ export default function MapComponent({ workExperienceList }: { workExperienceLis
       }
     }, 400);
   }
+
+  //function to extract the polylinepath
+  const polylinepath= workExperienceList.map((experience)=> ({
+    lat: experience.latitude,
+    lng: experience.longitude,
+  }));
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyCnDnz-yF_a-LiquYYONJcf1wFobK75tNk",
@@ -58,6 +61,16 @@ export default function MapComponent({ workExperienceList }: { workExperienceLis
           }}
         />
       ))}
+
+      <PolylineF 
+        path={polylinepath}
+        options={{
+          strokeColor: "#FF0000",
+          strokeOpacity: 0.8,
+          strokeWeight:4,
+          geodesic: true
+        }}
+        />
       {selectedPlace && (
         <InfoWindowF
           position={{ lat: selectedPlace.latitude, lng: selectedPlace.longitude }}
