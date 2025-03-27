@@ -9,10 +9,27 @@ const containerStyle = {
   height: "500px",
 };
 
+
+
+
 export default function MapComponent({ workExperienceList }: { workExperienceList: WorkExperience[] }) {
   const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(null);
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
   const [zoom, setZoom] = useState(3);
+  const [activeMarker, setActiveMarker] = useState<string | null> (null); 
+  const [map,setMap] = useState<google.maps.Map | null> (null);
+  
+  //this function is to smoothen the transition for the meantime
+  const smoothZoom = (targetZoom: number) =>{
+    let currentZoom = map?.getZoom() ?? 3;
+    const zoomInterval = setInterval(() => {
+      if (currentZoom < targetZoom ){
+        map?.setZoom(++currentZoom);
+      }else {
+        clearInterval(zoomInterval);
+      }
+    }, 400);
+  }
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyCnDnz-yF_a-LiquYYONJcf1wFobK75tNk",
@@ -23,15 +40,21 @@ export default function MapComponent({ workExperienceList }: { workExperienceLis
   console.log("HI there");
 
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={zoom}>
+    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={zoom} onLoad={(map)=> setMap(map)}>
       {workExperienceList?.map((experience) => (
         <MarkerF
           key={`${experience.location}-${experience.latitude}-${experience.longitude}`}
           position={{ lat: experience.latitude, lng: experience.longitude }}
+          animation = {activeMarker === experience.location ? window.google.maps.Animation.BOUNCE : undefined }
           onClick={() => {
             setSelectedPlace(experience);
             setCenter({ lat: experience.latitude, lng: experience.longitude });
             setZoom(10);
+            setActiveMarker(experience.location);
+            if (map){
+              map.panTo({lat: experience.latitude, lng: experience.longitude});
+              smoothZoom(20);
+            }
           }}
         />
       ))}
@@ -47,7 +70,10 @@ export default function MapComponent({ workExperienceList }: { workExperienceLis
           }}
           onCloseClick={() => {
             setSelectedPlace(null);
-            setZoom(3);
+            setActiveMarker(null);
+            if (map){
+              map.setZoom(3);
+            }
           }}
         >
           <div>
