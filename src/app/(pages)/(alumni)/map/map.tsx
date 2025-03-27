@@ -1,67 +1,40 @@
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-import { LatLngTuple, } from "leaflet";
-import L from "leaflet";
-import { Button, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+"use client";
 
-function ResetCenterView(props) {
-  const { selectPosition } = props;
-  const map = useMap();
-  useEffect(() => {
-    if (selectPosition) {
-      map.setView(L.latLng(selectPosition?.lat, selectPosition?.lon), 17, {
-        animate: true,
-        duration: 0.5,
-        easeLinearity: 0.25,
-      });
-    }
-  }, [selectPosition]);
+import { useState } from "react";
+import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
+import { WorkExperience } from "@/models/models";
 
-  return null;
-}
+const containerStyle = {
+  width: "100%",
+  height: "500px",
+};
 
-export default function MyMap(props: any) {
-  const { selectPosition } = props;
-  const locationSelection: LatLngTuple = [
-    selectPosition?.lat,
-    selectPosition?.lon,
-  ];
-  const [isSatellite, setIsSatellite] = useState(false);
+const center = { lat: 14, lng: 120 };
+
+export default function MapComponent({ workExperienceList }: { workExperienceList: WorkExperience[] }) {
+  const [selectedPlace, setSelectedPlace] = useState<string | undefined>(undefined);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: "AIzaSyCnDnz-yF_a-LiquYYONJcf1wFobK75tNk",
+  });
+
+  if (!isLoaded) return <p>Loading Map...</p>;
+
+  console.log("HI there")
 
   return (
-    <div className="relative w-full h-full">
-      <div className="absolute top-4 left-12 z-[1000]">
-        <button
-          onClick={() => setIsSatellite(!isSatellite)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
-        >
-          Click for {isSatellite ? "Basic" : "Satellite"} View
-        </button>
-      </div>
-
-      <MapContainer
-        center={[14.125, 121.14]}
-        zoom={4}
-        className="w-full h-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url={
-            isSatellite
-              ? "https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=doD1WKAsjysDh9sCkDeo"
-              : "https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=doD1WKAsjysDh9sCkDeo"
+    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={3}>
+      {workExperienceList?.map((experience) => (
+        <MarkerF
+          key={`${experience.location}-${experience.latitude}-${experience.longitude}`}
+          position={{ lat: experience.latitude, lng: experience.longitude }}
+          onClick={() =>
+            setSelectedPlace(
+              experience.location === selectedPlace ? undefined : experience.location
+            )
           }
         />
-        {selectPosition && (
-          <Marker position={locationSelection}>
-            <Popup>place</Popup>
-          </Marker>
-        )}
-        <ResetCenterView selectPosition={selectPosition} />
-      </MapContainer>
-    </div>
+      ))}
+    </GoogleMap>
   );
 }

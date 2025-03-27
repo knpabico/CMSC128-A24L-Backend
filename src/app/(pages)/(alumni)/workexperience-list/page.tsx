@@ -1,23 +1,23 @@
 "use client";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { WorkExperience } from "@/models/models";
-import MyMap from '../map/page';
+import MapComponent from "../map/map";
 
 export default function WorkExperiencePage() {
   const { allWorkExperience, isLoading } = useWorkExperience();
-  
-  //gets the positions of the places n the previous job
-  // const [position, setPosition] = useState([]);
-  
-
+  console.log(isLoading);
   return (
     <div>
+      <MapComponent props={allWorkExperience}/>
       <h1>Work Experience (ALL)</h1>
-      <MyMap position={[0,0]} zoom={2} />
+      {isLoading && <h1>Loading</h1>}
+      {console.log("Hi",allWorkExperience)}
+      {/* {!isLoading && <h1>Done Loading</h1>} */}
       {allWorkExperience.map((workExperience: WorkExperience, index: any) => (
         <div key={index} className="p-1">
-          
           <h1>Company: {workExperience.company}</h1>
+          <h1>Latitude: {workExperience.latitude}</h1>
+          <h1>Longitude: {workExperience.longitude}</h1>
           <h2>Location: {workExperience.location}</h2>
           <h2>
             Duration:{" "}
