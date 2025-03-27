@@ -8,7 +8,7 @@ export default function WorkExperiencePage() {
   console.log(isLoading);
   return (
     <div>
-      <MapComponent props={allWorkExperience}/>
+      <MapComponent workExperienceList={allWorkExperience} />
       <h1>Work Experience (ALL)</h1>
       {isLoading && <h1>Loading</h1>}
       {console.log("Hi",allWorkExperience)}
