@@ -22,8 +22,6 @@ export default function WorkExperiencePage() {
           <h1>Company: {workExperience.company}</h1>
           <h1>Latitude: {workExperience.latitude}</h1>
           <h1>Longitude: {workExperience.longitude}</h1>
-          <h1>Latitude: {workExperience.latitude}</h1>
-          <h1>Longitude: {workExperience.longitude}</h1>
           <h2>Location: {workExperience.location}</h2>
           <h2>
             Duration:{" "}
