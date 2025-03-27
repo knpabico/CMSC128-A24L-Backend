@@ -9,6 +9,9 @@ import {
   where,
   doc,
   getDoc,
+  deleteDoc,
+  setDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -61,9 +64,35 @@ export function WorkExperienceProvider({
     userId: string
   ) => {
     try {
+      const newDocRef = doc(collection(db, "work_experience"));
+      workExperienceEntry.workExperienceId = newDocRef.id;
       workExperienceEntry.alumniId = userId;
-      await addDoc(collection(db, "work_experience"), workExperienceEntry);
+      await setDoc(newDocRef, workExperienceEntry);
       return { success: true, message: "success" };
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const editWorkExperience = async (workExperienceEntry) => {
+    try {
+      console.log(workExperienceEntry);
+      const workExpRef = doc(
+        db,
+        "work_experience",
+        workExperienceEntry.workExperienceId
+      );
+      await updateDoc(workExpRef, workExperienceEntry);
+      return { success: true, message: "Edited Successfully" };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  };
+
+  const deleteWorkExperience = async (id) => {
+    try {
+      await deleteDoc(doc(db, "work_experience", id));
+      return { success: true, message: `Successfully Deleted!` };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
@@ -127,6 +156,8 @@ export function WorkExperienceProvider({
         allWorkExperience,
         isLoading,
         addWorkExperience,
+        deleteWorkExperience,
+        editWorkExperience,
       }}
     >
       {children}

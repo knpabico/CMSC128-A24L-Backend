@@ -8,26 +8,72 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Divider,
   Snackbar,
   Typography,
 } from "@mui/material";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { WorkExperienceModal } from "./add-work-experience";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import EditWorkExperience from "../edit-work-experience";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
-  const { userWorkExperience, isLoading } = useWorkExperience();
+  const { userWorkExperience, isLoading, deleteWorkExperience } =
+    useWorkExperience();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState("");
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [snackbar, setSnackbar] = useState(false);
+  const [editMessage, setEditMessage] = useState("");
+  const [editSuccess, setEditSuccess] = useState(false);
+
+  const handleDelete = async (id) => {
+    const { success, message } = await deleteWorkExperience(id);
+    setMessage(message);
+    setSuccess(success);
+    setDeleteModal(true);
+  };
 
   const [isMapOpenArray, setIsMapOpenArray] = useState(
     new Array(userWorkExperience.length).fill(false)
   );
+
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(
+    new Array(userWorkExperience.length).fill(false)
+  );
+  const [isEditModalOpen, setEditModalOpen] = useState(
+    new Array(userWorkExperience.length).fill(false)
+  );
+
+  const openEditModal = (index) => {
+    const newEditModal = Array(isEditModalOpen.length).fill(false);
+    newEditModal[index] = true;
+    setEditModalOpen(newEditModal);
+  };
+
+  const closeEditModal = (index) => {
+    const newEditModal = [...isEditModalOpen];
+    newEditModal[index] = false;
+    setEditModalOpen(newEditModal);
+  };
+
+  const openModal = (index) => {
+    const newDeleteModal = [...isDeleteModalOpen];
+    newDeleteModal[index] = true;
+    setDeleteModalOpen(newDeleteModal);
+  };
+
+  const closeModal = (index) => {
+    const newDeleteModal = [...isDeleteModalOpen];
+    newDeleteModal[index] = false;
+    setDeleteModalOpen(newDeleteModal);
+  };
 
   const openMap = (index) => {
     const newIsMapOpenArray = [...isMapOpenArray];
@@ -35,7 +81,6 @@ const UserProfile = () => {
     setIsMapOpenArray(newIsMapOpenArray);
   };
 
-  // Function to close map for a specific work experience
   const closeMap = (index) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = false;
@@ -69,10 +114,11 @@ const UserProfile = () => {
       )}
       {userWorkExperience.map((work, index) => {
         return (
-          <div key={index} className=" pb-1.5">
+          <div key={work.workExperienceId} className=" pb-1.5">
             <li>Company: {work.company}</li>
             <li>Details: {work.details}</li>
             <li>Location: {work.location}</li>
+            <li>ID: {work.workExperienceId}</li>
             <li>
               From {work.startingDate?.toDate().toDateString()} to{" "}
               {work.endingDate?.toDate().toDateString()}
@@ -81,6 +127,62 @@ const UserProfile = () => {
               Lat:{work.latitude} Long:{work.longitude}
             </li>
             <Button onClick={() => openMap(index)}>View in Map</Button>
+            <Button onClick={() => openModal(index)}>
+              Delete Work Experience
+            </Button>
+            <Button
+              onClick={() => {
+                if (!isEditModalOpen[index]) openEditModal(index);
+                else closeEditModal(index);
+              }}
+              variant="contained"
+            >
+              <span>Edit Work Experience</span>
+              {!isEditModalOpen[index] ? <ChevronRight /> : <ChevronDown />}
+            </Button>
+            <Divider />
+            <EditWorkExperience
+              open={isEditModalOpen[index]}
+              work={work}
+              onClose={() => closeEditModal(index)}
+              snackbar
+              setSnackbar={setSnackbar}
+              setMessage={setEditMessage}
+              setSuccess={setEditSuccess}
+            />
+            <Snackbar
+              open={snackbar}
+              onClose={() => setSnackbar(false)}
+              autoHideDuration={2000}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+              <div
+                className={`${
+                  editSuccess ? "bg-green-400" : "bg-red-500"
+                } text-white px-4 py-3 rounded-lg shadow-lg`}
+              >
+                {editMessage}
+              </div>
+            </Snackbar>
+            <Dialog
+              open={isDeleteModalOpen[index]}
+              onClose={() => closeModal(index)}
+            >
+              <DialogContent>
+                <div>
+                  <Typography>Are you sure you want to delete?</Typography>
+                  <Button
+                    onClick={async () => {
+                      await handleDelete(work.workExperienceId);
+                      closeModal(index);
+                    }}
+                  >
+                    Yes
+                  </Button>
+                  <Button onClick={() => closeModal(index)}>No</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Dialog
               open={isMapOpenArray[index]}
               onClose={() => closeMap(index)}
@@ -137,10 +239,25 @@ const UserProfile = () => {
       >
         <div
           className={`${
-            success ? "bg-black" : "bg-red-500"
+            success ? "bg-green-600" : "bg-red-500"
           } text-white px-4 py-3 rounded-lg shadow-lg`}
         >
           {success ? "Successfully Added!" : "Error!"}
+        </div>
+      </Snackbar>
+
+      <Snackbar
+        open={deleteModal}
+        onClose={() => setDeleteModal(false)}
+        autoHideDuration={2000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <div
+          className={`${
+            success ? "bg-black" : "bg-red-500"
+          } text-white px-4 py-3 rounded-lg shadow-lg`}
+        >
+          {message}
         </div>
       </Snackbar>
     </div>
