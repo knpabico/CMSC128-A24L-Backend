@@ -2,144 +2,70 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+
 export default function Navbar() {
   const { user, logOut, loading } = useAuth();
   const router = useRouter();
+
+  const navItems = [
+    { label: "See Newsletters", path: "/newsletters" },
+    { label: "See Alums", path: "/alumni-list" },
+    { label: "See Job Offers", path: "/joboffer-list" },
+    { label: "Announcements", path: "/announcement-list" },
+    { label: "See Events", path: "/events" },
+    { label: "Donation Drives", path: "/donationdrive-list" },
+    { label: "Donations", path: "/donations" },
+    { label: "Bookmarks", path: "/bookmark-list" },
+    { label: "My Profile", path: `/my-profile/${user?.uid}` },
+  ];
+
   return (
-    <div className=" flex ">
+    <div className="flex">
       <div className="p-3">
-        {loading && <></>}
-        <Link className="text-black font-bold p-3" href={"/"}>
+        <Link className="text-black font-bold p-3" href="/">
           Website Logo
         </Link>
-        {!user && !loading && (
-          <Link href={"/auth/login"} className="text-black font-bold">
-            Log In
-          </Link>
-        )}
       </div>
-      {!user && !loading ? (
-        <div className="p-3">
-          <Link href={"/auth/signup"} className="text-black font-bold">
-            Sign Up
-          </Link>
-        </div>
-      ) : (
-        <></>
+
+      {!loading && !user && (
+        <>
+          <div className="p-3">
+            <Link href="/auth/login" className="text-black font-bold">
+              Log In
+            </Link>
+          </div>
+          <div className="p-3">
+            <Link href="/auth/signup" className="text-black font-bold">
+              Sign Up
+            </Link>
+          </div>
+        </>
       )}
 
       {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/newsletters");
-          }}
-        >
-          <button className=" cursor-pointer">See Newsletters</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/alumni-list");
-          }}
-        >
-          <button className=" cursor-pointer">See Alums</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/joboffer-list");
-          }}
-        >
-          <button className=" cursor-pointer">See Job Offers</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/announcement-list");
-          }}
-        >
-          <button className=" cursor-pointer">ANNOUNCEMENTS</button>
-        </div>
-      )}
-
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/events");
-          }}
-        >
-          <button className=" cursor-pointer">See Events</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/donationdrive-list");
-          }}
-        >
-          <button className=" cursor-pointer">Donation Drives</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/donations");
-          }}
-        >
-          <button className=" cursor-pointer">Donations</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/bookmark-list");
-          }}
-        >
-          <button className=" cursor-pointer">Bookmarks</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push("/workexperience-list");
-          }}
-        >
-          <button className=" cursor-pointer">Work Experience (All)</button>
-        </div>
-      )}
-      {user && (
-        <div
-          className="p-3 text-black font-bold"
-          onClick={async () => {
-            router.push(`/my-profile/${user.uid}`);
-          }}
-        >
-          <button className=" cursor-pointer">My Profile</button>
-        </div>
-      )}
-      {user && (
-        <div
-          onClick={async () => {
-            await logOut();
-            router.refresh();
-            // router.refresh();
-          }}
-          className="p-3 text-black font-bold"
-        >
-          <button className=" cursor-pointer">Sign Out</button>
-        </div>
+        <>
+          {navItems.map((item) => (
+            <div key={item.path} className="p-3 text-black font-bold ">
+              <button
+                onClick={() => router.push(item.path)}
+                className=" cursor-pointer"
+              >
+                {item.label}
+              </button>
+            </div>
+          ))}
+          <div className="p-3 text-black font-bold ">
+            <button
+              className=" cursor-pointer"
+              onClick={async () => {
+                await logOut();
+                router.refresh();
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
