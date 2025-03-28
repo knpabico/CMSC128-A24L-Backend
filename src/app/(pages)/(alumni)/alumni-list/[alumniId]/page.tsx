@@ -1,4 +1,3 @@
-"use client";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus } from "@/models/models";
 import { useEffect, useState } from "react";
@@ -25,7 +24,7 @@ export default function AlumPage() {
 
   return (
     <div>
-      <h1>{alum.name}</h1>
+      <h1>{alum.firstName} {alum.lastName}</h1>
       <h1>{alum.companyName}</h1>
       <h1>{alum.address}</h1>
       <h1>{alum.age}</h1>

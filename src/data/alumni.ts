@@ -6,7 +6,7 @@ import { getTotalPages } from "./pagination";
 import { Alumnus } from "@/models/models";
 
 // data type of the props argument of getAlumni()
-type GetAlumniOptions = {
+export type GetAlumniOptions = {
   filters?: {
     regStatus?: "pending" | "approved" | "rejected";
     // add more filters later
@@ -14,6 +14,9 @@ type GetAlumniOptions = {
   pagination?: {
     pageSize?: number;
     page?: number;
+  };
+  sorting?: {
+    sort: string | undefined;
   };
 };
 
@@ -36,13 +39,41 @@ export const getAlumni = async (options?: GetAlumniOptions) => {
   // if there is no filters argument, set those variables to null
   const { regStatus } = options?.filters || {};
 
+  //get sorting parameter
+  //if undefined, sorting is the default type
+  const sort = options?.sorting?.sort;
+
   // start making the query
   // suggestion: dapat separate inputs yung last name at first name
   // get all Alumni documents, sort by alphabetical order
-  // of their name
+  // of their name (default - first name ascending)
   let alumniQuery = serverFirestoreDB
     .collection("alumni")
-    .orderBy("name", "asc");
+    .orderBy("firstName", "asc");
+
+  //sort by sorting params
+  if (sort === "d") {
+  } else if (sort === "sa") {
+    //surname ascending sort
+    alumniQuery = serverFirestoreDB
+      .collection("alumni")
+      .orderBy("lastName", "asc");
+  } else if (sort === "sd") {
+    //surname descending sort
+    alumniQuery = serverFirestoreDB
+      .collection("alumni")
+      .orderBy("lastName", "desc");
+  } else if (sort === "ar") {
+    //approved to rejected order (asc sort)
+    alumniQuery = serverFirestoreDB
+      .collection("alumni")
+      .orderBy("regStatus", "asc");
+  } else if (sort === "ra") {
+    //rejected to approved order (desc sort)
+    alumniQuery = serverFirestoreDB
+      .collection("alumni")
+      .orderBy("regStatus", "desc");
+  }
 
   // apply filters, if there is one
   // if there is a status filter, apply it
@@ -61,12 +92,12 @@ export const getAlumni = async (options?: GetAlumniOptions) => {
 
   // add the ID of each alumnus document that has just been queried
   const alumni = alumniSnapshot.docs.map(
-    doc => (
-      {
-        alumniId: doc.id,
+    (doc) =>
+      ({
+        alumniId: doc.id.toString(),
         ...doc.data(),
-    } as Alumnus)
+      } as Alumnus)
   );
-  
-  return {data: alumni, totalPages};
+
+  return { data: alumni, totalPages };
 };
