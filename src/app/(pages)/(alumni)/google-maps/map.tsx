@@ -33,10 +33,11 @@ const GoogleMapsModal: React.FC<GoogleMapsModalProps> = ({
   const [zoom, setZoom] = useState(10);
   const [markerAnimation, setMarkerAnimation] = useState(null);
   const [isMapClick, setIsMapClick] = useState(false);
+  const libraries = useMemo(() => ["places"], []);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyCnDnz-yF_a-LiquYYONJcf1wFobK75tNk",
-    libraries: ["places"],
+    libraries,
   });
 
   const center = useMemo(
@@ -146,6 +147,12 @@ const GoogleMapsModal: React.FC<GoogleMapsModalProps> = ({
                     value={searchInput}
                     placeholder="Search Location"
                     onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handlePlaceChanged();
+                      }
+                    }}
                   />
                   <Search
                     className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"

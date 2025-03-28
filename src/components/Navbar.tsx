@@ -121,6 +121,16 @@ export default function Navbar() {
       )}
       {user && (
         <div
+          className="p-3 text-black font-bold"
+          onClick={async () => {
+            router.push(`/my-profile/${user.uid}`);
+          }}
+        >
+          <button className=" cursor-pointer">My Profile</button>
+        </div>
+      )}
+      {user && (
+        <div
           onClick={async () => {
             await logOut();
             router.refresh();

@@ -131,8 +131,10 @@ export interface Bookmark {
 export interface WorkExperience {
   workExperienceId: string;
   alumniId: string;
-  company: String;
-  location: String;
+  company: string;
+  location: string;
+  latitude: number;
+  longitude: number;
   details: string;
   startingDate: Date;
   endingDate: Date;

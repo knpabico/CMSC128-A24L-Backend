@@ -8,7 +8,10 @@ import {
   addDoc,
   where,
   doc,
-  getDoc,
+  getDocs,
+  deleteDoc,
+  setDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -25,6 +28,10 @@ export function WorkExperienceProvider({
   const [userWorkExperience, setUserWorkExperience] = useState<
     WorkExperience[]
   >([]);
+
+  const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null);
+  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
+
   const [allWorkExperience, setAllWorkExperience] = useState<WorkExperience[]>(
     []
   );
@@ -61,9 +68,64 @@ export function WorkExperienceProvider({
     userId: string
   ) => {
     try {
+      const newDocRef = doc(collection(db, "work_experience"));
+      workExperienceEntry.workExperienceId = newDocRef.id;
       workExperienceEntry.alumniId = userId;
-      await addDoc(collection(db, "work_experience"), workExperienceEntry);
+      await setDoc(newDocRef, workExperienceEntry);
       return { success: true, message: "success" };
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+
+  //function to fetch the working experience of the clicked alumni
+  const fetchWorkExperience = async (alumniId: string): Promise<WorkExperience[]> => {
+    setLoading(true);
+    setSelectedAlumniId(alumniId);
+  
+    try {
+      const q = query(collection(db, "work_experience"), where("alumniId", "==", alumniId));
+      const querySnapshot = await getDocs(q);
+      
+      console.log("Raw Firestore Data:", querySnapshot.docs.map(doc => doc.data()));
+  
+      const workExperienceList: WorkExperience[] = querySnapshot.docs.map((doc) => doc.data() as WorkExperience);
+  
+      console.log("Fetched Work Experience:", workExperienceList);
+  
+      setSelectedAlumWorkExperience(workExperienceList);  
+      return workExperienceList;
+    } catch (error) {
+      console.error("Error fetching work experience:", error);
+      setSelectedAlumWorkExperience([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+
+  const editWorkExperience = async (workExperienceEntry) => {
+    try {
+      console.log(workExperienceEntry);
+      const workExpRef = doc(
+        db,
+        "work_experience",
+        workExperienceEntry.workExperienceId
+      );
+      await updateDoc(workExpRef, workExperienceEntry);
+      return { success: true, message: "Edited Successfully" };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  };
+
+  const deleteWorkExperience = async (id) => {
+    try {
+      await deleteDoc(doc(db, "work_experience", id));
+      return { success: true, message: `Successfully Deleted!` };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
@@ -127,6 +189,9 @@ export function WorkExperienceProvider({
         allWorkExperience,
         isLoading,
         addWorkExperience,
+        deleteWorkExperience,
+        editWorkExperience,
+        fetchWorkExperience
       }}
     >
       {children}

@@ -1,67 +1,134 @@
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-import { LatLngTuple } from "leaflet";
-import L from "leaflet";
-import { Button, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+"use client";
 
-function ResetCenterView(props) {
-  const { selectPosition } = props;
-  const map = useMap();
-  useEffect(() => {
-    if (selectPosition) {
-      map.setView(L.latLng(selectPosition?.lat, selectPosition?.lon), 17, {
-        animate: true,
-        duration: 0.5,
-        easeLinearity: 0.25,
-      });
-    }
-  }, [selectPosition]);
+import { useState } from "react";
+import {
+  GoogleMap,
+  InfoWindowF,
+  MarkerF,
+  PolylineF,
+  useJsApiLoader,
+  useLoadScript,
+} from "@react-google-maps/api";
+import { WorkExperience } from "@/models/models";
+import { useGoogleMaps } from "@/context/GoogleMapsContext";
 
-  return null;
-}
 
-export default function MyMap(props: any) {
-  const { selectPosition } = props;
-  const locationSelection: LatLngTuple = [
-    selectPosition?.lat,
-    selectPosition?.lon,
-  ];
-  const [isSatellite, setIsSatellite] = useState(false);
+const containerStyle = {
+  width: "100%",
+  height: "500px",
+};
+
+export default function MapComponent({
+  workExperienceList,
+}: {
+  workExperienceList: WorkExperience[];
+}) {
+  const { isLoaded } = useGoogleMaps();
+  const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(null);
+  const [center, setCenter] = useState({ lat: 14, lng: 120 });
+  const [zoom, setZoom] = useState(3);
+  const [activeMarker, setActiveMarker] = useState<string | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  //this function is to smoothen the transition for the meantime
+  const smoothZoom = (targetZoom: number) => {
+    let currentZoom = map?.getZoom() ?? 3;
+    const zoomInterval = setInterval(() => {
+      if (currentZoom < targetZoom) {
+        map?.setZoom(++currentZoom);
+      } else {
+        clearInterval(zoomInterval);
+      }
+    }, 400);
+  };
+
+
+
+  //function to extract the polylinepath
+  const polylinepath = workExperienceList.map((experience) => ({
+    lat: experience.latitude,
+    lng: experience.longitude,
+  }));
+
+  if (!isLoaded) return <p>Loading Map...</p>;
+
+  console.log("HI there");
 
   return (
-    <div className="relative w-full h-full">
-      <div className="absolute top-4 left-12 z-[1000]">
-        <button
-          onClick={() => setIsSatellite(!isSatellite)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
-        >
-          Click for {isSatellite ? "Basic" : "Satellite"} View
-        </button>
-      </div>
-
-      <MapContainer
-        center={[14.125, 121.14]}
-        zoom={4}
-        className="w-full h-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url={
-            isSatellite
-              ? "https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=doD1WKAsjysDh9sCkDeo"
-              : "https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=doD1WKAsjysDh9sCkDeo"
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={zoom}
+      onLoad={(map) => setMap(map)}
+    >
+      {workExperienceList?.map((experience) => (
+        <MarkerF
+          key={`${experience.location}-${experience.latitude}-${experience.longitude}`}
+          position={{ lat: experience.latitude, lng: experience.longitude }}
+          animation={
+            activeMarker === experience.location
+              ? window.google.maps.Animation.BOUNCE
+              : undefined
           }
+          onClick={() => {
+            setSelectedPlace(experience);
+            setCenter({ lat: experience.latitude, lng: experience.longitude });
+            setZoom(10);
+            setActiveMarker(experience.location);
+            if (map) {
+              map.panTo({
+                lat: experience.latitude,
+                lng: experience.longitude,
+              });
+              smoothZoom(10);
+            }
+          }}
         />
-        {selectPosition && (
-          <Marker position={locationSelection}>
-            <Popup>place</Popup>
-          </Marker>
-        )}
-        <ResetCenterView selectPosition={selectPosition} />
-      </MapContainer>
-    </div>
+      ))}
+
+      <PolylineF
+        path={polylinepath}
+        options={{
+          strokeColor: "#FF0000",
+          strokeOpacity: 0.8,
+          strokeWeight: 4,
+          geodesic: true,
+        }}
+      />
+      {selectedPlace && (
+        <InfoWindowF
+          position={{
+            lat: selectedPlace.latitude,
+            lng: selectedPlace.longitude,
+          }}
+          zIndex={1}
+          options={{
+            pixelOffset: {
+              width: 0,
+              height: -40,
+            },
+          }}
+          onCloseClick={() => {
+            setSelectedPlace(null);
+            setActiveMarker(null);
+            if (map) {
+              map.setZoom(3);
+            }
+          }}
+        >
+          <div>
+            <h3>{selectedPlace.location}</h3>
+            <div className="text relative z-50">
+              <h1 className="font-bold text-xl md:text-3xl relative">
+                Company Name: {selectedPlace.company}
+              </h1>
+              <p className="font-normal text-base  relative my-4">
+                Desciption: Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis commodi nihil reiciendis ad magni vel, voluptatibus a. Beatae, ipsum eius recusandae temporibus magnam aspernatur modi, laboriosam cumque quos repellendus dolorum!
+              </p>
+            </div>
+          </div>
+        </InfoWindowF>
+      )}
+    </GoogleMap>
   );
 }
