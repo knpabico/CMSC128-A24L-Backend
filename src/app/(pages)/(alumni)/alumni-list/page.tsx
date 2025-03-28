@@ -16,7 +16,7 @@ export default function Users() {
             href={`/alumni-list/${user.alumniId}`}
             className="text-blue-700 underline"
           >
-            {user.name}
+            {user.firstName} {user.lastName}
           </Link>
           <h1>{user.email}</h1>
           <h2>{user.graduationYear}</h2>

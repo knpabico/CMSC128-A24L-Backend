@@ -19,6 +19,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "../edit-work-experience";
+import { useGoogleMaps } from "@/context/GoogleMapsContext";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -32,6 +33,7 @@ const UserProfile = () => {
   const [snackbar, setSnackbar] = useState(false);
   const [editMessage, setEditMessage] = useState("");
   const [editSuccess, setEditSuccess] = useState(false);
+  const { isLoaded } = useGoogleMaps();
 
   const handleDelete = async (id) => {
     const { success, message } = await deleteWorkExperience(id);
@@ -89,11 +91,6 @@ const UserProfile = () => {
 
   const params = useParams();
   const alumniId = params.alumniId;
-
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyCnDnz-yF_a-LiquYYONJcf1wFobK75tNk",
-    libraries: ["places"],
-  });
 
   if (loading || isLoading) {
     return <LoadingPage />;

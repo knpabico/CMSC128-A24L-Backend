@@ -14,6 +14,7 @@ import { BookmarkProvider } from "@/context/BookmarkContext";
 import { Toaster } from "sonner";
 import { DonationContextProvider } from "@/context/DonationContext";
 import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
+import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -26,8 +27,8 @@ import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 // });
 
 const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -52,17 +53,19 @@ export default function RootLayout({
                     <NewsLetterProvider>
                       <EventProvider>
                         <DonationContextProvider>
-                          <body
-                            // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                            className={`${poppins.className} antialiased`}
-                          >
-                            <div className="bg-blue-200 ">
-                              <Navbar />
-                            </div>
-                            {children}
-                            {/* Toaster is required here for toast/sonner component to work */}
-                            <Toaster />
-                          </body>
+                          <GoogleMapsProvider>
+                            <body
+                              // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                              className={`${poppins.className} antialiased`}
+                            >
+                              <div className="bg-blue-200 ">
+                                <Navbar />
+                              </div>
+                              {children}
+                              {/* Toaster is required here for toast/sonner component to work */}
+                              <Toaster />
+                            </body>
+                          </GoogleMapsProvider>
                         </DonationContextProvider>
                       </EventProvider>
                     </NewsLetterProvider>
