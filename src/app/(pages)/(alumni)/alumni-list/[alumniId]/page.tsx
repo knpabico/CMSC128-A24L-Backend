@@ -1,29 +1,50 @@
 "use client";
 import { useAlums } from "@/context/AlumContext";
-import { Alumnus } from "@/models/models";
+import { Alumnus, WorkExperience } from "@/models/models";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useWorkExperience } from "@/context/WorkExperienceContext";
+
 
 export default function AlumPage() {
   const { alums, loading: alumsloading } = useAlums();
   const { loading: authloading } = useAuth();
+  const { fetchWorkExperience, isLoading: workLoading } = useWorkExperience();
   const params = useParams();
+  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
+
   const alumniId = params?.alumniId;
   const [alum, setAlum] = useState<Alumnus | null>(null);
-  useEffect(() => {
-    console.log("params:", alumniId);
-    console.log("firestore:", alums.map((a) => a.alumniId));
+  // useEffect(() => {
+  //   console.log("params:", alumniId);
+  //   console.log("firestore:", alums.map((a) => a.alumniId));
+  //   console.log("selectedAlumWorkExperience:", selectedAlumWorkExperience);
   
+  //   if (alumniId) {
+  //     const foundAlum = alums.find((alum: Alumnus) => String(alum.alumniId) === String(alumniId)) || null;
+  //     setAlum(foundAlum);
+  //     fetchWorkExperience(alumniId);
+  //     console.log("Experiencmces",fetchWorkExperience(alumniId)
+  //   )
+  //   }
+  // }, [alumniId, alums]);
+
+  useEffect(() => {
     if (alumniId) {
       const foundAlum = alums.find((alum: Alumnus) => String(alum.alumniId) === String(alumniId)) || null;
       setAlum(foundAlum);
+      
+      fetchWorkExperience(alumniId).then((data) => {
+        console.log("Fetched Work Experience inside AlumPage:", data);
+        setSelectedAlumWorkExperience(data);
+      });
     }
   }, [alumniId, alums]);
 
   if (alumsloading || authloading) return <h1>Loading...</h1>;
   if (!alum) return <h1>Alum not found...</h1>;
-  console.log("this is the alumni Id:", alum.alumniId);
+  console.log("fetch experiences:", selectedAlumWorkExperience);
 
   return (
     <div>
@@ -38,6 +59,19 @@ export default function AlumPage() {
       <h1>{alum.jobTitle}</h1>
       <h1>{alum.address}</h1>
       <h1>{alum.affiliation}</h1>
+
+      <h1>Working Experience</h1>
+    {selectedAlumWorkExperience.length > 0 ? (
+      selectedAlumWorkExperience.map((work, index) => (
+        <div key={index}>
+          <p>Company Name: {work.company}</p>
+          <p>Location: {work.location}</p>
+        </div>
+      ))
+    ) : (
+      <p>No work experience found.</p>
+    )}
+
     </div>
   );
 }
