@@ -9,6 +9,7 @@ import MapComponent from "../../map/map";
 
 
 
+
 export default function AlumPage() {
   const { alums, loading: alumsloading } = useAlums();
   const { loading: authloading } = useAuth();
@@ -16,22 +17,11 @@ export default function AlumPage() {
   const params = useParams();
   const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
   const [showWorkExperience, setShowWorkExperience] = useState(false);
+  
 
   const alumniId = params?.alumniId;
   const [alum, setAlum] = useState<Alumnus | null>(null);
-  // useEffect(() => {
-  //   console.log("params:", alumniId);
-  //   console.log("firestore:", alums.map((a) => a.alumniId));
-  //   console.log("selectedAlumWorkExperience:", selectedAlumWorkExperience);
-  
-  //   if (alumniId) {
-  //     const foundAlum = alums.find((alum: Alumnus) => String(alum.alumniId) === String(alumniId)) || null;
-  //     setAlum(foundAlum);
-  //     fetchWorkExperience(alumniId);
-  //     console.log("Experiencmces",fetchWorkExperience(alumniId)
-  //   )
-  //   }
-  // }, [alumniId, alums]);
+
 
   useEffect(() => {
     if (alumniId) {
