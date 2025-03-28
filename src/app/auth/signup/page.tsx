@@ -11,7 +11,8 @@ export default function SignUp() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [address, setAddress] = useState<string[]>([]);
-  const [name, setName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [age, setAge] = useState<number | null>(null);
   const [birthDate, setBirthdate] = useState<Date | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
@@ -107,9 +108,16 @@ export default function SignUp() {
             />
             <TextField
               required
-              label="Name"
+              label="First Name"
               onChange={(e) => {
-                setName(e.target.value);
+                setFirstName(e.target.value);
+              }}
+            />
+            <TextField
+              required
+              label="Last Name"
+              onChange={(e) => {
+                setLastName(e.target.value);
               }}
             />
             <TextField
@@ -180,7 +188,8 @@ export default function SignUp() {
               onClick={() => {
                 handleSignup(password, {
                   email,
-                  name,
+                  firstName,
+                  lastName,
                   age,
                   birthDate,
                   studentNumber,
