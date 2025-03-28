@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
+import MapComponent from "../../map/map";
+
 
 
 export default function AlumPage() {
@@ -13,6 +15,7 @@ export default function AlumPage() {
   const { fetchWorkExperience, isLoading: workLoading } = useWorkExperience();
   const params = useParams();
   const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
+  const [showWorkExperience, setShowWorkExperience] = useState(false);
 
   const alumniId = params?.alumniId;
   const [alum, setAlum] = useState<Alumnus | null>(null);
@@ -46,6 +49,15 @@ export default function AlumPage() {
   if (!alum) return <h1>Alum not found...</h1>;
   console.log("fetch experiences:", selectedAlumWorkExperience);
 
+//handles the clicked button see exp
+  const handleFetchWorkExperience = async () => {
+    if (alumniId) {
+      const workExperience = await fetchWorkExperience(alumniId);
+      setSelectedAlumWorkExperience(workExperience);
+      setShowWorkExperience(true);
+    }
+  };
+
   return (
     <div>
       <h1>{alum.name}</h1>
@@ -61,15 +73,25 @@ export default function AlumPage() {
       <h1>{alum.affiliation}</h1>
 
       <h1>Working Experience</h1>
-    {selectedAlumWorkExperience.length > 0 ? (
-      selectedAlumWorkExperience.map((work, index) => (
-        <div key={index}>
-          <p>Company Name: {work.company}</p>
-          <p>Location: {work.location}</p>
-        </div>
-      ))
-    ) : (
-      <p>No work experience found.</p>
+      
+      <button onClick={handleFetchWorkExperience} disabled={workLoading}>
+        {workLoading ? "Loading..." : "See Working Experience"}
+      </button>
+ 
+      {showWorkExperience && (
+      <>
+        <MapComponent workExperienceList={selectedAlumWorkExperience} />
+        {selectedAlumWorkExperience.length > 0 ? (
+          selectedAlumWorkExperience.map((work, index) => (
+            <div key={index}>
+              <p>Company Name: {work.company}</p>
+              <p>Location: {work.location}</p>
+            </div>
+          ))
+        ) : (
+          <p>No work experience found.</p>
+        )}
+      </>
     )}
 
     </div>

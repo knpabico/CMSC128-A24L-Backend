@@ -79,7 +79,7 @@ export default function MapComponent({
                 lat: experience.latitude,
                 lng: experience.longitude,
               });
-              smoothZoom(20);
+              smoothZoom(10);
             }
           }}
         />
