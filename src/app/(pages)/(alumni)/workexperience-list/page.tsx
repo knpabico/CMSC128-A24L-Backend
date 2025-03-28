@@ -4,20 +4,20 @@ import { WorkExperience } from "@/models/models";
 import MapComponent from "../map/map";
 
 export default function WorkExperiencePage() {
-  const { allWorkExperience, isLoading } = useWorkExperience();
+  const { userWorkExperience, isLoading } = useWorkExperience();
   console.log(isLoading);
   console.log(isLoading);
   return (
     <div>
-      <MapComponent workExperienceList={allWorkExperience} />
+      <MapComponent workExperienceList={userWorkExperience} />
       <h1>Work Experience (ALL)</h1>
       {isLoading && <h1>Loading</h1>}
-      {console.log("Hi",allWorkExperience)}
+      {/* {console.log("Hi",allWorkExperience)} */}
       {/* {!isLoading && <h1>Done Loading</h1>} */}
       {isLoading && <h1>Loading</h1>}
-      {console.log("Hi",allWorkExperience)}
+      {/* {console.log("Hi",allWorkExperience)} */}
       {/* {!isLoading && <h1>Done Loading</h1>} */}
-      {allWorkExperience.map((workExperience: WorkExperience, index: any) => (
+      {userWorkExperience.map((workExperience: WorkExperience, index: any) => (
         <div key={index} className="p-1">
           <h1>Company: {workExperience.company}</h1>
           <h1>Latitude: {workExperience.latitude}</h1>
