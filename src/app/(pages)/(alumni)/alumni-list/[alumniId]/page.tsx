@@ -1,3 +1,4 @@
+"use client";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience } from "@/models/models";
 import { useEffect, useState } from "react";

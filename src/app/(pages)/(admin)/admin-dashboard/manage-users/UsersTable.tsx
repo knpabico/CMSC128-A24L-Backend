@@ -85,7 +85,7 @@ export async function UsersTable({
             {/* create a row in the table for each user/alumni */}
             {data.map((alumni) => {
               return (
-                <TableRow key={alumni.id}>
+                <TableRow key={alumni.alumniId}>
                   <TableCell>
                     {alumni.lastName}, {alumni.firstName}
                   </TableCell>

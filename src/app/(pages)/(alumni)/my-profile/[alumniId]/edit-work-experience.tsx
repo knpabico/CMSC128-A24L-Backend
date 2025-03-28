@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import GoogleMapsModal from "../google-maps/map";
+import GoogleMapsModal from "../../google-maps/map";
 import { CardTitle } from "@/components/ui/card";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 
@@ -111,7 +111,7 @@ const EditWorkExperience: React.FC<{
             <input
               type="date"
               required
-              value={work.startingDate.toDate().toISOString().split("T")[0]}
+              value={startDate.toISOString().split("T")[0]}
               onChange={(e) => setStartDate(new Date(e.target.value))}
             />
             <Typography>End Date</Typography>
@@ -119,7 +119,7 @@ const EditWorkExperience: React.FC<{
               type="date"
               required
               onChange={(e) => setEndDate(new Date(e.target.value))}
-              value={work.endingDate.toDate().toISOString().split("T")[0]}
+              value={endDate.toISOString().split("T")[0]}
             />
           </div>
           <div>
