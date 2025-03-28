@@ -8,7 +8,7 @@ import {
   addDoc,
   where,
   doc,
-  getDoc,
+  getDocs,
   deleteDoc,
   setDoc,
   updateDoc,
@@ -28,6 +28,10 @@ export function WorkExperienceProvider({
   const [userWorkExperience, setUserWorkExperience] = useState<
     WorkExperience[]
   >([]);
+
+  const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null);
+  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
+
   const [allWorkExperience, setAllWorkExperience] = useState<WorkExperience[]>(
     []
   );
@@ -73,6 +77,35 @@ export function WorkExperienceProvider({
       return { success: false, message: (error as FirebaseError).message };
     }
   };
+
+
+  //function to fetch the working experience of the clicked alumni
+  const fetchWorkExperience = async (alumniId: string): Promise<WorkExperience[]> => {
+    setLoading(true);
+    setSelectedAlumniId(alumniId);
+  
+    try {
+      const q = query(collection(db, "work_experience"), where("alumniId", "==", alumniId));
+      const querySnapshot = await getDocs(q);
+      
+      console.log("Raw Firestore Data:", querySnapshot.docs.map(doc => doc.data()));
+  
+      const workExperienceList: WorkExperience[] = querySnapshot.docs.map((doc) => doc.data() as WorkExperience);
+  
+      console.log("Fetched Work Experience:", workExperienceList);
+  
+      setSelectedAlumWorkExperience(workExperienceList);  
+      return workExperienceList;
+    } catch (error) {
+      console.error("Error fetching work experience:", error);
+      setSelectedAlumWorkExperience([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
 
   const editWorkExperience = async (workExperienceEntry) => {
     try {
@@ -158,6 +191,7 @@ export function WorkExperienceProvider({
         addWorkExperience,
         deleteWorkExperience,
         editWorkExperience,
+        fetchWorkExperience
       }}
     >
       {children}

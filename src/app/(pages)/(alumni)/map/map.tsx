@@ -12,6 +12,7 @@ import {
 import { WorkExperience } from "@/models/models";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 
+
 const containerStyle = {
   width: "100%",
   height: "500px",
@@ -23,9 +24,7 @@ export default function MapComponent({
   workExperienceList: WorkExperience[];
 }) {
   const { isLoaded } = useGoogleMaps();
-  const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(
-    null
-  );
+  const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(null);
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
   const [zoom, setZoom] = useState(3);
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
@@ -42,6 +41,8 @@ export default function MapComponent({
       }
     }, 400);
   };
+
+
 
   //function to extract the polylinepath
   const polylinepath = workExperienceList.map((experience) => ({
@@ -79,7 +80,7 @@ export default function MapComponent({
                 lat: experience.latitude,
                 lng: experience.longitude,
               });
-              smoothZoom(20);
+              smoothZoom(10);
             }
           }}
         />
@@ -117,6 +118,14 @@ export default function MapComponent({
         >
           <div>
             <h3>{selectedPlace.location}</h3>
+            <div className="text relative z-50">
+              <h1 className="font-bold text-xl md:text-3xl relative">
+                Company Name: {selectedPlace.company}
+              </h1>
+              <p className="font-normal text-base  relative my-4">
+                Desciption: Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis commodi nihil reiciendis ad magni vel, voluptatibus a. Beatae, ipsum eius recusandae temporibus magnam aspernatur modi, laboriosam cumque quos repellendus dolorum!
+              </p>
+            </div>
           </div>
         </InfoWindowF>
       )}
