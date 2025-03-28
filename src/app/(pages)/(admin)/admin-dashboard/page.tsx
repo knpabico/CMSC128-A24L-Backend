@@ -12,7 +12,7 @@ const links = [
   { label: "Create Donation Drive", link: "donation-drive" },
   { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
   { label: "Site Settings", link: "site-settings" },
-  
+  { label: "Statistical Reports", link: "statistical-reports" },
 ];
 
 export default async function AdminDashboard() {
@@ -24,7 +24,7 @@ export default async function AdminDashboard() {
             label: "Dashboard",
           },
         ]}
-      />  
+      />
 
       {/* page title */}
       <h1 className="text-4xl font-bold my-6">Admin Dashboard</h1>
@@ -32,12 +32,11 @@ export default async function AdminDashboard() {
       {/* temporary buttons */}
       {/* create a button for each admin-control link */}
       <div className="flex flex-col gap-4">
-
-      {links.map((item, i) => (
-        <Button asChild key={i} className="text-lg h-14">
-          <Link href={`/admin-dashboard/${item.link}`}>{item.label}</Link>
-        </Button>
-      ))}
+        {links.map((item, i) => (
+          <Button asChild key={i} className="text-lg h-14">
+            <Link href={`/admin-dashboard/${item.link}`}>{item.label}</Link>
+          </Button>
+        ))}
       </div>
     </>
   );

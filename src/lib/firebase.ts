@@ -16,16 +16,3 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-
-// Backend
-export async function getNewsletters() {
-  try {
-    const newsLetterRef = collection(db, "newsletter_items");
-    const newsLetterSnapshot = await getDocs(newsLetterRef);
-    const newsLetterList = newsLetterSnapshot.docs.map((doc) => doc.data());
-    return newsLetterList;
-  } catch (error) {
-    console.error(error);
-    return error;
-  }
-}
