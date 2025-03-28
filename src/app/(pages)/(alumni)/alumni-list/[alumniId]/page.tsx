@@ -11,21 +11,24 @@ export default function AlumPage() {
   const params = useParams();
   const alumniId = params?.alumniId;
   const [alum, setAlum] = useState<Alumnus | null>(null);
-
   useEffect(() => {
+    console.log("params:", alumniId);
+    console.log("firestore:", alums.map((a) => a.alumniId));
+  
     if (alumniId) {
-      const foundAlum =
-        alums.find((alum: Alumnus) => alum.alumniId === alumniId) || null;
+      const foundAlum = alums.find((alum: Alumnus) => String(alum.alumniId) === String(alumniId)) || null;
       setAlum(foundAlum);
     }
   }, [alumniId, alums]);
 
   if (alumsloading || authloading) return <h1>Loading...</h1>;
   if (!alum) return <h1>Alum not found...</h1>;
+  console.log("this is the alumni Id:", alum.alumniId);
 
   return (
     <div>
       <h1>{alum.name}</h1>
+      
       <h1>{alum.companyName}</h1>
       <h1>{alum.address}</h1>
       <h1>{alum.age}</h1>
