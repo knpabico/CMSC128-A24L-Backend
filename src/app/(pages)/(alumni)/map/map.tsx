@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   GoogleMap,
   InfoWindowF,
@@ -12,8 +12,9 @@ import { useGoogleMaps } from "@/context/GoogleMapsContext";
 
 interface MapComponentProps {
   workExperienceList: WorkExperience[];
-  onLocationClick: (lat: number, lng: number) => void;
+  onLocationClick: (lat: number, lng: number, index: number) => void;
   selectedLocation: { lat: number; lng: number } | null;
+  activeMarker: number | null;
 }
 
 const containerStyle = {
@@ -21,59 +22,87 @@ const containerStyle = {
   height: "500px",
 };
 
-const MapComponent: React.FC<MapComponentProps> = ({ workExperienceList, onLocationClick, selectedLocation }) => {
+const MapComponent: React.FC<MapComponentProps> = ({
+  workExperienceList,
+  onLocationClick,
+  selectedLocation,
+  activeMarker,
+}) => {
+  const mapRef = useRef<google.maps.Map | null>(null);
   const { isLoaded } = useGoogleMaps();
-  const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(null);
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
   const [zoom, setZoom] = useState(3);
-  const [activeMarker, setActiveMarker] = useState<string | null>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [animatedMarker, setAnimatedMarker] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
-    if (selectedLocation && map) {
-      console.log("Centering on:", selectedLocation); // Debugging log
-      map.panTo(selectedLocation); // Move map to selected location
-      map.setZoom(10); // Optional: Zoom in on selected location
+    if (selectedLocation && mapRef.current) {
+      animateMapAndMarker(selectedLocation);
+      smoothZoom(10);
     }
-  }, [selectedLocation, map]);
+  }, [selectedLocation]);
+
+  const animateMapAndMarker = (destination: { lat: number; lng: number }) => {
+    if (!mapRef.current) return;
+
+    let start = animatedMarker || center; 
+    let step = 0;
+    const totalSteps = 50; 
+    const intervalTime = 20; 
+
+    function move() {
+      if (step <= totalSteps) {
+        const progress = step / totalSteps;
+        const interpolatedLat = start.lat + (destination.lat - start.lat) * progress;
+        const interpolatedLng = start.lng + (destination.lng - start.lng) * progress;
+
+        setAnimatedMarker({ lat: interpolatedLat, lng: interpolatedLng });
+        mapRef.current?.panTo({ lat: interpolatedLat, lng: interpolatedLng });
+
+        step++;
+        setTimeout(move, intervalTime);
+      } else {
+        setAnimatedMarker(destination); 
+        mapRef.current?.panTo(destination);
+      }
+    }
+
+    move();
+  };
 
   const smoothZoom = (targetZoom: number) => {
-    let currentZoom = map?.getZoom() ?? 3;
+    if (!mapRef.current) return;
+    let currentZoom = mapRef.current.getZoom() ?? 3;
     const zoomInterval = setInterval(() => {
       if (currentZoom < targetZoom) {
-        map?.setZoom(++currentZoom);
+        mapRef.current?.setZoom(++currentZoom);
       } else if (currentZoom > targetZoom) {
-        map?.setZoom(--currentZoom);
+        mapRef.current?.setZoom(--currentZoom);
       } else {
         clearInterval(zoomInterval);
       }
     }, 400);
   };
 
-  const polylinepath = workExperienceList.map((experience) => ({
-    lat: experience.latitude,
-    lng: experience.longitude,
-  }));
-
   if (!isLoaded) return <p>Loading Map...</p>;
 
   return (
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={selectedLocation || center} 
-        zoom={zoom}
-        onLoad={(map) => setMap(map)}
-      >
-      {workExperienceList?.map((experience) => (
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={selectedLocation || center}
+      zoom={zoom}
+      onLoad={(map) => (mapRef.current = map)}
+    >
+      {workExperienceList?.map((experience, index) => (
         <MarkerF
-          key={experience.location}
+          key={index}
           position={{ lat: experience.latitude, lng: experience.longitude }}
-          onClick={() => onLocationClick(experience.latitude, experience.longitude)}
+          onClick={() => onLocationClick(experience.latitude, experience.longitude, index)}
+          animation={activeMarker === index ? window.google.maps.Animation.BOUNCE : null}
         />
       ))}
 
       <PolylineF
-        path={polylinepath}
+        path={workExperienceList.map((exp) => ({ lat: exp.latitude, lng: exp.longitude }))}
         options={{
           strokeColor: "#FF0000",
           strokeOpacity: 0.8,
@@ -81,35 +110,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ workExperienceList, onLocat
           geodesic: true,
         }}
       />
-      
-      {selectedPlace && (
-        <InfoWindowF
-          position={{
-            lat: selectedPlace.latitude,
-            lng: selectedPlace.longitude,
-          }}
-          zIndex={1}
-          onCloseClick={() => {
-            setSelectedPlace(null);
-            setActiveMarker(null);
-            if (map) {
-              map.setZoom(3);
-            }
-          }}
-        >
-          <div>
-            <h3>{selectedPlace.location}</h3>
-            <div className="text relative z-50">
-              <h1 className="font-bold text-xl md:text-3xl relative">
-                Company Name: {selectedPlace.company}
-              </h1>
-              <p className="font-normal text-base relative my-4">
-                Description: Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              </p>
-            </div>
-          </div>
-        </InfoWindowF>
-      )}
     </GoogleMap>
   );
 };
