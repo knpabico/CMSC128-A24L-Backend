@@ -1,28 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   GoogleMap,
   InfoWindowF,
   MarkerF,
   PolylineF,
-  useJsApiLoader,
-  useLoadScript,
 } from "@react-google-maps/api";
 import { WorkExperience } from "@/models/models";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 
+interface MapComponentProps {
+  workExperienceList: WorkExperience[];
+  onLocationClick: (lat: number, lng: number) => void;
+  selectedLocation: { lat: number; lng: number } | null;
+}
 
 const containerStyle = {
   width: "100%",
   height: "500px",
 };
 
-export default function MapComponent({
-  workExperienceList,
-}: {
-  workExperienceList: WorkExperience[];
-}) {
+const MapComponent: React.FC<MapComponentProps> = ({ workExperienceList, onLocationClick, selectedLocation }) => {
   const { isLoaded } = useGoogleMaps();
   const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(null);
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
@@ -30,21 +29,27 @@ export default function MapComponent({
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
-  //this function is to smoothen the transition for the meantime
+  useEffect(() => {
+    if (selectedLocation && map) {
+      console.log("Centering on:", selectedLocation); // Debugging log
+      map.panTo(selectedLocation); // Move map to selected location
+      map.setZoom(10); // Optional: Zoom in on selected location
+    }
+  }, [selectedLocation, map]);
+
   const smoothZoom = (targetZoom: number) => {
     let currentZoom = map?.getZoom() ?? 3;
     const zoomInterval = setInterval(() => {
       if (currentZoom < targetZoom) {
         map?.setZoom(++currentZoom);
+      } else if (currentZoom > targetZoom) {
+        map?.setZoom(--currentZoom);
       } else {
         clearInterval(zoomInterval);
       }
     }, 400);
   };
 
-
-
-  //function to extract the polylinepath
   const polylinepath = workExperienceList.map((experience) => ({
     lat: experience.latitude,
     lng: experience.longitude,
@@ -52,37 +57,18 @@ export default function MapComponent({
 
   if (!isLoaded) return <p>Loading Map...</p>;
 
-  console.log("HI there");
-
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={zoom}
-      onLoad={(map) => setMap(map)}
-    >
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={selectedLocation || center} 
+        zoom={zoom}
+        onLoad={(map) => setMap(map)}
+      >
       {workExperienceList?.map((experience) => (
         <MarkerF
-          key={`${experience.location}-${experience.latitude}-${experience.longitude}`}
+          key={experience.location}
           position={{ lat: experience.latitude, lng: experience.longitude }}
-          animation={
-            activeMarker === experience.location
-              ? window.google.maps.Animation.BOUNCE
-              : undefined
-          }
-          onClick={() => {
-            setSelectedPlace(experience);
-            setCenter({ lat: experience.latitude, lng: experience.longitude });
-            setZoom(10);
-            setActiveMarker(experience.location);
-            if (map) {
-              map.panTo({
-                lat: experience.latitude,
-                lng: experience.longitude,
-              });
-              smoothZoom(10);
-            }
-          }}
+          onClick={() => onLocationClick(experience.latitude, experience.longitude)}
         />
       ))}
 
@@ -95,6 +81,7 @@ export default function MapComponent({
           geodesic: true,
         }}
       />
+      
       {selectedPlace && (
         <InfoWindowF
           position={{
@@ -102,12 +89,6 @@ export default function MapComponent({
             lng: selectedPlace.longitude,
           }}
           zIndex={1}
-          options={{
-            pixelOffset: {
-              width: 0,
-              height: -40,
-            },
-          }}
           onCloseClick={() => {
             setSelectedPlace(null);
             setActiveMarker(null);
@@ -122,8 +103,8 @@ export default function MapComponent({
               <h1 className="font-bold text-xl md:text-3xl relative">
                 Company Name: {selectedPlace.company}
               </h1>
-              <p className="font-normal text-base  relative my-4">
-                Desciption: Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis commodi nihil reiciendis ad magni vel, voluptatibus a. Beatae, ipsum eius recusandae temporibus magnam aspernatur modi, laboriosam cumque quos repellendus dolorum!
+              <p className="font-normal text-base relative my-4">
+                Description: Lorem ipsum dolor sit amet consectetur adipisicing elit.
               </p>
             </div>
           </div>
@@ -131,4 +112,6 @@ export default function MapComponent({
       )}
     </GoogleMap>
   );
-}
+};
+
+export default MapComponent;
