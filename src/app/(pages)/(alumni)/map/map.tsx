@@ -32,28 +32,33 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const { isLoaded } = useGoogleMaps();
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
   const [zoom, setZoom] = useState(3);
-  const [animatedMarker, setAnimatedMarker] = useState<{ lat: number; lng: number } | null>(null);
+  const [animatedMarker, setAnimatedMarker] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   useEffect(() => {
     if (selectedLocation && mapRef.current) {
       animateMapAndMarker(selectedLocation);
-      smoothZoom(10);
+      smoothZoom(13);
     }
   }, [selectedLocation]);
 
   const animateMapAndMarker = (destination: { lat: number; lng: number }) => {
     if (!mapRef.current) return;
 
-    let start = animatedMarker || center; 
+    let start = animatedMarker || center;
     let step = 0;
-    const totalSteps = 50; 
-    const intervalTime = 20; 
+    const totalSteps = 15;
+    const intervalTime = 8;
 
     function move() {
       if (step <= totalSteps) {
         const progress = step / totalSteps;
-        const interpolatedLat = start.lat + (destination.lat - start.lat) * progress;
-        const interpolatedLng = start.lng + (destination.lng - start.lng) * progress;
+        const interpolatedLat =
+          start.lat + (destination.lat - start.lat) * progress;
+        const interpolatedLng =
+          start.lng + (destination.lng - start.lng) * progress;
 
         setAnimatedMarker({ lat: interpolatedLat, lng: interpolatedLng });
         mapRef.current?.panTo({ lat: interpolatedLat, lng: interpolatedLng });
@@ -61,7 +66,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         step++;
         setTimeout(move, intervalTime);
       } else {
-        setAnimatedMarker(destination); 
+        setAnimatedMarker(destination);
         mapRef.current?.panTo(destination);
       }
     }
@@ -80,7 +85,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       } else {
         clearInterval(zoomInterval);
       }
-    }, 400);
+    }, 120);
   };
 
   if (!isLoaded) return <p>Loading Map...</p>;
@@ -91,18 +96,39 @@ const MapComponent: React.FC<MapComponentProps> = ({
       center={selectedLocation || center}
       zoom={zoom}
       onLoad={(map) => (mapRef.current = map)}
+      options={{
+        restriction: {
+          latLngBounds: {
+            north: 85,
+            south: -85,
+            west: -180,
+            east: 180,
+          },
+          strictBounds: true,
+        },
+        minZoom: 2,
+        maxZoom: 20,
+        gestureHandling: "greedy",
+      }}
     >
       {workExperienceList?.map((experience, index) => (
         <MarkerF
           key={index}
           position={{ lat: experience.latitude, lng: experience.longitude }}
-          onClick={() => onLocationClick(experience.latitude, experience.longitude, index)}
-          animation={activeMarker === index ? window.google.maps.Animation.BOUNCE : null}
+          onClick={() =>
+            onLocationClick(experience.latitude, experience.longitude, index)
+          }
+          animation={
+            activeMarker === index ? window.google.maps.Animation.BOUNCE : null
+          }
         />
       ))}
 
       <PolylineF
-        path={workExperienceList.map((exp) => ({ lat: exp.latitude, lng: exp.longitude }))}
+        path={workExperienceList.map((exp) => ({
+          lat: exp.latitude,
+          lng: exp.longitude,
+        }))}
         options={{
           strokeColor: "#FF0000",
           strokeOpacity: 0.8,
