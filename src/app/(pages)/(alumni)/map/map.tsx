@@ -116,33 +116,19 @@ const MapComponent: React.FC<MapComponentProps> = ({
           },
         }}
         onCloseClick={() => {
+          console.log("Closing InfoWindowF...");
           setSelectedPlace(null);
         }}
       >
-      <div className="max-w-xs w-full group/card">
-      <div className="absolute w-full h-full top-0 left-0 transition duration-300 opacity-60"></div>
-      <div className="flex flex-row items-center space-x-4 z-10">
-
-        <div className="flex flex-col">
-          <p className="font-normal text-base relative z-10">
-            {selectedPlace.company}
-          </p>
-          <p className="text-sm text-gray-400">2 min read</p>
-        </div>
-      </div>
-      <div className="text content">
-        <h1 className="font-bold text-xl md:text-2xl  relative z-10">
-          Company Name: {selectedPlace.company}
-        </h1>
-        <h1 className="font-bold text-xl md:text-2xl  relative z-10">
+    <div>
+      <h1 className="font-bold text-xl md:text-2xl  relative z-10">{selectedPlace.company}</h1>
+      <h1 className="font-bold text-xl md:text-2xl  relative z-10">
           Location: {selectedPlace.location}
         </h1>
         <p className="font-normal text-sm relative z-10 my-4">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, in minima! Praesentium perferendis exercitationem enim blanditiis earum id aperiam autem, molestias, unde impedit natus? Eveniet eaque molestiae delectus quo repudiandae?
         </p>
-      </div>
-    
-  </div>
+    </div>
       </InfoWindowF>
       )}
 
