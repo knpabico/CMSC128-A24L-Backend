@@ -1,93 +1,108 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   GoogleMap,
   InfoWindowF,
   MarkerF,
   PolylineF,
-  useJsApiLoader,
-  useLoadScript,
 } from "@react-google-maps/api";
 import { WorkExperience } from "@/models/models";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 
+interface MapComponentProps {
+  workExperienceList: WorkExperience[];
+  onLocationClick: (lat: number, lng: number, index: number) => void;
+  selectedLocation: { lat: number; lng: number } | null;
+  activeMarker: number | null;
+}
 
 const containerStyle = {
   width: "100%",
   height: "500px",
 };
 
-export default function MapComponent({
+const MapComponent: React.FC<MapComponentProps> = ({
   workExperienceList,
-}: {
-  workExperienceList: WorkExperience[];
-}) {
+  onLocationClick,
+  selectedLocation,
+  activeMarker,
+}) => {
+  const mapRef = useRef<google.maps.Map | null>(null);
   const { isLoaded } = useGoogleMaps();
-  const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(null);
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
   const [zoom, setZoom] = useState(3);
-  const [activeMarker, setActiveMarker] = useState<string | null>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [animatedMarker, setAnimatedMarker] = useState<{ lat: number; lng: number } | null>(null);
 
-  //this function is to smoothen the transition for the meantime
+  useEffect(() => {
+    if (selectedLocation && mapRef.current) {
+      animateMapAndMarker(selectedLocation);
+      smoothZoom(10);
+    }
+  }, [selectedLocation]);
+
+  const animateMapAndMarker = (destination: { lat: number; lng: number }) => {
+    if (!mapRef.current) return;
+
+    let start = animatedMarker || center; 
+    let step = 0;
+    const totalSteps = 50; 
+    const intervalTime = 20; 
+
+    function move() {
+      if (step <= totalSteps) {
+        const progress = step / totalSteps;
+        const interpolatedLat = start.lat + (destination.lat - start.lat) * progress;
+        const interpolatedLng = start.lng + (destination.lng - start.lng) * progress;
+
+        setAnimatedMarker({ lat: interpolatedLat, lng: interpolatedLng });
+        mapRef.current?.panTo({ lat: interpolatedLat, lng: interpolatedLng });
+
+        step++;
+        setTimeout(move, intervalTime);
+      } else {
+        setAnimatedMarker(destination); 
+        mapRef.current?.panTo(destination);
+      }
+    }
+
+    move();
+  };
+
   const smoothZoom = (targetZoom: number) => {
-    let currentZoom = map?.getZoom() ?? 3;
+    if (!mapRef.current) return;
+    let currentZoom = mapRef.current.getZoom() ?? 3;
     const zoomInterval = setInterval(() => {
       if (currentZoom < targetZoom) {
-        map?.setZoom(++currentZoom);
+        mapRef.current?.setZoom(++currentZoom);
+      } else if (currentZoom > targetZoom) {
+        mapRef.current?.setZoom(--currentZoom);
       } else {
         clearInterval(zoomInterval);
       }
     }, 400);
   };
 
-
-
-  //function to extract the polylinepath
-  const polylinepath = workExperienceList.map((experience) => ({
-    lat: experience.latitude,
-    lng: experience.longitude,
-  }));
-
   if (!isLoaded) return <p>Loading Map...</p>;
-
-  console.log("HI there");
 
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={center}
+      center={selectedLocation || center}
       zoom={zoom}
-      onLoad={(map) => setMap(map)}
+      onLoad={(map) => (mapRef.current = map)}
     >
-      {workExperienceList?.map((experience) => (
+      {workExperienceList?.map((experience, index) => (
         <MarkerF
-          key={`${experience.location}-${experience.latitude}-${experience.longitude}`}
+          key={index}
           position={{ lat: experience.latitude, lng: experience.longitude }}
-          animation={
-            activeMarker === experience.location
-              ? window.google.maps.Animation.BOUNCE
-              : undefined
-          }
-          onClick={() => {
-            setSelectedPlace(experience);
-            setCenter({ lat: experience.latitude, lng: experience.longitude });
-            setZoom(10);
-            setActiveMarker(experience.location);
-            if (map) {
-              map.panTo({
-                lat: experience.latitude,
-                lng: experience.longitude,
-              });
-              smoothZoom(10);
-            }
-          }}
+          onClick={() => onLocationClick(experience.latitude, experience.longitude, index)}
+          animation={activeMarker === index ? window.google.maps.Animation.BOUNCE : null}
         />
       ))}
 
       <PolylineF
-        path={polylinepath}
+        path={workExperienceList.map((exp) => ({ lat: exp.latitude, lng: exp.longitude }))}
         options={{
           strokeColor: "#FF0000",
           strokeOpacity: 0.8,
@@ -95,40 +110,8 @@ export default function MapComponent({
           geodesic: true,
         }}
       />
-      {selectedPlace && (
-        <InfoWindowF
-          position={{
-            lat: selectedPlace.latitude,
-            lng: selectedPlace.longitude,
-          }}
-          zIndex={1}
-          options={{
-            pixelOffset: {
-              width: 0,
-              height: -40,
-            },
-          }}
-          onCloseClick={() => {
-            setSelectedPlace(null);
-            setActiveMarker(null);
-            if (map) {
-              map.setZoom(3);
-            }
-          }}
-        >
-          <div>
-            <h3>{selectedPlace.location}</h3>
-            <div className="text relative z-50">
-              <h1 className="font-bold text-xl md:text-3xl relative">
-                Company Name: {selectedPlace.company}
-              </h1>
-              <p className="font-normal text-base  relative my-4">
-                Desciption: Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis commodi nihil reiciendis ad magni vel, voluptatibus a. Beatae, ipsum eius recusandae temporibus magnam aspernatur modi, laboriosam cumque quos repellendus dolorum!
-              </p>
-            </div>
-          </div>
-        </InfoWindowF>
-      )}
     </GoogleMap>
   );
-}
+};
+
+export default MapComponent;

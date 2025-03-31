@@ -19,6 +19,11 @@ export default function AlumPage() {
 
   const alumniId = params?.alumniId;
   const [alum, setAlum] = useState<Alumnus | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [activeMarker, setActiveMarker] = useState(0);
 
   useEffect(() => {
     if (alumniId) {
@@ -38,6 +43,12 @@ export default function AlumPage() {
   if (alumsloading || authloading) return <h1>Loading...</h1>;
   if (!alum) return <h1>Alum not found...</h1>;
   console.log("fetch experiences:", selectedAlumWorkExperience);
+
+  const handleLocationClick = (lat: number, lng: number, index: number) => {
+    setSelectedLocation({ lat, lng });
+    setActiveMarker(index); // Make marker bounce
+    setTimeout(() => setActiveMarker(null), 2000); // Stop bouncing after 2 seconds
+  };
 
   //handles the clicked button see exp
   const handleFetchWorkExperience = async () => {
@@ -77,10 +88,20 @@ export default function AlumPage() {
 
       {showWorkExperience && (
         <>
-          <MapComponent workExperienceList={selectedAlumWorkExperience} />
+          <MapComponent
+            workExperienceList={selectedAlumWorkExperience}
+            onLocationClick={handleLocationClick}
+            selectedLocation={selectedLocation}
+            activeMarker={activeMarker}
+          />
           {selectedAlumWorkExperience.length > 0 ? (
             selectedAlumWorkExperience.map((work, index) => (
-              <div key={index}>
+              <div
+                key={index}
+                onClick={() =>
+                  handleLocationClick(work.latitude, work.longitude, index)
+                }
+              >
                 <p>Company Name: {work.company}</p>
                 <p>Location: {work.location}</p>
               </div>
