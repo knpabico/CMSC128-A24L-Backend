@@ -52,7 +52,7 @@ export default function JobOffers() {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
     "Job Type": ["Cybersecurity", "Software Development", "Data Science", "UX/UI Design", "Project Management"],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
-    "Skills": ["JavaScript", "Python", "Java", "C++", "React", "Node.js", "SQL"],
+    "Skills": ["JavaScript", "Python", "Java", "C++", "React", "Node.js", "SQL", "Figma", "Canva"],
   };
 
   // Filters
@@ -84,7 +84,8 @@ export default function JobOffers() {
       return (
         job.experienceLevel === filter ||
         job.jobType === filter ||
-        job.employmentType === filter
+        job.employmentType === filter ||
+        job.requiredSkill.includes(filter)
       );
     });
   })
