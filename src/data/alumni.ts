@@ -10,6 +10,8 @@ export type GetAlumniOptions = {
   filters?: {
     regStatus?: "pending" | "approved" | "rejected";
     // add more filters later
+    aStatus?: string | undefined;
+    yearGraduated: string | undefined;
   };
   pagination?: {
     pageSize?: number;
@@ -37,7 +39,7 @@ export const getAlumni = async (options?: GetAlumniOptions) => {
 
   // destructure the filers property of options object
   // if there is no filters argument, set those variables to null
-  const { regStatus } = options?.filters || {};
+  const { regStatus, aStatus, yearGraduated } = options?.filters || {};
 
   //get sorting parameter
   //if undefined, sorting is the default type
@@ -73,12 +75,41 @@ export const getAlumni = async (options?: GetAlumniOptions) => {
     alumniQuery = serverFirestoreDB
       .collection("alumni")
       .orderBy("regStatus", "desc");
+  } else if (sort === "reca") {
+    //recently approved (DESC)
+    alumniQuery = serverFirestoreDB
+      .collection("alumni")
+      .orderBy("approvalDate", "desc");
+  } else if (sort === "ai") {
+    //active to inactive (ASC)
+    alumniQuery = serverFirestoreDB
+      .collection("alumni")
+      .orderBy("activeStatus", "desc");
+  } else if (sort === "ia") {
+    //inactive to active (DESC)
+    alumniQuery = serverFirestoreDB
+      .collection("alumni")
+      .orderBy("activeStatus", "asc");
   }
 
   // apply filters, if there is one
   // if there is a status filter, apply it
   if (regStatus) {
     alumniQuery = alumniQuery.where("regStatus", "==", regStatus);
+  }
+
+  //active status filter
+  if (aStatus) {
+    var bool_aStatus = false;
+    if (aStatus == "active") {
+      bool_aStatus = true;
+    }
+    alumniQuery = alumniQuery.where("activeStatus", "==", bool_aStatus);
+  }
+
+  //year graduated filter
+  if (yearGraduated) {
+    alumniQuery = alumniQuery.where("graduationYear", "==", yearGraduated);
   }
 
   // calculate the total number of pages

@@ -63,7 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       alumniCopy.birthDate = alumniDoc
         .data()
         .birthDate.toDate()
-        .toISOString().slice(0,10).replaceAll("-", "/");
+        .toISOString()
+        .slice(0, 10)
+        .replaceAll("-", "/");
 
       setAlumInfo(alumniCopy);
     } else {
