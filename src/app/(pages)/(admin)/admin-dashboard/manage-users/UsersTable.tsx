@@ -25,19 +25,24 @@ import { getAlumni } from "@/data/alumni";
 export async function UsersTable({
   page = 1,
   regStatus = undefined,
+  aStatus = undefined,
+  yearGraduated = undefined,
   sort = undefined,
 }: {
   page?: number;
   regStatus?: RegStatus | undefined;
+  aStatus?: string | undefined;
+  yearGraduated?: string | undefined;
   sort?: string | undefined;
 }) {
-  console.log(sort);
   let response;
-  if (regStatus) {
+  if (regStatus || aStatus || yearGraduated) {
     // query users (alumni) data
     response = await getAlumni({
       filters: {
         regStatus,
+        aStatus,
+        yearGraduated,
       },
       pagination: {
         page,
@@ -77,7 +82,10 @@ export async function UsersTable({
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Student Number</TableHead>
+              <TableHead>Graduation Year</TableHead>
+              <TableHead>Active Status</TableHead>
               <TableHead>Registration Status</TableHead>
+              <TableHead>Approval Date</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -85,13 +93,26 @@ export async function UsersTable({
             {/* create a row in the table for each user/alumni */}
             {data.map((alumni) => {
               return (
-                <TableRow key={alumni.id}>
+                <TableRow key={alumni.alumniId}>
                   <TableCell>
                     {alumni.lastName}, {alumni.firstName}
                   </TableCell>
                   <TableCell>{alumni.email}</TableCell>
                   <TableCell>{alumni.studentNumber}</TableCell>
+                  <TableCell>{alumni.graduationYear}</TableCell>
+                  <TableCell>
+                    {alumni.activeStatus ? "active" : "inactive"}
+                  </TableCell>
                   <TableCell>{alumni.regStatus}</TableCell>
+                  <TableCell>
+                    {alumni.approvalDate
+                      ? alumni.approvalDate
+                          .toDate()
+                          .toISOString()
+                          .slice(0, 10)
+                          .replaceAll("-", "/")
+                      : ""}
+                  </TableCell>
                   <TableCell className="flex gap-3">
                     <Button variant="outline" size="sm">
                       <Trash2Icon />
@@ -111,13 +132,15 @@ export async function UsersTable({
           {/* pagination buttons */}
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={5} className="text-center">
+              <TableCell colSpan={8} className="text-center">
                 {Array.from({ length: totalPages }).map((_, i) => (
                   <Button key={i} asChild variant="outline" className="mx-1">
                     {/* put a search param in the url indicating the page, and navigate to it */}
                     <Link
                       href={`/admin-dashboard/manage-users?page=${i + 1}${
                         regStatus ? `&status=${regStatus}` : ""
+                      }${aStatus ? `&astatus=${aStatus}` : ""}${
+                        yearGraduated ? `&yg=${yearGraduated}` : ""
                       }${sort && sort !== "d" ? `&sort=${sort}` : ""}`}
                     >
                       {i + 1}

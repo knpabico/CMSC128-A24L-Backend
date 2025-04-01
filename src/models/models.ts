@@ -5,6 +5,7 @@ import { Timestamp } from "firebase-admin/firestore";
 export interface Alumnus {
   alumniId: string;
   regStatus: RegStatus; //accepted, pending, or rejected registration
+  approvalDate: Date;
   activeStatus: boolean; //active or not
   studentNumber: string;
   address: string[];

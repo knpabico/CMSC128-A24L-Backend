@@ -12,8 +12,11 @@ const sortTypes = [
   "SURNAME (DESC)",
   "APPROVED - REJECTED",
   "REJECTED - APPROVED",
+  "RECENTLY APPROVED",
+  "ACTIVE - INACTIVE",
+  "INACTIVE - ACTIVE",
 ];
-const sortValues = ["d", "sa", "sd", "ar", "ra"];
+const sortValues = ["d", "sa", "sd", "ar", "ra", "reca", "ai", "ia"];
 // retrieve the search params which will be used for the pagination of the table
 export default function ManageUsersClient({
   children,
@@ -24,16 +27,20 @@ export default function ManageUsersClient({
   const page = searchParams.get("page"); //get current page param
   const status = searchParams.get("status"); //get current status param
   const sort = searchParams.get("sort"); //get current sort param
+  const astatus = searchParams.get("astatus"); //get current astatus param
+  const yearGraduated = searchParams.get("yg"); //get year graduated param
   const router = useRouter();
 
   //function for handling change on sort type
-  function handleChange(sortType: string) {
+  function handleSortChange(sortType: string) {
     let sorting = sortType && sortType !== "d" ? `&sort=${sortType}` : "";
 
     //will push the parameters to the url
     router.push(
       `${page ? `?page=${page}` : "?page=1"}${
         status ? `&status=${status}` : ""
+      }${astatus ? `&astatus=${astatus}` : ""}${
+        yearGraduated ? `&yg=${yearGraduated}` : ""
       }${sorting}`
     );
   }
@@ -50,6 +57,19 @@ export default function ManageUsersClient({
 
     //return default value
     return defaultSort;
+  }
+
+  //function for handling year filter
+  function handleYearFilter(year: string) {
+    let sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
+
+    //will push the parameters to the url
+    router.push(
+      `${page ? `?page=${page}` : "?page=1"}${
+        status ? `&status=${status}` : ""
+      }${astatus ? `&astatus=${astatus}` : ""}
+      ${year ? `&yg=${year}` : ""}${sorting}`
+    );
   }
 
   return (
@@ -74,11 +94,11 @@ export default function ManageUsersClient({
           <h1>Sort by:</h1>
           <div>
             <select
-              id="surname-sort"
+              id="sort"
               className="outline rounded-xs ml-2"
               defaultValue={getDefaultSort()}
               onChange={(e) => {
-                handleChange(e.target.value);
+                handleSortChange(e.target.value);
               }}
             >
               {sortTypes.map((sortType, index) => (
@@ -88,6 +108,25 @@ export default function ManageUsersClient({
               ))}
             </select>
           </div>
+        </div>
+      </div>
+
+      {/*year graduated filter */}
+      <div className="mt-2">
+        <div className="flex">
+          <h1>Year Graduated:</h1>
+          <input
+            className="outline rounded-xs ml-2"
+            type="number"
+            inputMode="numeric"
+            min={1909}
+            max={2100}
+            defaultValue={yearGraduated ? yearGraduated : undefined}
+            autoComplete="off"
+            onChange={(e) => {
+              handleYearFilter(e.target.value);
+            }}
+          ></input>
         </div>
       </div>
 
@@ -126,6 +165,24 @@ export default function ManageUsersClient({
           }`}
         >
           approved
+        </a>
+      </div>
+      <div className="flex justify-center gap-5 mt-5">
+        <a
+          className="text-blue-500 underline"
+          href={`/admin-dashboard/manage-users?page=1&astatus=active${
+            sort && sort !== "d" ? `&sort=${sort}` : ""
+          }`}
+        >
+          active
+        </a>
+        <a
+          className="text-blue-500 underline"
+          href={`/admin-dashboard/manage-users?page=1&astatus=inactive${
+            sort && sort !== "d" ? `&sort=${sort}` : ""
+          }`}
+        >
+          inactive
         </a>
       </div>
     </>
