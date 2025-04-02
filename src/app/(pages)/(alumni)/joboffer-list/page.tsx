@@ -241,7 +241,7 @@ export default function JobOffers() {
 
       {/* Job Details Modal */}
       {selectedJob && (
-         <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-md flex justify-center items-center z-50">
+         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center z-50">
          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] md:w-1/2">
            <h2 className="text-2xl font-bold mb-2">{selectedJob.position} | {selectedJob.employmentType}</h2>
            <p className="text-gray-600">{selectedJob.company}</p>
