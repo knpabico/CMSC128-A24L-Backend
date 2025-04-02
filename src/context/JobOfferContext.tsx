@@ -143,13 +143,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleDelete = async (jobId: string) => {
-    try {
-        await deleteDoc(doc(db, "job_offering", jobId));
-        setJobOffers((prev) => prev.filter((jobOffers) => jobOffers.jobId !== jobId));
-        console.log("Succesfully deleted job with id of:", jobId)
-    } catch (error) {
-        console.error("Error deleting job:", error);
-    }
+      try {
+          await deleteDoc(doc(db, "job_offering", jobId));
+          setJobOffers((prev) => prev.filter((jobOffers) => jobOffers.jobId !== jobId));
+          console.log("Succesfully deleted job with id of:", jobId)
+      } catch (error) {
+          console.error("Error deleting job:", error);
+      }
     };
 
     return (
