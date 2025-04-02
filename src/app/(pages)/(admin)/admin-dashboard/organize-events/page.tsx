@@ -14,21 +14,39 @@ export default function Events() {
   const [isEditing, setEdit] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [rsvpFilter, setRsvpFilter] = useState("All"); 
+  const [sortAlphabetically, setSortAlphabetically] = useState(false);
 
   const filterEvents = (status: string) => {
     return events.filter((event: Event) => event.status === status);
   };
 
-  // function to filter RSVPs based on status
+  // function to filter RSVPs based on status and sort
   const filterRsvps = (rsvps: string[] | undefined, event: Event) => {
     if (!rsvps || rsvps.length === 0) return [];
 
-    return rsvps.filter(rsvpId => {
+    let filteredRsvps = rsvps.filter(rsvpId => {
       const rsvpStatus = rsvpDetails[rsvpId]?.Status;
       
       if (rsvpFilter === "All") return true;
       return rsvpFilter === rsvpStatus;
     });
+
+    // Alphabetical sorting logic
+    if (sortAlphabetically) {
+      filteredRsvps.sort((a, b) => {
+        const alumniA = alumniDetails[rsvpDetails[a].alumni_id];
+        const alumniB = alumniDetails[rsvpDetails[b].alumni_id];
+        
+        if (!alumniA || !alumniB) return 0;
+        
+        const nameA = `${alumniA.firstName} ${alumniA.lastName}`.toLowerCase();
+        const nameB = `${alumniB.firstName} ${alumniB.lastName}`.toLowerCase();
+        
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    return filteredRsvps;
   };
 
   return (
@@ -126,19 +144,37 @@ export default function Events() {
       </div>
 
       <div>
-        {/* RSVP Filter Dropdown */}
-        <div className="mb-4">
-          <label htmlFor="rsvp-filter" className="mr-2">Filter RSVPs:</label>
-          <select 
-            id="rsvp-filter"
-            value={rsvpFilter}
-            onChange={(e) => setRsvpFilter(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="All">All</option>
-            <option value="Accepted">Accepted</option>
-            <option value="Declined">Declined</option>
-          </select>
+        {/* RSVP Filter and Sorting Div */}
+        <div className="mb-4 flex items-center gap-4">
+          <div>
+            <label htmlFor="rsvp-filter" className="mr-2">Filter RSVPs:</label>
+            <select 
+              id="rsvp-filter"
+              value={rsvpFilter}
+              onChange={(e) => setRsvpFilter(e.target.value)}
+              className="p-2 border rounded"
+            >
+              <option value="All">All</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Declined">Declined</option>
+            </select>
+          </div>
+
+          {/* Alphabetical Sort Button */}
+          <div>
+          <label className="inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={sortAlphabetically}
+              onChange={() => setSortAlphabetically(!sortAlphabetically)}
+              className="sr-only peer"
+            />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+              Sort Alphabetically
+            </span>
+          </label>
+        </div>
         </div>
 
         {filterEvents(activeTab).map((events: Event, index: number) => (
