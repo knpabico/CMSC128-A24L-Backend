@@ -1,6 +1,5 @@
 // this server side of firebase is for interacting with firestore database
- // from the server side
- 
+// from the server side
  
  import { Firestore, getFirestore } from 'firebase-admin/firestore';
  import { getApps, ServiceAccount } from 'firebase-admin/app';
@@ -22,7 +21,7 @@
  };
  
  let serverFirestoreDB: Firestore;
- let auth: Auth;
+ let serverAuth: Auth;
  
  const currentApps = getApps();
  
@@ -36,7 +35,7 @@
    // initialize firestore
    serverFirestoreDB = getFirestore(app);
    // initialize firebase auth
-   auth = getAuth(app);
+   serverAuth = getAuth(app);
  } else {
    // else, get the app from the already
    // initialized apps
@@ -44,7 +43,7 @@
    // initialize firestore
    serverFirestoreDB = getFirestore(app);
    // initialize firebase auth
-   auth = getAuth(app);
+   serverAuth = getAuth(app);
  }
  
- export { serverFirestoreDB, auth };
+ export { serverFirestoreDB, serverAuth };
