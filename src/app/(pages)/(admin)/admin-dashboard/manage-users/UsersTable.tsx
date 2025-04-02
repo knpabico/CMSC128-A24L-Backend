@@ -27,22 +27,25 @@ export async function UsersTable({
   regStatus = undefined,
   aStatus = undefined,
   yearGraduated = undefined,
+  studentNumber = undefined,
   sort = undefined,
 }: {
   page?: number;
   regStatus?: RegStatus | undefined;
   aStatus?: string | undefined;
   yearGraduated?: string | undefined;
+  studentNumber?: string | undefined;
   sort?: string | undefined;
 }) {
   let response;
-  if (regStatus || aStatus || yearGraduated) {
+  if (regStatus || aStatus || yearGraduated || studentNumber) {
     // query users (alumni) data
     response = await getAlumni({
       filters: {
         regStatus,
         aStatus,
         yearGraduated,
+        studentNumber,
       },
       pagination: {
         page,
@@ -141,7 +144,9 @@ export async function UsersTable({
                         regStatus ? `&status=${regStatus}` : ""
                       }${aStatus ? `&astatus=${aStatus}` : ""}${
                         yearGraduated ? `&yg=${yearGraduated}` : ""
-                      }${sort && sort !== "d" ? `&sort=${sort}` : ""}`}
+                      }${studentNumber ? `&sn=${studentNumber}` : ""}${
+                        sort && sort !== "d" ? `&sort=${sort}` : ""
+                      }`}
                     >
                       {i + 1}
                     </Link>

@@ -29,6 +29,7 @@ export default function ManageUsersClient({
   const sort = searchParams.get("sort"); //get current sort param
   const astatus = searchParams.get("astatus"); //get current astatus param
   const yearGraduated = searchParams.get("yg"); //get year graduated param
+  const studentNumber = searchParams.get("sn"); //get student number param
   const router = useRouter();
 
   //function for handling change on sort type
@@ -41,7 +42,7 @@ export default function ManageUsersClient({
         status ? `&status=${status}` : ""
       }${astatus ? `&astatus=${astatus}` : ""}${
         yearGraduated ? `&yg=${yearGraduated}` : ""
-      }${sorting}`
+      }${studentNumber ? `&sn=${studentNumber}` : ""}${sorting}`
     );
   }
 
@@ -68,7 +69,24 @@ export default function ManageUsersClient({
       `${page ? `?page=${page}` : "?page=1"}${
         status ? `&status=${status}` : ""
       }${astatus ? `&astatus=${astatus}` : ""}
-      ${year ? `&yg=${year}` : ""}${sorting}`
+      ${year ? `&yg=${year}` : ""}${
+        studentNumber ? `&sn=${studentNumber}` : ""
+      }${sorting}`
+    );
+  }
+
+  //function for handling student number filter
+  function handleSearchSN(sn: string) {
+    let sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
+
+    //will push the parameters to the url
+    router.push(
+      `${page ? `?page=${page}` : "?page=1"}${
+        status ? `&status=${status}` : ""
+      }${astatus ? `&astatus=${astatus}` : ""}
+      ${yearGraduated ? `&yg=${yearGraduated}` : ""}${
+        sn ? `&sn=${sn}` : ""
+      }${sorting}`
     );
   }
 
@@ -116,15 +134,36 @@ export default function ManageUsersClient({
         <div className="flex">
           <h1>Year Graduated:</h1>
           <input
-            className="outline rounded-xs ml-2"
+            className="outline rounded-xs ml-2 text-center"
             type="number"
             inputMode="numeric"
             min={1909}
             max={2100}
+            placeholder="2024"
             defaultValue={yearGraduated ? yearGraduated : undefined}
             autoComplete="off"
             onChange={(e) => {
               handleYearFilter(e.target.value);
+            }}
+          ></input>
+        </div>
+      </div>
+
+      {/*student number filter (search student number) */}
+      <div className="mt-2">
+        <div className="flex">
+          <h1>Find Student Number:</h1>
+          <input
+            className="outline rounded-xs ml-2 w-35 text-center"
+            type="text"
+            inputMode="search"
+            min={1909}
+            max={2100}
+            placeholder="20XX-XXXXX"
+            defaultValue={studentNumber ? studentNumber : undefined}
+            autoComplete="off"
+            onChange={(e) => {
+              handleSearchSN(e.target.value);
             }}
           ></input>
         </div>

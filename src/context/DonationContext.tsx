@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
+import { useSearchParams } from "next/navigation";
 
 // type of context
 type DonationContextType = {
@@ -27,6 +28,8 @@ export const DonationContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const searchParams = useSearchParams();
+  const sort = searchParams.get("sort"); //get current sort param
   const [userDonations, setUserDonations] = useState<Donation[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +53,7 @@ export const DonationContextProvider = ({
         unsubscribe(); //stops listening after logg out
       }
     };
-  }, [user]);
+  }, [user, sort]);
 
   const subscribeToDonations = () => {
     if (!alumniId) {
@@ -59,11 +62,35 @@ export const DonationContextProvider = ({
     }
     setIsLoading(true);
 
-    const donationsQuery = query(
+    //default most recent first
+    let donationsQuery = query(
       collection(db, "donation"),
       where("alumniId", "==", alumniId),
       orderBy("date", "desc")
     );
+
+    if (sort === "odf") {
+      //oldest donation first
+      donationsQuery = query(
+        collection(db, "donation"),
+        where("alumniId", "==", alumniId),
+        orderBy("date", "asc")
+      );
+    } else if (sort === "asc") {
+      //amount donated (asc)
+      donationsQuery = query(
+        collection(db, "donation"),
+        where("alumniId", "==", alumniId),
+        orderBy("amount", "asc")
+      );
+    } else if (sort === "desc") {
+      //amount donated (desc)
+      donationsQuery = query(
+        collection(db, "donation"),
+        where("alumniId", "==", alumniId),
+        orderBy("amount", "desc")
+      );
+    }
 
     console.log("DONATIONS:", donationsQuery);
 

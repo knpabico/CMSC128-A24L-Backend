@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
+import { useSearchParams } from "next/navigation";
 const NewsLetterContext = createContext<any>(null);
 
 export function NewsLetterProvider({
@@ -11,6 +12,8 @@ export function NewsLetterProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const searchParams = useSearchParams();
+  const sort = searchParams.get("sort"); //get current sort param
   const [newsLetters, setNewsLetters] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
@@ -29,11 +32,21 @@ export function NewsLetterProvider({
         unsubscribe(); //stops listening after logg out
       }
     };
-  }, [user]);
+  }, [user, sort]);
 
   const subscribeToNewsLetters = () => {
     setLoading(true);
-    const q = query(collection(db, "newsletter_items"));
+
+    //default (newest first)
+    let q = query(
+      collection(db, "newsletter_items"),
+      orderBy("dateSent", "desc")
+    );
+
+    //oldest first
+    if (sort === "of") {
+      q = query(collection(db, "newsletter_items"), orderBy("dateSent", "asc"));
+    }
 
     //listener for any changes
     const unsubscribeNewsLetters = onSnapshot(
