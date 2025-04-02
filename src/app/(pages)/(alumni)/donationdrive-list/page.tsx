@@ -70,7 +70,7 @@ export default function DonationDrivesPage() {
         {/* Active Donation Drives */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Active Donation Drives</h2>
-          {sortedDrives.length > 0 ? (
+          {sortedDrives.filter(drive => drive.status === "active").length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedDrives
                 .filter((drive) => drive.status === "active")
@@ -112,7 +112,7 @@ export default function DonationDrivesPage() {
         {/* Pending Donation Drives */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Pending Donation Drives</h2>
-          {sortedDrives.length > 0 ? (
+          {sortedDrives.filter(drive => drive.status === "pending").length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedDrives
                 .filter((drive) => drive.status === "pending")
