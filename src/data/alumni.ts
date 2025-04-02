@@ -11,7 +11,8 @@ export type GetAlumniOptions = {
     regStatus?: "pending" | "approved" | "rejected";
     // add more filters later
     aStatus?: string | undefined;
-    yearGraduated: string | undefined;
+    yearGraduated?: string | undefined;
+    studentNumber?: string | undefined;
   };
   pagination?: {
     pageSize?: number;
@@ -39,7 +40,8 @@ export const getAlumni = async (options?: GetAlumniOptions) => {
 
   // destructure the filers property of options object
   // if there is no filters argument, set those variables to null
-  const { regStatus, aStatus, yearGraduated } = options?.filters || {};
+  const { regStatus, aStatus, yearGraduated, studentNumber } =
+    options?.filters || {};
 
   //get sorting parameter
   //if undefined, sorting is the default type
@@ -110,6 +112,12 @@ export const getAlumni = async (options?: GetAlumniOptions) => {
   //year graduated filter
   if (yearGraduated) {
     alumniQuery = alumniQuery.where("graduationYear", "==", yearGraduated);
+  }
+
+  //student number filter
+  //year graduated filter
+  if (studentNumber) {
+    alumniQuery = alumniQuery.where("studentNumber", "==", studentNumber);
   }
 
   // calculate the total number of pages

@@ -23,6 +23,10 @@ export default async function ManageUsers({
     ? searchParamsValue?.yg
     : undefined;
 
+  const studentNumber = searchParamsValue?.sn
+    ? searchParamsValue?.sn
+    : undefined;
+
   //sorting params
   const sort = searchParamsValue?.sort ? searchParamsValue?.sort : undefined;
 
@@ -34,6 +38,7 @@ export default async function ManageUsers({
         sort={sort}
         aStatus={aStatus}
         yearGraduated={yearGraduated}
+        studentNumber={studentNumber}
       ></UsersTable>
     </ManageUsersClient>
   );
