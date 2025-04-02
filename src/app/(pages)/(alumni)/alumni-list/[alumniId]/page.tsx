@@ -90,6 +90,12 @@ export default function AlumPage() {
             <div key={index} onClick={() => handleLocationClick(work.latitude, work.longitude, index)}>
               <p>Company Name: {work.company}</p>
               <p>Location: {work.location}</p>
+              <h2>
+            Duration:{" "}
+            {work.startingDate.toDate().toISOString().slice(0, 10).replaceAll("-", "/")}
+            {" - "}
+            {work.endingDate.toDate().toISOString().slice(0, 10).replaceAll("-", "/")}
+          </h2>
             </div>
           ))
         ) : (

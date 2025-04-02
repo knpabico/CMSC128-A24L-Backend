@@ -17,6 +17,15 @@ interface MapComponentProps {
   activeMarker: number | null;
 }
 
+interface WorkExperience {
+  company: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  startDate: number; 
+  endDate: number | null; 
+}
+
 const containerStyle = {
   width: "100%",
   height: "500px",
@@ -68,6 +77,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
     }
 
     move();
+  };
+
+  //sorts ecxperiencelist
+  const sortExperienceList = (experienceList: WorkExperience[]): WorkExperience[] => {
+    return [...experienceList].sort((a, b) => a.startDate - b.startDate);
   };
 
   const smoothZoom = (targetZoom: number) => {
@@ -133,7 +147,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       )}
 
       <PolylineF
-        path={workExperienceList.map((exp) => ({ lat: exp.latitude, lng: exp.longitude }))}
+        path={sortExperienceList(workExperienceList).map((exp) => ({ lat: exp.latitude, lng: exp.longitude }))}
         options={{
           strokeColor: "#FF0000",
           strokeOpacity: 0.8,
