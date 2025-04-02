@@ -66,34 +66,81 @@ export default function DonationDrivesPage() {
       {isLoading && <div className="text-center text-lg">Loading...</div>}
 
       {/* Donation Drive Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedDrives.map((drive: DonationDrive) => (
-          <div 
-            key={drive.donationDriveId} 
-            className="relative bg-white border rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow cursor-pointer w-full h-56 flex flex-col justify-between"
-            onClick={() => setSelectedDrive(drive)}
-          >
-            {/* Bookmark Button */}
-            <div className="absolute top-3 right-3">
-              <BookmarkButton 
-                entryId={drive.donationDriveId}  
-                type="donation_drive" 
-                size="lg"
-              />
-            </div>
+      <div className="space-y-8">
+        {/* Active Donation Drives */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Active Donation Drives</h2>
+          {sortedDrives.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedDrives
+                .filter((drive) => drive.status === "active")
+                .map((drive) => (
+                  <div 
+                    key={drive.donationDriveId} 
+                    className="relative bg-white border rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow cursor-pointer w-full h-56 flex flex-col justify-between"
+                    onClick={() => setSelectedDrive(drive)}
+                  >
+                    {/* Bookmark Button */}
+                    <div className="absolute top-3 right-3">
+                      <BookmarkButton 
+                        entryId={drive.donationDriveId}  
+                        type="donation_drive" 
+                        size="lg"
+                      />
+                    </div>
 
-            <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{drive.campaignName}</h2>
-            <p className="text-sm text-gray-700 line-clamp-3">{drive.description}</p>
-            <p className="font-bold text-lg text-blue-600">Total Amount: ${drive.totalAmount}</p>
-            <p className="text-sm text-gray-500">
-              Date Posted: {drive.datePosted.toDate().toLocaleString()}
-            </p>
+                    <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{drive.campaignName}</h2>
+                    <p className="text-sm text-gray-700 line-clamp-3">{drive.description}</p>
+                    <p className="font-bold text-lg text-blue-600">Total Amount: ${drive.totalAmount}</p>
+                    <p className="text-sm text-gray-500">
+                      Date Posted: {drive.datePosted.toDate().toLocaleString()}
+                    </p>
 
-            <div className="flex space-x-3"> 
-              <DonateDialog drive={drive} />
+                    <div className="flex space-x-3"> 
+                      <DonateDialog drive={drive} />
+                    </div>
+                  </div>
+                ))}
             </div>
-          </div>
-        ))}
+          ) : (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+              <p className="text-gray-500">No active donation drives found.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Pending Donation Drives */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Pending Donation Drives</h2>
+          {sortedDrives.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedDrives
+                .filter((drive) => drive.status === "pending")
+                .map((drive) => (
+                  <div 
+                    key={drive.donationDriveId} 
+                    className="relative bg-white border rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow cursor-pointer w-full h-56 flex flex-col justify-between"
+                    onClick={() => setSelectedDrive(drive)}
+                  >
+                    <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{drive.campaignName}</h2>
+                    <p className="text-sm text-gray-700 line-clamp-3">{drive.description}</p>
+                    <p className="font-bold text-lg text-blue-600">Total Amount: ${drive.totalAmount}</p>
+                    <p className="text-sm text-gray-500">
+                      Date Posted: {drive.datePosted.toDate().toLocaleString()}
+                    </p>
+
+                    <div className="flex space-x-3"> 
+                      <DonateDialog drive={drive} />
+                    </div>
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+              <p className="text-gray-500">No pending donation drives found.</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Floating Action Button (FAB) */}
