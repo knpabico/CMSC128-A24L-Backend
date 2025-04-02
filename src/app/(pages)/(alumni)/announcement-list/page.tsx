@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAnnouncement } from "@/context/AnnouncementContext";
 import { Announcement } from "@/models/models";
+import BookmarkButton from "@/components/ui/bookmark-button";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -90,8 +91,16 @@ export default function Announcements() {
             currentAnnouncements.map((user: Announcement, index: number) => (
               <div
                 key={index}
-                className="p-4 border border-gray-200 rounded-lg shadow-sm"
+                className="relative p-4 border border-gray-200 rounded-lg shadow-sm"
               >
+                {/* Bookmark Button */}
+                <div className="absolute top-3 right-3">
+                  <BookmarkButton 
+                    entryId={user.announcementId}  
+                    type="announcement" 
+                    size="lg"
+                  />
+                </div>
                 <h1 className="text-xl font-semibold">{user.title}</h1>
                 <h2 className="text-gray-600">{formatDate(user.datePosted)}</h2>
                 <h2 className="text-sm text-gray-500">{user.description}</h2>

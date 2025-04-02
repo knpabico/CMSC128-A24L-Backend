@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import BookmarkButton from "@/components/ui/bookmark-button";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -186,10 +187,18 @@ export default function JobOffers() {
             {currentJobs.map((job, index) => (
               <Card
               key={index}
-              className="p-4 border border-gray-200 rounded-lg shadow-sm cursor-pointer"
+              className="relative p-4 border border-gray-200 rounded-lg shadow-sm cursor-pointer"
               onClick={() => setSelectedJob(job)}
             >
               <CardContent>
+                  {/* Bookmark Button */}
+                  <div className="absolute top-3 right-3">
+                    <BookmarkButton 
+                      entryId={job.jobId}  
+                      type="job_offering" 
+                      size="lg"
+                    />
+                  </div>
                 <h2 className="text-xl font-semibold">{job.position}</h2>
                 <p className="text-gray-600">{job.company}</p>
                 <p className="text-sm text-gray-500">

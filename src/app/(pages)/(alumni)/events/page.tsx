@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
+import BookmarkButton from "@/components/ui/bookmark-button";
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -154,9 +155,17 @@ export default function Events() {
     return sortedEvents.map((event, index) => (
       <div 
         key={index} 
-        className="border p-4 mb-4 rounded-lg shadow-sm"
+        className="relative border p-4 mb-4 rounded-lg shadow-sm"
       >
         <h2 className="text-xl font-bold mb-2">{event.title}</h2>
+        {/* Bookmark Button */}
+        <div className="absolute top-3 right-3">
+          <BookmarkButton 
+            entryId={event.eventId}  
+            type="event" 
+            size="lg"
+          />
+        </div>
         <div className="mb-2">
           <strong>Event Date:</strong> {formatEventDate(event.date)}
           {/* <span className="ml-2 text-sm text-gray-600">
