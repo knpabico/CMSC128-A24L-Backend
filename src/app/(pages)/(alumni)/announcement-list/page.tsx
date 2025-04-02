@@ -17,7 +17,7 @@ export default function Announcements() {
   const [currentPage, setCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
 
   // Toggle filters on click
   const toggleFilter = (filter: string) => {
