@@ -26,31 +26,44 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { toastError } from "@/components/ui/sonner";
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function LoginForm() {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
   // create a react hook form
   // create the form definition using the LoginFormSchema
   const form = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      email: '',
-      password: '',
-    }
+      email: "",
+      password: "",
+    },
   });
 
-  function onSubmit(values: z.infer<typeof LoginFormSchema>) {
+  const handleSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
+    setIsLoading(true);
+
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      // refresh the page, middleware runs
+      // if user is logged in, then middleware will redirect the user to another page
+      // router.refresh();
+      router.push('/');
+    } catch (err: any) {
+      const errorMessage =
+        err.code === "auth/invalid-credential"
+          ? "The email or password you entered is incorrect. Please try again."
+          : "An error occurred";
+
+      toastError(errorMessage);
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-sm">
@@ -59,44 +72,51 @@ export default function LoginForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-5"
-          >
-            {/* email form field */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="juandelacruz@example.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <fieldset
+              disabled={form.formState.isSubmitting || isLoading}
+              className="flex flex-col gap-5"
+            >
+              {/* email form field */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="juandelacruz@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* password form field */}
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* password form field */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button type="submit">Submit</Button>
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting || isLoading}
+              >
+                Submit
+              </Button>
+            </fieldset>
           </form>
         </Form>
       </CardContent>
