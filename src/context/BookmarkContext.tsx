@@ -207,8 +207,11 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
         case "latest":
           return entryB.datePosted?.toDate().getTime() - entryA.datePosted?.toDate().getTime();
         case "alphabetical":
-          const titleA = (entryA.campaignName || entryA.title || "").toLowerCase();
-          const titleB = (entryB.campaignName || entryB.title || "").toLowerCase();
+          const getTitle = (entry: any) => {
+            return entry.campaignName || entry.title || entry.position || ""; // Ensures correct field selection
+          };
+          const titleA = getTitle(entryA).toLowerCase();
+          const titleB = getTitle(entryB).toLowerCase();
           return titleA.localeCompare(titleB);
         default:
           return 0;
