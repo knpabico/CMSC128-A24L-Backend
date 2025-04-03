@@ -4,5 +4,5 @@ import { z } from "zod";
 // and some conditions for those fields
 export const LoginFormSchema = z.object({
   email: z.string().email(),
-  password: z.string()
+  password: z.string().min(1, "Input your password"),
 });

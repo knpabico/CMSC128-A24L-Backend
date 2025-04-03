@@ -3,7 +3,8 @@ import { z } from "zod";
 // this schema defines the name of the form's fields, their types,
 // and the conditions for those fields
 const baseSchema = z.object({
-  name: z.string().min(1, "Please input your name"),
+  firstName: z.string().min(1, "Input your first name"),
+  lastName: z.string().min(1, "Input your last name"),
   email: z.string().email(),
   currentLocation: z
     .tuple([
@@ -11,7 +12,7 @@ const baseSchema = z.object({
       z.string().optional(), // state is optional
     ])
     .refine((input) => input[0] !== "", "Please input your location"),
-  techStack: z.array(z.string()).optional(),
+  techStack: z.array(z.string()),
   skills: z.array(z.string()).optional(),
   linkedinLink: z
     .string()
@@ -110,6 +111,7 @@ const employmentSchema = z
       });
     }
 
+    // jobTitle must be filled if 'employed' is chosen
     if (
       (data.employmentStatus === "employed" ||
         data.employmentStatus === "self-employed") &&
@@ -122,6 +124,7 @@ const employmentSchema = z
       });
     }
 
+    // fieldOfWOrk must be filled if 'employed' is chosen
     if (
       (data.employmentStatus === "employed" ||
         data.employmentStatus === "self-employed") &&
@@ -130,10 +133,20 @@ const employmentSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["workField"],
-        message: "Please input your field of work",
+        message: "Please select your field of work",
       });
     }
 
+    // workSetup must be filled if 'employed' is chosen
+    if (data.employmentStatus === "employed" && !data.workSetup) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["workSetup"],
+        message: "Please select your work setup",
+      });
+    }
+    
+    // workLocation must be filled if 'employed' is chosen
     if (data.employmentStatus === "employed" && !data.workLocation[0]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -146,7 +159,7 @@ const employmentSchema = z
 // combine the schemas shown above into a single schema
 // we split the schema into multiple schemas to make the validations for a single field
 // and the validations in the super refine run at the same time
-export const SignUpFormSchema = baseSchema
+export const signUpFormSchema = baseSchema
   .and(passwordSchema)
   .and(studentNumberAndGraduationYearSchema)
   .and(employmentSchema);
