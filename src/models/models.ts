@@ -137,6 +137,6 @@ export interface WorkExperience {
   latitude: number;
   longitude: number;
   details: string;
-  startingDate: Date;
-  endingDate: Date;
+  startingDate: Timestamp;
+  endingDate: Timestamp;
 }

@@ -17,6 +17,15 @@ interface MapComponentProps {
   activeMarker: number | null;
 }
 
+interface WorkExperience {
+  company: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  startDate: number;
+  endDate: number | null;
+}
+
 const containerStyle = {
   width: "100%",
   height: "500px",
@@ -36,6 +45,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
     lat: number;
     lng: number;
   } | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(
+    null
+  );
 
   useEffect(() => {
     if (selectedLocation && mapRef.current) {
@@ -72,6 +84,13 @@ const MapComponent: React.FC<MapComponentProps> = ({
     }
 
     move();
+  };
+
+  //sorts ecxperiencelist
+  const sortExperienceList = (
+    experienceList: WorkExperience[]
+  ): WorkExperience[] => {
+    return [...experienceList].sort((a, b) => a.startDate - b.startDate);
   };
 
   const smoothZoom = (targetZoom: number) => {
@@ -115,25 +134,61 @@ const MapComponent: React.FC<MapComponentProps> = ({
         <MarkerF
           key={index}
           position={{ lat: experience.latitude, lng: experience.longitude }}
-          onClick={() =>
-            onLocationClick(experience.latitude, experience.longitude, index)
-          }
+          onClick={() => {
+            onLocationClick(experience.latitude, experience.longitude, index);
+            setSelectedPlace(experience);
+          }}
           animation={
             activeMarker === index ? window.google.maps.Animation.BOUNCE : null
           }
         />
       ))}
 
+      {selectedPlace && (
+        <InfoWindowF
+          position={{
+            lat: selectedPlace.latitude,
+            lng: selectedPlace.longitude,
+          }}
+          zIndex={2}
+          options={{
+            pixelOffset: {
+              width: 0,
+              height: -40,
+            },
+          }}
+          onCloseClick={() => {
+            console.log("Closing InfoWindowF...");
+            setSelectedPlace(null);
+          }}
+        >
+          <div>
+            <h1 className="font-bold text-xl md:text-2xl  relative z-10">
+              {selectedPlace.company}
+            </h1>
+            <h1 className="font-bold text-xl md:text-2xl  relative z-10">
+              Location: {selectedPlace.location}
+            </h1>
+            <p className="font-normal text-sm relative z-10 my-4">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, in
+              minima! Praesentium perferendis exercitationem enim blanditiis
+              earum id aperiam autem, molestias, unde impedit natus? Eveniet
+              eaque molestiae delectus quo repudiandae?
+            </p>
+          </div>
+        </InfoWindowF>
+      )}
+
       <PolylineF
-        path={workExperienceList.map((exp) => ({
+        path={sortExperienceList(workExperienceList).map((exp) => ({
           lat: exp.latitude,
           lng: exp.longitude,
         }))}
         options={{
           strokeColor: "#FF0000",
           strokeOpacity: 0.8,
-          strokeWeight: 4,
-          geodesic: true,
+          strokeWeight: 2,
+          // geodesic: true,
         }}
       />
     </GoogleMap>
