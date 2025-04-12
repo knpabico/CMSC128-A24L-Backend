@@ -11,7 +11,9 @@ export interface Alumnus {
   address: string[];
   email: string;
   firstName: string;
+  middleName: string;
   lastName: string;
+  suffix: string;
   age: number;
   birthDate: Date;
   companyName: string;

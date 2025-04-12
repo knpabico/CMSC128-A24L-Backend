@@ -134,6 +134,8 @@ export default function RegistrationForm() {
     // default values of the fields in the form
     defaultValues: {
       firstName: "",
+      middleName: "",
+      suffix: "",
       lastName: "",
       email: "",
       password: "",
@@ -200,9 +202,31 @@ export default function RegistrationForm() {
                       name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel>First Name</FormLabel>
                           <FormControl>
                             <Input placeholder="Juan" type="text" {...field} />
+                          </FormControl>
+                          {/* FormMessage is used for displaying validation error message */}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* middle name form field */}
+                  <div className="col-span-6">
+                    <FormField
+                      control={form.control}
+                      name="middleName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Middle Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Martinez"
+                              type="text"
+                              {...field}
+                            />
                           </FormControl>
                           {/* FormMessage is used for displaying validation error message */}
                           <FormMessage />
@@ -218,13 +242,31 @@ export default function RegistrationForm() {
                       name="lastName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel>Last Name</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Dela Cruz"
                               type="text"
                               {...field}
                             />
+                          </FormControl>
+                          {/* FormMessage is used for displaying validation error message */}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* last name form field */}
+                  <div className="col-span-6">
+                    <FormField
+                      control={form.control}
+                      name="suffix"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Suffix</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Jr." type="text" {...field} />
                           </FormControl>
                           {/* FormMessage is used for displaying validation error message */}
                           <FormMessage />

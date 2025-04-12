@@ -4,7 +4,13 @@ import { z } from "zod";
 // and the conditions for those fields
 const baseSchema = z.object({
   firstName: z.string().min(1, "Input your first name"),
+  middleName: z
+    .string()
+    .min(1, "Input your middle name")
+    .optional()
+    .or(z.literal("")),
   lastName: z.string().min(1, "Input your last name"),
+  suffix: z.string().min(1, "Input your suffix").optional().or(z.literal("")),
   email: z.string().email(),
   currentLocation: z
     .tuple([
@@ -145,7 +151,7 @@ const employmentSchema = z
         message: "Please select your work setup",
       });
     }
-    
+
     // workLocation must be filled if 'employed' is chosen
     if (data.employmentStatus === "employed" && !data.workLocation[0]) {
       ctx.addIssue({

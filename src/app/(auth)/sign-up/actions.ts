@@ -28,13 +28,24 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
     });
 
     // save the details of the user as a document in firestore database
-    await serverFirestoreDB.collection("alumni").add({
-      ...alumnusData,
-      alumniId: userCredential.uid,
-      regStatus: "pending",
-      createdDate: new Date(),
-      activeStatus: "true",
-    });
+    //update - 'yung userId sa firestore ginawang document id sa alumni collection
+    // await serverFirestoreDB.collection("alumni").add({
+    //   ...alumnusData,
+    //   alumniId: userCredential.uid,
+    //   regStatus: "pending",
+    //   createdDate: new Date(),
+    //   activeStatus: "true",
+    // });
+    await serverFirestoreDB
+      .collection("alumni")
+      .doc(userCredential.uid)
+      .set({
+        ...alumnusData,
+        alumniId: userCredential.uid,
+        regStatus: "pending",
+        createdDate: new Date(),
+        activeStatus: "true",
+      });
   } catch (err: any) {
     return {
       error: true,
