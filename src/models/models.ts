@@ -52,7 +52,15 @@ export interface Event {
   creatorId: string;
   creatorName: string;
   creatorType: string;
+  time: string;
+  location: string;
+  image: string;
+  numOfAttendees: number;
+  targetGuests: String[];
+  stillAccepting: boolean;
+  needSponsorship: boolean;
 }
+
 
 export interface Sponsorship {
   donationDriveId: string;
