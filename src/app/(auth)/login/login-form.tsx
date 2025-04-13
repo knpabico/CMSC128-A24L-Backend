@@ -1,5 +1,7 @@
 "use client";
 import { LoginFormSchema } from "@/validation/auth/login-form-schema";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../../../context/AuthContext";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -34,20 +36,24 @@ export default function LoginForm() {
     resolver: zodResolver(LoginFormSchema),
   });
 
-  function onSubmit(values: z.infer<typeof LoginFormSchema>) {
+  const { signIn } = useAuth();
+  const router = useRouter();
+  
+  async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      const { success, message } = await signIn(values.email, values.password);
+      if (!success) {
+        toast.error(message || "Login failed. Try again.");
+        return;
+      }
+  
+      // ✅ Successful login
+      router.push("/");
     } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      console.error("Unexpected login error:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   }
-
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
@@ -92,7 +98,7 @@ export default function LoginForm() {
               )}
             />
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit">Login</Button>
           </form>
         </Form>
       </CardContent>
