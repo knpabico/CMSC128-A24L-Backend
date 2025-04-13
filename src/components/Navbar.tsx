@@ -9,6 +9,7 @@ export default function Navbar() {
 
   const navItems = [
     { label: "See Newsletters", path: "/newsletters" },
+    { label: "Admin Panel", path: "/admin-dashboard" },
     { label: "See Alums", path: "/alumni-list" },
     { label: "See Job Offers", path: "/joboffer-list" },
     { label: "Announcements", path: "/announcement-list" },
