@@ -198,7 +198,7 @@ export default function Events() {
           Propose an Event
         </button>
         {showForm && (
-          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
             <form onSubmit={handleSave} className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]">
               <h2 className="text-xl mb-4">Event Details</h2>
 
