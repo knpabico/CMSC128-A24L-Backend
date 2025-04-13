@@ -3,6 +3,11 @@ import { useState } from "react";
 import { useAnnouncement } from "@/context/AnnouncementContext";
 import { Announcement } from "@/models/models";
 import BookmarkButton from "@/components/ui/bookmark-button";
+import { Button } from "@/components/ui/button";
+// import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
+import { ChevronDownIcon } from "lucide-react"
+
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -11,6 +16,7 @@ function formatDate(timestamp: any) {
 }
 
 const FILTER_TAGS = ["Donation Update", "Achievements", "Upcoming Event"];
+const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Announcements() {
   const { announces, isLoading } = useAnnouncement();
@@ -18,6 +24,8 @@ export default function Announcements() {
   const [currentPage, setCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [selectedSort, setSelectedSort] = useState("Latest");
+
   const itemsPerPage = 6;
 
   // Toggle filters on click
@@ -31,8 +39,8 @@ export default function Announcements() {
   };
 
   // Sort announcements by date
-  let filteredAnnounces = [...announces].sort((a, b) => {
-    const dateA = a.datePosted.seconds;
+  let filteredAnnounces = [...announces].sort((Button, b) => {
+    const dateA = Button.datePosted.seconds;
     const dateB = b.datePosted.seconds;
     return latestFirst ? dateB - dateA : dateA - dateB;
   });
@@ -51,39 +59,86 @@ export default function Announcements() {
   const currentAnnouncements = filteredAnnounces.slice(startIndex, endIndex);
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-6">ANNOUNCEMENTS</h1>
+    <div>
+      <div className="flex h-70 w-full bg-blue-600 justify-start pl-20 pr-20 items-center">
+        <div className="flex flex-col">
+          <p className="text-5xl font-bold text-white leading-tight m-0">News & Announcements</p>
+          <p className="text-l text-white mt-1 m-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
+        </div>
+      </div>
 
-      {/* Filter Tags */}
-      <div className="flex gap-2 mb-4 justify-center">
-        {FILTER_TAGS.map((tag) => (
-          <button
-            key={tag}
-            className={`px-4 py-2 rounded-full text-sm font-semibold border-2 ${
-              activeFilters.includes(tag)
-                ? "bg-blue-500 text-white border-blue-500"
-                : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300"
-            }`}
-            onClick={() => toggleFilter(tag)}
+      {/* Filter Button */}
+      <div className="flex flex-row justify-end gap-5 mx-20 my-5">
+        <div>
+          <DropdownMenu>
+          <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-md bg-gray-800 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white">
+            Filter by
+            <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            className="w-auto bg-gray-600 border border-white/5 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
           >
-            {tag}
-          </button>
-        ))}
-      </div>
+            {FILTER_TAGS.map((tag) => (
+              // Prevent menu from closing using as div
+              <DropdownMenuItem key={tag} className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent menu close
+                    toggleFilter(tag);
+                  }}
+                  className={`group flex flex cursor-default items-center rounded py-1.5 px-3 ${
+                    activeFilters.includes(tag) ? "flex bg-white/10 w-full" : ""}`}
+                >
+                  <span className="flex-1">{tag}</span>
+                  {activeFilters.includes(tag) }
+                </button>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        </div>
 
-      {/* Sorting Button */}
-      <div className="flex justify-end mb-4">
-        <button
-          className="px-4 py-2 bg-gray-300 rounded shadow hover:bg-gray-400"
-          onClick={() => setLatestFirst(!latestFirst)}
+        {/* Sorting Button */}
+        <div>
+        <DropdownMenu>
+        <DropdownMenuTrigger
+          className="pl-5 h-10 w-30 items-center flex flex-row rounded-md bg-gray-800 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white"
         >
-          Sort by: {latestFirst ? "Oldest First" : "Latest First"}
-        </button>
-      </div>
+          {selectedSort === "Earliest" || selectedSort === null? "Earliest" : "Latest"}
+          <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+        </DropdownMenuTrigger>
 
-      {isLoading ? (
-        <h1>Loading...</h1>
-      ) : (
+        <DropdownMenuContent
+          className="w-30 ml-0 bg-gray-600 border border-white/5 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
+        >
+          {SORT_TAGS.map((tag) => (
+            <DropdownMenuItem key={tag}>
+              <button
+                className={`flex w-full items-center rounded-md py-1.5 px-3 ${
+                  selectedSort === tag ? "bg-white/10" : ""
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent menu close
+                  setSelectedSort(tag);
+                  setLatestFirst(tag === "Latest");
+                }}
+              >
+                {tag}
+              </button>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+        </div>
+        </div>
+
+        
+
+      { !isLoading ? 
+      (
         <>
           {currentAnnouncements.length === 0 ? (
             <p className="text-center text-gray-500">No announcements found.</p>
@@ -91,28 +146,45 @@ export default function Announcements() {
             currentAnnouncements.map((user: Announcement, index: number) => (
               <div
                 key={index}
-                className="relative p-4 border border-gray-200 rounded-lg shadow-sm"
+                className="h-full relative m-20 mt-0 border border-gray-200 rounded-lg shadow-sm"
               >
-                {/* Bookmark Button */}
-                <div className="absolute top-3 right-3">
-                  <BookmarkButton 
-                    entryId={user.announcementId}  
-                    type="announcement" 
-                    size="lg"
-                  />
+                <div>
+                <img src="https://www.cdc.gov/healthy-pets/media/images/2024/04/Cat-on-couch.jpg"/>
+                <div className="p-10">
+                <div className="flex flex-row justify-between w-full">
+                <p className="text-4xl font-bold uppercase">{user.title}</p>
+                  {/* Bookmark Button */}
+                <div className="p-0 top-5">
+                    <BookmarkButton 
+                      entryId={user.announcementId}  
+                      type="announcement" 
+                      size="lg"
+                    />
+                  </div>
                 </div>
-                <h1 className="text-xl font-semibold">{user.title}</h1>
-                <h2 className="text-gray-600">{formatDate(user.datePosted)}</h2>
-                <h2 className="text-sm text-gray-500">{user.description}</h2>
-                <div className="flex gap-2 mt-2">
-                  {user.type.map((tag: string, i: number) => (
-                    <span
-                      key={i}
-                      className="px-2 py-1 text-xs font-semibold bg-gray-300 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  
+                  <p className="text-gray-400 text-sm">{formatDate(user.datePosted)}</p>
+                  <h3 className=" mt-10 text-gray-0 ">{user.description}</h3>
+                  <h3 className=" mt-10 text-gray-0 flex text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                    Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. 
+                    Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. 
+                    Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                    Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. 
+                    Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. 
+                    Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget. 
+                    </h3>
+                  <div className="flex gap-2 my-10 place-self-center">Tags: 
+                    {user.type.map((tag: string, i: number) => (
+                      <span
+                        key={i}
+                        className="px-2 py-1 text-xs font-semibold bg-gray-300 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="place-self-center"> See more here <a href="./redirect">&#8594;</a></p>
+                </div>
                 </div>
               </div>
             ))
@@ -121,28 +193,30 @@ export default function Announcements() {
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-6 space-x-4">
-              <button
+              <Button
                 className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
                 Previous
-              </button>
+              </Button>
 
               <span className="text-lg font-semibold">
                 Page {currentPage} of {totalPages}
               </span>
 
-              <button
+              <Button
                 className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
                 Next
-              </button>
+              </Button>
             </div>
           )}
         </>
+      ) : (
+        <h1 className="place-self-center text-4xl font-bold">Loading...</h1>
       )}
     </div>
   );
