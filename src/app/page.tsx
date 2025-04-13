@@ -1,5 +1,6 @@
 "use client";
 import LoadingPage from "@/components/Loading";
+import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
@@ -9,7 +10,7 @@ import Link from "next/link";
 export default function Home() {
   const { user, loading, alumInfo } = useAuth();
   const { userWorkExperience, isLoading } = useWorkExperience();
-
+  
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   if (!user) {
     return (
