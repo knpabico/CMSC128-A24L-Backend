@@ -34,9 +34,13 @@ export default function LoginForm() {
   // create the form definition using the LoginFormSchema
   const form = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
+    defaultValues: {
+      email: "",   
+      password: "",   
+    },
   });
 
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
   const router = useRouter();
   
   async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
