@@ -30,12 +30,12 @@ export default function Navbar() {
       {!loading && !user && (
         <>
           <div className="p-3">
-            <Link href="/auth/login" className="text-black font-bold">
+            <Link href="/login" className="text-black font-bold">
               Log In
             </Link>
           </div>
           <div className="p-3">
-            <Link href="/auth/signup" className="text-black font-bold">
+            <Link href="/sign-up" className="text-black font-bold">
               Sign Up
             </Link>
           </div>

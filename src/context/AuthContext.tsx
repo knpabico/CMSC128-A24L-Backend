@@ -60,12 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       var alumniCopy = alumniDoc.data() as Alumnus;
 
       //convert date format to YYY-MM-DD
-      alumniCopy.birthDate = alumniDoc
-        .data()
-        .birthDate.toDate()
-        .toISOString()
-        .slice(0, 10)
-        .replaceAll("-", "/");
+      alumniCopy.birthDate = alumniDoc.data().birthDate
+        ? alumniDoc
+            .data()
+            .birthDate.toDate()
+            .toISOString()
+            .slice(0, 10)
+            .replaceAll("-", "/")
+        : undefined;
 
       setAlumInfo(alumniCopy);
     } else {
