@@ -137,6 +137,8 @@ export default function RegistrationForm() {
       middleName: "",
       suffix: "",
       lastName: "",
+      age: "",
+      birthDate: "",
       email: "",
       password: "",
       passwordConfirm: "",
@@ -145,14 +147,14 @@ export default function RegistrationForm() {
       employmentStatus: "",
       companyName: "",
       jobTitle: "",
-      workField: "",
+      fieldOfWork: "",
       workSetup: "",
       workLocation: ["", ""],
       techStack: [],
       skills: [],
       linkedinLink: "",
       githubLink: "",
-      affiliations: [],
+      affiliation: [],
       acceptTerms: false,
       subscribeToNewsletter: false,
     },
@@ -269,6 +271,56 @@ export default function RegistrationForm() {
                             <Input placeholder="Jr." type="text" {...field} />
                           </FormControl>
                           {/* FormMessage is used for displaying validation error message */}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* display the age and birthDate fields side by side */}
+                <div className="grid grid-cols-12 gap-4">
+                  {/* age form field */}
+                  <div className="col-span-6">
+                    <FormField
+                      control={form.control}
+                      name="age"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Age</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="21"
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* birthDate form field */}
+                  <div className="col-span-6">
+                    <FormField
+                      control={form.control}
+                      name="birthDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>BirthDate</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              {...field}
+                              // we will not provide a default value to this input field
+                              // that requires a number value when we create the react hook form (the form variable above)
+                              // Instead, if the value of it is undefined initially, then we set
+                              // it to an empty string here
+                              value={field.value ?? ""}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -487,7 +539,7 @@ export default function RegistrationForm() {
                       {/* workField form field */}
                       <FormField
                         control={form.control}
-                        name="workField"
+                        name="fieldOfWork"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel>Field of Work</FormLabel>
@@ -526,7 +578,7 @@ export default function RegistrationForm() {
                                           key={workField.value}
                                           onSelect={() => {
                                             form.setValue(
-                                              "workField",
+                                              "fieldOfWork",
                                               workField.value
                                             );
                                           }}
@@ -711,7 +763,7 @@ export default function RegistrationForm() {
                 {/* affiliations form field */}
                 <FormField
                   control={form.control}
-                  name="affiliations"
+                  name="affiliation"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Affiliations</FormLabel>

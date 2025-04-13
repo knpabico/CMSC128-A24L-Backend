@@ -19,6 +19,8 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
   // destructure the data, remove the acceptTerms key-value pair
   const { acceptTerms, ...alumnusData } = data;
 
+  //remove password fields (hindi dapat masama sa firestore)
+  const { password, passwordConfirm, ...alumData } = alumnusData;
   try {
     // create a user in firebase auth
     const userCredential = await serverAuth.createUser({
@@ -40,11 +42,19 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
       .collection("alumni")
       .doc(userCredential.uid)
       .set({
-        ...alumnusData,
+        ...alumData,
         alumniId: userCredential.uid,
         regStatus: "pending",
         createdDate: new Date(),
-        activeStatus: "true",
+        activeStatus: "false",
+        age: Number(alumnusData.age),
+        birthDate: new Date(alumnusData.birthDate),
+        address:
+          alumnusData.currentLocation[1] !== ""
+            ? [
+                `${alumnusData.currentLocation[1]}, ${alumnusData.currentLocation[0]}`,
+              ]
+            : [`${alumnusData.currentLocation[0]}`],
       });
   } catch (err: any) {
     return {
