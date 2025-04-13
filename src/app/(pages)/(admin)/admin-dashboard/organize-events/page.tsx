@@ -180,8 +180,12 @@ export default function Events() {
         {filterEvents(activeTab).map((events: Event, index: number) => (
           <div key={index} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "15px" }}>
             <strong><h2>{events.title}</h2></strong>
-            <p>{events.date}</p>
-            <p>{events.description}</p>
+            
+            <p> <strong>Date:</strong> {events.date}</p>
+            <p> <strong>Time:</strong>{events.time}</p>
+            <p> <strong>Description:</strong>{events.description}</p>
+            <p> <strong>Location:</strong>{events.location}</p>
+            <p> <strong>Attendees:</strong>{events.numofAttendees}</p>
             {events.creatorType === "Alumni" && <p>Proposed by: {events.creatorName}</p>}
             
             <h3>RSVPs:</h3>
