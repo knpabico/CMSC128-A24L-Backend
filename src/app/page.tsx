@@ -43,7 +43,7 @@ export default function Home() {
           Graduation Year: {alumInfo!.graduationYear}
         </p>
         <p className="text-black text-[25px] font-bold">
-          Birthdate: {alumInfo!.birthDate.toString()}
+          Birthdate: {alumInfo!.birthDate ? alumInfo!.birthDate.toString() : ""}
         </p>
         <p className="text-black text-[25px] font-bold">
           Student Number: {alumInfo!.studentNumber}

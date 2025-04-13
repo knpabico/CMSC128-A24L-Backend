@@ -15,30 +15,41 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Event } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+
 const EventContext = createContext<any>(null);
 
 export function EventProvider({ children }: { children: React.ReactNode }) {
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
+
+  // event form fields
   const [title, setEventTitle] = useState("");
   const [description, setEventDescription] = useState("");
   const [date, setEventDate] = useState("");
+  const [time, setEventTime] = useState("");
+  const [location, setEventLocation] = useState("");
+  const [image, setEventImage] = useState("");
+  const [numofAttendees, setnumofAttendees] = useState(0);
+  const [targetGuests, setTargetGuests] = useState<string[]>([]);
+  const [stillAccepting, setStillAccepting] = useState(false);
+  const [needSponsorship, setNeedSponsorship] = useState(false);
+
   const { user } = useAuth();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
 
     if (user) {
-      unsubscribe = subscribeToEvents(); //maglilisten sa firestore
+      unsubscribe = subscribeToEvents();
     } else {
-      setEvents([]); //reset once logged out
+      setEvents([]);
       setLoading(false);
     }
 
     return () => {
       if (unsubscribe) {
-        unsubscribe(); //stops listening after logg out
+        unsubscribe();
       }
     };
   }, [user]);
@@ -47,13 +58,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     const q = query(collection(db, "event"));
 
-    //listener for any changes
     const unsubscribeEvents = onSnapshot(
       q,
       (querySnapshot: any) => {
-        const eventList = querySnapshot.docs.map(
-          (doc: any) => doc.data() as Event
-        );
+        const eventList = querySnapshot.docs.map((doc: any) => doc.data() as Event);
         setEvents(eventList);
         setLoading(false);
       },
@@ -85,24 +93,20 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const addEvent = async (newEvent: Event) => {
     const { role, name } = await checkUserRole(user.uid);
     try {
-      const docRef = doc(collection(db, "event")); // Generate document reference
-      newEvent.eventId = docRef.id; // Assign Firestore-generated ID
-      newEvent.status = role === "Alumni" ? "Pending" : "Accepted"; // Default status
+      const docRef = doc(collection(db, "event"));
+      newEvent.eventId = docRef.id;
+      newEvent.status = role === "Alumni" ? "Pending" : "Accepted";
       newEvent.creatorId = user.uid;
-      newEvent.creatorName = role === "Alumni" ? name : "Admin"; // Store alumni name
+      newEvent.creatorName = role === "Alumni" ? name : "Admin";
       newEvent.creatorType = role;
 
-      console.log("Event to be added:", newEvent);
-
-      await setDoc(doc(db, "event", docRef.id), newEvent); // Save event to Firestore
-
+      await setDoc(doc(db, "event", docRef.id), newEvent);
       return { success: true, message: "Event added successfully" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  // Save the form (currently not finalize)
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -111,6 +115,13 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       title,
       description,
       date,
+      time,
+      location,
+      image,
+      numofAttendees,
+      targetGuests,
+      stillAccepting,
+      needSponsorship,
       rsvps: [],
       eventId: "",
       status: "Pending",
@@ -126,12 +137,18 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       setEventTitle("");
       setEventDescription("");
       setEventDate("");
+      setEventTime("");
+      setEventLocation("");
+      setEventImage("");
+      setnumofAttendees(0);
+      setTargetGuests([]);
+      setStillAccepting(false);
+      setNeedSponsorship(false);
     } else {
       console.error("Error adding event:", response.message);
     }
   };
 
-  // Function to be able to delete finalized events
   const handleDelete = async (eventId: string) => {
     try {
       await deleteDoc(doc(db, "event", eventId));
@@ -142,7 +159,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  //
   const handleEdit = async (eventId: string, updatedData: Partial<Event>) => {
     try {
       await updateDoc(doc(db, "event", eventId), updatedData);
@@ -157,7 +173,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Function to Reject the proposed / created Event
   const handleReject = async (eventId: string) => {
     try {
       const eventRef = doc(db, "event", eventId);
@@ -168,7 +183,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Function to Finalize the event to be posted
   const handleFinalize = async (eventId: string) => {
     try {
       const eventRef = doc(db, "event", eventId);
@@ -198,6 +212,20 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setEventDescription,
         date,
         setEventDate,
+        time,
+        setEventTime,
+        location,
+        setEventLocation,
+        image,
+        setEventImage,
+        numofAttendees,
+        setnumofAttendees,
+        targetGuests,
+        setTargetGuests,
+        stillAccepting,
+        setStillAccepting,
+        needSponsorship,
+        setNeedSponsorship,
       }}
     >
       {children}

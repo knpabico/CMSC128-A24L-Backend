@@ -172,9 +172,32 @@ export default function Events() {
             ({getEventStatus(event.date)})
           </span> */}
         </div>
+        
+   
+        {event.time && (
+          <div className="mb-2">
+            <strong>Time:</strong> {event.time}
+          </div>
+        )}
+        
+    
+        {event.location && (
+          <div className="mb-2">
+            <strong>Location:</strong> {event.location}
+          </div>
+        )}
+        
         <div className="mb-2">
           <strong>Description:</strong> {event.description}
         </div>
+        
+        {event.numofAttendees !== undefined && (
+          <div className="mb-2">
+            <strong>Attendees:</strong> {event.numofAttendees}
+          </div>
+        )}
+        
+
         {event.datePosted && (
           <div className="text-sm text-gray-600">
             <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
@@ -198,7 +221,7 @@ export default function Events() {
           Propose an Event
         </button>
         {showForm && (
-          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+          <div className="fixed inset-0 z-50 bg-white/30 backdrop-blur-md flex justify-center items-center">
             <form onSubmit={handleSave} className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]">
               <h2 className="text-xl mb-4">Event Details</h2>
 

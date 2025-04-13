@@ -11,7 +11,9 @@ export interface Alumnus {
   address: string[];
   email: string;
   firstName: string;
+  middleName: string;
   lastName: string;
+  suffix: string;
   age: number;
   birthDate: Date;
   companyName: string;
@@ -52,7 +54,15 @@ export interface Event {
   creatorId: string;
   creatorName: string;
   creatorType: string;
+  time: string;
+  location: string;
+  image: string;
+  numofAttendees: number;
+  targetGuests: String[];
+  stillAccepting: boolean;
+  needSponsorship: boolean;
 }
+
 
 export interface Sponsorship {
   donationDriveId: string;

@@ -4,6 +4,12 @@ import { z } from "zod";
 // and the conditions for those fields
 const baseSchema = z.object({
   firstName: z.string().min(1, "Input your first name"),
+  middleName: z
+    .string()
+    .min(1, "Input your middle name")
+    .optional()
+    .or(z.literal("")),
+  suffix: z.string().min(1, "Input your suffix").optional().or(z.literal("")),
   lastName: z.string().min(1, "Input your last name"),
   email: z.string().email(),
   currentLocation: z
@@ -30,7 +36,7 @@ const baseSchema = z.object({
       const linkedinRegex = /^((https?:)?\/\/(www\.)?)?github\.com\/..*$/;
       return !link || linkedinRegex.test(link!);
     }, "Please enter a valid GitHub link"),
-  affiliations: z.array(z.string()).optional(),
+  affiliation: z.array(z.string()).optional(),
   acceptTerms: z
     .boolean()
     .refine(
@@ -55,6 +61,17 @@ const passwordSchema = z
       });
     }
   });
+
+const ageAndBirthDateSchema = z.object({
+  age: z.string().refine((age) => !isNaN(parseInt(age)), {
+    message: "Please input a valid age",
+  }),
+  birthDate: z
+    .string()
+    .refine((date) => new Date(date).toString() !== "Invalid Date", {
+      message: "Please input a valid birthdate",
+    }),
+});
 
 const studentNumberAndGraduationYearSchema = z
   .object({
@@ -93,7 +110,7 @@ const employmentSchema = z
     employmentStatus: z.string().min(1, "Please select your employment status"),
     companyName: z.string().optional(),
     jobTitle: z.string().optional(),
-    workField: z.string().optional(),
+    fieldOfWork: z.string().optional(),
     workSetup: z.string().optional(),
     workLocation: z.tuple([z.string(), z.string().optional()]),
   })
@@ -128,11 +145,11 @@ const employmentSchema = z
     if (
       (data.employmentStatus === "employed" ||
         data.employmentStatus === "self-employed") &&
-      !data.workField
+      !data.fieldOfWork
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["workField"],
+        path: ["fieldOfWork"],
         message: "Please select your field of work",
       });
     }
@@ -145,7 +162,7 @@ const employmentSchema = z
         message: "Please select your work setup",
       });
     }
-    
+
     // workLocation must be filled if 'employed' is chosen
     if (data.employmentStatus === "employed" && !data.workLocation[0]) {
       ctx.addIssue({
@@ -161,5 +178,6 @@ const employmentSchema = z
 // and the validations in the super refine run at the same time
 export const signUpFormSchema = baseSchema
   .and(passwordSchema)
+  .and(ageAndBirthDateSchema)
   .and(studentNumberAndGraduationYearSchema)
   .and(employmentSchema);
