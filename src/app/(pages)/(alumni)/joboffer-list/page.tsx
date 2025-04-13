@@ -170,7 +170,6 @@ export default function JobOffers() {
                 setShowFilterDropdown(!showFilterDropdown);
                 setShowFilterOptions(false);
                 
-                // Reset timeout when button is clicked
                 if (filterTimeoutRef.current) {
                   clearTimeout(filterTimeoutRef.current);
                 }
@@ -182,7 +181,6 @@ export default function JobOffers() {
               Filter
             </button>
             
-            {/* Primary dropdown menu */}
             {showFilterDropdown && (
               <div className="absolute mt-2 right-0 bg-white p-2 rounded shadow-lg z-20 border border-gray-200 w-40">
                 {["None", ...Object.keys(filterCategories)].map((filterCategory) => (
@@ -197,10 +195,9 @@ export default function JobOffers() {
               </div>
             )}
             
-            {/* Filter options - positioned differently to avoid overlap */}
             {showFilterOptions && activeFilterCategory && activeFilterCategory !== "None" && (
               <div className="absolute mt-2 right-0 bg-white p-4 rounded shadow-lg z-10 border border-gray-200 w-60"
-                   style={{ top: "40px" }}> {/* Fixed position below the dropdown */}
+                   style={{ top: "40px" }}>
                 <h3 className="font-semibold mb-2">{activeFilterCategory}</h3>
                 <div className="space-y-2">
                   {filterCategories[activeFilterCategory as keyof typeof filterCategories].map((filter) => (
@@ -244,9 +241,7 @@ export default function JobOffers() {
       )}
 
       <div className="flex flex-col md:flex-row">
-        {/* List Panel - Left Side */}
         <div className="md:w-1/2 bg-gray-100 rounded-lg p-4">
-          {/* Job List */}
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(6)].map((_, i) => (
@@ -395,7 +390,7 @@ export default function JobOffers() {
             <h2 className="text-3xl mb-6 font-semibold border-b pb-4">Post a Job Opportunity</h2>
             
             <div className="grid grid-cols-2 gap-6">
-              {/* Left Column */}
+              {/* Left Column ng form */}
               <div>
                 <div className="mb-4"> 
                   <label className="block text-sm font-medium mb-1">Job Position<span className="text-red-500">*</span></label>
@@ -445,7 +440,7 @@ export default function JobOffers() {
                 </div>
               </div>
 
-              {/* Right Column */}
+              {/* Right Column ng form */}
               <div>
                 <div className="mb-4"> 
                   <label className="block text-sm font-medium mb-1">Company Name<span className="text-red-500">*</span></label>
