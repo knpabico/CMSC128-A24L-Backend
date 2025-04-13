@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,6 +44,11 @@ export default function JobOffers() {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [activeFilterCategory, setActiveFilterCategory] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const filterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const filterContainerRef = useRef<HTMLDivElement>(null);
+  
   const acceptedJobs = jobOffers.filter((job: { status: string; }) => job.status === "Accepted");
 
   const jobsPerPage = 6;
@@ -56,13 +61,55 @@ export default function JobOffers() {
     "Skills": ["JavaScript", "Python", "Java", "C++", "React", "Node.js", "SQL", "Figma", "Canva"],
   };
 
+  // Close filter dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterContainerRef.current && !filterContainerRef.current.contains(event.target as Node)) {
+        setShowFilterDropdown(false);
+        setShowFilterOptions(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Auto-dismiss filter options after inactivity
+  useEffect(() => {
+    // Clear any existing timeout
+    if (filterTimeoutRef.current) {
+      clearTimeout(filterTimeoutRef.current);
+    }
+    
+    // If filters are shown, set a timeout to hide them
+    if (showFilterOptions || showFilterDropdown) {
+      filterTimeoutRef.current = setTimeout(() => {
+        setShowFilterOptions(false);
+        setShowFilterDropdown(false);
+      }, 5000); // 5 seconds of inactivity will close filters
+    }
+    
+    return () => {
+      if (filterTimeoutRef.current) {
+        clearTimeout(filterTimeoutRef.current);
+      }
+    };
+  }, [showFilterOptions, showFilterDropdown]);
+
   // Filters
   const toggleFilterCategory = (filterCategory: string) => {
-    // Set the active filter category and reset active filters
-    setActiveFilterCategory((prev) =>
-      prev === filterCategory ? null : filterCategory // Toggle between setting and unsetting the active category
-    );
-    setActiveFilters([]); // Reset the active filters
+    if (filterCategory === "None") {
+      setActiveFilterCategory(null);
+      setActiveFilters([]);
+      setShowFilterOptions(false);
+    } else {
+      // Set the active filter category
+      setActiveFilterCategory(filterCategory);
+      setShowFilterOptions(true);
+    }
+    setShowFilterDropdown(false);
     setCurrentPage(1); // Reset to first page on filter category change
   };
 
@@ -71,8 +118,15 @@ export default function JobOffers() {
       prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
     );
     setCurrentPage(1); // Reset to first page on filter change
+    
+    // Reset the auto-dismiss timer when user interacts
+    if (filterTimeoutRef.current) {
+      clearTimeout(filterTimeoutRef.current);
+      filterTimeoutRef.current = setTimeout(() => {
+        setShowFilterOptions(false);
+      }, 5000);
+    }
   };
-
 
   // Sort job offers by date
   const filteredAndSortedJobs = [...acceptedJobs]
@@ -103,63 +157,85 @@ export default function JobOffers() {
   const currentJobs = filteredAndSortedJobs.slice(startIndex, endIndex);
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-6">Job Offers</h1>
-
-      <div className="flex justify-end mb-4">
-      <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="px-5 py-2 bg-gray-300 rounded shadow hover:bg-gray-400 mr-4 flex items-center gap-2">
-              Filter by: {activeFilterCategory || "None"}
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+    <>
+    <div className="max-w-6xl mx-auto p-4">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-2xl font-bold">Job Offers</h1>
+        
+        <div className="flex space-x-2">
+          <div className="relative" ref={filterContainerRef}>
+            <button 
+              className="px-3 py-1 bg-white rounded shadow hover:bg-gray-50 text-sm flex items-center"
+              onClick={() => {
+                setShowFilterDropdown(!showFilterDropdown);
+                setShowFilterOptions(false);
+                
+                // Reset timeout when button is clicked
+                if (filterTimeoutRef.current) {
+                  clearTimeout(filterTimeoutRef.current);
+                }
+                filterTimeoutRef.current = setTimeout(() => {
+                  setShowFilterDropdown(false);
+                }, 5000);
+              }}
+            >
+              Filter
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white p-2 rounded shadow">
-            {["None", ...Object.keys(filterCategories)].map((filterCategory) => (
-              <div
-                key={filterCategory}
-                className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                onClick={() => toggleFilterCategory(filterCategory)}
-              >
-                {filterCategory}
+            
+            {/* Primary dropdown menu */}
+            {showFilterDropdown && (
+              <div className="absolute mt-2 right-0 bg-white p-2 rounded shadow-lg z-20 border border-gray-200 w-40">
+                {["None", ...Object.keys(filterCategories)].map((filterCategory) => (
+                  <div
+                    key={filterCategory}
+                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer text-sm"
+                    onClick={() => toggleFilterCategory(filterCategory)}
+                  >
+                    {filterCategory}
+                  </div>
+                ))}
               </div>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {activeFilterCategory && activeFilterCategory !== "None" && (
-        <div className="absolute mt-2 bg-white p-4 rounded shadow-lg z-10 border border-gray-200">
-          <h3 className="font-semibold mb-2">{activeFilterCategory}</h3>
-          <div className="space-y-2">
-            {filterCategories[activeFilterCategory as keyof typeof filterCategories].map((filter) => (
-              <div key={filter} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={filter}
-                  checked={activeFilters.includes(filter)}
-                  onChange={() => toggleFilter(filter)}
-                  className="mr-2"
-                />
-                <label htmlFor={filter}>{filter}</label>
+            )}
+            
+            {/* Filter options - positioned differently to avoid overlap */}
+            {showFilterOptions && activeFilterCategory && activeFilterCategory !== "None" && (
+              <div className="absolute mt-2 right-0 bg-white p-4 rounded shadow-lg z-10 border border-gray-200 w-60"
+                   style={{ top: "40px" }}> {/* Fixed position below the dropdown */}
+                <h3 className="font-semibold mb-2">{activeFilterCategory}</h3>
+                <div className="space-y-2">
+                  {filterCategories[activeFilterCategory as keyof typeof filterCategories].map((filter) => (
+                    <div key={filter} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={filter}
+                        checked={activeFilters.includes(filter)}
+                        onChange={() => toggleFilter(filter)}
+                        className="mr-2"
+                      />
+                      <label htmlFor={filter}>{filter}</label>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
           </div>
+          
+          <button
+            className="px-3 py-1 bg-white rounded shadow hover:bg-gray-50 text-sm flex items-center"
+            onClick={() => setLatestFirst(!latestFirst)}
+          >
+            {latestFirst ? "Latest First" : "Oldest First"}
+          </button>
         </div>
-      )}
-        <button
-          className="px-4 py-2 bg-gray-300 rounded shadow hover:bg-gray-400"
-          onClick={() => setLatestFirst(!latestFirst)}
-        >
-          Sort by: {latestFirst ? "Oldest First" : "Latest First"}
-        </button>
       </div>
-        {activeFilters.length > 0 && (
+      
+      {activeFilters.length > 0 && (
         <button 
-          className="px-4 py-2 md:space-x-28 bg-red-100 text-red-700 rounded shadow hover:bg-red-200 ml-4"
+          className="px-3 py-1 bg-red-50 text-red-700 rounded text-sm mb-4"
           onClick={() => {
             setActiveFilters([]);
             setActiveFilterCategory(null);
+            setShowFilterOptions(false);
             setCurrentPage(1);
           }}
         >
@@ -167,102 +243,143 @@ export default function JobOffers() {
         </button>
       )}
 
-      {!isLoading && filteredAndSortedJobs.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-lg">There are currently no job offer of this type.</p>
-          <p className="text-gray-500">Please check back later.</p>
-        </div>
-      )}
+      <div className="flex flex-col md:flex-row">
+        {/* List Panel - Left Side */}
+        <div className="md:w-1/2 bg-gray-100 rounded-lg p-4">
+          {/* Job List */}
+          {isLoading ? (
+            <div className="space-y-3">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <>
+              {filteredAndSortedJobs.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-lg">No job offers found.</p>
+                  <p className="text-gray-500">Please try different filters.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {currentJobs.map((job, index) => (
+                    <div
+                      key={index}
+                      className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${selectedJob?.jobId === job.jobId ? 'border-blue-500' : 'border-gray-200'}`}
+                      onClick={() => setSelectedJob(job)}
+                    >
+                      <div className="flex">
+                        <div className="mr-3">
+                          <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
+                            {/* Company logo or placeholder */}
+                            {job.company.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <h2 className="font-semibold text-md">{job.position}</h2>
+                          <p className="text-sm text-gray-600">{job.company}</p>
+                          <p className="text-xs text-gray-400 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3 h-3 mr-1">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                            </svg>
+                            Location
+                          </p>
+                        </div>
+                        <div className="ml-2">
+                          <BookmarkButton 
+                            entryId={job.jobId}  
+                            type="job_offering" 
+                            size="sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-      {/* Job Cards */}      
-      {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
-          ))}
+              {/* Pagination Controls */}
+              {filteredAndSortedJobs.length > 0 && (
+                <div className="flex justify-center mt-4 space-x-2">
+                  <button
+                    className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Prev
+                  </button>
+
+                  <span className="text-sm font-medium px-3 py-1">
+                    {currentPage} of {totalPages}
+                  </span>
+
+                  <button
+                    className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {currentJobs.map((job, index) => (
-              <Card
-              key={index}
-              className="relative p-4 border border-gray-200 rounded-lg shadow-sm cursor-pointer"
-              onClick={() => setSelectedJob(job)}
-            >
-              <CardContent>
-                  {/* Bookmark Button */}
-                  <div className="absolute top-3 right-3">
-                    <BookmarkButton 
-                      entryId={job.jobId}  
-                      type="job_offering" 
-                      size="lg"
-                    />
+
+        {/* Details Column */}
+        <div className="md:w-1/2 md:ml-4 bg-gray-100 rounded-lg p-4 mt-4 md:mt-0 flex items-center justify-center">
+          {selectedJob ? (
+            <div className="w-full">
+              <h2 className="text-2xl font-bold mb-2">{selectedJob.position}</h2>
+              <p className="text-gray-600 text-lg mb-4">{selectedJob.company}</p>
+              
+              <div className="bg-white p-3 rounded-lg mb-4">
+                <div className="flex space-x-4 mb-2">
+                  <div className="text-sm">
+                    <span className="text-gray-500">Type:</span>
+                    <span className="ml-1 font-medium">{selectedJob.employmentType}</span>
                   </div>
-                <h2 className="text-xl font-semibold">{job.position}</h2>
-                <p className="text-gray-600">{job.company}</p>
-                <p className="text-sm text-gray-500">
-                  {job.employmentType} • {job.experienceLevel}
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Posted on {formatDate(job.datePosted)}
-                </p>
-              </CardContent>
-            </Card>
-            ))}
-          </div>
+                  <div className="text-sm">
+                    <span className="text-gray-500">Level:</span>
+                    <span className="ml-1 font-medium">{selectedJob.experienceLevel}</span>
+                  </div>
+                </div>
+                <div className="text-sm">
+                  <span className="text-gray-500">Salary:</span>
+                  <span className="ml-1 font-medium">{selectedJob.salaryRange}</span>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2">Job Description</h3>
+                <p className="text-sm text-gray-700">{selectedJob.jobDescription}</p>
+              </div>
+              
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2">Required Skills</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedJob.requiredSkill && selectedJob.requiredSkill.map((skill, idx) => (
+                    <span key={idx} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-400 mt-4">
+                Posted on {formatDate(selectedJob.datePosted)}
+              </p>
+            </div>
+          ) : (
+            <div className="text-center text-gray-500">
+              <p className="text-xl">Select a job to view details.</p>
+            </div>
+          )}
+        </div>
+      </div>
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center mt-6 space-x-4">
-            <button
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-
-            <span className="text-lg font-semibold">
-              Page {currentPage} of {totalPages}
-            </span>
-
-            <button
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Job Details Modal */}
-      {selectedJob && (
-         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center z-50">
-         <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] md:w-1/2">
-           <h2 className="text-2xl font-bold mb-2">{selectedJob.position} | {selectedJob.employmentType}</h2>
-           <p className="text-gray-600">{selectedJob.company}</p>
-           <p className="text-sm text-gray-500">
-             {selectedJob.jobType} • {selectedJob.experienceLevel}
-           </p>
-           <p className="mt-4">{selectedJob.jobDescription}</p>
-           <p className="text-xs text-gray-400 mt-2">
-             Posted on {formatDate(selectedJob.datePosted)}
-           </p>
-     
-           <button
-             className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-             onClick={() => setSelectedJob(null)}
-           >
-             Close
-           </button>
-         </div>
-       </div>
-      )}
-
+      {/* "Add Job" Button + Form */}
       <button
         className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full"
         onClick={() => setShowForm(!showForm)}
@@ -273,81 +390,113 @@ export default function JobOffers() {
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
           <form
             onSubmit={handleSubmit}
-            className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w"
+            className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-3/4 max-w-4xl"
           >
-            <h2 className="text-xl mb-4">Post a Job</h2>
+            <h2 className="text-3xl mb-6 font-semibold border-b pb-4">Post a Job Opportunity</h2>
+            
+            <div className="grid grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div>
+                <div className="mb-4"> 
+                  <label className="block text-sm font-medium mb-1">Job Position<span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Software Engineer"
+                    value={position}
+                    onChange={(e) => setPosition(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
 
-            <input
-              type="text"
-              placeholder="Company"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
+                <div className="mb-4"> 
+                  <label className="block text-sm font-medium mb-1">Employment Type<span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Full-time"
+                    value={employmentType}
+                    onChange={(e) => setEmploymentType(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
 
-            <input
-              type="text"
-              placeholder="Employment Type"
-              value={employmentType}
-              onChange={(e) => setEmploymentType(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
+                <div className="mb-4"> 
+                  <label className="block text-sm font-medium mb-1">Job Type<span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Job Type"
+                    value={jobType}
+                    onChange={(e) => setJobType(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
 
-            <input
-              type="text"
-              placeholder="Experience Level"
-              value={experienceLevel}
-              onChange={(e) => setExperienceLevel(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
+                <div className="mb-4"> 
+                  <label className="block text-sm font-medium mb-1">Job Description<span className="text-red-500">*</span></label>
+                  <textarea
+                    placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    className="w-full p-2 border rounded h-20"
+                    required
+                  />
+                </div>
+              </div>
 
-            <textarea
-              placeholder="Job Description"
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
+              {/* Right Column */}
+              <div>
+                <div className="mb-4"> 
+                  <label className="block text-sm font-medium mb-1">Company Name<span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Company"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
 
-            <input
-              type="text"
-              placeholder="Job Type"
-              value={jobType}
-              onChange={(e) => setJobType(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
+                <div className="mb-4"> 
+                  <label className="block text-sm font-medium mb-1">Experience Level<span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Entry Level"
+                    value={experienceLevel}
+                    onChange={(e) => setExperienceLevel(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
 
-            <input
-              type="text"
-              placeholder="Position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">Salary Range<span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Salary Range"
+                    value={salaryRange}
+                    onChange={(e) => setSalaryRange(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
 
-            <input
-              type="text"
-              placeholder="Required Skills (comma-separated)"
-              onChange={handleSkillChange}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
+                <div className="mb-4"> 
+                  <label className="block text-sm font-medium mb-1">Required Skills<span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Required Skills (comma-separated)"
+                    onChange={handleSkillChange}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
 
-            <input
-              type="text"
-              placeholder="Salary Range"
-              value={salaryRange}
-              onChange={(e) => setSalaryRange(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <div className="flex justify-between">
+            <div className="flex justify-between mt-6">
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
@@ -366,5 +515,6 @@ export default function JobOffers() {
         </div>
       )}
     </div>
+    </>
   );
 }

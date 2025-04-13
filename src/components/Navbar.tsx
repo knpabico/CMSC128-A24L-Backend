@@ -11,62 +11,61 @@ export default function Navbar() {
     { label: "See Newsletters", path: "/newsletters" },
     { label: "See Alums", path: "/alumni-list" },
     { label: "See Job Offers", path: "/joboffer-list" },
-    { label: "Announcements", path: "/announcement-list" },
-    { label: "See Events", path: "/events" },
-    { label: "Donation Drives", path: "/donationdrive-list" },
-    { label: "Donations", path: "/donations" },
-    { label: "Bookmarks", path: "/bookmark-list" },
-    { label: "My Profile", path: `/my-profile/${user?.uid}` },
+    // { label: "Announcements", path: "/announcement-list" },
+    // { label: "See Events", path: "/events" },
+    // { label: "Donation Drives", path: "/donationdrive-list" },
+    // { label: "Donations", path: "/donations" },
+    // { label: "Bookmarks", path: "/bookmark-list" },
+    // { label: "My Profile", path: `/my-profile/${user?.uid}` },
   ];
 
   return (
-    <div className="flex">
-      <div className="p-3">
-        <Link className="text-black font-bold p-3" href="/">
-          Website Logo
-        </Link>
-      </div>
-
-      {!loading && !user && (
-        <>
-          <div className="p-3">
-            <Link href="/auth/login" className="text-black font-bold">
-              Log In
+    <nav style={{ backgroundColor: "#0856BA" }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-18">
+          <div className="flex-shrink-0">
+            <Link href="/" className="text-white font-bold text-lg">
+              ICS-ARMS
             </Link>
           </div>
-          <div className="p-3">
-            <Link href="/auth/signup" className="text-black font-bold">
-              Sign Up
-            </Link>
-          </div>
-        </>
-      )}
 
-      {user && (
-        <>
-          {navItems.map((item) => (
-            <div key={item.path} className="p-3 text-black font-bold ">
-              <button
-                onClick={() => router.push(item.path)}
-                className=" cursor-pointer"
-              >
-                {item.label}
-              </button>
+          <div className="hidden md:block">
+            <div className="ml-4 flex items-center space-x-6">
+              {!loading && !user && (
+                <Link
+                  href="/"
+                  className="text-white hover:bg-white hover:text-black rounded-lg px-3 py-2"
+                >
+                  Home
+                </Link>
+              )}
+
+              {user &&
+                navItems.map((item) => (
+                  <button
+                    key={item.path}
+                    onClick={() => router.push(item.path)}
+                    className="text-white hover:bg-white hover:text-black rounded-lg px-3 py-2"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+
+              {user && (
+                <button
+                  onClick={async () => {
+                    await logOut();
+                    router.refresh();
+                  }}
+                  className="text-white hover:bg-white hover:text-black rounded-lg px-3 py-2 font-bold"
+                >
+                  Sign Out
+                </button>
+              )}
             </div>
-          ))}
-          <div className="p-3 text-black font-bold ">
-            <button
-              className=" cursor-pointer"
-              onClick={async () => {
-                await logOut();
-                router.refresh();
-              }}
-            >
-              Sign Out
-            </button>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </div>
+    </nav>
   );
 }
