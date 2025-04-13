@@ -57,7 +57,7 @@ export interface Event {
   time: string;
   location: string;
   image: string;
-  numOfAttendees: number;
+  numofAttendees: number;
   targetGuests: String[];
   stillAccepting: boolean;
   needSponsorship: boolean;
