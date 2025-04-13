@@ -323,7 +323,7 @@ export default function JobOffers() {
         </div>
 
         {/* Details Column */}
-        <div className="md:w-1/2 md:ml-4 bg-gray-100 rounded-lg p-4 mt-4 md:mt-0 flex items-center justify-center">
+        <div className="md:w-1/2 md:ml-4 bg-gray-100 rounded-lg p-4 mt-4 md:mt-0 flex items-start justify-center">
           {selectedJob ? (
             <div className="w-full">
               <h2 className="text-2xl font-bold mb-2">{selectedJob.position}</h2>
@@ -367,7 +367,7 @@ export default function JobOffers() {
               </p>
             </div>
           ) : (
-            <div className="text-center text-gray-500">
+            <div className="text-center text-gray-500 h-full flex items-center justify-center w-full">
               <p className="text-xl">Select a job to view details.</p>
             </div>
           )}
