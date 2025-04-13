@@ -274,11 +274,8 @@ export default function JobOffers() {
                           <h2 className="font-semibold text-md">{job.position}</h2>
                           <p className="text-sm text-gray-600">{job.company}</p>
                           <p className="text-xs text-gray-400 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3 h-3 mr-1">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                            </svg>
-                            Location
+                            {/* Placeholder location detail */}
+                            {/* Location */}
                           </p>
                         </div>
                         <div className="ml-2">
@@ -406,26 +403,36 @@ export default function JobOffers() {
 
                 <div className="mb-4"> 
                   <label className="block text-sm font-medium mb-1">Employment Type<span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Full-time"
+                  <select
                     value={employmentType}
                     onChange={(e) => setEmploymentType(e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className={`w-full p-2 border rounded ${!employmentType ? "text-gray-500" : ""}`}
                     required
-                  />
+                  >
+                    <option value="">Select Employment Type</option>
+                    {filterCategories["Employment Type"].map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="mb-4"> 
                   <label className="block text-sm font-medium mb-1">Job Type<span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    placeholder="Job Type"
+                  <select
                     value={jobType}
                     onChange={(e) => setJobType(e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className={`w-full p-2 border rounded ${!jobType ? "text-gray-500" : ""}`}
                     required
-                  />
+                  >
+                    <option value="">Select Job Type</option>
+                    {filterCategories["Job Type"].map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="mb-4"> 
@@ -456,14 +463,19 @@ export default function JobOffers() {
 
                 <div className="mb-4"> 
                   <label className="block text-sm font-medium mb-1">Experience Level<span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Entry Level"
+                  <select
                     value={experienceLevel}
                     onChange={(e) => setExperienceLevel(e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className={`w-full p-2 border rounded ${!experienceLevel ? "text-gray-500" : ""}`}
                     required
-                  />
+                  >
+                    <option value="">Select Experience Level</option>
+                    {filterCategories["Experience Level"].map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="mb-4">
@@ -495,13 +507,13 @@ export default function JobOffers() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="text-gray-500"
+                className="text-gray-500 p-2 rounded ring-1 ring-[#0856BA]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-500 text-white p-2 rounded"
+                className="bg-[#0856BA] text-white p-2 rounded"
               >
                 Submit
               </button>
