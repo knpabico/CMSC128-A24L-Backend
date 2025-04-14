@@ -16,6 +16,7 @@ import { DonationContextProvider } from "@/context/DonationContext";
 import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
 import MapProvider from "@/context/MapContext"; 
+import { SponsorshipProvider } from "@/context/SponsorshipContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -45,37 +46,39 @@ export default function RootLayout({
     <html lang="en">
       <AuthProvider>
         <DonationDriveProvider>
-          <BookmarkProvider>
-            <JobOfferProvider>
-              <AnnouncementProvider>
-                <AlumProvider>
-                  <WorkExperienceProvider>
-                    <NewsLetterProvider>
-                      <EventProvider>
-                        <DonationContextProvider>
-                          <GoogleMapsProvider>
-                          <MapProvider>
-                            <body
-                              // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                              className={`${poppins.className} antialiased`}
-                            >
-                              <div className="bg-blue-200 ">
-                                <Navbar />
-                              </div>
-                              {children}
-                              {/* Toaster is required here for toast/sonner component to work */}
-                              <Toaster />
-                            </body>
-                          </MapProvider>
-                          </GoogleMapsProvider>
-                        </DonationContextProvider>
-                      </EventProvider>
-                    </NewsLetterProvider>
-                  </WorkExperienceProvider>
-                </AlumProvider>
-              </AnnouncementProvider>
-            </JobOfferProvider>
-          </BookmarkProvider>
+          <SponsorshipProvider>
+            <BookmarkProvider>
+              <JobOfferProvider>
+                <AnnouncementProvider>
+                  <AlumProvider>
+                    <WorkExperienceProvider>
+                      <NewsLetterProvider>
+                        <EventProvider>
+                          <DonationContextProvider>
+                            <GoogleMapsProvider>
+                            <MapProvider>
+                              <body
+                                // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                                className={`${poppins.className} antialiased`}
+                              >
+                                <div className="bg-blue-200 ">
+                                  <Navbar />
+                                </div>
+                                {children}
+                                {/* Toaster is required here for toast/sonner component to work */}
+                                <Toaster />
+                              </body>
+                            </MapProvider>
+                            </GoogleMapsProvider>
+                          </DonationContextProvider>
+                        </EventProvider>
+                      </NewsLetterProvider>
+                    </WorkExperienceProvider>
+                  </AlumProvider>
+                </AnnouncementProvider>
+              </JobOfferProvider>
+            </BookmarkProvider>
+          </SponsorshipProvider>
         </DonationDriveProvider>
       </AuthProvider>
     </html>
