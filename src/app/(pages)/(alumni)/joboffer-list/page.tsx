@@ -251,9 +251,8 @@ export default function JobOffers() {
           ) : (
             <>
               {filteredAndSortedJobs.length === 0 ? (
-                <div className="text-center py-8">
+                <div className="text-center py-8 h-[480px] flex items-center justify-center">
                   <p className="text-lg">No job offers found.</p>
-                  <p className="text-gray-500">Please try different filters.</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -288,6 +287,13 @@ export default function JobOffers() {
                       </div>
                     </div>
                   ))}
+                  {currentJobs.length < jobsPerPage && 
+                    [...Array(jobsPerPage - currentJobs.length)].map((_, i) => (
+                      <div key={`empty-${i}`} className="h-[72px] invisible">
+                        {/* Maintain column height */}
+                      </div>
+                    ))
+                  }
                 </div>
               )}
 
