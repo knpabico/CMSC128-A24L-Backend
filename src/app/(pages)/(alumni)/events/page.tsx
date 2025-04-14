@@ -5,6 +5,7 @@ import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
 import BookmarkButton from "@/components/ui/bookmark-button";
+import Link from "next/link"; 
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -209,8 +210,15 @@ export default function Events() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Events</h1>
-      
+    <div className="flex items-center gap-4 mb-4">
+      <h1 className="text-2xl font-bold">Events</h1>
+      <span className="text-gray-400">|</span> 
+       {/* para makita specific invitations sa user na galing kay admin */}
+      <Link href="/invitations" className="text-blue-500 hover:text-blue-700 font-medium">
+        Invitations
+      </Link>
+    </div>
+
       {isLoading && <h1>Loading</h1>}
       
       <div className="mb-4">

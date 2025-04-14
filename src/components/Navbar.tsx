@@ -14,6 +14,7 @@ export default function Navbar() {
     { label: "Announcements", path: "/announcement-list" },
     { label: "See Events", path: "/events" },
     { label: "Donation Drives", path: "/donationdrive-list" },
+    { label: "Sponsorship", path: "/sponsorship" },
     { label: "Donations", path: "/donations" },
     { label: "Bookmarks", path: "/bookmark-list" },
     { label: "My Profile", path: `/my-profile/${user?.uid}` },

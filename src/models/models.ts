@@ -65,13 +65,19 @@ export interface Event {
 
 
 export interface Sponsorship {
-  donationDriveId: string;
-  datePosted: Date;
-  description: string;
-  beneficiary: string[];
+  sponsorshipId: string;
   campaignName: string;
+  creatorId: string;
+  creatorName: string;
+  creatorType: string;
+  currentAmount: number;
+  dateSuggested: Date;
+  description: string;
+  endDate:Date;
+  isAcceptingtrue: boolean;
+  startDate: Date;
   status: string;
-  totalAmount: number;
+  targetAmount: number;
 }
 
 export interface DonationDrive {
@@ -96,12 +102,14 @@ export interface DonationDriveSuggestions {
 }
 
 export interface Donation {
+  sponsorshipId: string;
   donationId: string;
-  postId: string;
   alumniId: string;
   paymentMethod: string;
   amount: number;
   date: Date;
+  isAnonymous: boolean;
+  imageProof: string;
 }
 
 export interface NewsletterItem {
