@@ -52,7 +52,7 @@ export default function JobOffers() {
   
   const acceptedJobs = jobOffers.filter((job: { status: string; }) => job.status === "Accepted");
 
-  const jobsPerPage = 6;
+  const jobsPerPage = 8;
 
   // Define filter categories and their respective filter options
   const filterCategories = {
@@ -161,14 +161,14 @@ export default function JobOffers() {
     <>
 
     {/* Temporary Header Banner to fit the prototype, pwede naman tanggalin */}
-    {/* <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
+    <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
       <div className="left-[200px] top-[109px] absolute text-[#FFFFFF] text-6xl font-semibold">
         Job Opportunities
       </div>
       <div className="w-[971px] left-[200px] top-[200px] absolute text-[#FFFFFF] text-base font-normal">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.
       </div>
-    </div> */}
+    </div>
 
     <div className="max-w-6xl mx-auto p-4">
       <div className="flex justify-between mb-4">
