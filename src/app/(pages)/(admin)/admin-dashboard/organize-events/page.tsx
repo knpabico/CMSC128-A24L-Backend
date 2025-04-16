@@ -1,8 +1,9 @@
 "use client";
 
 import { useEvents } from "@/context/EventContext";
-import { Event } from "@/models/models";
+import { Event, Alumnus } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext"; 
+import { useAlums } from "@/context/AlumContext"; 
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { useState } from "react";
 
@@ -15,6 +16,9 @@ export default function Events() {
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [rsvpFilter, setRsvpFilter] = useState("All"); 
   const [sortAlphabetically, setSortAlphabetically] = useState(false);
+  const [visibility, setVisibility] = useState("default");
+  const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
+  const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
   const filterEvents = (status: string) => {
     return events.filter((event: Event) => event.status === status);
@@ -26,7 +30,7 @@ export default function Events() {
 
     let filteredRsvps = rsvps.filter(rsvpId => {
       const rsvpStatus = rsvpDetails[rsvpId]?.Status;
-      
+       
       if (rsvpFilter === "All") return true;
       return rsvpFilter === rsvpStatus;
     });
@@ -57,9 +61,197 @@ export default function Events() {
           { label: 'Events' }
         ]}
       />
-    
+
+      <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
+        {/* Open to All */}
+        <label className="flex items-center space-x-2">
+          <input
+            type="radio"
+            name="visibility"
+            value="all"
+            checked={visibility === "all"}
+            onChange={() => {
+              setVisibility("all");
+              // Clear both to properly show the RSVP
+              setSelectedAlumni([]);
+              setSelectedBatches([]);
+            }}
+          />
+          <span>Open to all</span>
+        </label>
+
+        {/* Batch Option */}
+        <label className="flex items-start space-x-2">
+          <input
+            type="radio"
+            name="visibility"
+            value="batch"
+            checked={visibility === "batch"}
+            onChange={() => {
+              setVisibility("batch");
+              setSelectedAlumni([]); // Clear the Selected Batches List
+            }}
+          />
+          <div className="flex flex-col w-full">
+            <span>Batch:</span>
+            {visibility === "batch" && (
+              <>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {selectedBatches.map((batch, index) => (
+                    <span
+                      key={index}
+                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center"
+                    >
+                      {batch}
+                      {/* Remove Button */}
+                      <button 
+                        type="button"
+                        className="ml-2 text-red-500 font-bold"
+                        onClick={() =>
+                          setSelectedBatches((prev) =>
+                            prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedBatches
+                          )
+                        }
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                {/* User Input */}
+                <input
+                  type="text"
+                  className="text-black mt-2 p-2 rounded-md w-full"
+                  placeholder="e.g. 2022"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const value = e.currentTarget.value.trim();
+                      // Check if the value is not empty and not already in the selectedBatches list
+                      if (value && !selectedBatches.includes(value)) {
+                        // Add the new value to the selectedBatches list
+                        setSelectedBatches([...selectedBatches, value]);
+                        e.currentTarget.value = "";
+                      }
+                    }
+                  }}
+                />
+              </>
+            )}
+          </div>
+        </label>
+
+        {/* Alumni Option */}
+        <label className="flex items-start space-x-2 mt-4">
+          <input
+            type="radio"
+            name="visibility"
+            value="alumni"
+            checked={visibility === "alumni"}
+            onChange={() => {
+              setVisibility("alumni");
+              setSelectedBatches([]); // Clear the Selected Alumni List
+            }}
+          />
+          <div className="flex flex-col w-full">
+            <span>Alumni:</span>
+            {visibility === "alumni" && (
+              <>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {selectedAlumni.map((email, index) => (
+                    <span
+                      key={index}
+                      className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center"
+                    >
+                      {email}
+                      <button
+                        type="button"
+                        className="ml-2 text-red-500 font-bold"
+                        onClick={() =>
+                          setSelectedAlumni((prev) =>
+                            prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedAlumni
+                          )
+                        }
+                      >
+                        x
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  className="text-black mt-2 p-2 rounded-md w-full"
+                  placeholder="e.g. email1@up.edu.ph"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const value = e.currentTarget.value.trim();
+                      // Check if the value is not empty and not already in the selectedAlumni list
+                      if (value && !selectedAlumni.includes(value)) {
+                        // Add the new value to the selectedAlumni list
+                        setSelectedAlumni([...selectedAlumni, value]);
+                        e.currentTarget.value = "";
+                      }
+                    }
+                  }}
+                />
+              </>
+            )}
+          </div>
+        </label>
+      </div>
+
       <div>
         <h1>Events</h1>
+
+        {(() => {
+          // Group alumni by their ID and compile the events they RSVPed to
+          const grouped: Record<string, { alum: any; events: string[] }> = {};
+
+          events.forEach(event => {
+            event.rsvps.forEach(rsvpId => {
+              const rsvp = rsvpDetails[rsvpId]; // RSVP Details
+              const alum = alumniDetails[rsvp?.alumni_id]; // Alumni Details
+
+              if (!rsvp || !alum) return;
+              
+              // Check if alumni is part of the selected batch or selected alumni
+              const inBatch = selectedBatches.includes(alum.studentNumber?.slice(0, 4));
+              const inAlumni = selectedAlumni.includes(alum.email);
+              
+              // Decide if this RSVP should be shown based on the current visibility setting
+              const matchesFilter =
+                visibility === "all" ||
+                (visibility === "batch" && inBatch) ||
+                (visibility === "alumni" && inAlumni);
+
+              if (!matchesFilter) return;
+              
+              // If this alumni isn't already in the grouped object, add them
+              if (!grouped[alum.alumniId]) {
+                grouped[alum.alumniId] = { alum, events: [] };
+              }
+
+              // Add the current event 
+              grouped[alum.alumniId].events.push(`${event.title} - ${rsvp.Status}`);
+            });
+          });
+
+          return (
+            <ul>
+              {Object.values(grouped).map(({ alum, events }) => (
+                <li key={alum.alumniId}>
+                  <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
+                  <ul>
+                    {events.map((event, i) => (
+                      <li key={`${alum.alumniId}-${i}`}>{event}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          );
+        })()}
 
         {/* Sort Buttons for different status*/}
         <div className="flex gap-5 mb-5">
