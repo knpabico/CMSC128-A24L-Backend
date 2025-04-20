@@ -78,9 +78,12 @@ export default function Events() {
   const [dateFilterType, setDateFilterType] = useState<'All' | 'Upcoming' | 'Ongoing' | 'Done'>('All');
 
   // Sorting function for events
-  const sortEvents = (events: Event[]) => {
-    return [...events].sort((a, b) => {
-      switch (dateSortType) {
+  const sortEvents = (events: Event[]) =>
+  {
+    return [...events].sort((a, b) =>
+    {
+      switch (dateSortType)
+      {
         case 'event-closest':
           return new Date(a.date).getTime() - new Date(b.date).getTime();
         case 'event-farthest':
@@ -185,8 +188,18 @@ export default function Events() {
   };
 
   return (
+    <>
+        {/* Temporary Header Banner to fit the prototype, pwede naman tanggalin */}
+        <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
+      <div className="left-[200px] top-[109px] absolute text-[#FFFFFF] text-6xl font-semibold">
+        Events
+      </div>
+      <div className="w-[971px] left-[200px] top-[200px] absolute text-[#FFFFFF] text-base font-normal">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.
+      </div>
+    </div>
+
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Events</h1>
       
       {isLoading && <h1>Loading</h1>}
       
@@ -256,5 +269,6 @@ export default function Events() {
         {renderEventList(events.filter((event: Event) => event.status === "Pending" && event.creatorId == creatorId))}
       </div>
     </div>
+    </>
   );
 }

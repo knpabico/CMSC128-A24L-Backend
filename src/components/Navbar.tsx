@@ -12,7 +12,7 @@ export default function Navbar() {
     { label: "See Alums", path: "/alumni-list" },
     { label: "See Job Offers", path: "/joboffer-list" },
     // { label: "Announcements", path: "/announcement-list" },
-    // { label: "See Events", path: "/events" },
+    { label: "See Events", path: "/events" },
     // { label: "Donation Drives", path: "/donationdrive-list" },
     // { label: "Donations", path: "/donations" },
     // { label: "Bookmarks", path: "/bookmark-list" },
