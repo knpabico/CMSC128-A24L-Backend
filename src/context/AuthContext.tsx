@@ -21,6 +21,8 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { getUserRole } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext<{
   user: User | null;
@@ -35,6 +37,7 @@ const AuthContext = createContext<{
     email: string,
     password: string
   ) => Promise<UserCredential | undefined>;
+  isAdmin: boolean;
 }>({
   user: null,
   alumInfo: null,
@@ -42,12 +45,16 @@ const AuthContext = createContext<{
   logOut: async () => {},
   loading: true,
   signUp: async () => undefined,
+  isAdmin: false,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [alumInfo, setAlumInfo] = useState<Alumnus | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [role, setRole] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const router = useRouter();
 
   //function for getting currently logged in user info from the "alumni" collection
   const getAlumInfo = async (user: User) => {
@@ -78,21 +85,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
       if (user) {
-        setUser(user);
+        const userRole = await getUserRole(user.email);
+        setRole(userRole);
+        console.log(userRole);
+        if (userRole === "admin") {
+          setIsAdmin(true);
+        } else if (userRole === "user") {
+          setUser(user);
+          await getAlumInfo(user);
+        } else {
+          router.push("/unauthorized");
+        }
 
         //get alumInfo of currently logged in user
-        await getAlumInfo(user);
 
-        const token = await user.getIdToken();
-        await fetch("/api/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
+        // const token = await user.getIdToken();
+        // await fetch("/api/session", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({ token }),
+        // });
       } else {
         setUser(null);
-        await fetch("/api/session", { method: "DELETE" });
+        // await fetch("/api/session", { method: "DELETE" });
       }
       setLoading(false);
     });
@@ -100,7 +117,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true, message: "Successful Log In!" };
@@ -112,8 +128,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, message: "Invalid credentials!" };
       }
       return { success: false, message: "Error" };
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -136,8 +150,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logOut = async () => {
     setLoading(true);
     try {
+      router.push("/");
       await signOut(auth);
       setUser(null);
+      setIsAdmin(false);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -146,7 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   return (
     <AuthContext.Provider
-      value={{ user, alumInfo, signIn, logOut, loading, signUp }}
+      value={{ user, alumInfo, signIn, logOut, loading, signUp, isAdmin }}
     >
       {children}
     </AuthContext.Provider>

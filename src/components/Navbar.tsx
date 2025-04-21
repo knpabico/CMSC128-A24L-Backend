@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
-  const { user, logOut, loading } = useAuth();
+  const { user, logOut, loading, isAdmin } = useAuth();
   const router = useRouter();
 
   const navItems = [
@@ -52,7 +52,7 @@ export default function Navbar() {
                   </button>
                 ))}
 
-              {user && (
+              {(user || isAdmin) && (
                 <button
                   onClick={async () => {
                     await logOut();
