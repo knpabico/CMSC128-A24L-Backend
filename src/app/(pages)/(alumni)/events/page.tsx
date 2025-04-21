@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useEvents } from "@/context/EventContext";
+import { useDonationDrives } from "@/context/DonationDriveContext"; 
 import { Event } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
 import BookmarkButton from "@/components/ui/bookmark-button";
@@ -29,6 +30,7 @@ function formatPostedDate(timestamp: Timestamp | any) {
 
   return `${year}-${month}-${day}, ${formattedHours}:${minutes} ${ampm}`;
 }
+
 
 function formatEventDate(dateString: string) {
   const date = new Date(dateString);
@@ -69,6 +71,8 @@ export default function Events() {
     description, 
     setEventDescription, 
     title, 
+    needSponsorship,
+    setNeedSponsorship,
     setEventTitle 
   } = useEvents();
 
@@ -259,6 +263,16 @@ export default function Events() {
                 min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Events must be scheduled 
                 // at least one week in advance
               />
+
+              <label className="flex items-center mb-4 text-sm">
+                <input
+                  type="checkbox"
+                  checked={needSponsorship}
+                  onChange={(e) => setNeedSponsorship(e.target.checked)}
+                  className="mr-2"
+                />
+                This event is a donation drive / needs sponsorship
+              </label>
 
               <div className="flex justify-between">
                 <button type="button" onClick={() => setShowForm(false)} className="text-gray-500">
