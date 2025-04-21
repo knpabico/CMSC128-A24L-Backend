@@ -142,7 +142,8 @@ export default function Events() {
   // Render event list with common structure and filtering
   const renderEventList = (filteredEvents: Event[]) => {
     // First, filter by date status
-    const dateFilteredEvents = filteredEvents.filter(event => {
+    const dateFilteredEvents = filteredEvents.filter(event =>
+    {
       if (dateFilterType === 'All') return true;
       return getEventStatus(event.date) === dateFilterType;
     });
@@ -151,18 +152,20 @@ export default function Events() {
     const sortedEvents = sortEvents(dateFilteredEvents);
     
     // If no events after filtering
-    if (sortedEvents.length === 0) {
+    if (sortedEvents.length === 0)
+    {
       return <p className="text-gray-500">No events found.</p>;
     }
 
-    return sortedEvents.map((event, index) => (
+    return <div className="flex flex-wrap gap-4">
+    {sortedEvents.map((event, index) => (
       <div 
-        key={index} 
-        className="relative border p-4 mb-4 rounded-lg shadow-sm"
+      key={index} 
+      className="relative w-full sm:w-1/2 md:w-1/5 lg:w-1/5 xl:w-1/6 p-4 mb-4 rounded-lg shadow-sm border"
       >
         <h2 className="text-xl font-bold mb-2">{event.title}</h2>
         {/* Bookmark Button */}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-0.5 right-0.5">
           <BookmarkButton 
             entryId={event.eventId}  
             type="event" 
@@ -184,7 +187,8 @@ export default function Events() {
           </div>
         )}
       </div>
-    ));
+    ))}
+    </div>
   };
 
   return (
@@ -199,7 +203,7 @@ export default function Events() {
       </div>
     </div>
 
-    <div className="container mx-auto p-4">
+    <div className="flex container flex-wrap gap-4 mx-auto p-4">
       
       {isLoading && <h1>Loading</h1>}
       
@@ -210,61 +214,68 @@ export default function Events() {
         >
           Propose an Event
         </button>
-        {showForm && (
-          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-            <form onSubmit={handleSave} className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]">
-              <h2 className="text-xl mb-4">Event Details</h2>
 
-              <input
-                type="text"
-                placeholder="Event Title"
-                value={title}
-                onChange={(e) => setEventTitle(e.target.value)}
-                className="w-full mb-4 p-2 border rounded"
-                required
-              />
+      {showForm && (
+        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
+          <form onSubmit={handleSave} className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30">
+            <h2 className="text-xl bold mb-4">Propose Event</h2>
 
-              <textarea
-                placeholder="Event Description (Format: online / F2F & Venue/Platform)"
-                value={description}
-                onChange={(e) => setEventDescription(e.target.value)}
-                className="w-full mb-4 p-2 border rounded"  
-                required
-              />
+            <input
+              type="text"
+              placeholder="Event Title"
+              value={title}
+              onChange={(e) => setEventTitle(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"
+              required
+            />
 
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setEventDate(e.target.value)}
-                className="w-full mb-4 p-2 border rounded"
-                required
-                min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Events must be scheduled 
-                // at least one week in advance
-              />
+            <textarea
+              placeholder="Event Description (Format: online / F2F & Venue/Platform)"
+              value={description}
+              onChange={(e) => setEventDescription(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"  
+              required
+            />
 
-              <div className="flex justify-between">
-                <button type="button" onClick={() => setShowForm(false)} className="text-gray-500">
-                  Cancel
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setEventDate(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"
+              required
+              min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Events must be scheduled 
+              // at least one week in advance
+            />
+
+            <div className="flex justify-between">
+              {/* 'X' button, propose button */}
+              <button type="button" onClick={() => setShowForm(false)} className="text-gray-500">
+                Cancel
+              </button>
+              <div className="flex flushed-left gap-2">
+                <button type="submit" className="bg-[#BFBFBF] text-white p-2 rounded-[22px]">
+                  Save As Draft
                 </button>
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-                  Save
+                <button type="submit" className="bg-[#0856BA] text-white p-2 rounded-[22px]">
+                  Propose
                 </button>
               </div>
-            </form>
-          </div>
-        )}
+            </div>
+          </form>
+        </div>
+      )}
       </div>
 
       {renderFilterAndSortDropdowns()}
 
       {/* Approved Events */}
-      <div className="mb-6">
+      <div className="mb-6 z-10">
         <h2 className="text-xl font-semibold mb-4">Approved</h2>
         {renderEventList(events.filter((event: Event) => event.status === "Accepted"))}
       </div>
 
       {/* Pending Events */}
-      <div>
+      <div className="z-10">
         <h2 className="text-xl font-semibold mb-4">Pending</h2>
         {renderEventList(events.filter((event: Event) => event.status === "Pending" && event.creatorId == creatorId))}
       </div>
