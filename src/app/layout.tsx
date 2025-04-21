@@ -15,7 +15,7 @@ import { Toaster } from "sonner";
 import { DonationContextProvider } from "@/context/DonationContext";
 import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
-import MapProvider from "@/context/MapContext"; 
+import MapProvider from "@/context/MapContext";
 import { SponsorshipProvider } from "@/context/SponsorshipContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -56,19 +56,19 @@ export default function RootLayout({
                         <EventProvider>
                           <DonationContextProvider>
                             <GoogleMapsProvider>
-                            <MapProvider>
-                              <body
-                                // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                                className={`${poppins.className} antialiased`}
-                              >
-                                <div className="bg-blue-200 ">
-                                  <Navbar />
-                                </div>
-                                {children}
-                                {/* Toaster is required here for toast/sonner component to work */}
-                                <Toaster />
-                              </body>
-                            </MapProvider>
+                              <MapProvider>
+                                <body
+                                  // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                                  className={`${poppins.className} antialiased`}
+                                >
+                                  <div className="bg-blue-200 ">
+                                    <Navbar />
+                                  </div>
+                                  {children}
+                                  {/* Toaster is required here for toast/sonner component to work */}
+                                  <Toaster />
+                                </body>
+                              </MapProvider>
                             </GoogleMapsProvider>
                           </DonationContextProvider>
                         </EventProvider>
