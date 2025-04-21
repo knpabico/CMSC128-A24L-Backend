@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import BookmarkButton from "@/components/ui/bookmark-button";
+import { Button } from "@/components/ui/button";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -44,59 +48,138 @@ export default function JobOffers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
-  const [activeFilterCategory, setActiveFilterCategory] = useState<string | null>(null);
+  const [activeFilterCategory, setActiveFilterCategory] = useState<
+    string | null
+  >(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const acceptedJobs = jobOffers.filter((job: { status: string; }) => job.status === "Accepted");
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const filterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const filterContainerRef = useRef<HTMLDivElement>(null);
 
-  const jobsPerPage = 6;
+  const acceptedJobs = jobOffers.filter(
+    (job: { status: string }) => job.status === "Accepted"
+  );
+
+  const jobsPerPage = 8;
 
   // Define filter categories and their respective filter options
   const filterCategories = {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
-    "Job Type": ["Cybersecurity", "Software Development", "Data Science", "UX/UI Design", "Project Management"],
+    "Job Type": [
+      "Cybersecurity",
+      "Software Development",
+      "Data Science",
+      "UX/UI Design",
+      "Project Management",
+    ],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
-    "Skills": ["JavaScript", "Python", "Java", "C++", "React", "Node.js", "SQL", "Figma", "Canva"],
+    Skills: [
+      "JavaScript",
+      "Python",
+      "Java",
+      "C++",
+      "React",
+      "Node.js",
+      "SQL",
+      "Figma",
+      "Canva",
+    ],
   };
+
+  // Close filter dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        filterContainerRef.current &&
+        !filterContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowFilterDropdown(false);
+        setShowFilterOptions(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Auto-dismiss filter options after inactivity
+  useEffect(() => {
+    // Clear any existing timeout
+    if (filterTimeoutRef.current) {
+      clearTimeout(filterTimeoutRef.current);
+    }
+
+    // If filters are shown, set a timeout to hide them
+    if (showFilterOptions || showFilterDropdown) {
+      filterTimeoutRef.current = setTimeout(() => {
+        setShowFilterOptions(false);
+        setShowFilterDropdown(false);
+      }, 5000); // 5 seconds of inactivity will close filters
+    }
+
+    return () => {
+      if (filterTimeoutRef.current) {
+        clearTimeout(filterTimeoutRef.current);
+      }
+    };
+  }, [showFilterOptions, showFilterDropdown]);
 
   // Filters
   const toggleFilterCategory = (filterCategory: string) => {
-    // Set the active filter category and reset active filters
-    setActiveFilterCategory((prev) =>
-      prev === filterCategory ? null : filterCategory // Toggle between setting and unsetting the active category
-    );
-    setActiveFilters([]); // Reset the active filters
+    if (filterCategory === "None") {
+      setActiveFilterCategory(null);
+      setActiveFilters([]);
+      setShowFilterOptions(false);
+    } else {
+      // Set the active filter category
+      setActiveFilterCategory(filterCategory);
+      setShowFilterOptions(true);
+    }
+    setShowFilterDropdown(false);
     setCurrentPage(1); // Reset to first page on filter category change
   };
 
   const toggleFilter = (filter: string) => {
     setActiveFilters((prev) =>
-      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
+      prev.includes(filter)
+        ? prev.filter((f) => f !== filter)
+        : [...prev, filter]
     );
     setCurrentPage(1); // Reset to first page on filter change
-  };
 
+    // Reset the auto-dismiss timer when user interacts
+    if (filterTimeoutRef.current) {
+      clearTimeout(filterTimeoutRef.current);
+      filterTimeoutRef.current = setTimeout(() => {
+        setShowFilterOptions(false);
+      }, 5000);
+    }
+  };
 
   // Sort job offers by date
   const filteredAndSortedJobs = [...acceptedJobs]
-  .filter(job => {
-    if (activeFilters.length === 0) return true;
-    
-    // Check if job matches any of the active filters
-    return activeFilters.some(filter => {
-      // Check each possible filter category
-      return (
-        job.experienceLevel === filter ||
-        job.jobType === filter ||
-        job.employmentType === filter ||
-        job.requiredSkill.includes(filter)
-      );
+    .filter((job) => {
+      if (activeFilters.length === 0) return true;
+
+      // Check if job matches any of the active filters
+      return activeFilters.some((filter) => {
+        // Check each possible filter category
+        return (
+          job.experienceLevel === filter ||
+          job.jobType === filter ||
+          job.employmentType === filter ||
+          job.requiredSkill.includes(filter)
+        );
+      });
+    })
+    .sort((a, b) => {
+      const dateA = a.datePosted.seconds;
+      const dateB = b.datePosted.seconds;
+      return latestFirst ? dateB - dateA : dateA - dateB;
     });
-  })
-  .sort((a, b) => {
-    const dateA = a.datePosted.seconds;
-    const dateB = b.datePosted.seconds;
-    return latestFirst ? dateB - dateA : dateA - dateB;
-  });
 
   // Pagination logic
   const totalPages = Math.ceil(filteredAndSortedJobs.length / jobsPerPage);
@@ -105,276 +188,457 @@ export default function JobOffers() {
   const currentJobs = filteredAndSortedJobs.slice(startIndex, endIndex);
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-6">Job Offers</h1>
+    <>
+      {/* Temporary Header Banner to fit the prototype, pwede naman tanggalin */}
+      <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
+        <div className="left-[200px] top-[109px] absolute text-[#FFFFFF] text-6xl font-semibold">
+          Job Opportunities
+        </div>
+        <div className="w-[971px] left-[200px] top-[200px] absolute text-[#FFFFFF] text-base font-normal">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta,
+          ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor
+          nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis
+          maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis
+          tempus nulla, sed ullamcorper quam hendrerit eget.
+        </div>
+      </div>
 
-      <div className="flex justify-end mb-4">
-      <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="px-5 py-2 bg-gray-300 rounded shadow hover:bg-gray-400 mr-4 flex items-center gap-2">
-              Filter by: {activeFilterCategory || "None"}
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white p-2 rounded shadow">
-            {["None", ...Object.keys(filterCategories)].map((filterCategory) => (
-              <div
-                key={filterCategory}
-                className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                onClick={() => toggleFilterCategory(filterCategory)}
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="flex justify-between mb-4">
+          <h1 className="text-2xl font-bold">Job Offers</h1>
+
+          <div className="flex space-x-2">
+            <div className="relative" ref={filterContainerRef}>
+              <button
+                className="px-3 py-1 bg-white rounded shadow hover:bg-gray-50 text-sm flex items-center"
+                onClick={() => {
+                  setShowFilterDropdown(!showFilterDropdown);
+                  setShowFilterOptions(false);
+
+                  if (filterTimeoutRef.current) {
+                    clearTimeout(filterTimeoutRef.current);
+                  }
+                  filterTimeoutRef.current = setTimeout(() => {
+                    setShowFilterDropdown(false);
+                  }, 5000);
+                }}
               >
-                {filterCategory}
-              </div>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {activeFilterCategory && activeFilterCategory !== "None" && (
-        <div className="absolute mt-2 bg-white p-4 rounded shadow-lg z-10 border border-gray-200">
-          <h3 className="font-semibold mb-2">{activeFilterCategory}</h3>
-          <div className="space-y-2">
-            {filterCategories[activeFilterCategory as keyof typeof filterCategories].map((filter) => (
-              <div key={filter} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={filter}
-                  checked={activeFilters.includes(filter)}
-                  onChange={() => toggleFilter(filter)}
-                  className="mr-2"
-                />
-                <label htmlFor={filter}>{filter}</label>
-              </div>
-            ))}
+                Filter
+              </button>
+
+              {showFilterDropdown && (
+                <div className="absolute mt-2 right-0 bg-white p-2 rounded shadow-lg z-20 border border-gray-200 w-40">
+                  {["None", ...Object.keys(filterCategories)].map(
+                    (filterCategory) => (
+                      <div
+                        key={filterCategory}
+                        className="px-4 py-2 hover:bg-gray-200 cursor-pointer text-sm"
+                        onClick={() => toggleFilterCategory(filterCategory)}
+                      >
+                        {filterCategory}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+
+              {showFilterOptions &&
+                activeFilterCategory &&
+                activeFilterCategory !== "None" && (
+                  <div
+                    className="absolute mt-2 right-0 bg-white p-4 rounded shadow-lg z-10 border border-gray-200 w-60"
+                    style={{ top: "40px" }}
+                  >
+                    <h3 className="font-semibold mb-2">
+                      {activeFilterCategory}
+                    </h3>
+                    <div className="space-y-2">
+                      {filterCategories[
+                        activeFilterCategory as keyof typeof filterCategories
+                      ].map((filter) => (
+                        <div key={filter} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={filter}
+                            checked={activeFilters.includes(filter)}
+                            onChange={() => toggleFilter(filter)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={filter}>{filter}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </div>
+
+            <button
+              className="px-3 py-1 bg-white rounded shadow hover:bg-gray-50 text-sm flex items-center"
+              onClick={() => setLatestFirst(!latestFirst)}
+            >
+              {latestFirst ? "Latest First" : "Oldest First"}
+            </button>
           </div>
         </div>
-      )}
-        <button
-          className="px-4 py-2 bg-gray-300 rounded shadow hover:bg-gray-400"
-          onClick={() => setLatestFirst(!latestFirst)}
-        >
-          Sort by: {latestFirst ? "Oldest First" : "Latest First"}
-        </button>
-      </div>
+
         {activeFilters.length > 0 && (
-        <button 
-          className="px-4 py-2 md:space-x-28 bg-red-100 text-red-700 rounded shadow hover:bg-red-200 ml-4"
-          onClick={() => {
-            setActiveFilters([]);
-            setActiveFilterCategory(null);
-            setCurrentPage(1);
-          }}
+          <button
+            className="px-3 py-1 bg-red-50 text-red-700 rounded text-sm mb-4"
+            onClick={() => {
+              setActiveFilters([]);
+              setActiveFilterCategory(null);
+              setShowFilterOptions(false);
+              setCurrentPage(1);
+            }}
+          >
+            Clear Filters
+          </button>
+        )}
+
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-1/2 bg-gray-100 rounded-lg p-4">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                ))}
+              </div>
+            ) : (
+              <>
+                {filteredAndSortedJobs.length === 0 ? (
+                  <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                    <p className="text-lg">No job offers found.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {currentJobs.map((job, index) => (
+                      <div
+                        key={index}
+                        className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                          selectedJob?.jobId === job.jobId
+                            ? "border-blue-500"
+                            : "border-gray-200"
+                        }`}
+                        onClick={() => setSelectedJob(job)}
+                      >
+                        <div className="flex">
+                          <div className="mr-3">
+                            <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
+                              {/* Company logo or placeholder */}
+                              {job.company.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h2 className="font-semibold text-md">
+                              {job.position}
+                            </h2>
+                            <p className="text-sm text-gray-600">
+                              {job.company}
+                            </p>
+                            <p className="text-xs text-gray-400 flex items-center">
+                              {/* Placeholder location detail */}
+                              {/* Location */}
+                            </p>
+                          </div>
+                          <div className="ml-2">
+                            <BookmarkButton
+                              entryId={job.jobId}
+                              type="job_offering"
+                              size="sm"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {currentJobs.length < jobsPerPage &&
+                      [...Array(jobsPerPage - currentJobs.length)].map(
+                        (_, i) => (
+                          <div
+                            key={`empty-${i}`}
+                            className="h-[72px] invisible"
+                          >
+                            {/* Maintain column height */}
+                          </div>
+                        )
+                      )}
+                  </div>
+                )}
+
+                {/* Pagination Controls */}
+                {filteredAndSortedJobs.length > 0 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    <button
+                      className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPage === 1}
+                    >
+                      Prev
+                    </button>
+
+                    <span className="text-sm font-medium px-3 py-1">
+                      {currentPage} of {totalPages}
+                    </span>
+
+                    <button
+                      className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Details Column */}
+          <div className="md:w-1/2 md:ml-4 bg-gray-100 rounded-lg p-4 mt-4 md:mt-0 flex items-start justify-center">
+            {selectedJob ? (
+              <div className="w-full">
+                <h2 className="text-2xl font-bold mb-2">
+                  {selectedJob.position}
+                </h2>
+                <p className="text-gray-600 text-lg mb-4">
+                  {selectedJob.company}
+                </p>
+
+                <div className="bg-white p-3 rounded-lg mb-4">
+                  <div className="flex space-x-4 mb-2">
+                    <div className="text-sm">
+                      <span className="text-gray-500">Type:</span>
+                      <span className="ml-1 font-medium">
+                        {selectedJob.employmentType}
+                      </span>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-gray-500">Level:</span>
+                      <span className="ml-1 font-medium">
+                        {selectedJob.experienceLevel}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-gray-500">Salary:</span>
+                    <span className="ml-1 font-medium">
+                      {selectedJob.salaryRange}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="font-semibold mb-2">Job Description</h3>
+                  <p className="text-sm text-gray-700">
+                    {selectedJob.jobDescription}
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="font-semibold mb-2">Required Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedJob.requiredSkill &&
+                      selectedJob.requiredSkill.map((skill, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-400 mt-4">
+                  Posted on {formatDate(selectedJob.datePosted)}
+                </p>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 h-full flex items-center justify-center w-full">
+                <p className="text-xl">Select a job to view details.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* "Add Job" Button + Form */}
+        <Button
+          className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full"
+          onClick={() => setShowForm(!showForm)}
         >
-          Clear Filters
-        </button>
-      )}
-
-      {!isLoading && filteredAndSortedJobs.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-lg">There are currently no job offer of this type.</p>
-          <p className="text-gray-500">Please check back later.</p>
-        </div>
-      )}
-
-      {/* Job Cards */}      
-      {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
-          ))}
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {currentJobs.map((job, index) => (
-              <Card
-              key={index}
-              className="relative p-4 border border-gray-200 rounded-lg shadow-sm cursor-pointer"
-              onClick={() => setSelectedJob(job)}
+          Post a Job
+        </Button>
+        {showForm && (
+          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-3/4 max-w-4xl"
             >
-              <CardContent>
-                  {/* Bookmark Button */}
-                  <div className="absolute top-3 right-3">
-                    <BookmarkButton 
-                      entryId={job.jobId}  
-                      type="job_offering" 
-                      size="lg"
+              <h2 className="text-3xl mb-6 font-semibold border-b pb-4">
+                Post a Job Opportunity
+              </h2>
+
+              <div className="grid grid-cols-2 gap-6">
+                {/* Left Column ng form */}
+                <div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Job Position<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Software Engineer"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      className="w-full p-2 border rounded"
+                      required
                     />
                   </div>
-                <h2 className="text-xl font-semibold">{job.position}</h2>
-                <p className="text-gray-600">{job.company}</p>
-                <p className="text-sm text-gray-500">
-                  {job.employmentType} • {job.experienceLevel}
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Posted on {formatDate(job.datePosted)}
-                </p>
-              </CardContent>
-            </Card>
-            ))}
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Employment Type<span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={employmentType}
+                      onChange={(e) => setEmploymentType(e.target.value)}
+                      className={`w-full p-2 border rounded ${
+                        !employmentType ? "text-gray-500" : ""
+                      }`}
+                      required
+                    >
+                      <option value="">Select Employment Type</option>
+                      {filterCategories["Employment Type"].map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Job Type<span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={jobType}
+                      onChange={(e) => setJobType(e.target.value)}
+                      className={`w-full p-2 border rounded ${
+                        !jobType ? "text-gray-500" : ""
+                      }`}
+                      required
+                    >
+                      <option value="">Select Job Type</option>
+                      {filterCategories["Job Type"].map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Job Description<span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
+                      className="w-full p-2 border rounded h-20"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column ng form */}
+                <div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Company Name<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Company"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Experience Level<span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={experienceLevel}
+                      onChange={(e) => setExperienceLevel(e.target.value)}
+                      className={`w-full p-2 border rounded ${
+                        !experienceLevel ? "text-gray-500" : ""
+                      }`}
+                      required
+                    >
+                      <option value="">Select Experience Level</option>
+                      {filterCategories["Experience Level"].map((level) => (
+                        <option key={level} value={level}>
+                          {level}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Salary Range<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Salary Range"
+                      value={salaryRange}
+                      onChange={(e) => setSalaryRange(e.target.value)}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Required Skills<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Required Skills (comma-separated)"
+                      onChange={handleSkillChange}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="text-gray-500 p-2 rounded ring-1 ring-[#0856BA]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#0856BA] text-white p-2 rounded"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
-
-          {/* Pagination Controls */}
-          <div className="flex justify-center mt-6 space-x-4">
-            <button
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-
-            <span className="text-lg font-semibold">
-              Page {currentPage} of {totalPages}
-            </span>
-
-            <button
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Job Details Modal */}
-      {selectedJob && (
-         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center z-50">
-         <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] md:w-1/2">
-           <h2 className="text-2xl font-bold mb-2">{selectedJob.position} | {selectedJob.employmentType}</h2>
-           <p className="text-gray-600">{selectedJob.company}</p>
-           <p className="text-sm text-gray-500">
-             {selectedJob.jobType} • {selectedJob.experienceLevel}
-           </p>
-           <p className="mt-4">{selectedJob.jobDescription}</p>
-           <p className="text-xs text-gray-400 mt-2">
-             Posted on {formatDate(selectedJob.datePosted)}
-           </p>
-     
-           <button
-             className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-             onClick={() => setSelectedJob(null)}
-           >
-             Close
-           </button>
-         </div>
-       </div>
-      )}
-
-      <button
-        className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full"
-        onClick={() => setShowForm(!showForm)}
-      >
-        +
-      </button>
-      {showForm && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w"
-          >
-            <h2 className="text-xl mb-4">Post a Job</h2>
-
-            <input
-              type="text"
-              placeholder="Company"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Employment Type"
-              value={employmentType}
-              onChange={(e) => setEmploymentType(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Experience Level"
-              value={experienceLevel}
-              onChange={(e) => setExperienceLevel(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <textarea
-              placeholder="Job Description"
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Job Type"
-              value={jobType}
-              onChange={(e) => setJobType(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Required Skills (comma-separated)"
-              onChange={handleSkillChange}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Salary Range"
-              value={salaryRange}
-              onChange={(e) => setSalaryRange(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Location"
-              value={location}  
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="text-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-500 text-white p-2 rounded"
-              >
-                Submit
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
