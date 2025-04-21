@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useEvents } from "@/context/EventContext";
+import { useDonationDrives } from "@/context/DonationDriveContext"; 
 import { Event } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
 import BookmarkButton from "@/components/ui/bookmark-button";
+import Link from "next/link"; 
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -28,6 +30,7 @@ function formatPostedDate(timestamp: Timestamp | any) {
 
   return `${year}-${month}-${day}, ${formattedHours}:${minutes} ${ampm}`;
 }
+
 
 function formatEventDate(dateString: string) {
   const date = new Date(dateString);
@@ -68,6 +71,8 @@ export default function Events() {
     description, 
     setEventDescription, 
     title, 
+    needSponsorship,
+    setNeedSponsorship,
     setEventTitle 
   } = useEvents();
 
@@ -209,8 +214,15 @@ export default function Events() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Events</h1>
-      
+    <div className="flex items-center gap-4 mb-4">
+      <h1 className="text-2xl font-bold">Events</h1>
+      <span className="text-gray-400">|</span> 
+       {/* para makita specific invitations sa user na galing kay admin */}
+      <Link href="/invitations" className="text-blue-500 hover:text-blue-700 font-medium">
+        Invitations
+      </Link>
+    </div>
+
       {isLoading && <h1>Loading</h1>}
       
       <div className="mb-4">
@@ -251,6 +263,16 @@ export default function Events() {
                 min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Events must be scheduled 
                 // at least one week in advance
               />
+
+              <label className="flex items-center mb-4 text-sm">
+                <input
+                  type="checkbox"
+                  checked={needSponsorship}
+                  onChange={(e) => setNeedSponsorship(e.target.checked)}
+                  className="mr-2"
+                />
+                This event is a donation drive / needs sponsorship
+              </label>
 
               <div className="flex justify-between">
                 <button type="button" onClick={() => setShowForm(false)} className="text-gray-500">

@@ -21,6 +21,24 @@ export interface Alumnus {
   fieldOfWork: string;
   graduationYear: string;
   affiliation: string[];
+  image: string;
+}
+ 
+export interface Education {
+  alumniId: string;
+  university: string;
+  type: string;
+  yearGraduated: string;
+  major: string;
+}
+
+export interface Career {
+  alumniId: string;
+  company: string;
+  jobTitle: string;
+  startYear: Date;
+  endYear: Date;
+  industry: string;
 }
 
 export interface Admin {
@@ -41,8 +59,10 @@ export interface Announcement {
   description: string;
   type: string[];
   userReference: string;
+  image: string;
 }
 
+export interface Scholarship {
 export interface Event {
   eventId: string;
   datePosted: Date;
@@ -61,18 +81,25 @@ export interface Event {
   targetGuests: String[];
   stillAccepting: boolean;
   needSponsorship: boolean;
+  donationDriveId: string;  
 }
 
 
 export interface Sponsorship {
-  donationDriveId: string;
-  datePosted: Date;
-  description: string;
-  beneficiary: string[];
+  sponsorshipId: string;
   campaignName: string;
+  creatorId: string;
+  creatorName: string;
+  creatorType: string;
+  currentAmount: number;
+  dateSuggested: Date;
+  description: string;
+  endDate:Date;
+  isAcceptingtrue: boolean;
+  startDate: Date;
   status: string;
-  totalAmount: number;
-}
+  targetAmount: number;
+} 
 
 export interface DonationDrive {
   donationDriveId: string;
@@ -82,6 +109,12 @@ export interface DonationDrive {
   campaignName: string;
   totalAmount: number;
   status: string;
+  eventId: string;
+  isEvent: boolean;
+  startDate: Date;
+  endDate: Date;
+  currentAmount: number;
+  donorList: string[];
 }
 
 export interface DonationDriveSuggestions {
@@ -96,12 +129,14 @@ export interface DonationDriveSuggestions {
 }
 
 export interface Donation {
+  sponsorshipId: string;
   donationId: string;
-  postId: string;
   alumniId: string;
   paymentMethod: string;
   amount: number;
   date: Date;
+  isAnonymous: boolean;
+  imageProof: string;
 }
 
 export interface NewsletterItem {
@@ -114,7 +149,7 @@ export interface RSVP {
   rsvpId: string;
   status: string;
   postId: string;
-  alumniId: string;
+  alumniId: string; 
 }
 
 export interface JobOffering {
@@ -130,6 +165,7 @@ export interface JobOffering {
   datePosted: Date;
   jobType: string;
   status: string;
+  image: string; 
 }
 
 export interface Bookmark {
