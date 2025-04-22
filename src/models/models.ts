@@ -22,6 +22,7 @@ export interface Alumnus {
   graduationYear: string;
   affiliation: string[];
   image: string;
+  educationList: Education[];
 }
  
 export interface Education {
