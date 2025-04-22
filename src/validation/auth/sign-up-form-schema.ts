@@ -63,9 +63,9 @@ const passwordSchema = z
   });
 
 const ageAndBirthDateSchema = z.object({
-  age: z.string().refine((age) => !isNaN(parseInt(age)), {
-    message: "Please input a valid age",
-  }),
+  // age: z.string().refine((age) => !isNaN(parseInt(age)), {
+  //   message: "Please input a valid age",
+  // }),
   birthDate: z
     .string()
     .refine((date) => new Date(date).toString() !== "Invalid Date", {

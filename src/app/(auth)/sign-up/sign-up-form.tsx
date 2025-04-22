@@ -137,7 +137,7 @@ export default function RegistrationForm() {
       middleName: "",
       suffix: "",
       lastName: "",
-      age: "",
+      //age: "",
       birthDate: "",
       email: "",
       password: "",
@@ -281,7 +281,7 @@ export default function RegistrationForm() {
                 {/* display the age and birthDate fields side by side */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* age form field */}
-                  <div className="col-span-6">
+                  {/* <div className="col-span-6">
                     <FormField
                       control={form.control}
                       name="age"
@@ -300,7 +300,7 @@ export default function RegistrationForm() {
                         </FormItem>
                       )}
                     />
-                  </div>
+                  </div> */}
 
                   {/* birthDate form field */}
                   <div className="col-span-6">
