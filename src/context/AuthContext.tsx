@@ -21,7 +21,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { getUserRole } from "@/lib/auth";
+import { getRegStatus, getUserRole } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
 const AuthContext = createContext<{
@@ -38,6 +38,7 @@ const AuthContext = createContext<{
     password: string
   ) => Promise<UserCredential | undefined>;
   isAdmin: boolean;
+  status: string | null;
 }>({
   user: null,
   alumInfo: null,
@@ -46,6 +47,7 @@ const AuthContext = createContext<{
   loading: true,
   signUp: async () => undefined,
   isAdmin: false,
+  status: null,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -54,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [role, setRole] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [status, setStatus] = useState<string | null>(null);
   const router = useRouter();
 
   //function for getting currently logged in user info from the "alumni" collection
@@ -64,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     //listen to changes on the data
     if (alumniDoc.exists()) {
       console.log("Document data:", alumniDoc.data());
-      var alumniCopy = alumniDoc.data() as Alumnus;
+      const alumniCopy = alumniDoc.data() as Alumnus;
 
       //convert date format to YYY-MM-DD
       alumniCopy.birthDate = alumniDoc.data().birthDate
@@ -93,10 +96,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (userRole === "admin") {
           setIsAdmin(true);
         } else if (userRole === "user") {
+          const regStat = await getRegStatus(user.uid);
+          setStatus(regStat);
+          if (regStat == "approved") {
+          } else if (regStat == "pending") {
+            console.log(`status: ${regStat}`);
+          }
           setUser(user);
           await getAlumInfo(user);
         } else {
-          router.push("/unauthorized");
+          logOut();
         }
 
         //get alumInfo of currently logged in user
@@ -162,7 +171,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   return (
     <AuthContext.Provider
-      value={{ user, alumInfo, signIn, logOut, loading, signUp, isAdmin }}
+      value={{
+        user,
+        alumInfo,
+        signIn,
+        logOut,
+        loading,
+        signUp,
+        isAdmin,
+        status,
+      }}
     >
       {children}
     </AuthContext.Provider>

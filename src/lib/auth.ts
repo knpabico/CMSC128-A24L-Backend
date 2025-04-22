@@ -1,5 +1,13 @@
-import { collection, query, where, getDocs } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "./firebase";
+import { Alumnus } from "@/models/models";
 
 export async function getUserRole(email: string | null) {
   try {
@@ -22,6 +30,20 @@ export async function getUserRole(email: string | null) {
     return null;
   } catch (error) {
     console.error("Error checking user role:", error);
+    return null;
+  }
+}
+
+export async function getRegStatus(id: string) {
+  try {
+    const userRef = doc(db, "alumni", id);
+    const userSnapshot = await getDoc(userRef);
+    if (userSnapshot.exists()) {
+      const userCopy = userSnapshot.data() as Alumnus;
+      return userCopy.regStatus;
+    } else return null;
+  } catch (error) {
+    console.error(error);
     return null;
   }
 }

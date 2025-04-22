@@ -4,12 +4,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
-  const { user, logOut, loading, isAdmin } = useAuth();
+  const { user, logOut, loading, isAdmin, status } = useAuth();
   const router = useRouter();
 
   const navItems = [
     { label: "See Newsletters", path: "/newsletters" },
-    { label: "Admin Panel", path: "/admin-dashboard" },
     { label: "See Alums", path: "/alumni-list" },
     { label: "See Job Offers", path: "/joboffer-list" },
     // { label: "Announcements", path: "/announcement-list" },
@@ -42,6 +41,7 @@ export default function Navbar() {
               )}
 
               {user &&
+                status == "approved" &&
                 navItems.map((item) => (
                   <button
                     key={item.path}
