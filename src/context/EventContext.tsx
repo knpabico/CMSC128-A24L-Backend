@@ -13,9 +13,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { Event, Alumnus } from "@/models/models";
+import { Event, Alumnus, RSVP } from "@/models/models";
+import { useRsvpDetails } from "@/context/RSVPContext"; 
 import { FirebaseError } from "firebase/app";
 import { useRouter } from 'next/navigation';
+import { useAlums } from "./AlumContext";
 
 const EventContext = createContext<any>(null);
 
@@ -23,6 +25,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
+  
 
   // event form fields
   const [title, setEventTitle] = useState("");
@@ -36,6 +39,9 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [stillAccepting, setStillAccepting] = useState(false);
   const [needSponsorship, setNeedSponsorship] = useState(false);
   const router = useRouter();
+  const {alums} = useAlums();
+
+  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
 
   const { user } = useAuth();
 
@@ -161,7 +167,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleEdit = async (eventId: string, updatedData: Partial<Event>) => {
+  const handleEdit = async (eventId: string, updatedData: Partial<Event>, ) => {
     try {
       await updateDoc(doc(db, "event", eventId), updatedData);
       setEvents((prev) =>
@@ -185,16 +191,73 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleFinalize = async (eventId: string) => {
+  const handleFinalize = async (eventId: string, visibility: string, selected: string[] | null) => {
     try {
       const eventRef = doc(db, "event", eventId);
       await updateDoc(eventRef, { status: "Accepted" });
+  
+      const updatedRSVPIds: string[] = [];
+  
+      // Helper function to create a new RSVP
+      const createRSVP = async (alumniId: string) => {
+        const docRef = doc(collection(db, "RSVP"));
+        const newRSVP: RSVP = {
+          rsvpId: docRef.id,
+          status: "Pending",
+          alumniId,
+          postId: eventId,
+        };
+        await setDoc(docRef, newRSVP);
+        updatedRSVPIds.push(alumniId);
+      };
+  
+      if (visibility === "batch") {
+        for (const event of events) {
+          for (const rsvpId of event.rsvps) {
+            const rsvp = rsvpDetails[rsvpId];
+            const alum = alumniDetails[rsvp?.alumni_id];
+  
+            if (!rsvp || !alum) continue;
+  
+            const batchYear = alum.studentNumber?.slice(0, 4);
+            const inBatch = selected?.includes(batchYear ?? "");
+  
+            if (inBatch) {
+              await createRSVP(alum.alumniId);
+            }
+          }
+        }
+      } else if (visibility === "alumni") {
+        for (const event of events) {
+          for (const rsvpId of event.rsvps) {
+            const rsvp = rsvpDetails[rsvpId];
+            const alum = alumniDetails[rsvp?.alumni_id];
+  
+            if (!rsvp || !alum) continue;
+  
+            const inAlumni = selected?.includes(alum.email ?? "");
+  
+            if (inAlumni) {
+              await createRSVP(alum.alumniId);
+            }
+          }
+        }
+      } else if (visibility === "all") {
+        for (const alumni of alums) {
+          await createRSVP(alumni.alumniId);
+        }
+      }
+  
+      await updateDoc(eventRef, {
+        rsvps: updatedRSVPIds,
+      });
+  
       return { success: true, message: "Event successfully finalized" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
-
+  
   const handleViewEventAdmin = (event: Event) => {
     router.push(`/admin-dashboard/organize-events/${event.eventId}`);
   };

@@ -281,7 +281,7 @@ export default function Events() {
             Create Event
           </button>
           {showForm && (
-            <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+            <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (isEditing && editingEventId) {
@@ -434,7 +434,17 @@ export default function Events() {
               {activeTab === "Pending" && (
                 <div className="flex gap-3 mt-2">
                   <button 
-                    onClick={() => handleFinalize(events.eventId)}
+                    onClick={() =>
+                      handleFinalize(
+                        events.eventId,
+                        visibility,
+                        visibility === "batch"
+                          ? selectedBatches
+                          : visibility === "alumni"
+                          ? selectedAlumni
+                          : null
+                      )
+                    }
                     className="px-4 py-2 bg-green-500 text-white rounded-md"
                   >
                     Finalize
