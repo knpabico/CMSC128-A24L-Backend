@@ -31,7 +31,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [time, setEventTime] = useState("");
   const [location, setEventLocation] = useState("");
   const [image, setEventImage] = useState("");
-  const [numOfAttendees, setNumOfAttendees] = useState(0);
+  const [numofAttendees, setnumofAttendees] = useState(0);
   const [targetGuests, setTargetGuests] = useState<string[]>([]);
   const [stillAccepting, setStillAccepting] = useState(false);
   const [needSponsorship, setNeedSponsorship] = useState(false);
@@ -120,7 +120,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       time,
       location,
       image,
-      numOfAttendees,
+      numofAttendees,
       targetGuests,
       stillAccepting,
       needSponsorship,
@@ -142,7 +142,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       setEventTime("");
       setEventLocation("");
       setEventImage("");
-      setNumOfAttendees(0);
+      setnumofAttendees(0);
       setTargetGuests([]);
       setStillAccepting(false);
       setNeedSponsorship(false);
@@ -230,8 +230,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setEventLocation,
         image,
         setEventImage,
-        numOfAttendees,
-        setNumOfAttendees,
+        numofAttendees,
+        setnumofAttendees,
         targetGuests,
         setTargetGuests,
         stillAccepting,

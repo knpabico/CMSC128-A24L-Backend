@@ -37,6 +37,8 @@ export default function JobOffers() {
     handleSkillChange,
     salaryRange,
     setSalaryRange,
+    location,
+    setLocation,
   } = useJobOffer();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -347,6 +349,14 @@ export default function JobOffers() {
               required
             />
 
+            <input
+              type="text"
+              placeholder="Location"
+              value={location}  
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"
+              required
+            />
             <div className="flex justify-between">
               <button
                 type="button"
