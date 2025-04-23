@@ -20,7 +20,7 @@ export default function Events() {
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
-  useEffect(() => {
+  useEffect(() => { // Properly show the selected filter when Editing the values
     if (isEditing && events) {
       const eventToEdit = events.find(event => event.eventId === editingEventId);
       setVisibility("default");
@@ -178,7 +178,8 @@ export default function Events() {
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form onSubmit={(e) => {
                 e.preventDefault();
-
+                
+                // store the selected guests
                 const targetGuests =
                   visibility === "batch"
                     ? selectedBatches

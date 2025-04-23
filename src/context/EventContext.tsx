@@ -246,6 +246,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       await updateDoc(eventRef, {
         rsvps: updatedRSVPIds,
       });
+
+      await updateDoc(eventRef, {
+        targetGuests: updatedRSVPIds,
+      });
   
       return { success: true, message: "Event successfully finalized" };
     } catch (error) {
