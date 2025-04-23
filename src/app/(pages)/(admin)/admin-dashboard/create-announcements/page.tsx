@@ -5,12 +5,12 @@ import { Announcement } from "@/models/models";
 import { Button } from "@mui/material";
 import { Timestamp } from "firebase/firestore";
 import { useState } from "react";
-import { set } from "zod";
 
 export default function Users() {
   const {
     announces,
     isLoading,
+    isEdit,
     handleSubmit,
     handleCheckbox,
     handleDelete,
@@ -23,6 +23,8 @@ export default function Users() {
     setDescription,
     setShowForm,
     setType,
+    setIsEdit,
+    setCurrentAnnouncementId,
   } = useAnnouncement();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,18 +36,26 @@ export default function Users() {
       {announces.map((user: Announcement, index: any) => (
         <div
           key={index}
-          className="p-1 flex justify-between items-center border-b pb-2"
+          className="p-1 flex justify-between items-center borderwww-b pb-2"
         >
           <div>
             <h1>{user.title}</h1>
-            <h2>{user.datePosted.toLocaleString()}</h2>
+            <h2>{user.datePosted.toDate().toLocaleString()}</h2>
             <h2>{user.description}</h2>
             <h2>Announcement Type: {user.type.join(", ")}</h2>
           </div>
           <div className="flex gap-4">
             <button
               className="text-blue-500 hover:underline"
-              // onClick={() => handleEdit(user)}
+              onClick={() => {
+                // Set the form fields to the values of the announcement being edited
+                setTitle(user.title);
+                setDescription(user.description);
+                setType(user.type);
+                setShowForm(true);
+                setIsEdit(true);
+                setCurrentAnnouncementId(user.announcementId);
+              }}
             >
               Edit
             </button>
@@ -61,7 +71,12 @@ export default function Users() {
 
       <button
         className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full"
-        onClick={() => setShowForm(!showForm)}
+        onClick={() => {
+          setShowForm(!showForm);
+          setTitle("");
+          setDescription("");
+          setType([]);
+        }}
       >
         +
       </button>
@@ -69,7 +84,7 @@ export default function Users() {
       {showForm && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
           <form
-            onSubmit={handleSubmit}
+            onSubmit={isEdit ? handleEdit : handleSubmit}
             className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w"
           >
             <h2 className="text-xl mb-4">Add Announcement</h2>
@@ -90,7 +105,7 @@ export default function Users() {
               required
             />
             <Button onClick={() => setIsModalOpen(true)}>
-              Need AI help? for description?
+              Need AI help for description?
             </Button>
             <ModalInput
               isOpen={isModalOpen}
@@ -99,6 +114,7 @@ export default function Users() {
               title="AI Assistance for Announcement"
               type="announcement"
               subtitle="Get AI-generated description for your announcement. Only fill in the applicable fields."
+              mainTitle={title}
             />
             <div className="mb-4">
               <label className="flex items-center gap-2">

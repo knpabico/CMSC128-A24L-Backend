@@ -1,4 +1,5 @@
 "use client";
+import { useAnnouncement } from "@/context/AnnouncementContext";
 import { useNewsLetters } from "@/context/NewsLetterContext";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -6,6 +7,7 @@ const sortTypes = ["NEWEST FIRST", "OLDEST FIRST"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 export default function NewsLetters() {
   const { newsLetters, isLoading } = useNewsLetters();
+  const { announces } = useAnnouncement();
 
   const searchParams = useSearchParams();
   const sort = searchParams.get("sort"); //get current sort param

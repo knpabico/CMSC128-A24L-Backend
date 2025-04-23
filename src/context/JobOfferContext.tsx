@@ -14,6 +14,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { useBookmarks } from "./BookmarkContext";
 const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
@@ -30,21 +31,21 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [salaryRange, setSalaryRange] = useState("");
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
+  const { bookmarks } = useBookmarks();
 
   useEffect(() => {
+    console.log("User from useAuth:", user);
     let unsubscribe: (() => void) | null;
 
     if (user || isAdmin) {
-      unsubscribe = subscribeToJobOffers(); //maglilisten sa firestore
+      unsubscribe = subscribeToJobOffers();
     } else {
-      setJobOffers([]); //reset once logged out
+      setJobOffers([]);
       setLoading(false);
     }
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe(); //stops listening after logg out
-      }
+      if (unsubscribe) unsubscribe();
     };
   }, [user, isAdmin]);
 
@@ -82,11 +83,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       alumniId: "",
       datePosted: new Date(),
       status: "",
+      image: "",
     };
 
     const response = await addJobOffer(newJobOffering, user!.uid);
 
     if (response.success) {
+      console.log("Job offer successfully added:", newJobOffering);
       setShowForm(false);
       setCompany("");
       setEmploymentType("");
@@ -109,11 +112,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     const unsubscribeJobOfffers = onSnapshot(
       q,
       (querySnapshot: any) => {
-        const offers = querySnapshot.docs.map(
-          (doc: any) => doc.data() as JobOffering
-        );
+        const offers = querySnapshot.docs.map((doc: any) => doc.data());
         setJobOffers(offers);
         setLoading(false);
+        console.log("Success! Fetched job offers:", offers);
       },
       (error) => {
         console.error("Error fetching job offers:", error);
@@ -169,6 +171,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     <JobOfferContext.Provider
       value={{
         jobOffers,
+        bookmarks,
         isLoading,
         addJobOffer,
         setShowForm,

@@ -8,6 +8,7 @@ interface ModalProps {
   title: string;
   subtitle: string;
   type: string;
+  mainTitle: string;
 }
 
 const ModalInput: React.FC<ModalProps> = ({
@@ -17,6 +18,7 @@ const ModalInput: React.FC<ModalProps> = ({
   title,
   subtitle,
   type,
+  mainTitle,
 }) => {
   const [formData, setFormData] = useState<AIQuestion>({
     who: "",
@@ -32,13 +34,13 @@ const ModalInput: React.FC<ModalProps> = ({
     if (isOpen) {
       setFormData({
         who: "",
-        what: "",
+        what: mainTitle,
         when: "",
         where: "",
       });
       setError("");
     }
-  }, [isOpen]);
+  }, [isOpen, mainTitle]);
 
   // Handle submission
   const handleModalSubmit = async () => {

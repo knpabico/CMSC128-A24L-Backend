@@ -252,6 +252,7 @@ export default function Events() {
                 onSubmit={(response) => setEventDescription(response)}
                 title="AI Assistance for Events"
                 type="event"
+                mainTitle={title}
                 subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
               />
               <input

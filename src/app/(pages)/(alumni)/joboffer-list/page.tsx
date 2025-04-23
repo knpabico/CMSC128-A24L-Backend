@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
+import { Bookmark } from "@/models/models";
+import { useBookmarks } from "@/context/BookmarkContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -12,6 +14,7 @@ import {
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
 
 function formatDate(timestamp: any) {
@@ -21,8 +24,10 @@ function formatDate(timestamp: any) {
 }
 
 export default function JobOffers() {
+  const { bookmarks, sortedBookmarks } = useBookmarks();
   const {
     jobOffers,
+    // bookmarks,
     isLoading,
     setShowForm,
     showForm,
@@ -55,8 +60,10 @@ export default function JobOffers() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [sidebarFilter, setSidebarFilter] = useState<string>("Job Postings");
   const filterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const filterContainerRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -88,6 +95,9 @@ export default function JobOffers() {
       "Figma",
       "Canva",
     ],
+    ...(sidebarFilter === "Create Jobs" && {
+      Status: ["Accepted", "Rejected", "Pending"],
+    }),
   };
 
   // Close filter dropdowns when clicking outside
@@ -299,104 +309,289 @@ export default function JobOffers() {
         )}
 
         <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/2 bg-gray-100 rounded-lg p-4">
-            {isLoading ? (
-              <div className="space-y-3">
-                {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                ))}
-              </div>
-            ) : (
-              <>
-                {filteredAndSortedJobs.length === 0 ? (
-                  <div className="text-center py-8 h-[480px] flex items-center justify-center">
-                    <p className="text-lg">No job offers found.</p>
+          {/* Sidebar */}
+          <div className="hidden md:block md:w-1/4 bg-white border-r border-gray-200 p-4">
+            <h2 className="text-lg font-semibold mb-4">Sidebar</h2>
+            <ul className="space-y-2">
+              <li>
+                <button
+                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                  onClick={() => {
+                    setSidebarFilter("Job Postings");
+                  }}
+                >
+                  Job Postings
+                </button>
+              </li>
+              <li>
+                <button
+                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                  onClick={() => {
+                    setSidebarFilter("Saved Jobs");
+                  }}
+                >
+                  Saved Jobs
+                </button>
+              </li>
+              <li>
+                <button
+                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                  onClick={() => setSidebarFilter("Create Jobs")}
+                >
+                  Create Jobs
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div className="md:w-3/4 bg-gray-100 rounded-lg p-4">
+            {/* Job Postings Filter */}
+            <div>
+              {sidebarFilter === "Job Postings" ? (
+                isLoading ? (
+                  <div className="space-y-3">
+                    {[...Array(6)].map((_, i) => (
+                      <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                    ))}
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {currentJobs.map((job, index) => (
-                      <div
-                        key={index}
-                        className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
-                          selectedJob?.jobId === job.jobId
-                            ? "border-blue-500"
-                            : "border-gray-200"
-                        }`}
-                        onClick={() => setSelectedJob(job)}
-                      >
-                        <div className="flex">
-                          <div className="mr-3">
-                            <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
-                              {/* Company logo or placeholder */}
-                              {job.company.charAt(0).toUpperCase()}
+                  <>
+                    {filteredAndSortedJobs.length === 0 ? (
+                      <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                        <p className="text-lg">No job offers found.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {currentJobs.map((job, index) => (
+                          <div
+                            key={index}
+                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                              selectedJob?.jobId === job.jobId
+                                ? "border-blue-500"
+                                : "border-gray-200"
+                            }`}
+                            onClick={() => setSelectedJob(job)}
+                          >
+                            <div className="flex">
+                              <div className="mr-3">
+                                <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
+                                  {/* Company logo or placeholder */}
+                                  {job.company.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+                              <div className="flex-1">
+                                <h2 className="font-semibold text-md">
+                                  {job.position}
+                                </h2>
+                                <p className="text-sm text-gray-600">
+                                  {job.company}
+                                </p>
+                                <p className="text-xs text-gray-400 flex items-center">
+                                  {/* Placeholder location detail */}
+                                  {/* Location */}
+                                </p>
+                              </div>
+                              <div className="ml-2">
+                                <BookmarkButton
+                                  entryId={job.jobId}
+                                  type="job_offering"
+                                  size="sm"
+                                />
+                              </div>
                             </div>
                           </div>
-                          <div className="flex-1">
-                            <h2 className="font-semibold text-md">
-                              {job.position}
-                            </h2>
-                            <p className="text-sm text-gray-600">
-                              {job.company}
-                            </p>
-                            <p className="text-xs text-gray-400 flex items-center">
-                              {/* Placeholder location detail */}
-                              {/* Location */}
-                            </p>
+                        ))}
+                        {currentJobs.length < jobsPerPage &&
+                          [...Array(jobsPerPage - currentJobs.length)].map(
+                            (_, i) => (
+                              <div
+                                key={`empty-${i}`}
+                                className="h-[72px] invisible"
+                              >
+                                {/* Maintain column height */}
+                              </div>
+                            )
+                          )}
+                      </div>
+                    )}
+
+                    {/* Pagination Controls */}
+                    {filteredAndSortedJobs.length > 0 && (
+                      <div className="flex justify-center mt-4 space-x-2">
+                        <button
+                          className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                          onClick={() =>
+                            setCurrentPage((prev) => Math.max(prev - 1, 1))
+                          }
+                          disabled={currentPage === 1}
+                        >
+                          Prev
+                        </button>
+
+                        <span className="text-sm font-medium px-3 py-1">
+                          {currentPage} of {totalPages}
+                        </span>
+
+                        <button
+                          className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            )
+                          }
+                          disabled={currentPage === totalPages}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )
+              ) : sidebarFilter === "Saved Jobs" ? (
+                <div className="space-y-2">
+                  {bookmarks.filter(
+                    (bookmark: Bookmark) => bookmark.type === "job_offering"
+                  ).length === 0 ? (
+                    <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                      <p className="text-lg">No saved jobs found.</p>
+                    </div>
+                  ) : (
+                    bookmarks
+                      .filter(
+                        (bookmark: Bookmark) => bookmark.type === "job_offering"
+                      )
+                      .sort((a, b) => {
+                        const dateA = a.timestamp.seconds;
+                        const dateB = b.timestamp.seconds;
+                        return latestFirst ? dateB - dateA : dateA - dateB;
+                      })
+                      .map((bookmark: Bookmark, index: number) => {
+                        const job = jobOffers.find(
+                          (job: { jobId: string }) =>
+                            job.jobId === bookmark.entryId
+                        );
+                        return job &&
+                          activeFilters.every(
+                            (filter) =>
+                              job.experienceLevel === filter ||
+                              job.jobType === filter ||
+                              job.employmentType === filter ||
+                              job.requiredSkill.includes(filter)
+                          ) ? (
+                          <div
+                            key={index}
+                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                              selectedJob?.jobId === job.jobId
+                                ? "border-blue-500"
+                                : "border-gray-200"
+                            }`}
+                            onClick={() => setSelectedJob(job)}
+                          >
+                            <div className="flex">
+                              <div className="mr-3">
+                                <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
+                                  {job.company.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+                              <div className="flex-1">
+                                <h2 className="font-semibold text-md">
+                                  {job.position}
+                                </h2>
+                                <p className="text-sm text-gray-600">
+                                  {job.company}
+                                </p>
+                              </div>
+                              <div className="ml-2">
+                                <BookmarkButton
+                                  entryId={job.jobId}
+                                  type="job_offering"
+                                  size="sm"
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div className="ml-2">
-                            <BookmarkButton
-                              entryId={job.jobId}
-                              type="job_offering"
-                              size="sm"
-                            />
+                        ) : null;
+                      })
+                  )}
+                </div>
+              ) : sidebarFilter === "Create Jobs" ? (
+                <div>
+                  {jobOffers.filter(
+                    (job: JobOffering) => job.alumniId === user?.uid
+                  ).length === 0 ? (
+                    <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                      <p className="text-lg">No created jobs found.</p>
+                    </div>
+                  ) : (
+                    [...jobOffers]
+                      .filter((job: JobOffering) => {
+                        if (job.alumniId !== user?.uid) return false;
+
+                        if (activeFilters.length === 0) return true;
+
+                        return activeFilters.some(
+                          (filter) =>
+                            [
+                              job.experienceLevel,
+                              job.jobType,
+                              job.employmentType,
+                              job.status,
+                            ].includes(filter) ||
+                            job.requiredSkill.includes(filter)
+                        );
+                      })
+                      .sort((a, b) => {
+                        const dateA = a.datePosted.seconds;
+                        const dateB = b.datePosted.seconds;
+                        return latestFirst ? dateB - dateA : dateA - dateB;
+                      })
+                      .map((job: JobOffering, index: number) => (
+                        <div
+                          key={index}
+                          className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 mb-4 ${
+                            selectedJob?.jobId === job.jobId
+                              ? "border-blue-500"
+                              : "border-gray-200"
+                          }`}
+                          onClick={() => setSelectedJob(job)}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div className="flex">
+                              <div className="mr-3">
+                                <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
+                                  {job.company.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+                              <div className="flex-1">
+                                <h2 className="font-semibold text-md">
+                                  {job.position}
+                                </h2>
+                                <p className="text-sm text-gray-600">
+                                  {job.company}
+                                </p>
+                              </div>
+                            </div>
+                            <div>
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${
+                                  job.status === "Accepted"
+                                    ? "bg-green-100 text-green-700"
+                                    : job.status === "Rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                                }`}
+                              >
+                                {job.status.charAt(0).toUpperCase() +
+                                  job.status.slice(1)}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                    {currentJobs.length < jobsPerPage &&
-                      [...Array(jobsPerPage - currentJobs.length)].map(
-                        (_, i) => (
-                          <div
-                            key={`empty-${i}`}
-                            className="h-[72px] invisible"
-                          >
-                            {/* Maintain column height */}
-                          </div>
-                        )
-                      )}
-                  </div>
-                )}
-
-                {/* Pagination Controls */}
-                {filteredAndSortedJobs.length > 0 && (
-                  <div className="flex justify-center mt-4 space-x-2">
-                    <button
-                      className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.max(prev - 1, 1))
-                      }
-                      disabled={currentPage === 1}
-                    >
-                      Prev
-                    </button>
-
-                    <span className="text-sm font-medium px-3 py-1">
-                      {currentPage} of {totalPages}
-                    </span>
-
-                    <button
-                      className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
+                      ))
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
 
           {/* Details Column */}
@@ -559,6 +754,7 @@ export default function JobOffers() {
                     </Button>
                     <ModalInput
                       isOpen={isModalOpen}
+                      mainTitle={position}
                       onClose={() => setIsModalOpen(false)}
                       onSubmit={(response) => setJobDescription(response)}
                       title="AI Assistance for Job Description"
