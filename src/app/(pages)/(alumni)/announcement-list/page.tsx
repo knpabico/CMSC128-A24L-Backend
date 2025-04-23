@@ -71,13 +71,13 @@ export default function Announcements() {
       <div className="flex flex-row justify-end gap-5 mx-20 my-5">
         <div>
           <DropdownMenu>
-          <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-md bg-gray-800 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white">
+          <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-md bg-[#0856BA] text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white">
             Filter by
             <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="w-auto bg-gray-600 border border-white/5 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
+            className="w-auto bg-[#0856BA] border border-white/5 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
           >
             {FILTER_TAGS.map((tag) => (
               // Prevent menu from closing using as div
