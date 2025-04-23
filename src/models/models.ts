@@ -63,6 +63,13 @@ export interface Announcement {
 }
 
 export interface Scholarship {
+  scholarshipId: string;
+  title: string;
+  description: string;
+  alumList: string[];
+  datePosted: Date;
+}
+
 export interface Event {
   eventId: string;
   datePosted: Date;
@@ -129,7 +136,7 @@ export interface DonationDriveSuggestions {
 }
 
 export interface Donation {
-  sponsorshipId: string;
+  donationDriveId: string;
   donationId: string;
   alumniId: string;
   paymentMethod: string;
