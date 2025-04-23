@@ -128,10 +128,10 @@ export default function DonationDrivesPage() {
         {/* Pending Donation Drives */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Pending Donation Drives</h2>
-          {sortedDrives.filter(drive => drive.status === "pending" && drive.creatorId === alumInfo!.alumniId).length > 0 ? (
+          {sortedDrives.filter((n: { status: string; creatorId: string; }) => n.status === "pending" && n.creatorId === alumInfo!.alumniId).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedDrives
-                .filter((drive) => drive.status === "pending")
+                .filter((n: { status: string; creatorId: string; }) => n.status === "pending" && n.creatorId === alumInfo!.alumniId)
                 .map((drive) => (
                   <div 
                     key={drive.donationDriveId} 
@@ -144,10 +144,6 @@ export default function DonationDrivesPage() {
                     <p className="text-sm text-gray-500">
                       Date Posted: {drive.datePosted.toDate().toLocaleString()}
                     </p>
-
-                    <div className="flex space-x-3"> 
-                      <DonateDialog drive={drive} />
-                    </div>
                   </div>
                 ))}
             </div>
@@ -223,13 +219,14 @@ export default function DonationDrivesPage() {
                 required
               />
               <input
-                type="text"
+                type="number"
                 placeholder="Target Amount"
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(e.target.value)}
                 className="w-full mb-4 p-2 border rounded"
                 required
               />
+              <label htmlFor="">End Date</label>
               <input
                 type="date"
                 value={endDate}
@@ -240,8 +237,7 @@ export default function DonationDrivesPage() {
                   new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                     .toISOString()
                     .split("T")[0]
-                } // Events must be scheduled
-                // at least one week in advance
+                }
               />
 
               <div className="flex justify-between">
@@ -255,15 +251,9 @@ export default function DonationDrivesPage() {
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
-                  >
-                    Save As Draft
-                  </button>
-                  <button
-                    type="submit"
                     className="bg-[#0856BA] text-white p-2 rounded-[22px]"
                   >
-                    Propose
+                    Suggest
                   </button>
                 </div>
               </div>
