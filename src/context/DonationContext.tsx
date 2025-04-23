@@ -5,22 +5,21 @@ import {
   collection,
   onSnapshot,
   query,
-  setDoc,
   doc,
-  orderBy,
   where,
-
+  getDocs
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { useSearchParams } from "next/navigation";
 
 // type of context
 type DonationContextType = {
   userDonations: Donation[] | null;
   isLoading: boolean;
   error: string | null;
-
+  getAllDonations: () => Promise<Donation[]>;
+  getDonationsByAlumni: (alumniId: string) => Promise<Donation[]>;
+  getDonationsByDonationDrive: (donationDriveId: string) => Promise<Donation[]>;
 };
 
 const DonationContext = createContext<DonationContextType | null>(null);
@@ -30,82 +29,53 @@ export const DonationContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const searchParams = useSearchParams();
-  const sort = searchParams.get("sort"); //get current sort param
   const [userDonations, setUserDonations] = useState<Donation[] | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { alumInfo, user } = useAuth();
-
+  const { user } = useAuth();
   const alumniId = user?.uid;
 
   useEffect(() => {
     let unsubscribe: (() => void) | null | undefined;
 
     if (user) {
-      unsubscribe = subscribeToDonations(); //maglilisten sa firestore
+      unsubscribe = subscribeToDonations();
     } else {
-      setUserDonations([]); //reset once logged out
+      setUserDonations([]);
       setIsLoading(false);
     }
 
     return () => {
       if (unsubscribe) {
-        unsubscribe(); //stops listening after logg out
+        unsubscribe();
       }
     };
-  }, [user, sort]);
+  }, [user]);
 
   const subscribeToDonations = () => {
     if (!alumniId) {
-      console.log("HAAAAAAAAAAA");
       return;
     }
     setIsLoading(true);
 
-    //default most recent first
-    let donationsQuery = query(
+    // Basic query to get all donations for the current user
+    const donationsQuery = query(
       collection(db, "donation"),
-      where("alumniId", "==", alumniId),
-      orderBy("date", "desc")
+      where("alumniId", "==", alumniId)
     );
 
-    if (sort === "odf") {
-      //oldest donation first
-      donationsQuery = query(
-        collection(db, "donation"),
-        where("alumniId", "==", alumniId),
-        orderBy("date", "asc")
-      );
-    } else if (sort === "asc") {
-      //amount donated (asc)
-      donationsQuery = query(
-        collection(db, "donation"),
-        where("alumniId", "==", alumniId),
-        orderBy("amount", "asc")
-      );
-    } else if (sort === "desc") {
-      //amount donated (desc)
-      donationsQuery = query(
-        collection(db, "donation"),
-        where("alumniId", "==", alumniId),
-        orderBy("amount", "desc")
-      );
-    }
-
-    console.log("DONATIONS:", donationsQuery);
+    console.log("FETCHING DONATIONS");
 
     const unsubscribeDonation = onSnapshot(
       donationsQuery,
       (snapshot) => {
         const donations = snapshot.docs.map(
-          (doc) =>
-            ({
-              donationId: doc.id,
-              ...doc.data(),
-              date: doc.data().date.toDate().toISOString(), // Convert Firestore Timestamp
-            } as Donation)
+          (doc) => ({
+            donationId: doc.id,
+            ...doc.data(),
+            date: doc.data().date.toDate(),
+          } as Donation)
         );
 
         setUserDonations(donations);
@@ -121,13 +91,111 @@ export const DonationContextProvider = ({
     return unsubscribeDonation;
   };
 
+  // Get all donations (for admin use)
+  const getAllDonations = async (): Promise<Donation[]> => {
+    setIsLoading(true);
+    
+    try {
+      const donationsQuery = query(collection(db, "donation"));
+      const snapshot = await getDocs(donationsQuery);
+      
+      const donations = snapshot.docs.map(
+        (doc) => ({
+          donationId: doc.id,
+          ...doc.data(),
+          date: doc.data().date.toDate(),
+        } as Donation)
+      );
+      
+      setIsLoading(false);
+      return donations;
+    } catch (error) {
+      console.error("Error fetching all donations:", error);
+      setError("Failed to fetch all donations.");
+      setIsLoading(false);
+      throw error;
+    }
+  };
+
+  // Get donations by alumni
+  const getDonationsByAlumni = async (alumniId: string): Promise<Donation[]> => {
+    if (!alumniId) {
+      console.error("No alumni ID provided");
+      return Promise.reject("No alumni ID provided");
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const donationsQuery = query(
+        collection(db, "donation"),
+        where("alumniId", "==", alumniId)
+      );
+      
+      const snapshot = await getDocs(donationsQuery);
+      
+      const donations = snapshot.docs.map(
+        (doc) => ({
+          donationId: doc.id,
+          ...doc.data(),
+          date: doc.data().date.toDate(),
+        } as Donation)
+      );
+      
+      setIsLoading(false);
+      return donations;
+    } catch (error) {
+      console.error("Error fetching donations by alumni:", error);
+      setError("Failed to fetch donations for this alumni.");
+      setIsLoading(false);
+      throw error;
+    }
+  };
+
+  // Get donations by donation drive (sponsorship)
+  const getDonationsByDonationDrive = async (donationDriveId: string): Promise<Donation[]> => {
+    if (!donationDriveId) {
+      console.error("No sponsorship ID provided");
+      return Promise.reject("No sponsorship ID provided");
+    }
+
+    // setIsLoading(true);
+    
+    try {
+      const donationsQuery = query(
+        collection(db, "donation"),
+        where("donationDriveId", "==", donationDriveId)
+      );
+      
+      const snapshot = await getDocs(donationsQuery);
+      
+      const donations = snapshot.docs.map(
+        (doc) => ({
+          donationId: doc.id,
+          ...doc.data(),
+          date: doc.data().date.toDate(),
+        } as Donation)
+      );
+      
+      // setIsLoading(false);
+      return donations;
+    } catch (error) {
+      console.error("Error fetching donations by drive:", error);
+      setError("Failed to fetch donations for this drive.");
+      // setIsLoading(false);
+      throw error;
+    }
+  };
+
   return (
     <DonationContext.Provider
       value={{
         userDonations,
         isLoading,
         error,
-
+        getAllDonations,
+        getDonationsByAlumni,
+        getDonationsByDonationDrive
       }}
     >
       {children}

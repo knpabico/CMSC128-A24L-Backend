@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, doc, setDoc, deleteDoc, updateDoc} from "firebase/firestore";
+import { collection, onSnapshot, query, doc, setDoc, deleteDoc, updateDoc, getDoc} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { DonationDrive, DonationDriveSuggestions } from "@/models/models";
@@ -61,6 +61,27 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
 
         return unsubscribeDonationDrives;
     };
+
+    const getDonationDriveById = async (donationDriveId: string): Promise<DonationDrive | null> => {
+        try {
+          const donationDriveDoc = doc(db, "donation_drive", donationDriveId);
+          const snapshot = await getDoc(donationDriveDoc);
+          
+          if (snapshot.exists()) {
+            const donationDriveData = snapshot.data();
+            return {
+              donationDriveId: snapshot.id,
+              ...donationDriveData
+            } as DonationDrive;
+          } else {
+            console.log(`No donation drive found with ID: ${donationDriveId}`);
+            return null;
+          }
+        } catch (error) {
+          console.error("Error fetching donation drive:", error);
+          throw new Error((error as FirebaseError).message);
+        }
+      };
 
     const addDonationDrive = async (driveData: Omit<DonationDrive, "id">, driveId: string) => {
         try {
@@ -190,9 +211,34 @@ export function DonationDriveProvider({ children }: { children: React.ReactNode 
     };
 
     return (
-        <DonationDriveContext.Provider value={{donationDrives, isLoading, addDonationDrive, editDonoDriveForm, editDonoDrive, editDonoForm, setEditDonoForm, deleteDonationDrive,subEditDonoDrive, submitDonationDrive, suggestDonationDrive, addDonoForm, setAddDonoForm, beneficiary, setBeneficiary,  donoDriveId, setDonoDriveId, campaignName, setCampaignName, description, setDescription, status, setStatus }}>
-        {children}
-        </DonationDriveContext.Provider>
+        <DonationDriveContext.Provider value={{
+            donationDrives, 
+            isLoading, 
+            addDonationDrive, 
+            editDonoDriveForm, 
+            editDonoDrive, 
+            editDonoForm, 
+            setEditDonoForm, 
+            deleteDonationDrive,
+            subEditDonoDrive, 
+            submitDonationDrive, 
+            suggestDonationDrive, 
+            addDonoForm, 
+            setAddDonoForm, 
+            beneficiary, 
+            setBeneficiary,  
+            donoDriveId, 
+            setDonoDriveId, 
+            campaignName, 
+            setCampaignName, 
+            description, 
+            setDescription, 
+            status, 
+            setStatus,
+            getDonationDriveById  
+          }}>
+            {children}
+          </DonationDriveContext.Provider>
     );
 }
 
