@@ -242,10 +242,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
             }
           }
         }
-      } else if (visibility === "all") {
-        for (const alumni of alums) {
-          await createRSVP(alumni.alumniId);
-        }
       }
   
       await updateDoc(eventRef, {
