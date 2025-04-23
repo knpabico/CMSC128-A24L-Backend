@@ -8,13 +8,12 @@ export default function Navbar() {
   const router = useRouter();
 
   const navItems = [
-    { label: "See Newsletters", path: "/newsletters" },
-    { label: "See Alums", path: "/alumni-list" },
-    { label: "See Job Offers", path: "/joboffer-list" },
-    // { label: "Announcements", path: "/announcement-list" },
-    { label: "See Events", path: "/events" },
-    // { label: "Donation Drives", path: "/donationdrive-list" },
-    // { label: "Donations", path: "/donations" },
+    { label: "Announcement", path: "/announcement" },
+	{ label: "Events", path: "/events" },
+    { label: "Donations", path: "/sponsorship" },
+	// { label: "Scholarships", path: "/scholarship" },
+	{ label: "Job Posting", path: "/joboffer-list" },
+	{ label: "Alumni Records", path: "/alumni-list" },
     // { label: "Bookmarks", path: "/bookmark-list" },
     // { label: "My Profile", path: `/my-profile/${user?.uid}` },
   ];
