@@ -3,13 +3,13 @@
 import { useEvents } from "@/context/EventContext";
 import { Event, Alumnus } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext"; 
-import { useAlums } from "@/context/AlumContext"; 
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { useState } from "react";
 
 export default function Events() {
   const { events, isLoading, setShowForm, showForm, handleSave, handleEdit, handleDelete, date,
-    handleReject, handleFinalize, setEventDate, description, setEventDescription, title, setEventTitle } = useEvents();
+    handleReject, handleFinalize, handleViewEventAdmin, setEventDate, description, setEventDescription, 
+    title, setEventTitle } = useEvents();
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
   const [activeTab, setActiveTab] = useState("Pending");
   const [isEditing, setEdit] = useState(false);
@@ -410,13 +410,21 @@ export default function Events() {
               <p>No RSVPs yet.</p>
             )}
             {/* Status Filter */}
-            {activeTab === "Accepted" && (
-                <button
-                  onClick={() => handleDelete(events.eventId)}
-                  className="px-4 py-2 bg-red-500 text-white rounded-md"
-                >
-                  Delete
-                </button>
+              {activeTab === "Accepted" && (
+                <>
+                  <button
+                    onClick={() => handleDelete(events.eventId)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </>
               )}
     
               {activeTab === "Pending" && (
@@ -445,6 +453,22 @@ export default function Events() {
                     className="px-4 py-2 bg-red-500 text-white rounded-md"
                   >
                     Reject
+                  </button>
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </div>
+              )}
+              {activeTab === "Rejected" && (
+                <div className="mt-2">
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
                   </button>
                 </div>
               )}

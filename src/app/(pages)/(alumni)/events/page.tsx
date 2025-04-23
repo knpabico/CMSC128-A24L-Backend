@@ -62,6 +62,7 @@ export default function Events() {
     setShowForm, 
     showForm, 
     handleSave, 
+    handleViewEventAlumni,
     date, 
     creatorId,
     setEventDate, 
@@ -180,6 +181,12 @@ export default function Events() {
             <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
           </div>
         )}
+        <button
+          onClick={() => handleViewEventAlumni(event)}
+          className="px-4 py-2 bg-gray-500 text-white rounded-md"
+        >
+          View More
+        </button>
       </div>
     ));
   };

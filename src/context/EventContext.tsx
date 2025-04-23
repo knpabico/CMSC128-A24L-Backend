@@ -13,8 +13,9 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { Event } from "@/models/models";
+import { Event, Alumnus } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { useRouter } from 'next/navigation';
 
 const EventContext = createContext<any>(null);
 
@@ -34,6 +35,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [targetGuests, setTargetGuests] = useState<string[]>([]);
   const [stillAccepting, setStillAccepting] = useState(false);
   const [needSponsorship, setNeedSponsorship] = useState(false);
+  const router = useRouter();
 
   const { user } = useAuth();
 
@@ -193,6 +195,14 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleViewEventAdmin = (event: Event) => {
+    router.push(`/admin-dashboard/organize-events/${event.eventId}`);
+  };
+
+  const handleViewEventAlumni = (event: Event) => {
+    router.push(`/admin-dashboard/organize-events/${event.eventId}`);
+  };
+
   return (
     <EventContext.Provider
       value={{
@@ -206,6 +216,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         handleEdit,
         handleReject,
         handleFinalize,
+        handleViewEventAdmin,
+        handleViewEventAlumni,
         title,
         setEventTitle,
         description,
