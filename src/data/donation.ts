@@ -5,6 +5,8 @@ import { serverFirestoreDB } from "@/lib/firebase/serverSDK";
 import { z } from "zod";
 import { donationDataSchema } from "@/validation/donation/donationSchemas";
 import { Donation } from "@/models/models";
+import { addDoc, arrayUnion, collection, doc, increment, setDoc, Timestamp, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 // function for querying donation that belongs to a specific user
 export const getUserDonations = async (alumniId: string) => {
@@ -29,32 +31,43 @@ export const getUserDonations = async (alumniId: string) => {
 };
 
 // function for inserting a donation document to the Donation collection in firestore
-export const createDonation = async (
-  data: z.infer<typeof donationDataSchema>
-) => {
-  console.log({ donationData: data });
+// Function to create a new donation
+export const createDonation = async (donationData: { isAnonymous: any; donationDriveId: string; alumniId: any; amount: number; }) => {
+  try {
+    // Create a donation document reference with a generated ID
+    const donationRef = doc(collection(db, "donation"));
+    const donationId = donationRef.id;
 
-  // validate the data again
-  const validation = donationDataSchema.safeParse(data);
-
-  // if data validation fail
-  if (!validation.success) {
-    return {
-      error: true,
-      message: validation.error.issues[0]?.message ?? "An error occurred",
+    // Add the donationId to the data
+    const completeData = {
+      ...donationData,
+      donationId,
+      date: new Date() // Set the current date if not provided
     };
+
+    // Create the donation document
+    await setDoc(donationRef, completeData);
+
+    // If not anonymous, update the donorList in the donation drive
+    if (!donationData.isAnonymous) {
+      const donationDriveRef = doc(db, "donation_drive", donationData.donationDriveId);
+
+      // Update the donorList and currentAmount
+      await updateDoc(donationDriveRef, {
+        donorList: arrayUnion(donationData.alumniId),
+        currentAmount: increment(donationData.amount)
+      });
+    } else {
+      // Just update the currentAmount if anonymous
+      const donationDriveRef = doc(db, "donation_drive", donationData.donationDriveId);
+      await updateDoc(donationDriveRef, {
+        currentAmount: increment(donationData.amount)
+      });
+    }
+
+    return donationId;
+  } catch (error) {
+    console.error("Error creating donation:", error);
+    throw error;
   }
-
-  // save donation data to the firestore database
-  // add that donation data as a new document to the donation collection
-  const donationDocument = await serverFirestoreDB.collection("donation").add({
-    ...data,
-    // also add a date property
-    date: new Date(),
-  });
-
-  // return an object containing the id of the donation document
-  return {
-    donationID: donationDocument.id,
-  };
 };
