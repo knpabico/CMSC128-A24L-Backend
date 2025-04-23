@@ -56,11 +56,17 @@ export interface Announcement {
   title: string;
   description: string;
   type: string[];
-  userReference: string;
   image: string;
+  isPublic: boolean;
 }
 
-export interface Scholarship {}
+export interface Scholarship {
+  scholarshipId: string;
+  title: string;
+  description: string;
+  alumList: string[];
+  datePosted: Date;
+}
 
 export interface Event {
   eventId: string;
@@ -127,7 +133,7 @@ export interface DonationDriveSuggestions {
 }
 
 export interface Donation {
-  sponsorshipId: string;
+  donationDriveId: string;
   donationId: string;
   alumniId: string;
   paymentMethod: string;
@@ -135,12 +141,6 @@ export interface Donation {
   date: Date;
   isAnonymous: boolean;
   imageProof: string;
-}
-
-export interface NewsletterItem {
-  newsletterId: string;
-  category: string[];
-  dateSent: Date;
 }
 
 export interface RSVP {

@@ -2,21 +2,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSponsorships } from '@/context/SponsorshipContext';
+import { useDonationDrives } from '@/context/DonationDriveContext';
 import { useDonationContext } from '@/context/DonationContext';
 import { useAuth } from '@/context/AuthContext';
-import { Sponsorship, Donation } from '@/models/models';
+import { DonationDrive, Donation } from '@/models/models';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
+import { DonateDialog } from '../DonateDialog';
 
-const SponsorshipDetailsPage: React.FC = () => {
+const DonationDriveDetailsPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sponsorshipId = searchParams.get('id');
-  const { getSponsorshipById } = useSponsorships();
-  const { getDonationsBySponsorship } = useDonationContext();
-  const [sponsorship, setSponsorship] = useState<Sponsorship | null>(null);
+  const donationDriveId = searchParams.get('id');
+  const { getDonationDriveById } = useDonationDrives();
+  const { getDonationsByDonationDrive } = useDonationContext();
+  const [donationDrive, setDonationDrive] = useState<DonationDrive | null>(null);
   const [donations, setDonations] = useState<(Donation & { displayName?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [donationsLoading, setDonationsLoading] = useState(true);
@@ -48,42 +49,44 @@ const SponsorshipDetailsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!sponsorshipId) {
-      setError('No sponsorship ID provided');
+    if (!donationDriveId) {
+      setError('No donation drive ID provided');
       setLoading(false);
       return;
     }
 
-    const fetchSponsorship = async () => {
+    const fetchDonationDrive = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        const data = await getSponsorshipById(sponsorshipId);
+        const data = await getDonationDriveById(donationDriveId);
         if (!data) {
-          throw new Error('Sponsorship not found');
+          throw new Error('Donation drive not found');
         }
-        setSponsorship(data);
+        setDonationDrive(data);
       } catch (err) {
-        console.error('Error fetching sponsorship:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load sponsorship details');
+        console.error('Error fetching donation drive:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load donation drive details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSponsorship();
-  }, [sponsorshipId, getSponsorshipById]);
+    fetchDonationDrive();
+  }, [donationDriveId, getDonationDriveById]);
 
   useEffect(() => {
     const fetchDonations = async () => {
-      if (!sponsorshipId) return;
+      if (!donationDriveId) return;
       
       try {
-        setDonationsLoading(true);
-        const donationsData = await getDonationsBySponsorship(sponsorshipId);
+        setDonationsLoading(true); // Set loading to true at the start
         
-        // Fetch alumni details for non-anonymous donations
+        // Use the updated function with donationDriveId parameter
+        const donationsData = await getDonationsByDonationDrive(donationDriveId);
+        
+        // Fetch donor details for non-anonymous donations
         const enhancedDonations = await Promise.all(
           donationsData.map(async (donation) => {
             // Skip fetching details for anonymous donations
@@ -92,37 +95,38 @@ const SponsorshipDetailsPage: React.FC = () => {
             }
             
             try {
-              // Fetch alumni details from Firestore
-              const alumniRef = doc(db, "alumni", donation.alumniId);
-              const alumniSnap = await getDoc(alumniRef);
+              // Directly fetch donor details from Firestore using the alumniId from the donation
+              const donorRef = doc(db, "alumni", donation.alumniId);
+              const donorSnap = await getDoc(donorRef);
               
-              if (alumniSnap.exists()) {
-                const alumniData = alumniSnap.data();
+              if (donorSnap.exists()) {
+                const donorData = donorSnap.data();
                 return { 
                   ...donation, 
-                  displayName: `${alumniData.firstName || ''} ${alumniData.lastName || ''}`.trim() || 'Unknown'
+                  displayName: `${donorData.firstName || ''} ${donorData.lastName || ''}`.trim() || 'Unknown'
                 };
               } else {
                 return { ...donation, displayName: 'Unknown' };
               }
             } catch (error) {
-              console.error(`Error fetching alumni info for ${donation.alumniId}:`, error);
+              console.error(`Error fetching donor info for ${donation.alumniId}:`, error);
               return { ...donation, displayName: 'Unknown' };
             }
           })
         );
         
         setDonations(enhancedDonations);
+        setDonationsLoading(false);
       } catch (err) {
         console.error('Error fetching donations:', err);
         // We don't set the main error state here to avoid blocking the whole view
       } finally {
-        setDonationsLoading(false);
+        setDonationsLoading(false); // Make sure loading is set to false whether successful or not
       }
     };
-
+  
     fetchDonations();
-  }, [sponsorshipId, getDonationsBySponsorship]);
+  }, [donationDriveId, getDonationsByDonationDrive]);
 
   if (loading) {
     return (
@@ -139,26 +143,26 @@ const SponsorshipDetailsPage: React.FC = () => {
           <h2 className="font-bold text-lg">Error</h2>
           <p>{error}</p>
           <Link 
-            href="/sponsorship" 
+            href="/donationdrive-list" 
             className="mt-2 inline-block text-blue-600 hover:underline"
           >
-            Back to Sponsorships
+            Back to Donation Drives
           </Link>
         </div>
       </div>
     );
   }
 
-  if (!sponsorship) {
+  if (!donationDrive) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <h3 className="text-xl font-medium text-gray-600">Sponsorship not found</h3>
+          <h3 className="text-xl font-medium text-gray-600">Donation drive not found</h3>
           <Link 
-            href="/sponsorship" 
+            href="/donationdrive-list" 
             className="mt-2 inline-block text-blue-600 hover:underline"
           >
-            Back to Sponsorships
+            Back to Donation Drives
           </Link>
         </div>
       </div>
@@ -168,7 +172,7 @@ const SponsorshipDetailsPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Link 
-        href="/sponsorship" 
+        href="/donationdrive-list" 
         className="mb-4 inline-flex items-center text-blue-600 hover:underline"
       >
         <svg 
@@ -183,64 +187,72 @@ const SponsorshipDetailsPage: React.FC = () => {
             clipRule="evenodd" 
           />
         </svg>
-        Back to Sponsorships
+        Back to Donation Drives
       </Link>
       
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h1 className="text-2xl font-bold text-gray-800">{sponsorship.campaignName}</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{donationDrive.campaignName}</h1>
             <span className={`px-3 py-1 text-sm rounded-full ${
-              sponsorship.status === 'active' ? 'bg-green-100 text-green-800' :
-              sponsorship.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-              sponsorship.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+              donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
+              donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+              donationDrive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
               'bg-gray-100 text-gray-800'
             }`}>
-              {sponsorship.status.charAt(0).toUpperCase() + sponsorship.status.slice(1)}
+              {donationDrive.status.charAt(0).toUpperCase() + donationDrive.status.slice(1)}
             </span>
           </div>
 
-          <p className="text-gray-600 mb-6">{sponsorship.description}</p>
+          <p className="text-gray-600 mb-6">{donationDrive.description}</p>
 
           <div className="mb-6">
             <h3 className="font-semibold text-gray-700 mb-2">Funding Progress</h3>
-            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div className="flex justify-end text-sm font-medium text-gray-700 mb-1">
+              {calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%
+            </div>
+            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-blue-500 rounded-full transition-all duration-300" 
-                style={{ width: `${calculateProgress(sponsorship.currentAmount, sponsorship.targetAmount)}%` }}
+                className="h-full bg-blue-500 rounded-full" 
+                style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%` }}
               ></div>
             </div>
             <div className="flex justify-between mt-2 text-sm">
               <span className="font-medium">
-                ${sponsorship.currentAmount?.toLocaleString() ?? '0'}
+                ₱{donationDrive.currentAmount?.toLocaleString() ?? '0'}
               </span>
               <span className="text-gray-500">
-                of ${sponsorship.targetAmount?.toLocaleString() ?? '0'}
+                of ₱{donationDrive.totalAmount?.toLocaleString() ?? '0'}
               </span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Creator Information</h3>
+              <h3 className="font-semibold text-gray-700 mb-2">Beneficiary Information</h3>
               <p className="text-gray-600">
-                <span className="font-medium">Name:</span> {sponsorship.creatorName || 'N/A'}
+                <span className="font-medium">Beneficiaries:</span> {donationDrive.beneficiary?.join(', ') || 'N/A'}
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">Type:</span> {sponsorship.creatorType || 'N/A'}
+                <span className="font-medium">Event Related:</span> {donationDrive.isEvent ? 'Yes' : 'No'}
               </p>
+              {donationDrive.isEvent && (
+                <p className="text-gray-600">
+                  <span className="font-medium">Event ID:</span> {donationDrive.eventId || 'N/A'}
+                </p>
+              )}
             </div>
 
             <div>
               <h3 className="font-semibold text-gray-700 mb-2">Campaign Dates</h3>
               <p className="text-gray-600">
-                <span className="font-medium">Start:</span> {formatDate(sponsorship.startDate)}
+                <span className="font-medium">Start:</span> {formatDate(donationDrive.startDate)}
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">End:</span> {formatDate(sponsorship.endDate)}
+                <span className="font-medium">End:</span> {formatDate(donationDrive.endDate)}
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">Status:</span> {sponsorship.isAcceptingtrue ? 'Accepting sponsors' : 'Not accepting'}
+                <span className="font-medium">Date Posted:</span> {formatDate(donationDrive.datePosted)}
               </p>
             </div>
           </div>
@@ -278,7 +290,7 @@ const SponsorshipDetailsPage: React.FC = () => {
                             {donation.isAnonymous ? 'Anonymous' : donation.displayName || 'Unknown'}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                            ${donation.amount?.toLocaleString() || '0'}
+                            ₱{donation.amount?.toLocaleString() || '0'}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                             {formatDate(donation.date)}
@@ -290,9 +302,16 @@ const SponsorshipDetailsPage: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
+                  <div className="mt-2 mx-auto w-fit">
+                    <DonateDialog drive={donationDrive} />
+                  </div>
+
                 </div>
               ) : (
-                <p className="text-gray-500 py-4 text-center">No donations have been made for this sponsorship yet.</p>
+                <div className="py-4 text-center space-y-4">
+                  <p className="text-gray-500">No donations have been made for this donation drive yet.</p>
+                  <DonateDialog drive={donationDrive} />
+                </div>
               )}
             </div>
           </div>
@@ -302,4 +321,4 @@ const SponsorshipDetailsPage: React.FC = () => {
   );
 };
 
-export default SponsorshipDetailsPage;
+export default DonationDriveDetailsPage;

@@ -52,7 +52,7 @@ export function AnnouncementProvider({
       announce.announcementId = docRef.id;
       announce.datePosted = new Date();
       console.log(announce);
-      await setDoc(doc(db, "announcement", userId), announce);
+      await setDoc(doc(db, "Announcement", userId), announce);
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -89,7 +89,7 @@ export function AnnouncementProvider({
 
   const subscribeToUsers = () => {
     setLoading(true);
-    const q = query(collection(db, "announcement"));
+    const q = query(collection(db, "Announcement"));
 
     //listener for any changes
     const unsubscribeUsers = onSnapshot(

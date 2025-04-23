@@ -8,13 +8,12 @@ export default function Navbar() {
   const router = useRouter();
 
   const navItems = [
-    { label: "See Newsletters", path: "/newsletters" },
     { label: "See Alums", path: "/alumni-list" },
     { label: "See Job Offers", path: "/joboffer-list" },
     { label: "Announcements", path: "/announcement-list" },
     { label: "See Events", path: "/events" },
     { label: "Donation Drives", path: "/donationdrive-list" },
-    { label: "Sponsorship", path: "/sponsorship" },
+    { label: "Scholarship", path: "/scholarship" },
     { label: "Donations", path: "/donations" },
     { label: "Bookmarks", path: "/bookmark-list" },
     { label: "My Profile", path: `/my-profile/${user?.uid}` },

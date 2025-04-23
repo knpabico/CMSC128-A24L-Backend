@@ -1,26 +1,29 @@
 "use client";
-import { Donation } from "@/models/models";
+import { Donation, DonationDrive } from "@/models/models";
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   collection,
   onSnapshot,
   query,
-  setDoc,
   doc,
-  orderBy,
   where,
   getDocs,
+  updateDoc,
+  getDoc
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { useSearchParams } from "next/navigation";
 
 // type of context
 type DonationContextType = {
   userDonations: Donation[] | null;
   isLoading: boolean;
   error: string | null;
-  getDonationsBySponsorship: (sponsorshipId: string) => Promise<Donation[]>;
+  getAllDonations: () => Promise<Donation[]>;
+  getDonationsByAlumni: (alumniId: string) => Promise<Donation[]>;
+  getDonationsByDonationDrive: (donationDriveId: string) => Promise<Donation[]>;
+  getCampaignName: (donationDriveId: string) => Promise<string>;
+  updateDonationAnonymity: (donationId: string, isAnonymous: boolean) => Promise<void>;
 };
 
 const DonationContext = createContext<DonationContextType | null>(null);
@@ -30,108 +33,54 @@ export const DonationContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const searchParams = useSearchParams();
-  const sort = searchParams.get("sort"); //get current sort param
   const [userDonations, setUserDonations] = useState<Donation[] | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [campaignNameCache, setCampaignNameCache] = useState<Record<string, string>>({});
 
-  const { alumInfo, user } = useAuth();
-
+  const { user } = useAuth();
   const alumniId = user?.uid;
 
   useEffect(() => {
     let unsubscribe: (() => void) | null | undefined;
 
     if (user) {
-      unsubscribe = subscribeToDonations(); //maglilisten sa firestore
+      unsubscribe = subscribeToDonations();
     } else {
-      setUserDonations([]); //reset once logged out
+      setUserDonations([]);
       setIsLoading(false);
     }
 
     return () => {
       if (unsubscribe) {
-        unsubscribe(); //stops listening after logg out
+        unsubscribe();
       }
     };
-  }, [user, sort]);
-
-  const getDonationsBySponsorship = async (sponsorshipId: string): Promise<Donation[]> => {
-    try {
-      // First, get all donations for this sponsorship without ordering
-      const sponsorshipQuery = query(
-        collection(db, "donation"),
-        where("sponsorshipId", "==", sponsorshipId)
-      );
-  
-      const snapshot = await getDocs(sponsorshipQuery);
-  
-      const sponsorshipDonations: Donation[] = snapshot.docs.map((doc) => ({
-        donationId: doc.id,
-        ...(doc.data() as Omit<Donation, "donationId" | "date">),
-        date: doc.data().date.toDate().toISOString(), // convert Firestore timestamp
-      }));
-  
-      // Sort the donations client-side by date in descending order
-      return sponsorshipDonations.sort((a, b) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-    } catch (err) {
-      console.error("Error fetching sponsorship donations:", err);
-      throw new Error("Failed to fetch sponsorship donations.");
-    }
-  };
+  }, [user]);
 
   const subscribeToDonations = () => {
     if (!alumniId) {
-      console.log("HAAAAAAAAAAA");
       return;
     }
     setIsLoading(true);
 
-    //default most recent first
-    let donationsQuery = query(
+    // Basic query to get all donations for the current user
+    const donationsQuery = query(
       collection(db, "donation"),
-      where("alumniId", "==", alumniId),
-      orderBy("date", "desc")
+      where("alumniId", "==", alumniId)
     );
 
-    if (sort === "odf") {
-      //oldest donation first
-      donationsQuery = query(
-        collection(db, "donation"),
-        where("alumniId", "==", alumniId),
-        orderBy("date", "asc")
-      );
-    } else if (sort === "asc") {
-      //amount donated (asc)
-      donationsQuery = query(
-        collection(db, "donation"),
-        where("alumniId", "==", alumniId),
-        orderBy("amount", "asc")
-      );
-    } else if (sort === "desc") {
-      //amount donated (desc)
-      donationsQuery = query(
-        collection(db, "donation"),
-        where("alumniId", "==", alumniId),
-        orderBy("amount", "desc")
-      );
-    }
-
-    console.log("DONATIONS:", donationsQuery);
+    console.log("FETCHING DONATIONS");
 
     const unsubscribeDonation = onSnapshot(
       donationsQuery,
       (snapshot) => {
         const donations = snapshot.docs.map(
-          (doc) =>
-            ({
-              donationId: doc.id,
-              ...doc.data(),
-              date: doc.data().date.toDate().toISOString(), // Convert Firestore Timestamp
-            } as Donation)
+          (doc) => ({
+            donationId: doc.id,
+            ...doc.data(),
+            date: doc.data().date.toDate(),
+          } as Donation)
         );
 
         setUserDonations(donations);
@@ -147,13 +96,178 @@ export const DonationContextProvider = ({
     return unsubscribeDonation;
   };
 
+  // Get all donations (for admin use)
+  const getAllDonations = async (): Promise<Donation[]> => {
+    setIsLoading(true);
+    
+    try {
+      const donationsQuery = query(collection(db, "donation"));
+      const snapshot = await getDocs(donationsQuery);
+      
+      const donations = snapshot.docs.map(
+        (doc) => ({
+          donationId: doc.id,
+          ...doc.data(),
+          date: doc.data().date.toDate(),
+        } as Donation)
+      );
+      
+      setIsLoading(false);
+      return donations;
+    } catch (error) {
+      console.error("Error fetching all donations:", error);
+      setError("Failed to fetch all donations.");
+      setIsLoading(false);
+      throw error;
+    }
+  };
+
+  // Get donations by alumni
+  const getDonationsByAlumni = async (alumniId: string): Promise<Donation[]> => {
+    if (!alumniId) {
+      console.error("No alumni ID provided");
+      return Promise.reject("No alumni ID provided");
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const donationsQuery = query(
+        collection(db, "donation"),
+        where("alumniId", "==", alumniId)
+      );
+      
+      const snapshot = await getDocs(donationsQuery);
+      
+      const donations = snapshot.docs.map(
+        (doc) => ({
+          donationId: doc.id,
+          ...doc.data(),
+          date: doc.data().date.toDate(),
+        } as Donation)
+      );
+      
+      setIsLoading(false);
+      return donations;
+    } catch (error) {
+      console.error("Error fetching donations by alumni:", error);
+      setError("Failed to fetch donations for this alumni.");
+      setIsLoading(false);
+      throw error;
+    }
+  };
+
+  // Get donations by donation drive (sponsorship)
+  const getDonationsByDonationDrive = async (donationDriveId: string): Promise<Donation[]> => {
+    if (!donationDriveId) {
+      console.error("No sponsorship ID provided");
+      return Promise.reject("No sponsorship ID provided");
+    }
+
+    // setIsLoading(true);
+    
+    try {
+      const donationsQuery = query(
+        collection(db, "donation"),
+        where("donationDriveId", "==", donationDriveId)
+      );
+      
+      const snapshot = await getDocs(donationsQuery);
+      
+      const donations = snapshot.docs.map(
+        (doc) => ({
+          donationId: doc.id,
+          ...doc.data(),
+          date: doc.data().date.toDate(),
+        } as Donation)
+      );
+      
+      // setIsLoading(false);
+      return donations;
+    } catch (error) {
+      console.error("Error fetching donations by drive:", error);
+      setError("Failed to fetch donations for this drive.");
+      // setIsLoading(false);
+      throw error;
+    }
+  };
+
+  // Get campaign name by donation drive ID
+  const getCampaignName = async (donationDriveId: string): Promise<string> => {
+    if (!donationDriveId) {
+      return "Unknown campaign";
+    }
+
+    // Check if we have this campaign name cached
+    if (campaignNameCache[donationDriveId]) {
+      return campaignNameCache[donationDriveId];
+    }
+
+    try {
+      // Get the donation drive document
+      const driveDocRef = doc(db, "donationDrive", donationDriveId);
+      const driveDoc = await getDoc(driveDocRef);
+
+      if (driveDoc.exists()) {
+        const driveData = driveDoc.data() as DonationDrive;
+        const campaignName = driveData.campaignName || "Unnamed Campaign";
+        
+        // Cache the result for future use
+        setCampaignNameCache(prev => ({
+          ...prev,
+          [donationDriveId]: campaignName
+        }));
+        
+        return campaignName;
+      } else {
+        return "Unknown campaign";
+      }
+    } catch (error) {
+      console.error("Error fetching campaign name:", error);
+      return "Unknown campaign";
+    }
+  };
+
+  // Update donation anonymity
+  const updateDonationAnonymity = async (donationId: string, isAnonymous: boolean): Promise<void> => {
+    if (!donationId) {
+      throw new Error("No donation ID provided");
+    }
+
+    try {
+      // Update the donation document
+      const donationRef = doc(db, "donation", donationId);
+      await updateDoc(donationRef, {
+        isAnonymous: isAnonymous
+      });
+
+      // Update local state if this donation is in userDonations
+      if (userDonations) {
+        const updatedDonations = userDonations.map(donation => 
+          donation.donationId === donationId 
+            ? { ...donation, isAnonymous } 
+            : donation
+        );
+        setUserDonations(updatedDonations);
+      }
+    } catch (error) {
+      console.error("Error updating donation anonymity:", error);
+      setError("Failed to update donation anonymity status.");
+      throw error;
+    }
+  };
+
   return (
     <DonationContext.Provider
       value={{
         userDonations,
         isLoading,
         error,
-        getDonationsBySponsorship,
+        getAllDonations,
+        getDonationsByAlumni,
+        getDonationsByDonationDrive,
+        getCampaignName,
+        updateDonationAnonymity
       }}
     >
       {children}

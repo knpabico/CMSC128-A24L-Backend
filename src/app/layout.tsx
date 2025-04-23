@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { AlumProvider } from "@/context/AlumContext";
-import { NewsLetterProvider } from "@/context/NewsLetterContext";
 import { JobOfferProvider } from "@/context/JobOfferContext";
 import { AnnouncementProvider } from "@/context/AnnouncementContext";
 import { EventProvider } from "@/context/EventContext";
@@ -16,7 +15,7 @@ import { DonationContextProvider } from "@/context/DonationContext";
 import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
 import MapProvider from "@/context/MapContext"; 
-import { SponsorshipProvider } from "@/context/SponsorshipContext";
+import { ScholarshipProvider } from "@/context/ScholarshipContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -46,13 +45,12 @@ export default function RootLayout({
     <html lang="en">
       <AuthProvider>
         <DonationDriveProvider>
-          <SponsorshipProvider>
+          <ScholarshipProvider>
             <BookmarkProvider>
               <JobOfferProvider>
                 <AnnouncementProvider>
                   <AlumProvider>
                     <WorkExperienceProvider>
-                      <NewsLetterProvider>
                         <EventProvider>
                           <DonationContextProvider>
                             <GoogleMapsProvider>
@@ -72,13 +70,12 @@ export default function RootLayout({
                             </GoogleMapsProvider>
                           </DonationContextProvider>
                         </EventProvider>
-                      </NewsLetterProvider>
                     </WorkExperienceProvider>
                   </AlumProvider>
                 </AnnouncementProvider>
               </JobOfferProvider>
             </BookmarkProvider>
-          </SponsorshipProvider>
+          </ScholarshipProvider>
         </DonationDriveProvider>
       </AuthProvider>
     </html>
