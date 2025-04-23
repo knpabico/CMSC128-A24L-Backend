@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { AlumProvider } from "@/context/AlumContext";
-import { NewsLetterProvider } from "@/context/NewsLetterContext";
 import { JobOfferProvider } from "@/context/JobOfferContext";
 import { AnnouncementProvider } from "@/context/AnnouncementContext";
 import { EventProvider } from "@/context/EventContext";
@@ -52,7 +51,6 @@ export default function RootLayout({
                 <AnnouncementProvider>
                   <AlumProvider>
                     <WorkExperienceProvider>
-                      <NewsLetterProvider>
                         <EventProvider>
                           <DonationContextProvider>
                             <GoogleMapsProvider>
@@ -72,7 +70,6 @@ export default function RootLayout({
                             </GoogleMapsProvider>
                           </DonationContextProvider>
                         </EventProvider>
-                      </NewsLetterProvider>
                     </WorkExperienceProvider>
                   </AlumProvider>
                 </AnnouncementProvider>

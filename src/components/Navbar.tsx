@@ -8,7 +8,6 @@ export default function Navbar() {
   const router = useRouter();
 
   const navItems = [
-    { label: "See Newsletters", path: "/newsletters" },
     { label: "See Alums", path: "/alumni-list" },
     { label: "See Job Offers", path: "/joboffer-list" },
     { label: "Announcements", path: "/announcement-list" },
