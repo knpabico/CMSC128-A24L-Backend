@@ -296,12 +296,47 @@ export default function JobOffers() {
         )}
 
         <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/2 bg-gray-100 rounded-lg p-4">
+            {/* Sidebar */}
+            <div className="hidden md:block md:w-1/4 bg-white border-r border-gray-200 p-4">
+            <h2 className="text-lg font-semibold mb-4">Sidebar</h2>
+            <ul className="space-y-2">
+              <li>
+              <button
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                onClick={() => {
+                setCurrentPage(1);
+                }}
+              >
+                Job Postings
+              </button>
+              </li>
+              <li>
+              <button
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                onClick={() => {
+                setCurrentPage(1);
+                }}
+              >
+                Saved Jobs
+              </button>
+              </li>
+              <li>
+              <button
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                onClick={() => setShowForm(true)}
+              >
+                Create Jobs
+              </button>
+              </li>
+            </ul>
+            </div>
+
+          <div className="md:w-3/4 bg-gray-100 rounded-lg p-4">
             {isLoading ? (
               <div className="space-y-3">
-                {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                ))}
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+          ))}
               </div>
             ) : (
               <>
@@ -340,13 +375,13 @@ export default function JobOffers() {
                               {/* Location */}
                             </p>
                           </div>
-                          <div className="ml-2">
+                            <div className="ml-2">
                             <BookmarkButton
                               entryId={job.jobId}
                               type="job_offering"
                               size="sm"
                             />
-                          </div>
+                            </div>
                         </div>
                       </div>
                     ))}
