@@ -1,5 +1,5 @@
 "use client";
-import { Donation } from "@/models/models";
+import { Donation, DonationDrive } from "@/models/models";
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   collection,
@@ -7,7 +7,9 @@ import {
   query,
   doc,
   where,
-  getDocs
+  getDocs,
+  updateDoc,
+  getDoc
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -20,6 +22,8 @@ type DonationContextType = {
   getAllDonations: () => Promise<Donation[]>;
   getDonationsByAlumni: (alumniId: string) => Promise<Donation[]>;
   getDonationsByDonationDrive: (donationDriveId: string) => Promise<Donation[]>;
+  getCampaignName: (donationDriveId: string) => Promise<string>;
+  updateDonationAnonymity: (donationId: string, isAnonymous: boolean) => Promise<void>;
 };
 
 const DonationContext = createContext<DonationContextType | null>(null);
@@ -32,6 +36,7 @@ export const DonationContextProvider = ({
   const [userDonations, setUserDonations] = useState<Donation[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [campaignNameCache, setCampaignNameCache] = useState<Record<string, string>>({});
 
   const { user } = useAuth();
   const alumniId = user?.uid;
@@ -187,6 +192,71 @@ export const DonationContextProvider = ({
     }
   };
 
+  // Get campaign name by donation drive ID
+  const getCampaignName = async (donationDriveId: string): Promise<string> => {
+    if (!donationDriveId) {
+      return "Unknown campaign";
+    }
+
+    // Check if we have this campaign name cached
+    if (campaignNameCache[donationDriveId]) {
+      return campaignNameCache[donationDriveId];
+    }
+
+    try {
+      // Get the donation drive document
+      const driveDocRef = doc(db, "donationDrive", donationDriveId);
+      const driveDoc = await getDoc(driveDocRef);
+
+      if (driveDoc.exists()) {
+        const driveData = driveDoc.data() as DonationDrive;
+        const campaignName = driveData.campaignName || "Unnamed Campaign";
+        
+        // Cache the result for future use
+        setCampaignNameCache(prev => ({
+          ...prev,
+          [donationDriveId]: campaignName
+        }));
+        
+        return campaignName;
+      } else {
+        return "Unknown campaign";
+      }
+    } catch (error) {
+      console.error("Error fetching campaign name:", error);
+      return "Unknown campaign";
+    }
+  };
+
+  // Update donation anonymity
+  const updateDonationAnonymity = async (donationId: string, isAnonymous: boolean): Promise<void> => {
+    if (!donationId) {
+      throw new Error("No donation ID provided");
+    }
+
+    try {
+      // Update the donation document
+      const donationRef = doc(db, "donation", donationId);
+      await updateDoc(donationRef, {
+        isAnonymous: isAnonymous
+      });
+
+      // Update local state if this donation is in userDonations
+      if (userDonations) {
+        const updatedDonations = userDonations.map(donation => 
+          donation.donationId === donationId 
+            ? { ...donation, isAnonymous } 
+            : donation
+        );
+        setUserDonations(updatedDonations);
+      }
+    } catch (error) {
+      console.error("Error updating donation anonymity:", error);
+      setError("Failed to update donation anonymity status.");
+      throw error;
+    }
+  };
+
   return (
     <DonationContext.Provider
       value={{
@@ -195,7 +265,9 @@ export const DonationContextProvider = ({
         error,
         getAllDonations,
         getDonationsByAlumni,
-        getDonationsByDonationDrive
+        getDonationsByDonationDrive,
+        getCampaignName,
+        updateDonationAnonymity
       }}
     >
       {children}
