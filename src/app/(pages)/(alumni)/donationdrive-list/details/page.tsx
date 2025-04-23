@@ -9,6 +9,7 @@ import { DonationDrive, Donation } from '@/models/models';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
+import { DonateDialog } from '../DonateDialog';
 
 const DonationDriveDetailsPage: React.FC = () => {
   const router = useRouter();
@@ -207,9 +208,12 @@ const DonationDriveDetailsPage: React.FC = () => {
 
           <div className="mb-6">
             <h3 className="font-semibold text-gray-700 mb-2">Funding Progress</h3>
-            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div className="flex justify-end text-sm font-medium text-gray-700 mb-1">
+              {calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%
+            </div>
+            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-blue-500 rounded-full transition-all duration-300" 
+                className="h-full bg-blue-500 rounded-full" 
                 style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%` }}
               ></div>
             </div>
@@ -298,6 +302,10 @@ const DonationDriveDetailsPage: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
+                  <div className="mt-2 mx-auto w-fit">
+                    <DonateDialog drive={donationDrive} />
+                  </div>
+
                 </div>
               ) : (
                 <p className="text-gray-500 py-4 text-center">No donations have been made for this donation drive yet.</p>

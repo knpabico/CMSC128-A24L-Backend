@@ -252,7 +252,6 @@ const DonationDrivePage: React.FC = () => {
                 <div className="flex justify-between items-start mb-3">
                   <h2 className="text-xl font-semibold text-gray-800 truncate">{donationDrive.campaignName}</h2>
                   <div className="flex items-center space-x-2">
-                    <BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="md" />
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
                       donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -261,6 +260,7 @@ const DonationDrivePage: React.FC = () => {
                     }`}>
                       {donationDrive.status.charAt(0).toUpperCase() + donationDrive.status.slice(1)}
                     </span>
+                    <BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="md" />
                   </div>
                 </div>
                 
@@ -268,12 +268,15 @@ const DonationDrivePage: React.FC = () => {
                 
                 {/* Progress bar */}
                 <div className="mb-4">
-                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-blue-500 rounded-full" 
-                      style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%` }}
-                    ></div>
-                  </div>
+                <div className="flex justify-end text-sm font-medium text-gray-700 mb-1">
+                  {calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%
+                </div>
+                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 rounded-full" 
+                    style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%` }}
+                  ></div>
+                </div>
                   <div className="flex justify-between mt-2 text-sm">
                     <span className="font-medium">${donationDrive.currentAmount}</span>
                     <span className="text-gray-500">of ${donationDrive.totalAmount}</span>
@@ -297,9 +300,10 @@ const DonationDrivePage: React.FC = () => {
                 >
                   View Details
                 </button>
-                <div className="flex space-x-3 mt-2"> 
+
+                {/* <div className="flex space-x-3 mt-2"> 
                   <DonateDialog drive={donationDrive} />
-                </div>
+                </div> */}
               </div>
             </div>
           ))}

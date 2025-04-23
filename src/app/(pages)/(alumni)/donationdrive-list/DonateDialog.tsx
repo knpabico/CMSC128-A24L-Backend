@@ -52,7 +52,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   
   // Import the refresh function from context
-  const { refreshDonationDrives } = useDonationDrives();
+  // const { refreshDonationDrives } = useDonationDrives();
 
   // grab the details about the current user
   const { user, alumInfo } = useAuth();
@@ -156,7 +156,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline">Donate</Button>
+        <Button variant="outline" disabled={drive.status === 'pending' || drive.status === 'completed'}>Donate</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[430px]">
         <DialogHeader>
