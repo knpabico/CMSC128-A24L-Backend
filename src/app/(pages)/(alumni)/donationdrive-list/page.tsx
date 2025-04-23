@@ -9,11 +9,24 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 
 const DonationDrivePage: React.FC = () => {
   const router = useRouter();
-  const { donationDrives, loading, error, refreshDonationDrives } = useDonationDrives();
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [filteredDonationDrives, setFilteredDonationDrives] = useState<DonationDrive[]>([]);
   const [showBookmarked, setShowBookmarked] = useState<boolean>(false);
   const [sortOption, setSortOption] = useState<string>('recentlyPosted');
+  const {
+    donationDrives,
+    isLoading,
+    addDonoForm,
+    setAddDonoForm,
+    suggestDonationDrive,
+    campaignName,
+    setCampaignName,
+    description,
+    setDescription,
+    loading,
+    error,
+    refreshDonationDrives
+  } = useDonationDrives();
 
   // Handle view details click
   const handleViewDetails = (donationDriveId: string) => {
@@ -290,6 +303,39 @@ const DonationDrivePage: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      <button
+        className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition"
+        onClick={() => setAddDonoForm(!addDonoForm)}
+      >
+        +
+      </button>
+
+      {addDonoForm && (
+       <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+          <form onSubmit={suggestDonationDrive} className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w">
+            <h2 className="text-xl mb-4">Suggest Donation Drive</h2>
+            <input
+              type="text"
+              placeholder="Campaign Name"
+              value={campaignName}
+              onChange={(e) => setCampaignName(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"
+              required
+            />
+            <textarea
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"
+              required
+            />
+            <div className="flex justify-between">
+              <button type="button" onClick={() => setAddDonoForm(false)} className="text-gray-500">Cancel</button>
+              <button type="submit" className="bg-blue-500 text-white p-2 rounded">Submit</button>
+            </div>
+          </form>
         </div>
       )}
     </div>
