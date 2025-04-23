@@ -27,12 +27,12 @@ export function AnnouncementProvider({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<string[]>([]);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
 
-    if (user) {
+    if (user || isAdmin) {
       unsubscribe = subscribeToUsers(); //maglilisten sa firestore
     } else {
       setAnnounce([]); //reset once logged out
@@ -44,7 +44,7 @@ export function AnnouncementProvider({
         unsubscribe(); //stops listening after logg out
       }
     };
-  }, [user]);
+  }, [user, isAdmin]);
 
   const addAnnouncement = async (announce: Announcement, userId: string) => {
     try {
@@ -52,7 +52,7 @@ export function AnnouncementProvider({
       announce.announcementId = docRef.id;
       announce.datePosted = new Date();
       console.log(announce);
-      await setDoc(doc(db, "announcement", userId), announce);
+      await setDoc(doc(db, "Announcement", userId), announce);
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -89,7 +89,7 @@ export function AnnouncementProvider({
 
   const subscribeToUsers = () => {
     setLoading(true);
-    const q = query(collection(db, "announcement"));
+    const q = query(collection(db, "Announcement"));
 
     //listener for any changes
     const unsubscribeUsers = onSnapshot(
