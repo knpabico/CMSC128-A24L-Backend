@@ -22,10 +22,11 @@ export interface Alumnus {
   graduationYear: string;
   affiliation: string[];
   image: string;
-  educationList: Education[];
+  // educationList: Education[];
 }
  
 export interface Education {
+  educationId:string;
   alumniId: string;
   university: string;
   type: string;
@@ -63,7 +64,7 @@ export interface Announcement {
   image: string;
 }
 
-export interface Scholarship {
+// export interface Scholarship {
 export interface Event {
   eventId: string;
   datePosted: Date;

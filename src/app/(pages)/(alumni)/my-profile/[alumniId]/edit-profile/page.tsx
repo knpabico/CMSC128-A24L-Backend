@@ -2,7 +2,6 @@
 import NotFound from "@/app/not-found";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { Education } from "@/models/models";
 import {
   Button,
@@ -19,10 +18,10 @@ import { WorkExperienceModal } from "../add-work-experience";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-import EditWorkExperience from "../edit-work-experience";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { useRouter } from "next/router";
 import EditEducationModal from "./edit-education-modal";
+import { useEducation } from "@/context/EducationContext";
 
 const EditProfile = () => {
    const { user, alumInfo, loading } = useAuth();
@@ -62,22 +61,6 @@ const EditProfile = () => {
     setIsDeleteModalOpen(updated);
   };
   
-  const handleDelete = async (index: number) => {
-    const updated = [...educationList];
-    updated.splice(index, 1);
-    setEducationList(updated);
-    setEditMessage("Successfully deleted education!");
-    setEditSuccess(true);
-    setSnackbar(true);
-  };
-  
-  const handleAdd = (education: Education) => {
-    setEducationList((prev) => [...prev, education]);
-    setEditMessage("Successfully added education!");
-    setEditSuccess(true);
-    setSnackbar(true);
-    setIsOpen(false);
-  };
 
    useEffect(() => {
     // Birthdate parsing
@@ -105,59 +88,9 @@ const EditProfile = () => {
      'January', 'February', 'March', 'April', 'May', 'June',
      'July', 'August', 'September', 'October', 'November', 'December',
    ];
+     const { userEducation, isLoadingEducation, deleteEducation } =
+       useEducation();
 
-   //array of education for the meantime
-   const [educationList, setEducationList] = useState<Education[]>([
-    {
-      alumniId: alumInfo?.alumniId,
-      university: "University of the Philippines Diliman",
-      type: "College",
-      yearGraduated: "2021",
-      major: "Computer Science",
-    },
-    {
-      alumniId: alumInfo?.alumniId,
-      university: "UP Integrated School",
-      type: "High School",
-      yearGraduated: "2017",
-      major: "",
-    },
-    {
-      alumniId: alumInfo?.alumniId,
-      university: "Harvard University",
-      type: "Graduate School",
-      yearGraduated: "2024",
-      major: "Artificial Intelligence",
-    },
-  ]);
-
-  
-  const handleEducationChange = (
-    index: number,
-    field: keyof Education,
-    value: string
-  ) => {
-    const updated = [...educationList];
-    updated[index][field] = value;
-    setEducationList(updated);
-  };
-  
-  const addEducation = () => {
-    setEducationList((prev) => [
-      ...prev,
-      {
-        alumniId: "001", // Or dynamic ID
-        university: "",
-        type: "",
-        yearGraduated: "",
-        major: "",
-      },
-    ]);
-  };
-  
-  const removeEducation = (index: number) => {
-    setEducationList((prev) => prev.filter((_, i) => i !== index));
-  };
  
    const days = Array.from({ length: 31 }, (_, i) => i + 1);
    const years = Array.from({ length: 50 }, (_, i) => 1990 + i);
@@ -255,7 +188,7 @@ const EditProfile = () => {
             <div className="bg-blue-600 text-white font-bold text-lg px-4 py-2 rounded-t">
               Education
             </div>
-            {educationList.map((edu, index) => (
+            {userEducation.map((edu, index) => (
             <div key={index} className="pb-1.5">
               <li>University: {edu.university}</li>
               <li>Type: {edu.type}</li>
@@ -273,14 +206,11 @@ const EditProfile = () => {
                 {!isEditModalOpen[index] ? <ChevronRight /> : <ChevronDown />}
               </Button>
               <Divider />
-
               <EditEducationModal
                 open={isEditModalOpen[index]}
                 education={edu}
                 onClose={() => closeEditModal(index)}
-                index={index}
-                educationList={educationList}
-                setEducationList={setEducationList}
+                snackbar
                 setSnackbar={setSnackbar}
                 setMessage={setEditMessage}
                 setSuccess={setEditSuccess}

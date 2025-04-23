@@ -1,62 +1,149 @@
-import { Dialog, DialogContent, Button, TextField, DialogTitle } from "@mui/material";
-import React, { useState } from "react";
+"use client";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button, TextField, Typography, Snackbar } from "@mui/material";
+import { useEffect, useState } from "react";
+import GoogleMapsModal from "../../google-maps/map";
+import { Education } from "@/models/models";
+import { useEducation } from "@/context/Education";
 
-const AddEducationModal = ({ isOpen, setIsOpen, onAdd }) => {
-  const [form, setForm] = useState({
-    university: "",
-    type: "",
-    major: "",
-    yearGraduated: "",
+export const AddEducationModal = ({
+  isOpen,
+  setIsOpen,
+  userId,
+  open,
+  setOpen,
+  setSuccess,
+}) => {
+  const [university, setUniversity] = useState<string>("");
+  const [type, setType] = useState<string>("");
+  const [yearGraduated, setYearGraduated] = useState<string>("");
+  const [major, setMajor] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState({
+    location: "",
+    latitude: 14.25,
+    longitude: 121.25,
   });
+  const [error, setError] = useState<boolean>(false);
+  const { addEducation } = useEducation();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleLocationSave = (address: string, lat: number, lng: number) => {
+    setSelectedLocation({
+      location: address,
+      latitude: lat,
+      longitude: lng,
+    });
   };
 
-  const handleSubmit = () => {
-    onAdd(form);
-    setForm({ university: "", type: "", major: "", yearGraduated: "" });
+  const handleSubmit = async (education: Education) => {
+    const result = await addEducation(education, userId);
+    setSuccess(result.success);
+    if (result.success) {
+      setUniversity("");
+      setType("");
+      setYearGraduated("");
+      setMajor("");
+      setIsOpen(false);
+      setSelectedLocation({
+        location: "",
+        latitude: 14.25,
+        longitude: 121.25,
+      });
+    }
+    setOpen(true);
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedLocation({
+        location: "",
+        latitude: 14.25,
+        longitude: 121.25,
+      });
+    }
+  }, [isOpen]);
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)}>
-      <DialogTitle>Add Education</DialogTitle>
-      <DialogContent className="space-y-3">
-        <TextField
-          fullWidth
-          name="university"
-          label="University"
-          value={form.university}
-          onChange={handleChange}
-        />
-        <TextField
-          fullWidth
-          name="type"
-          label="Type"
-          value={form.type}
-          onChange={handleChange}
-        />
-        <TextField
-          fullWidth
-          name="major"
-          label="Major"
-          value={form.major}
-          onChange={handleChange}
-        />
-        <TextField
-          fullWidth
-          name="yearGraduated"
-          label="Year Graduated"
-          value={form.yearGraduated}
-          onChange={handleChange}
-        />
-        <div className="flex justify-end gap-2">
-          <Button onClick={handleSubmit} variant="contained">Add</Button>
-          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    isOpen && (
+      <Card className="w-full max-w-3xl">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold">
+            Add Education Experience
+          </CardTitle>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (selectedLocation.location !== "") {
+                handleSubmit({
+                  alumniId: userId, // Assuming userId is used as alumniId
+                  university,
+                  type,
+                  yearGraduated,
+                  major,
+                });
+              } else {
+                setError(true);
+              }
+            }}
+          >
+            <TextField
+              label="University"
+              value={university}
+              onChange={(e) => setUniversity(e.target.value)}
+              required
+            />
+            <TextField
+              label="Degree Type (e.g., Bachelor, Master)"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              required
+            />
+            <TextField
+              label="Year Graduated"
+              type="number"
+              value={yearGraduated}
+              onChange={(e) => setYearGraduated(e.target.value)}
+              required
+            />
+            <TextField
+              label="Major"
+              value={major}
+              onChange={(e) => setMajor(e.target.value)}
+              required
+            />
+            <Typography>Please specify location</Typography>
+            {selectedLocation.location !== "" && (
+              <div>
+                <Typography>{selectedLocation.location}</Typography>
+              </div>
+            )}
+            <Button variant="contained" onClick={() => setIsModalOpen(true)}>
+              {selectedLocation.location !== "" ? "Edit" : "Enter"} location
+            </Button>
+            <GoogleMapsModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              initialAddress={selectedLocation.location}
+              initialLatitude={selectedLocation.latitude}
+              initialLongitude={selectedLocation.longitude}
+              onSave={handleLocationSave}
+            />
+            <div>
+              <Button type="submit">Save</Button>
+            </div>
+          </form>
+        </CardHeader>
+        <Snackbar
+          open={error}
+          onClose={() => setError(false)}
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg">
+            Please select a location!
+          </div>
+        </Snackbar>
+      </Card>
+    )
   );
 };
-
-export default AddEducationModal;

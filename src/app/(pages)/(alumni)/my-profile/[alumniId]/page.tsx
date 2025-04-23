@@ -170,15 +170,17 @@ const UserProfile = () => {
               {!isEditModalOpen[index] ? <ChevronRight /> : <ChevronDown />}
             </Button>
             <Divider />
-            <EditWorkExperience
-              open={isEditModalOpen[index]}
-              work={work}
-              onClose={() => closeEditModal(index)}
-              snackbar
-              setSnackbar={setSnackbar}
-              setMessage={setEditMessage}
-              setSuccess={setEditSuccess}
-            />
+            {isEditModalOpen[index] && (
+              <EditWorkExperience
+                open={true}
+                work={work}
+                onClose={() => closeEditModal(index)}
+                snackbar
+                setSnackbar={setSnackbar}
+                setMessage={setEditMessage}
+                setSuccess={setEditSuccess}
+              />
+            )}
             <Snackbar
               open={snackbar}
               onClose={() => setSnackbar(false)}
