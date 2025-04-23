@@ -62,149 +62,12 @@ export default function Events() {
         ]}
       />
 
-      <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
-        {/* Open to All */}
-        <label className="flex items-center space-x-2">
-          <input
-            type="radio"
-            name="visibility"
-            value="all"
-            checked={visibility === "all"}
-            onChange={() => {
-              setVisibility("all");
-              // Clear both to properly show the RSVP
-              setSelectedAlumni([]);
-              setSelectedBatches([]);
-            }}
-          />
-          <span>Open to all</span>
-        </label>
-
-        {/* Batch Option */}
-        <label className="flex items-start space-x-2">
-          <input
-            type="radio"
-            name="visibility"
-            value="batch"
-            checked={visibility === "batch"}
-            onChange={() => {
-              setVisibility("batch");
-              setSelectedAlumni([]); // Clear the Selected Batches List
-            }}
-          />
-          <div className="flex flex-col w-full">
-            <span>Batch:</span>
-            {visibility === "batch" && (
-              <>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {selectedBatches.map((batch, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center"
-                    >
-                      {batch}
-                      {/* Remove Button */}
-                      <button 
-                        type="button"
-                        className="ml-2 text-red-500 font-bold"
-                        onClick={() =>
-                          setSelectedBatches((prev) =>
-                            prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedBatches
-                          )
-                        }
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                {/* User Input */}
-                <input
-                  type="text"
-                  className="text-black mt-2 p-2 rounded-md w-full"
-                  placeholder="e.g. 2022"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      const value = e.currentTarget.value.trim();
-                      // Check if the value is not empty and not already in the selectedBatches list
-                      if (value && !selectedBatches.includes(value)) {
-                        // Add the new value to the selectedBatches list
-                        setSelectedBatches([...selectedBatches, value]);
-                        e.currentTarget.value = "";
-                      }
-                    }
-                  }}
-                />
-              </>
-            )}
-          </div>
-        </label>
-
-        {/* Alumni Option */}
-        <label className="flex items-start space-x-2 mt-4">
-          <input
-            type="radio"
-            name="visibility"
-            value="alumni"
-            checked={visibility === "alumni"}
-            onChange={() => {
-              setVisibility("alumni");
-              setSelectedBatches([]); // Clear the Selected Alumni List
-            }}
-          />
-          <div className="flex flex-col w-full">
-            <span>Alumni:</span>
-            {visibility === "alumni" && (
-              <>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {selectedAlumni.map((email, index) => (
-                    <span
-                      key={index}
-                      className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center"
-                    >
-                      {email}
-                      <button
-                        type="button"
-                        className="ml-2 text-red-500 font-bold"
-                        onClick={() =>
-                          setSelectedAlumni((prev) =>
-                            prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedAlumni
-                          )
-                        }
-                      >
-                        x
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  className="text-black mt-2 p-2 rounded-md w-full"
-                  placeholder="e.g. email1@up.edu.ph"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      const value = e.currentTarget.value.trim();
-                      // Check if the value is not empty and not already in the selectedAlumni list
-                      if (value && !selectedAlumni.includes(value)) {
-                        // Add the new value to the selectedAlumni list
-                        setSelectedAlumni([...selectedAlumni, value]);
-                        e.currentTarget.value = "";
-                      }
-                    }
-                  }}
-                />
-              </>
-            )}
-          </div>
-        </label>
-      </div>
-
       <div>
         <h1>Events</h1>
 
-        {(() => {
+        {/* will be used for the filter */}
+
+        {/* {(() => {
           // Group alumni by their ID and compile the events they RSVPed to
           const grouped: Record<string, { alum: any; events: string[] }> = {};
 
@@ -251,7 +114,7 @@ export default function Events() {
               ))}
             </ul>
           );
-        })()}
+        })()} */}
 
         {/* Sort Buttons for different status*/}
         <div className="flex gap-5 mb-5">
@@ -320,7 +183,145 @@ export default function Events() {
                   min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Events must be scheduled 
                   // at least one week in advance
                 />
+                
+                <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
+                  {/* Open to All */}
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="all"
+                      checked={visibility === "all"}
+                      onChange={() => {
+                        setVisibility("all");
+                        // Clear both to properly show the RSVP
+                        setSelectedAlumni([]);
+                        setSelectedBatches([]);
+                      }}
+                    />
+                    <span>Open to all</span>
+                  </label>
 
+                  {/* Batch Option */}
+                  <label className="flex items-start space-x-2">
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="batch"
+                      checked={visibility === "batch"}
+                      onChange={() => {
+                        setVisibility("batch");
+                        setSelectedAlumni([]); // Clear the Selected Batches List
+                      }}
+                    />
+                    <div className="flex flex-col w-full">
+                      <span>Batch:</span>
+                      {visibility === "batch" && (
+                        <>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {selectedBatches.map((batch, index) => (
+                              <span
+                                key={index}
+                                className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center"
+                              >
+                                {batch}
+                                {/* Remove Button */}
+                                <button 
+                                  type="button"
+                                  className="ml-2 text-red-500 font-bold"
+                                  onClick={() =>
+                                    setSelectedBatches((prev) =>
+                                      prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedBatches
+                                    )
+                                  }
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          {/* User Input */}
+                          <input
+                            type="text"
+                            className="text-black mt-2 p-2 rounded-md w-full"
+                            placeholder="e.g. 2022"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const value = e.currentTarget.value.trim();
+                                // Check if the value is not empty and not already in the selectedBatches list
+                                if (value && !selectedBatches.includes(value)) {
+                                  // Add the new value to the selectedBatches list
+                                  setSelectedBatches([...selectedBatches, value]);
+                                  e.currentTarget.value = "";
+                                }
+                              }
+                            }}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </label>
+
+                  {/* Alumni Option */}
+                  <label className="flex items-start space-x-2 mt-4">
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="alumni"
+                      checked={visibility === "alumni"}
+                      onChange={() => {
+                        setVisibility("alumni");
+                        setSelectedBatches([]); // Clear the Selected Alumni List
+                      }}
+                    />
+                    <div className="flex flex-col w-full">
+                      <span>Alumni:</span>
+                      {visibility === "alumni" && (
+                        <>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {selectedAlumni.map((email, index) => (
+                              <span
+                                key={index}
+                                className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center"
+                              >
+                                {email}
+                                <button
+                                  type="button"
+                                  className="ml-2 text-red-500 font-bold"
+                                  onClick={() =>
+                                    setSelectedAlumni((prev) =>
+                                      prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedAlumni
+                                    )
+                                  }
+                                >
+                                  x
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <input
+                            type="text"
+                            className="text-black mt-2 p-2 rounded-md w-full"
+                            placeholder="e.g. email1@up.edu.ph"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const value = e.currentTarget.value.trim();
+                                // Check if the value is not empty and not already in the selectedAlumni list
+                                if (value && !selectedAlumni.includes(value)) {
+                                  // Add the new value to the selectedAlumni list
+                                  setSelectedAlumni([...selectedAlumni, value]);
+                                  e.currentTarget.value = "";
+                                }
+                              }
+                            }}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
                 <div className="flex justify-between">
                   <button type="button" onClick={() => setShowForm(false)} className="text-gray-500">
                     Cancel
