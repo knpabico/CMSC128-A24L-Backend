@@ -308,7 +308,10 @@ const DonationDriveDetailsPage: React.FC = () => {
 
                 </div>
               ) : (
-                <p className="text-gray-500 py-4 text-center">No donations have been made for this donation drive yet.</p>
+                <div className="py-4 text-center space-y-4">
+                  <p className="text-gray-500">No donations have been made for this donation drive yet.</p>
+                  <DonateDialog drive={donationDrive} />
+                </div>
               )}
             </div>
           </div>
