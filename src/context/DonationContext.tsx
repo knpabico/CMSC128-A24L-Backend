@@ -9,7 +9,7 @@ import {
   doc,
   orderBy,
   where,
-  getDocs,
+
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -20,7 +20,7 @@ type DonationContextType = {
   userDonations: Donation[] | null;
   isLoading: boolean;
   error: string | null;
-  getDonationsBySponsorship: (sponsorshipId: string) => Promise<Donation[]>;
+
 };
 
 const DonationContext = createContext<DonationContextType | null>(null);
@@ -56,32 +56,6 @@ export const DonationContextProvider = ({
       }
     };
   }, [user, sort]);
-
-  const getDonationsBySponsorship = async (sponsorshipId: string): Promise<Donation[]> => {
-    try {
-      // First, get all donations for this sponsorship without ordering
-      const sponsorshipQuery = query(
-        collection(db, "donation"),
-        where("sponsorshipId", "==", sponsorshipId)
-      );
-  
-      const snapshot = await getDocs(sponsorshipQuery);
-  
-      const sponsorshipDonations: Donation[] = snapshot.docs.map((doc) => ({
-        donationId: doc.id,
-        ...(doc.data() as Omit<Donation, "donationId" | "date">),
-        date: doc.data().date.toDate().toISOString(), // convert Firestore timestamp
-      }));
-  
-      // Sort the donations client-side by date in descending order
-      return sponsorshipDonations.sort((a, b) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-    } catch (err) {
-      console.error("Error fetching sponsorship donations:", err);
-      throw new Error("Failed to fetch sponsorship donations.");
-    }
-  };
 
   const subscribeToDonations = () => {
     if (!alumniId) {
@@ -153,7 +127,7 @@ export const DonationContextProvider = ({
         userDonations,
         isLoading,
         error,
-        getDonationsBySponsorship,
+
       }}
     >
       {children}
