@@ -48,7 +48,12 @@ export default function Home() {
           Student Number: {alumInfo!.studentNumber}
         </p>
         <p className="text-black text-[25px] font-bold">
-          Affiliation: {alumInfo!.affiliation}
+          Affiliation:{" "}
+          {alumInfo!.affiliation
+            ? `${alumInfo!.affiliation[0]}, ${alumInfo!.affiliation[2]}, ${
+                alumInfo!.affiliation[1]
+              }`
+            : ""}
         </p>
       </div>
       {/*EDUCATION*/}
@@ -59,13 +64,10 @@ export default function Home() {
         {myEducation.map((education: Education, index: any) => (
           <div key={index} className="p-1">
             <p className="text-black text-[15px] font-bold">
-              Major: {education.major}
+              {education.major}
             </p>
             <p className="text-black text-[15px] font-bold">
-              University: {education.university}
-            </p>
-            <p className="text-black text-[15px] font-bold">
-              Level: {education.type}
+              {education.university}
             </p>
             <p className="text-black text-[15px] font-bold">
               Graduation Year: {education.yearGraduated}
