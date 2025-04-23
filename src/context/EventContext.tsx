@@ -39,7 +39,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [stillAccepting, setStillAccepting] = useState(false);
   const [needSponsorship, setNeedSponsorship] = useState(false);
   const router = useRouter();
-  const {alums} = useAlums();
 
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
 
@@ -115,7 +114,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent, selectedGuests: string[]) => {
     e.preventDefault();
 
     const newEvent: Event = {
@@ -127,7 +126,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       location,
       image,
       numofAttendees,
-      targetGuests,
+      targetGuests: selectedGuests,
       stillAccepting,
       needSponsorship,
       rsvps: [],

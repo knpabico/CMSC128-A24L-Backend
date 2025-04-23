@@ -4,7 +4,7 @@ import { useEvents } from "@/context/EventContext";
 import { Event, Alumnus } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext"; 
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Events() {
   const { events, isLoading, setShowForm, showForm, handleSave, handleEdit, handleDelete, date,
@@ -19,6 +19,34 @@ export default function Events() {
   const [visibility, setVisibility] = useState("default");
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isEditing && events) {
+      const eventToEdit = events.find(event => event.eventId === editingEventId);
+      setVisibility("default");
+      setSelectedAlumni([]);
+      setSelectedBatches([]);
+
+      if (eventToEdit) {
+        setEventTitle(eventToEdit.title);
+        setEventDescription(eventToEdit.description);
+        setEventDate(eventToEdit.date);
+        setShowForm(true);
+  
+        // Properly check targetGuests for alumni and batches
+        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
+          // Check if the first item is a batch (e.g., a string of length 4)
+          if (eventToEdit.targetGuests[0].length === 4) {
+            setSelectedBatches(eventToEdit.targetGuests); // Set the batches
+            setVisibility("batch"); // Set visibility to batches
+          } else {
+            setSelectedAlumni(eventToEdit.targetGuests); // Set the alumni
+            setVisibility("alumni"); // Set visibility to alumni
+          }
+        }
+      }
+    }
+  }, [isEditing, events, editingEventId]);
 
   const filterEvents = (status: string) => {
     return events.filter((event: Event) => event.status === status);
@@ -140,6 +168,9 @@ export default function Events() {
             setEventTitle(""); 
             setEventDescription("");
             setEventDate("");
+            setSelectedAlumni([]);
+            setSelectedBatches([]);
+            setVisibility("default");
           }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
             Create Event
           </button>
@@ -147,10 +178,18 @@ export default function Events() {
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form onSubmit={(e) => {
                 e.preventDefault();
+
+                const targetGuests =
+                  visibility === "batch"
+                    ? selectedBatches
+                    : visibility === "alumni"
+                    ? selectedAlumni
+                    : null;
+
                 if (isEditing && editingEventId) {
-                  handleEdit(editingEventId, { title, description, date }); // Pass the current value if it will be edited
+                  handleEdit(editingEventId, { title, description, date, targetGuests }); // Pass the current value if it will be edited
                 } else {
-                  handleSave(e); // Pass the value entered in the current form
+                  handleSave(e, targetGuests); // Pass the value entered in the current form
                 }
                 setShowForm(false);
                 setEdit(false);
@@ -183,7 +222,7 @@ export default function Events() {
                   min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Events must be scheduled 
                   // at least one week in advance
                 />
-                
+
                 <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
                   {/* Open to All */}
                   <label className="flex items-center space-x-2">
@@ -454,11 +493,9 @@ export default function Events() {
                     onClick={() => {
                       setEdit(true);
                       setEditingEventId(events.eventId);
-                      setEventTitle(events.title);
-                      setEventDescription(events.description);
-                      setEventDate(events.date);
                       setShowForm(true);
                     }}
+
                     className="px-4 py-2 bg-blue-500 text-white rounded-md"
                   >
                     Edit
