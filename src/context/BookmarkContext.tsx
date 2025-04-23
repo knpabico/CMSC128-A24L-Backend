@@ -122,7 +122,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   // Check if a bookmark already exists to avoid duplicates
   const getBookmarkId = (entryId: string): string | null => {
     const bookmark = bookmarks.find(b => b.entryId === entryId);
-    return bookmark ? bookmark.id : null;
+    return bookmark ? bookmark.bookmarkId : null;
   };
 
   // Check if an entry is bookmarked

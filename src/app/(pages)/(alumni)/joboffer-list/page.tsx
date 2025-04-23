@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Bookmark } from "@/models/models";
+import { useBookmarks } from "@/context/BookmarkContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -22,9 +23,10 @@ function formatDate(timestamp: any) {
 }
 
 export default function JobOffers() {
+  const {bookmarks, sortedBookmarks} = useBookmarks();
   const {
     jobOffers,
-    bookmarks,
+    // bookmarks,
     isLoading,
     setShowForm,
     showForm,
@@ -48,6 +50,7 @@ export default function JobOffers() {
     setLocation,
   } = useJobOffer();
 
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
@@ -441,7 +444,11 @@ export default function JobOffers() {
                       </div>
                     ) : (
                       bookmarks
-                        .filter((bookmark: Bookmark) => bookmark.type === "job_offering")
+                        .filter((bookmark: Bookmark) => bookmark.type === "job_offering").sort((a, b) => {
+                          const dateA = a.timestamp.seconds;
+                          const dateB = b.timestamp.seconds;
+                          return latestFirst ? dateB - dateA : dateA - dateB;
+                        })
                         .map((bookmark: Bookmark, index: number) => {
                           const job = jobOffers.find(
                             (job: { jobId: string }) => job.jobId === bookmark.entryId
