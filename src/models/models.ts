@@ -186,3 +186,10 @@ export interface WorkExperience {
   startingDate: Timestamp;
   endingDate: Timestamp;
 }
+
+export interface AIQuestion {
+  what: string;
+  who: string;
+  when: string;
+  where: string;
+}

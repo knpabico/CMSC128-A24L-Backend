@@ -12,6 +12,7 @@ import {
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
+import ModalInput from "@/components/ModalInputForm";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -56,6 +57,8 @@ export default function JobOffers() {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const filterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const filterContainerRef = useRef<HTMLDivElement>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const acceptedJobs = jobOffers.filter(
     (job: { status: string }) => job.status === "Accepted"
@@ -550,6 +553,17 @@ export default function JobOffers() {
                       onChange={(e) => setJobDescription(e.target.value)}
                       className="w-full p-2 border rounded h-20"
                       required
+                    />
+                    <Button onClick={() => setIsModalOpen(true)}>
+                      Need AI help? for description?
+                    </Button>
+                    <ModalInput
+                      isOpen={isModalOpen}
+                      onClose={() => setIsModalOpen(false)}
+                      onSubmit={(response) => setJobDescription(response)}
+                      title="AI Assistance for Job Description"
+                      type="job offer"
+                      subtitle="Get AI-generated description for your job offer. Only fill in the applicable fields."
                     />
                   </div>
                 </div>
