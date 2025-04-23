@@ -8,29 +8,37 @@ import {
   setDoc,
   doc,
   where,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { Alumnus } from "@/models/models";
+import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
   const [alums, setAlums] = useState<Alumnus[]>([]);
   const [activeAlums, setActiveAlums] = useState<Alumnus[]>([]);
+  const [myCareer, setCareer] = useState<Career[]>([]);
+  const [myEducation, setEducation] = useState<Education[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
     let unsubscribeActive: (() => void) | null;
+    let unsubscribeCareer: (() => void) | null;
+    let unsubscribeEducation: (() => void) | null;
 
     if (user) {
       unsubscribe = subscribeToUsers(); //maglilisten sa firestore
       unsubscribeActive = subscribeToActiveUsers();
+      unsubscribeCareer = subscribeToMyCareer();
+      unsubscribeEducation = subscribeToMyEducation();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);
+      setCareer([]);
       setLoading(false);
     }
 
@@ -41,8 +49,70 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       if (unsubscribeActive) {
         unsubscribeActive();
       }
+
+      if (unsubscribeCareer) {
+        unsubscribeCareer();
+      }
+
+      if (unsubscribeEducation) {
+        unsubscribeEducation();
+      }
     };
   }, [user]);
+
+  //for fetching career of current user
+  const subscribeToMyCareer = () => {
+    setLoading(true);
+    const q = query(
+      collection(db, "career"),
+      where("alumniId", "==", user?.uid)
+    );
+
+    //listener for any changes
+    const unsubscribeToMyCareer = onSnapshot(
+      q,
+      (querySnapshot: any) => {
+        const careerList = querySnapshot.docs.map(
+          (doc: any) => doc.data() as Career
+        );
+        setCareer(careerList);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching career of current user:", error);
+        setLoading(false);
+      }
+    );
+
+    return unsubscribeToMyCareer;
+  };
+
+  //for fetching education of current user
+  const subscribeToMyEducation = () => {
+    setLoading(true);
+    const q = query(
+      collection(db, "education"),
+      where("alumniId", "==", user?.uid)
+    );
+
+    //listener for any changes
+    const unsubscribeToMyEducation = onSnapshot(
+      q,
+      (querySnapshot: any) => {
+        const educationList = querySnapshot.docs.map(
+          (doc: any) => doc.data() as Education
+        );
+        setEducation(educationList);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching education of current user:", error);
+        setLoading(false);
+      }
+    );
+
+    return unsubscribeToMyEducation;
+  };
 
   const addAlumnus = async (alum: Alumnus, userId: string) => {
     try {
@@ -106,7 +176,16 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     return unsubscribeActiveUsers;
   };
   return (
-    <AlumContext.Provider value={{ alums, isLoading, addAlumnus, activeAlums }}>
+    <AlumContext.Provider
+      value={{
+        alums,
+        isLoading,
+        addAlumnus,
+        activeAlums,
+        myCareer,
+        myEducation,
+      }}
+    >
       {children}
     </AlumContext.Provider>
   );
