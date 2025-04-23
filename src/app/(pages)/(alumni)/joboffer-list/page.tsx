@@ -493,7 +493,7 @@ export default function JobOffers() {
                       <p className="text-lg">No created jobs found.</p>
                       </div>
                     ) : (
-                      jobOffers
+                      [...jobOffers]
                       .filter((job: JobOffering) => {
                         if (job.alumniId !== user?.uid) return false;
 
@@ -503,6 +503,10 @@ export default function JobOffers() {
                           [job.experienceLevel, job.jobType, job.employmentType, job.status].includes(filter) ||
                           job.requiredSkill.includes(filter)
                         );
+                      }).sort((a, b) => {
+                        const dateA = a.datePosted.seconds;
+                        const dateB = b.datePosted.seconds;
+                        return latestFirst ? dateB - dateA : dateA - dateB;
                       })
                       .map((job: JobOffering, index: number) => (
                         <div
