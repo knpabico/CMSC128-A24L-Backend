@@ -3,20 +3,36 @@
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { DonationDrive } from "@/models/models";
 import { DonateDialog } from "./DonateDialog";
+import { useAuth } from '@/context/AuthContext';
 import { useState } from "react";
 import BookmarkButton from "@/components/ui/bookmark-button";
 
 export default function DonationDrivesPage() {
+  const {user, alumInfo } = useAuth();
   const {
-    donationDrives,
-    isLoading,
-    addDonoForm,
-    setAddDonoForm,
-    suggestDonationDrive,
-    campaignName,
+    donationDrives, 
+    isLoading, 
+    showForm, 
+    setShowForm, 
+    handleSave,
+    handleEdit,
+    handleDelete,
+    campaignName, 
     setCampaignName,
-    description,
+    description, 
     setDescription,
+    targetAmount, 
+    setTargetAmount,
+    isEvent, 
+    setIsEvent,
+    eventId, 
+    setEventId,
+    endDate, 
+    setEndDate,
+    status, 
+    setStatus,
+    beneficiary, 
+    setBeneficiary, 
   } = useDonationDrives();
 
   const [sortBy, setSortBy] = useState("latest");
@@ -112,7 +128,7 @@ export default function DonationDrivesPage() {
         {/* Pending Donation Drives */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Pending Donation Drives</h2>
-          {sortedDrives.filter(drive => drive.status === "pending").length > 0 ? (
+          {sortedDrives.filter(drive => drive.status === "pending" && drive.creatorId === alumInfo!.alumniId).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedDrives
                 .filter((drive) => drive.status === "pending")
@@ -146,7 +162,7 @@ export default function DonationDrivesPage() {
       {/* Floating Action Button (FAB) */}
       <button
         className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition"
-        onClick={() => setAddDonoForm(!addDonoForm)}
+        onClick={() => setShowForm(true)}
       >
         +
       </button>
@@ -165,7 +181,7 @@ export default function DonationDrivesPage() {
           </div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">{selectedDrive.campaignName}</h2>
             <p className="text-gray-700 mb-4">{selectedDrive.description}</p>
-            <p className="font-bold text-lg text-blue-600 mb-4">Total Amount: ${selectedDrive.totalAmount}</p>
+            <p className="font-bold text-lg text-blue-600 mb-4">Total Amount: ${selectedDrive.currentAmount}</p>
             <p className="text-sm text-gray-500 mb-6">
               Posted on: {selectedDrive.datePosted.toDate().toLocaleString()}
             </p>
@@ -183,32 +199,77 @@ export default function DonationDrivesPage() {
         </div>
       )}
 
-      {addDonoForm && (
-       <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <form onSubmit={suggestDonationDrive} className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w">
-            <h2 className="text-xl mb-4">Suggest Donation Drive</h2>
-            <input
-              type="text"
-              placeholder="Campaign Name"
-              value={campaignName}
-              onChange={(e) => setCampaignName(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <div className="flex justify-between">
-              <button type="button" onClick={() => setAddDonoForm(false)} className="text-gray-500">Cancel</button>
-              <button type="submit" className="bg-blue-500 text-white p-2 rounded">Submit</button>
-            </div>
-          </form>
-        </div>
-      )}
+      {/* Suggest Donation Drive Modal */}
+      {showForm && (
+          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
+            <form
+              onSubmit={handleSave}
+              className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
+            >
+              <h2 className="text-xl bold mb-4">Suggest Donation Drive</h2>
+              <input
+                type="text"
+                placeholder="Campaign Name"
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+                className="w-full mb-4 p-2 border rounded"
+                required
+              />
+              <textarea
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full mb-4 p-2 border rounded"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Target Amount"
+                value={targetAmount}
+                onChange={(e) => setTargetAmount(e.target.value)}
+                className="w-full mb-4 p-2 border rounded"
+                required
+              />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full mb-4 p-2 border rounded"
+                required
+                min={
+                  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                    .toISOString()
+                    .split("T")[0]
+                } // Events must be scheduled
+                // at least one week in advance
+              />
+
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="text-gray-500"
+                >
+                  Cancel
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
+                  >
+                    Save As Draft
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+                  >
+                    Propose
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
     </div>
   );
 }

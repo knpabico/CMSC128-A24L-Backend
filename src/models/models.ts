@@ -96,6 +96,7 @@ export interface Sponsorship {
   description: string;
   endDate:Date;
   isAcceptingtrue: boolean;
+  eventId: string;
   startDate: Date;
   status: string;
   targetAmount: number;
@@ -103,29 +104,20 @@ export interface Sponsorship {
 
 export interface DonationDrive {
   donationDriveId: string;
+  creatorId: string;
+  creatorType: string;
   datePosted: Date;
+  campaignName: string;
   description: string;
   beneficiary: string[];
-  campaignName: string;
-  totalAmount: number;
+  currentAmount: number;
+  targetAmount: number;
   status: string;
-  eventId: string;
   isEvent: boolean;
+  eventId: string;
   startDate: Date;
   endDate: Date;
-  currentAmount: number;
   donorList: string[];
-}
-
-export interface DonationDriveSuggestions {
-  donationDriveId: string;
-  suggestedBy: string;
-  datePosted: Date;
-  description: string;
-  beneficiary: string[];
-  campaignName: string;
-  status: string;
-  totalAmount: number;
 }
 
 export interface Donation {
