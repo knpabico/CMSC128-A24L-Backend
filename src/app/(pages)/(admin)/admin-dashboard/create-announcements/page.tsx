@@ -12,7 +12,7 @@ export default function Users() {
       <h1>ANNOUNCEMENTS</h1>
       {isLoading && <h1>Loading</h1>}
       {announces.map((user: Announcement, index: any) => (
-        <div key={index} className="p-1 flex justify-between items-center border-b pb-2">
+        <div key={index} className="p-1 flex justify-between items-center borderwww-b pb-2">
         <div>
           <h1>{user.title}</h1>
           <h2>{user.datePosted.toDate().toLocaleString()}</h2>

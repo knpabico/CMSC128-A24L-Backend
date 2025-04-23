@@ -21,24 +21,23 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     const [requiredSkill, setRequiredSkill] = useState<string[]>([]);
     const [salaryRange, setSalaryRange] = useState("");
     const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
-    const { user } = useAuth();
+    const { user, isAdmin } = useAuth();
 
     useEffect(() => {
-        let unsubscribe: (() => void) | null;
-
-        if (user) {
-            unsubscribe = subscribeToJobOffers(); //maglilisten sa firestore
-        } else {
-            setJobOffers([]); //reset once logged out
-            setLoading(false);
-        }
-
-        return () => {
-            if (unsubscribe) {
-                unsubscribe(); //stops listening after logg out
-            }
-        };
-    }, [user]);
+      console.log("User from useAuth:", user);
+      let unsubscribe: (() => void) | null;
+  
+      if (user || isAdmin) {
+          unsubscribe = subscribeToJobOffers();
+      } else {
+          setJobOffers([]);
+          setLoading(false);
+      }
+  
+      return () => {
+          if (unsubscribe) unsubscribe();
+      };
+  }, [user, isAdmin]);
 
     const addJobOffer = async (jobOffer: JobOffering, userId: string) => {
         try {
@@ -59,58 +58,60 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       };
       
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+      e.preventDefault();
     
-        const newJobOffering: JobOffering = {
-            company,
-            employmentType,
-            experienceLevel,
-            jobDescription,
-            jobType,
-            position,
-            requiredSkill,
-            salaryRange,
-            jobId: "",
-            alumniId: "",
-            datePosted: new Date(),
-            status: ""
-        };
-    
-        const response = await addJobOffer(newJobOffering, user!.uid );
-    
-        if (response.success) {
-          setShowForm(false);
-          setCompany("");
-          setEmploymentType("");
-          setExperienceLevel("");
-          setJobDescription("");
-          setJobType("");
-          setPosition("");
-          setRequiredSkill([]);
-          setSalaryRange("");
-        } else {
-          console.error("Error adding job:", response.message);
-        }
+      const newJobOffering: JobOffering = {
+        company,
+        employmentType,
+        experienceLevel,
+        jobDescription,
+        jobType,
+        position,
+        requiredSkill,
+        salaryRange,
+        jobId: "",
+        alumniId: "",
+        datePosted: new Date(),
+        status: "",
+        image: ""
       };
     
+      const response = await addJobOffer(newJobOffering, user!.uid );
+    
+      if (response.success) {
+        console.log("Job offer successfully added:", newJobOffering);
+        setShowForm(false);
+        setCompany("");
+        setEmploymentType("");
+        setExperienceLevel("");
+        setJobDescription("");
+        setJobType("");
+        setPosition("");
+        setRequiredSkill([]);
+        setSalaryRange("");
+      } else {
+        console.error("Error adding job:", response.message);
+      }
+      };
 
-    const subscribeToJobOffers = () => {
-        setLoading(true);
-        const q = query(collection(db, "job_offering"));
+    const subscribeToJobOffers = () => {  
+      setLoading(true);
+      const q = query(collection(db, "job_offering"));
 
-        //listener for any changes
-        const unsubscribeJobOfffers = onSnapshot(q, (querySnapshot: any) => {
-            const offers = querySnapshot.docs.map((doc: any) => doc.data() as JobOffering);
-            setJobOffers(offers);
-            setLoading(false);
-        },
-        (error) => {
-            console.error("Error fetching job offers:", error);
-            setLoading(false);
-        }
+      //listener for any changes
+      const unsubscribeJobOfffers = onSnapshot(q, (querySnapshot: any) => {
+        const offers = querySnapshot.docs.map((doc: any) => doc.data());
+        setJobOffers(offers);
+        setLoading(false);
+        console.log("Success! Fetched job offers:", offers);
+      },
+      (error) => {
+        console.error("Error fetching job offers:", error);
+        setLoading(false);
+      }
     );
 
-        return unsubscribeJobOfffers;
+      return unsubscribeJobOfffers;
     };
 
     const handleAccept = async (jobId: string) => {
