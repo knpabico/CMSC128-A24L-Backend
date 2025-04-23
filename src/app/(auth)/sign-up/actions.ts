@@ -26,6 +26,73 @@ const calculateAge = (birthDate: Date) => {
   return age;
 };
 
+const saveCareer = async (career: string[], alumniId: string) => {
+  //each field shouldn't be empty
+  if (career[0] !== "") {
+    //will contain the id to be used for adding education entry
+    let ref = serverFirestoreDB.collection("career").doc();
+
+    await serverFirestoreDB.collection("career").doc(ref.id).set({
+      careerId: ref.id,
+      alumniId: alumniId,
+      industry: career[0],
+      jobTitle: career[1],
+      company: career[2],
+      startYear: career[3],
+      endYear: career[4],
+    });
+  }
+};
+
+const saveEducation = async (
+  bachelors: string[],
+  masters: string[],
+  doctoral: string[],
+  alumniId: string
+) => {
+  //will contain the id to be used for adding education entry
+  let bach = serverFirestoreDB.collection("education").doc();
+
+  await serverFirestoreDB.collection("education").doc(bach.id).set({
+    educationId: bach.id,
+    alumniId: alumniId,
+    major: bachelors[0],
+    yearGraduated: bachelors[1],
+    university: bachelors[2],
+    type: "bachelors",
+  });
+
+  //each field shouldn't be empty
+  if (masters[0] !== "" && masters[1] !== "" && masters[2] !== "") {
+    //will contain the id to be used for adding education entry
+    let ref = serverFirestoreDB.collection("education").doc();
+
+    await serverFirestoreDB.collection("education").doc(ref.id).set({
+      educationId: ref.id,
+      alumniId: alumniId,
+      major: masters[0],
+      yearGraduated: masters[1],
+      university: masters[2],
+      type: "masters",
+    });
+  }
+
+  //each field shouldn't be empty
+  if (doctoral[0] !== "" && doctoral[1] !== "" && doctoral[2] !== "") {
+    //will contain the id to be used for adding education entry
+    let ref = serverFirestoreDB.collection("education").doc();
+
+    await serverFirestoreDB.collection("education").doc(ref.id).set({
+      educationId: ref.id,
+      alumniId: alumniId,
+      major: doctoral[0],
+      yearGraduated: doctoral[1],
+      university: doctoral[2],
+      type: "doctoral",
+    });
+  }
+};
+
 export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
   // validate the data one more time in the server side
   const validation = signUpFormSchema.safeParse(data);
@@ -42,7 +109,15 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
   const { acceptTerms, ...alumnusData } = data;
 
   //remove password fields (hindi dapat masama sa firestore)
-  const { password, passwordConfirm, ...alumData } = alumnusData;
+  const {
+    password,
+    bachelors,
+    masters,
+    doctoral,
+    career,
+    passwordConfirm,
+    ...alumData
+  } = alumnusData;
   try {
     // create a user in firebase auth
     const userCredential = await serverAuth.createUser({
@@ -71,13 +146,20 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
         activeStatus: "false",
         age: calculateAge(new Date(alumnusData.birthDate)),
         birthDate: new Date(alumnusData.birthDate),
-        address:
-          alumnusData.currentLocation[1] !== ""
-            ? [
-                `${alumnusData.currentLocation[1]}, ${alumnusData.currentLocation[0]}`,
-              ]
-            : [`${alumnusData.currentLocation[0]}`],
+        address: [
+          alumData.address[0],
+          alumData.address[1],
+          alumData.address[2],
+        ],
       });
+
+    //save education
+    await saveEducation(bachelors!, masters!, doctoral!, userCredential.uid);
+
+    //save career
+    await saveCareer(career!, userCredential.uid);
+
+    //save career
   } catch (err: any) {
     return {
       error: true,

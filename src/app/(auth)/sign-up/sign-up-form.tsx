@@ -133,35 +133,38 @@ export default function RegistrationForm() {
     resolver: zodResolver(signUpFormSchema),
     // default values of the fields in the form
     defaultValues: {
+      //email and password
+      email: "",
+      password: "",
+      passwordConfirm: "",
+
+      //name
       firstName: "",
       middleName: "",
       suffix: "",
       lastName: "",
-      //age: "",
+
+      //personal
+      //birthday
       birthDate: "",
-      email: "",
-      password: "",
-      passwordConfirm: "",
+
+      //current home address
+      address: ["", "", ""], //
+
+      //education
       studentNumber: "",
-      currentLocation: ["", ""],
-      employmentStatus: "",
-      companyName: "",
-      jobTitle: "",
-      fieldOfWork: "",
-      workSetup: "",
-      workLocation: ["", ""],
-      techStack: [],
-      skills: [],
-      linkedinLink: "",
-      githubLink: "",
-      affiliation: [],
+      affiliation: ["", "", ""], //affiliation name, year joined, university
+      bachelors: ["", "", ""], //degree program, year graduated, university
+      masters: ["", "", ""], //degree program, year graduated, university
+      doctoral: ["", "", ""], //degree program, year graduated, university
+
+      // //career
+      career: ["", "", "", "", ""], //industry, jobTitle, company, startYear, endYear
+
       acceptTerms: false,
       subscribeToNewsletter: false,
     },
   });
-
-  // this variable will store the current value of the employmentStatus input field
-  const employmentStatus = form.watch("employmentStatus");
 
   const handleSubmit = async (data: z.infer<typeof signUpFormSchema>) => {
     setIsLoading(true);
@@ -276,31 +279,6 @@ export default function RegistrationForm() {
                       )}
                     />
                   </div>
-                </div>
-
-                {/* display the age and birthDate fields side by side */}
-                <div className="grid grid-cols-12 gap-4">
-                  {/* age form field */}
-                  {/* <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="age"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Age</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="21"
-                              type="number"
-                              {...field}
-                              value={field.value ?? ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div> */}
 
                   {/* birthDate form field */}
                   <div className="col-span-6">
@@ -309,7 +287,7 @@ export default function RegistrationForm() {
                       name="birthDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>BirthDate</FormLabel>
+                          <FormLabel>Birthday</FormLabel>
                           <FormControl>
                             <Input
                               type="date"
@@ -320,6 +298,58 @@ export default function RegistrationForm() {
                               // it to an empty string here
                               value={field.value ?? ""}
                             />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* address form field */}
+
+                <div className="grid grid-cols-12 gap-4">
+                  {/* country */}
+                  <div className="col-span-6">
+                    <FormField
+                      control={form.control}
+                      name="address.0"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Home Address</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Country" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {/* city/municipality */}
+                  <div className="col-span-6 mt-5">
+                    <FormField
+                      control={form.control}
+                      name="address.1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="City/Municipality" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-6">
+                    {/* province/state */}
+                    <FormField
+                      control={form.control}
+                      name="address.2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Province/State" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -376,16 +406,16 @@ export default function RegistrationForm() {
                   )}
                 />
 
-                {/* display the SN and graduation year fields side by side */}
+                {/* display the SN field*/}
                 <div className="grid grid-cols-12 gap-4">
                   {/* studentNumber form field */}
-                  <div className="col-span-6">
+                  <div className="col-span-12">
                     <FormField
                       control={form.control}
                       name="studentNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Student Number</FormLabel>
+                          <FormLabel>Student Number at UPLB</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="2025-12345"
@@ -398,26 +428,52 @@ export default function RegistrationForm() {
                       )}
                     />
                   </div>
+                </div>
 
-                  {/* graduationYear form field */}
-                  <div className="col-span-6">
+                {/* affiliations form field */}
+
+                <div className="grid grid-cols-12 gap-4">
+                  {/* affiliation name */}
+                  <div className="col-span-7">
                     <FormField
                       control={form.control}
-                      name="graduationYear"
+                      name="affiliation.0"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Graduation Year</FormLabel>
+                          <FormLabel>Affiliation</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="2029"
-                              type="number"
-                              {...field}
-                              // we will not provide a default value to this input field
-                              // that requires a number value when we create the react hook form (the form variable above)
-                              // Instead, if the value of it is undefined initially, then we set
-                              // it to an empty string here
-                              value={field.value ?? ""}
-                            />
+                            <Input placeholder="Affiliation Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {/* year joined */}
+                  <div className="col-span-5 mt-5">
+                    <FormField
+                      control={form.control}
+                      name="affiliation.1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Year Joined" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-12">
+                    {/* university */}
+                    <FormField
+                      control={form.control}
+                      name="affiliation.2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="University" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -426,358 +482,251 @@ export default function RegistrationForm() {
                   </div>
                 </div>
 
-                {/* currentLocation form field */}
-                <FormField
-                  control={form.control}
-                  name="currentLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Location</FormLabel>
-                      <FormControl>
-                        <LocationSelector
-                          onCountryChange={(country) => {
-                            setCountryName(country?.name || "");
-                            form.setValue(field.name, [
-                              country?.name || "",
-                              stateName || "",
-                            ]);
-                            form.trigger(field.name);
-                          }}
-                          onStateChange={(state) => {
-                            setStateName(state?.name || "");
-                            form.setValue(field.name, [
-                              form.getValues(field.name)[0] || "",
-                              state?.name || "",
-                            ]);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* bachelor's form field */}
 
-                {/* employment status form field */}
-                <FormField
-                  control={form.control}
-                  name="employmentStatus"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Employment Status</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select employment status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="employed">Employed</SelectItem>
-                          <SelectItem value="self-employed">
-                            Self-employed
-                          </SelectItem>
-                          <SelectItem value="unemployed">Unemployed</SelectItem>
-                          <SelectItem value="retired">Retired</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* conditionally render the companyName, jobTitle, workField, workSetup, and workLocation */}
-                {/* depending on the chosen employmentStatus value */}
-                {/* only show the following fields if user is not employed or retired */}
-                {employmentStatus !== "" &&
-                  employmentStatus !== "retired" &&
-                  employmentStatus !== "unemployed" && (
-                    <>
-                      {/* company name form field */}
-                      {/* hidden if self-employed */}
-                      {employmentStatus !== "self-employed" && (
-                        <FormField
-                          control={form.control}
-                          name="companyName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Company Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Google"
-                                  type="text"
-                                  {...field}
-                                />
-                              </FormControl>
-
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                <div className="grid grid-cols-12 gap-4">
+                  {/* degree program */}
+                  <div className="col-span-7">
+                    <FormField
+                      control={form.control}
+                      name="bachelors.0"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bachelor's Degree</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Degree Program" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-
-                      {/* job title form field */}
-                      <FormField
-                        control={form.control}
-                        name="jobTitle"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Job Title</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Junior backend developer"
-                                type="text"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* workField form field */}
-                      <FormField
-                        control={form.control}
-                        name="fieldOfWork"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Field of Work</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn(
-                                      "justify-between",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value
-                                      ? workFieldOptions.find(
-                                          (workField) =>
-                                            workField.value === field.value
-                                        )?.label
-                                      : "Select your field of work"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="p-0">
-                                <Command>
-                                  <CommandInput placeholder="Search work field..." />
-                                  <CommandList>
-                                    <CommandEmpty>
-                                      No work field found.
-                                    </CommandEmpty>
-                                    <CommandGroup>
-                                      {workFieldOptions.map((workField) => (
-                                        <CommandItem
-                                          value={workField.label}
-                                          key={workField.value}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "fieldOfWork",
-                                              workField.value
-                                            );
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4",
-                                              workField.value === field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {workField.label}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* workSetup form field */}
-                      <FormField
-                        control={form.control}
-                        name="workSetup"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Work Setup</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select work setup" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="onsite">Onsite</SelectItem>
-                                <SelectItem value="work-from-home">
-                                  Work from home
-                                </SelectItem>
-                                <SelectItem value="hybrid">Hybrid</SelectItem>
-                                <SelectItem value="remote">Remote</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* work location */}
-                      {/* hidden if self-employed */}
-                      {employmentStatus !== "self-employed" && (
-                        <FormField
-                          control={form.control}
-                          name="workLocation"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Work Location</FormLabel>
-                              <FormControl>
-                                <LocationSelector
-                                  onCountryChange={(country) => {
-                                    setCountryName(country?.name || "");
-                                    form.setValue(field.name, [
-                                      country?.name || "",
-                                      stateName || "",
-                                    ]);
-                                    form.trigger(field.name);
-                                  }}
-                                  onStateChange={(state) => {
-                                    setStateName(state?.name || "");
-                                    form.setValue(field.name, [
-                                      form.getValues(field.name)[0] || "",
-                                      state?.name || "",
-                                    ]);
-                                  }}
-                                />
-                              </FormControl>
-
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                    />
+                  </div>
+                  {/* year graduated */}
+                  <div className="col-span-5 mt-5">
+                    <FormField
+                      control={form.control}
+                      name="bachelors.1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Year Graduated" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </>
-                  )}
+                    />
+                  </div>
 
-                {/* techStack form field */}
-                <FormField
-                  control={form.control}
-                  name="techStack"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tech Stack</FormLabel>
-                      <FormControl>
-                        <MultiSelector
-                          values={field.value}
-                          onValuesChange={field.onChange}
-                          loop
-                        >
-                          <MultiSelectorTrigger>
-                            <MultiSelectorInput placeholder="Select technologies" />
-                          </MultiSelectorTrigger>
-                          <MultiSelectorContent>
-                            <MultiSelectorList>
-                              {techStackOptions.map((option, i) => (
-                                <MultiSelectorItem key={i} value={option.label}>
-                                  {option.label}
-                                </MultiSelectorItem>
-                              ))}
-                            </MultiSelectorList>
-                          </MultiSelectorContent>
-                        </MultiSelector>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <div className="col-span-12">
+                    {/* university */}
+                    <FormField
+                      control={form.control}
+                      name="bachelors.2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="University" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
-                {/* skills form field */}
-                <FormField
-                  control={form.control}
-                  name="skills"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Skills</FormLabel>
-                      <FormControl>
-                        <TagsInput
-                          value={field.value ?? []}
-                          onValueChange={field.onChange}
-                          placeholder="Enter your skills"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* master's form field */}
 
-                {/* linkedinLink form field */}
-                <FormField
-                  control={form.control}
-                  name="linkedinLink"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>LinkedIn Link</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://www.linkedin.com/in/juandelacruz"
-                          type="text"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-12 gap-4">
+                  {/* degree program */}
+                  <div className="col-span-7">
+                    <FormField
+                      control={form.control}
+                      name="masters.0"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Master's Degree</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Degree Program" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {/* year graduated */}
+                  <div className="col-span-5 mt-5">
+                    <FormField
+                      control={form.control}
+                      name="masters.1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Year Graduated" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-                {/* githubLink form field */}
-                <FormField
-                  control={form.control}
-                  name="githubLink"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>GitHub Link</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://github.com/juandelacruz"
-                          type="text"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <div className="col-span-12">
+                    {/* university */}
+                    <FormField
+                      control={form.control}
+                      name="masters.2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="University" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
-                {/* affiliations form field */}
-                <FormField
-                  control={form.control}
-                  name="affiliation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Affiliations</FormLabel>
-                      <FormControl>
-                        <TagsInput
-                          value={field.value ?? []}
-                          onValueChange={field.onChange}
-                          placeholder="Enter your affiliations"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* doctoral form field */}
+                <div className="grid grid-cols-12 gap-4">
+                  {/* degree program */}
+                  <div className="col-span-7">
+                    <FormField
+                      control={form.control}
+                      name="doctoral.0"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Doctoral Degree</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Degree Program" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {/* year graduated */}
+                  <div className="col-span-5 mt-5">
+                    <FormField
+                      control={form.control}
+                      name="doctoral.1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Year Graduated" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-12">
+                    {/* university */}
+                    <FormField
+                      control={form.control}
+                      name="doctoral.2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="University" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* career form field */}
+
+                <div className="grid grid-cols-12 gap-4">
+                  {/* industry */}
+                  <div className="col-span-4">
+                    <FormField
+                      control={form.control}
+                      name="career.0"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Industry</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Industry" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {/* year graduated */}
+                  <div className="col-span-8">
+                    <FormField
+                      control={form.control}
+                      name="career.1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Job Title</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Job Title" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-12">
+                    {/* university */}
+                    <FormField
+                      control={form.control}
+                      name="career.2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Company/Organization</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Company/Organization"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-6">
+                    {/* start year */}
+                    <FormField
+                      control={form.control}
+                      name="career.3"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Year</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Start Year" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-6">
+                    {/* end year */}
+                    <FormField
+                      control={form.control}
+                      name="career.4"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Year</FormLabel>
+                          <FormControl>
+                            <Input placeholder="End Year" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
                 {/* acceptTerms form field */}
                 <FormField
