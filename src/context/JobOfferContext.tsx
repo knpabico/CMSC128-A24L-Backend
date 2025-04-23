@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { useBookmarks } from "./BookmarkContext";
 const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
@@ -22,6 +23,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     const [salaryRange, setSalaryRange] = useState("");
     const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
     const { user, isAdmin } = useAuth();
+    const { bookmarks } = useBookmarks();
 
     useEffect(() => {
       console.log("User from useAuth:", user);
@@ -154,7 +156,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <JobOfferContext.Provider value={{ jobOffers, isLoading, addJobOffer, setShowForm, showForm, handleSubmit, company, setCompany, 
+        <JobOfferContext.Provider value={{ jobOffers, bookmarks, isLoading, addJobOffer, setShowForm, showForm, handleSubmit, company, setCompany, 
         employmentType, setEmploymentType, experienceLevel, 
         setExperienceLevel, jobDescription, setJobDescription, jobType, 
         setJobType, position, setPosition, handleSkillChange, salaryRange, 
