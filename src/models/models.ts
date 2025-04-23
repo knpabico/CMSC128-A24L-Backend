@@ -58,8 +58,8 @@ export interface Announcement {
   title: string;
   description: string;
   type: string[];
-  userReference: string;
   image: string;
+  isPublic: boolean;
 }
 
 export interface Scholarship {
@@ -137,12 +137,6 @@ export interface Donation {
   date: Date;
   isAnonymous: boolean;
   imageProof: string;
-}
-
-export interface NewsletterItem {
-  newsletterId: string;
-  category: string[];
-  dateSent: Date;
 }
 
 export interface RSVP {
