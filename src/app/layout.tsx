@@ -16,7 +16,7 @@ import { DonationContextProvider } from "@/context/DonationContext";
 import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
 import MapProvider from "@/context/MapContext"; 
-import { SponsorshipProvider } from "@/context/SponsorshipContext";
+import { ScholarshipProvider } from "@/context/ScholarshipContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -46,7 +46,7 @@ export default function RootLayout({
     <html lang="en">
       <AuthProvider>
         <DonationDriveProvider>
-          <SponsorshipProvider>
+          <ScholarshipProvider>
             <BookmarkProvider>
               <JobOfferProvider>
                 <AnnouncementProvider>
@@ -78,7 +78,7 @@ export default function RootLayout({
                 </AnnouncementProvider>
               </JobOfferProvider>
             </BookmarkProvider>
-          </SponsorshipProvider>
+          </ScholarshipProvider>
         </DonationDriveProvider>
       </AuthProvider>
     </html>
