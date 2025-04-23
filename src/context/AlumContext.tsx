@@ -9,6 +9,7 @@ import {
   doc,
   where,
   getDocs,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -92,7 +93,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     const q = query(
       collection(db, "education"),
-      where("alumniId", "==", user?.uid)
+      where("alumniId", "==", user?.uid),
+      orderBy("yearGraduated", "desc")
     );
 
     //listener for any changes
