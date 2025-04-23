@@ -31,39 +31,52 @@ export const getUserDonations = async (alumniId: string) => {
 };
 
 // function for inserting a donation document to the Donation collection in firestore
-// Function to create a new donation
-export const createDonation = async (donationData: { isAnonymous: any; donationDriveId: string; alumniId: any; amount: number; }) => {
+export const createDonation = async (donationData: {
+  donationDriveId: string;
+  alumniId: string;
+  paymentMethod: string;
+  amount: number;
+  isAnonymous: boolean;
+  imageProof?: string;
+}) => {
   try {
-    // Create a donation document reference with a generated ID
-    const donationRef = doc(collection(db, "donation"));
+    // Validate input using Zod
+    const parsedData = donationDataSchema.parse(donationData);
+
+    const donationRef = serverFirestoreDB.collection("donation").doc();
     const donationId = donationRef.id;
 
-    // Add the donationId to the data
     const completeData = {
-      ...donationData,
+      ...parsedData,
       donationId,
-      date: new Date() // Set the current date if not provided
+      date: new Date(),
     };
 
-    // Create the donation document
-    await setDoc(donationRef, completeData);
+    // Write the document
+    await donationRef.set(completeData)
 
-    // If not anonymous, update the donorList in the donation drive
-    if (!donationData.isAnonymous) {
-      const donationDriveRef = doc(db, "donation_drive", donationData.donationDriveId);
+    const donationDriveRef = serverFirestoreDB.collection("donation_drive").doc(parsedData.donationDriveId);
 
-      // Update the donorList and currentAmount
-      await updateDoc(donationDriveRef, {
-        donorList: arrayUnion(donationData.alumniId),
-        currentAmount: increment(donationData.amount)
-      });
-    } else {
-      // Just update the currentAmount if anonymous
-      const donationDriveRef = doc(db, "donation_drive", donationData.donationDriveId);
-      await updateDoc(donationDriveRef, {
-        currentAmount: increment(donationData.amount)
-      });
+    // Fetch current data
+    const donationDriveSnap = await donationDriveRef.get();
+    const donationDriveData = donationDriveSnap.data();
+
+    if (!donationDriveData) throw new Error("Donation drive not found");
+
+    const newAmount = (donationDriveData.currentAmount || 0) + parsedData.amount;
+
+    let updateData: Record<string, any> = {
+      currentAmount: newAmount,
+    };
+
+    if (!parsedData.isAnonymous) {
+      const existingDonors = donationDriveData.donorList || [];
+      const newDonorList = [...new Set([...existingDonors, parsedData.alumniId])];
+
+      updateData.donorList = newDonorList;
     }
+
+await donationDriveRef.update(updateData);
 
     return donationId;
   } catch (error) {
