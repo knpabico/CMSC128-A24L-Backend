@@ -90,6 +90,9 @@ export default function JobOffers() {
       "Figma",
       "Canva",
     ],
+    ...(sidebarFilter === "Create Jobs" && {
+      Status: ["Accepted", "Rejected", "Pending"],
+    })
   };
 
   // Close filter dropdowns when clicking outside
@@ -483,7 +486,7 @@ export default function JobOffers() {
                         })
                     )}
                   </div>
-                ) : (
+                ) : sidebarFilter === "Create Jobs" ?(
                     <div>
                     {jobOffers.filter((job: JobOffering) => job.alumniId === user?.uid).length === 0 ? (
                       <div className="text-center py-8 h-[480px] flex items-center justify-center">
@@ -491,7 +494,16 @@ export default function JobOffers() {
                       </div>
                     ) : (
                       jobOffers
-                      .filter((job: JobOffering) => job.alumniId === user?.uid)
+                      .filter((job: JobOffering) => {
+                        if (job.alumniId !== user?.uid) return false;
+
+                        if (activeFilters.length === 0) return true;
+
+                        return activeFilters.some((filter) =>
+                          [job.experienceLevel, job.jobType, job.employmentType, job.status].includes(filter) ||
+                          job.requiredSkill.includes(filter)
+                        );
+                      })
                       .map((job: JobOffering, index: number) => (
                         <div
                         key={index}
@@ -532,7 +544,7 @@ export default function JobOffers() {
                       ))
                     )}
                     </div>
-                )}
+                ): null}
               </div>
             </div>
 

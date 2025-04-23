@@ -62,6 +62,13 @@ export interface Announcement {
 }
 
 export interface Scholarship {
+  scholarshipId: string;
+  title: string;
+  description: string;
+  alumList: string[];
+  datePosted: Date;
+}
+
 export interface Event {
   eventId: string;
   datePosted: Date;
@@ -172,6 +179,7 @@ export interface Bookmark {
   alumniId: string;
   type: string;
   entryId: string;
+  timestamp: Date;
 }
 
 export interface WorkExperience {
