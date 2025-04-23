@@ -2,9 +2,10 @@
 import { useAnnouncement } from "@/context/AnnouncementContext";
 import { Announcement } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
+import { useState } from "react";
 
 export default function Users() {
-  const { announces, isLoading, handleSubmit, handleCheckbox, handleDelete, handleEdit, title, description, showForm, type, setTitle, setDescription, setShowForm, setType } = useAnnouncement();
+  const { announces, isLoading, isEdit, handleSubmit, handleCheckbox, handleDelete, handleEdit, title, description, showForm, type, setTitle, setDescription, setShowForm, setType, setIsEdit, setCurrentAnnouncementId  } = useAnnouncement();
 
   return (
     <div>
@@ -14,14 +15,22 @@ export default function Users() {
         <div key={index} className="p-1 flex justify-between items-center border-b pb-2">
         <div>
           <h1>{user.title}</h1>
-          <h2>{user.datePosted.toLocaleString()}</h2>
+          <h2>{user.datePosted.toDate().toLocaleString()}</h2>
           <h2>{user.description}</h2>
           <h2>Announcement Type: {user.type.join(", ")}</h2>
         </div>
         <div className="flex gap-4">
           <button
             className="text-blue-500 hover:underline"
-            // onClick={() => handleEdit(user)}
+            onClick={() => {
+              // Set the form fields to the values of the announcement being edited
+              setTitle(user.title);
+              setDescription(user.description);
+              setType(user.type);
+              setShowForm(true);
+              setIsEdit(true);
+              setCurrentAnnouncementId(user.announcementId);
+            }}
           >
             Edit
           </button>
@@ -44,7 +53,7 @@ export default function Users() {
 
       {showForm && (
        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w">
+          <form onSubmit={isEdit ? handleEdit : handleSubmit} className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w">
             <h2 className="text-xl mb-4">Add Announcement</h2>
             <input
               type="text"
