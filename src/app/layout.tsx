@@ -43,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-[#EAEAEA]">
       <AuthProvider>
         <DonationDriveProvider>
           <ScholarshipProvider>
@@ -60,7 +60,7 @@ export default function RootLayout({
                                 <body
                                   className={`${poppins.className} antialiased`}
                                 >
-                                  <div className="bg-blue-200 ">
+                                  <div className="bg-blue-200">
                                     <Navbar />
                                   </div>
                                   {children}
