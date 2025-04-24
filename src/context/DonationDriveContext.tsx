@@ -10,10 +10,12 @@ import {
   deleteDoc,
   updateDoc,
   getDoc,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { DonationDrive } from "@/models/models";
+import { DonationDrive, Event } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 
 const DonationDriveContext = createContext<any>(null);
@@ -24,6 +26,7 @@ export function DonationDriveProvider({
   children: React.ReactNode;
 }) {
   const [donationDrives, setDonationDrives] = useState<DonationDrive[]>([]);
+  const [events, setEvents] = useState<Record<string, Event>>({});
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
 
@@ -56,19 +59,62 @@ export function DonationDriveProvider({
     };
   }, [user, isAdmin]);
 
+  // When donationDrives change, fetch all related events
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const eventIds = donationDrives
+        .filter(drive => drive.isEvent && drive.eventId)
+        .map(drive => drive.eventId);
+
+      // Remove duplicates
+      const uniqueEventIds = [...new Set(eventIds)];
+
+      if (uniqueEventIds.length === 0) return;
+
+      const newEvents: Record<string, Event> = {};
+
+      for (const id of uniqueEventIds) {
+        try {
+          const event = await getEventById(id);
+          if (event) {
+            newEvents[id] = event;
+          }
+        } catch (error) {
+          console.error(`Error fetching event ${id}:`, error);
+        }
+      }
+
+      setEvents(prevEvents => ({
+        ...prevEvents,
+        ...newEvents
+      }));
+    };
+
+    if (donationDrives.length > 0) {
+      fetchEvents();
+    }
+  }, [donationDrives]);
+
   const subscribeToDonationDrives = () => {
     setLoading(true);
     const q = query(collection(db, "donation_drive"));
-
+  
     const unsubscribeDonationDrives = onSnapshot(
       q,
-      (querySnapshot: any) => {
-        // const donationDriveList = querySnapshot.docs.map((doc: any) => doc.data() as DonationDrive);
-        const donationDriveList = querySnapshot.docs.map((doc: any) => ({
-          donationDriveId: doc.id, // ✅ Add Firestore document ID
-          ...doc.data(),
-        })) as DonationDrive[];
-        setDonationDrives(donationDriveList);
+      async (querySnapshot: any) => {
+        const donationDrivesWithAmounts: DonationDrive[] = await Promise.all(
+          querySnapshot.docs.map(async (doc: any) => {
+            const driveData = {
+              donationDriveId: doc.id,
+              ...doc.data(),
+            } as DonationDrive;
+  
+            driveData.currentAmount = await calculateCurrentAmount(doc.id);
+            return driveData;
+          })
+        );
+  
+        setDonationDrives(donationDrivesWithAmounts);
         setLoading(false);
       },
       (error) => {
@@ -76,8 +122,22 @@ export function DonationDriveProvider({
         setLoading(false);
       }
     );
-
+  
     return unsubscribeDonationDrives;
+  };
+
+  // Gets the total amount donated to a specific drive
+  const calculateCurrentAmount = async (donationDriveId: string): Promise<number> => {
+    const q = query(collection(db, "donation"), where("donationDriveId", "==", donationDriveId));
+    const snapshot = await getDocs(q);
+    let total = 0;
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      total += data.amount || 0;
+    });
+
+    return total;
   };
 
   const getDonationDriveById = async (
@@ -99,6 +159,27 @@ export function DonationDriveProvider({
       }
     } catch (error) {
       console.error("Error fetching donation drive:", error);
+      throw new Error((error as FirebaseError).message);
+    }
+  };
+
+  const getEventById = async (eventId: string): Promise<Event | null> => {
+    try {
+      const eventDoc = doc(db, "event", eventId);
+      const snapshot = await getDoc(eventDoc);
+
+      if (snapshot.exists()) {
+        const eventData = snapshot.data();
+        return {
+          eventId: snapshot.id,
+          ...eventData,
+        } as Event;
+      } else {
+        console.log(`No event found with ID: ${eventId}`);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching event:", error);
       throw new Error((error as FirebaseError).message);
     }
   };
@@ -155,6 +236,7 @@ export function DonationDriveProvider({
       startDate: new Date(),
       endDate,
       donorList: [],
+      image: "",
     };
 
     const response = await addDonationDrive(newDonoDrive);
@@ -233,6 +315,7 @@ export function DonationDriveProvider({
     <DonationDriveContext.Provider
       value={{
         donationDrives,
+        events,
         isLoading,
         addDonationDrive,
         showForm,
@@ -259,6 +342,7 @@ export function DonationDriveProvider({
         beneficiary,
         setBeneficiary,
         getDonationDriveById,
+        getEventById,
       }}
     >
       {children}
