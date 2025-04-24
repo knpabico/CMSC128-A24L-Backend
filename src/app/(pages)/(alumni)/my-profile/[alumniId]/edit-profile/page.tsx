@@ -121,6 +121,18 @@ const EditProfile = () => {
      const [isEditModalWorkOpen, setEditModalWorkOpen] = useState(
        new Array(userWorkExperience.length).fill(false)
      );
+
+     const openMap = (index) => {
+      const newIsMapOpenArray = [...isMapOpenArray];
+      newIsMapOpenArray[index] = true;
+      setIsMapOpenArray(newIsMapOpenArray);
+    };
+  
+    const closeMap = (index) => {
+      const newIsMapOpenArray = [...isMapOpenArray];
+      newIsMapOpenArray[index] = false;
+      setIsMapOpenArray(newIsMapOpenArray);
+    };
    console.log(alumInfo);
     return (
         <>
