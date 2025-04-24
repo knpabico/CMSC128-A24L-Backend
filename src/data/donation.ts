@@ -69,12 +69,17 @@ export const createDonation = async (donationData: {
       currentAmount: newAmount,
     };
 
-    if (!parsedData.isAnonymous) {
-      const existingDonors = donationDriveData.donorList || [];
-      const newDonorList = [...new Set([...existingDonors, parsedData.alumniId])];
+    // if (!parsedData.isAnonymous) {
+    //   const existingDonors = donationDriveData.donorList || [];
+    //   const newDonorList = [...new Set([...existingDonors, parsedData.alumniId])];
 
-      updateData.donorList = newDonorList;
-    }
+    //   updateData.donorList = newDonorList;
+    // }
+
+      const existingDonors = donationDriveData.donorList || [];
+      existingDonors.push(parsedData.alumniId); // allow duplicates
+      updateData.donorList = existingDonors;
+    
 
 await donationDriveRef.update(updateData);
 
