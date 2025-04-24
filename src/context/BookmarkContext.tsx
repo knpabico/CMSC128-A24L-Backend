@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, addDoc, where, doc, getDoc, deleteDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { collection, onSnapshot, query, addDoc, where, doc, getDoc, deleteDoc, getDocs, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Bookmark } from "@/models/models";
@@ -121,7 +121,12 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
 
   // Check if a bookmark already exists to avoid duplicates
   const getBookmarkId = (entryId: string): string | null => {
-    const bookmark = bookmarks.find(b => b.entryId === entryId);
+    const bookmark = bookmarks.find(b => {
+      console.log("b.entryId:", b.entryId, "entryId:", entryId);
+      console.log("b.entryId length:", b.entryId.length, "entryId length:", entryId.length);
+      console.log("b.entryId === entryId:", b.entryId === entryId);      return b.entryId === entryId;
+    });
+    console.log("getBookmarkId result:", bookmark);
     return bookmark ? bookmark.bookmarkId : null;
   };
 
@@ -141,13 +146,18 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: "Item already bookmarked" };
     }
 
-    try { // Add bookmark to Firestore with its attributes 
-      await addDoc(collection(db, "bookmark"), {
-        alumniId: user.uid,
-        entryId,
-        type,
-        timestamp: serverTimestamp(),
-      });
+    try {
+      // Add bookmark to Firestore with its attributes
+    const docRef = await addDoc(collection(db, "bookmark"), {
+      alumniId: user.uid,
+      type,
+      entryId,
+      timestamp: serverTimestamp(),
+    });
+
+    // Update the document with its ID as bookmarkId
+    await updateDoc(docRef, { bookmarkId: docRef.id });
+
       return { success: true, message: "Bookmark added successfully" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
