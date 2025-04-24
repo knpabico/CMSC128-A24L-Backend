@@ -1,10 +1,13 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { useSearchParams } from "next/navigation";
+import { NewsletterItem } from "@/models/models";
+import { FirebaseError } from "firebase-admin";
+
 const NewsLetterContext = createContext<any>(null);
 
 export function NewsLetterProvider({
@@ -32,6 +35,7 @@ export function NewsLetterProvider({
         unsubscribe(); //stops listening after logg out
       }
     };
+
   }, [user, sort]);
 
   const subscribeToNewsLetters = () => {
@@ -64,8 +68,23 @@ export function NewsLetterProvider({
 
     return unsubscribeNewsLetters;
   };
+
+  const addNewsLetter = async (newsLetter: NewsletterItem, referenceId: string, category: string) => {
+      try {
+        const docRef = doc(collection(db, "newsletter"));
+        newsLetter.newsletterId = docRef.id;
+        newsLetter.referenceId = referenceId;
+        newsLetter.category = category;
+        newsLetter.timestamp = new Date();
+        await setDoc(docRef, newsLetter);
+        return { success: true, message: "success" };
+      } catch (error) {
+        return { success: false, message: (error as FirebaseError).message };
+      }
+    };
+
   return (
-    <NewsLetterContext.Provider value={{ newsLetters, isLoading }}>
+    <NewsLetterContext.Provider value={{ newsLetters, isLoading, addNewsLetter}}>
       {children}
     </NewsLetterContext.Provider>
   );

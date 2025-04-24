@@ -147,8 +147,9 @@ export interface Donation {
 
 export interface NewsletterItem {
   newsletterId: string;
-  category: string[];
-  dateSent: Date;
+  referenceId: string;
+  category: string;
+  timestamp: Date;
 }
 
 export interface RSVP {
