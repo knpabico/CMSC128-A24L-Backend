@@ -36,9 +36,9 @@ export default function Users() {
   const sortedDrives = [...donationDrives].sort((a, b) => {
     switch (sortBy) {
       case "ascending":
-        return a.totalAmount - b.totalAmount;
+        return a.targetAmount - b.targetAmount;
       case "descending":
-        return b.totalAmount - a.totalAmount;
+        return b.targetAmount - a.targetAmount;
       case "oldest":
         return a.datePosted.toDate().getTime() - b.datePosted.toDate().getTime();
       case "latest":
@@ -153,8 +153,8 @@ export default function Users() {
                   }`}>
                     Status: {drive.status}
                   </h2>
-                  <h2 className="text-lg font-bold text-blue-600">Total Amount: ${drive.totalAmount}</h2>
-                  <h2 className="text-xs text-gray-500">Posted on: {drive.datePosted.toDate().toLocaleString()}</h2>
+                  <h2 className="text-lg font-bold text-blue-600">Total Amount: ${drive.targetAmount}</h2>
+                  <h2 className="text-xs text-gray-500">Posted on: {drive.datePosted.toLocaleString()}</h2>
                 </div>
                 <div className="flex gap-4">
                   <button
