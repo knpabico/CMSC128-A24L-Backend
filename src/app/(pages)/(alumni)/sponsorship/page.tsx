@@ -4,12 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useSponsorships } from '@/context/SponsorshipContext';
 import { Sponsorship } from '@/models/models';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { CalendarDays, Bookmark, HandHeart, BookOpen, FileText, Calendar, Clock, MapPin, Users, MoveRight} from "lucide-react"
 
 
 const SponsorshipPage: React.FC = () => {
   const router = useRouter();
   const { sponsorships, loading, error, refreshSponsorships } = useSponsorships();
+  const {user, alumInfo } = useAuth();
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [filteredSponsorships, setFilteredSponsorships] = useState<Sponsorship[]>([]);
 
@@ -103,10 +105,12 @@ const SponsorshipPage: React.FC = () => {
   // Filter sponsorships
   useEffect(() => {
     if (activeFilter === 'all') {
-      setFilteredSponsorships(sponsorships);
-    } else {
-      setFilteredSponsorships(sponsorships.filter((s: { status: string; }) => s.status === activeFilter));
-    }
+		setFilteredSponsorships(sponsorships.filter((n: { status: string; creatorId: string; }) => n.status !== "pending" || n.status === "pending" && n.creatorId === alumInfo!.alumniId));
+	  } else if (activeFilter === 'pending' && user !== null){
+		setFilteredSponsorships(sponsorships.filter((n: { status: string; creatorId: string; }) => n.status === activeFilter && n.creatorId === alumInfo!.alumniId));
+	  } else {
+		setFilteredSponsorships(sponsorships.filter((s: { status: string; }) => s.status === activeFilter));
+	  }
   }, [sponsorships, activeFilter]);
 
   // Handle filter change
