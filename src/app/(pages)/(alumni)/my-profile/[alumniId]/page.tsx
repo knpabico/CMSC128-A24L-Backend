@@ -20,6 +20,7 @@ import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "./edit-work-experience";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
+import { useRouter } from "next/navigation";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -90,6 +91,7 @@ const UserProfile = () => {
   };
 
   const params = useParams();
+  const router=useRouter();
   const alumniId = params.alumniId;
 
   if (loading || isLoading) {
@@ -100,7 +102,37 @@ const UserProfile = () => {
 
   return (
     <div>
-      <Typography>User Profile</Typography>
+      <Typography>Your Profile</Typography>
+                <Button
+                  onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/edit-profile`)}}}
+                  className="w-full border border-black rounded-4xl"
+                >
+                  Edit Profile
+                </Button>
+                <Button
+                  // onClick={() => router.push(`/my-profile/${user?.uid}`)}
+                  className="w-full border border-black rounded-4xl"
+                >
+                Return of Donations
+                </Button>
+                <Button
+                  // onClick={() => router.push(`/my-profile/${user?.uid}`)}
+                  className="w-full border border-black rounded-4xl"
+                >
+                Job Postings
+                </Button>
+                <Button
+                  // onClick={() => router.push(`/my-profile/${user?.uid}`)}
+                  className="w-full border border-black rounded-4xl"
+                >
+                Bookmarked Job
+                </Button>
+                <Button
+                  // onClick={() => router.push(`/my-profile/${user?.uid}`)}
+                  className="w-full border border-black rounded-4xl"
+                >
+                Sent Job Applications
+                </Button>
       <Typography>
         Name: {alumInfo?.firstName} {alumInfo?.lastName}
       </Typography>
@@ -138,15 +170,17 @@ const UserProfile = () => {
               {!isEditModalOpen[index] ? <ChevronRight /> : <ChevronDown />}
             </Button>
             <Divider />
-            <EditWorkExperience
-              open={isEditModalOpen[index]}
-              work={work}
-              onClose={() => closeEditModal(index)}
-              snackbar
-              setSnackbar={setSnackbar}
-              setMessage={setEditMessage}
-              setSuccess={setEditSuccess}
-            />
+            {isEditModalOpen[index] && (
+              <EditWorkExperience
+                open={true}
+                work={work}
+                onClose={() => closeEditModal(index)}
+                snackbar
+                setSnackbar={setSnackbar}
+                setMessage={setEditMessage}
+                setSuccess={setEditSuccess}
+              />
+            )}
             <Snackbar
               open={snackbar}
               onClose={() => setSnackbar(false)}

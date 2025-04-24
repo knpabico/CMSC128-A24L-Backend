@@ -15,6 +15,7 @@ import { Toaster } from "sonner";
 import { DonationContextProvider } from "@/context/DonationContext";
 import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
+import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { SponsorshipProvider } from "@/context/SponsorshipContext";
 // const geistSans = Geist({
@@ -57,17 +58,15 @@ export default function RootLayout({
                           <DonationContextProvider>
                             <GoogleMapsProvider>
                               <MapProvider>
-                                <body
-                                  // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                                  className={`${poppins.className} antialiased`}
-                                >
-                                  <div className="bg-blue-200 ">
-                                    <Navbar />
-                                  </div>
-                                  {children}
-                                  {/* Toaster is required here for toast/sonner component to work */}
-                                  <Toaster />
-                                </body>
+                                <EducationProvider> 
+                                  <body className={`${poppins.className} antialiased`}>
+                                    <div className="bg-blue-200 ">
+                                      <Navbar />
+                                    </div>
+                                    {children}
+                                    <Toaster />
+                                  </body>
+                                </EducationProvider>
                               </MapProvider>
                             </GoogleMapsProvider>
                           </DonationContextProvider>

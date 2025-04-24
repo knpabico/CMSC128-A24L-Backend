@@ -23,8 +23,13 @@ const EditWorkExperience: React.FC<{
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
 }> = ({ open, work, onClose, setSnackbar, setMessage, setSuccess }) => {
-  const [startDate, setStartDate] = useState<Date>(work.startingDate.toDate());
-  const [endDate, setEndDate] = useState<Date>(work.endingDate.toDate());
+  const [startDate, setStartDate] = useState<Date>(
+    work.startingDate?.toDate?.() ?? new Date()
+  );
+  console.log(work, "thisis work");
+  const [endDate, setEndDate] = useState<Date>(
+    work.endingDate?.toDate?.() ?? new Date()
+  );
   const [company, setCompany] = useState<string>(work.company);
   const [details, setDetails] = useState<string>(work.details);
   const [isModalOpen, setIsModalOpen] = useState(false);
