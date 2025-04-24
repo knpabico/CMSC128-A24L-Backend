@@ -179,6 +179,13 @@ export interface WorkExperience {
   endingDate: Timestamp;
 }
 
+export interface NewsletterItem {
+  newsletterId: string;
+  referenceId: string;
+  category: string;
+  timestamp: Date;
+}
+
 export interface AIQuestion {
   what: string;
   who: string;

@@ -17,6 +17,7 @@ import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
 import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { ScholarshipProvider } from "@/context/ScholarshipContext";
+import { NewsLetterProvider } from "@/context/NewsLetterContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -45,39 +46,41 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AuthProvider>
-        <DonationDriveProvider>
-          <ScholarshipProvider>
-            <BookmarkProvider>
-              <JobOfferProvider>
-                <AnnouncementProvider>
-                  <AlumProvider>
-                    <WorkExperienceProvider>
-                      <EventProvider>
-                        <DonationContextProvider>
-                          <GoogleMapsProvider>
-                            <MapProvider>
-                              <EducationProvider>
-                                <body
-                                  className={`${poppins.className} antialiased`}
-                                >
-                                  <div className="bg-blue-200 ">
-                                    <Navbar />
-                                  </div>
-                                  {children}
-                                  <Toaster />
-                                </body>
-                              </EducationProvider>
-                            </MapProvider>
-                          </GoogleMapsProvider>
-                        </DonationContextProvider>
-                      </EventProvider>
-                    </WorkExperienceProvider>
-                  </AlumProvider>
-                </AnnouncementProvider>
-              </JobOfferProvider>
-            </BookmarkProvider>
-          </ScholarshipProvider>
-        </DonationDriveProvider>
+        <NewsLetterProvider>
+          <DonationDriveProvider>
+            <ScholarshipProvider>
+              <BookmarkProvider>
+                <JobOfferProvider>
+                  <AnnouncementProvider>
+                    <AlumProvider>
+                      <WorkExperienceProvider>
+                        <EventProvider>
+                          <DonationContextProvider>
+                            <GoogleMapsProvider>
+                              <MapProvider>
+                                <EducationProvider>
+                                  <body
+                                    className={`${poppins.className} antialiased`}
+                                  >
+                                    <div className="bg-blue-200 ">
+                                      <Navbar />
+                                    </div>
+                                    {children}
+                                    <Toaster />
+                                  </body>
+                                </EducationProvider>
+                              </MapProvider>
+                            </GoogleMapsProvider>
+                          </DonationContextProvider>
+                        </EventProvider>
+                      </WorkExperienceProvider>
+                    </AlumProvider>
+                  </AnnouncementProvider>
+                </JobOfferProvider>
+              </BookmarkProvider>
+            </ScholarshipProvider>
+          </DonationDriveProvider>
+        </NewsLetterProvider>
       </AuthProvider>
     </html>
   );
