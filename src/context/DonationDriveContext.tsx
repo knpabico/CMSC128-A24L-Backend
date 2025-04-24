@@ -10,8 +10,6 @@ import {
   deleteDoc,
   updateDoc,
   getDoc,
-  where,
-  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -80,7 +78,7 @@ export function DonationDriveProvider({
             newEvents[id] = event;
           }
         } catch (error) {
-          console.error(`Error fetching event ${id}:`, error);
+          console.error("Error fetching event ${id}:", error);
         }
       }
 
@@ -98,23 +96,16 @@ export function DonationDriveProvider({
   const subscribeToDonationDrives = () => {
     setLoading(true);
     const q = query(collection(db, "donation_drive"));
-  
+
     const unsubscribeDonationDrives = onSnapshot(
       q,
-      async (querySnapshot: any) => {
-        const donationDrivesWithAmounts: DonationDrive[] = await Promise.all(
-          querySnapshot.docs.map(async (doc: any) => {
-            const driveData = {
-              donationDriveId: doc.id,
-              ...doc.data(),
-            } as DonationDrive;
-  
-            driveData.currentAmount = await calculateCurrentAmount(doc.id);
-            return driveData;
-          })
-        );
-  
-        setDonationDrives(donationDrivesWithAmounts);
+      (querySnapshot: any) => {
+        // const donationDriveList = querySnapshot.docs.map((doc: any) => doc.data() as DonationDrive);
+        const donationDriveList = querySnapshot.docs.map((doc: any) => ({
+          donationDriveId: doc.id, // Add Firestore document ID
+          ...doc.data(),
+        })) as DonationDrive[];
+        setDonationDrives(donationDriveList);
         setLoading(false);
       },
       (error) => {
@@ -122,22 +113,8 @@ export function DonationDriveProvider({
         setLoading(false);
       }
     );
-  
+
     return unsubscribeDonationDrives;
-  };
-
-  // Gets the total amount donated to a specific drive
-  const calculateCurrentAmount = async (donationDriveId: string): Promise<number> => {
-    const q = query(collection(db, "donation"), where("donationDriveId", "==", donationDriveId));
-    const snapshot = await getDocs(q);
-    let total = 0;
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      total += data.amount || 0;
-    });
-
-    return total;
   };
 
   const getDonationDriveById = async (
@@ -154,7 +131,7 @@ export function DonationDriveProvider({
           ...donationDriveData,
         } as DonationDrive;
       } else {
-        console.log(`No donation drive found with ID: ${donationDriveId}`);
+        console.log("No donation drive found with ID: ${donationDriveId}");
         return null;
       }
     } catch (error) {
@@ -175,7 +152,7 @@ export function DonationDriveProvider({
           ...eventData,
         } as Event;
       } else {
-        console.log(`No event found with ID: ${eventId}`);
+        console.log("No event found with ID: ${eventId}");
         return null;
       }
     } catch (error) {
