@@ -9,11 +9,11 @@ export default function Navbar() {
 
   const navItems = [
     { label: "Announcement", path: "/announcement" },
-	{ label: "Events", path: "/events" },
-    { label: "Donations", path: "/sponsorship" },
-	// { label: "Scholarships", path: "/scholarship" },
-	{ label: "Job Posting", path: "/joboffer-list" },
-	{ label: "Alumni Records", path: "/alumni-list" },
+    { label: "Events", path: "/events" },
+    { label: "Donations", path: "/donationdrive-list" },
+    { label: "Scholarships", path: "/scholarship" },
+    { label: "Job Posting", path: "/joboffer-list" },
+    { label: "Alumni Records", path: "/alumni-list" },
     // { label: "Bookmarks", path: "/bookmark-list" },
     // { label: "My Profile", path: `/my-profile/${user?.uid}` },
   ];

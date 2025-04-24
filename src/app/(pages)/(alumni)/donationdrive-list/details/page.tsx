@@ -9,11 +9,8 @@ import { DonationDrive, Donation } from '@/models/models';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
-<<<<<<< HEAD:src/app/(pages)/(alumni)/sponsorship/details/page.tsx
 import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X } from 'lucide-react';
-=======
 import { DonateDialog } from '../DonateDialog';
->>>>>>> origin/merged-branch-db-be-v1:src/app/(pages)/(alumni)/donationdrive-list/details/page.tsx
 
 const DonationDriveDetailsPage: React.FC = () => {
   const router = useRouter();

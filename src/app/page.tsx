@@ -2,11 +2,11 @@
 import LoadingPage from "@/components/Loading";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { WorkExperience } from "@/models/models";
+import { Career, Education, WorkExperience } from "@/models/models";
 import Link from "next/link";
-import { useNewsLetters } from "@/context/NewsLetterContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   DropdownMenu,
@@ -31,7 +31,6 @@ export default function Home() {
   const [selectedSort, setSelectedSort] = useState("Latest");
   const [latestFirst, setLatestFirst] = useState(true);
 
-  const { newsLetters, isLoading } = useNewsLetters();
   const searchParams = useSearchParams();
   const sort = searchParams.get("sort"); //get current sort param
 
@@ -60,6 +59,7 @@ export default function Home() {
     }
     return defaultSort;
   }
+  const { myCareer, myEducation } = useAlums();
 
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
@@ -140,8 +140,7 @@ export default function Home() {
               </div>
 
               <div className="my-5">
-                {isLoading && <h1>Loading...</h1>}
-                {newsLetters.map((newsLetter, index) => (
+                {/* {newsLetters.map((newsLetter, index) => (
                   <Card
                     key={index}
                     className="flex flex-col rounded-lg mb-5 w-150 h-auto p-5 bg-gray-100"
@@ -166,7 +165,7 @@ export default function Home() {
                     <h1>Category: {newsLetter.category[0]}</h1>
                     <p>Announcement Details</p>
                   </Card>
-                ))}
+                ))} */}
               </div>
             </div>
 

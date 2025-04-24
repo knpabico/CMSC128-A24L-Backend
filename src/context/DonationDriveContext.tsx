@@ -80,6 +80,29 @@ export function DonationDriveProvider({
     return unsubscribeDonationDrives;
   };
 
+  const getDonationDriveById = async (
+    donationDriveId: string
+  ): Promise<DonationDrive | null> => {
+    try {
+      const donationDriveDoc = doc(db, "donation_drive", donationDriveId);
+      const snapshot = await getDoc(donationDriveDoc);
+
+      if (snapshot.exists()) {
+        const donationDriveData = snapshot.data();
+        return {
+          donationDriveId: snapshot.id,
+          ...donationDriveData,
+        } as DonationDrive;
+      } else {
+        console.log(`No donation drive found with ID: ${donationDriveId}`);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching donation drive:", error);
+      throw new Error((error as FirebaseError).message);
+    }
+  };
+
   const checkUserRole = async (userId: string) => {
     const adminRef = doc(db, "admin", userId);
     const alumniRef = doc(db, "alumni", userId);
@@ -235,6 +258,7 @@ export function DonationDriveProvider({
         setStatus,
         beneficiary,
         setBeneficiary,
+        getDonationDriveById,
       }}
     >
       {children}

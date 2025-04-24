@@ -16,10 +16,6 @@ export interface Alumnus {
   suffix: string;
   age: number;
   birthDate: Date;
-  companyName: string;
-  jobTitle: string;
-  fieldOfWork: string;
-  graduationYear: string;
   affiliation: string[];
   image: string;
   // educationList: Education[];
@@ -35,6 +31,7 @@ export interface Education {
 }
 
 export interface Career {
+  careerId: string;
   alumniId: string;
   company: string;
   jobTitle: string;
@@ -61,6 +58,7 @@ export interface Announcement {
   description: string;
   type: string[];
   image: string;
+  isPublic: boolean;
 }
 
 export interface Scholarship {
@@ -128,7 +126,7 @@ export interface DonationDrive {
 }
 
 export interface Donation {
-  sponsorshipId: string;
+  donationDriveId: string;
   donationId: string;
   alumniId: string;
   paymentMethod: string;
@@ -136,12 +134,6 @@ export interface Donation {
   date: Date;
   isAnonymous: boolean;
   imageProof: string;
-}
-
-export interface NewsletterItem {
-  newsletterId: string;
-  category: string[];
-  dateSent: Date;
 }
 
 export interface RSVP {
