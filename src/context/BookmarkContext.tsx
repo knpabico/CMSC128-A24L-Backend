@@ -171,6 +171,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   // Toggle bookmark (add if not bookmarked, remove if bookmarked)
   const toggleBookmark = async (entryId: string, type: string) => {
     const bookmarkId = getBookmarkId(entryId);
+    console.log("Bookmark ID:", bookmarkId);
     
     if (bookmarkId) {
       // Item is already bookmarked, remove it
