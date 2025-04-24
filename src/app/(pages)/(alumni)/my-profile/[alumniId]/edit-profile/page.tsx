@@ -40,6 +40,23 @@ const EditProfile = () => {
    const [isOpen, setIsOpen] = useState(false);
      const [workSuccess, setWorkSuccess] = useState(false);
      const [workMessage, setWorkMessage] = useState("");
+     const { userEducation, isLoadingEducation, deleteEducation } =
+       useEducation();
+   const { userWorkExperience, isLoading, deleteWorkExperience } =
+    useWorkExperience();
+   
+   const days = Array.from({ length: 31 }, (_, i) => i + 1);
+   const years = Array.from({ length: 50 }, (_, i) => 1990 + i);
+     const [isMapOpenArray, setIsMapOpenArray] = useState(
+       new Array(userWorkExperience.length).fill(false)
+     );
+   
+   const selectedMonth = selectedDate.getMonth(); // 0-based
+   const selectedDay = selectedDate.getDate();
+   const selectedYear = selectedDate.getFullYear();
+     const [isEditModalWorkOpen, setEditModalWorkOpen] = useState(
+       new Array(userWorkExperience.length).fill(false)
+     );
     const [deleteWorkModal, setDeleteWorkModal] = useState(false);
     const { isLoaded } = useGoogleMaps();
 
@@ -76,7 +93,10 @@ const EditProfile = () => {
     setIsDeleteModalOpen(updated);
   };
 
- 
+   const [isDeleteModalWorkOpen, setDeleteModalWorkOpen] = useState(
+     new Array(userWorkExperience.length).fill(false)
+   );
+
 
    useEffect(() => {
     // Birthdate parsing
@@ -104,30 +124,23 @@ const EditProfile = () => {
      'January', 'February', 'March', 'April', 'May', 'June',
      'July', 'August', 'September', 'October', 'November', 'December',
    ];
-     const { userEducation, isLoadingEducation, deleteEducation } =
-       useEducation();
-  const { userWorkExperience, isLoading, deleteWorkExperience } =
-    useWorkExperience();
- 
-   const days = Array.from({ length: 31 }, (_, i) => i + 1);
-   const years = Array.from({ length: 50 }, (_, i) => 1990 + i);
-     const [isMapOpenArray, setIsMapOpenArray] = useState(
-       new Array(userWorkExperience.length).fill(false)
-     );
- 
-   const selectedMonth = selectedDate.getMonth(); // 0-based
-   const selectedDay = selectedDate.getDate();
-   const selectedYear = selectedDate.getFullYear();
-     const [isEditModalWorkOpen, setEditModalWorkOpen] = useState(
-       new Array(userWorkExperience.length).fill(false)
-     );
 
      const openMap = (index) => {
       const newIsMapOpenArray = [...isMapOpenArray];
       newIsMapOpenArray[index] = true;
       setIsMapOpenArray(newIsMapOpenArray);
     };
+    const openWorkModal = (index) => {
+      const newDeleteModal = [...isDeleteModalOpen];
+      newDeleteModal[index] = true;
+      setDeleteModalWorkOpen(newDeleteModal);
+    };
   
+    const closeWorkModal = (index) => {
+      const newDeleteModal = [...isDeleteModalOpen];
+      newDeleteModal[index] = false;
+      setDeleteModalWorkOpen(newDeleteModal);
+    };  
     const closeMap = (index) => {
       const newIsMapOpenArray = [...isMapOpenArray];
       newIsMapOpenArray[index] = false;
@@ -301,7 +314,7 @@ const EditProfile = () => {
                         Lat:{work.latitude} Long:{work.longitude}
                       </li>
                       <Button onClick={() => openMap(index)}>View in Map</Button>
-                      <Button onClick={() => openModal(index)}>
+                      <Button onClick={() => openWorkModal(index)}>
                         Delete Work Experience
                       </Button>
                       <Button
@@ -342,20 +355,20 @@ const EditProfile = () => {
                       </Snackbar>
                       <Dialog
                         open={isDeleteModalOpen[index]}
-                        onClose={() => closeModal(index)}
+                        onClose={() => closeWorkModal(index)}
                       >
                         <DialogContent>
                           <div>
                             <Typography>Are you sure you want to delete?</Typography>
                             <Button
                               onClick={async () => {
-                                await handleDelete(work.workExperienceId);
-                                closeModal(index);
+                                await handleWorkDelete(work.workExperienceId);
+                                closeWorkModal(index);
                               }}
                             >
                               Yes
                             </Button>
-                            <Button onClick={() => closeModal(index)}>No</Button>
+                            <Button onClick={() => closeWorkModal(index)}>No</Button>
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -363,7 +376,7 @@ const EditProfile = () => {
                         open={isMapOpenArray[index]}
                         onClose={() => closeMap(index)}
                       >
-                        <DialogContent className="w-[600px]">
+                        <DialogContent className="w-[600px]">1
                           <DialogHeader>
                             <DialogTitle>{work.company} Location</DialogTitle>
                           </DialogHeader>
