@@ -9,7 +9,7 @@ import DonationDrivesList from '../components/DonationDrivesList';
 import { DonationDrive } from '@/models/models';
 
 export default function ProposedDrivesPage() {
-  const { donationDrives, isLoading } = useDonationDrives();
+  const { donationDrives, events, isLoading } = useDonationDrives();
   const { user } = useAuth();
   const [proposedDrives, setProposedDrives] = useState<DonationDrive[]>([]);
   const [sortOption, setSortOption] = useState<string>('newest');
@@ -89,6 +89,7 @@ export default function ProposedDrivesPage() {
           ) : (
             <DonationDrivesList 
               drives={proposedDrives}
+              events={events}
               isLoading={isLoading}
               emptyMessage="There are no proposed donation drives at the moment."
             />
