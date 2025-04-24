@@ -2,6 +2,7 @@
 import NotFound from "@/app/not-found";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
+import { useParams } from "next/navigation";
 import { Education } from "@/models/models";
 import {
   Button,
@@ -12,16 +13,17 @@ import {
   Snackbar,
   Typography,
 } from "@mui/material";
-import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { WorkExperienceModal } from "../add-work-experience";
+import EditEducationModal from "./edit-education-modal";
+import { useEducation } from "@/context/EducationContext";
+import { WorkExperienceModal } from "./add-work-experience";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import EditWorkExperience from "../edit-work-experience";
+import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
-import { useRouter } from "next/router";
-import EditEducationModal from "./edit-education-modal";
-import { useEducation } from "@/context/EducationContext";
+import { useRouter } from "next/navigation";
 
 const EditProfile = () => {
    const { user, alumInfo, loading } = useAuth();
@@ -36,6 +38,19 @@ const EditProfile = () => {
    const [editMessage, setEditMessage] = useState("");
    const [editSuccess, setEditSuccess] = useState(false);
    const [isOpen, setIsOpen] = useState(false);
+     const [workSuccess, setWorkSuccess] = useState(false);
+     const [workMessage, setWorkMessage] = useState("");
+    const [deleteWorkModal, setDeleteWorkModal] = useState(false);
+    const { isLoaded } = useGoogleMaps();
+
+
+   //work experience
+   const handleWorkDelete = async (id) => {
+    const { success, message } = await deleteWorkExperience(id);
+    setWorkMessage(message);
+    setWorkSuccess(success);
+    setDeleteWorkModal(true);
+  };
 
    const openEditModal = (index: number) => {
     const updated = [...isEditModalOpen];
@@ -60,7 +75,8 @@ const EditProfile = () => {
     updated[index] = false;
     setIsDeleteModalOpen(updated);
   };
-  
+
+ 
 
    useEffect(() => {
     // Birthdate parsing
@@ -90,14 +106,21 @@ const EditProfile = () => {
    ];
      const { userEducation, isLoadingEducation, deleteEducation } =
        useEducation();
-
+  const { userWorkExperience, isLoading, deleteWorkExperience } =
+    useWorkExperience();
  
    const days = Array.from({ length: 31 }, (_, i) => i + 1);
    const years = Array.from({ length: 50 }, (_, i) => 1990 + i);
+     const [isMapOpenArray, setIsMapOpenArray] = useState(
+       new Array(userWorkExperience.length).fill(false)
+     );
  
    const selectedMonth = selectedDate.getMonth(); // 0-based
    const selectedDay = selectedDate.getDate();
    const selectedYear = selectedDate.getFullYear();
+     const [isEditModalWorkOpen, setEditModalWorkOpen] = useState(
+       new Array(userWorkExperience.length).fill(false)
+     );
    console.log(alumInfo);
     return (
         <>
@@ -188,7 +211,7 @@ const EditProfile = () => {
             <div className="bg-blue-600 text-white font-bold text-lg px-4 py-2 rounded-t">
               Education
             </div>
-            {userEducation.map((edu, index) => (
+            {userEducation.map((edu:Education, index:number) => (
             <div key={index} className="pb-1.5">
               <li>University: {edu.university}</li>
               <li>Type: {edu.type}</li>
@@ -219,7 +242,7 @@ const EditProfile = () => {
               <Dialog open={isDeleteModalOpen[index]} onClose={() => closeDeleteModal(index)}>
                 <DialogContent>
                   <Typography>Are you sure you want to delete?</Typography>
-                  <Button onClick={() => handleDelete(index)}>Yes</Button>
+                  <Button onClick={() => handleWorkDelete(index)}>Yes</Button>
                   <Button onClick={() => closeDeleteModal(index)}>No</Button>
                 </DialogContent>
               </Dialog>
@@ -246,6 +269,120 @@ const EditProfile = () => {
               {editMessage}
             </div>
           </Snackbar>
+          {/*Start of Career*/}
+          <div className="bg-blue-600 text-white font-bold text-lg px-4 py-2 rounded-t">
+              Career
+          </div>
+          
+          {userWorkExperience.map((work, index) => {
+                  return (
+                    <div key={work.workExperienceId} className=" pb-1.5">
+                      <li>Company: {work.company}</li>
+                      <li>Details: {work.details}</li>
+                      <li>Location: {work.location}</li>
+                      <li>ID: {work.workExperienceId}</li>
+                      <li>
+                        From {work.startingDate?.toDate().toDateString()} to{" "}
+                        {work.endingDate?.toDate().toDateString()}
+                      </li>
+                      <li>
+                        Lat:{work.latitude} Long:{work.longitude}
+                      </li>
+                      <Button onClick={() => openMap(index)}>View in Map</Button>
+                      <Button onClick={() => openModal(index)}>
+                        Delete Work Experience
+                      </Button>
+                      <Button
+                      onClick={() => {
+                        if (!isEditModalWorkOpen[index]) openEditWorkModal(index);
+                        else closeEditWorkModal(index);
+                      }}
+                      variant="contained"
+                    >
+                      <span>Edit Work Experience</span>
+                      {!isEditModalWorkOpen[index] ? <ChevronRight /> : <ChevronDown />}
+                    </Button>
+                      <Divider />
+                      {isEditModalWorkOpen[index] && (
+                      <EditWorkExperience
+                        open={true}
+                        work={work}
+                        onClose={() => closeEditWorkModal(index)}
+                        snackbar
+                        setSnackbar={setSnackbar}
+                        setMessage={setEditMessage}
+                        setSuccess={setEditSuccess}
+                      />
+                    )}
+                      <Snackbar
+                        open={snackbar}
+                        onClose={() => setSnackbar(false)}
+                        autoHideDuration={2000}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                      >
+                        <div
+                          className={`${
+                            editSuccess ? "bg-green-400" : "bg-red-500"
+                          } text-white px-4 py-3 rounded-lg shadow-lg`}
+                        >
+                          {editMessage}
+                        </div>
+                      </Snackbar>
+                      <Dialog
+                        open={isDeleteModalOpen[index]}
+                        onClose={() => closeModal(index)}
+                      >
+                        <DialogContent>
+                          <div>
+                            <Typography>Are you sure you want to delete?</Typography>
+                            <Button
+                              onClick={async () => {
+                                await handleDelete(work.workExperienceId);
+                                closeModal(index);
+                              }}
+                            >
+                              Yes
+                            </Button>
+                            <Button onClick={() => closeModal(index)}>No</Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog
+                        open={isMapOpenArray[index]}
+                        onClose={() => closeMap(index)}
+                      >
+                        <DialogContent className="w-[600px]">
+                          <DialogHeader>
+                            <DialogTitle>{work.company} Location</DialogTitle>
+                          </DialogHeader>
+                          <div className="h-[400px] w-full">
+                            {!isLoaded ? (
+                              <div className="flex items-center justify-center h-full">
+                                <p className="text-xl text-gray-600">Loading map...</p>
+                              </div>
+                            ) : (
+                              <GoogleMap
+                                mapContainerStyle={{ width: "100%", height: "100%" }}
+                                center={{ lat: work.latitude, lng: work.longitude }}
+                                zoom={15}
+                              >
+                                <Marker
+                                  position={{ lat: work.latitude, lng: work.longitude }}
+                                  title={work.company}
+                                />
+                              </GoogleMap>
+                            )}
+                          </div>
+                          <div className="mt-4 text-center">
+                            <p>{work.location}</p>
+                          </div>
+                          <Button onClick={() => closeMap(index)}>Close</Button>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  );
+                })}
+
 
           </div>
         </>
