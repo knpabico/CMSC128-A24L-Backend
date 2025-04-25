@@ -11,17 +11,18 @@ import { DonationDrive } from '@/models/models';
 
 export default function SavedDrivesPage() {
   const { donationDrives, events, isLoading } = useDonationDrives();
-  const { user } = useAuth();
+  const { user, alumInfo } = useAuth();
   const { bookmarks, entries, isLoading: isLoadingBookmarks } = useBookmarks();
   const [savedDrives, setSavedDrives] = useState<DonationDrive[]>([]);
   const [sortOption, setSortOption] = useState<string>('newest');
 
   // Filter donation drives based on bookmarks
   useEffect(() => {
-    if (donationDrives.length > 0 && bookmarks.length > 0) {
+    if (donationDrives.length > 0 && bookmarks.length > 0 && user) {
       // Get donation drive bookmarks
       const donationDriveBookmarks = bookmarks.filter(bookmark => 
-        bookmark.type === "donationdrive"
+        bookmark.type === "donationdrive" &&
+		bookmark.alumniId === alumInfo?.alumniId
       );
       
       // Get saved donation drive IDs
