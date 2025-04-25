@@ -163,6 +163,7 @@ export function ScholarshipProvider({
           description: data.description,
           datePosted: data.datePosted.toDate(),
           alumList: data.alumList || [],
+          image: data.image,
         };
       }
       return null;
