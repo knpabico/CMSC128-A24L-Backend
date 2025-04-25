@@ -6,15 +6,23 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 import { CalendarDays, Bookmark, HandHeart, BookOpen } from "lucide-react"
 import { useBookmarks } from '@/context/BookmarkContext';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const ScholarshipPage: React.FC = () => {
   const { scholarships, loading, error } = useScholarship();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
+  const router = useRouter();
 
-  const handleToggleBookmark = async (scholarshipId: string) => {
+  const handleToggleBookmark = async (e: React.MouseEvent, scholarshipId: string) => {
+    // Stop event propagation to prevent navigation when clicking the bookmark button
+    e.stopPropagation();
     await toggleBookmark(scholarshipId, 'scholarship');
+  };
+
+  const navigateToDetail = (scholarshipId: string) => {
+    router.push(`/scholarship/${scholarshipId}`);
   };
 
   if (loading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>;
@@ -100,16 +108,20 @@ const ScholarshipPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredScholarships.map((scholarship) => (
-                <div key={scholarship.scholarshipId} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+                <div 
+                  key={scholarship.scholarshipId} 
+                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => navigateToDetail(scholarship.scholarshipId)}
+                >
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-2">
-                      <h2 className="text-xl font-semibold">{scholarship.title}</h2>
-                      <div onClick={() => handleToggleBookmark(scholarship.scholarshipId)}>
+                      <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">{scholarship.title}</h2>
+                      <div onClick={(e) => handleToggleBookmark(e, scholarship.scholarshipId)}>
                         <BookmarkButton 
                           entryId={scholarship.scholarshipId}  
                           type="scholarship" 
                           size="lg"
-                          isBookmarked={isBookmarked(scholarship.scholarshipId)}
+                        //  isBookmarked={isBookmarked(scholarship.scholarshipId)}
                         />
                       </div>
                     </div>
@@ -119,7 +131,9 @@ const ScholarshipPage: React.FC = () => {
                     </p>
                     
                     <p className="text-gray-700 mb-4">
-                      {scholarship.description}
+                      {scholarship.description.length > 150 
+                        ? `${scholarship.description.substring(0, 150)}...` 
+                        : scholarship.description}
                     </p>
                     
                     <div className="flex items-center text-sm text-gray-600 mt-4">
@@ -139,6 +153,7 @@ const ScholarshipPage: React.FC = () => {
                         </div>
                       </div>
                     )}
+                  
                   </div>
                 </div>
               ))}

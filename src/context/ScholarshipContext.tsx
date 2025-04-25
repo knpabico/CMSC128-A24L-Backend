@@ -149,6 +149,29 @@ export function ScholarshipProvider({
     }
   };
 
+
+  const getScholarshipById = async (id: string): Promise<Scholarship | null> => {
+    try {
+      const scholarshipDoc = doc(db, 'scholarship', id);
+      const scholarshipSnapshot = await getDoc(scholarshipDoc);
+      
+      if (scholarshipSnapshot.exists()) {
+        const data = scholarshipSnapshot.data();
+        return {
+          scholarshipId: scholarshipSnapshot.id,
+          title: data.title,
+          description: data.description,
+          datePosted: data.datePosted.toDate(),
+          alumList: data.alumList || [],
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error('Error fetching scholarship by ID:', err);
+      throw new Error('Failed to load scholarship details');
+    }
+  };
+
   return (
     <ScholarshipContext.Provider
       value={{
@@ -158,6 +181,7 @@ export function ScholarshipProvider({
         addScholarship,
         updateScholarship,
         deleteScholarship,
+        getScholarshipById
       }}
     >
       {children}
