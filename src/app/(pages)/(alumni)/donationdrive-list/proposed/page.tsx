@@ -10,15 +10,21 @@ import { DonationDrive } from '@/models/models';
 
 export default function ProposedDrivesPage() {
   const { donationDrives, events, isLoading } = useDonationDrives();
-  const { user } = useAuth();
+  const { user, alumInfo } = useAuth();
   const [proposedDrives, setProposedDrives] = useState<DonationDrive[]>([]);
   const [sortOption, setSortOption] = useState<string>('newest');
 
   useEffect(() => {
-    if (donationDrives.length > 0) {
+    if (donationDrives.length > 0 && user) {
       // Filter for proposed drives
-      const pendingDrives = donationDrives.filter((drive: { status: string; }) => drive.status === 'pending');
-      
+      // const pendingDrives = donationDrives.filter((drive: { status: string; }) => drive.status === 'pending');
+	  const pendingDrives = donationDrives.filter(
+		(drive: { status: string; creatorId: string; creatorType: string; }) =>
+		  drive.status === 'pending' &&
+		  drive.creatorId === alumInfo?.alumniId &&
+		  drive.creatorType === 'alumni'
+	  );
+
       // Apply sorting
       const sorted = [...pendingDrives].sort((a, b) => {
         switch (sortOption) {
@@ -67,7 +73,7 @@ export default function ProposedDrivesPage() {
 			</div>
 			{/* Main content */}
 			<div className='flex flex-col gap-[10px] w-full mb-10'>
-				{/* Filter tabs */}
+				{/* Sorting tabs */}
 				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center">
 					<h2 className="text-lg font-semibold">Proposed Drives</h2>
 					<div className="flex items-center">
