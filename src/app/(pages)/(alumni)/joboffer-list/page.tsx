@@ -809,14 +809,20 @@ export default function JobOffers() {
                     <label className="block text-sm font-medium mb-1">
                       Salary Range<span className="text-red-500">*</span>
                     </label>
+                    <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500">₱</span>
+                    </div>
                     <input
                       type="text"
-                      placeholder="Salary Range"
+                      placeholder="e.g. 10000 - 30000"
                       value={salaryRange}
-                      onChange={(e) => setSalaryRange(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      onChange={(e) =>
+                        setSalaryRange(e.target.value)}
+                      className="w-full pl-8 py-2 border rounded"
                       required
                     />
+                  </div>
                   </div>
   
                   <div className="mb-4">
