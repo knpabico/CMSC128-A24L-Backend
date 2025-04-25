@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { Announcement, Career, Education, NewsletterItem, WorkExperience } from "@/models/models";
+import { Announcement, Career, Education, JobOffering, NewsletterItem, WorkExperience } from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -21,6 +21,7 @@ import PendingPage from "../components/PendingPage";
 import RejectedPage from "../components/RejectedPage";
 import { NewsLetterProvider, useNewsLetters } from "@/context/NewsLetterContext";
 import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementContext";
+import { useJobOffer } from "@/context/JobOfferContext";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -30,6 +31,7 @@ export default function Home() {
   const { user, loading, alumInfo, isAdmin, status } = useAuth();
   const { newsLetters } = useNewsLetters();
   const { announces } = useAnnouncement();
+  const { jobOffers } = useJobOffer();
   const { userWorkExperience } = useWorkExperience();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
@@ -166,32 +168,57 @@ export default function Home() {
                         <p className="text-xl"> &#xb7;</p>
                         <p className="text-xs">{formatDate(newsLetter.timestamp)}</p>
                       </div>
-                      {newsLetter.category === "announcement" && (() => {
-                        const announcement = announces.find(
-                          (announce: Announcement) => announce.announcementId === newsLetter.referenceId
+                        {newsLetter.category === "announcement" && (() => {
+                          const announcement = announces.find(
+                            (announce: Announcement) => announce.announcementId === newsLetter.referenceId
+                          );
+                          return announcement ? (
+                            <>
+                              <h1 className="text-2xl font-bold">{announcement.title}</h1>
+                              <p className="text-base mt-2">{announcement.description}</p>
+                            </>
+                          ) : (
+                            <p className="text-sm italic text-gray-500">Announcement not found</p>
+                          );
+                      })()}
+                      {newsLetter.category === "job_offering" && (() => {
+                        const jobOffering = jobOffers.find(
+                          (jobOffer: JobOffering) => jobOffer.jobId === newsLetter.referenceId
                         );
-                        return announcement ? (
+                        return jobOffering ? (
                           <>
-                            <h1 className="text-2xl font-bold">{announcement.title}</h1>
-                            <p className="text-base mt-2">{announcement.description}</p>
+                          <h1 className="text-2xl font-bold">{jobOffering.title}</h1>
+                          <p className="text-base mt-2">
+                            <strong>Company:</strong> {jobOffering.company}
+                          </p>
+                          <p className="text-base mt-2">
+                            <strong>Position:</strong> {jobOffering.position}
+                          </p>
+                          <p className="text-base mt-2">
+                            <strong>Salary Range:</strong> {jobOffering.salaryRange}
+                          </p>
+                          <p className="text-base mt-2">
+                            <strong>Required Skills:</strong> {jobOffering.requiredSkill.join(", ")}
+                          </p>
+                          <p className="text-base mt-2">
+                            <strong>Experience Level:</strong> {jobOffering.experienceLevel}
+                          </p>
+                          <p className="text-base mt-2">
+                            <strong>Employment Type:</strong> {jobOffering.employmentType}
+                          </p>
+                          <p className="text-base mt-2">
+                            <strong>Job Description:</strong> {jobOffering.jobDescription}
+                          </p>
                           </>
                         ) : (
-                          <p className="text-sm italic text-gray-500">Announcement not found</p>
+                          <p className="text-sm italic text-gray-500">Job offering not found</p>
                         );
                       })()}
                       {newsLetter.category === "donation_drive" && (() => {
                         return (
                           <>
                             <h1 className="text-2xl font-bold">Donation Drive</h1>
-                            <p className="text-base mt-2">Details about the donation drive will go here.</p>
-                          </>
-                        );
-                      })()}
-                      {newsLetter.category === "job_offering" && (() => {
-                        return (
-                          <>
-                            <h1 className="text-2xl font-bold">Job Offering</h1>
-                            <p className="text-base mt-2">Details about the job offering will go here.</p>
+                            <p className="text-base mt-2">Details about the Donation Drive will go here.</p>
                           </>
                         );
                       })()}

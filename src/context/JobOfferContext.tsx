@@ -15,6 +15,7 @@ import { useAuth } from "./AuthContext";
 import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
+import { useNewsLetters } from "./NewsLetterContext";
 const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
@@ -32,6 +33,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     console.log("User from useAuth:", user);
@@ -131,6 +133,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       await updateDoc(doc(db, "job_offering", jobId), {
         status: "Accepted",
       });
+      await addNewsLetter(jobId, "job_offering")
+      console.log("Job offer accepted and added to newsletter:", jobId);
     } catch (error) {
       console.error("Error updating job:", error);
     }
@@ -161,6 +165,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setJobOffers((prev) =>
         prev.filter((jobOffers) => jobOffers.jobId !== jobId)
       );
+
+      await deleteNewsLetter(jobId);
+
       console.log("Succesfully deleted job with id of:", jobId);
     } catch (error) {
       console.error("Error deleting job:", error);
