@@ -14,9 +14,42 @@ export default function Users() {
     return jobOffers.filter((job: JobOffering) => job.status === status);
   };
 
+  const stats = {
+    pending: jobOffers.filter(job => job.status === "Pending").length,
+    accepted: jobOffers.filter(job => job.status === "Accepted").length,
+    rejected: jobOffers.filter(job => job.status === "Rejected").length,
+    total: jobOffers.length
+  };
+
   return (
-    <div className="bg-[#EAEAEA] flex flex-col h-full min-h-screen w-full p-6">
-      <h1 className="text-2xl font-bold mb-6">Job Offers</h1>
+    <div className="bg-[#EAEAEA] flex h-full w-full p-6">
+      {/* Stats Sidebar kasi gusto ko eh ba8 ba!! */}
+      <div className="w-64 bg-white shadow-md p-6 rounded-[10px] w-content h-max">
+      <div className="space-y-4">
+        <div className="bg-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Total Jobs</p>
+              <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+            </div>
+
+            <div className="bg-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Pending</p>
+              <p className="text-2xl font-bold">{stats.pending}</p>
+            </div>
+
+            <div className="bg-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Accepted</p>
+              <p className="text-2xl font-bold">{stats.accepted}</p>
+            </div>
+
+            <div className="bg-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Rejected</p>
+              <p className="text-2xl font-bold">{stats.rejected}</p>
+            </div>
+          </div>
+        </div>
+
+    <div className="flex-1 pl-6">
+    <h1 className="text-2xl font-bold mb-6">Job Offers</h1>
 
       {/* Filter Tab Buttons */}
       <div className='flex flex-col gap-[10px] w-full mb-10'>
@@ -134,6 +167,7 @@ export default function Users() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
