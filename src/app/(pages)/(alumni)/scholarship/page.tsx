@@ -5,10 +5,12 @@ import { useScholarship } from '@/context/ScholarshipContext';
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { CalendarDays, Bookmark, HandHeart, BookOpen } from "lucide-react"
 import { useBookmarks } from '@/context/BookmarkContext';
+import { useAuth } from '@/context/AuthContext';
 
 const ScholarshipPage: React.FC = () => {
   const { scholarships, loading, error } = useScholarship();
-  const { isBookmarked, toggleBookmark} = useBookmarks();
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
 
   const handleToggleBookmark = async (scholarshipId: string) => {
@@ -20,9 +22,19 @@ const ScholarshipPage: React.FC = () => {
   if (error) return <div className="text-red-500 text-center p-8">{error}</div>;
 
   // Filter scholarships based on active tab
-  const filteredScholarships = activeTab === 'saved' 
-    ? scholarships.filter(scholarship => isBookmarked(scholarship.scholarshipId))
-    : scholarships;
+  const filteredScholarships = (() => {
+    switch(activeTab) {
+      case 'saved':
+        return scholarships.filter(scholarship => isBookmarked(scholarship.scholarshipId));
+      case 'myScholars':
+        // Only show scholarships where the current user is in the alumList
+        return user 
+          ? scholarships.filter(scholarship => scholarship.alumList.includes(user.uid)) 
+          : [];
+      default:
+        return scholarships;
+    }
+  })();
 
   return (
     <div className='bg-[#EAEAEA] h-full'>
@@ -58,11 +70,14 @@ const ScholarshipPage: React.FC = () => {
               <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${activeTab === 'saved' ? 'w-full' : 'w-0'}`}></span>
             </p>
           </button>
-          <button className='flex gap-5 items-center'>
+          <button 
+            className={`flex gap-5 items-center ${activeTab === 'myScholars' ? 'bg-blue-100' : ''}`}
+            onClick={() => setActiveTab('myScholars')}
+          >
             <HandHeart />
             <p className="group relative w-max">
               <span>My Scholars</span>
-              <span className="absolute -bottom-1 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+              <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${activeTab === 'myScholars' ? 'w-full' : 'w-0'}`}></span>
             </p>
           </button>
           <button className='flex gap-5 items-center'>
@@ -78,7 +93,9 @@ const ScholarshipPage: React.FC = () => {
           {/* Scholarships List */}
           {filteredScholarships.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {activeTab === 'saved' ? 'No saved scholarships' : 'No scholarships available.'}
+              {activeTab === 'saved' ? 'No saved scholarships' : 
+               activeTab === 'myScholars' ? 'No scholarships available.' : 
+               'No scholarships available.'}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,7 +109,7 @@ const ScholarshipPage: React.FC = () => {
                           entryId={scholarship.scholarshipId}  
                           type="scholarship" 
                           size="lg"
-                          //isBookmarked={isBookmarked(scholarship.scholarshipId)}
+                          isBookmarked={isBookmarked(scholarship.scholarshipId)}
                         />
                       </div>
                     </div>
