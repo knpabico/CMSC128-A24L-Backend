@@ -64,7 +64,7 @@ export default function BookmarkButton({
   
   return (
     <button
-    className={`flex items-center gap-1 rounded-md transition-colors ${isBookmarkedItem ? 'text-[#0856BA] hover:text-[#95C1FA]' : 'text-[#0856BA] hover:text-[#357BD6]'} ${sizeClasses[size]} ${className}`}
+    className={`flex items-center gap-1 rounded-md transition-colors ${isBookmarkedItem ? 'text-[#0856BA] hover:text-[#95C1FA]' : 'text-[#0856BA] hover:text-[#95C1FA]'} ${sizeClasses[size]} ${className}`}
       onClick={handleToggleBookmark}
       disabled={isProcessing}
       aria-label={isBookmarkedItem ? "Remove bookmark" : "Add bookmark"}
