@@ -21,7 +21,7 @@ export default function SavedDrivesPage() {
     if (donationDrives.length > 0 && bookmarks.length > 0 && user) {
       // Get donation drive bookmarks
       const donationDriveBookmarks = bookmarks.filter(bookmark => 
-        bookmark.type === "donationdrive" &&
+        bookmark.type === "donation_drive" &&
 		bookmark.alumniId === alumInfo?.alumniId
       );
       
