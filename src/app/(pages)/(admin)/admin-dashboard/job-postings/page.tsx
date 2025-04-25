@@ -15,92 +15,125 @@ export default function Users() {
   };
 
   return (
-    <div>
-      <h1>Job Offers</h1>
+    <div className="bg-[#EAEAEA] flex flex-col h-full min-h-screen w-full p-6">
+      <h1 className="text-2xl font-bold mb-6">Job Offers</h1>
 
-      <div className="flex gap-5 mb-5">
-        {["Accepted", "Pending", "Rejected"].map((status) => (
-          <button
-            key={status}
-            onClick={() => setActiveTab(status)}
-            className={`px-4 py-2 rounded-md ${
-              activeTab === status ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-          >
-            {status}
-          </button>
+      {/* Filter Tab Buttons */}
+      <div className='flex flex-col gap-[10px] w-full mb-10'>
+        <div className="bg-[#FFFFFF] rounded-[10px] flex justify-around">
+          {["Accepted", "Pending", "Rejected"].map((status) => (
+            <button 
+              key={status}
+              className="mr-2" 
+              onClick={() => setActiveTab(status)}
+            >
+              <p className={`relative px-4 py-2 w-full transition-all ${activeTab === status ? 'font-semibold border-b-2 border-blue-500' : 'text-gray-600 group'}`}>
+                <span>{status}</span>
+                {activeTab !== status && (
+                  <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                )}
+              </p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isLoading && <div className="text-center py-6">Loading...</div>}
+
+      {/* Job Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {filterJobs(activeTab).map((job: JobOffering, index: number) => (
+          <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="p-4">
+              <div className="flex items-start mb-4">
+                <div className="h-16 w-16 bg-gray-200 rounded-md mr-4 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold">{job.position}</h2>
+                  <p className="text-gray-700">{job.company}</p>
+                  <div className="text-gray-500 text-sm mt-1">
+                  </div>
+                </div>
+                <div className="ml-2">
+                  {job.status === "Pending" && <span className="inline-block px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Pending</span>}
+                  {job.status === "Accepted" && <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Accepted</span>}
+                  {job.status === "Rejected" && <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Rejected</span>}
+                </div>
+              </div>
+              
+              <p className="text-gray-700 mb-4">{job.jobDescription}</p>
+              
+              {activeTab === "Accepted" && (
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => handleDelete(job.jobId)}
+                    className="px-4 py-2 bg-[#D42020] text-white rounded-md hover:bg-opacity-90"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+
+              {activeTab === "Pending" && (
+                <div className="flex justify-end space-x-2">
+                  <button 
+                    onClick={() => handleView(job.jobId)}
+                    className="px-4 py-2 bg-white text-[#0856BA] border border-[#0856BA] rounded-md hover:bg-gray-50">
+                    View More
+                  </button>
+                  <button
+                    onClick={() => handleReject(job.jobId)}
+                    className="px-4 py-2 bg-[#D42020] text-white rounded-md hover:bg-opacity-90"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => handleAccept(job.jobId)}
+                    className="px-4 py-2 bg-[#0856BA] text-white rounded-md hover:bg-opacity-90"
+                  >
+                    Accept
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         ))}
       </div>
 
-      {isLoading && <h1>Loading</h1>}
+      {/* Job Details Modal */}
+      {selectedJob && (
+        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+          <div className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-3/4 max-w-4xl">
+            <h1 className="text-3xl mb-6 font-semibold border-b pb-4">Job Details</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Company:</strong> {selectedJob.company}</p>
+              <p><strong>Position:</strong> {selectedJob.position}</p>
+              <p><strong>Employment Type:</strong> {selectedJob.employmentType}</p>
+              <p><strong>Experience Level:</strong> {selectedJob.experienceLevel}</p>
+              <p><strong>Salary Range:</strong> {selectedJob.salaryRange}</p>
+              <p><strong>Job Type:</strong> {selectedJob.jobType}</p>
+              <p><strong>Date Posted:</strong> {selectedJob.datePosted.toLocaleString()}</p>
+            </div>
+            
+            <div className="mb-4">
+              <p><strong>Skills Required:</strong> {selectedJob.requiredSkill?.join(", ")}</p>
+            </div>
+            
+            <div className="mb-6">
+              <p><strong>Description:</strong></p>
+              <p className="mt-2 text-gray-700">{selectedJob.jobDescription}</p>
+            </div>
 
-      {filterJobs(activeTab).map((job: JobOffering, index: number) => (
-        <div key={index} className="flex justify-between p-1 border-b mb-4">
-          <div> 
-            <h2>{job.company}</h2>
-            <h1>{job.employmentType}</h1>
-            <h2>{job.experienceLevel}</h2>
-            <h2>{job.position}</h2>
-            <h2>{job.datePosted.toLocaleString()}</h2>
+            <div className="flex justify-end">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-opacity-90"
+              >
+                Close
+              </button>
+            </div>
           </div>
-
-          {activeTab === "Accepted" && (
-            <button
-              onClick={() => handleDelete(job.jobId)}
-              className="px-4 py-2 bg-red-500 text-white rounded-md"
-            >
-              Delete
-            </button>
-          )}
-
-          {activeTab === "Pending" && (
-            <div className="flex gap-3 mt-2">
-              <button 
-                onClick={() => handleView(job.jobId)}
-                className="px-4 py-2 bg-green-500 text-white rounded-md">
-                View
-              </button>
-              <button
-                onClick={() => handleAccept(job.jobId)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md"
-              >
-                Accept
-              </button>
-              <button
-                onClick={() => handleReject(job.jobId)}
-                className="px-4 py-2 bg-red-500 text-white rounded-md"
-              >
-                Reject
-              </button>
-            </div>
-          )}
-
-          {selectedJob && (
-            <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-              <div className="bg-white p-6 rounded-lg w-2/3">
-                <h1 className="text-2xl font-bold mb-4">Job Details</h1>
-                <p><strong>Company:</strong> {selectedJob.company}</p>
-                <p><strong>Position:</strong> {selectedJob.position}</p>
-                <p><strong>Employment Type:</strong> {selectedJob.employmentType}</p>
-                <p><strong>Experience Level:</strong> {selectedJob.experienceLevel}</p>
-                <p><strong>Salary Range:</strong> {selectedJob.salaryRange}</p>
-                <p><strong>Skills Required:</strong> {selectedJob.requiredSkill.join(", ")}</p>
-                <p><strong>Job Type:</strong> {selectedJob.jobType}</p>
-                <p><strong>Description:</strong> {selectedJob.jobDescription}</p>
-                <p><strong>Date Posted:</strong> {selectedJob.datePosted.toLocaleString()}</p>
-
-                <button
-                  onClick={closeModal}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
-
         </div>
-      ))}
+      )}
     </div>
   );
 }
