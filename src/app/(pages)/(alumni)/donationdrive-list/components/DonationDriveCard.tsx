@@ -134,7 +134,7 @@ return (
 			{/* Campaign Name */}
 			<div className="flex justify-between items-center mb-3">
 				<h2 className="text-xl font-semibold truncate">{drive.isEvent && event ? event.title : drive.campaignName}</h2>
-				<BookmarkButton entryId={drive.donationDriveId} type="donation_drive" size="md"/> 
+				<BookmarkButton entryId={drive.donationDriveId} type="donationdrive" size="md"/> 
 			</div>
 			{/* Description */}
 			<div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">

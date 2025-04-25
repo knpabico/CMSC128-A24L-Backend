@@ -21,7 +21,7 @@ export default function SavedDrivesPage() {
     if (donationDrives.length > 0 && bookmarks.length > 0) {
       // Get donation drive bookmarks
       const donationDriveBookmarks = bookmarks.filter(bookmark => 
-        bookmark.type === "donation_drive"
+        bookmark.type === "donationdrive"
       );
       
       // Get saved donation drive IDs
