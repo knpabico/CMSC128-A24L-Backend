@@ -16,9 +16,17 @@ export interface Alumnus {
   suffix: string;
   age: number;
   birthDate: Date;
-  affiliation: string[];
   image: string;
-  // educationList: Education[];
+  fieldOfInterest: string[];
+  contactPrivacy: boolean;
+}
+
+export interface Affiliation {
+  affiliationId: string;
+  alumniId: string;
+  affiliationName: string;
+  yearJoined: string;
+  university: string;
 }
 
 export interface Education {
@@ -28,16 +36,6 @@ export interface Education {
   type: string;
   yearGraduated: string;
   major: string;
-}
-
-export interface Career {
-  careerId: string;
-  alumniId: string;
-  company: string;
-  jobTitle: string;
-  startYear: Date;
-  endYear: Date;
-  industry: string;
 }
 
 export interface Admin {
@@ -170,13 +168,14 @@ export interface Bookmark {
 export interface WorkExperience {
   workExperienceId: string;
   alumniId: string;
+  industry: string;
+  jobTitle: string;
   company: string;
+  startYear: string;
+  endYear: string; //Present job kapag naka-set as "present"
   location: string;
   latitude: number;
   longitude: number;
-  details: string;
-  startingDate: Timestamp;
-  endingDate: Timestamp;
 }
 
 export interface NewsletterItem {
