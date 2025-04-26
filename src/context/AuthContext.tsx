@@ -40,6 +40,7 @@ const AuthContext = createContext<{
   isAdmin: boolean;
   status: string | null;
   getAlumInfo: (user: User) => Promise<void>;
+  isGoogleSignIn: boolean;
 }>({
   user: null,
   alumInfo: null,
@@ -50,6 +51,7 @@ const AuthContext = createContext<{
   isAdmin: false,
   status: null,
   getAlumInfo: async () => {},
+  isGoogleSignIn: false,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [isGoogleSignIn, setIsGoogleSignIn] = useState<boolean>(false);
   const router = useRouter();
 
   //function for getting currently logged in user info from the "alumni" collection
@@ -95,7 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userRole = await getUserRole(user.email);
         setRole(userRole);
         console.log("userRole: " + userRole);
-        if (userRole === "admin") {
+        if (!userRole) {
+          setUser(user);
+          setIsGoogleSignIn(true);
+          return;
+        } else if (userRole === "admin") {
           setIsAdmin(true);
         } else if (userRole === "user") {
           const regStat = await getRegStatus(user.uid);
@@ -107,7 +114,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(user);
           await getAlumInfo(user);
         } else {
-          console.log("User is not an admin or user");
           logOut();
         }
 
@@ -120,6 +126,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         //   body: JSON.stringify({ token }),
         // });
       } else {
+        setIsAdmin(false);
+        setIsGoogleSignIn(false);
         setUser(null);
 
         // await fetch("/api/session", { method: "DELETE" });
@@ -185,6 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin,
         status,
         getAlumInfo,
+        isGoogleSignIn,
       }}
     >
       {children}

@@ -5,16 +5,19 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { loading, user, isAdmin } = useAuth();
+  const { loading, user, isAdmin, isGoogleSignIn } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (user || isAdmin) {
-      router.push("/");
+      if (!isGoogleSignIn) {
+        router.push("/");
+      }
     }
-  }, [user, isAdmin, router]);
-
-  if (loading || user || isAdmin) {
+  }, [user, isAdmin, router, isGoogleSignIn]);
+  if (isGoogleSignIn) {
+    return <div>{children}</div>;
+  } else if (loading || user || isAdmin) {
     return <LoadingPage />;
   } else return <div>{children}</div>;
 }

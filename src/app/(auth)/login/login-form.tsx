@@ -35,6 +35,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const { isGoogleSignIn } = useAuth();
   const router = useRouter();
 
   // create a react hook form
@@ -70,12 +71,13 @@ export default function LoginForm() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     const data = await GoogleSign();
+    console.log(data);
     if (data.success) {
     } else {
       if (data.errorMessage === "User not found!") {
+        console.log("User not found!");
         router.push("/sign-up");
-      }
-      toastError(data.errorMessage);
+      } else toastError(data.errorMessage);
     }
   };
 
