@@ -1,7 +1,6 @@
 "use client";
 
 // components
-import { useWatch } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -96,20 +95,21 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
 
         <div key={index} className="col-span-6">
           {/* end year */}
-          <FormField
-            control={form.control}
-            name={`career.${index}.endYear`}
-            disabled={endYear}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Year</FormLabel>
-                <FormControl>
-                  <Input placeholder={"End Year"} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {endYear === false && (
+            <FormField
+              control={form.control}
+              name={`career.${index}.endYear`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Year</FormLabel>
+                  <FormControl>
+                    <Input placeholder={"End Year"} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
         <div>
