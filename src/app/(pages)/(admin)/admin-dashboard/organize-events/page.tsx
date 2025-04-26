@@ -210,9 +210,9 @@ export default function Events() {
                     : null;
 
                 if (isEditing && editingEventId) {
-                    handleEdit(editingEventId, { title, description, date, targetGuests }); // Pass the current value if it will be edited
+                    handleEdit(editingEventId, { title, description, date, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
                   } else {
-                    handleSave(e, targetGuests); // Pass the value entered in the current form
+                    handleSave(e, targetGuests, visibility); // Pass the value entered in the current form
                   }
                   setShowForm(false);
                   setEdit(false);
@@ -580,12 +580,6 @@ export default function Events() {
                     onClick={() =>
                       handleFinalize(
                         events.eventId,
-                        visibility,
-                        visibility === "batch"
-                          ? selectedBatches
-                          : visibility === "alumni"
-                          ? selectedAlumni
-                          : null
                       )
                     }
                     className="px-4 py-2 bg-green-500 text-white rounded-md"
