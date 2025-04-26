@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function Users() {
   const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
@@ -30,7 +32,10 @@ export default function Users() {
   };
 
   return (
-    <div className="bg-[#EAEAEA] flex h-full w-full p-6">
+    <div className="bg-[#EAEAEA] flex flex-col h-full w-full p-6">
+      <h1 className="text-2xl font-bold mb-6 text-left">Job Offers</h1>
+
+      <div className="flex w-full">
       {/* Stats Sidebar kasi gusto ko eh ba8 ba!! */}
       <div className="w-64 bg-white shadow-md p-6 rounded-[10px] w-content h-max">
       <div className="space-y-4">
@@ -57,7 +62,6 @@ export default function Users() {
         </div>
 
     <div className="flex-1 pl-6">
-    <h1 className="text-2xl font-bold mb-6">Job Offers</h1>
 
       {/* Filter Tab Buttons */}
       <div className='flex flex-col gap-[10px] w-full mb-10'>
@@ -82,10 +86,10 @@ export default function Users() {
       {isLoading && <div className="text-center py-6">Loading...</div>}
 
       {/* Job Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {filterJobs(activeTab).map((job: JobOffering, index: number) => (
-          <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-4">
+          <Card key={index} className="bg-white border-0 overflow-hidden relative flex flex-col">
+            <div className="p-4 flex-1">
               <div className="flex items-start mb-4">
                 <div className="h-16 w-16 bg-gray-200 rounded-md mr-4 flex-shrink-0"></div>
                 <div className="flex-1">
@@ -106,18 +110,18 @@ export default function Users() {
               </div>
               
               {activeTab === "Accepted" && (
-                <div className="flex justify-end">
+                <Button className="absolute bottom-4 right-1 flex justify-end">
                   <button
                     onClick={() => handleDelete(job.jobId)}
                     className="px-4 py-2 bg-[#D42020] text-white rounded-md hover:bg-opacity-90"
                   >
                     Delete
                   </button>
-                </div>
+                </Button>
               )}
 
               {activeTab === "Pending" && (
-                <div className="flex justify-end space-x-2">
+                <Button className="absolute bottom-4 right-1 flex">
                   <button 
                     onClick={() => handleView(job.jobId)}
                     className="px-4 py-2 bg-white text-[#0856BA] border border-[#0856BA] rounded-md hover:bg-gray-50">
@@ -135,11 +139,12 @@ export default function Users() {
                   >
                     Accept
                   </button>
-                </div>
+                </Button>
               )}
             </div>
-          </div>
+          </Card>
         ))}
+      </div>
       </div>
 
       {/* Job Details Modal */}
