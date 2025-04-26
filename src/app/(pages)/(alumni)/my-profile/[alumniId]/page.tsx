@@ -15,7 +15,7 @@ import {
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { WorkExperienceModal } from "./add-work-experience";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "./edit-work-experience";
@@ -158,7 +158,7 @@ const UserProfile = () => {
           </div>
           <div className="flex flex-col justify-end pb-10">
             <p className="font-bold text-5xl pb-3">{alumInfo?.firstName} {alumInfo?.lastName}</p>
-            <p className="font-semibold text-xl">{alumInfo?.jobTitle}</p>
+            <p className="font-semibold text-xl">Job Title Here</p>
           </div>
         </div>
 
@@ -171,7 +171,8 @@ const UserProfile = () => {
       </div>
 
       <div className="mx-60 my-10">
-        <p style={{color: "#3675c5"}} className="text-2xl font-bold mb-2">Your Profile</p>
+        <p style={{color: "#3675c5"}} className="text-3xl font-bold mb-5">Your Profile</p>
+
         <div className="flex space-x-7">
           <div style={{backgroundColor: "#3675c5"}} className="flex flex-col px-2 py-2.5 rounded-xl max-h-fit space-y-1">
             <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Personal</button>
@@ -179,8 +180,12 @@ const UserProfile = () => {
             <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Career</button>
           </div>
 
-          <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+          {/* INFO BOX */}
 
+          {/* personal section */}
+          {true && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+
+            {/* FULL NAME */}
             <p className="font-semibold">Full Name</p>
             <div className="flex space-x-7 mb-5">
               <div>
@@ -200,68 +205,50 @@ const UserProfile = () => {
                 <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.suffix ? alumInfo?.suffix : "N/A"}</p>
               </div>
             </div>
+            {/* --------------------- */}
 
+            {/* EMAIL ADDRESS */}
+            <div className="flex space-x-7 mb-5">
+              <div>
+                <p className="font-semibold">Email Address</p>
+                <div className="flex">
+                  <div>
+                    <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="font-semibold">Student Number</p>
+                <div className="flex">
+                  <div>
+                    <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.studentNumber}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* --------------------- */}
+
+            {/* BIRTHDAY */}
             <p className="font-semibold">Birthday</p>
             <div className="flex space-x-7 mb-5">
               <div>
                 <p className="text-xs font-light">Month</p>
-                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{getFullMonthName(new Date(alumInfo?.birthDate).getMonth())}</p>*/}
-                <select
-                  className="appearance-none py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  value={selectedMonth}
-                  onChange={(e) =>
-                    setSelectedDate(
-                      new Date(selectedYear, parseInt(e.target.value), selectedDay)
-                    )
-                  }
-                >
-                  {months.map((month, index) => (
-                    <option key={index} value={index}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
+                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{getFullMonthName(new Date(alumInfo?.birthDate).getMonth())}</p>
               </div>
               <div>
                 <p className="text-xs font-light">Day</p>
-                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getDay()}</p>*/}
-                <select
-                  className="appearance-none py-2 px-4 border border-gray-500 w-25 rounded-md bg-white"
-                  value={selectedDay}
-                  onChange={(e) =>
-                    setSelectedDate(
-                      new Date(selectedYear, selectedMonth, parseInt(e.target.value))
-                    )
-                  }
-                >
-                  {days.map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
+                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getDay()}</p>
               </div>
               <div>
                 <p className="text-xs font-light">Year</p>
-                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getFullYear()}</p>*/}
-                <select
-                  className="appearance-none py-2 px-4 border border-gray-500 w-25 rounded-md bg-white"
-                  value={selectedYear}
-                  onChange={(e) =>
-                    setSelectedDate(
-                      new Date(parseInt(e.target.value), selectedMonth, selectedDay)
-                    )
-                  }
-                >
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getFullYear()}</p>
               </div>
             </div>
+            {/* --------------------- */}
 
+            {/* CURRENT LOCATION */}
             <p className="font-semibold">Current Location</p>
             <div className="flex space-x-7">
               <div>
@@ -271,8 +258,8 @@ const UserProfile = () => {
                   type="text"
                   placeholder="City/Municipality"
                   className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  // value={}
+                  // onChange={(e) => setCity(e.target.value)}
                 />
               </div>
               <div>
@@ -282,7 +269,7 @@ const UserProfile = () => {
                   type="text"
                   placeholder="Province/State"
                   className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  // value={country}
+                  // value={}
                   // onChange={(e) => setCity(e.target.value)}
                 />
               </div>
@@ -293,273 +280,187 @@ const UserProfile = () => {
                   type="text"
                   placeholder="Country"
                   className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  // value={}
+                  // onChange={(e) => setCountry(e.target.value)}
                 />
               </div>
             </div>
+            {/* --------------------- */}
 
-          </div>
-        </div>
-      </div>
-
-      
-
-
-      <div className="mx-60 my-10">
-        <p style={{color: "#0856BA"}} className="text-4xl font-bold mb-10">Your Profile</p>
-
-        <div className="mb-10">
-          <p style={{backgroundColor: "#0856BA"}} className="text-white font-semibold text-xl py-2 px-3 rounded-md my-3">Personal</p>
+          </div>)}
           
-          <p className="font-semibold">Birthday</p>
-          <div className="flex space-x-7 mb-3">
-            <div>
-              <p className="text-xs font-light">Month</p>
-              {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{getFullMonthName(new Date(alumInfo?.birthDate).getMonth())}</p>*/}
-              <select
-                className="appearance-none py-2 px-4 border border-gray-500 w-full rounded-md"
-                value={selectedMonth}
-                onChange={(e) =>
-                  setSelectedDate(
-                    new Date(selectedYear, parseInt(e.target.value), selectedDay)
-                  )
-                }
-              >
-                {months.map((month, index) => (
-                  <option key={index} value={index}>
-                    {month}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <p className="text-xs font-light">Day</p>
-              {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getDay()}</p>*/}
-              <select
-                className="appearance-none py-2 px-4 border border-gray-500 w-25 rounded-md"
-                value={selectedDay}
-                onChange={(e) =>
-                  setSelectedDate(
-                    new Date(selectedYear, selectedMonth, parseInt(e.target.value))
-                  )
-                }
-              >
-                {days.map((day) => (
-                  <option key={day} value={day}>
-                    {day}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <p className="text-xs font-light">Year</p>
-              {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getFullYear()}</p>*/}
-              <select
-                className="appearance-none py-2 px-4 border border-gray-500 w-25 rounded-md"
-                value={selectedYear}
-                onChange={(e) =>
-                  setSelectedDate(
-                    new Date(parseInt(e.target.value), selectedMonth, selectedDay)
-                  )
-                }
-              >
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <p className="font-semibold">Current Location</p>
-          <div className="flex space-x-7">
-            <div>
-              <p className="text-xs font-light">City/Province/State</p>
-              {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[0]}</p>*/}
-              <input
-                type="text"
-                placeholder="City/Province/State"
-                className="py-2 px-4 border border-gray-500 w-50 rounded-md"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-            </div>
-            <div>
-              <p className="text-xs font-light">Country</p>
-              {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[1]}</p>*/}
-              <input
-                type="text"
-                placeholder="Country"
-                className="py-2 px-4 border border-gray-500 w-50 rounded-md"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-10">
-          <p style={{backgroundColor: "#0856BA"}} className="text-white font-semibold text-xl py-2 px-3 rounded-md my-3">Education</p>
-          <div>waley paaaaa</div>
-        </div>
-
-        <div className="mb-10">
-          <p style={{backgroundColor: "#0856BA"}} className="text-white font-semibold text-xl py-2 px-3 rounded-md my-3">Career</p>
-
-          {userWorkExperience.length == 0 && (
-            <Typography>No Work Experience Yet!</Typography>
-          )}
-          {userWorkExperience.map((work, index) => {
-            return (
-              <div key={work.workExperienceId} className=" pb-1.5">
-                {/* <li>Company: {work.company}</li>
-                <li>Details: {work.details}</li>
-                <li>Location: {work.location}</li>
-                <li>ID: {work.workExperienceId}</li>
-                <li>
-                  From {work.startingDate?.toDate().toDateString()} to{" "}
-                  {work.endingDate?.toDate().toDateString()}
-                </li>
-                <li>
-                  Lat:{work.latitude} Long:{work.longitude}
-                </li> */}
-
-                <Button onClick={() => openMap(index)}>View in Map</Button>
-                <Button onClick={() => openModal(index)}>Delete Work Experience</Button>
-                <Button onClick={() => {if (!isEditModalOpen[index]) openEditModal(index); else closeEditModal(index);}} variant="contained">
-                  <span>Edit Work Experience</span>
-                  {!isEditModalOpen[index] ? <ChevronRight /> : <ChevronDown />}
-                </Button>
+          {/* education section */}
+          {false && (<div className="space-y-7 w-full">
+            {/* degree */}
+            <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1">
+              <div className="space-y-3">
+                <p className="font-semibold">Bachelor's Degree</p>
                 
-                <Divider/>
+                {/* BULLET DIV ; set of all bullets ito */}
+                {true && (<div className="space-y-3">
 
-                <EditWorkExperience
-                  open={isEditModalOpen[index]}
-                  work={work}
-                  onClose={() => closeEditModal(index)}
-                  snackbar
-                  setSnackbar={setSnackbar}
-                  setMessage={setEditMessage}
-                  setSuccess={setEditSuccess}
-                />
-                <Snackbar
-                  open={snackbar}
-                  onClose={() => setSnackbar(false)}
-                  autoHideDuration={2000}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                >
-                  <div
-                    className={`${
-                      editSuccess ? "bg-green-400" : "bg-red-500"
-                    } text-white px-4 py-3 rounded-lg shadow-lg`}
-                  >
-                    {editMessage}
-                  </div>
-                </Snackbar>
-                <Dialog
-                  open={isDeleteModalOpen[index]}
-                  onClose={() => closeModal(index)}
-                >
-                  <DialogContent>
+                  {/* INDIVIDUAL BULLET */}
+                  <div className="flex items-center space-x-5">
+                    <div className="w-6 h-6 rounded-full bg-sky-200"></div>
                     <div>
-                      <Typography>Are you sure you want to delete?</Typography>
-                      <Button
-                        onClick={async () => {
-                          await handleDelete(work.workExperienceId);
-                          closeModal(index);
-                        }}
-                      >
-                        Yes
-                      </Button>
-                      <Button onClick={() => closeModal(index)}>No</Button>
+                      <p className="font-medium">Bachelor of Science in Computer Science</p>
+                      <p className="text-sm">University of the Philippines Los Baños</p>
+                      <p className="text-sm">Year Graduated: 2026</p>
                     </div>
-                  </DialogContent>
-                </Dialog>
-                <Dialog
-                  open={isMapOpenArray[index]}
-                  onClose={() => closeMap(index)}
-                >
-                  <DialogContent className="w-[600px]">
-                    <DialogHeader>
-                      <DialogTitle>{work.company} Location</DialogTitle>
-                    </DialogHeader>
-                    <div className="h-[400px] w-full">
-                      {!isLoaded ? (
-                        <div className="flex items-center justify-center h-full">
-                          <p className="text-xl text-gray-600">Loading map...</p>
-                        </div>
-                      ) : (
-                        <GoogleMap
-                          mapContainerStyle={{ width: "100%", height: "100%" }}
-                          center={{ lat: work.latitude, lng: work.longitude }}
-                          zoom={15}
-                        >
-                          <Marker
-                            position={{ lat: work.latitude, lng: work.longitude }}
-                            title={work.company}
-                          />
-                        </GoogleMap>
-                      )}
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p>{work.location}</p>
-                    </div>
-                    <Button onClick={() => closeMap(index)}>Close</Button>
-                  </DialogContent>
-                </Dialog>
+                  </div>
+                  {/* ---- end of individual bullet ---- */}
+
+                </div>)}
+                {/* ---- end of bullet div ---- */}
+
+                <button className="flex items-center space-x-3 cursor-pointer">
+                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                  <p className="text-[#3675c5] text-sm hover:underline">Add bachelor's degree</p>
+                </button>
+                
               </div>
-            );
-          })}
-          <Button variant="contained" onClick={() => setIsOpen(!isOpen)}>
-            <span>Add Work Experience</span>
-            {!isOpen ? <ChevronRight /> : <ChevronDown />}
-          </Button>
+
+              <hr className="my-6"></hr> {/* ----------------------------------------------------------- */}
+
+              <div className="space-y-3">
+                <p className="font-semibold">Master's Degree</p>
+                
+                {/* BULLET DIV ; set of all bullets ito */}
+                {true && (<div className="space-y-3">
+
+                  {/* INDIVIDUAL BULLET */}
+                  <div className="flex items-center space-x-5">
+                    <div className="w-6 h-6 rounded-full bg-sky-400"></div>
+                    <div>
+                      <p className="font-medium">Master of Science in Computer Science</p>
+                      <p className="text-sm">University of the Philippines Los Baños</p>
+                      <p className="text-sm">Year Graduated: 2026</p>
+                    </div>
+                  </div>
+                  {/* ---- end of individual bullet ---- */}
+
+                </div>)}
+                {/* ---- end of bullet div ---- */}
+
+                <button className="flex items-center space-x-3 cursor-pointer">
+                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                  <p className="text-[#3675c5] text-sm hover:underline">Add master's degree</p>
+                </button>
+                
+              </div>
+
+              <hr className="my-6"></hr> {/* ----------------------------------------------------------- */}
+
+              <div className="space-y-3">
+                <p className="font-semibold">Doctoral Degree</p>
+
+                {/* BULLET DIV ; set of all bullets ito */}
+                {true && (<div className="space-y-3">
+
+                  {/* INDIVIDUAL BULLET */}
+                  <div className="flex items-center space-x-5">
+                    <div className="w-6 h-6 rounded-full bg-sky-600"></div>
+                    <div>
+                      <p className="font-medium">Doctor of Science in Computer Science</p>
+                      <p className="text-sm">University of the Philippines Los Baños</p>
+                      <p className="text-sm">Year Graduated: 2026</p>
+                    </div>
+                  </div>
+                  {/* ---- end of individual bullet ---- */}
+
+                </div>)}
+                {/* ---- end of bullet div ---- */}
+
+                <button className="flex items-center space-x-3 cursor-pointer">
+                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                  <p className="text-[#3675c5] text-sm hover:underline">Add doctoral degree</p>
+                </button>
+                
+              </div>
+              
+              
+            </div>
+
+            {/* affiliations */}
+            <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1">
+              <div className="space-y-3">
+                <p className="font-semibold">Affiliations</p>
+                
+                {/* BULLET DIV ; all bullets ito */}
+                {true && (<div className="space-y-3">
+
+                  {/* INDIVIDUAL BULLET */}
+                  <div className="flex items-center space-x-5">
+                    <div className="w-6 h-6 rounded-full bg-gray-500"></div>
+                    <div>
+                      <p className="font-medium">Juan Miguel Bawagan Fangirls Society</p>
+                      <p className="text-sm">University of the Philippines Los Baños</p>
+                      <p className="text-sm">Year Joined: 2020</p>
+                    </div>
+                  </div>
+                  {/* ---- end of individual bullet ---- */}
+
+                </div>)}
+                {/* ---- end of bullet div ---- */}
+
+                <button className="flex items-center space-x-3 cursor-pointer">
+                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                  <p className="text-[#3675c5] text-sm hover:underline">Add affiliation</p>
+                </button>
+                
+              </div>
+              
+            </div>
+          </div>)}
+
+          {/* career section */}
+          {false && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+            <div className="space-y-3">
+              <p className="font-semibold">Work Experience</p>
+              
+              {/* BULLET DIV ; set of all bullets ito */}
+              {true && (<div className="space-y-3">
+
+                {/* INDIVIDUAL BULLET */}
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-5">
+                    <div className="w-6 h-6 rounded-full bg-gray-500"></div>
+                    <div>
+                      <p className="font-medium">Senior Developer</p>
+                      <p className="text-sm">Google &nbsp;•&nbsp; <span className="font-light italic">Software Engineering</span></p>
+                      <p className="text-sm">2025 - Present</p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-10">
+                    <button className="flex items-center space-x-2 cursor-pointer">
+                      <p className="text-[#3675c5]"><MapPin/></p>
+                      <p className="text-[#3675c5] text-sm hover:underline">View in map</p>
+                    </button>
+                    <button className="flex items-center space-x-2 cursor-pointer">
+                      <p className="text-[#3675c5]"><PencilIcon/></p>
+                      <p className="text-[#3675c5] text-sm hover:underline">Edit</p>
+                    </button>
+                    </div>
+                </div>
+                {/* ---- end of individual bullet ---- */}
+
+              </div>)}
+              {/* ---- end of bullet div ---- */}
+
+              <button className="flex items-center space-x-3 cursor-pointer">
+                <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                <p className="text-[#3675c5] text-sm hover:underline">Add work experience</p>
+              </button>
+              
+            </div>    
+          </div>)}
+
+
+          {/* ================== end of info box ================== */}
+
         </div>
-
-        <WorkExperienceModal
-          setIsOpen={setIsOpen}
-          isOpen={isOpen}
-          userId={user?.uid}
-          open={open}
-          setOpen={setOpen}
-          setSuccess={setSuccess}
-        />
-        <Snackbar
-          open={open}
-          onClose={() => setOpen(false)}
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <div
-            className={`${
-              success ? "bg-green-600" : "bg-red-500"
-            } text-white px-4 py-3 rounded-lg shadow-lg`}
-          >
-            {success ? "Successfully Added!" : "Error!"}
-          </div>
-        </Snackbar>
-
-        <Snackbar
-          open={deleteModal}
-          onClose={() => setDeleteModal(false)}
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <div
-            className={`${
-              success ? "bg-black" : "bg-red-500"
-            } text-white px-4 py-3 rounded-lg shadow-lg`}
-          >
-            {message}
-          </div>
-        </Snackbar>
       </div>
 
-
-
-      
     </div>
   );
 };
