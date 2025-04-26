@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, addDoc, where, doc, getDoc, deleteDoc, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, addDoc, where, doc, getDoc, deleteDoc, getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Bookmark } from "@/models/models";
@@ -122,7 +122,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   // Check if a bookmark already exists to avoid duplicates
   const getBookmarkId = (entryId: string): string | null => {
     const bookmark = bookmarks.find(b => b.entryId === entryId);
-    return bookmark ? bookmark.id : null;
+    return bookmark ? bookmark.bookmarkId : null;
   };
 
   // Check if an entry is bookmarked
@@ -141,11 +141,12 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: "Item already bookmarked" };
     }
 
-    try {
+    try { // Add bookmark to Firestore with its attributes 
       await addDoc(collection(db, "bookmark"), {
         alumniId: user.uid,
         entryId,
         type,
+        timestamp: serverTimestamp(),
       });
       return { success: true, message: "Bookmark added successfully" };
     } catch (error) {
@@ -206,6 +207,10 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
           return entryA.datePosted?.toDate().getTime() - entryB.datePosted?.toDate().getTime();
         case "latest":
           return entryB.datePosted?.toDate().getTime() - entryA.datePosted?.toDate().getTime();
+        case "bookmark_oldest":
+          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+        case "bookmark_latest":
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
         case "alphabetical":
           const getTitle = (entry: any) => {
             return entry.campaignName || entry.title || entry.position || ""; // Ensures correct field selection

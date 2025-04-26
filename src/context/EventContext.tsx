@@ -42,12 +42,12 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
 
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
 
-    if (user) {
+    if (user || isAdmin) {
       unsubscribe = subscribeToEvents();
     } else {
       setEvents([]);
@@ -59,7 +59,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         unsubscribe();
       }
     };
-  }, [user]);
+  }, [user, isAdmin]);
 
   const subscribeToEvents = () => {
     setLoading(true);
@@ -68,9 +68,12 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     const unsubscribeEvents = onSnapshot(
       q,
       (querySnapshot: any) => {
-        const eventList = querySnapshot.docs.map((doc: any) => doc.data() as Event);
+        const eventList = querySnapshot.docs.map(
+          (doc: any) => doc.data() as Event
+        );
         setEvents(eventList);
         setLoading(false);
+        console.log("Events fetched:", eventList);
       },
       (error) => {
         console.error("Error fetching events:", error);

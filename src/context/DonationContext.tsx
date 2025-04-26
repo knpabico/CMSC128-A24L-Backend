@@ -9,7 +9,7 @@ import {
   where,
   getDocs,
   updateDoc,
-  getDoc
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -23,7 +23,10 @@ type DonationContextType = {
   getDonationsByAlumni: (alumniId: string) => Promise<Donation[]>;
   getDonationsByDonationDrive: (donationDriveId: string) => Promise<Donation[]>;
   getCampaignName: (donationDriveId: string) => Promise<string>;
-  updateDonationAnonymity: (donationId: string, isAnonymous: boolean) => Promise<void>;
+  updateDonationAnonymity: (
+    donationId: string,
+    isAnonymous: boolean
+  ) => Promise<void>;
 };
 
 const DonationContext = createContext<DonationContextType | null>(null);
@@ -36,16 +39,19 @@ export const DonationContextProvider = ({
   const [userDonations, setUserDonations] = useState<Donation[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [campaignNameCache, setCampaignNameCache] = useState<Record<string, string>>({});
+  const [campaignNameCache, setCampaignNameCache] = useState<
+    Record<string, string>
+  >({});
 
-  const { user } = useAuth();
+  const { alumInfo, user, isAdmin } = useAuth();
+
   const alumniId = user?.uid;
 
   useEffect(() => {
     let unsubscribe: (() => void) | null | undefined;
 
-    if (user) {
-      unsubscribe = subscribeToDonations();
+    if (user || isAdmin) {
+      unsubscribe = subscribeToDonations(); //maglilisten sa firestore
     } else {
       setUserDonations([]);
       setIsLoading(false);
@@ -76,11 +82,12 @@ export const DonationContextProvider = ({
       donationsQuery,
       (snapshot) => {
         const donations = snapshot.docs.map(
-          (doc) => ({
-            donationId: doc.id,
-            ...doc.data(),
-            date: doc.data().date.toDate(),
-          } as Donation)
+          (doc) =>
+            ({
+              donationId: doc.id,
+              ...doc.data(),
+              date: doc.data().date.toDate(),
+            } as Donation)
         );
 
         setUserDonations(donations);
@@ -99,19 +106,20 @@ export const DonationContextProvider = ({
   // Get all donations (for admin use)
   const getAllDonations = async (): Promise<Donation[]> => {
     setIsLoading(true);
-    
+
     try {
       const donationsQuery = query(collection(db, "donation"));
       const snapshot = await getDocs(donationsQuery);
-      
+
       const donations = snapshot.docs.map(
-        (doc) => ({
-          donationId: doc.id,
-          ...doc.data(),
-          date: doc.data().date.toDate(),
-        } as Donation)
+        (doc) =>
+          ({
+            donationId: doc.id,
+            ...doc.data(),
+            date: doc.data().date.toDate(),
+          } as Donation)
       );
-      
+
       setIsLoading(false);
       return donations;
     } catch (error) {
@@ -123,30 +131,33 @@ export const DonationContextProvider = ({
   };
 
   // Get donations by alumni
-  const getDonationsByAlumni = async (alumniId: string): Promise<Donation[]> => {
+  const getDonationsByAlumni = async (
+    alumniId: string
+  ): Promise<Donation[]> => {
     if (!alumniId) {
       console.error("No alumni ID provided");
       return Promise.reject("No alumni ID provided");
     }
 
     setIsLoading(true);
-    
+
     try {
       const donationsQuery = query(
         collection(db, "donation"),
         where("alumniId", "==", alumniId)
       );
-      
+
       const snapshot = await getDocs(donationsQuery);
-      
+
       const donations = snapshot.docs.map(
-        (doc) => ({
-          donationId: doc.id,
-          ...doc.data(),
-          date: doc.data().date.toDate(),
-        } as Donation)
+        (doc) =>
+          ({
+            donationId: doc.id,
+            ...doc.data(),
+            date: doc.data().date.toDate(),
+          } as Donation)
       );
-      
+
       setIsLoading(false);
       return donations;
     } catch (error) {
@@ -158,30 +169,33 @@ export const DonationContextProvider = ({
   };
 
   // Get donations by donation drive (sponsorship)
-  const getDonationsByDonationDrive = async (donationDriveId: string): Promise<Donation[]> => {
+  const getDonationsByDonationDrive = async (
+    donationDriveId: string
+  ): Promise<Donation[]> => {
     if (!donationDriveId) {
       console.error("No sponsorship ID provided");
       return Promise.reject("No sponsorship ID provided");
     }
 
     // setIsLoading(true);
-    
+
     try {
       const donationsQuery = query(
         collection(db, "donation"),
         where("donationDriveId", "==", donationDriveId)
       );
-      
+
       const snapshot = await getDocs(donationsQuery);
-      
+
       const donations = snapshot.docs.map(
-        (doc) => ({
-          donationId: doc.id,
-          ...doc.data(),
-          date: doc.data().date.toDate(),
-        } as Donation)
+        (doc) =>
+          ({
+            donationId: doc.id,
+            ...doc.data(),
+            date: doc.data().date.toDate(),
+          } as Donation)
       );
-      
+
       // setIsLoading(false);
       return donations;
     } catch (error) {
@@ -211,13 +225,13 @@ export const DonationContextProvider = ({
       if (driveDoc.exists()) {
         const driveData = driveDoc.data() as DonationDrive;
         const campaignName = driveData.campaignName || "Unnamed Campaign";
-        
+
         // Cache the result for future use
-        setCampaignNameCache(prev => ({
+        setCampaignNameCache((prev) => ({
           ...prev,
-          [donationDriveId]: campaignName
+          [donationDriveId]: campaignName,
         }));
-        
+
         return campaignName;
       } else {
         return "Unknown campaign";
@@ -229,7 +243,10 @@ export const DonationContextProvider = ({
   };
 
   // Update donation anonymity
-  const updateDonationAnonymity = async (donationId: string, isAnonymous: boolean): Promise<void> => {
+  const updateDonationAnonymity = async (
+    donationId: string,
+    isAnonymous: boolean
+  ): Promise<void> => {
     if (!donationId) {
       throw new Error("No donation ID provided");
     }
@@ -238,14 +255,14 @@ export const DonationContextProvider = ({
       // Update the donation document
       const donationRef = doc(db, "donation", donationId);
       await updateDoc(donationRef, {
-        isAnonymous: isAnonymous
+        isAnonymous: isAnonymous,
       });
 
       // Update local state if this donation is in userDonations
       if (userDonations) {
-        const updatedDonations = userDonations.map(donation => 
-          donation.donationId === donationId 
-            ? { ...donation, isAnonymous } 
+        const updatedDonations = userDonations.map((donation) =>
+          donation.donationId === donationId
+            ? { ...donation, isAnonymous }
             : donation
         );
         setUserDonations(updatedDonations);
@@ -267,7 +284,7 @@ export const DonationContextProvider = ({
         getDonationsByAlumni,
         getDonationsByDonationDrive,
         getCampaignName,
-        updateDonationAnonymity
+        updateDonationAnonymity,
       }}
     >
       {children}
