@@ -8,6 +8,7 @@ import BookmarkButton from '@/components/ui/bookmark-button';
 import { useDonationDrives } from '@/context/DonationDriveContext';
 import { useAuth } from '@/context/AuthContext';
 import { Users, Clock, MapPin, Calendar, ImageOff } from "lucide-react"
+import { useEffect } from 'react';
 
 interface DonationDriveCardProps {
 drive: DonationDrive;
@@ -22,6 +23,7 @@ const {
 	showForm, 
 	setShowForm, 
 	handleSave,
+	handleEdit,
 	campaignName, 
 	setCampaignName,
 	description, 
@@ -47,38 +49,6 @@ const formatDate = (timestamp: any) => {
 	}
 };
 
-// Format time ago
-const formatTimeAgo = (timestamp: any) => {
-	try {
-	if (!timestamp) return '';
-	const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-	const now = new Date();
-	const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-	if (diffInSeconds < 60) return 'just now';
-	if (diffInSeconds < 3600) {
-		const minutes = Math.floor(diffInSeconds / 60);
-		return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-	}
-	if (diffInSeconds < 86400) {
-		const hours = Math.floor(diffInSeconds / 3600);
-		return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-	}
-	if (diffInSeconds < 2592000) {
-		const days = Math.floor(diffInSeconds / 86400);
-		return `${days} day${days > 1 ? 's' : ''} ago`;
-	}
-	if (diffInSeconds < 31536000) {
-		const months = Math.floor(diffInSeconds / 2592000);
-		return `${months} month${months > 1 ? 's' : ''} ago`;
-	}
-	const years = Math.floor(diffInSeconds / 31536000);
-	return `${years} year${years > 1 ? 's' : ''} ago`;
-	} catch (err) {
-	return '';
-	}
-};
-
   //Calculate Days Remaining
   const getRemainingDays = (endDate: any) => {
     try {
@@ -94,6 +64,29 @@ const formatTimeAgo = (timestamp: any) => {
         return 'Invalid Date';
     }
 };
+
+  // Check if drive is expired and update status if needed
+  useEffect(() => {
+    const checkAndUpdateExpiredDrive = async () => {
+      try {
+        if (!drive) return;
+        
+        const today = new Date();
+        const end = drive.endDate ? drive.endDate : new Date(drive.endDate);
+        const isExpired = end.getTime() < today.getTime();
+        
+        // If the drive is expired and not already marked as completed, update it
+        if (isExpired && drive.status !== 'completed') {
+          await handleEdit(drive.donationDriveId, { status: 'completed' });
+          console.log(`Drive ${drive.campaignName} marked as completed due to expiration`);
+        }
+      } catch (err) {
+        console.error("Error checking drive expiration:", err);
+      }
+    };
+
+    checkAndUpdateExpiredDrive();
+  }, [drive, handleEdit]);
 
 
 // Calculate progress percentage
