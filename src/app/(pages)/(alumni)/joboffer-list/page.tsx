@@ -25,10 +25,9 @@ function formatDate(timestamp: any) {
 }
 
 export default function JobOffers() {
-  const { bookmarks, sortedBookmarks } = useBookmarks();
   const {
     jobOffers,
-    // bookmarks,
+    bookmarks,
     isLoading,
     setShowForm,
     showForm,
@@ -48,8 +47,13 @@ export default function JobOffers() {
     handleSkillChange,
     salaryRange,
     setSalaryRange,
+    location,
+    setLocation,
+    image,
+    setImage,
   } = useJobOffer();
 
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
@@ -63,8 +67,6 @@ export default function JobOffers() {
   const filterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const acceptedJobs = jobOffers.filter(
     (job: { status: string }) => job.status === "Accepted"
@@ -81,6 +83,7 @@ export default function JobOffers() {
       "Data Science",
       "UX/UI Design",
       "Project Management",
+      "Others"
     ],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
     Skills: [
@@ -96,7 +99,7 @@ export default function JobOffers() {
     ],
     ...(sidebarFilter === "Create Jobs" && {
       Status: ["Accepted", "Rejected", "Pending"],
-    }),
+    })
   };
 
   // Close filter dropdowns when clicking outside
@@ -291,7 +294,7 @@ export default function JobOffers() {
           </div>
         </div>
   
-        {activeFilters.length > 0 ? (
+        {activeFilters.length > 0 && (
         <button
           className="px-3 py-1 bg-red-50 text-red-700 rounded text-sm"
           onClick={() => {
@@ -308,8 +311,8 @@ export default function JobOffers() {
       )}
   
         <div className="flex">
-          {/* Sidebar */}
-          <div className="w-56 bg-white p-4 mr-4">
+            {/* Sidebar */}
+            <div className="w-56 bg-white p-4 mr-4">
             <ul className="space-y-2">
               <li>
                 <button
@@ -783,7 +786,20 @@ export default function JobOffers() {
                       required
                     />
                   </div>
-  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Location<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Pedro R. Sandoval Ave, Los Baños, 4031 Laguna, Philippines"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Experience Level<span className="text-red-500">*</span>
@@ -836,6 +852,36 @@ export default function JobOffers() {
                       className="w-full p-2 border rounded"
                       required
                     />
+                  </div>
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Company Logo
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <label className="cursor-pointer">
+                        <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                          Choose File
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setImage(e.target.files?.[0] || null)}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-sm text-gray-500">
+                        {image ? image.name : 'No file chosen'}
+                      </span>
+                    </div>
+                    {image && (
+                      <div className="mt-3">
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt="Preview"
+                          className="h-20 object-contain"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
