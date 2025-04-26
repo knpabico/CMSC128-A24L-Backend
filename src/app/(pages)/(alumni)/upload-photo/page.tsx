@@ -4,6 +4,7 @@
 import { uploadImage } from "@/lib/upload";
 import { Button } from "@mui/material";
 import React, { useState } from "react";
+import { set } from "zod";
 
 function PhotoUpload() {
   const [image, setImage] = useState(null);
@@ -22,6 +23,7 @@ function PhotoUpload() {
   const handleUpload = async () => {
     if (!image) {
       setMessage("No image selected");
+      setIsError(true);
       return;
     }
     try {
@@ -65,7 +67,11 @@ function PhotoUpload() {
         </div>
       )}
       <Button onClick={handleUpload}>Upload Photo</Button>
-      {(isError || !image) && <p className=" text-red-600">{message}</p>}
+      {message && (
+        <p className={`mt-2 ${isError ? "text-red-600" : "text-green-600"}`}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

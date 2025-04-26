@@ -1,0 +1,111 @@
+"use client";
+import { uploadDocument } from "@/lib/upload";
+import { Button } from "@mui/material";
+import React, { useState } from "react";
+
+function DocumentUpload() {
+  const [document, setDocument] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [documentType, setDocumentType] = useState("");
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const handleDocumentChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDocument(file);
+      setDocumentType(file.type);
+
+      // Only create preview for image files
+      if (file.type.startsWith("image/")) {
+        setPreview(URL.createObjectURL(file));
+      } else {
+        setPreview(null);
+      }
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!document) {
+      setMessage("No document selected");
+      setIsError(true);
+      return;
+    }
+    try {
+      const data = await uploadDocument(document, "documents/uploads");
+
+      if (data.success) {
+        setIsError(false);
+        setMessage("Document uploaded successfully!");
+        console.log("Document URL:", data.url);
+      } else {
+        setMessage(data.result);
+        setIsError(true);
+      }
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      setMessage("Error uploading document");
+      setIsError(true);
+    }
+  };
+
+  const getDocumentTypeDisplay = () => {
+    if (!document) return "";
+
+    if (documentType === "application/pdf") return "PDF Document";
+    if (documentType === "application/msword") return "Word Document (.doc)";
+    if (
+      documentType ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+      return "Word Document (.docx)";
+    if (documentType.startsWith("image/")) return "Image";
+
+    return document.name;
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Upload Document</h2>
+      <p className="mb-2">Accepted formats: PDF, DOC, DOCX, and images</p>
+
+      <input
+        type="file"
+        accept=".pdf,.doc,.docx,image/*"
+        onChange={handleDocumentChange}
+        className="mb-4"
+      />
+
+      {document && (
+        <div className="mt-2 mb-4">
+          <p className="font-medium">Selected file: {document.name}</p>
+          <p>Type: {getDocumentTypeDisplay()}</p>
+          <p>Size: {(document.size / 1024).toFixed(2)} KB</p>
+        </div>
+      )}
+
+      {preview && (
+        <div className="mt-2 mb-4">
+          <p>Preview:</p>
+          <img
+            src={preview}
+            alt="Image Preview"
+            style={{ width: "200px", borderRadius: "8px" }}
+          />
+        </div>
+      )}
+
+      <Button variant="contained" onClick={handleUpload} disabled={!document}>
+        Upload Document
+      </Button>
+
+      {message && (
+        <p className={`mt-2 ${isError ? "text-red-600" : "text-green-600"}`}>
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default DocumentUpload;
