@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { validateFirebaseEmail } from "@/app/(auth)/sign-up/actions";
 
 // this schema defines the name of the form's fields, their types,
 // and the conditions for those fields
@@ -11,7 +12,12 @@ const baseSchema = z.object({
     .or(z.literal("")),
   suffix: z.string().min(1, "Input your suffix").optional().or(z.literal("")),
   lastName: z.string().min(1, "Input your last name"),
-  email: z.string().email(),
+  email: z
+    .string()
+    .email("Input a valid email")
+    .refine(async (email) => await validateFirebaseEmail(email), {
+      message: "Email already exists!",
+    }),
   address: z
     .tuple([
       z.string().min(1, "Input your country"), //country

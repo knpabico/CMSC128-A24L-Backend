@@ -13,7 +13,7 @@ export const validateFirebaseEmail = async (email: string) => {
     if (error.code === "auth/user-not-found") {
       return true; //email does not exist yet, may sign-up
     }
-    return "Error validating user email";
+    return false;
   }
 };
 
