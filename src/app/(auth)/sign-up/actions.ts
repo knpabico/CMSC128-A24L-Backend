@@ -4,6 +4,19 @@ import { serverAuth, serverFirestoreDB } from "@/lib/firebase/serverSDK";
 import { signUpFormSchema } from "@/validation/auth/sign-up-form-schema";
 import { z } from "zod";
 
+//for checking if the email used in sign-up already exists in firebase auth
+export const validateFirebaseEmail = async (email: string) => {
+  try {
+    await serverAuth.getUserByEmail(email);
+    return false; //return true if email exists
+  } catch (error: any) {
+    if (error.code === "auth/user-not-found") {
+      return true; //email does not exist yet, may sign-up
+    }
+    return "Error validating user email";
+  }
+};
+
 //function for calculating age (year only) based from birthdate
 const calculateAge = (birthDate: Date) => {
   //current date
