@@ -222,6 +222,15 @@ export default function Events() {
       </div>
 
       <div className="container mx-auto p-4">
+        <div className="flex items-center gap-4 mb-4">
+          <h1 className="text-2xl font-bold">Events</h1>
+          <span className="text-gray-400">|</span> 
+          {/* para makita specific invitations sa user na galing kay admin */}
+          <Link href="/invitations" className="text-blue-500 hover:text-blue-700 font-medium">
+            Invitations
+          </Link>
+        </div>
+        
         {isLoading && <h1>Loading</h1>}
 
         {/* BUTTON ROW */}
