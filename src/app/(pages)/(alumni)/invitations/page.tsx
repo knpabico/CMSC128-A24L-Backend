@@ -74,8 +74,8 @@ export default function Invitations() {
 
 // Filter events to those that include the current user's email in targetGuests
 useEffect(() => {
-    if (events.length > 0 && alumInfo?.email) {
-      const userEmail = alumInfo.email;
+    if (events.length > 0 && alumInfo?.alumniId) {
+      const userId = alumInfo.alumniId;
       
       const filtered = events.filter((event: Event) => {
         return (
@@ -83,9 +83,9 @@ useEffect(() => {
           event.targetGuests && 
           (
             // Handle array of targetGuests containing emails
-            (Array.isArray(event.targetGuests) && event.targetGuests.includes(userEmail)) ||
+            (Array.isArray(event.targetGuests) && event.targetGuests.includes(userId)) ||
             // Handle single targetGuest as string
-            (typeof event.targetGuests === 'string' && event.targetGuests === userEmail)
+            (typeof event.targetGuests === 'string' && event.targetGuests === userId)
           )
         );
       });
