@@ -108,7 +108,7 @@ const saveEducation = async (
 
 export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
   // validate the data one more time in the server side
-  const validation = signUpFormSchema.safeParse(data);
+  const validation = await signUpFormSchema.safeParseAsync(data);
 
   // if it fails
   if (!validation.success) {

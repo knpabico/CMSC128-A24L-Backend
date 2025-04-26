@@ -10,7 +10,7 @@ import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
 
 // components
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -152,6 +152,7 @@ export default function RegistrationForm() {
   const [showDialog, setShowDialog] = useState(false);
   //for identifying whether the user is at the credentials part or profile part of the form
   const [currentPart, setCurrentPart] = useState(0);
+  //const [presentCareer, setPresentCareer] = useState<boolean>([false]);
   const router = useRouter();
 
   // create a react hook form
@@ -181,32 +182,76 @@ export default function RegistrationForm() {
 
       //education
       studentNumber: "",
-      affiliation: ["", "", ""], //affiliation name, year joined, university
-      bachelors: ["", "", ""], //degree program, year graduated, university
-      masters: ["", "", ""], //degree program, year graduated, university
-      doctoral: ["", "", ""], //degree program, year graduated, university
+      affiliation: [{ affiliationName: "", yearJoined: "", university: "" }], //affiliation name, year joined, university
+      bachelors: [{ university: "", yearGraduated: "", major: "" }], //degree program, year graduated, university
+      masters: [], //degree program, year graduated, university
+      doctoral: [], //degree program, year graduated, university
 
       // //career
-      career: ["", "", "", "", ""], //industry, jobTitle, company, startYear, endYear
+      career: [
+        {
+          industry: "",
+          jobTitle: "",
+          company: "",
+          startYear: "",
+          endYear: "",
+          presentJob: false,
+        },
+      ], //industry, jobTitle, company, startYear, endYear
 
       acceptTerms: false,
       subscribeToNewsletter: false,
     },
   });
 
+  //dynamic fields for affiliation
+  const {
+    fields: affiliation,
+    append: addAffiliations,
+    remove: removeAffiliation,
+  } = useFieldArray({ control: form.control, name: "affiliation" });
+
+  //dynamic fields for bachelors
+  const {
+    fields: bachelors,
+    append: addBachelors,
+    remove: removeBachelors,
+  } = useFieldArray({ control: form.control, name: "bachelors" });
+
+  //dynamic fields for masters
+  const {
+    fields: masters,
+    append: addMasters,
+    remove: removeMasters,
+  } = useFieldArray({ control: form.control, name: "masters" });
+
+  //dynamic fields for doctoral
+  const {
+    fields: doctoral,
+    append: addDoctoral,
+    remove: removeDoctoral,
+  } = useFieldArray({ control: form.control, name: "doctoral" });
+
+  //dynamic fields for career
+  const {
+    fields: career,
+    append: addCareer,
+    remove: removeCareer,
+  } = useFieldArray({ control: form.control, name: "career" });
+
   const handleSubmit = async (data: z.infer<typeof signUpFormSchema>) => {
     setIsLoading(true);
 
     console.log("Testing sign-up:");
     console.log(data);
-    const response = await registerUser(data);
+    //const response = await registerUser(data);
 
     // display error or success toast message
-    if (response?.error) {
-      toastError(response.message);
-      setIsLoading(false);
-      return;
-    }
+    // if (response?.error) {
+    //   toastError(response.message);
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     // if successful, show a dialog that says
     // wait for admin to approve the account
@@ -325,7 +370,7 @@ export default function RegistrationForm() {
                             name="firstName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>First Name</FormLabel>
+                                <FormLabel>First Name*</FormLabel>
                                 <FormControl>
                                   <Input
                                     placeholder="Juan"
@@ -369,7 +414,7 @@ export default function RegistrationForm() {
                             name="lastName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Last Name</FormLabel>
+                                <FormLabel>Last Name*</FormLabel>
                                 <FormControl>
                                   <Input
                                     placeholder="Dela Cruz"
@@ -417,7 +462,7 @@ export default function RegistrationForm() {
                           name="birthDate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Birthday</FormLabel>
+                              <FormLabel>Birthday*</FormLabel>
                               <FormControl>
                                 <Input
                                   type="date"
@@ -445,7 +490,7 @@ export default function RegistrationForm() {
                             name="address.0"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Current Home Address</FormLabel>
+                                <FormLabel>Current Home Address*</FormLabel>
                                 <FormControl>
                                   <Input placeholder="Country" {...field} />
                                 </FormControl>
@@ -505,7 +550,7 @@ export default function RegistrationForm() {
                             name="studentNumber"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Student Number at UPLB</FormLabel>
+                                <FormLabel>Student Number at UPLB*</FormLabel>
                                 <FormControl>
                                   <Input
                                     placeholder="2025-12345"
@@ -521,326 +566,544 @@ export default function RegistrationForm() {
                       </div>
 
                       {/* affiliations form field */}
+                      <div className="mt-5">
+                        <p>AFFILIATIONS</p>
+                        {affiliation.map((aff, index) => (
+                          <div key={index}>
+                            {index > 0 && (
+                              <button
+                                className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
+                                type="button"
+                                onClick={() => removeAffiliation(index)}
+                              >
+                                -
+                              </button>
+                            )}
 
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* affiliation name */}
-                        <div className="col-span-7">
-                          <FormField
-                            control={form.control}
-                            name="affiliation.0"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Affiliation</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Affiliation Name"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        {/* year joined */}
-                        <div className="col-span-5 mt-5">
-                          <FormField
-                            control={form.control}
-                            name="affiliation.1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="Year Joined" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                            <div
+                              key={aff.id}
+                              className="grid grid-cols-12 gap-4"
+                            >
+                              {/* affiliation name */}
+                              <div className="col-span-7">
+                                <FormField
+                                  control={form.control}
+                                  name={`affiliation.${index}.affiliationName`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Affiliation</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Affiliation Name"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              {/* year joined */}
+                              <div className="col-span-5 mt-5">
+                                <FormField
+                                  control={form.control}
+                                  name={`affiliation.${index}.yearJoined`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Year Joined"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
 
-                        <div className="col-span-12">
-                          {/* university */}
-                          <FormField
-                            control={form.control}
-                            name="affiliation.2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="University" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                              <div className="col-span-12">
+                                {/* university */}
+                                <FormField
+                                  control={form.control}
+                                  name={`affiliation.${index}.university`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="University"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/*add  fields button */}
+                        <button
+                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
+                          type="button"
+                          onClick={() => {
+                            addAffiliations({
+                              university: "",
+                              yearJoined: "",
+                              affiliationName: "",
+                            });
+                          }}
+                        >
+                          +
+                        </button>
                       </div>
 
                       {/* bachelor's form field */}
+                      <div className="mt-5">
+                        <p>BACHELOR'S</p>
+                        {bachelors.map((bachelor, index) => (
+                          <div key={index}>
+                            {index > 0 && (
+                              <button
+                                className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
+                                type="button"
+                                onClick={() => removeBachelors(index)}
+                              >
+                                -
+                              </button>
+                            )}
 
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* degree program */}
-                        <div className="col-span-7">
-                          <FormField
-                            control={form.control}
-                            name="bachelors.0"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Bachelor's Degree</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Degree Program"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        {/* year graduated */}
-                        <div className="col-span-5 mt-5">
-                          <FormField
-                            control={form.control}
-                            name="bachelors.1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Year Graduated"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                            <div
+                              key={bachelor.id}
+                              className="grid grid-cols-12 gap-4"
+                            >
+                              {/* degree program */}
+                              <div className="col-span-7">
+                                <FormField
+                                  control={form.control}
+                                  name={`bachelors.${index}.major`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Bachelor's Degree*</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Degree Program"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              {/* year graduated */}
+                              <div className="col-span-5 mt-5">
+                                <FormField
+                                  control={form.control}
+                                  name={`bachelors.${index}.yearGraduated`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Year Graduated"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
 
-                        <div className="col-span-12">
-                          {/* university */}
-                          <FormField
-                            control={form.control}
-                            name="bachelors.2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="University" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                              <div className="col-span-12">
+                                {/* university */}
+                                <FormField
+                                  control={form.control}
+                                  name={`bachelors.${index}.university`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="University"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/*add bachelors fields button */}
+                        <button
+                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
+                          type="button"
+                          onClick={() => {
+                            addBachelors({
+                              university: "",
+                              yearGraduated: "",
+                              major: "",
+                            });
+                          }}
+                        >
+                          +
+                        </button>
                       </div>
 
                       {/* master's form field */}
 
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* degree program */}
-                        <div className="col-span-7">
-                          <FormField
-                            control={form.control}
-                            name="masters.0"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Master's Degree</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Degree Program"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        {/* year graduated */}
-                        <div className="col-span-5 mt-5">
-                          <FormField
-                            control={form.control}
-                            name="masters.1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Year Graduated"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                      <div className="mt-5">
+                        <p>MASTER'S</p>
+                        {masters.map((master, index) => (
+                          <div key={index}>
+                            <button
+                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
+                              type="button"
+                              onClick={() => removeMasters(index)}
+                            >
+                              -
+                            </button>
 
-                        <div className="col-span-12">
-                          {/* university */}
-                          <FormField
-                            control={form.control}
-                            name="masters.2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="University" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                            <div
+                              key={master.id}
+                              className="grid grid-cols-12 gap-4"
+                            >
+                              {/* degree program */}
+                              <div className="col-span-7">
+                                <FormField
+                                  control={form.control}
+                                  name={`masters.${index}.major`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Master's Degree*</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Degree Program"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              {/* year graduated */}
+                              <div className="col-span-5 mt-5">
+                                <FormField
+                                  control={form.control}
+                                  name={`masters.${index}.yearGraduated`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Year Graduated"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className="col-span-12">
+                                {/* university */}
+                                <FormField
+                                  control={form.control}
+                                  name={`masters.${index}.university`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="University"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/*add  fields button */}
+                        <button
+                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
+                          type="button"
+                          onClick={() => {
+                            addMasters({
+                              university: "",
+                              yearGraduated: "",
+                              major: "",
+                            });
+                          }}
+                        >
+                          +
+                        </button>
                       </div>
 
                       {/* doctoral form field */}
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* degree program */}
-                        <div className="col-span-7">
-                          <FormField
-                            control={form.control}
-                            name="doctoral.0"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Doctoral Degree</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Degree Program"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        {/* year graduated */}
-                        <div className="col-span-5 mt-5">
-                          <FormField
-                            control={form.control}
-                            name="doctoral.1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Year Graduated"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                      <div className="mt-5">
+                        <p>DOCTORAL</p>
+                        {doctoral.map((doc, index) => (
+                          <div key={index}>
+                            <button
+                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
+                              type="button"
+                              onClick={() => removeDoctoral(index)}
+                            >
+                              -
+                            </button>
 
-                        <div className="col-span-12">
-                          {/* university */}
-                          <FormField
-                            control={form.control}
-                            name="doctoral.2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="University" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                            <div
+                              key={doc.id}
+                              className="grid grid-cols-12 gap-4"
+                            >
+                              {/* degree program */}
+                              <div className="col-span-7">
+                                <FormField
+                                  control={form.control}
+                                  name={`doctoral.${index}.major`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Doctoral Degree*</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Degree Program"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              {/* year graduated */}
+                              <div className="col-span-5 mt-5">
+                                <FormField
+                                  control={form.control}
+                                  name={`doctoral.${index}.yearGraduated`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Year Graduated"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className="col-span-12">
+                                {/* university */}
+                                <FormField
+                                  control={form.control}
+                                  name={`doctoral.${index}.university`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="University"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/*add  fields button */}
+                        <button
+                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
+                          type="button"
+                          onClick={() => {
+                            addDoctoral({
+                              university: "",
+                              yearGraduated: "",
+                              major: "",
+                            });
+                          }}
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
 
                     {/* CAREER SECTION */}
-                    <div>
-                      {/* career form field */}
+                    <div className="mt-5">
+                      <p>CAREER</p>
+                      {career.map((car, index) => (
+                        <div key={index}>
+                          {/*remove field button */}
+                          {index > 0 && (
+                            <button
+                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
+                              type="button"
+                              onClick={() => removeCareer(index)}
+                            >
+                              -
+                            </button>
+                          )}
+                          {/* career form field */}
 
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* industry */}
-                        <div className="col-span-4">
-                          <FormField
-                            control={form.control}
-                            name="career.0"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Industry</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Industry" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        {/* year graduated */}
-                        <div className="col-span-8">
-                          <FormField
-                            control={form.control}
-                            name="career.1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Job Title</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Job Title" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                          <div className="grid grid-cols-12 gap-4">
+                            {/* industry */}
+                            <div className="col-span-4">
+                              <FormField
+                                control={form.control}
+                                name={`career.${index}.industry`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Industry</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Industry"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            {/* job title */}
+                            <div className="col-span-8">
+                              <FormField
+                                control={form.control}
+                                name={`career.${index}.jobTitle`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Job Title</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Job Title"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
 
-                        <div className="col-span-12">
-                          {/* university */}
-                          <FormField
-                            control={form.control}
-                            name="career.2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Company/Organization</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Company/Organization"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                            <div className="col-span-12">
+                              {/* university */}
+                              <FormField
+                                control={form.control}
+                                name={`career.${index}.company`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Company/Organization</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Company/Organization"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
 
-                        <div className="col-span-6">
-                          {/* start year */}
-                          <FormField
-                            control={form.control}
-                            name="career.3"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Start Year</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Start Year" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                            <div className="col-span-6">
+                              {/* start year */}
+                              <FormField
+                                control={form.control}
+                                name={`career.${index}.startYear`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Start Year</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Start Year"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
 
-                        <div className="col-span-6">
-                          {/* end year */}
-                          <FormField
-                            control={form.control}
-                            name="career.4"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>End Year</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="End Year" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                            <div className="col-span-6">
+                              {/* end year */}
+                              <FormField
+                                control={form.control}
+                                name={`career.${index}.endYear`}
+                                disabled={career[index].presentJob}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>End Year</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="End Year"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div>
+                              {/* checkbox field for identifying whether it is up to present or not*/}
+                              <FormField
+                                control={form.control}
+                                name={`career.${index}.presentJob`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <div className="flex gap-2 justify-start items-center">
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                        />
+                                      </FormControl>
+                                      <FormLabel className="inline">
+                                        Present job?
+                                      </FormLabel>
+                                    </div>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
+                      {/*add  fields button */}
+                      <button
+                        className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
+                        type="button"
+                        onClick={() => {
+                          addCareer({
+                            industry: "",
+                            jobTitle: "",
+                            company: "",
+                            startYear: "",
+                            endYear: "",
+                            presentJob: false,
+                          });
+                        }}
+                      >
+                        +
+                      </button>
                     </div>
                     {/* acceptTerms form field */}
                     <FormField
