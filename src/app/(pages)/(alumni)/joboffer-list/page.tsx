@@ -47,6 +47,8 @@ export default function JobOffers() {
     setSalaryRange,
     location,
     setLocation,
+    image,
+    setImage,
   } = useJobOffer();
 
   
@@ -79,6 +81,7 @@ export default function JobOffers() {
       "Data Science",
       "UX/UI Design",
       "Project Management",
+      "Others"
     ],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
     Skills: [
@@ -196,30 +199,6 @@ export default function JobOffers() {
   const startIndex = (currentPage - 1) * jobsPerPage;
   const endIndex = startIndex + jobsPerPage;
   const currentJobs = filteredAndSortedJobs.slice(startIndex, endIndex);
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setImage(null);
-    setPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
 
   return (
     <>

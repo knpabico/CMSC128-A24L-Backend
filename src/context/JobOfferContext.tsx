@@ -88,8 +88,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       alumniId: "",
       datePosted: new Date(),
       status: "",
-      location: "",
-      image: "",
+      location,
+      image,
     };
 
     const response = await addJobOffer(newJobOffering, user!.uid);
