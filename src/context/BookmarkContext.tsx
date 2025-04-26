@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, addDoc, where, doc, getDoc, deleteDoc, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, addDoc, where, doc, getDoc, deleteDoc, getDocs, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Bookmark } from "@/models/models";
@@ -121,8 +121,13 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
 
   // Check if a bookmark already exists to avoid duplicates
   const getBookmarkId = (entryId: string): string | null => {
-    const bookmark = bookmarks.find(b => b.entryId === entryId);
-    return bookmark ? bookmark.id : null;
+    const bookmark = bookmarks.find(b => {
+      console.log("b.entryId:", b.entryId, "entryId:", entryId);
+      console.log("b.entryId length:", b.entryId.length, "entryId length:", entryId.length);
+      console.log("b.entryId === entryId:", b.entryId === entryId);      return b.entryId === entryId;
+    });
+    console.log("getBookmarkId result:", bookmark);
+    return bookmark ? bookmark.bookmarkId : null;
   };
 
   // Check if an entry is bookmarked
@@ -142,11 +147,17 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      await addDoc(collection(db, "bookmark"), {
-        alumniId: user.uid,
-        entryId,
-        type,
-      });
+      // Add bookmark to Firestore with its attributes
+    const docRef = await addDoc(collection(db, "bookmark"), {
+      alumniId: user.uid,
+      type,
+      entryId,
+      timestamp: serverTimestamp(),
+    });
+
+    // Update the document with its ID as bookmarkId
+    await updateDoc(docRef, { bookmarkId: docRef.id });
+
       return { success: true, message: "Bookmark added successfully" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -170,6 +181,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   // Toggle bookmark (add if not bookmarked, remove if bookmarked)
   const toggleBookmark = async (entryId: string, type: string) => {
     const bookmarkId = getBookmarkId(entryId);
+    console.log("Bookmark ID:", bookmarkId);
     
     if (bookmarkId) {
       // Item is already bookmarked, remove it
@@ -206,6 +218,10 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
           return entryA.datePosted?.toDate().getTime() - entryB.datePosted?.toDate().getTime();
         case "latest":
           return entryB.datePosted?.toDate().getTime() - entryA.datePosted?.toDate().getTime();
+        case "bookmark_oldest":
+          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+        case "bookmark_latest":
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
         case "alphabetical":
           const getTitle = (entry: any) => {
             return entry.campaignName || entry.title || entry.position || ""; // Ensures correct field selection

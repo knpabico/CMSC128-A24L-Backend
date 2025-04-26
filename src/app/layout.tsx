@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { AlumProvider } from "@/context/AlumContext";
-import { NewsLetterProvider } from "@/context/NewsLetterContext";
 import { JobOfferProvider } from "@/context/JobOfferContext";
 import { AnnouncementProvider } from "@/context/AnnouncementContext";
 import { EventProvider } from "@/context/EventContext";
@@ -15,8 +14,10 @@ import { Toaster } from "sonner";
 import { DonationContextProvider } from "@/context/DonationContext";
 import { WorkExperienceProvider } from "@/context/WorkExperienceContext";
 import { GoogleMapsProvider } from "@/context/GoogleMapsContext";
+import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
-import { SponsorshipProvider } from "@/context/SponsorshipContext";
+import { ScholarshipProvider } from "@/context/ScholarshipContext";
+import { NewsLetterProvider } from "@/context/NewsLetterContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -45,41 +46,41 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AuthProvider>
-        <DonationDriveProvider>
-          <SponsorshipProvider>
-            <BookmarkProvider>
-              <JobOfferProvider>
-                <AnnouncementProvider>
-                  <AlumProvider>
-                    <WorkExperienceProvider>
-                      <NewsLetterProvider>
+        <NewsLetterProvider>
+          <DonationDriveProvider>
+            <ScholarshipProvider>
+              <BookmarkProvider>
+                <JobOfferProvider>
+                  <AnnouncementProvider>
+                    <AlumProvider>
+                      <WorkExperienceProvider>
                         <EventProvider>
                           <DonationContextProvider>
                             <GoogleMapsProvider>
                               <MapProvider>
-                                <body
-                                  // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                                  className={`${poppins.className} antialiased`}
-                                >
-                                  <div className="bg-blue-200 ">
-                                    <Navbar />
-                                  </div>
-                                  {children}
-                                  {/* Toaster is required here for toast/sonner component to work */}
-                                  <Toaster />
-                                </body>
+                                <EducationProvider>
+                                  <body
+                                    className={`${poppins.className} antialiased`}
+                                  >
+                                    <div className="bg-blue-200 ">
+                                      <Navbar />
+                                    </div>
+                                    {children}
+                                    <Toaster />
+                                  </body>
+                                </EducationProvider>
                               </MapProvider>
                             </GoogleMapsProvider>
                           </DonationContextProvider>
                         </EventProvider>
-                      </NewsLetterProvider>
-                    </WorkExperienceProvider>
-                  </AlumProvider>
-                </AnnouncementProvider>
-              </JobOfferProvider>
-            </BookmarkProvider>
-          </SponsorshipProvider>
-        </DonationDriveProvider>
+                      </WorkExperienceProvider>
+                    </AlumProvider>
+                  </AnnouncementProvider>
+                </JobOfferProvider>
+              </BookmarkProvider>
+            </ScholarshipProvider>
+          </DonationDriveProvider>
+        </NewsLetterProvider>
       </AuthProvider>
     </html>
   );

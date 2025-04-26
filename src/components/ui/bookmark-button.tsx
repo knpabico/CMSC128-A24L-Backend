@@ -33,6 +33,7 @@ export default function BookmarkButton({
     setIsProcessing(true);
     
     try {
+      console.log("Toggling bookmark for entryId:", entryId);
       const result = await toggleBookmark(entryId, type);
       
       if (result.success) {

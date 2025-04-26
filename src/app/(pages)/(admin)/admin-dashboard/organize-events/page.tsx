@@ -5,6 +5,8 @@ import { Event } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { useState } from "react";
+import { Button } from "@mui/material";
+import ModalInput from "@/components/ModalInputForm";
 
 export default function Events() {
   const {
@@ -30,6 +32,8 @@ export default function Events() {
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [rsvpFilter, setRsvpFilter] = useState("All");
   const [sortAlphabetically, setSortAlphabetically] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filterEvents = (status: string) => {
     console.log(`events length is ${events.length}`);
@@ -136,11 +140,25 @@ export default function Events() {
                 />
 
                 <textarea
+                  rows={6}
                   placeholder="Event Description (Format: online / F2F & Venue/Platform)"
                   value={description}
                   onChange={(e) => setEventDescription(e.target.value)}
                   className="w-full mb-4 p-2 border rounded"
                   required
+                />
+
+                <Button onClick={() => setIsModalOpen(true)}>
+                  Need AI help for description?
+                </Button>
+                <ModalInput
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                  onSubmit={(response) => setEventDescription(response)}
+                  title="AI Assistance for Events"
+                  type="event"
+                  mainTitle={title}
+                  subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
                 />
 
                 <input

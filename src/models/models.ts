@@ -3,6 +3,8 @@ import { RegStatus } from "@/types/alumni/regStatus";
 import { Timestamp } from "firebase-admin/firestore";
 
 export interface Alumnus {
+  graduationYear: ReactNode;
+  jobTitle: ReactNode;
   alumniId: string;
   regStatus: RegStatus; //accepted, pending, or rejected registration
   approvalDate: Date;
@@ -16,15 +18,13 @@ export interface Alumnus {
   suffix: string;
   age: number;
   birthDate: Date;
-  companyName: string;
-  jobTitle: string;
-  fieldOfWork: string;
-  graduationYear: string;
   affiliation: string[];
   image: string;
+  // educationList: Education[];
 }
- 
+
 export interface Education {
+  educationId: string;
   alumniId: string;
   university: string;
   type: string;
@@ -33,6 +33,7 @@ export interface Education {
 }
 
 export interface Career {
+  careerId: string;
   alumniId: string;
   company: string;
   jobTitle: string;
@@ -58,11 +59,18 @@ export interface Announcement {
   title: string;
   description: string;
   type: string[];
-  userReference: string;
   image: string;
+  isPublic: boolean;
 }
 
 export interface Scholarship {
+  scholarshipId: string;
+  title: string;
+  description: string;
+  alumList: string[];
+  datePosted: Date;
+}
+
 export interface Event {
   eventId: string;
   datePosted: Date;
@@ -81,9 +89,8 @@ export interface Event {
   targetGuests: String[];
   stillAccepting: boolean;
   needSponsorship: boolean;
-  donationDriveId: string;  
+  donationDriveId: string;
 }
-
 
 export interface Sponsorship {
   sponsorshipId: string;
@@ -94,42 +101,34 @@ export interface Sponsorship {
   currentAmount: number;
   dateSuggested: Date;
   description: string;
-  endDate:Date;
+  endDate: Date;
   isAcceptingtrue: boolean;
+  eventId: string;
   startDate: Date;
   status: string;
   targetAmount: number;
-} 
+}
 
 export interface DonationDrive {
   donationDriveId: string;
+  creatorId: string;
+  creatorType: string;
   datePosted: Date;
+  campaignName: string;
   description: string;
   beneficiary: string[];
-  campaignName: string;
-  totalAmount: number;
+  currentAmount: number;
+  targetAmount: number;
   status: string;
-  eventId: string;
   isEvent: boolean;
+  eventId: string;
   startDate: Date;
   endDate: Date;
-  currentAmount: number;
   donorList: string[];
 }
 
-export interface DonationDriveSuggestions {
-  donationDriveId: string;
-  suggestedBy: string;
-  datePosted: Date;
-  description: string;
-  beneficiary: string[];
-  campaignName: string;
-  status: string;
-  totalAmount: number;
-}
-
 export interface Donation {
-  sponsorshipId: string;
+  donationDriveId: string;
   donationId: string;
   alumniId: string;
   paymentMethod: string;
@@ -139,17 +138,11 @@ export interface Donation {
   imageProof: string;
 }
 
-export interface NewsletterItem {
-  newsletterId: string;
-  category: string[];
-  dateSent: Date;
-}
-
 export interface RSVP {
   rsvpId: string;
   status: string;
   postId: string;
-  alumniId: string; 
+  alumniId: string;
 }
 
 export interface JobOffering {
@@ -165,7 +158,8 @@ export interface JobOffering {
   datePosted: Date;
   jobType: string;
   status: string;
-  image: string; 
+  location: string;
+  image: string;
 }
 
 export interface Bookmark {
@@ -173,6 +167,7 @@ export interface Bookmark {
   alumniId: string;
   type: string;
   entryId: string;
+  timestamp: Date;
 }
 
 export interface WorkExperience {
@@ -185,4 +180,18 @@ export interface WorkExperience {
   details: string;
   startingDate: Timestamp;
   endingDate: Timestamp;
+}
+
+export interface NewsletterItem {
+  newsletterId: string;
+  referenceId: string;
+  category: string;
+  timestamp: Date;
+}
+
+export interface AIQuestion {
+  what: string;
+  who: string;
+  when: string;
+  where: string;
 }

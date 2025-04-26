@@ -2,23 +2,24 @@
 import LoadingPage from "@/components/Loading";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { WorkExperience } from "@/models/models";
+import { Announcement, Career, Education, JobOffering, NewsletterItem, WorkExperience } from "@/models/models";
 import Link from "next/link";
-import { useNewsLetters } from "@/context/NewsLetterContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import { ChevronDownIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import PendingPage from "../components/PendingPage";
 import RejectedPage from "../components/RejectedPage";
+import { NewsLetterProvider, useNewsLetters } from "@/context/NewsLetterContext";
+import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementContext";
+import { useJobOffer } from "@/context/JobOfferContext";
+import CollapseText from '@/components/CollapseText';
+
+
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -26,15 +27,22 @@ const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status } = useAuth();
+  const { newsLetters } = useNewsLetters();
+  const { announces } = useAnnouncement();
+  const { jobOffers } = useJobOffer();
   const { userWorkExperience } = useWorkExperience();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
   const [latestFirst, setLatestFirst] = useState(true);
 
-  const { newsLetters, isLoading } = useNewsLetters();
   const searchParams = useSearchParams();
   const sort = searchParams.get("sort"); //get current sort param
-  
+
+  function formatDate(timestamp: any) {
+    if (!timestamp || !timestamp.seconds) return "Invalid Date";
+    const date = new Date(timestamp.seconds * 1000);
+    return date.toISOString().split("T")[0];
+  }
 
   useEffect(() => {
     if (isAdmin) {
@@ -61,11 +69,13 @@ export default function Home() {
     }
     return defaultSort;
   }
+  const { myCareer, myEducation } = useAlums();
+
 
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
-      <div className="flex flex-col min-h-screen justify-center items-center bg-[#EAEAEA]">
+      <div className="flex flex-col min-h-screen justify-center items-center">
         <h1 className="text-black text-[70px] font-bold">WELCOME, Guest!</h1>
         <div className="flex gap-3">
           <Button asChild>
@@ -77,118 +87,253 @@ export default function Home() {
         </div>
       </div>
     );
-  }
-
-  return (
-    <div className="w-full">
-
-      {/* sorting button */}
-      <div className="flex justify-end mr-[500px] my-5">
-      <DropdownMenu>
-        <DropdownMenuTrigger className="px-5 h-10 w-30 place-content-between items-center flex flex-row rounded-md bg-gray-800 text-sm font-semibold text-white shadow-inner shadow-white/10 focus:outline-none hover:bg-gray-700">
-          {selectedSort}
-          <ChevronDownIcon className="size-4 fill-white/60 ml-2" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-30 justify-center bg-gray-600 border border-white/10 p-1 text-sm text-white">
-          {sortTypes.map((sortType, index) => (
-          <DropdownMenuItem key={sortType} asChild>
-          <button
-            onClick={() => {
-            setSelectedSort(sortType); // Update UI
-            setLatestFirst(sortType === "Latest"); // Optionally used elsewhere
-            handleSortChange(sortValues[index]); // Update URL param
-            }}
-            className={`w-full justify-center py-1.5 rounded-md ${
-            selectedSort === sortType ? "bg-white/10" : ""
-            }`}
-          >
-          {sortType}
-          </button>
-        </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-      </DropdownMenu>
-      </div>
-          
-      <div className="place-self-center mx-[200px]  flex flex-row ">
-          {/* Profile Panel */}
-          <div className="w-70 h-full flex flex-col bg-[#EAEAEA] items-center p-5 rounded-lg">
-            <img src='https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg' 
-              className='w-50 h-50 mb-5 object-cover object-top rounded-full border border-black'></img>
-            <p className="text-[20px] font-bold">{alumInfo!.lastName}, {alumInfo!.firstName} </p>
-            <hr className="w-50 h-[1px] bg-[#FFFFFF] rounded-sm md:my-3 dark:bg-[gray-300]"></hr>
-            <p className="text-[14px]"><i>Currently based in {alumInfo!.address}</i></p>
-            <hr className="w-50 h-[1px] bg-[#FFFFFF] rounded-sm md:my-3 dark:bg-gray-300"></hr>
-            <div className="flex flex-col items-center">
-            <p className="text-[14px]">{alumInfo!.fieldOfWork}</p>
-            <p className="text-[14px]">Graduated: {alumInfo!.graduationYear}</p>
-            {/* <p className="text-[14px]">Std. No. {alumInfo!.studentNumber}</p> */}
-            </div>
-            <hr className="w-50 h-[1px] bg-[#FFFFFF] rounded-sm md:my-3 dark:bg-gray-300"></hr>
-            <p className="text-sm">{alumInfo!.jobTitle}</p>
-            {/* {userWorkExperience.map(
-            (workExperience: WorkExperience, index: any) => (
-              <div key={index} className="p-1">
-                <p className="text-black text-[15px] font-bold">
-                  {workExperience.details}
-                </p>
+  } else if (user) {
+    if (status === "pending") return <PendingPage />;
+    else if (status === "rejected") return <RejectedPage />;
+    else
+      return (
+        <div className="w-full px-[100px]">
+          <div className="my-10 flex flex-row">
+            {/* Profile Panel */}
+            <div className="w-70 fixed top-28 left-[100px] h-auto flex flex-col items-center bg-[#FFFFFF] p-5 rounded-[10px] border border-[#DADADA]">
+              <img
+              src="https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+                className="w-50 h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
+              ></img>
+              <p className="text-[20px] font-bold">
+                {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
+              </p>
+              <p className="text-[14px]">{alumInfo!.email}</p>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <p className="text-[14px]"><i>Current based on {alumInfo!.address}</i></p>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <div className="flex flex-col items-center">
+                <p className="text-[14px]">Std. No. {alumInfo!.studentNumber}</p>
+                <p className="text-[14px]">Graduated: {alumInfo!.graduationYear}</p>
               </div>
-            )
-          )} */}
-            <hr className="w-50 h-[0.7px] bg-[#FFFFFF] rounded-sm md:my-3 dark:bg-gray-300"></hr>
-            <Button
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <div className="text-[14px] border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px] flex flex-wrap">{alumInfo!.jobTitle}</div>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
-                className="w-full rounded-4xl bg-[#0856BA] text-[#FFFFFF]"
-            >View Profile</Button> 
+                className="w-full h-[30px] rounded-full text-[#FFFFFF] bg-[#0856BA] hover:bg-[#357BD6]"
+              >
+                View Profile
+              </Button>
             </div>
 
-          {/* Feed */}
-          <div className="mx-5 flex flex-col w-150">
-            
-          <div className="mb-5 ">
-            {newsLetters.map((newsLetter, index) => (
-              <Card key={index} className="flex flex-col rounded-lg mb-5 w-150 h-auto p-5 bg-[#EAEAEA]">
-                <div className="flex flex-row gap-2 items-center ">
-                <img src='https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg' 
-                 className='w-10 h-10 object-cover object-top rounded-full border border-black' />
-                <p className="text-[18px]">{alumInfo!.firstName}  {alumInfo!.lastName}</p>
-                <p className="text-xl"> &#xb7;</p>
-                <p className="text-xs">
-                  {newsLetter.dateSent
-                    .toDate()
-                    .toISOString()
-                    .slice(0, 10)
-                    .replaceAll("-", "/")}
-                </p>
-                </div>
-                <div>
-                <p className="text-[24px] font-semibold my-0 p-0">Headline</p>
-                <p>Category: {newsLetter.category[0]}</p>
-                </div>
-                <p className="p-0 m-0">Announcement Details</p>
+            {/* Feed */}
+            <div className="ml-[300px] mx-5  flex flex-col w-150 ">
 
-                {/* TODO: should handle category changes (Jobs, Donations, Invitations) */}
-                {/* <div className="flex flex-row w-full">
-                  <button
-                      onClick={() => router.push(`/joboffer-list`)}
-                      className="w-full rounded-4xl border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA]"
-                  >View More Jobs</button>                          
+              {/*sorting dropdown*/}
+              {/* <div className="flex flex-row w-full justify-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="px-5 h-10 w-30 place-content-between items-center flex flex-row rounded-md bg-gray-800 text-[14px] font-semibold text-white shadow-inner shadow-white/10 focus:outline-none hover:bg-gray-700">
+                    {selectedSort}
+                    <ChevronDownIcon className="size-4 fill-white/60 ml-2" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-30 justify-center bg-gray-600 border border-white/10 p-1 text-[14px] text-white">
+                    {sortTypes.map((sortType, index) => (
+                      <DropdownMenuItem key={sortType} asChild>
+                        <button
+                          onClick={() => {
+                            setSelectedSort(sortType); // Update UI
+                            setLatestFirst(sortType === "Latest"); // Optionally used elsewhere
+                            handleSortChange(sortValues[index]); // Update URL param
+                          }}
+                          className={`w-full justify-center py-1.5 rounded-md ${
+                            selectedSort === sortType ? "bg-white/10" : ""
+                          }`}
+                        >
+                          {sortType}
+                        </button>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 </div> */}
-              </Card>
-            ))}
 
-        
-            
-          </div>
-          </div>
+                <div className="scroll-smooth">
+                  {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
+                    <div
+                      key={index}
+                      className="flex flex-col rounded-[10px] mb-[10px] w-150 h-auto p-[20px] bg-[#FFFFFF] border border-[#DADADA]"
+                    >
+                      <div className="flex flex-row mb-[10px]  gap-2 items-center">
+                        <img
+                          src="https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+                          className="w-10 h-10 object-cover object-top rounded-full border border-[#DADADA]"
+                        />
+                        <p className="text-[18px]">
+                          {alumInfo!.firstName} {alumInfo!.lastName}
+                        </p>
+                        <p className="text-[24px]"> &#xb7;</p>
+                        <p className="text-[12px]">{formatDate(newsLetter.timestamp)}</p>
+                      </div>
+
+                      {/* if newsletter is announcement */}
+                        {newsLetter.category === "announcement" && (() => {
+                          const announcement = announces.find(
+                            (announce: Announcement) => announce.announcementId === newsLetter.referenceId
+                          );
+                          return announcement ? (
+                            <div className="flex flex-col gap-[30px]">
+                              <div className="flex flex-col gap-[10px]">
+                                <h1 className="text-[24px] font-bold">{announcement.title}</h1>
+                                <CollapseText text={announcement.description + " "} maxChars={300} />
+                              </div>
+                              <img src="/ICS3.jpg" className="scale-107 w-full object-fill h-auto"></img>
+                            </div>
+                          ) : (
+                            <p className="text-[14px] italic text-gray-500">Announcement not found</p>
+                          );
+                      })()}
+
+                      {/* if newsletter is a job post */}
+                      {newsLetter.category === "job_offering" && (() => {
+                        const jobOffering = jobOffers.find(
+                          (jobOffer: JobOffering) => jobOffer.jobId === newsLetter.referenceId
+                        );
+                        return jobOffering ? (
+                          
+                          <div className="flex flex-col gap-[30px]">
+                            {/* <h1 className="text-[24px] font-bold">{jobOffering.title}</h1> */}
+                            <div className="flex flex-col gap-[1px]">
+                              <p className="text-[24px] font-semibold">
+                                {jobOffering.position} 
+                              </p>
+                              <p className="text-[18px]">
+                                {jobOffering.company} 
+                              </p>
+                            </div>
+                            <div className="flex flex-col gap-[5px]">
+                              <div className="flex flex-row gap-[5px]">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
+                                </svg>
+                                <p className="text-[15px]">
+                                  {jobOffering.employmentType}
+                                </p>
+                                <p>&#xb7;</p>
+                                <p className="text-[15px]">
+                                {jobOffering.experienceLevel}</p>
+                              </div>
+
+                              <div className="flex flex-row gap-[5px]">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                                </svg>
+                                <p className="text-[15px]">
+                                  {jobOffering.salaryRange}
+                                </p>
+                              </div>
+                              
+                              <div className="text-[15px]"> 
+                                <div className="flex flex-row gap-[3px]">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                                  </svg>
+                                    Required skill(s):
+                                </div>
+
+                                <div className="pl-[25px]">
+                                  {jobOffering.requiredSkill.map((skill: string) => (
+                                  <ul className="max-w-md space-y-1 text-gray-500 list-inside dark:text-gray-500"> 
+                                    <li key={skill} className="flex items-center" >
+                                    <svg className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+                                    </svg>
+                                    {skill}
+                                    </li>
+                                  </ul>))}
+                                </div>
+                              </div>  
+                            </div>
+
+                            <div>
+                              <div className="flex flex-row items-center gap-[5px]">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                </svg>
+                                <p className="text-[20px] font-semibold">About the job</p>
+                              </div>
+                            
+                                <p className="text-[15px] ml-[25px] text-justify">
+                                  {jobOffering.jobDescription}
+                                </p>
+                              </div> 
+                            <div className="flex flex-row w-full gap-[10px]">
+                              <button
+                                onClick={() => router.push(`/joboffer-list`)}
+                                className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+
+                              >View More Job Offers</button>
+                              <button
+                                onClick={() => router.push(`/joboffer-list`)}
+                                className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#0856BA] text-[#FFFFFF] text-[12px] hover:bg-[#FFFFFF] hover:text-[#0856BA]"
+                              >Apply</button>
+                            </div>
+                            
+                          </div>
+                        ) : (
+                          <p className="text-[14px] italic text-gray-500">Job offering not found</p>
+                        );
+                      })()}
+
+                      {/* if newsletter is a donation */}
+                      {newsLetter.category === "donation_drive" && (() => {
+                        return (
+                          <>
+                            <h1 className="text-[24px] font-bold">Donation Drive</h1>
+                            <p className="text-[15px] mt-2">Details about the Donation Drive will go here.</p>
+                            <button
+                              onClick={() => router.push(`/donationdrive-list`)}
+                              className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                            >View More Sponsorships</button>
+                          </>
+                        );
+                      })()}
+
+                      {/* if newsletter is a scholarship */}
+                      {newsLetter.category === "scholarship" && (() => {
+                        return (
+                          <>
+                            <h1 className="text-[24px] font-bold">Scholarship</h1>
+                            <p className="text-[15px] mt-2">Details about the scholarship will go here.</p>
+                            <button
+                              onClick={() => router.push(`/sponsorship`)}
+                              className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                            >View More Sponsorships</button>
+                          </>
+                        );
+                      })()}
+
+                      {/* if newsletter is an event */}
+                      {newsLetter.category === "event" && (() => {
+                        return (
+                          <>
+                            <h1 className="text-[24px] font-bold">Event</h1>
+                            <p className="text-[15px] mt-2">Details about the event will go here.</p>
+                            <button
+                              onClick={() => router.push(`/events`)}
+                              className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+
+                            >View More Events</button>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  ))}
+                </div>
+              </div>
 
           {/*Sidebar*/}
-          <div className="w-[350px] flex flex-col  items-center gap-5 rounded-lg ">
+          <div className="fixed right-[110px] w-[350px] flex flex-col  items-center gap-5 rounded-[10px] ">
             
             {/* Donation Sample */}
-            <div className="w-full flex flex-row bg-[#EAEAEA] px-[10px] py-[10px] rounded-lg items-center">
+            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] px-[10px] py-[10px] rounded-lg items-center ">
               {/* left button */}
-              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-sm font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
+              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
                 <svg
                   fill="none"
                   stroke="currentColor"
@@ -210,36 +355,40 @@ export default function Home() {
                 </svg>
               </button>
 
-              <div className="w-full flex flex-col px-[10px] py-[10px] place-items-center">
-                {/* <img src='https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg' 
-                    className='w-full h-40 mb-5 object-cover object-center' /> */}
-                {/* <p className="text-sm place-self-center"><b>₱10,000</b> raised from <b>₱30,000</b> total</p> */}
+              {/* donation contents */}
+              <div className="w-full flex flex-col px-[10px] py-[10px] place-items-center ">
+                <img src="/ICS2.jpg" className="mb-[10px]"></img>
                 <div className="mx-[6px] w-[230px]">
-                <div className="flex flex-row text-[13px] gap-1"><p className="font-semibold">₱10,000</p> raised from <p className="font-semibold">₱30,000</p> total</div>
-                <hr className="w-full h-2.5 bg-gray-300 rounded-sm md:my-3 dark:bg-gray-300"></hr>
-                <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
-                  <div className="flex flex-row items-center gap-1">
-                    <img src="https://icons.veryicon.com/png/o/miscellaneous/huaxi-icon/account-30.png"
-                    className="h-4 w-auto" />
-                    <div className="text-[13px] flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
+                  <div className="flex flex-row text-[13px] gap-1">
+                    <p className="font-semibold">₱10,000</p> raised from <p className="font-semibold">₱30,000</p> total
                   </div>
-                  <div className="flex flex-row items-center gap-1">
-                    <img src="https://www.svgrepo.com/show/32021/clock.svg"
-                    className="h-3.5 w-auto"/>
-                    <div className="flex flex-row text-[13px] gap-1"><p className="font-semibold">10</p> days left</div>
+                  <hr className="w-full h-2.5 bg-[#D7D7D7] rounded-sm md:my-3 "></hr>
+                  <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
+                    <div className="flex flex-row items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[15px] w-auto">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                      </svg>
+                      <div className="text-[13px] flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
+                    </div>
+                    <div className="flex flex-row items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[15px] w-auto">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                      <div className="flex flex-row text-[13px] gap-1"><p className="font-semibold">10</p> days left</div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-col w-full gap-[3px] mt-3">
-                    <button
-                        onClick={() => router.push(`/sponsorship`)}
-                        className="w-full rounded-4xl border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px]"
-                    >View More</button>                          
+                  <div className="flex flex-col w-full gap-[3px] mt-3">
+                      <button
+                          onClick={() => router.push(`/sponsorship`)}
+                          className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+
+                      >View More</button>                          
                   </div> 
                 </div>
               </div>
               
               {/* right button */}
-              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-sm font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
+              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
                 <svg
                   fill="none"
                   stroke="currentColor"
@@ -264,8 +413,8 @@ export default function Home() {
               {/* End of donation sample */}
                 
             {/* Event Sample */}
-            <div className="w-full flex flex-row bg-[#EAEAEA] px-[10px] py-[10px] rounded-lg items-center">
-              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-sm font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
+            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] px-[10px] rounded-lg items-center">
+              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
               <svg
                     fill="none"
                     stroke="currentColor"
@@ -287,39 +436,43 @@ export default function Home() {
                   </svg>
                 </button>
 
-                <div className="w-full flex flex-col bg-[#EAEAEA] rounded-lg py-[10px] place-items-center">
-                {/* <img src='https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg' 
-                    className='w-full h-40 mb-5 object-cover object-center' /> */}
-                {/* <p className="text-sm place-self-center"><b>₱10,000</b> raised from <b>₱30,000</b> total</p> */}
-                <div className="mx-[6px] w-[230px]">
-                <div className="flex flex-row text-[13px]"><p className="font-semibold">Event Name</p></div>
-                <div className="flex flex-row text-[13px] gap-[10px] place-content-between mt-[10px]">
-                  <div className="flex flex-row items-center gap-1">
-                    <img src="https://icons.veryicon.com/png/o/miscellaneous/basic-icon-1/calendar-309.png"
-                    className="h-4 w-auto" />
-                    <div className="text-[13px] flex flex-row gap-1 items-center">January 1, 2025</div>
-                  </div>
-                  <div className="flex flex-row items-center gap-1">
-                    <img src="https://www.svgrepo.com/show/32021/clock.svg"
-                    className="h-3.5 w-auto"/>
-                    <div className="flex flex-row text-[13px] gap-1"><p className="font-semibold">3:00 PM</p></div>
+                <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[20px] place-items-center">
+                  <div className="mx-[6px] w-[230px]">
+                  {/* <img src="/ICS2.jpg" className="mb-[10px]"></img> */}
+                    <div className="flex flex-row text-[15px]">
+                      <p className="font-semibold">Event Name</p>
+                    </div>
+                    <div className="flex flex-row text-[13px] gap-[10px] place-content-between mt-[10px]">
+                      <div className="flex flex-row items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[15px] w-auto">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                        </svg>
+                      <p className="text-[13px] flex flex-row gap-1 items-center font-semibold">January 1, 2025</p>
+                    </div>
+                    <div className="flex flex-row items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[15px] w-auto">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                        <p className="flex flex-row text-[13px] gap-1 font-semibold">3:00 PM</p>
                   </div>
                 </div>
-                <div className="flex flex-row text-[13px] gap-[10px] place-self-center my-[2px]">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Location_pin_icon.svg/475px-Location_pin_icon.svg.png?20230306015422"
-                    className="h-3 w-auto"/>
-                    <p className="text-2xs">ICS Mega Hall</p>
+                <div className="flex flex-row text-[13px] gap-[3px] place-self-center my-[2px]">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-[15px] w-auto">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                  </svg>
+                  <p className="text-[13px] font-semibold">ICS Mega Hall</p>
                 </div>
                 <div className="flex flex-col w-full gap-[3px] mt-3">
                     <button
-                        onClick={() => router.push(`/events`)}
-                        className="w-full rounded-4xl border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px]"
+                      onClick={() => router.push(`/sponsorship`)}
+                      className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
                     >View More</button>                           
                   </div> 
                 </div>
               </div>
 
-              <button onClick={() => router.push(`/events`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-sm font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
+              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
                 <svg
                   fill="none"
                   stroke="currentColor"
@@ -343,8 +496,11 @@ export default function Home() {
             </div>
             {/* End of event sample */}
 
+            </div>
           </div>
-      </div>
-    </div>
-  );
+        </div>
+      );
+  } else {
+    return <LoadingPage />;
+  }
 }

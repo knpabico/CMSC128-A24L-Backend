@@ -7,6 +7,8 @@ import { Event } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
+import { Button } from "@mui/material";
+import ModalInput from "@/components/ModalInputForm";
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -105,6 +107,8 @@ export default function Events() {
           return 0;
       }
     });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const renderFilterAndSortDropdowns = () => (
     <div className="flex items-center justify-end flex-wrap gap-4 w-full">
@@ -238,6 +242,18 @@ export default function Events() {
                 onChange={(e) => setEventDescription(e.target.value)}
                 className="w-full mb-4 p-2 border rounded"
                 required
+              />
+              <Button onClick={() => setIsModalOpen(true)}>
+                Need AI help for description?
+              </Button>
+              <ModalInput
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={(response) => setEventDescription(response)}
+                title="AI Assistance for Events"
+                type="event"
+                mainTitle={title}
+                subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
               />
               <input
                 type="date"

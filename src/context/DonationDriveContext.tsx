@@ -9,10 +9,11 @@ import {
   setDoc,
   deleteDoc,
   updateDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { DonationDrive, DonationDriveSuggestions } from "@/models/models";
+import { DonationDrive } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 
 const DonationDriveContext = createContext<any>(null);
@@ -24,14 +25,19 @@ export function DonationDriveProvider({
 }) {
   const [donationDrives, setDonationDrives] = useState<DonationDrive[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [addDonoForm, setAddDonoForm] = useState(false);
-  const [editDonoForm, setEditDonoForm] = useState(false);
-  const [donoDriveId, setDonoDriveId] = useState("");
+  const [showForm, setShowForm] = useState(false);
+
+  // donation drive form fields
   const [campaignName, setCampaignName] = useState("");
   const [description, setDescription] = useState("");
+  const [targetAmount, setTargetAmount] = useState(0);
+  const [isEvent, setIsEvent] = useState(false);
+  const [eventId, setEventId] = useState("");
+  const [endDate, setEndDate] = useState(new Date());
   const [status, setStatus] = useState("");
   const [beneficiary, setBeneficiary] = useState<string[]>([]);
-  const { user, alumInfo, isAdmin } = useAuth();
+
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -74,63 +80,119 @@ export function DonationDriveProvider({
     return unsubscribeDonationDrives;
   };
 
-  const addDonationDrive = async (
-    driveData: Omit<DonationDrive, "id">,
-    driveId: string
-  ) => {
+  const getDonationDriveById = async (
+    donationDriveId: string
+  ): Promise<DonationDrive | null> => {
     try {
-      await setDoc(doc(db, "donation_drive", driveId), {
-        datePosted: new Date(),
-        description: description,
-        beneficiary: [],
-        campaignName: campaignName,
-        totalAmount: 0,
-        status: "active",
-      });
-      console.log(`Donation drive added: ${driveId}`);
+      const donationDriveDoc = doc(db, "donation_drive", donationDriveId);
+      const snapshot = await getDoc(donationDriveDoc);
+
+      if (snapshot.exists()) {
+        const donationDriveData = snapshot.data();
+        return {
+          donationDriveId: snapshot.id,
+          ...donationDriveData,
+        } as DonationDrive;
+      } else {
+        console.log(`No donation drive found with ID: ${donationDriveId}`);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching donation drive:", error);
+      throw new Error((error as FirebaseError).message);
+    }
+  };
+
+  const checkUserRole = async (userId: string) => {
+    const adminRef = doc(db, "admin", userId);
+    const alumniRef = doc(db, "alumni", userId);
+
+    const [adminSnap, alumniSnap] = await Promise.all([
+      getDoc(adminRef),
+      getDoc(alumniRef),
+    ]);
+
+    if (adminSnap.exists()) {
+      return { role: "admin", name: null };
+    } else {
+      const alumnusData = alumniSnap.data();
+      return { role: "alumni", name: alumnusData?.name || "Unknown" };
+    }
+  };
+
+  const addDonationDrive = async (driveData: DonationDrive) => {
+    const { role, name } = await checkUserRole(user!.uid);
+    try {
+      const docRef = doc(collection(db, "donation_drive"));
+      driveData.donationDriveId = docRef.id;
+      driveData.creatorType = role;
+      driveData.status = role === "admin" ? "active" : "pending";
+      driveData.creatorId = user!.uid;
+
+      await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const editDonoDrive = async () => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newDonoDrive: DonationDrive = {
+      donationDriveId: "",
+      datePosted: new Date(),
+      description,
+      beneficiary: [],
+      campaignName,
+      status: "",
+      creatorId: "",
+      creatorType: "",
+      currentAmount: 0,
+      targetAmount,
+      isEvent,
+      eventId,
+      startDate: new Date(),
+      endDate,
+      donorList: [],
+    };
+
+    const response = await addDonationDrive(newDonoDrive);
+
+    if (response.success) {
+      setShowForm(false);
+      setCampaignName("");
+      setDescription("");
+      setTargetAmount(0);
+      setIsEvent(false);
+      setEventId("");
+      setEndDate(new Date());
+      setStatus("");
+    } else {
+      console.error("Error adding donation drive:", response.message);
+    }
+  };
+
+  const handleEdit = async (
+    donationDriveId: string,
+    updatedData: Partial<DonationDrive>
+  ) => {
     try {
-      await updateDoc(doc(db, "donation_drive", donoDriveId), {
-        description: description,
-        campaignName: campaignName,
-      });
-      console.log(`Donation drive edited: ${donoDriveId}`);
+      await updateDoc(doc(db, "donation_drive", donationDriveId), updatedData);
+      setDonationDrives((prev) =>
+        prev.map((donationDrive) =>
+          donationDrive.donationDriveId === donationDriveId
+            ? { ...donationDrive, ...updatedData }
+            : donationDrive
+        )
+      );
       return { success: true, message: "Donation drive edited successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const subEditDonoDrive = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const response = await editDonoDrive();
-    if (response.success) {
-      setEditDonoForm(false);
-      setCampaignName("");
-      setDescription("");
-    } else {
-      console.error("Error editing donation drive:", response.message);
-    }
-  };
-
-  const editDonoDriveForm = async (
-    donationDriveId: string,
-    campaigname: string,
-    drivedescription: string
-  ) => {
-    setEditDonoForm(!editDonoForm);
-    setDonoDriveId(donationDriveId);
-    setCampaignName(campaigname);
-    setDescription(drivedescription);
-  };
-
-  const deleteDonationDrive = async (donationDriveId: string) => {
+  const handleDelete = async (donationDriveId: string) => {
     try {
       await deleteDoc(doc(db, "donation_drive", donationDriveId));
       setDonationDrives((prev) =>
@@ -144,74 +206,26 @@ export function DonationDriveProvider({
     }
   };
 
-  const submitDonationDrive = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const docRef = doc(collection(db, "donation_drive"));
-    const donationDriveId = docRef.id;
-    const newDonoDrive: DonationDrive = {
-      donationDriveId: donationDriveId,
-      datePosted: new Date(),
-      description,
-      beneficiary: [],
-      campaignName,
-      totalAmount: 0,
-      status: "active",
-    };
-    setStatus("active");
-    const response = await addDonationDrive(newDonoDrive, donationDriveId);
-
-    if (response.success) {
-      setAddDonoForm(false);
-      setCampaignName("");
-      setDescription("");
-    } else {
-      console.error("Error adding donation drive:", response.message);
-    }
-  };
-
-  const addsuggestion = async (
-    driveData: Omit<DonationDrive, "id">,
-    driveId: string
-  ) => {
+  const handleReject = async (donationDriveId: string) => {
     try {
-      await setDoc(doc(db, "donation_drive", driveId), {
-        datePosted: new Date(),
-        description: description,
-        beneficiary: [],
-        campaignName: campaignName,
-        totalAmount: 0,
-        status: "pending",
-      });
-      console.log(`Donation drive added: ${driveId}`);
-      return { success: true, message: "Donation drive added successfully." };
+      const driveRef = doc(db, "donation_drive", donationDriveId);
+      await updateDoc(driveRef, { status: "rejected" });
+      return { success: true, message: "Donation drive successfully rejected" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const suggestDonationDrive = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const docRef = doc(collection(db, "donation_drive"));
-    const donationDriveId = docRef.id;
-    const newDonoDrive: DonationDriveSuggestions = {
-      donationDriveId: donationDriveId,
-      suggestedBy: alumInfo?.alumniId!,
-      datePosted: new Date(),
-      description,
-      beneficiary: [],
-      campaignName,
-      totalAmount: 0,
-      status: "pending",
-    };
-    setStatus("pending");
-    const response = await addsuggestion(newDonoDrive, donationDriveId);
-
-    if (response.success) {
-      setAddDonoForm(false);
-      setCampaignName("");
-      setDescription("");
-    } else {
-      console.error("Error adding donation drive:", response.message);
+  const handleAccept = async (donationDriveId: string) => {
+    try {
+      const driveRef = doc(db, "donation_drive", donationDriveId);
+      await updateDoc(driveRef, { status: "active" });
+      return {
+        success: true,
+        message: "Donation drive successfully activated",
+      };
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
     }
   };
 
@@ -221,26 +235,30 @@ export function DonationDriveProvider({
         donationDrives,
         isLoading,
         addDonationDrive,
-        editDonoDriveForm,
-        editDonoDrive,
-        editDonoForm,
-        setEditDonoForm,
-        deleteDonationDrive,
-        subEditDonoDrive,
-        submitDonationDrive,
-        suggestDonationDrive,
-        addDonoForm,
-        setAddDonoForm,
-        beneficiary,
-        setBeneficiary,
-        donoDriveId,
-        setDonoDriveId,
+        showForm,
+        setShowForm,
+        handleSave,
+        handleEdit,
+        handleDelete,
+        handleReject,
+        handleAccept,
         campaignName,
         setCampaignName,
         description,
         setDescription,
+        targetAmount,
+        setTargetAmount,
+        isEvent,
+        setIsEvent,
+        eventId,
+        setEventId,
+        endDate,
+        setEndDate,
         status,
         setStatus,
+        beneficiary,
+        setBeneficiary,
+        getDonationDriveById,
       }}
     >
       {children}

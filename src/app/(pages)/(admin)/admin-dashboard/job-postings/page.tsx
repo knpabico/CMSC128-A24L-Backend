@@ -8,6 +8,8 @@ export default function Users() {
   const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
   const [activeTab, setActiveTab] = useState("Accepted");
 
+  console.log("Job Offers:", jobOffers);
+
   const filterJobs = (status: string) => {
     return jobOffers.filter((job: JobOffering) => job.status === status);
   };
