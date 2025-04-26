@@ -77,6 +77,7 @@ export interface Event {
   date: string;
   rsvps: string[];
   status: string;
+  inviteType: string;
   creatorId: string;
   creatorName: string;
   creatorType: string;
