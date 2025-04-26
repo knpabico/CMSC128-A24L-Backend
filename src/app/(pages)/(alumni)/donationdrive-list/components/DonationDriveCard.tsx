@@ -9,6 +9,7 @@ import { useDonationDrives } from '@/context/DonationDriveContext';
 import { useAuth } from '@/context/AuthContext';
 import { Users, Clock, MapPin, Calendar, ImageOff } from "lucide-react"
 import { useEffect } from 'react';
+import { Timestamp } from 'firebase-admin/firestore';
 
 interface DonationDriveCardProps {
 drive: DonationDrive;
@@ -65,28 +66,31 @@ const formatDate = (timestamp: any) => {
     }
 };
 
-  // Check if drive is expired and update status if needed
-  useEffect(() => {
-    const checkAndUpdateExpiredDrive = async () => {
-      try {
-        if (!drive) return;
-        
-        const today = new Date();
-        const end = drive.endDate ? drive.endDate : new Date(drive.endDate);
-        const isExpired = end.getTime() < today.getTime();
-        
-        // If the drive is expired and not already marked as completed, update it
-        if (isExpired && drive.status !== 'completed') {
-          await handleEdit(drive.donationDriveId, { status: 'completed' });
-          console.log(`Drive ${drive.campaignName} marked as completed due to expiration`);
-        }
-      } catch (err) {
-        console.error("Error checking drive expiration:", err);
-      }
-    };
-
-    checkAndUpdateExpiredDrive();
-  }, [drive, handleEdit]);
+useEffect(() => {
+	const checkAndUpdateExpiredDrive = async () => {
+	  try {
+		if (!drive) return;
+  
+		const today = new Date();
+		const endDate = drive.endDate as Date | Timestamp;
+  
+		const end = endDate instanceof Date
+		  ? endDate
+		  : (endDate as Timestamp).toDate(); // Safely convert
+  
+		const isExpired = end.getTime() < today.getTime();
+  
+		if (isExpired && drive.status !== 'completed') {
+		  await handleEdit(drive.donationDriveId, { status: 'completed' });
+		  console.log(`Drive ${drive.campaignName} marked as completed due to expiration`);
+		}
+	  } catch (err) {
+		console.error("Error checking drive expiration:", err);
+	  }
+	};
+  
+	checkAndUpdateExpiredDrive();
+ }, [drive]);
 
 
 // Calculate progress percentage
