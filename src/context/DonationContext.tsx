@@ -34,14 +34,14 @@ export const DonationContextProvider = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { alumInfo, user } = useAuth();
+  const { alumInfo, user, isAdmin } = useAuth();
 
   const alumniId = user?.uid;
 
   useEffect(() => {
     let unsubscribe: (() => void) | null | undefined;
 
-    if (user) {
+    if (user || isAdmin) {
       unsubscribe = subscribeToDonations(); //maglilisten sa firestore
     } else {
       setUserDonations([]); //reset once logged out

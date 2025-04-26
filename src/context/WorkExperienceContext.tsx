@@ -20,6 +20,9 @@ import { FirebaseError } from "firebase/app";
 
 const WorkExperienceContext = createContext<any>(null);
 
+
+
+
 export function WorkExperienceProvider({
   children,
 }: {
@@ -62,6 +65,18 @@ export function WorkExperienceProvider({
     };
   }, [user]);
 
+
+  const sortExperienceList = (experienceList: WorkExperience[]): WorkExperience[] => {
+    const sortedList = [...experienceList]; // Copy to avoid modifying the original
+  
+    // Sort by startingDate (oldest to newest)
+    sortedList.sort((a, b) => a.startingDate.seconds - b.startingDate.seconds);  
+    // Log the sorted list to the console
+    console.log("Sorted Work Experience List:", sortedList);
+  
+    return sortedList;
+  };
+
   //function for adding work experience
   const addWorkExperience = async (
     workExperienceEntry: WorkExperience,
@@ -88,14 +103,14 @@ export function WorkExperienceProvider({
       const q = query(collection(db, "work_experience"), where("alumniId", "==", alumniId));
       const querySnapshot = await getDocs(q);
       
-      console.log("Raw Firestore Data:", querySnapshot.docs.map(doc => doc.data()));
+      console.log("firestore Data:", querySnapshot.docs.map(doc => doc.data()));
   
       const workExperienceList: WorkExperience[] = querySnapshot.docs.map((doc) => doc.data() as WorkExperience);
-  
+      
       console.log("Fetched Work Experience:", workExperienceList);
-  
-      setSelectedAlumWorkExperience(workExperienceList);  
-      return workExperienceList;
+      // sortExperienceList(workExperienceList);
+      setSelectedAlumWorkExperience(sortExperienceList(workExperienceList));  
+      return sortExperienceList(workExperienceList);
     } catch (error) {
       console.error("Error fetching work experience:", error);
       setSelectedAlumWorkExperience([]);
@@ -143,6 +158,7 @@ export function WorkExperienceProvider({
         const allWorkExperienceList = querySnapshot.docs.map(
           (doc: any) => doc.data() as WorkExperience
         );
+
         setAllWorkExperience(allWorkExperienceList);
         setLoading(false);
       },
@@ -170,7 +186,9 @@ export function WorkExperienceProvider({
         const userWorkExperienceList = querySnapshot.docs.map(
           (doc: any) => doc.data() as WorkExperience
         );
-        setUserWorkExperience(userWorkExperienceList);
+        // sortExperienceList(userWorkExperienceList);
+
+        setUserWorkExperience(sortExperienceList(userWorkExperienceList));
         setLoading(false);
       },
       (error) => {

@@ -1,14 +1,19 @@
 "use client";
 import NotFound from "@/app/not-found";
+import Home from "@/app/page";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { isAdmin, loading } = useAuth();
+  const { loading, user, isAdmin, status } = useAuth();
+  console.log(`status: ${status}`);
   if (loading) {
     return <LoadingPage />;
-  } else if (!isAdmin) {
+  } else if (isAdmin || status !== "approved") {
     return <NotFound />;
-  } else
-    return <div className="max-w-screen-lg mx-auto px-4 py-10">{children}</div>;
+  } else if (user) {
+    return <div className="">{children}</div>;
+  } else if (!isAdmin && !user) {
+    return <Home />;
+  }
 }

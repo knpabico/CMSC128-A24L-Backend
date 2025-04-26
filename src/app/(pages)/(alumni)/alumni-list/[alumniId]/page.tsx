@@ -69,10 +69,12 @@ export default function AlumPage() {
       <h1>{alum.age}</h1>
       <h1>
         {alum.birthDate
-          .toDate()
-          .toISOString()
-          .slice(0, 10)
-          .replaceAll("-", "/")}
+          ? alum.birthDate
+              .toDate()
+              .toISOString()
+              .slice(0, 10)
+              .replaceAll("-", "/")
+          : ""}
       </h1>
       <h1>{alum.fieldOfWork}</h1>
       <h1>{alum.companyName}</h1>
@@ -104,6 +106,20 @@ export default function AlumPage() {
               >
                 <p>Company Name: {work.company}</p>
                 <p>Location: {work.location}</p>
+                <h2>
+                  Duration:{" "}
+                  {work.startingDate
+                    .toDate()
+                    .toISOString()
+                    .slice(0, 10)
+                    .replaceAll("-", "/")}
+                  {" - "}
+                  {work.endingDate
+                    .toDate()
+                    .toISOString()
+                    .slice(0, 10)
+                    .replaceAll("-", "/")}
+                </h2>
               </div>
             ))
           ) : (

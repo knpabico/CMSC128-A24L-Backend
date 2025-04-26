@@ -21,6 +21,8 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { getRegStatus, getUserRole } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext<{
   user: User | null;
@@ -35,6 +37,8 @@ const AuthContext = createContext<{
     email: string,
     password: string
   ) => Promise<UserCredential | undefined>;
+  isAdmin: boolean;
+  status: string | null;
 }>({
   user: null,
   alumInfo: null,
@@ -42,12 +46,18 @@ const AuthContext = createContext<{
   logOut: async () => {},
   loading: true,
   signUp: async () => undefined,
+  isAdmin: false,
+  status: null,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [alumInfo, setAlumInfo] = useState<Alumnus | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [role, setRole] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const router = useRouter();
 
   //function for getting currently logged in user info from the "alumni" collection
   const getAlumInfo = async (user: User) => {
@@ -57,15 +67,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     //listen to changes on the data
     if (alumniDoc.exists()) {
       console.log("Document data:", alumniDoc.data());
-      var alumniCopy = alumniDoc.data() as Alumnus;
+      const alumniCopy = alumniDoc.data() as Alumnus;
 
       //convert date format to YYY-MM-DD
-      alumniCopy.birthDate = alumniDoc
-        .data()
-        .birthDate.toDate()
-        .toISOString()
-        .slice(0, 10)
-        .replaceAll("-", "/");
+      alumniCopy.birthDate = alumniDoc.data().birthDate
+        ? alumniDoc
+            .data()
+            .birthDate.toDate()
+            .toISOString()
+            .slice(0, 10)
+            .replaceAll("-", "/")
+        : undefined;
 
       setAlumInfo(alumniCopy);
     } else {
@@ -76,21 +88,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
       if (user) {
-        setUser(user);
+        const userRole = await getUserRole(user.email);
+        setRole(userRole);
+        console.log(userRole);
+        if (userRole === "admin") {
+          setIsAdmin(true);
+        } else if (userRole === "user") {
+          const regStat = await getRegStatus(user.uid);
+          setStatus(regStat);
+          if (regStat == "approved") {
+          } else if (regStat == "pending") {
+            console.log(`status: ${regStat}`);
+          }
+          setUser(user);
+          await getAlumInfo(user);
+        } else {
+          logOut();
+        }
 
         //get alumInfo of currently logged in user
-        await getAlumInfo(user);
 
-        const token = await user.getIdToken();
-        await fetch("/api/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
+        // const token = await user.getIdToken();
+        // await fetch("/api/session", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({ token }),
+        // });
       } else {
         setUser(null);
-        await fetch("/api/session", { method: "DELETE" });
+        // await fetch("/api/session", { method: "DELETE" });
       }
       setLoading(false);
     });
@@ -98,7 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true, message: "Successful Log In!" };
@@ -110,8 +137,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, message: "Invalid credentials!" };
       }
       return { success: false, message: "Error" };
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -134,8 +159,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logOut = async () => {
     setLoading(true);
     try {
+      router.push("/");
       await signOut(auth);
       setUser(null);
+      setIsAdmin(false);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -144,7 +171,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   return (
     <AuthContext.Provider
-      value={{ user, alumInfo, signIn, logOut, loading, signUp }}
+      value={{
+        user,
+        alumInfo,
+        signIn,
+        logOut,
+        loading,
+        signUp,
+        isAdmin,
+        status,
+      }}
     >
       {children}
     </AuthContext.Provider>
