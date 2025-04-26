@@ -3,6 +3,8 @@ import NotFound from "@/app/not-found";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
+import { useEducation } from "@/context/EducationContext";
+
 import {
   Button,
   Dialog,
@@ -21,11 +23,14 @@ import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "./edit-work-experience";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { useRouter } from "next/navigation";
-
+import AddEducationModal from "@/components/ui/add-aducation-modal";
+import { WorkExperience,Education } from "@/models/models";
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
   const { userWorkExperience, isLoading, deleteWorkExperience } =
     useWorkExperience();
+  const { userEducation, isLoadingEducation, deleteEducation} = useEducation();
+
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [success, setSuccess] = useState(false);
@@ -38,7 +43,12 @@ const UserProfile = () => {
   const [educationView,setEducationView]= useState(false); //pang track if pinindot ba ni User yung education
   const [personalView,setPersonalView]= useState(true); //pang track if pinindot ba ni User yung personal same sa career
   const [careerView,setCareerView]= useState(false);
+  const [degreeType, setDegreeType] = useState("");
 
+
+  const [addBachelor,setAddBachelor]= useState(false); 
+  const [addMasters,setAddMasters]= useState(false); 
+  const [addDoctoral,setAddDoctoral]= useState(false);
 
   // GAWA NI MAYBELLE
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -46,7 +56,7 @@ const UserProfile = () => {
   const [country, setCountry] = useState('');
   // -----------------
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: any) => {
     const { success, message } = await deleteWorkExperience(id);
     setMessage(message);
     setSuccess(success);
@@ -73,6 +83,33 @@ const UserProfile = () => {
     setCareerView(true);
   };
   //===========================
+
+  //pagdagdag sa education
+  const handleAddBachelor = () => {
+    setAddMasters(false);
+    setAddDoctoral(false);
+    console.log("@ Bachelor");
+    setDegreeType("Bachelor");
+    setAddBachelor(true);
+  }
+
+  const handleAddMasters = () => {
+    setAddDoctoral(false);
+    setAddBachelor(false);
+    setDegreeType("Masters");
+    setAddMasters(true);
+  };
+  
+  const handleAddDoctoral = () => {
+    setAddMasters(false);
+    setAddBachelor(false);
+    setDegreeType("Doctoral");
+    setAddDoctoral(true);
+  };
+
+
+
+
   const [isMapOpenArray, setIsMapOpenArray] = useState(
     new Array(userWorkExperience.length).fill(false)
   );
@@ -132,7 +169,7 @@ const UserProfile = () => {
 
 
   // new (from fe)
-  function getFullMonthName(monthIndex) {
+  function getFullMonthName(monthIndex: number) {
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
@@ -337,7 +374,7 @@ const UserProfile = () => {
                 </div>)}
                 {/* ---- end of bullet div ---- */}
 
-                <button className="flex items-center space-x-3 cursor-pointer">
+                <button className="flex items-center space-x-3 cursor-pointer" onClick={handleAddBachelor}>
                   <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
                   <p className="text-[#3675c5] text-sm hover:underline">Add bachelor's degree</p>
                 </button>
@@ -353,14 +390,19 @@ const UserProfile = () => {
                 {true && (<div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  <div className="flex items-center space-x-5">
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "Masters").map((edu:Education, index:number)=>(
+
+                  <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-sky-400"></div>
                     <div>
-                      <p className="font-medium">Master of Science in Computer Science</p>
-                      <p className="text-sm">University of the Philippines Los Baños</p>
-                      <p className="text-sm">Year Graduated: 2026</p>
+                      <p className="font-medium">{edu.major}</p>
+                      <p className="text-sm">{edu.university}</p>
+                      <p className="text-sm">Year Graduated: {edu.yearGraduated}</p>
                     </div>
                   </div>
+
+
+                  ))}
                   {/* ---- end of individual bullet ---- */}
 
                 </div>)}
@@ -368,7 +410,7 @@ const UserProfile = () => {
 
                 <button className="flex items-center space-x-3 cursor-pointer">
                   <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                  <p className="text-[#3675c5] text-sm hover:underline">Add master's degree</p>
+                  <p className="text-[#3675c5] text-sm hover:underline" onClick={handleAddMasters}>Add master's degree</p>
                 </button>
                 
               </div>
@@ -395,7 +437,7 @@ const UserProfile = () => {
                 </div>)}
                 {/* ---- end of bullet div ---- */}
 
-                <button className="flex items-center space-x-3 cursor-pointer">
+                <button className="flex items-center space-x-3 cursor-pointer" onClick={handleAddDoctoral}>
                   <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
                   <p className="text-[#3675c5] text-sm hover:underline">Add doctoral degree</p>
                 </button>
@@ -438,52 +480,81 @@ const UserProfile = () => {
           </div>)}
 
           {/* career section */}
-          { careerView && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
-            <div className="space-y-3">
-              <p className="font-semibold">Work Experience</p>
-              
-              {/* BULLET DIV ; set of all bullets ito */}
-              {true && (<div className="space-y-3">
+          {userWorkExperience.length == 0 && (
+            <Typography>No Work Experience Yet!</Typography>
+          )}
+          {careerView && (
+            <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+              <div className="space-y-3">
+                <p className="font-semibold">Work Experience</p>
 
-                {/* INDIVIDUAL BULLET */}
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-5">
-                    <div className="w-6 h-6 rounded-full bg-gray-500"></div>
-                    <div>
-                      <p className="font-medium">Senior Developer</p>
-                      <p className="text-sm">Google &nbsp;•&nbsp; <span className="font-light italic">Software Engineering</span></p>
-                      <p className="text-sm">2025 - Present</p>
-                    </div>
+                {/* BULLET DIV */}
+                {userWorkExperience.length > 0 && (
+                  <div className="space-y-3">
+                    {userWorkExperience.map((item:WorkExperience, index:number) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <div className="flex items-center space-x-5">
+                          <div className="w-6 h-6 rounded-full bg-gray-500"></div>
+                          <div>
+                            <p className="font-medium">{item.company}</p>
+                            <p className="text-sm">
+                              {item.company} &nbsp;•&nbsp; <span className="font-light italic">{item.details}</span>
+                            </p>
+                            {/* <p className="text-sm">{item.startingDate}</p> */}
+                          </div>
+                        </div>
+                        <div className="flex space-x-10">
+                          <button className="flex items-center space-x-2 cursor-pointer">
+                            <p className="text-[#3675c5]"><MapPin/></p>
+                            <p className="text-[#3675c5] text-sm hover:underline">View in map</p>
+                          </button>
+                          <button className="flex items-center space-x-2 cursor-pointer">
+                            <p className="text-[#3675c5]"><PencilIcon/></p>
+                            <p className="text-[#3675c5] text-sm hover:underline">Edit</p>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex space-x-10">
-                    <button className="flex items-center space-x-2 cursor-pointer">
-                      <p className="text-[#3675c5]"><MapPin/></p>
-                      <p className="text-[#3675c5] text-sm hover:underline">View in map</p>
-                    </button>
-                    <button className="flex items-center space-x-2 cursor-pointer">
-                      <p className="text-[#3675c5]"><PencilIcon/></p>
-                      <p className="text-[#3675c5] text-sm hover:underline">Edit</p>
-                    </button>
-                    </div>
-                </div>
-                {/* ---- end of individual bullet ---- */}
-
-              </div>)}
-              {/* ---- end of bullet div ---- */}
-
-              <button className="flex items-center space-x-3 cursor-pointer">
-                <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                <p className="text-[#3675c5] text-sm hover:underline">Add work experience</p>
-              </button>
-              
-            </div>    
-          </div>)}
+                )}
+              </div>
+            </div>
+          )}
 
 
           {/* ================== end of info box ================== */}
 
         </div>
       </div>
+      {addBachelor && (
+        <AddEducationModal
+          open={addBachelor}
+          onClose={() => setAddBachelor(false)}
+          userId={alumInfo?.alumniId}
+          setSuccess={setSuccess}
+          degreeType={degreeType}
+        />
+      )}
+      {addMasters && (
+        <AddEducationModal
+          open={addMasters}
+          onClose={() => setAddMasters(false)}
+          userId={alumInfo?.alumniId}
+          setSuccess={setSuccess}
+          degreeType={degreeType}
+        />
+      )}
+      {addDoctoral && (
+        <AddEducationModal
+          open={addDoctoral}
+          onClose={() => setAddDoctoral(false)}
+          userId={alumInfo?.alumniId}
+          setSuccess={setSuccess}
+          degreeType={degreeType}
+        />
+      )}
+
+
 
     </div>
   );

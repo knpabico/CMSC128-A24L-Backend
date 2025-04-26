@@ -1,17 +1,15 @@
+"use client";
+
 import { WorkExperience } from "@/models/models";
 import {
   Button,
   Card,
-  CardHeader,
-  Dialog,
-  DialogContent,
   Snackbar,
   TextField,
-  Typography,
 } from "@mui/material";
 import React, { useState } from "react";
 import GoogleMapsModal from "../../google-maps/map";
-import { CardTitle } from "@/components/ui/card";
+import { CardHeader, CardTitle } from "@/components/ui/card";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 
 const EditWorkExperience: React.FC<{
@@ -34,6 +32,8 @@ const EditWorkExperience: React.FC<{
     longitude: work.longitude,
   });
 
+  const { editWorkExperience } = useWorkExperience();
+
   const handleLocationSave = (address: string, lat: number, lng: number) => {
     setSelectedLocation({
       location: address,
@@ -42,8 +42,6 @@ const EditWorkExperience: React.FC<{
     });
   };
 
-  const { editWorkExperience } = useWorkExperience();
-
   const handleSubmit = async (work_experience: WorkExperience) => {
     const result = await editWorkExperience(work_experience);
     setSuccess(result.success);
@@ -51,13 +49,21 @@ const EditWorkExperience: React.FC<{
     if (result.success) {
       onClose();
     }
+    setSnackbar(true);
   };
 
+  if (!open) return null;
+
   return (
-    open && (
-      <Card className="w-full max-w-3xl">
+    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+      <Card className="w-full max-w-3xl p-6">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold mb-6">
+            Edit Work Experience
+          </CardTitle>
+        </CardHeader>
+
         <form
-          action=""
           onSubmit={async (e) => {
             e.preventDefault();
             await handleSubmit({
@@ -65,83 +71,53 @@ const EditWorkExperience: React.FC<{
               location: selectedLocation.location,
               latitude: selectedLocation.latitude,
               longitude: selectedLocation.longitude,
-              details: details,
+              details,
               startingDate: startDate,
               endingDate: endDate,
               workExperienceId: work.workExperienceId,
               alumniId: work.alumniId,
             });
-            setSnackbar(true);
           }}
+          className="space-y-6"
         >
-          <div className="flex space-x-7 mb-3">
-            <div>
-              <p className="text-xs font-light">Company</p>
+          {/* Company & Details */}
+          <div className="flex space-x-6">
+            <div className="flex-1">
+              <p className="text-sm font-light mb-1">Company</p>
               <TextField
                 onChange={(e) => setCompany(e.target.value)}
                 required
                 value={company}
-                sx={{
-                  width: '400px',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '0.375rem',
-                    '& fieldset': {
-                      borderColor: '#6b7280',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#4b5563',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#2563eb',
-                    },
-                    '& input': {
-                      padding: '10px 16px',
-                    },
-                  },
-                }}
+                fullWidth
               />
             </div>
-            <div>
-              <p className="text-xs font-light">Details</p>
+            <div className="flex-1">
+              <p className="text-sm font-light mb-1">Details</p>
               <TextField
                 onChange={(e) => setDetails(e.target.value)}
                 required
                 value={details}
-                sx={{
-                  width: '12.5rem',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '0.375rem',
-                    '& fieldset': {
-                      borderColor: '#6b7280',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#4b5563',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#2563eb',
-                    },
-                    '& input': {
-                      padding: '10px 16px',
-                    },
-                  },
-                }}
+                fullWidth
               />
             </div>
           </div>
 
+          {/* Location */}
           <div>
-            <p className="text-xs font-light">Location</p>
-            <div className="flex space-x-7 mb-3">
+            <p className="text-sm font-light mb-1">Location</p>
+            <div className="flex items-center space-x-4">
               {selectedLocation.location !== "" && (
-                <div>
-                  <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{selectedLocation.location}</p>
+                <div className="flex-1">
+                  <p className="bg-gray-100 py-2 px-4 rounded-md border border-gray-300 text-gray-700">
+                    {selectedLocation.location}
+                  </p>
                 </div>
               )}
               <Button variant="contained" onClick={() => setIsModalOpen(true)}>
-                {selectedLocation.location !== "" ? "Edit" : "Enter"} location
+                {selectedLocation.location !== "" ? "Edit" : "Enter"} Location
               </Button>
             </div>
-            
+
             <GoogleMapsModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
@@ -152,35 +128,42 @@ const EditWorkExperience: React.FC<{
             />
           </div>
 
-          <div className="flex space-x-7 mb-3">
-            <div>
-              <p className="text-xs font-light">Start Date</p>
+          {/* Dates */}
+          <div className="flex space-x-6">
+            <div className="flex-1">
+              <p className="text-sm font-light mb-1">Start Date</p>
               <input
                 type="date"
                 required
                 value={startDate.toISOString().split("T")[0]}
                 onChange={(e) => setStartDate(new Date(e.target.value))}
-                class="py-2 px-4 border border-gray-500 w-full rounded-md"
+                className="py-2 px-4 border border-gray-300 rounded-md w-full"
               />
             </div>
-            <div>
-              <p className="text-xs font-light">End Date</p>
+            <div className="flex-1">
+              <p className="text-sm font-light mb-1">End Date</p>
               <input
                 type="date"
                 required
-                onChange={(e) => setEndDate(new Date(e.target.value))}
                 value={endDate.toISOString().split("T")[0]}
-                class="py-2 px-4 border border-gray-500 w-full rounded-md"
+                onChange={(e) => setEndDate(new Date(e.target.value))}
+                className="py-2 px-4 border border-gray-300 rounded-md w-full"
               />
             </div>
           </div>
-          
-          <div>
-            <Button style={{backgroundColor: "#0856BA"}} type="submit" class="py-2 px-4 border border-gray-500 rounded-md text-white my-5">Save Changes</Button>
+
+          {/* Buttons */}
+          <div className="flex justify-end space-x-4 mt-6">
+            <Button variant="outlined" color="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" type="submit">
+              Save Changes
+            </Button>
           </div>
         </form>
       </Card>
-    )
+    </div>
   );
 };
 
