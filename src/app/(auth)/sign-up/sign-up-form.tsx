@@ -153,6 +153,10 @@ export default function RegistrationForm() {
   //for identifying whether the user is at the credentials part or profile part of the form
   const [currentPart, setCurrentPart] = useState(0);
   //const [presentCareer, setPresentCareer] = useState<boolean>([false]);
+
+  //for preventing double click
+  const [disableGoNext, setDisableGoNext] = useState(false);
+  const [disableGoBack, setDisableGoBack] = useState(false);
   const router = useRouter();
 
   // create a react hook form
@@ -262,30 +266,43 @@ export default function RegistrationForm() {
 
   //for proceeding to the "Your Profile" part after validating the user credentials
   const goNext = async () => {
+    //temporarily disable the go next button to prevent double click
+    setDisableGoNext(true);
     const currentFields = formParts[currentPart].fields;
     const result = await form.trigger(currentFields as fieldName[], {
       shouldFocus: true,
     });
 
-    //if true, part of form is validated,
-    //else, part of form has errors
-    if (!result) return;
-
-    //checking if already in the last part of the form
+    //if true, part of form is validated. Else, some part of the form has errors
+    if (!result) {
+      //re-enable the go next button
+      setDisableGoNext(false);
+      return;
+    }
     if (currentPart < formParts.length - 1) {
+      //checking if already in the last part of the form
       if (currentPart === formParts.length - 1) {
         form.handleSubmit(handleSubmit);
       } else if (currentPart === formParts.length - 2) {
         setCurrentPart((currentPart) => currentPart + 1);
       }
     }
+
+    //re-enable the go next button
+    setDisableGoNext(false);
   };
 
   //if on the second part, can press a button to go back to the user credentials part
   const goBack = () => {
+    //temporarily disable the go back button to prevent double click
+    //might not be needed for this function since it is fast
+    // but just to be sure
+    setDisableGoBack(true);
     if (currentPart > 0) {
       setCurrentPart((currentPart) => currentPart - 1);
     }
+    //re-enable the go back button
+    setDisableGoBack(false);
   };
 
   return (
@@ -1159,7 +1176,12 @@ export default function RegistrationForm() {
 
                 {/* Button galing user credentials (email, pass) papuntang profile */}
                 {currentPart === 0 && (
-                  <Button variant="outline" type="button" onClick={goNext}>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    disabled={disableGoNext} //disable button after clicking once to prevent double clicking
+                    onClick={goNext}
+                  >
                     SIGN UP
                   </Button>
                 )}
