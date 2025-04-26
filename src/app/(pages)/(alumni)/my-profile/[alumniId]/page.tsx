@@ -158,102 +158,152 @@ const UserProfile = () => {
           </div>
           <div className="flex flex-col justify-end pb-10">
             <p className="font-bold text-5xl pb-3">{alumInfo?.firstName} {alumInfo?.lastName}</p>
-            <p className="font-semibold text-xl">{alumInfo?.studentNumber}</p>
+            <p className="font-semibold text-xl">{alumInfo?.jobTitle}</p>
           </div>
         </div>
-        
+
         <div className="flex gap-3">
-          <Button
-            onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/edit-profile`)}}}
-            sx={{
-              color: 'white',
-              whiteSpace: 'nowrap',
-              padding: 2,
-              minHeight: 'auto',
-              minWidth: 'auto',
-              width: 'fit-content',
-              lineHeight: 1,
-              textTransform: 'none',
-              fontWeight: 'bold',
-              fontSize: '16px',
-            }}
-          >
-            Profile
-          </Button>
-          <Button
-            // onClick={() => router.push(`/my-profile/${user?.uid}`)}
-            className="w-full border border-black rounded-4xl"
-            sx={{
-              color: 'white',
-              whiteSpace: 'nowrap',
-              padding: 2,
-              minHeight: 'auto',
-              minWidth: 'auto',
-              width: 'fit-content',
-              lineHeight: 1,
-              textTransform: 'none',
-              fontWeight: 'bold',
-              fontSize: '16px',
-            }}
-          >
-          Record of Donations
-          </Button>
-          <Button
-            // onClick={() => router.push(`/my-profile/${user?.uid}`)}
-            className="w-full border border-black rounded-4xl"
-            sx={{
-              color: 'white',
-              whiteSpace: 'nowrap',
-              padding: 2,
-              minHeight: 'auto',
-              minWidth: 'auto',
-              width: 'fit-content',
-              lineHeight: 1,
-              textTransform: 'none',
-              fontWeight: 'bold',
-              fontSize: '16px',
-            }}
-          >
-          Job Postings
-          </Button>
-          <Button
-            // onClick={() => router.push(`/my-profile/${user?.uid}`)}
-            className="w-full border border-black rounded-4xl"
-            sx={{
-              color: 'white',
-              whiteSpace: 'nowrap',
-              padding: 2,
-              minHeight: 'auto',
-              minWidth: 'auto',
-              width: 'fit-content',
-              lineHeight: 1,
-              textTransform: 'none',
-              fontWeight: 'bold',
-              fontSize: '16px',
-            }}
-          >
-          Bookmarked Jobs
-          </Button>
-          <Button
-            // onClick={() => router.push(`/my-profile/${user?.uid}`)}
-            className="w-full border border-black rounded-4xl"
-            sx={{
-              color: 'white',
-              whiteSpace: 'nowrap',
-              padding: 2,
-              minHeight: 'auto',
-              minWidth: 'auto',
-              width: 'fit-content',
-              lineHeight: 1,
-              textTransform: 'none',
-              fontWeight: 'bold',
-              fontSize: '16px',
-            }}
-          >
-          Sent Job Applications
-          </Button>
+          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Profile</button>
+          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Record of Donations</button>
+          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Job Postings</button>
+          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Bookmarked Jobs</button>
         </div>
       </div>
+
+      <div className="mx-60 my-10">
+        <p style={{color: "#3675c5"}} className="text-2xl font-bold mb-2">Your Profile</p>
+        <div className="flex space-x-7">
+          <div style={{backgroundColor: "#3675c5"}} className="flex flex-col px-2 py-2.5 rounded-xl max-h-fit space-y-1">
+            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Personal</button>
+            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Education</button>
+            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Career</button>
+          </div>
+
+          <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+
+            <p className="font-semibold">Full Name</p>
+            <div className="flex space-x-7 mb-5">
+              <div>
+                <p className="text-xs font-light">First Name</p>
+                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.firstName}</p>
+              </div>
+              <div>
+                <p className="text-xs font-light">Middle Name</p>
+                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.middleName ? alumInfo?.middleName : "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-xs font-light">Last Name</p>
+                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.lastName}</p>
+              </div>
+              <div>
+                <p className="text-xs font-light">Suffix</p>
+                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.suffix ? alumInfo?.suffix : "N/A"}</p>
+              </div>
+            </div>
+
+            <p className="font-semibold">Birthday</p>
+            <div className="flex space-x-7 mb-5">
+              <div>
+                <p className="text-xs font-light">Month</p>
+                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{getFullMonthName(new Date(alumInfo?.birthDate).getMonth())}</p>*/}
+                <select
+                  className="appearance-none py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
+                  value={selectedMonth}
+                  onChange={(e) =>
+                    setSelectedDate(
+                      new Date(selectedYear, parseInt(e.target.value), selectedDay)
+                    )
+                  }
+                >
+                  {months.map((month, index) => (
+                    <option key={index} value={index}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <p className="text-xs font-light">Day</p>
+                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getDay()}</p>*/}
+                <select
+                  className="appearance-none py-2 px-4 border border-gray-500 w-25 rounded-md bg-white"
+                  value={selectedDay}
+                  onChange={(e) =>
+                    setSelectedDate(
+                      new Date(selectedYear, selectedMonth, parseInt(e.target.value))
+                    )
+                  }
+                >
+                  {days.map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <p className="text-xs font-light">Year</p>
+                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getFullYear()}</p>*/}
+                <select
+                  className="appearance-none py-2 px-4 border border-gray-500 w-25 rounded-md bg-white"
+                  value={selectedYear}
+                  onChange={(e) =>
+                    setSelectedDate(
+                      new Date(parseInt(e.target.value), selectedMonth, selectedDay)
+                    )
+                  }
+                >
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <p className="font-semibold">Current Location</p>
+            <div className="flex space-x-7">
+              <div>
+                <p className="text-xs font-light">City/Municipality</p>
+                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[0]}</p>*/}
+                <input
+                  type="text"
+                  placeholder="City/Municipality"
+                  className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </div>
+              <div>
+                <p className="text-xs font-light">Province/State</p>
+                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[0]}</p>*/}
+                <input
+                  type="text"
+                  placeholder="Province/State"
+                  className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
+                  // value={country}
+                  // onChange={(e) => setCity(e.target.value)}
+                />
+              </div>
+              <div>
+                <p className="text-xs font-light">Country</p>
+                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[1]}</p>*/}
+                <input
+                  type="text"
+                  placeholder="Country"
+                  className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      
 
 
       <div className="mx-60 my-10">
