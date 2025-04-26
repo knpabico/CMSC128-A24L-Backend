@@ -11,6 +11,8 @@ import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from '@/components/ui/bookmark-button';
+import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
+
 
 const DonationDriveDetailsPage: React.FC = () => {
   const router = useRouter();
@@ -25,6 +27,8 @@ const DonationDriveDetailsPage: React.FC = () => {
   const [eventLoading, setEventLoading] = useState(false);
   const [donationsLoading, setDonationsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDonors, setShowDonors] = useState(false);
+
 
   // Format date function with improved type safety
   const formatDate = (timestamp: any): string => {
@@ -76,12 +80,38 @@ const DonationDriveDetailsPage: React.FC = () => {
     }
   };
 
+//Calculate Days Remaining
+const getRemainingDays = (endDate: any) => {
+	try {
+		const today = new Date(); // Current date
+		const end = endDate.toDate(); // Firestore Timestamp to JS Date
+		const diffTime = end.getTime() - today.getTime();
+		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+		if (diffDays <= 0) return "Expired";
+		else if (diffDays === 1) return "1 day left";
+		else return `${diffDays} days left`;
+	} catch (err) {
+		return 'Invalid Date';
+	}
+};
+
   // Calculate progress percentage 
   const calculateProgress = (current: number, target: number): string => {
     if (target <= 0 || isNaN(target) || isNaN(current)) return '0';
     const percentage = (current / target) * 100;
     return Math.min(percentage, 100).toFixed(0);
   };
+
+	// Get most recent donation
+	const recentDonation = donations.reduce((latest, donation) => {
+		return new Date(donation.date) > new Date(latest.date) ? donation : latest;
+	}, donations[0]);
+	
+	// Get the highest donation
+	const highestDonation = donations.reduce((max, donation) => {
+		return donation.amount > max.amount ? donation : max;
+	}, donations[0]);
 
   useEffect(() => {
     if (!donationDriveId) {
@@ -229,263 +259,295 @@ const DonationDriveDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Link 
-        href="/donationdrive-list" 
-        className="mb-4 inline-flex items-center text-blue-600 hover:underline"
-      >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-5 w-5 mr-1" 
-          viewBox="0 0 20 20" 
-          fill="currentColor"
-        >
-          <path 
-            fillRule="evenodd" 
-            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" 
-            clipRule="evenodd" 
-          />
-        </svg>
-        Back to Donation Drives
-      </Link>
+    <div className="bg-[#EAEAEA] mx-auto px-10 py-8">
+		<Link href="/donationdrive-list" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
+			<MoveLeft className='size-[17px]'/>
+			Back to Donation Drives
+		</Link>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Event Image Header for Event-Related Drives */}
-        {donationDrive.isEvent && event && (
-          <div className="w-full h-64 relative bg-gray-200">
-            {event.image ? (
-              <img 
-                src={event.image} 
-                alt={event.title} 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full bg-blue-100">
-                <span className="text-blue-500 font-medium text-xl">{event.title || "Event"}</span>
-              </div>
-            )}
-            <div className="absolute top-4 right-4 flex space-x-2">
-              <span className={`px-3 py-1 text-sm rounded-full ${
-                event.status === 'active' ? 'bg-green-100 text-green-800' : 
-                event.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                event.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
-                {event.status?.charAt(0).toUpperCase() + event.status?.slice(1) || "N/A"}
-              </span>
-              <span className="bg-blue-100 text-blue-800 px-3 py-1 text-sm rounded-full">Event</span>
-            </div>
-          </div>
-        )}
+		<div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[85px]">
+			{/* Title */}
+			<div className="flex justify-between items-start">
+				<h1 className="text-5xl font-bold text-gray-800">{donationDrive.isEvent && event ? event.title : donationDrive.campaignName}</h1>
+				{/* <span className={`px-3 py-1 text-sm rounded-full ${
+					donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
+					donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+					donationDrive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+					'bg-gray-100 text-gray-800'
+				}`}>
+					{donationDrive.status.charAt(0).toUpperCase() + donationDrive.status.slice(1)}
+				</span> */}
+				<BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="lg" />
+			</div>
 
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <h1 className="text-2xl font-bold text-gray-800">
-              {donationDrive.isEvent && event ? event.title : donationDrive.campaignName}
-            </h1>
-            <div className="flex items-center space-x-2">
-              {!donationDrive.isEvent && (
-                <span className={`px-3 py-1 text-sm rounded-full ${
-                  donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
-                  donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  donationDrive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {donationDrive.status.charAt(0).toUpperCase() + donationDrive.status.slice(1)}
-                </span>
-              )}
-              <BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="md" />
-            </div>
-          </div>
+			{/* Event Body */}
+			<div className='flex flex-col xl:flex-row xl:gap-10 w-full'>
+				{/* Body */}
+				<div className='flex flex-col gap-[10px] w-full'>
+					{/* Image */}
+					<div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
+					{/* {donationDrive.isEvent && event && (
+						<div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
+							{event.image ? (
+								<img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+							) : (
+								<img src={donationDrive.image} alt={donationDrive.campaignName} className="w-full h-full object-cover" />
+							)}
+							<div className="absolute top-4 right-4 flex space-x-2">
+								<span className={`px-3 py-1 text-sm rounded-full ${
+									event.status === 'active' ? 'bg-green-100 text-green-800' : 
+									event.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+									event.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+									'bg-gray-100 text-gray-800'
+								}`}>
+									{event.status?.charAt(0).toUpperCase() + event.status?.slice(1) || "N/A"}
+								</span>
+								<span className="bg-blue-100 text-blue-800 px-3 py-1 text-sm rounded-full">Event</span>
+							</div>
+						</div>
+					)} */}
+					{/* Event details */}
+					{donationDrive.isEvent && event && (
+						<div className='mt-5 px-5'>
+							<div className=' flex justify-between items-center gap-4'>
+								<div className='flex gap-1 items-center justify-center'>
+									<Calendar className='size-[20px]' />
+									<p className='text-sm'>{formatDate(event.datePosted)}</p>
+								</div>
+								<div className='flex gap-1 items-center justify-center'>
+									<Clock className='size-[20px]' />
+									<p className='text-sm'>{event.time}</p>
+								</div>
+								<div className='flex gap-1 items-center justify-center'>
+									<MapPin className='size-[20px]' />
+									<p className='text-sm'>{event.location}</p>
+								</div>
+								<div className='flex gap-1 items-center justify-center'>
+									<Users className='size-[20px]' />
+									<p className='text-sm'>{event.numofAttendees || 0} attendees</p>
+								</div>
+							</div>
+						</div>
+					)}
+					{/* Event description */}
+					<p className="mb-6">{donationDrive.isEvent && event ? event.description : donationDrive.description}</p>
+					{/* Event Detaisl */}
+					<div className="grid lg:grid-cols-2 gap-6 mb-6">
+						{/* Creator Details */}
+						{/* <div>
+							<h3 className="font-semibold text-gray-700 mb-2">Creator Information</h3>
+							<p className="text-gray-600">
+								<span className="font-medium">Name:</span> {sponsorship.creatorName || 'N/A'}
+							</p>
+							<p className="text-gray-600">
+								<span className="font-medium">Type:</span> {sponsorship.creatorType || 'N/A'}
+							</p>
+						</div> */}
+						{/* Campaign Details */}
+						<div>
+							<h3 className="font-semibold text-gray-700 mb-2">Campaign Details</h3>
+							<p className="text-gray-600">
+								<span className="font-medium">Start:</span> {formatDate(donationDrive.startDate)}
+							</p>
+							<p className="text-gray-600">
+								<span className="font-medium">End:</span> {formatDate(donationDrive.endDate)}
+							</p>
+							<p className="text-gray-600">
+								<span className="font-medium">Date Posted:</span> {formatDate(donationDrive.datePosted)} 
+								<span className="text-gray-400 text-sm ml-2">({formatTimeAgo(donationDrive.datePosted)})</span>
+							</p>
 
-          <p className="text-gray-600 mb-6">
-            {donationDrive.isEvent && event ? event.description : donationDrive.description}
-          </p>
+						</div>
+						{/* Beneficiary Details */}
+						<div>
+							<h3 className="font-semibold text-gray-700 mb-2">Beneficiary Information</h3>
+							<p className="text-gray-600">
+								<span className="font-medium">Beneficiaries:</span> {donationDrive.beneficiary?.join(', ') || 'N/A'}
+							</p>
+							<p className="text-gray-600">
+								<span className="font-medium">Event Related:</span> {donationDrive.isEvent ? 'Yes' : 'No'}
+							</p>
+							{donationDrive.isEvent && (
+								<p className="text-gray-600">
+								<span className="font-medium">Event ID:</span> {donationDrive.eventId || 'N/A'}
+								</p>
+							)}
+						</div>
+					</div>
+					<div>
+						{/* Target guests */}
+						{event?.targetGuests && event.targetGuests.length > 0 && (
+							<div>
+							<p className="text-sm text-gray-600 mb-2">Target audience:</p>
+							<div className="flex flex-wrap gap-2">
+								{event.targetGuests.map((guest, index) => (
+								<span 
+									key={index} 
+									className="bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded-full"
+								>
+									{guest}
+								</span>
+								))}
+							</div>
+							</div>
+						)}
+					</div>
+				</div>
+				{/* Action Bar */}
+				<div className='min-w-[390px]'>
+					{/* Side bar */}
+					<div className='flex flex-col gap-[10px] w-full'>
+						{/* Invitation Status */}
+						<div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex justify-between w-full'>
+							<div className='w-1/2'>
+								<p>Event Status: </p>
+							</div>
+							<div className='w-full flex'>
+								{event?.stillAccepting ? (
+									<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
+										Still accepting guests
+										<CircleCheck />
+									</div>
+								) : (
+									<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
+										<X />
+										Registration closed
+									</div>
+								)}
+							</div>
+						</div>
+						{/* Donation Bar */}
+						<div className='bg-[#FFFF] py-[30px] px-[20px] rounded-[10px] flex flex-col gap-3'>
+							{/* Progress bar */}
+							<div className="">
+								<div className="flex justify-between mb-1">
+									<div className='flex gap-2'>
+										<Users className='size-[20px] text-[#616161]'/>
+										<span className="text-sm text-gray-500"> {donationDrive.donorList.length ?? '0'} Patrons</span>
+									</div>
+									<div className='flex gap-2'>
+										<Clock className='size-[17px] text-[#616161]'/>
+										<span className="text-sm text-gray-500">{getRemainingDays(donationDrive.endDate)}</span>
+									</div>
+								</div>
+								<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+									<div 
+										className="h-full bg-blue-500 rounded-full" 
+										style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}
+									></div>
+								</div>
+								<div className="flex justify-between my-1 text-sm">
+									<span className="font-medium">${donationDrive.currentAmount.toLocaleString()}</span>
+									<span className="text-gray-500">of ${donationDrive.targetAmount.toLocaleString()}</span>
+								</div>
+							</div>
+							{donationDrive.donorList.length > 0 && recentDonation && highestDonation &&(
+								<>
+									{/* Recent Donation */}
+									<div className='flex items-center justify-between'>
+										<div className='flex items-center gap-3'>
+											<HandHeart className='size-[17px]' />
+											<div>
+												<p className='text-sm'>
+													{recentDonation.isAnonymous ? 'Anonymous' : recentDonation.displayName || 'Unknown'}
+												</p>
+												<p className='text-xs'>
+													₱{recentDonation.amount?.toLocaleString() || '0'}
+												</p>
+											</div>
+										</div>
+										<div>
+											<p className='text-xs'>Recent Donation</p>
+										</div>
+									</div>
 
-          {/* Event-specific information */}
-          {donationDrive.isEvent && event && (
-            <div className="mb-6 bg-blue-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-700 mb-3">Event Details</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-gray-700">{formatDate(event.datePosted)}</span>
-                </div>
-                
-                <div className="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-gray-700">{event.time || 'Time not specified'}</span>
-                </div>
-                
-                <div className="flex items-start md:col-span-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="text-gray-700">{event.location || 'Location not specified'}</span>
-                </div>
-              </div>
-              
-              <div className="flex flex-wrap justify-between mb-4">
-                <div className="flex items-center mb-2 mr-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  <span className="text-gray-700">{event.numofAttendees || 0} attendees</span>
-                </div>
-                
-                {event.stillAccepting ? (
-                  <span className="inline-flex items-center text-green-600 font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Still accepting guests
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center text-red-600 font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Registration closed
-                  </span>
-                )}
-              </div>
-              
-              {/* Target guests */}
-              {event.targetGuests && event.targetGuests.length > 0 && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">Target audience:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {event.targetGuests.map((guest, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded-full"
-                      >
-                        {guest}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="mb-6">
-            <h3 className="font-semibold text-gray-700 mb-2">Funding Progress</h3>
-            <div className="flex justify-end text-sm font-medium text-gray-700 mb-1">
-              {calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%
-            </div>
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-blue-500 rounded-full" 
-                style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}
-              ></div>
-            </div>
-            <div className="flex justify-between mt-2 text-sm">
-              <span className="font-medium">
-                ₱{donationDrive.currentAmount?.toLocaleString() ?? '0'}
-              </span>
-              <span className="text-gray-500">
-                of ₱{donationDrive.targetAmount?.toLocaleString() ?? '0'}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Beneficiary Information</h3>
-              <p className="text-gray-600">
-                <span className="font-medium">Beneficiaries:</span> {donationDrive.beneficiary?.join(', ') || 'N/A'}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Event Related:</span> {donationDrive.isEvent ? 'Yes' : 'No'}
-              </p>
-              {donationDrive.isEvent && (
-                <p className="text-gray-600">
-                  <span className="font-medium">Event ID:</span> {donationDrive.eventId || 'N/A'}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Campaign Dates</h3>
-              <p className="text-gray-600">
-                <span className="font-medium">Start:</span> {formatDate(donationDrive.startDate)}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">End:</span> {formatDate(donationDrive.endDate)}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Date Posted:</span> {formatDate(donationDrive.datePosted)} 
-                <span className="text-gray-400 text-sm ml-2">({formatTimeAgo(donationDrive.datePosted)})</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h3 className="font-semibold text-xl text-gray-700 mb-4">Donation Details</h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              {donationsLoading ? (
-                <div className="flex justify-center py-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                </div>
-              ) : donations.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Donor
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Amount
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Payment Method
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {donations.map((donation) => (
-                        <tr key={donation.donationId} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                            {donation.isAnonymous ? 'Anonymous' : donation.displayName || 'Unknown'}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                            ₱{donation.amount?.toLocaleString() || '0'}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                            {formatDate(donation.date)}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                            {donation.paymentMethod || 'N/A'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="mt-4 mx-auto w-fit">
-                    <DonateDialog drive={donationDrive} />
-                  </div>
-                </div>
-              ) : (
-                <div className="py-4 text-center space-y-4">
-                  <p className="text-gray-500">No donations have been made for this donation drive yet.</p>
-                  <DonateDialog drive={donationDrive} />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+									{/* Top Donation */}
+									<div className='flex items-center justify-between'>
+										<div className='flex items-center gap-3'>
+											<HandHeart className='size-[17px]' />
+											<div>
+												<p className='text-sm'>
+													{highestDonation.isAnonymous ? 'Anonymous' : highestDonation.displayName || 'Unknown'}
+												</p>
+												<p className='text-xs'>
+													₱{highestDonation.amount?.toLocaleString() || '0'}
+												</p>
+											</div>
+										</div>
+										<div>
+											<p className='text-xs'>Major Donation</p>
+										</div>
+									</div>
+								</>
+							)}
+							{/* Buttons */}
+							<div className='flex gap-[10px] w-full'>
+								<div className='w-full'> 
+									<DonateDialog drive={donationDrive} /> 
+								</div>
+								<button className='text-sm bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:bg-accent'
+									onClick={() => setShowDonors(true)}> 
+									View All Donations
+								</button>
+							</div>
+						</div>
+					</div>
+					{/* Donors */}
+					{showDonors && (
+						<div className="bg-[#FFFF] py-[30px] px-[30px] rounded-[10px] mt-3">
+							<div className='flex justify-between items-start'>
+								<h3 className="font-semibold text-l mb-4">Donation History</h3>
+								<button onClick={() => setShowDonors(false)}>
+									<X className='size-[17px]'/>
+								</button>
+							</div>
+							<div className="bg-gray-50 rounded-lg">
+								{donationsLoading ? (
+									<div className="flex justify-center py-4">
+										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+									</div>
+								) : donations.length > 0 ? (
+									<div className="overflow-x-auto">
+										<table className="min-w-full divide-y divide-gray-200">
+											<thead className="bg-gray-100">
+												<tr>
+													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Donor
+													</th>
+													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Amount
+													</th>
+													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Date
+													</th>
+												</tr>
+											</thead>
+											<tbody className="bg-white divide-y divide-gray-200">
+												{donations.map((donation) => (
+													<tr key={donation.donationId} className="hover:bg-gray-50">
+														<td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+															{donation.isAnonymous ? 'Anonymous' : donation.displayName || 'Unknown'}
+														</td>
+														<td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+															${donation.amount?.toLocaleString() || '0'}
+														</td>
+														<td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+															{formatDate(donation.date)}
+														</td>
+													</tr>
+												))}
+											</tbody>
+										</table>
+									</div>
+								) : (
+									<p className="text-gray-500 py-4 text-center">No donations have been made for this sponsorship yet.</p>
+								)}
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
+		</div>    
     </div>
   );
 };

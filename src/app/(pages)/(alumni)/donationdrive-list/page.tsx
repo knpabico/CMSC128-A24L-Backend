@@ -13,7 +13,10 @@ const [sortOption, setSortOption] = useState<string>('newest');
 
 useEffect(() => {
 	if (donationDrives.length > 0) {
-	const sorted = [...donationDrives].sort((a, b) => {
+
+	const filteredDrives = donationDrives.filter(
+		(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed'));
+	const sorted = [...filteredDrives].sort((a, b) => {
 		switch (sortOption) {
 		case 'newest':
 			const dateA = a.datePosted?.toDate?.() || new Date(0);

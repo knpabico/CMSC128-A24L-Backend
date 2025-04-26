@@ -57,6 +57,19 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
   // grab the details about the current user
   const { user, alumInfo } = useAuth();
 
+  	//Calculate Days Remaining
+	const getRemainingDays = (endDate: any) => {
+		try {
+			const today = new Date(); // Current date
+			const end = endDate.toDate(); // Firestore Timestamp to JS Date
+			const diffTime = end.getTime() - today.getTime();
+			const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+			return diffDays;
+		} catch (err) {
+			return -1;
+		}
+	};
+
   const handleSubmit = async (data: z.infer<typeof donationFormSchema>) => {
     setIsLoading(true);
     const token = await user?.getIdToken();
@@ -156,7 +169,13 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" disabled={drive.status === 'pending' || drive.status === 'completed'}>Donate</Button>
+        <button className={`text-sm w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2
+			${drive.status === 'pending' || drive.status === 'completed' || getRemainingDays(drive.endDate) < 0
+				? 'bg-gray-400 text-white cursor-not-allowed border-gray-400 border-2'
+				: 'bg-[#0856BA] text-white hover:bg-[#0855baa2] cursor-pointer'
+			}`}
+			disabled={ drive.status === 'pending' || drive.status === 'completed' || getRemainingDays(drive.endDate) < 0
+		}>Donate</button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[430px]">
         <DialogHeader>

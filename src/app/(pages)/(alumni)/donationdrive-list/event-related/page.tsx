@@ -16,6 +16,9 @@ export default function EventRelatedDrivesPage() {
     if (donationDrives.length > 0) {
       // Filter for event-related drives
       const eventRelated = donationDrives.filter((drive: { isEvent: boolean; }) => drive.isEvent);
+	//   Filter active and completed 
+	//   const filteredDrives = eventRelated.filter(
+	// 	(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed'));
       
       // Apply sorting
       const sorted = [...eventRelated].sort((a, b) => {

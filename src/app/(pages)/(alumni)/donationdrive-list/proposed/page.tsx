@@ -94,38 +94,28 @@ export default function ProposedDrivesPage() {
             <h2 className="text-lg font-semibold">{getStatusDisplayTitle()}</h2>
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               {/* Status filter */}
-              <div className="flex items-center">
-                <label htmlFor="status" className="mr-2 text-sm">Status:</label>
-                <select 
-                  id="status" 
-                  value={statusFilter} 
-                  onChange={handleStatusFilterChange}
-                  className="flex items-center text-sm border rounded px-2 py-1"
-                >
-                  <option value="all">All</option>
-                  <option value="active">Active</option>
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-              
-              {/* Sort by */}
-              <div className="flex items-center">
-                <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                <select 
-                  id="sort" 
-                  value={sortOption} 
-                  onChange={handleSortChange} 
-                  className="flex items-center text-sm border rounded px-2 py-1"
-                >
-                  <option value="newest">Newest</option>
-                  <option value="oldest">Oldest</option>
-                  <option value="amount-high">Amount (High to Low)</option>
-                  <option value="amount-low">Amount (Low to High)</option>
-                  <option value="progress">Progress</option>
-                </select>
-              </div>
+				<div className="flex items-center">
+					<label htmlFor="status" className="mr-2 text-sm">Status:</label>
+					<select id="status" value={statusFilter} onChange={handleStatusFilterChange} className="flex items-center text-sm">
+						<option value="all">All</option>
+						<option value="active">Active</option>
+						<option value="pending">Pending</option>
+						<option value="completed">Completed</option>
+						<option value="rejected">Rejected</option>
+					</select>
+				</div>
+				<div> | </div>              
+              	{/* Sort by */}
+              	<div className="flex items-center">
+					<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+					<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+						<option value="newest">Newest</option>
+						<option value="oldest">Oldest</option>
+						<option value="amount-high">Amount (High to Low)</option>
+						<option value="amount-low">Amount (Low to High)</option>
+						<option value="progress">Progress</option>
+					</select>
+				</div>
             </div>
           </div>
           {proposedDrives.length > 0 ? (

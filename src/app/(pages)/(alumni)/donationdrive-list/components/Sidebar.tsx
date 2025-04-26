@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CalendarDays, Bookmark, HandHeart, BookOpen, FileText, LucideIcon} from "lucide-react"
+import { CalendarDays, Bookmark, HandHeart, BookOpen, FileText, LucideIcon, Heart} from "lucide-react"
 
 type SidebarItem = {
 	id: string;
@@ -22,6 +22,7 @@ const sidebarItems: SidebarItem[] = [
 	{ id: 'event', label: 'Event Related Drives', href: '/donationdrive-list/event-related', icon: CalendarDays},
 	{ id: 'saved', label: 'Saved Drives', href: '/donationdrive-list/saved', icon: Bookmark },
 	{ id: 'proposed', label: 'Proposed Drives', href: '/donationdrive-list/proposed', icon: FileText},
+	{ id: 'donations', label: 'Your Donations', href: '/donationdrive-list/donations', icon: Heart},
 	{ id: 'featured', label: 'Featured Stories', href: '/donationdrive-list/featured', icon: BookOpen},
 ];
 

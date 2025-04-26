@@ -112,19 +112,53 @@ const handleViewDetails = (donationDriveId: string) => {
 return (
 	<div className="bg-[#FFFF] rounded-[10px] h-fit hover:cursor-pointer" onClick={() => handleViewDetails(drive.donationDriveId)} >
 		{/* Image */}
-		<div className="bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
-		{/* { event?.image || drive.image ? (
-			<di>
-				{ drive.isEvent && event ? (
-					<img src={event.image} alt={event.title} className="bg-cover bg-center rounded-t-[10px] h-[230px]"/>
+		<div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
+			{!drive.isEvent && (
+				<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
+					drive.status === 'active'
+						? 'bg-green-100 text-green-800'
+						: drive.status === 'completed'
+						? 'bg-blue-100 text-blue-800'
+						: drive.status === 'pending'
+						? 'bg-yellow-100 text-yellow-800'
+						: 'bg-gray-100 text-gray-800'
+				}`}>
+					{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+				</span>
+			)}
+		</div>
+		{/* {event?.image || drive.image ? (
+			<div className="relative">
+				{drive.isEvent && event ? (
+					<img src={event.image} alt={event.title} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
 				) : (
-					<img src={drive.image} alt={drive.campaignName} className="bg-cover bg-center rounded-t-[10px] h-[230px]"/>
+					<img src={drive.image} alt={drive.campaignName} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
 				)}
-			<div />
+				{!drive.isEvent && (
+					<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
+						drive.status === 'active' ? 'bg-green-100 text-green-800' :
+						drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+						drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+						'bg-gray-100 text-gray-800'
+					}`}>
+						{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+					</span>
+				)}
+			</div>
 		) : (
-			<div className="flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
+			<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
+				{!drive.isEvent && (
+					<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
+						drive.status === 'active' ? 'bg-green-100 text-green-800' :
+						drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+						drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+						'bg-gray-100 text-gray-800'
+					}`}>
+						{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+					</span>
+				)}
 				<span className="text-blue-500 font-medium">
-					<ImageOff className='size-[50px] color-'/>
+					<ImageOff className="size-[50px]" />
 				</span>
 			</div>
 		)} */}
