@@ -104,16 +104,16 @@ export default function Home() {
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
               </p>
               <p className="text-[14px]">{alumInfo!.email}</p>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <p className="text-[14px]"><i>Current based on {alumInfo!.address}</i></p>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <div className="flex flex-col items-center">
                 <p className="text-[14px]">Std. No. {alumInfo!.studentNumber}</p>
                 <p className="text-[14px]">Graduated: {alumInfo!.graduationYear}</p>
               </div>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <div className="text-[14px] border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px] flex flex-wrap">{alumInfo!.jobTitle}</div>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 "></hr>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
                 className="w-full h-[30px] rounded-full text-[#FFFFFF] bg-[#0856BA] hover:bg-[#357BD6]"
@@ -265,18 +265,11 @@ export default function Home() {
                                 {jobOffering.jobDescription}
                               </p>
                             </div> 
-
-                            <div className="flex flex-row w-full gap-[10px]">
                               <button
                                 onClick={() => router.push(`/joboffer-list`)}
                                 className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
 
                               >View More Job Offers</button>
-                              <button
-                                onClick={() => router.push(`/joboffer-list`)}
-                                className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#0856BA] text-[#FFFFFF] text-[12px] hover:bg-[#FFFFFF] hover:text-[#0856BA]"
-                              >Apply</button>
-                            </div>          
                             </div>
 
                             
