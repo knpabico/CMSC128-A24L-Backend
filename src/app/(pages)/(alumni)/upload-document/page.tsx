@@ -32,7 +32,16 @@ function DocumentUpload() {
       return;
     }
     try {
-      const data = await uploadDocument(document, "documents/uploads");
+      const data = await uploadDocument(document, "documents/uploads"); //ITO YUNG PINAKAFUNCTION NA IUUTILIZE
+      // 1st parameter is the actual document, 2nd is yung path sa firebase storage. Bale icustomize niyo na lang ito based sa klase ng image na iuupload niyo.
+      // Kapag proof ng work exp ng alumni, magiging await uploadDocument(document, `alumni/${alumniId}`)"
+      //(please take a look sa firebase console).
+
+      //Pero, need pa ng attribute na documentURL or kayo bahala sa name (if ever na wala pa) para ma-save sa database. So, iupdate niyo na lang yun sa database after uploading the document.
+
+      //Example: Sa backend niyo, especially sa pagcreate/update ng work experience:
+      // await updateDoc(docRef, { docURL: data.url });
+      //Ang data.url ay URL ng uploaded document which is nirereturn ng uploadDocument function.
 
       if (data.success) {
         setIsError(false);
