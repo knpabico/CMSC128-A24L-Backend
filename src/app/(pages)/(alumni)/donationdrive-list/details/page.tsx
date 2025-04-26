@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from '@/components/ui/bookmark-button';
 import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
+import { ThankYouDialog } from '../ThankYouDialog';
 
 
 const DonationDriveDetailsPage: React.FC = () => {
@@ -28,6 +29,7 @@ const DonationDriveDetailsPage: React.FC = () => {
   const [donationsLoading, setDonationsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDonors, setShowDonors] = useState(false);
+  const [isThankYouOpen, setIsThankYouOpen] = useState(false); // Track thank you dialog
 
 
   // Format date function with improved type safety
@@ -217,6 +219,10 @@ const getRemainingDays = (endDate: any) => {
     fetchDonations();
   }, [donationDriveId, getDonationsByDonationDrive]);
 
+  const handleDonationSuccess = () => {
+    setIsThankYouOpen(true); // Trigger the Thank You dialog when donation is successful
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -398,7 +404,8 @@ const getRemainingDays = (endDate: any) => {
 					{/* Side bar */}
 					<div className='flex flex-col gap-[10px] w-full'>
 						{/* Invitation Status */}
-						<div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex justify-between w-full'>
+						{ donationDrive.isEvent && event && (
+							<div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex justify-between w-full'>
 							<div className='w-1/2'>
 								<p>Event Status: </p>
 							</div>
@@ -416,6 +423,7 @@ const getRemainingDays = (endDate: any) => {
 								)}
 							</div>
 						</div>
+						)}
 						{/* Donation Bar */}
 						<div className='bg-[#FFFF] py-[30px] px-[20px] rounded-[10px] flex flex-col gap-3'>
 							{/* Progress bar */}
@@ -437,8 +445,8 @@ const getRemainingDays = (endDate: any) => {
 									></div>
 								</div>
 								<div className="flex justify-between my-1 text-sm">
-									<span className="font-medium">${donationDrive.currentAmount.toLocaleString()}</span>
-									<span className="text-gray-500">of ${donationDrive.targetAmount.toLocaleString()}</span>
+									<span className="font-medium">₱ {donationDrive.currentAmount.toLocaleString()}</span>
+									<span className="text-gray-500"> ₱ {donationDrive.targetAmount.toLocaleString()}</span>
 								</div>
 							</div>
 							{donationDrive.donorList.length > 0 && recentDonation && highestDonation &&(
@@ -483,22 +491,23 @@ const getRemainingDays = (endDate: any) => {
 							{/* Buttons */}
 							<div className='flex gap-[10px] w-full'>
 								<div className='w-full'> 
-									<DonateDialog drive={donationDrive} /> 
+									<DonateDialog drive={donationDrive} onDonationSuccess={handleDonationSuccess}/> 
 								</div>
-								<button className='text-sm bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:bg-accent'
+								<button className='text-sm bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:bg-gray-100 hover:cursor-pointer'
 									onClick={() => setShowDonors(true)}> 
 									View All Donations
 								</button>
 							</div>
 						</div>
 					</div>
+					{isThankYouOpen && (<ThankYouDialog />)}
 					{/* Donors */}
 					{showDonors && (
 						<div className="bg-[#FFFF] py-[30px] px-[30px] rounded-[10px] mt-3">
 							<div className='flex justify-between items-start'>
 								<h3 className="font-semibold text-l mb-4">Donation History</h3>
 								<button onClick={() => setShowDonors(false)}>
-									<X className='size-[17px]'/>
+									<X className='size-[17px] hover:cursor-pointer hover:text-gray-600'/>
 								</button>
 							</div>
 							<div className="bg-gray-50 rounded-lg">

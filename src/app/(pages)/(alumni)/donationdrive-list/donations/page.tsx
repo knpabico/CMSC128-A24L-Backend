@@ -7,6 +7,7 @@ import { Donation } from "@/models/models";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import DonationDriveSidebar from "../components/Sidebar";
+import { ProofOfPaymentDialog } from "./ProofOfPaymentDialog";
 
 const sortTypes = [
   "MOST RECENT FIRST",
@@ -16,7 +17,7 @@ const sortTypes = [
 ]; //sort types
 const sortValues = ["mrf", "odf", "asc", "desc"]; //sort values (query params)
 
-export default function Donations() {
+const Donations: React.FC = () => {
   const { userDonations: originalDonations, isLoading: contextLoading, error: contextError } = useDonationContext();
   const [userDonations, setUserDonations] = useState<Donation[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +29,7 @@ export default function Donations() {
   const sort = searchParams.get("sort"); //get current sort param
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedDonationId, setSelectedDonationId] = useState<string | null>(null); 
 
   // Sort the donations when original donations change or sort parameter changes
   useEffect(() => {
@@ -232,22 +234,15 @@ export default function Donations() {
 												</div>
 											</td>
 											<td>
-												<button onClick={() => setSelectedImage(donation.imageProof)} className="mt-2 text-blue-600 hover:underline text-sm font-medium">
-													View Proof
-												</button>
-												{selectedImage === donation.imageProof && (
-													<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-														<div className="bg-white p-4 rounded-lg shadow-lg max-w-sm w-full">
-															<h1 className="w-full text-center font-medium mb-2">Proof of Payment</h1>
-															<img src="/proof.jpg" alt="Payment Proof" className="w-full h-auto rounded" />
-															<button
-																onClick={() => setSelectedImage(null)}
-																className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm w-full"
-															>
-																Close
-															</button>
-														</div>
-													</div>
+											<button onClick={() => { setSelectedDonationId(donation.donationId); setSelectedImage('/proof.jpg'); }} // Adjust with the correct image path
+												className="text-blue-500 hover:underline text-sm">
+												View Proof
+											</button>
+												{selectedDonationId === donation.donationId && selectedImage && (
+													<ProofOfPaymentDialog
+														selectedImage={selectedImage}
+														setSelectedImage={setSelectedImage}
+													/>
 												)}
 											</td>
 										</tr>
@@ -256,7 +251,10 @@ export default function Donations() {
 							</table>
 						</div>
 					) : (
-					<p>No donations found</p>
+						<div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+							<h3 className="text-xl font-medium text-gray-600">No donations have been made yet. </h3>
+							<p className="text-gray-500 mt-2">Waiting for your first donation!</p>
+						</div>
 					)}
 				</div>
 			</div>
@@ -264,3 +262,5 @@ export default function Donations() {
 	</div>
 	);
 }
+
+export default Donations;
