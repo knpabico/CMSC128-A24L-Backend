@@ -35,6 +35,10 @@ const UserProfile = () => {
   const [editMessage, setEditMessage] = useState("");
   const [editSuccess, setEditSuccess] = useState(false);
   const { isLoaded } = useGoogleMaps();
+  const [educationView,setEducationView]= useState(false); //pang track if pinindot ba ni User yung education
+  const [personalView,setPersonalView]= useState(true); //pang track if pinindot ba ni User yung personal same sa career
+  const [careerView,setCareerView]= useState(false);
+
 
   // GAWA NI MAYBELLE
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -49,6 +53,26 @@ const UserProfile = () => {
     setDeleteModal(true);
   };
 
+  //pagpindot sa buttons
+  const handleEducationClick = () => {
+    setPersonalView(false);
+    setCareerView(false);
+    setEducationView(true);
+  };
+
+  const handlePersonalClick = () => {
+    setEducationView(false);
+    setCareerView(false);
+    setPersonalView(true);
+  };
+
+  
+  const handleCareerClick = () => {
+    setEducationView(false);
+    setPersonalView(false);
+    setCareerView(true);
+  };
+  //===========================
   const [isMapOpenArray, setIsMapOpenArray] = useState(
     new Array(userWorkExperience.length).fill(false)
   );
@@ -60,37 +84,37 @@ const UserProfile = () => {
     new Array(userWorkExperience.length).fill(false)
   );
 
-  const openEditModal = (index) => {
+  const openEditModal = (index:number) => {
     const newEditModal = Array(isEditModalOpen.length).fill(false);
     newEditModal[index] = true;
     setEditModalOpen(newEditModal);
   };
 
-  const closeEditModal = (index) => {
+  const closeEditModal = (index:number) => {
     const newEditModal = [...isEditModalOpen];
     newEditModal[index] = false;
     setEditModalOpen(newEditModal);
   };
 
-  const openModal = (index) => {
+  const openModal = (index:number) => {
     const newDeleteModal = [...isDeleteModalOpen];
     newDeleteModal[index] = true;
     setDeleteModalOpen(newDeleteModal);
   };
 
-  const closeModal = (index) => {
+  const closeModal = (index:number) => {
     const newDeleteModal = [...isDeleteModalOpen];
     newDeleteModal[index] = false;
     setDeleteModalOpen(newDeleteModal);
   };
 
-  const openMap = (index) => {
+  const openMap = (index:number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = true;
     setIsMapOpenArray(newIsMapOpenArray);
   };
 
-  const closeMap = (index) => {
+  const closeMap = (index:number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = false;
     setIsMapOpenArray(newIsMapOpenArray);
@@ -116,26 +140,26 @@ const UserProfile = () => {
     return monthNames[monthIndex];
   }
 
-  // GAWA NI MAYBELLE
-  useEffect(() => {
-    // Birthdate parsing
-    if (alumInfo?.birthDate) {
-      const safeDate = new Date(alumInfo.birthDate.replaceAll('/', '-'));
-      setSelectedDate(safeDate);
-    }
+  // // GAWA NI MAYBELLE
+  // useEffect(() => {
+  //   // Birthdate parsing
+  //   if (alumInfo?.birthDate) {
+  //     const safeDate = new Date(alumInfo.birthDate.replaceAll('/', '-'));
+  //     setSelectedDate(safeDate);
+  //   }
   
-    // Address parsing
-    if (Array.isArray(alumInfo?.address) && typeof alumInfo.address[0] === 'string') {
-      const [cityVal = '', countryVal = ''] = alumInfo.address[0]
-        .split(',')
-        .map((part) => part.trim());
+  //   // Address parsing
+  //   if (Array.isArray(alumInfo?.address) && typeof alumInfo.address[0] === 'string') {
+  //     const [cityVal = '', countryVal = ''] = alumInfo.address[0]
+  //       .split(',')
+  //       .map((part) => part.trim());
   
-      setCity(cityVal);
-      setCountry(countryVal);
-    } else {
-      console.warn("Address not in expected format:", alumInfo?.address);
-    }
-  }, [alumInfo?.birthDate, alumInfo?.address]);
+  //     setCity(cityVal);
+  //     setCountry(countryVal);
+  //   } else {
+  //     console.warn("Address not in expected format:", alumInfo?.address);
+  //   }
+  // }, [alumInfo?.birthDate, alumInfo?.address]);
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -175,15 +199,15 @@ const UserProfile = () => {
 
         <div className="flex space-x-7">
           <div style={{backgroundColor: "#3675c5"}} className="flex flex-col px-2 py-2.5 rounded-xl max-h-fit space-y-1">
-            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Personal</button>
-            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Education</button>
-            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition">Career</button>
+            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition" onClick={handlePersonalClick}>Personal</button>
+            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition" onClick={handleEducationClick}>Education</button>
+            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition" onClick={handleCareerClick}>Career</button>
           </div>
 
           {/* INFO BOX */}
 
           {/* personal section */}
-          {true && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+          {personalView && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
 
             {/* FULL NAME */}
             <p className="font-semibold">Full Name</p>
@@ -290,7 +314,7 @@ const UserProfile = () => {
           </div>)}
           
           {/* education section */}
-          {false && (<div className="space-y-7 w-full">
+          {educationView && (<div className="space-y-7 w-full">
             {/* degree */}
             <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1">
               <div className="space-y-3">
@@ -414,7 +438,7 @@ const UserProfile = () => {
           </div>)}
 
           {/* career section */}
-          {false && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+          { careerView && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
             <div className="space-y-3">
               <p className="font-semibold">Work Experience</p>
               
