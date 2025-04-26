@@ -66,6 +66,7 @@ export default function JobOffers() {
   const [sidebarFilter, setSidebarFilter] = useState<string>("Job Postings");
   const filterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const filterContainerRef = useRef<HTMLDivElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
 
   const acceptedJobs = jobOffers.filter(
@@ -295,20 +296,18 @@ export default function JobOffers() {
         </div>
   
         {activeFilters.length > 0 && (
-        <button
-          className="px-3 py-1 bg-red-50 text-red-700 rounded text-sm"
-          onClick={() => {
-            setActiveFilters([]);
-            setActiveFilterCategory(null);
-            setShowFilterOptions(false);
-            setCurrentPage(1);
-          }}
-        >
-          Clear Filters
-        </button>
-      ) : (
-        <div className="invisible px-3 py-1 rounded text-sm">Clear Filters</div>
-      )}
+          <button
+            className="px-3 py-1 bg-red-50 text-red-700 rounded text-sm mb-4"
+            onClick={() => {
+              setActiveFilters([]);
+              setActiveFilterCategory(null);
+              setShowFilterOptions(false);
+              setCurrentPage(1);
+            }}
+          >
+            Clear Filters
+          </button>
+        )}
   
         <div className="flex">
             {/* Sidebar */}

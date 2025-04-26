@@ -21,6 +21,14 @@ export default function Users() {
     total: jobOffers.length
   };
 
+  // limit job description on admin side
+  const truncateDescription = (text) => {
+    // mga 150 characters lang ipapakita sa description
+    const maxLength = 150;
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
+
   return (
     <div className="bg-[#EAEAEA] flex h-full w-full p-6">
       {/* Stats Sidebar kasi gusto ko eh ba8 ba!! */}
@@ -93,7 +101,9 @@ export default function Users() {
                 </div>
               </div>
               
-              <p className="text-gray-700 mb-4">{job.jobDescription}</p>
+              <div className="text-gray-700 line-clamp-3 text-ellipsis overflow-hidden">
+                <p className="line-clamp-3">{job.jobDescription}</p>
+              </div>
               
               {activeTab === "Accepted" && (
                 <div className="flex justify-end">
