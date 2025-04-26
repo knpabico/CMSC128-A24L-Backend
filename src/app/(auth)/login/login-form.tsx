@@ -30,6 +30,8 @@ import { toastError } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { GoogleSign } from "@/context/AuthGoogleContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +55,7 @@ export default function LoginForm() {
       // refresh the page, middleware runs
       // if user is logged in, then middleware will redirect the user to another page
       // router.refresh();
-      router.push('/');
+      router.push("/");
     } catch (err: any) {
       const errorMessage =
         err.code === "auth/invalid-credential"
@@ -62,6 +64,18 @@ export default function LoginForm() {
 
       toastError(errorMessage);
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const data = await GoogleSign();
+    if (data.success) {
+    } else {
+      if (data.errorMessage === "User not found!") {
+        router.push("/sign-up");
+      }
+      toastError(data.errorMessage);
     }
   };
 
@@ -119,6 +133,16 @@ export default function LoginForm() {
             </fieldset>
           </form>
         </Form>
+        <Button
+          onClick={() => {
+            handleGoogleSignIn();
+          }}
+          variant="outline"
+          className=" bg-black text-white hover:bg-white hover:text-black w-full mt-4"
+          disabled={form.formState.isSubmitting || isLoading}
+        >
+          Sign In With Google
+        </Button>
       </CardContent>
       <CardFooter className="justify-between items-center">
         <small>Don't have an account?</small>

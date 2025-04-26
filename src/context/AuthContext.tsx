@@ -39,6 +39,7 @@ const AuthContext = createContext<{
   ) => Promise<UserCredential | undefined>;
   isAdmin: boolean;
   status: string | null;
+  getAlumInfo: (user: User) => Promise<void>;
 }>({
   user: null,
   alumInfo: null,
@@ -48,6 +49,7 @@ const AuthContext = createContext<{
   signUp: async () => undefined,
   isAdmin: false,
   status: null,
+  getAlumInfo: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -92,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         const userRole = await getUserRole(user.email);
         setRole(userRole);
-        console.log(userRole);
+        console.log("userRole: " + userRole);
         if (userRole === "admin") {
           setIsAdmin(true);
         } else if (userRole === "user") {
@@ -105,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(user);
           await getAlumInfo(user);
         } else {
+          console.log("User is not an admin or user");
           logOut();
         }
 
@@ -118,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // });
       } else {
         setUser(null);
+
         // await fetch("/api/session", { method: "DELETE" });
       }
       setLoading(false);
@@ -180,6 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         isAdmin,
         status,
+        getAlumInfo,
       }}
     >
       {children}
