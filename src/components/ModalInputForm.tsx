@@ -1,4 +1,5 @@
 import { AIQuestion } from "@/models/models";
+import { getAuth } from "firebase/auth";
 import React, { useState, useEffect } from "react";
 
 interface ModalProps {
@@ -42,16 +43,26 @@ const ModalInput: React.FC<ModalProps> = ({
     }
   }, [isOpen, mainTitle]);
 
-  // Handle submission
   const handleModalSubmit = async () => {
     try {
       setLoading(true);
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        return;
+      }
+
+      const idToken = await user.getIdToken();
       const response = await fetch("/api/ai-helper", {
         method: "POST",
         body: JSON.stringify({
           question: formData,
           type,
         }),
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
       });
 
       if (!response.ok) {
