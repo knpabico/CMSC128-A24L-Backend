@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useEvents } from "@/context/EventContext";
+import { useAuth } from "@/context/AuthContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { Event } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
@@ -63,7 +64,6 @@ export default function Events() {
     handleSave,
     handleViewEventAlumni,
     date,
-    creatorId,
     setEventDate,
     description,
     setEventDescription,
@@ -72,6 +72,8 @@ export default function Events() {
     setNeedSponsorship,
     setEventTitle,
   } = useEvents();
+
+  const { user } = useAuth();
 
   const [dateSortType, setDateSortType] = useState<
     "event-closest" | "event-farthest" | "posted-newest" | "posted-oldest"
@@ -231,7 +233,7 @@ export default function Events() {
         {showForm && (
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
             <form
-              onSubmit={handleSave}
+              onSubmit={(e) => handleSave(e, [])}
               className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
             >
               <h2 className="text-xl bold mb-4">Propose Event</h2>
@@ -338,7 +340,7 @@ export default function Events() {
           {renderEventList(
             events.filter(
               (event: Event) =>
-                event.status === "Pending" && event.creatorId == creatorId
+                event.status === "Pending" && event.creatorId == user.uid
             )
           )}
         </div>
