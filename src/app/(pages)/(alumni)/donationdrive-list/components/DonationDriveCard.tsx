@@ -114,7 +114,7 @@ return (
 		{/* Image */}
 		<div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
 			{!drive.isEvent && (
-				<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
+				<span className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
 					drive.status === 'active'
 						? 'bg-green-100 text-green-800'
 						: drive.status === 'completed'
@@ -123,8 +123,9 @@ return (
 						? 'bg-yellow-100 text-yellow-800'
 						: 'bg-gray-100 text-gray-800'
 				}`}>
-					{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+					{drive.status === 'completed' ? 'Closed' : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
 				</span>
+				
 			)}
 		</div>
 		{/* {event?.image || drive.image ? (

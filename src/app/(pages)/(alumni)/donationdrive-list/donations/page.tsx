@@ -27,6 +27,7 @@ export default function Donations() {
   const searchParams = useSearchParams();
   const sort = searchParams.get("sort"); //get current sort param
   const router = useRouter();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Sort the donations when original donations change or sort parameter changes
   useEffect(() => {
@@ -178,46 +179,82 @@ export default function Donations() {
 				</div>
 				{displayError && <p className="text-red-500">{displayError}</p>}
 				{showLoading && <p>Loading...</p>}
-				<div className="flex flex-col gap-10 mt-5">
+
+				<div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3">
 					{userDonations && userDonations.length > 0 ? (
-					userDonations.map((donation) => (
-						<div key={donation.donationId} className="p-4 border rounded-md shadow-sm">
-						<p><strong>Campaign:</strong> {campaignNames[donation.donationDriveId] || 'Loading campaign name...'}</p>
-						{/* <p><strong>Donation Drive ID:</strong> {donation.donationDriveId}</p>
-						<p><strong>Alumni ID:</strong> {donation.alumniId}</p> */}
-						<p><strong>Amount:</strong> ₱{donation.amount.toLocaleString()}</p>
-						<p><strong>Payment Method:</strong> {donation.paymentMethod}</p>
-						<p><strong>Date:</strong> {new Date(donation.date).toLocaleString()}</p>
-						
-						<div className="flex items-center mt-2">
-							<strong className="mr-2">Anonymous:</strong> 
-							<label className="relative inline-flex items-center cursor-pointer">
-							<input 
-								type="checkbox" 
-								checked={donation.isAnonymous} 
-								className="sr-only peer"
-								onChange={() => toggleAnonymity(donation.donationId, donation.isAnonymous)}
-								disabled={updatingAnonymity === donation.donationId}
-							/>
-							<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-							{updatingAnonymity === donation.donationId && (
-								<span className="ml-2 text-sm text-gray-500">Updating...</span>
-							)}
-							</label>
+						<div className="overflow-x-auto">
+							<table className="min-w-full divide-y divide-gray-200">
+								<thead className="bg-gray-100">
+									<tr>
+										<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+											Campaign
+										</th>
+										<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+											Amount
+										</th>
+										<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+											Payment Method
+										</th>
+										<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+											Date
+										</th>
+										<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+											Anonymous
+										</th>
+										<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+											Proof
+										</th>
+									</tr>
+								</thead>
+								<tbody className="bg-white divide-y divide-gray-200">
+									{userDonations.map((donation) => (
+										<tr key={donation.donationId} className="hover:bg-gray-50">
+											<td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-700">
+												{campaignNames[donation.donationDriveId] || 'Loading campaign name...'}
+											</td>
+											<td className="px-4 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
+												₱ {donation.amount.toLocaleString()}
+											</td>
+											<td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+												{donation.paymentMethod}
+											</td>
+											<td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+												{new Date(donation.date).toLocaleDateString()}
+											</td>
+											<td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+												<div className="flex justify-center items-center mt-2">
+													<label className="flex items-center cursor-pointer space-x-2">
+														<input type="checkbox" checked={donation.isAnonymous} onChange={() => toggleAnonymity(donation.donationId, donation.isAnonymous)} disabled={updatingAnonymity === donation.donationId} className="w-4 h-4" />
+														{updatingAnonymity === donation.donationId && (
+															<span className="ml-2 text-sm text-gray-500">Updating...</span>
+														)}
+													</label>
+												</div>
+											</td>
+											<td>
+												<button onClick={() => setSelectedImage(donation.imageProof)} className="mt-2 text-blue-600 hover:underline text-sm font-medium">
+													View Proof
+												</button>
+												{selectedImage === donation.imageProof && (
+													<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+														<div className="bg-white p-4 rounded-lg shadow-lg max-w-sm w-full">
+															<h1 className="w-full text-center font-medium mb-2">Proof of Payment</h1>
+															<img src="/proof.jpg" alt="Payment Proof" className="w-full h-auto rounded" />
+															<button
+																onClick={() => setSelectedImage(null)}
+																className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm w-full"
+															>
+																Close
+															</button>
+														</div>
+													</div>
+												)}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
 						</div>
-						
-						{donation.imageProof && (
-							<div className="mt-2">
-							<p><strong>Payment Proof:</strong></p>
-							<img 
-								src={donation.imageProof} 
-								alt="Payment Proof" 
-								className="mt-2 max-w-xs"
-							/>
-							</div>
-						)}
-						</div>
-					))
 					) : (
 					<p>No donations found</p>
 					)}
