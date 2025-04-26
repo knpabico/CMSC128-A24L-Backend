@@ -20,10 +20,10 @@ export default function Events() {
     date,
     handleReject,
     handleFinalize,
-    handleViewEventAdmin, setEventDate,
+    handleViewEventAdmin, 
+    setEventDate,
     description,
     setEventDescription,
-    
     title,
     setEventTitle,
   } = useEvents();
