@@ -16,6 +16,7 @@ import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
 import { useNewsLetters } from "./NewsLetterContext";
+import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
@@ -30,6 +31,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [position, setPosition] = useState("");
   const [requiredSkill, setRequiredSkill] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState("");
+  const [location, setLocation] = useState("");
+  const [image, setImage] = useState("");
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
@@ -85,6 +88,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       alumniId: "",
       datePosted: new Date(),
       status: "",
+      location: "",
       image: "",
     };
 
@@ -101,6 +105,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setPosition("");
       setRequiredSkill([]);
       setSalaryRange("");
+      setLocation("");
+      setImage("");
     } else {
       console.error("Error adding job:", response.message);
     }
@@ -204,6 +210,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         handleView,
         closeModal,
         selectedJob,
+        location,
+        setLocation,
         handleDelete,
       }}
     >
