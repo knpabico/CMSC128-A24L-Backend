@@ -500,7 +500,7 @@ export default function Events() {
               <strong>Attendees:</strong>
               {events.numofAttendees}
             </p>
-            {events.creatorType === "Alumni" && (
+            {events.creatorType === "alumni" && (
               <p>Proposed by: {events.creatorName}</p>
             )}
 
