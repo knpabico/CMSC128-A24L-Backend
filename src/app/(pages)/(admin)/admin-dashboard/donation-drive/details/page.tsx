@@ -275,15 +275,17 @@ const getRemainingDays = (endDate: any) => {
             {/* Title */}
             <div className="flex justify-between items-start">
                 <h1 className="text-5xl font-bold text-gray-800">{donationDrive.isEvent && event ? event.title : donationDrive.campaignName}</h1>
-                {/* <span className={`px-3 py-1 text-sm rounded-full ${
+                <span className={`px-3 py-1 text-sm rounded-full ${
                     donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
                     donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                     donationDrive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                    donationDrive.status === 'rejected' ? 'bg-red-100 text-red-800' :
                     'bg-gray-100 text-gray-800'
+                    
                 }`}>
                     {donationDrive.status.charAt(0).toUpperCase() + donationDrive.status.slice(1)}
-                </span> */}
-                <BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="lg" />
+                </span>
+                {/* <BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="lg" /> */}
             </div>
 
             {/* Event Body */}
@@ -292,13 +294,7 @@ const getRemainingDays = (endDate: any) => {
                 <div className='flex flex-col gap-[10px] w-full'>
                     {/* Image */}
                     <div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
-                    {/* {donationDrive.isEvent && event && (
-                        <div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
-                            {event.image ? (
-                                <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
-                            ) : (
-                                <img src={donationDrive.image} alt={donationDrive.campaignName} className="w-full h-full object-cover" />
-                            )}
+                    {donationDrive.isEvent && event && (
                             <div className="absolute top-4 right-4 flex space-x-2">
                                 <span className={`px-3 py-1 text-sm rounded-full ${
                                     event.status === 'active' ? 'bg-green-100 text-green-800' : 
@@ -310,8 +306,7 @@ const getRemainingDays = (endDate: any) => {
                                 </span>
                                 <span className="bg-blue-100 text-blue-800 px-3 py-1 text-sm rounded-full">Event</span>
                             </div>
-                        </div>
-                    )} */}
+                    )}
                     {/* Event details */}
                     {donationDrive.isEvent && event && (
                         <div className='mt-5 px-5'>
