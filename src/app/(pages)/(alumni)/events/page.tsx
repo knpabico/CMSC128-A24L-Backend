@@ -74,6 +74,11 @@ export default function Events() {
   } = useEvents();
 
   const { user } = useAuth();
+  const [confirmForm, setConfirmForm] = useState(false);
+  const [userInput, setUserInput] = useState("");
+
+  const requiredSentence = "I certify on my honor that the proposed event details are accurate, correct, and complete.";
+  const formComplete = title.trim() !== "" && description.trim() !== "" && date.trim() !== "";
 
   const [dateSortType, setDateSortType] = useState<
     "event-closest" | "event-farthest" | "posted-newest" | "posted-oldest"
@@ -195,12 +200,12 @@ export default function Events() {
               </div>
             )}
             <button
-          onClick={() => handleViewEventAlumni(event)}
-          className="px-4 py-2 bg-gray-500 text-white rounded-md"
-        >
-          View More
-        </button>
-      </div>
+              onClick={() => handleViewEventAlumni(event)}
+              className="px-4 py-2 bg-gray-500 text-white rounded-md"
+            >
+              View More
+            </button>
+          </div>
         ))}
       </div>
     );
@@ -303,12 +308,70 @@ export default function Events() {
                     Save As Draft
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => setConfirmForm(true)}
                     className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+                    disabled={!formComplete}
                   >
                     Propose
                   </button>
                 </div>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {confirmForm && (
+          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-30">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (userInput !== requiredSentence) {
+                  alert("Please type the sentence exactly to confirm.");
+                  return;
+                }
+                // Handle actual propose submit
+                handleSave(e, [], "all");
+                setShowForm(false);
+                setConfirmForm(false);
+              }}
+              className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
+            >
+              <h2 className="text-xl font-bold mb-4">Please certify on your honor that all the details are accurate, correct, and complete.</h2>
+
+              <div className="mb-4">
+                <p className="text-gray-700 text-sm">
+                  As a sign of your confirmation, please type the following text in the text field below:
+                </p>
+                <p className="text-gray-900 italic text-center my-2">
+                  I certify on my honor that the proposed event details are accurate, correct, and complete.
+                </p>
+              </div>
+
+              <input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onPaste={(e) => e.preventDefault()} // Prevent paste
+                placeholder="Type the sentence here"
+                className="w-full mb-4 p-2 border rounded"
+                required
+              />
+
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setConfirmForm(false)}
+                  className="text-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+                >
+                  Confirm
+                </button>
               </div>
             </form>
           </div>
