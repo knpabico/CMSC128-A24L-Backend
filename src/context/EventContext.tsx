@@ -15,9 +15,9 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Event, RSVP } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext"; 
+import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
 import { useRouter } from 'next/navigation';
-// import { useAlums } from "./AlumContext";
 
 const EventContext = createContext<any>(null);
 
@@ -42,7 +42,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const { rsvpDetails, alumniDetails} = useRsvpDetails(events);
   const { user, alumInfo, isAdmin } = useAuth();
-  // const { alums } = useAlums();
+  const { addNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -256,13 +256,15 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           status: "Accepted" 
         });
       }
+
+      await addNewsLetter(eventId, "event");
       
       return { success: true, message: "Event successfully finalized" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
-  
+
   const handleViewEventAdmin = (event: Event) => {
     router.push(`/admin-dashboard/organize-events/${event.eventId}`);
   };
