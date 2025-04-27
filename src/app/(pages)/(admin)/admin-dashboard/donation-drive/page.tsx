@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { DonationDrive } from "@/models/models";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
-import BookmarkButton from "@/components/ui/bookmark-button";
+import { useAuth } from "@/context/AuthContext";
+import { Calendar, Clock, MapPin } from "lucide-react";
+// import { formatDistance } from "date-fns";
 
-export default function Users() {
+export default function DonationDrives() {
+  const router = useRouter();
   const {
     donationDrives,
     events,
@@ -42,18 +47,18 @@ export default function Users() {
     setBeneficiary,
     getDonationDriveById,
     getEventById,
+    fetchAlumnusById,
   } = useDonationDrives();
+
   const [editForm, setEditForm] = useState(false);
   const [donationDriveId, setDonationDriveId] = useState("");
-
-  // Add sorting state
-  const [sortBy, setSortBy] = useState("latest");
+  const [creatorNames, setCreatorNames] = useState<{ [key: string]: string }>({});
   
-  // Add status filter state
+  const [sortBy, setSortBy] = useState("latest");
   const [statusFilter, setStatusFilter] = useState("all");
   
   if (!donationDrives) return <div>Loading donation drives...</div>;
-  
+
   // Sort donation drives based on selected option
   const sortedDrives = [...donationDrives].sort((a, b) => {
     switch (sortBy) {
@@ -65,21 +70,94 @@ export default function Users() {
         return a.datePosted.toDate().getTime() - b.datePosted.toDate().getTime();
       case "latest":
         return b.datePosted.toDate().getTime() - a.datePosted.toDate().getTime();
-      case "alphabetical":
-        return a.campaignName.localeCompare(b.campaignName);
+      case "alphabetical": {
+        const aName = (a.isEvent && events[a.eventId])
+          ? events[a.eventId]!.title
+          : a.campaignName;
+        const bName = (b.isEvent && events[b.eventId])
+          ? events[b.eventId]!.title
+          : b.campaignName;
+      
+        return aName.toLowerCase().localeCompare(bName.toLowerCase());
+      }
       default:
         return 0;
     }
   });
 
-  // Filter drives based on selected status
   const filteredDrives = statusFilter === "all" 
     ? sortedDrives 
     : sortedDrives.filter(drive => drive.status === statusFilter);
 
+  const getProgressPercentage = (current: number, target: number) => {
+    return Math.min(Math.round((current / target) * 100), 100);
+  };
+
+  const navigateToDetails = (id: string) => {
+    router.push(`donation-drive/details?id=${id}`);
+  };
+
+  const formatDate = (date: any) => {
+    if (!date) return "N/A";
+    const dateObj = typeof date === 'object' && date.toDate 
+      ? date.toDate() 
+      : new Date(date);
+      
+    return dateObj.toLocaleDateString("en-US", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Fixed useEffect to prevent hanging when changing filters
+  useEffect(() => {
+    // Keep track of mounted state to prevent state updates after unmount
+    let isMounted = true;
+    
+    const fetchCreators = async () => {
+      // Only fetch creators that haven't been fetched already
+      const drivesToFetch = filteredDrives.filter(drive => 
+        drive.creatorType === "alumni" && !creatorNames[drive.donationDriveId]
+      );
+      
+      if (drivesToFetch.length === 0) return;
+      
+      const names = { ...creatorNames };
+
+      await Promise.all(
+        drivesToFetch.map(async (drive) => {
+          try {
+            const creator = await fetchAlumnusById(drive.creatorId);
+            if (creator && isMounted) {
+              names[drive.donationDriveId] = `${creator.firstName} ${creator.lastName}`;
+            } else if (isMounted) {
+              names[drive.donationDriveId] = "Unknown";
+            }
+          } catch (error) {
+            console.error("Error fetching creator:", error);
+            if (isMounted) {
+              names[drive.donationDriveId] = "Unknown";
+            }
+          }
+        })
+      );
+
+      if (isMounted) {
+        setCreatorNames(names);
+      }
+    };
+
+    fetchCreators();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [filteredDrives, creatorNames]);
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Donation Drives</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Donation Drives Management</h1>
       
       {/* Filter Buttons */}
       <div className="mb-6">
@@ -113,6 +191,16 @@ export default function Users() {
             }`}
           >
             Pending
+          </button>
+          <button 
+            onClick={() => setStatusFilter("completed")}
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+              statusFilter === "completed" 
+                ? "bg-purple-600 text-white" 
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            }`}
+          >
+            Completed
           </button>
           <button 
             onClick={() => setStatusFilter("rejected")}
@@ -152,40 +240,165 @@ export default function Users() {
           {statusFilter === "all" ? "All Donation Drives" :
            statusFilter === "active" ? "Active Donation Drives" :
            statusFilter === "pending" ? "Pending Donation Drives" :
+           statusFilter === "completed" ? "Completed Donation Drives" :
            "Rejected Donation Drives"}
         </h2>
         
         {filteredDrives.length === 0 ? (
-          <p className="text-gray-500">No donation drives found.</p>
+        <p className="text-gray-500">No donation drives found.</p>
         ) : (
-          <div className="space-y-4">
-            {filteredDrives.map((drive: DonationDrive, index: any) => (
+        <div className="flex flex-col gap-4">
+          {filteredDrives.map((drive: DonationDrive) => {
+          // grab the event from your context's events map
+          const ev = events[drive.eventId];
+
+          return (
+            <div
+              key={drive.donationDriveId}
+              className="border rounded-lg shadow-sm hover:shadow-md bg-white overflow-hidden flex flex-row"
+            >
+              {/* Image Section */}
               <div
-                key={index}
-                className="p-4 flex justify-between items-center border rounded-lg shadow-sm hover:shadow-md bg-white"
+                className="cursor-pointer w-1/4 min-w-64 bg-gray-200"
+                onClick={() => navigateToDetails(drive.donationDriveId)}
               >
-                <div>
-                  <h1 className="text-xl font-semibold">Name: {drive.campaignName}</h1>
-                  <h2 className="text-sm text-gray-500">ID: {drive.donationDriveId}</h2>
-                  <h2 className="text-sm text-gray-700">Description: {drive.description}</h2>
-                  <h2 className={`text-sm font-medium ${
-                    drive.status === "active" ? "text-green-600" : 
-                    drive.status === "pending" ? "text-yellow-600" : 
-                    "text-red-600"
-                  }`}>
-                    Status: {drive.status}
+                {drive.image ? (
+                  <img
+                    src={drive.image}
+                    alt={drive.campaignName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-gray-400">No image</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Content Section */}
+              <div
+                className="p-4 flex-grow cursor-pointer"
+                onClick={() => navigateToDetails(drive.donationDriveId)}
+              >
+                {/* Campaign / Event Title with Status */}
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-xl font-semibold truncate flex-1">
+                    {drive.isEvent && ev ? ev.title : drive.campaignName}
                   </h2>
-                  <h2 className="text-lg font-bold text-blue-600">Target Amount: ${drive.targetAmount}</h2>
-                  <h2 className="text-xs text-gray-500">Posted on: {drive.datePosted.toLocaleString()}</h2>
+                  <span
+                    className={`ml-4 px-2 py-0.5 text-xs font-medium rounded-full ${
+                      drive.status === "active"
+                        ? "bg-green-100 text-green-800"
+                        : drive.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : drive.status === "completed"
+                        ? "bg-purple-100 text-purple-800"
+                        : drive.status === "rejected"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+                  </span>
                 </div>
-                {statusFilter === "pending" &&
-                  <div className="flex gap-3 mt-2">
-                    <button
-                      onClick={() => handleAccept(drive.donationDriveId)}
-                      className="px-4 py-2 bg-green-500 text-white rounded-md"
-                    >
-                      Finalize
-                    </button>
+
+                {/* Description */}
+                <div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">
+                  <p className="text-start">
+                    {drive.isEvent && ev ? ev.description : drive.description}
+                  </p>
+                </div>
+
+                {/* Event Details */}
+                {drive.isEvent && ev ? (
+                  <div className="mt-5">
+                    <div className="flex justify-between items-center gap-4">
+                      <div className="flex gap-1 items-center w-1/3 justify-center">
+                        <Calendar size={16} />
+                        <p className="text-xs">{formatDate(ev.datePosted)}</p>
+                      </div>
+                      <div className="flex gap-1 items-center w-1/3 justify-center">
+                        <Clock size={16} />
+                        <p className="text-xs">{ev.time}</p>
+                      </div>
+                      <div className="flex gap-1 items-center w-1/3 justify-center">
+                        <MapPin size={16} />
+                        <p className="text-xs truncate">{ev.location}</p>
+                      </div>
+                    </div>
+                    <div className="mt-5 text-xs text-start">
+                      <p>Donation Type: Event-related Campaign</p>
+                    </div>
+                  </div>
+                  ) : (
+                    <div className="mt-5 text-xs text-start">
+                      <p>Donation Type: General Campaign</p>
+                    </div>
+                  )}
+
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                    <div
+                      className={`h-2.5 rounded-full ${
+                        drive.status === "completed" ? "bg-purple-600" : "bg-blue-600"
+                      }`}
+                      style={{
+                        width: `${getProgressPercentage(
+                          drive.currentAmount,
+                          drive.targetAmount
+                        )}%`,
+                      }}
+                    ></div>
+                  </div>
+
+                  {/* Amount & Progress */}
+                  <div className="flex justify-between text-sm mb-3">
+                    <span className="font-bold text-blue-600">
+                      ${drive.currentAmount.toLocaleString()}
+                    </span>
+                    <span className="text-gray-600">
+                      of ${drive.targetAmount.toLocaleString()}
+                    </span>
+                    <span className="text-gray-600">
+                      {getProgressPercentage(drive.currentAmount, drive.targetAmount)}%
+                    </span>
+                  </div>
+
+                  {/* Dates */}
+                  <div className="text-xs text-gray-500">
+                    <p>Date Posted: {formatDate(drive.datePosted)}</p>
+                    <p>Start date: {formatDate(drive.startDate)}</p>
+                    <p>End date: {formatDate(drive.endDate)}</p>
+                  </div>
+
+                  {/* Creator */}
+                  <div className="text-xs text-gray-700 mt-2">
+                    <p>
+                      Created by: {creatorNames[drive.donationDriveId] ?? "Admin"}
+                    </p>
+                    <p>Creator Type: {drive.creatorType}</p>
+                  </div>
+                </div>
+                  
+                  {/* Action Buttons - Right Side */}
+                  <div className="p-4 bg-gray-50 border-l flex flex-col justify-center gap-2 min-w-32">
+                    {drive.status === "pending" && (
+                      <>
+                        <button
+                          onClick={() => handleAccept(drive.donationDriveId)}
+                          className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleReject(drive.donationDriveId)}
+                          className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-600 transition w-full"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                    
                     <button
                       onClick={() => {
                         setEditForm(true);
@@ -197,45 +410,22 @@ export default function Users() {
                         setEndDate(drive.endDate);
                         setShowForm(true);
                       }}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                      className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-600 transition w-full"
                     >
                       Edit
                     </button>
+                    
                     <button
-                      onClick={() => handleReject(drive.donationDriveId)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-md"
+                      onClick={() => handleDelete(drive.donationDriveId)}
+                      className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-600 transition w-full"
                     >
-                      Reject
+                      Delete
                     </button>
                   </div>
-
-                }
-                {statusFilter !== "pending" &&<div className="flex gap-4">
-                  <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
-                    onClick={() => {
-                      setEditForm(true);
-                      setDonationDriveId(drive.donationDriveId);
-                      setCampaignName(drive.campaignName);
-                      setBeneficiary(drive.beneficiary);
-                      setDescription(drive.description);
-                      setTargetAmount(drive.targetAmount);
-                      setEndDate(drive.endDate);
-                      setShowForm(true);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-red-500 text-white rounded-md"
-                    onClick={() => handleDelete(drive.donationDriveId)}
-                  >
-                    Delete
-                  </button>
-                </div>}
-              </div>
-            ))}
-          </div>
+                </div>
+              );
+            })}
+        </div>
         )}
       </div>
 
@@ -246,7 +436,7 @@ export default function Users() {
         +
       </button>
 
-		{/* Edit Donation Drive Modal */}
+    {/* Edit Donation Drive Modal */}
     {setShowForm && setEditForm && donationDriveId && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
               <form
