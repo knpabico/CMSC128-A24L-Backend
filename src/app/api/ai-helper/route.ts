@@ -1,3 +1,4 @@
+import { verifyAuth } from "@/lib/firebase/auth-utils";
 import { AIQuestion } from "@/models/models";
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
@@ -6,6 +7,15 @@ export async function POST(req: Request) {
   interface QuestionRequest {
     question: AIQuestion;
     type: string;
+  }
+
+  const authResult = await verifyAuth(req);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
   }
 
   const { question, type } = (await req.json()) as QuestionRequest;
