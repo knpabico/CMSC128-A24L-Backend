@@ -78,10 +78,11 @@ const AddEducationModal = ({
               fullWidth
             />
             <TextField
-              label="Degree Type (e.g., Bachelor, Master)"
+              label={degreeType}
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              onChange={(e) => setType(degreeType)}
               required
+              disabled  
               fullWidth
             />
             <TextField

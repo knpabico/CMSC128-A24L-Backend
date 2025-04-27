@@ -122,6 +122,7 @@ const UserProfile = () => {
   );
 
   const openEditModal = (index:number) => {
+    console.log("Opem Modal");
     const newEditModal = Array(isEditModalOpen.length).fill(false);
     newEditModal[index] = true;
     setEditModalOpen(newEditModal);
@@ -424,14 +425,19 @@ const UserProfile = () => {
                 {true && (<div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  <div className="flex items-center space-x-5">
-                    <div className="w-6 h-6 rounded-full bg-sky-600"></div>
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "Doctoral").map((edu:Education, index:number)=>(
+
+                  <div className="flex items-center space-x-5" key={index}>
+                    <div className="w-6 h-6 rounded-full bg-sky-400"></div>
                     <div>
-                      <p className="font-medium">Doctor of Science in Computer Science</p>
-                      <p className="text-sm">University of the Philippines Los Baños</p>
-                      <p className="text-sm">Year Graduated: 2026</p>
+                      <p className="font-medium">{edu.major}</p>
+                      <p className="text-sm">{edu.university}</p>
+                      <p className="text-sm">Year Graduated: {edu.yearGraduated}</p>
                     </div>
                   </div>
+
+
+                  ))}
                   {/* ---- end of individual bullet ---- */}
 
                 </div>)}
@@ -504,14 +510,27 @@ const UserProfile = () => {
                           </div>
                         </div>
                         <div className="flex space-x-10">
-                          <button className="flex items-center space-x-2 cursor-pointer">
+                          <button className="flex items-center space-x-2 cursor-pointer" onClick={() => openMap(index)}>
                             <p className="text-[#3675c5]"><MapPin/></p>
                             <p className="text-[#3675c5] text-sm hover:underline">View in map</p>
                           </button>
-                          <button className="flex items-center space-x-2 cursor-pointer">
+                          <button className="flex items-center space-x-2 cursor-pointer" onClick={() => {if (!isEditModalOpen[index]) openEditModal(index); else closeEditModal(index);}}>
                             <p className="text-[#3675c5]"><PencilIcon/></p>
                             <p className="text-[#3675c5] text-sm hover:underline">Edit</p>
+                            {!isEditModalOpen[index] ? <ChevronRight /> : <ChevronDown />}
                           </button>
+                          
+                          <Divider/>
+
+                          <EditWorkExperience
+                            open={isEditModalOpen[index]}
+                            work={item}
+                            onClose={() => closeEditModal(index)}
+                            snackbar
+                            setSnackbar={setSnackbar}
+                            setMessage={setEditMessage}
+                            setSuccess={setEditSuccess}
+                          />
                         </div>
                       </div>
                     ))}
