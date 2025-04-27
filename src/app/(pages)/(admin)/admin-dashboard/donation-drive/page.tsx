@@ -38,7 +38,7 @@ export default function Users() {
     getDonationDriveById,
     getEventById,
   } = useDonationDrives();
-  const [showEditForm, setShowEditForm] = useState(false);
+  const [editForm, setEditForm] = useState(false);
   const [donationDriveId, setDonationDriveId] = useState("");
 
   // Add sorting state
@@ -170,7 +170,7 @@ export default function Users() {
                   }`}>
                     Status: {drive.status}
                   </h2>
-                  <h2 className="text-lg font-bold text-blue-600">Total Amount: ${drive.targetAmount}</h2>
+                  <h2 className="text-lg font-bold text-blue-600">Target Amount: ${drive.targetAmount}</h2>
                   <h2 className="text-xs text-gray-500">Posted on: {drive.datePosted.toLocaleString()}</h2>
                 </div>
                 {statusFilter === "pending" &&
@@ -183,11 +183,13 @@ export default function Users() {
                     </button>
                     <button
                       onClick={() => {
-                        setShowEditForm(true);
+                        setEditForm(true);
                         setDonationDriveId(drive.donationDriveId);
                         setCampaignName(drive.campaignName);
                         setDescription(drive.description);
+                        setTargetAmount(drive.targetAmount);
                         setEndDate(drive.endDate);
+                        setShowForm(true);
                       }}
                       className="px-4 py-2 bg-blue-500 text-white rounded-md"
                     >
@@ -206,11 +208,13 @@ export default function Users() {
                   <button
                     className="px-4 py-2 bg-blue-500 text-white rounded-md"
                     onClick={() => {
-                      setShowEditForm(true);
+                      setEditForm(true);
                       setDonationDriveId(drive.donationDriveId);
                       setCampaignName(drive.campaignName);
                       setDescription(drive.description);
+                      setTargetAmount(drive.targetAmount);
                       setEndDate(drive.endDate);
+                      setShowForm(true);
                     }}
                   >
                     Edit
@@ -235,134 +239,77 @@ export default function Users() {
         +
       </button>
 
-		{/* Suggest Donation Drive Modal */}
-		{showForm && (
-			<div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
-				<form
-				onSubmit={handleSave}
-				className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
-				>
-				<h2 className="text-xl bold mb-4">Add Donation Drive</h2>
-				<input
-					type="text"
-					placeholder="Campaign Name"
-					value={campaignName}
-					onChange={(e) => setCampaignName(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-				/>
-				<textarea
-					placeholder="Description"
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-				/>
-				<input
-					type="number"
-					placeholder="Target Amount"
-					value={targetAmount}
-					onChange={(e) => setTargetAmount(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-				/>
-				<label htmlFor="">End Date</label>
-				<input
-					type="date"
-					value={endDate}
-					onChange={(e) => setEndDate(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-					min={
-					new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-						.toISOString()
-						.split("T")[0]
-					}
-				/>
-				<div className="flex justify-between">
-					<button
-					type="button"
-					onClick={() => setShowForm(false)}
-					className="text-gray-500"
-					>
-					Cancel
-					</button>
-					<div className="flex gap-2">
-					<button
-						type="submit"
-						className="bg-[#0856BA] text-white p-2 rounded-[22px]"
-					>
-						Submit
-					</button>
-					</div>
-				</div>
-				</form>
-			</div>
-			)}
+		{/* Add/Edit Donation Drive Modal */}
+    {showForm && (
+            <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+              <form
+                onSubmit={!editForm? handleSave :
+                  (e) => {
+                  e.preventDefault();
+                  handleEdit(donationDriveId, { campaignName, description, targetAmount , endDate }); // Pass the current value if it will be edited
+                  setShowForm(false);
+                  setEditForm(false);
+                }}
+                className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
+              >
+                <h2 className="text-xl mb-4">
+                  {editForm ? "Edit Donation Drive" : "Add Donation Drive"}
+                </h2>
+                <input
+                  type="text"
+                  placeholder="Campaign Name"
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                />
+                <textarea
+                  placeholder="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Target Amount"
+                  value={targetAmount}
+                  onChange={(e) => setTargetAmount(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                />
+                <label htmlFor="">End Date</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                  min={
+                  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                    .toISOString()
+                    .split("T")[0]
+                  }
+                />
 
-      {showEditForm && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <form
-            onSubmit={handleEdit}
-            className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-full max-w-md"
-          >
-            <h2 className="text-xl mb-4">Edit Donation Drive</h2>
-            <input
-            type="text"
-            placeholder="Campaign Name"
-            value={campaignName}
-            onChange={(e) => setCampaignName(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-            required
-            />
-            <textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <input
-              type="number"
-              placeholder="Target Amount"
-              value={targetAmount}
-              onChange={(e) => setTargetAmount(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <label htmlFor="">End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-              min={
-              new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                .toISOString()
-                .split("T")[0]
-              }
-            />
-            <div className="flex justify-between">
-              <button
-              type="button"
-              onClick={() => setShowEditForm(false)}
-              className="text-gray-500"
-              >
-              Cancel
-              </button>
-              <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-[#0856BA] text-white p-2 rounded-[22px]"
-              >
-                Submit
-              </button>
-              </div>
+                <div className="flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="text-gray-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white p-2 rounded"
+                  >
+                    {editForm ? "Update" : "Save"}
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
-        </div>
-      )}
+          )}
     </div>
   );
 }
