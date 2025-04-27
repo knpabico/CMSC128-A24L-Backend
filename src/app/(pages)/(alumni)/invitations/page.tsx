@@ -3,11 +3,13 @@
 
 import { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
-import { Event } from "@/models/models";
+import { Event, RSVP } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
+import { useRsvpDetails } from "@/context/RSVPContext"; 
 import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
+
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -58,8 +60,9 @@ function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done
 }
 
 export default function Invitations() {
-  const { events, isLoading, userId } = useEvents();
+  const { events, isLoading, userId, handleViewEventAlumni } = useEvents();
   const { user, loading, alumInfo } = useAuth();
+  const { rsvpDetails, handleAlumAccept, handleAlumReject} = useRsvpDetails(events);
 
   
   // State for invitation events
@@ -168,53 +171,111 @@ useEffect(() => {
       return <p className="text-gray-500">No specific invites.</p>;
     }
 
-    return sortedEvents.map((event, index) => (
-      <div 
-        key={index} 
-        className="relative border p-4 mb-4 rounded-lg shadow-sm"
-      >
-        <h2 className="text-xl font-bold mb-2">{event.title}</h2>
-        {/* Bookmark Button */}
-        <div className="absolute top-3 right-3">
-          <BookmarkButton 
-            entryId={event.eventId}  
-            type="event" 
-            size="lg"
-          />
-        </div>
-        <div className="mb-2">
-          <strong>Event Date:</strong> {formatEventDate(event.date)}
-        </div>
-        
-        {event.time && (
+    return sortedEvents.map((event, index) => {
+      // Find the RSVP for this event and current alumni
+      const matchingRSVP = Array.isArray(rsvpDetails)
+        ? rsvpDetails.find(
+            (rsvp: RSVP) =>
+              rsvp.alumniId === alumInfo?.alumniId &&
+              rsvp.postId === event.eventId
+          )
+        : null;
+      
+      return (
+        <div 
+          key={index} 
+          className="relative border p-4 mb-4 rounded-lg shadow-sm"
+        >
+          <h2 className="text-xl font-bold mb-2">{event.title}</h2>
+    
+          {/* Bookmark Button */}
+          <div className="absolute top-3 right-3">
+            <BookmarkButton 
+              entryId={event.eventId}  
+              type="event" 
+              size="lg"
+            />
+          </div>
+    
           <div className="mb-2">
-            <strong>Time:</strong> {event.time}
+            <strong>Event Date:</strong> {formatEventDate(event.date)}
           </div>
-        )}
-        
-        {event.location && (
+    
+          {event.time && (
+            <div className="mb-2">
+              <strong>Time:</strong> {event.time}
+            </div>
+          )}
+    
+          {event.location && (
+            <div className="mb-2">
+              <strong>Location:</strong> {event.location}
+            </div>
+          )}
+    
           <div className="mb-2">
-            <strong>Location:</strong> {event.location}
+            <strong>Description:</strong> {event.description}
           </div>
-        )}
-        
-        <div className="mb-2">
-          <strong>Description:</strong> {event.description}
+    
+          {event.numofAttendees !== undefined && (
+            <div className="mb-2">
+              <strong>Attendees:</strong> {event.numofAttendees}
+            </div>
+          )}
+    
+          {event.datePosted && (
+            <div className="text-sm text-gray-600">
+              <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
+            </div>
+          )}
+    
+          {/* RSVP Buttons */}
+          <div className="flex gap-2 mt-4">
+            {matchingRSVP && matchingRSVP.status === "Pending" ? (
+              <>
+                <button
+                  onClick={() => {
+                    if (alumInfo?.alumniId) {
+                      handleAlumAccept(event.eventId, alumInfo.alumniId);
+                    } else {
+                      console.log("Alumni ID is not available.");
+                    }
+                  }}
+                  className="px-4 py-2 bg-green-500 text-white rounded-md"
+                >
+                  Going
+                </button>
+                <button
+                  onClick={() => {
+                    if (alumInfo?.alumniId) {
+                      handleAlumReject(event.eventId, alumInfo.alumniId);
+                    } else {
+                      console.log("Alumni ID is not available.");
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-md"
+                >
+                  Not Going
+                </button>
+                <button
+                  onClick={() => handleViewEventAlumni(event)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                >
+                  View More
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => handleViewEventAlumni(event)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md"
+              >
+                View More
+              </button>
+            )}
+          </div>
         </div>
-        
-        {event.numofAttendees !== undefined && (
-          <div className="mb-2">
-            <strong>Attendees:</strong> {event.numofAttendees}
-          </div>
-        )}
-        
-        {event.datePosted && (
-          <div className="text-sm text-gray-600">
-            <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
-          </div>
-        )}
-      </div>
-    ));
+      );
+    });
   };
 
   return (
