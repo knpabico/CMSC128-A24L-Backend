@@ -22,7 +22,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-})
+});
 
 export default function RootLayout({
   children,
@@ -45,11 +45,9 @@ export default function RootLayout({
                             <GoogleMapsProvider>
                               <MapProvider>
                                 <EducationProvider>
-                                  <body
-                                    className={inter.className}
-                                  >
+                                  <body className={inter.className}>
                                     <Navbar />
-                                    {children}
+                                    <div className="mt-18">{children}</div>
                                     <Toaster />
                                   </body>
                                 </EducationProvider>
