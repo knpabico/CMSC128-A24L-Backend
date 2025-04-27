@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
 
 export function useRsvpDetails(events) {
   const [rsvpDetails, setRsvpDetails] = useState({});
@@ -39,14 +40,14 @@ export function useRsvpDetails(events) {
             rsvpData[rsvpId] = data;
             
             // Fetch alumni details if alumniId exists
-            if (data.alumni_id) {
+            if (data.alumniId) {
               try {
-                const alumniSnap = await getDoc(doc(db, "alumni", data.alumni_id));
+                const alumniSnap = await getDoc(doc(db, "alumni", data.alumniId));
                 if (alumniSnap.exists()) {
-                  alumniData[data.alumni_id] = alumniSnap.data();
+                  alumniData[data.alumniId] = alumniSnap.data();
                 }
               } catch (err) {
-                console.error(`Error fetching alumni ${data.alumni_id}:`, err);
+                console.error(`Error fetching alumni ${data.alumniId}:`, err);
               }
             }
           } else {
@@ -67,5 +68,60 @@ export function useRsvpDetails(events) {
     fetchRsvpDetails();
   }, [events]);
 
-  return { rsvpDetails, alumniDetails, isLoadingRsvp };
+  const handleAlumAccept = async (eventId: string, alumniId: string) => {
+    try {
+      let rsvpFound = false;
+  
+      for (const rsvpId in rsvpDetails) {
+        const rsvp = rsvpDetails[rsvpId];
+  
+        if (rsvp.alumni_id === alumniId && rsvp.post_id === eventId) {
+          const rsvpRef = doc(db, "RSVP", rsvpId);
+          await updateDoc(rsvpRef, { status: "Accepted" });
+          console.log(`RSVP ${rsvpId} updated to Accepted`); // Log confirmation
+          rsvpFound = true;
+          break;
+        }
+      }
+  
+      if (rsvpFound) {
+        return { success: true, message: "RSVP successfully accepted" };
+      } else {
+        return { success: false, message: "RSVP not found" };
+      }
+  
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+  
+  
+  const handleAlumReject = async (eventId: string, alumniId: string) => {
+    try {
+      let rsvpFound = false;  // Flag to track if RSVP is found
+  
+      // Loop through RSVP details
+      for (const rsvpId in rsvpDetails) {
+        const rsvp = rsvpDetails[rsvpId];  // Assuming rsvpDetails is an object of RSVPs
+  
+        if (rsvp.alumniId === alumniId && rsvp.postId === eventId) {
+          const rsvpRef = doc(db, "RSVP", rsvpId); // Dynamically create the reference for each RSVP
+          await updateDoc(rsvpRef, { status: "Rejected" });
+          rsvpFound = true; // Mark as found
+          break;  // Exit the loop once the RSVP is found and updated
+        }
+      }
+  
+      if (rsvpFound) {
+        return { success: true, message: "RSVP successfully rejected" };
+      } else {
+        return { success: false, message: "RSVP not found" };
+      }
+  
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  return { rsvpDetails, alumniDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject };
 }
