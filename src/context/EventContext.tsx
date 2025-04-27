@@ -198,6 +198,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     try {
       const eventRef = doc(db, "event", eventId);
       const updatedRSVPIds: string[] = [];
+      const updatedTargetGuests: string[] = [];
   
       // Helper function to create a new RSVP
       const createRSVP = async (alumniId: string) => {
@@ -209,7 +210,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           postId: eventId,
         };
         await setDoc(docRef, newRSVP);
-        updatedRSVPIds.push(alumniId);
+        updatedRSVPIds.push(docRef.id);
+        updatedTargetGuests.push(alumniId);
       };
       
       // Find the specific event once
@@ -246,7 +248,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         // Update both rsvps and targetGuests if inviteType is not "all"
         await updateDoc(eventRef, {
           rsvps: updatedRSVPIds,
-          targetGuests: updatedRSVPIds,
+          targetGuests: updatedTargetGuests,
           status: "Accepted" 
         });
       } else {

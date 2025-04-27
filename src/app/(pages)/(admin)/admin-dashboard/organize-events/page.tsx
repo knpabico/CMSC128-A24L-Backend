@@ -77,7 +77,7 @@ export default function Events() {
     if (!rsvps || rsvps.length === 0) return [];
 
     let filteredRsvps = rsvps.filter((rsvpId) => {
-      const rsvpStatus = rsvpDetails[rsvpId]?.Status;
+      const rsvpStatus = rsvpDetails[rsvpId]?.status;
  
       if (rsvpFilter === "All") return true;
       return rsvpFilter === rsvpStatus;
@@ -86,8 +86,8 @@ export default function Events() {
     // Alphabetical sorting logic
     if (sortAlphabetically) {
       filteredRsvps.sort((a, b) => {
-        const alumniA = alumniDetails[rsvpDetails[a].alumni_id];
-        const alumniB = alumniDetails[rsvpDetails[b].alumni_id];
+        const alumniA = alumniDetails[rsvpDetails[a].alumniId];
+        const alumniB = alumniDetails[rsvpDetails[b].alumniId];
 
         if (!alumniA || !alumniB) return 0;
 
@@ -123,7 +123,7 @@ export default function Events() {
           events.forEach(event => {
             event.rsvps.forEach(rsvpId => {
               const rsvp = rsvpDetails[rsvpId]; // RSVP Details
-              const alum = alumniDetails[rsvp?.alumni_id]; // Alumni Details
+              const alum = alumniDetails[rsvp?.alumniId]; // Alumni Details
 
               if (!rsvp || !alum) return;
               
@@ -145,7 +145,7 @@ export default function Events() {
               }
 
               // Add the current event 
-              grouped[alum.alumniId].events.push(`${event.title} - ${rsvp.Status}`);
+              grouped[alum.alumniId].events.push(`${event.title} - ${rsvp.status}`);
             });
           });
 
@@ -522,25 +522,25 @@ export default function Events() {
                           <p>{rsvpDetails[rsvpId].error}</p>
                         ) : (
                           <div>
-                            {rsvpDetails[rsvpId].alumni_id &&
-                              alumniDetails[rsvpDetails[rsvpId].alumni_id] && (
+                            {rsvpDetails[rsvpId].alumniId &&
+                              alumniDetails[rsvpDetails[rsvpId].alumniId] && (
                                 <div>
                                   <p>
                                     <strong>Name:</strong>{" "}
                                     {
                                       alumniDetails[
-                                        rsvpDetails[rsvpId].alumni_id
+                                        rsvpDetails[rsvpId].alumniId
                                       ].firstName
                                     }{" "}
                                     {
                                       alumniDetails[
-                                        rsvpDetails[rsvpId].alumni_id
+                                        rsvpDetails[rsvpId].alumniId
                                       ].lastName
                                     }
                                   </p>
                                   <p>
                                     <strong>Status:</strong>{" "}
-                                    {rsvpDetails[rsvpId].Status}
+                                    {rsvpDetails[rsvpId].status}
                                   </p>
                                 </div>
                               )}
