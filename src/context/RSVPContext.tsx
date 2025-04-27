@@ -75,7 +75,7 @@ export function useRsvpDetails(events) {
       for (const rsvpId in rsvpDetails) {
         const rsvp = rsvpDetails[rsvpId];
   
-        if (rsvp.alumni_id === alumniId && rsvp.post_id === eventId) {
+        if (rsvp.alumniId === alumniId && rsvp.postId === eventId) {
           const rsvpRef = doc(db, "RSVP", rsvpId);
           await updateDoc(rsvpRef, { status: "Accepted" });
           console.log(`RSVP ${rsvpId} updated to Accepted`); // Log confirmation
