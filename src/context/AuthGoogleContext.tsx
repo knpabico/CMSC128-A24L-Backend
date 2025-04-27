@@ -9,8 +9,8 @@ const auth = getAuth();
 export async function GoogleSign() {
   try {
     const result = await signInWithPopup(auth, provider);
-
     const user = result.user;
+    console.log(user);
     console.log(user.email, user.displayName, user.uid);
 
     const alumniRef = doc(db, "alumni", user.uid);

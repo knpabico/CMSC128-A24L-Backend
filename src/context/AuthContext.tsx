@@ -116,21 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           logOut();
         }
-
-        //get alumInfo of currently logged in user
-
-        // const token = await user.getIdToken();
-        // await fetch("/api/session", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({ token }),
-        // });
       } else {
-        setIsAdmin(false);
         setIsGoogleSignIn(false);
         setUser(null);
-
-        // await fetch("/api/session", { method: "DELETE" });
       }
       setLoading(false);
     });
