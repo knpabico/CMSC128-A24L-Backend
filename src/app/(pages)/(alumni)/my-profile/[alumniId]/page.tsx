@@ -20,7 +20,7 @@ import { WorkExperienceModal } from "./add-work-experience";
 import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-import EditWorkExperience from "./edit-work-experience";
+import EditWorkExperience from "@/components/ui/edit-experience-modal"
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { useRouter } from "next/navigation";
 import AddEducationModal from "@/components/ui/add-aducation-modal";
@@ -522,6 +522,7 @@ const UserProfile = () => {
                           
                           <Divider/>
 
+                          {/*  */}
                           <EditWorkExperience
                             open={isEditModalOpen[index]}
                             work={item}
@@ -531,6 +532,40 @@ const UserProfile = () => {
                             setMessage={setEditMessage}
                             setSuccess={setEditSuccess}
                           />
+
+                          {/* Dito yung part nung sa Map */}
+                          <Dialog
+                            open={isMapOpenArray[index]}
+                            onClose={() => closeMap(index)}
+                          >
+                            <DialogContent className="w-[600px]">
+                              <DialogHeader>
+                                <DialogTitle>{item.company} Location</DialogTitle>
+                              </DialogHeader>
+                              <div className="h-[400px] w-full">
+                                {!isLoaded ? (
+                                  <div className="flex items-center justify-center h-full">
+                                    <p className="text-xl text-gray-600">Loading map...</p>
+                                  </div>
+                                ) : (
+                                  <GoogleMap
+                                    mapContainerStyle={{ width: "100%", height: "100%" }}
+                                    center={{ lat: item.latitude, lng: item.longitude }}
+                                    zoom={15}
+                                  >
+                                    <Marker
+                                      position={{ lat: item.latitude, lng: item.longitude }}
+                                      title={item.company}
+                                    />
+                                  </GoogleMap>
+                                )}
+                                </div>
+                                <div className="mt-4 text-center">
+                                  <p>{item.location}</p>
+                                </div>
+                                <Button onClick={() => closeMap(index)}>Close</Button>
+                              </DialogContent>
+                            </Dialog>
                         </div>
                       </div>
                     ))}

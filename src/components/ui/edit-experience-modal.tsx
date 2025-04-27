@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import React, { useState } from "react";
-import GoogleMapsModal from "../../google-maps/map";
+import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 
