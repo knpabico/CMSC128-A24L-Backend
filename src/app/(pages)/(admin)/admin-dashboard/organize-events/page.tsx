@@ -601,7 +601,7 @@ export default function Events() {
                     onClick={() => handleReject(events.eventId)}
                     className="px-4 py-2 bg-red-500 text-white rounded-md"
                   >
-                    Reject
+                    Delete
                   </button>
                   <button
                     onClick={() => handleViewEventAdmin(events)}

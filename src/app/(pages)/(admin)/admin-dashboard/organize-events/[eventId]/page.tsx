@@ -307,7 +307,7 @@ const EventPageAdmin = () => {
           </form>
         </div>
       )}
-      
+
       {event ? (
         <div>
           <h1 className="text-2xl font-bold">{event.title}</h1>
@@ -369,7 +369,7 @@ const EventPageAdmin = () => {
                   onClick={() => handleReject(event.eventId)}
                   className="px-4 py-2 bg-red-500 text-white rounded-md"
                 >
-                  Cancel
+                  Delete
                 </button>
               </div>
             )
