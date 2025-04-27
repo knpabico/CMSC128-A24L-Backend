@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { validateFirebaseEmail } from "@/app/(auth)/sign-up/actions";
 
 // this schema defines the name of the form's fields, their types,
 // and the conditions for those fields
@@ -11,7 +12,12 @@ const baseSchema = z.object({
     .or(z.literal("")),
   suffix: z.string().min(1, "Input your suffix").optional().or(z.literal("")),
   lastName: z.string().min(1, "Input your last name"),
-  email: z.string().email(),
+  email: z
+    .string()
+    .email("Input a valid email")
+    .refine(async (email) => await validateFirebaseEmail(email), {
+      message: "Email already exists!",
+    }),
   address: z
     .tuple([
       z.string().min(1, "Input your country"), //country
@@ -19,22 +25,69 @@ const baseSchema = z.object({
       z.string().optional().or(z.literal("")), //province/state (optional)
     ])
     .refine((input) => input[0] !== "", "Please input your address"),
-  affiliation: z.tuple([z.string(), z.string(), z.string()]).optional(),
+  affiliation: z
+    .array(
+      z
+        .object({
+          affiliationName: z.string().optional(),
+          yearJoined: z.string().optional(),
+          university: z.string().optional(),
+        })
+        .optional()
+    )
+    .optional(),
 
-  bachelors: z
-    .tuple([
-      z.string().min(1, "Input  your degree program"),
-      z.string().refine((input) => {
+  bachelors: z.array(
+    z.object({
+      major: z.string().min(1, "Input  your degree program"),
+      yearGraduated: z.string().refine((input) => {
         const regex = /^(19[8-9]\d|20\d\d|2100)$/;
         return regex.test(input);
       }, "Please input a valid year"),
-      z.string().min(1, "Input your university"),
-    ])
-    .refine((input) => input[0] !== "", "Please input your bachelor's degree"),
-  masters: z.tuple([z.string(), z.string(), z.string()]).optional(),
-  doctoral: z.tuple([z.string(), z.string(), z.string()]).optional(),
+      university: z.string().min(1, "Input your university"),
+    })
+  ),
+  masters: z
+    .array(
+      z
+        .object({
+          major: z.string().min(1, "Input  your degree program"),
+          yearGraduated: z.string().refine((input) => {
+            const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+            return regex.test(input);
+          }, "Please input a valid year"),
+          university: z.string().min(1, "Input your university"),
+        })
+        .optional()
+    )
+    .optional(),
+  doctoral: z
+    .array(
+      z
+        .object({
+          major: z.string().min(1, "Input  your degree program"),
+          yearGraduated: z.string().refine((input) => {
+            const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+            return regex.test(input);
+          }, "Please input a valid year"),
+          university: z.string().min(1, "Input your university"),
+        })
+        .optional()
+    )
+    .optional(),
   career: z
-    .tuple([z.string(), z.string(), z.string(), z.string(), z.string()])
+    .array(
+      z
+        .object({
+          industry: z.string(),
+          jobTitle: z.string(),
+          company: z.string(),
+          startYear: z.string(),
+          endYear: z.string(),
+          presentJob: z.boolean(),
+        })
+        .optional()
+    )
     .optional(),
 
   acceptTerms: z

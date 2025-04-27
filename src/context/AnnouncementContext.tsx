@@ -15,6 +15,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Announcement } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 const AnnouncementContext = createContext<any>(null);
 
 export function AnnouncementProvider({
@@ -33,6 +34,8 @@ export function AnnouncementProvider({
   const [currentAnnouncementId, setCurrentAnnouncementId] = useState<
     string | null
   >(null);
+
+  const { addNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     console.log("Admin", isAdmin);
@@ -57,6 +60,7 @@ export function AnnouncementProvider({
       announce.datePosted = new Date();
       console.log(announce);
       await setDoc(docRef, announce);
+      await addNewsLetter(announce.announcementId, "announcement");
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -90,6 +94,7 @@ export function AnnouncementProvider({
       type,
       announcementId: currentAnnouncementId!,
       image: "",
+      isPublic: false
     };
 
     try {
@@ -150,6 +155,7 @@ export function AnnouncementProvider({
       type,
       announcementId: "",
       image: "",
+      isPublic: false,
     };
 
     const response = await addAnnouncement(newAnnouncement);
