@@ -173,6 +173,10 @@ const UserProfile = () => {
   const router=useRouter();
   const alumniId = params.alumniId;
 
+  const goToAlumniDonations = () => {
+    router.push(`/alumni/my-profile/${alumniId}/alumni-donations`);
+  };
+
   if (loading || isLoading) {
     return <LoadingPage />;
   } else if (user?.uid !== alumniId) {
@@ -237,7 +241,10 @@ const UserProfile = () => {
 
         <div className="flex gap-3">
           <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Profile</button>
-          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Record of Donations</button>
+          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"  
+            onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/alumni-donations`)}}}>
+              Record of Donations
+          </button>
           <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Job Postings</button>
           <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Bookmarked Jobs</button>
         </div>
@@ -369,22 +376,25 @@ const UserProfile = () => {
               <div className="space-y-3">
                 <p className="font-semibold">Bachelor's Degree</p>
                 
-                {/* BULLET DIV ; set of all bullets ito */}
                 {true && (<div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  <div className="flex items-center space-x-5">
-                    <div className="w-6 h-6 rounded-full bg-sky-200"></div>
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "Bachelor").map((edu:Education, index:number)=>(
+
+                  <div className="flex items-center space-x-5" key={index}>
+                    <div className="w-6 h-6 rounded-full bg-sky-400"></div>
                     <div>
-                      <p className="font-medium">Bachelor of Science in Computer Science</p>
-                      <p className="text-sm">University of the Philippines Los Baños</p>
-                      <p className="text-sm">Year Graduated: 2026</p>
+                      <p className="font-medium">{edu.major}</p>
+                      <p className="text-sm">{edu.university}</p>
+                      <p className="text-sm">Year Graduated: {edu.yearGraduated}</p>
                     </div>
                   </div>
+
+
+                  ))}
                   {/* ---- end of individual bullet ---- */}
 
                 </div>)}
-                {/* ---- end of bullet div ---- */}
 
                 <button className="flex items-center space-x-3 cursor-pointer" onClick={handleAddBachelor}>
                   <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
