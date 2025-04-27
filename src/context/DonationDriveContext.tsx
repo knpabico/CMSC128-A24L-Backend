@@ -297,7 +297,7 @@ export function DonationDriveProvider({
   const handleAccept = async (donationDriveId: string) => {
     try {
       const driveRef = doc(db, "donation_drive", donationDriveId);
-      await updateDoc(driveRef, { status: "active" });
+      await updateDoc(driveRef, { status: "active", startDate: new Date() });
       return {
         success: true,
         message: "Donation drive successfully activated",
