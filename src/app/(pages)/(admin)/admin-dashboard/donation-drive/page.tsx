@@ -9,20 +9,37 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 export default function Users() {
   const {
     donationDrives,
+    events,
     isLoading,
-    editDonoDriveForm,
-    editDonoForm,
-    setEditDonoForm,
-    deleteDonationDrive,
-    subEditDonoDrive,
-    submitDonationDrive,
-    addDonoForm,
-    setAddDonoForm,
+    addDonationDrive,
+    showForm,
+    setShowForm,
+    handleSave,
+    handleEdit,
+    handleDelete,
+    handleReject,
+    handleAccept,
     campaignName,
     setCampaignName,
     description,
     setDescription,
+    targetAmount,
+    setTargetAmount,
+    isEvent,
+    setIsEvent,
+    eventId,
+    setEventId,
+    endDate,
+    setEndDate,
+    status,
+    setStatus,
+    beneficiary,
+    setBeneficiary,
+    getDonationDriveById,
+    getEventById,
   } = useDonationDrives();
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [donationDriveId, setDonationDriveId] = useState("");
 
   // Add sorting state
   const [sortBy, setSortBy] = useState("latest");
@@ -156,26 +173,55 @@ export default function Users() {
                   <h2 className="text-lg font-bold text-blue-600">Total Amount: ${drive.targetAmount}</h2>
                   <h2 className="text-xs text-gray-500">Posted on: {drive.datePosted.toLocaleString()}</h2>
                 </div>
-                <div className="flex gap-4">
+                {statusFilter === "pending" &&
+                  <div className="flex gap-3 mt-2">
+                    <button
+                      onClick={() => handleAccept(drive.donationDriveId)}
+                      className="px-4 py-2 bg-green-500 text-white rounded-md"
+                    >
+                      Finalize
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowEditForm(true);
+                        setDonationDriveId(drive.donationDriveId);
+                        setCampaignName(drive.campaignName);
+                        setDescription(drive.description);
+                        setEndDate(drive.endDate);
+                      }}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleReject(drive.donationDriveId)}
+                      className="px-4 py-2 bg-red-500 text-white rounded-md"
+                    >
+                      Reject
+                    </button>
+                  </div>
+
+                }
+                {statusFilter !== "pending" &&<div className="flex gap-4">
                   <button
-                    className="text-blue-500 hover:underline"
-                    onClick={() =>
-                      editDonoDriveForm(
-                        drive.donationDriveId,
-                        drive.campaignName,
-                        drive.description
-                      )
-                    }
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                    onClick={() => {
+                      setShowEditForm(true);
+                      setDonationDriveId(drive.donationDriveId);
+                      setCampaignName(drive.campaignName);
+                      setDescription(drive.description);
+                      setEndDate(drive.endDate);
+                    }}
                   >
                     Edit
                   </button>
                   <button
-                    className="text-red-500 hover:underline"
-                    onClick={() => deleteDonationDrive(drive.donationDriveId)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md"
+                    onClick={() => handleDelete(drive.donationDriveId)}
                   >
                     Delete
                   </button>
-                </div>
+                </div>}
               </div>
             ))}
           </div>
@@ -184,66 +230,90 @@ export default function Users() {
 
       <button
         className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition"
-        onClick={() => setAddDonoForm(!addDonoForm)}
+        onClick={() => showForm(true)}
       >
         +
       </button>
 
-      {addDonoForm && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <form
-            onSubmit={submitDonationDrive}
-            className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-full max-w-md"
-          >
-            <h2 className="text-xl mb-4">Add Donation Drive</h2>
-            <input
-              type="text"
-              placeholder="Campaign Name"
-              value={campaignName}
-              onChange={(e) => setCampaignName(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={() => setAddDonoForm(false)}
-                className="text-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-500 text-white p-2 rounded"
-              >
-                Submit
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+		{/* Suggest Donation Drive Modal */}
+		{showForm && (
+			<div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
+				<form
+				onSubmit={handleSave}
+				className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
+				>
+				<h2 className="text-xl bold mb-4">Add Donation Drive</h2>
+				<input
+					type="text"
+					placeholder="Campaign Name"
+					value={campaignName}
+					onChange={(e) => setCampaignName(e.target.value)}
+					className="w-full mb-4 p-2 border rounded"
+					required
+				/>
+				<textarea
+					placeholder="Description"
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+					className="w-full mb-4 p-2 border rounded"
+					required
+				/>
+				<input
+					type="number"
+					placeholder="Target Amount"
+					value={targetAmount}
+					onChange={(e) => setTargetAmount(e.target.value)}
+					className="w-full mb-4 p-2 border rounded"
+					required
+				/>
+				<label htmlFor="">End Date</label>
+				<input
+					type="date"
+					value={endDate}
+					onChange={(e) => setEndDate(e.target.value)}
+					className="w-full mb-4 p-2 border rounded"
+					required
+					min={
+					new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+						.toISOString()
+						.split("T")[0]
+					}
+				/>
+				<div className="flex justify-between">
+					<button
+					type="button"
+					onClick={() => setShowForm(false)}
+					className="text-gray-500"
+					>
+					Cancel
+					</button>
+					<div className="flex gap-2">
+					<button
+						type="submit"
+						className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+					>
+						Submit
+					</button>
+					</div>
+				</div>
+				</form>
+			</div>
+			)}
 
-      {editDonoForm && (
+      {showEditForm && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
           <form
-            onSubmit={subEditDonoDrive}
+            onSubmit={handleEdit}
             className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-full max-w-md"
           >
             <h2 className="text-xl mb-4">Edit Donation Drive</h2>
             <input
-              type="text"
-              placeholder="Campaign Name"
-              value={campaignName}
-              onChange={(e) => setCampaignName(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
+            type="text"
+            placeholder="Campaign Name"
+            value={campaignName}
+            onChange={(e) => setCampaignName(e.target.value)}
+            className="w-full mb-4 p-2 border rounded"
+            required
             />
             <textarea
               placeholder="Description"
@@ -252,24 +322,43 @@ export default function Users() {
               className="w-full mb-4 p-2 border rounded"
               required
             />
+            <input
+              type="number"
+              placeholder="Target Amount"
+              value={targetAmount}
+              onChange={(e) => setTargetAmount(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"
+              required
+            />
+            <label htmlFor="">End Date</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full mb-4 p-2 border rounded"
+              required
+              min={
+              new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0]
+              }
+            />
             <div className="flex justify-between">
               <button
-                type="button"
-                onClick={() => {
-                  setEditDonoForm(false);
-                  setCampaignName("");
-                  setDescription("");
-                }}
-                className="text-gray-500"
+              type="button"
+              onClick={() => setShowEditForm(false)}
+              className="text-gray-500"
               >
-                Cancel
+              Cancel
               </button>
+              <div className="flex gap-2">
               <button
                 type="submit"
-                className="bg-blue-500 text-white p-2 rounded"
+                className="bg-[#0856BA] text-white p-2 rounded-[22px]"
               >
-                Save
+                Submit
               </button>
+              </div>
             </div>
           </form>
         </div>
