@@ -62,7 +62,7 @@ const AddEducationModal = ({
               e.preventDefault();
                 handleSubmit({
                     university,
-                    type,
+                    type:degreeType,
                     yearGraduated,
                     major,
                 });

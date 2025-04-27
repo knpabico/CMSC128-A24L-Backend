@@ -620,6 +620,8 @@ const UserProfile = () => {
           onClose={() => setAddDoctoral(false)}
           userId={alumInfo?.alumniId}
           setSuccess={setSuccess}
+          degreeType={degreeType}
+
         />
       )}
       {addAffiliation && (
