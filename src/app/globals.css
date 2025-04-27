@@ -1,3 +1,34 @@
 @import "tailwindcss";
-
 @plugin "tailwindcss-animate";
+
+:root{
+    
+}
+
+@theme {
+    --primary-blue: #0856BA;
+    --blue-100: #CCE2FF;
+    --blue-200: #95C1FA;
+    --blue-300: #65A2F1;
+    --blue-400: #347BD6;
+    --blue-600: #094393;
+    --blue-700: #043270;
+    --blue-800: #042856;
+    --blue-900: #001633;
+
+    --primary-white: #FFFFFF;
+    --primary-black: #000000;
+    --bg-main: #EAEAEA;
+}
+
+body{
+    background-color: lightpink;
+    color: #000000;
+}
+
+nav{
+    background-color: var(--primary-blue);
+    color: #FFFFFF;
+    font-size: 10pt;
+    font-weight: 500;
+}
