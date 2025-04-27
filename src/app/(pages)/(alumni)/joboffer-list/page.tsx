@@ -311,11 +311,11 @@ export default function JobOffers() {
   
         <div className="flex">
             {/* Sidebar */}
-            <div className="w-56 bg-white p-4 mr-4">
+            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max">
             <ul className="space-y-2">
               <li>
                 <button
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
+                  className="bg -white w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
                   onClick={() => {
                     setSidebarFilter("Job Postings");
                   }}
@@ -326,7 +326,7 @@ export default function JobOffers() {
               </li>
               <li>
                 <button
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
+                  className="bg-white w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
                   onClick={() => {
                     setSidebarFilter("Saved Jobs");
                   }}
@@ -337,20 +337,19 @@ export default function JobOffers() {
               </li>
               <li>
                 <button
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
+                  className="bg-white w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
                   onClick={() => setSidebarFilter("Create Jobs")}
                 >
                   <FilePlus className="w-5 h-5 mr-2" />
-                  Create Jobs
+                  Created Jobs
                 </button>
               </li>
             </ul>
           </div>
   
           {/* Main content revised yass */}
-          <div className="flex-1 grid grid-cols-2 gap-4">
+          <div className="flex-1 grid grid-cols-2 gap-4 pl-4">
             {/* Left Column - Job Listings */}
-            <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
               {/* Job Postings Filter */}
               <div>
                 {sidebarFilter === "Job Postings" ? (
@@ -363,7 +362,7 @@ export default function JobOffers() {
                   ) : (
                     <>
                       {filteredAndSortedJobs.length === 0 ? (
-                        <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                        <div className="text-center text-gray-500 py-8 h-[480px] flex items-center justify-center">
                           <p className="text-lg">No job offers found.</p>
                         </div>
                       ) : (
@@ -371,7 +370,7 @@ export default function JobOffers() {
                           {currentJobs.map((job, index) => (
                             <div
                               key={index}
-                              className={`bg-[#EAEAEA] p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                              className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
                                 selectedJob?.jobId === job.jobId
                                   ? "border-blue-500"
                                   : "border-gray-200"
@@ -379,7 +378,7 @@ export default function JobOffers() {
                               onClick={() => setSelectedJob(job)}
                             >
                               <div className="flex">
-                                <div className="mr-3">
+                                <div className="mr-2">
                                   <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
                                     {/* Company logo or placeholder */}
                                     {job.company.charAt(0).toUpperCase()}
@@ -424,7 +423,7 @@ export default function JobOffers() {
                       {filteredAndSortedJobs.length > 0 && (
                         <div className="flex justify-center mt-4 space-x-2">
                           <button
-                            className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                            className="px-3 py-1 bg-white rounded text-sm"
                             onClick={() =>
                               setCurrentPage((prev) => Math.max(prev - 1, 1))
                             }
@@ -438,7 +437,7 @@ export default function JobOffers() {
                           </span>
   
                           <button
-                            className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                            className="px-3 py-1 bg-white rounded text-sm"
                             onClick={() =>
                               setCurrentPage((prev) =>
                                 Math.min(prev + 1, totalPages)
@@ -453,11 +452,11 @@ export default function JobOffers() {
                     </>
                   )
                 ) : sidebarFilter === "Saved Jobs" ? (
-                  <div className="space-y-2">
+                  <div className="bg-white space-y-2">
                     {bookmarks.filter(
                       (bookmark: Bookmark) => bookmark.type === "job_offering"
                     ).length === 0 ? (
-                      <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                      <div className="text-center text-gray-500 py-8 h-[480px] flex items-center justify-center">
                         <p className="text-lg">No saved jobs found.</p>
                       </div>
                     ) : (
@@ -485,7 +484,7 @@ export default function JobOffers() {
                             ) ? (
                             <div
                               key={index}
-                              className={`bg-[#EAEAEA] p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                              className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
                                 selectedJob?.jobId === job.jobId
                                   ? "border-blue-500"
                                   : "border-gray-200"
@@ -524,7 +523,7 @@ export default function JobOffers() {
                     {jobOffers.filter(
                       (job: JobOffering) => job.alumniId === user?.uid
                     ).length === 0 ? (
-                      <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                      <div className="text-center text-gray-500 py-8 h-[480px] flex items-center justify-center">
                         <p className="text-lg">No created jobs found.</p>
                       </div>
                     ) : (
@@ -553,7 +552,7 @@ export default function JobOffers() {
                         .map((job: JobOffering, index: number) => (
                           <div
                             key={index}
-                            className={`bg-[#EAEAEA] p-3 border rounded-lg cursor-pointer hover:border-blue-300 mb-4 ${
+                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 mb-4 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -597,10 +596,9 @@ export default function JobOffers() {
                   </div>
                 ) : null}
               </div>
-            </div>
   
             {/* Right Column - Job Details */}
-            <div className="bg-[#EAEAEA] rounded-lg p-4 min-h-[600px] flex flex-col">
+            <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
               {selectedJob ? (
                 <div className="w-full">
                   <h2 className="text-2xl font-bold mb-2">

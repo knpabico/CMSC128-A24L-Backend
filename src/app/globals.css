@@ -1,3 +1,7 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
+
+:root {
+    background-color: #EAEAEA ;
+}
