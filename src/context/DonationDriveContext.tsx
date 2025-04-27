@@ -162,6 +162,22 @@ export function DonationDriveProvider({
     }
   };
 
+  const fetchAlumnusById = async (alumnusId: string) => {
+    try {
+      const alumnusRef = doc(db, "alumni", alumnusId);
+      const alumnusSnap = await getDoc(alumnusRef);
+  
+      if (alumnusSnap.exists()) {
+        return alumnusSnap.data(); // contains firstName, lastName, etc.
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching alumnus:", error);
+      return null;
+    }
+  };
+
  const handleBenefiaryChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
   const  {value } = e.target;
   const list = [...beneficiary];
@@ -328,6 +344,7 @@ export function DonationDriveProvider({
         setBeneficiary,
         getDonationDriveById,
         getEventById,
+        fetchAlumnusById,
       }}
     >
       {children}
