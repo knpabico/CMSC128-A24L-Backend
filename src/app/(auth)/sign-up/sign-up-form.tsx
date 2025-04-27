@@ -10,7 +10,7 @@ import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
 
 // components
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -75,6 +75,12 @@ import {
 import { TermsDialog } from "./terms-dialog";
 import { registerUser } from "./actions";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { Career } from "./sign-up-fields/career";
+import { Personal } from "./sign-up-fields/personal";
+import { Education } from "./sign-up-fields/education";
+import { Affiliation } from "./sign-up-fields/affiliation";
+import { NameAndPhoto } from "./sign-up-fields/name-and-photo";
+import { UserCredentials } from "./sign-up-fields/credentials";
 
 import Image from "next/image";
 import physciImage from "./physci.png";
@@ -157,6 +163,11 @@ export default function RegistrationForm() {
   //for identifying whether the user is at the credentials part or profile part of the form
   const [currentPart, setCurrentPart] = useState(0);
   //const [presentCareer, setPresentCareer] = useState<boolean>([false]);
+
+  //for preventing double click
+  const [disableGoNext, setDisableGoNext] = useState(false);
+  const [disableGoBack, setDisableGoBack] = useState(false);
+
   const router = useRouter();
 
   // create a react hook form
@@ -266,30 +277,43 @@ export default function RegistrationForm() {
 
   //for proceeding to the "Your Profile" part after validating the user credentials
   const goNext = async () => {
+    //temporarily disable the go next button to prevent double click
+    setDisableGoNext(true);
     const currentFields = formParts[currentPart].fields;
     const result = await form.trigger(currentFields as fieldName[], {
       shouldFocus: true,
     });
 
-    //if true, part of form is validated,
-    //else, part of form has errors
-    if (!result) return;
-
-    //checking if already in the last part of the form
+    //if true, part of form is validated. Else, some part of the form has errors
+    if (!result) {
+      //re-enable the go next button
+      setDisableGoNext(false);
+      return;
+    }
     if (currentPart < formParts.length - 1) {
+      //checking if already in the last part of the form
       if (currentPart === formParts.length - 1) {
         form.handleSubmit(handleSubmit);
       } else if (currentPart === formParts.length - 2) {
         setCurrentPart((currentPart) => currentPart + 1);
       }
     }
+
+    //re-enable the go next button
+    setDisableGoNext(false);
   };
 
   //if on the second part, can press a button to go back to the user credentials part
   const goBack = () => {
+    //temporarily disable the go back button to prevent double click
+    //might not be needed for this function since it is fast
+    // but just to be sure
+    setDisableGoBack(true);
     if (currentPart > 0) {
       setCurrentPart((currentPart) => currentPart - 1);
     }
+    //re-enable the go back button
+    setDisableGoBack(false);
   };
 
   return (
@@ -1244,238 +1268,16 @@ export default function RegistrationForm() {
               >
                 {/*USER CREDENTIALS SECTION */}
                 {currentPart === 0 && (
-                  <div>
-                    {/* email form field */}
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="juandelacruz@example.com"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* password form field */}
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <PasswordInput placeholder="••••••••" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* passwordConfirm form field */}
-                    <FormField
-                      control={form.control}
-                      name="passwordConfirm"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
-                          <FormControl>
-                            <PasswordInput placeholder="••••••••" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <UserCredentials form={form}></UserCredentials>
                 )}
 
                 {currentPart === 1 && (
                   <>
                     {/* NAME AND PHOTO SECTION*/}
-                    <div>
-                      {/* name form fields */}
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* first name form field */}
-                        <div className="col-span-6">
-                          <FormField
-                            control={form.control}
-                            name="firstName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>First Name*</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Juan"
-                                    type="text"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                {/* FormMessage is used for displaying validation error message */}
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        {/* middle name form field */}
-                        <div className="col-span-6">
-                          <FormField
-                            control={form.control}
-                            name="middleName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Middle Name</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Martinez"
-                                    type="text"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                {/* FormMessage is used for displaying validation error message */}
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        {/* last name form field */}
-                        <div className="col-span-6">
-                          <FormField
-                            control={form.control}
-                            name="lastName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Last Name*</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Dela Cruz"
-                                    type="text"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                {/* FormMessage is used for displaying validation error message */}
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        {/* last name form field */}
-                        <div className="col-span-6">
-                          <FormField
-                            control={form.control}
-                            name="suffix"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Suffix</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Jr."
-                                    type="text"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                {/* FormMessage is used for displaying validation error message */}
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <NameAndPhoto form={form}></NameAndPhoto>
 
                     {/* PERSONAL SECTION */}
-                    <div>
-                      {/* birthDate form field */}
-                      <div className="col-span-6">
-                        <FormField
-                          control={form.control}
-                          name="birthDate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Birthday*</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="date"
-                                  {...field}
-                                  // we will not provide a default value to this input field
-                                  // that requires a number value when we create the react hook form (the form variable above)
-                                  // Instead, if the value of it is undefined initially, then we set
-                                  // it to an empty string here
-                                  value={field.value ?? ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* address form field */}
-
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* country */}
-                        <div className="col-span-6">
-                          <FormField
-                            control={form.control}
-                            name="address.0"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Current Home Address*</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Country" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        {/* city/municipality */}
-                        <div className="col-span-6 mt-5">
-                          <FormField
-                            control={form.control}
-                            name="address.1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    placeholder="City/Municipality"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="col-span-6">
-                          {/* province/state */}
-                          <FormField
-                            control={form.control}
-                            name="address.2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Province/State"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <Personal form={form}></Personal>
 
                     {/* EDUCATION SECTION */}
                     <div>
@@ -1507,7 +1309,7 @@ export default function RegistrationForm() {
                       <div className="mt-5">
                         <p>AFFILIATIONS</p>
                         {affiliation.map((aff, index) => (
-                          <div key={index}>
+                          <div key={aff.id}>
                             {index > 0 && (
                               <button
                                 className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
@@ -1517,68 +1319,10 @@ export default function RegistrationForm() {
                                 -
                               </button>
                             )}
-
-                            <div
-                              key={aff.id}
-                              className="grid grid-cols-12 gap-4"
-                            >
-                              {/* affiliation name */}
-                              <div className="col-span-7">
-                                <FormField
-                                  control={form.control}
-                                  name={`affiliation.${index}.affiliationName`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Affiliation</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Affiliation Name"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                              {/* year joined */}
-                              <div className="col-span-5 mt-5">
-                                <FormField
-                                  control={form.control}
-                                  name={`affiliation.${index}.yearJoined`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Year Joined"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-
-                              <div className="col-span-12">
-                                {/* university */}
-                                <FormField
-                                  control={form.control}
-                                  name={`affiliation.${index}.university`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="University"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
+                            <Affiliation
+                              index={index}
+                              form={form}
+                            ></Affiliation>
                           </div>
                         ))}
 
@@ -1602,7 +1346,7 @@ export default function RegistrationForm() {
                       <div className="mt-5">
                         <p>BACHELOR'S</p>
                         {bachelors.map((bachelor, index) => (
-                          <div key={index}>
+                          <div key={bachelor.id}>
                             {index > 0 && (
                               <button
                                 className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
@@ -1613,67 +1357,11 @@ export default function RegistrationForm() {
                               </button>
                             )}
 
-                            <div
-                              key={bachelor.id}
-                              className="grid grid-cols-12 gap-4"
-                            >
-                              {/* degree program */}
-                              <div className="col-span-7">
-                                <FormField
-                                  control={form.control}
-                                  name={`bachelors.${index}.major`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Bachelor's Degree*</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Degree Program"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                              {/* year graduated */}
-                              <div className="col-span-5 mt-5">
-                                <FormField
-                                  control={form.control}
-                                  name={`bachelors.${index}.yearGraduated`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Year Graduated"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-
-                              <div className="col-span-12">
-                                {/* university */}
-                                <FormField
-                                  control={form.control}
-                                  name={`bachelors.${index}.university`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="University"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
+                            <Education
+                              index={index}
+                              form={form}
+                              type={"bachelors"}
+                            ></Education>
                           </div>
                         ))}
 
@@ -1698,7 +1386,7 @@ export default function RegistrationForm() {
                       <div className="mt-5">
                         <p>MASTER'S</p>
                         {masters.map((master, index) => (
-                          <div key={index}>
+                          <div key={master.id}>
                             <button
                               className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
                               type="button"
@@ -1707,67 +1395,11 @@ export default function RegistrationForm() {
                               -
                             </button>
 
-                            <div
-                              key={master.id}
-                              className="grid grid-cols-12 gap-4"
-                            >
-                              {/* degree program */}
-                              <div className="col-span-7">
-                                <FormField
-                                  control={form.control}
-                                  name={`masters.${index}.major`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Master's Degree*</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Degree Program"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                              {/* year graduated */}
-                              <div className="col-span-5 mt-5">
-                                <FormField
-                                  control={form.control}
-                                  name={`masters.${index}.yearGraduated`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Year Graduated"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-
-                              <div className="col-span-12">
-                                {/* university */}
-                                <FormField
-                                  control={form.control}
-                                  name={`masters.${index}.university`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="University"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
+                            <Education
+                              index={index}
+                              form={form}
+                              type={"masters"}
+                            ></Education>
                           </div>
                         ))}
 
@@ -1791,7 +1423,7 @@ export default function RegistrationForm() {
                       <div className="mt-5">
                         <p>DOCTORAL</p>
                         {doctoral.map((doc, index) => (
-                          <div key={index}>
+                          <div key={doc.id}>
                             <button
                               className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
                               type="button"
@@ -1800,67 +1432,11 @@ export default function RegistrationForm() {
                               -
                             </button>
 
-                            <div
-                              key={doc.id}
-                              className="grid grid-cols-12 gap-4"
-                            >
-                              {/* degree program */}
-                              <div className="col-span-7">
-                                <FormField
-                                  control={form.control}
-                                  name={`doctoral.${index}.major`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Doctoral Degree*</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Degree Program"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                              {/* year graduated */}
-                              <div className="col-span-5 mt-5">
-                                <FormField
-                                  control={form.control}
-                                  name={`doctoral.${index}.yearGraduated`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Year Graduated"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-
-                              <div className="col-span-12">
-                                {/* university */}
-                                <FormField
-                                  control={form.control}
-                                  name={`doctoral.${index}.university`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="University"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
+                            <Education
+                              index={index}
+                              form={form}
+                              type={"doctoral"}
+                            ></Education>
                           </div>
                         ))}
 
@@ -1885,7 +1461,7 @@ export default function RegistrationForm() {
                     <div className="mt-5">
                       <p>CAREER</p>
                       {career.map((car, index) => (
-                        <div key={index}>
+                        <div key={car.id}>
                           {/*remove field button */}
                           {index > 0 && (
                             <button
@@ -1896,133 +1472,7 @@ export default function RegistrationForm() {
                               -
                             </button>
                           )}
-                          {/* career form field */}
-
-                          <div className="grid grid-cols-12 gap-4">
-                            {/* industry */}
-                            <div className="col-span-4">
-                              <FormField
-                                control={form.control}
-                                name={`career.${index}.industry`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Industry</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Industry"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            {/* job title */}
-                            <div className="col-span-8">
-                              <FormField
-                                control={form.control}
-                                name={`career.${index}.jobTitle`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Job Title</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Job Title"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="col-span-12">
-                              {/* university */}
-                              <FormField
-                                control={form.control}
-                                name={`career.${index}.company`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Company/Organization</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Company/Organization"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="col-span-6">
-                              {/* start year */}
-                              <FormField
-                                control={form.control}
-                                name={`career.${index}.startYear`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Start Year</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Start Year"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="col-span-6">
-                              {/* end year */}
-                              <FormField
-                                control={form.control}
-                                name={`career.${index}.endYear`}
-                                disabled={career[index].presentJob}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>End Year</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="End Year"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div>
-                              {/* checkbox field for identifying whether it is up to present or not*/}
-                              <FormField
-                                control={form.control}
-                                name={`career.${index}.presentJob`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <div className="flex gap-2 justify-start items-center">
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={field.value}
-                                          onCheckedChange={field.onChange}
-                                        />
-                                      </FormControl>
-                                      <FormLabel className="inline">
-                                        Present job?
-                                      </FormLabel>
-                                    </div>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <Career index={index} form={form}></Career>
                         </div>
                       ))}
                       {/*add  fields button */}
@@ -2097,7 +1547,12 @@ export default function RegistrationForm() {
 
                 {/* Button galing user credentials (email, pass) papuntang profile */}
                 {currentPart === 0 && (
-                  <Button variant="outline" type="button" onClick={goNext}>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    disabled={disableGoNext} //disable button after clicking once to prevent double clicking
+                    onClick={goNext}
+                  >
                     SIGN UP
                   </Button>
                 )}
@@ -2108,6 +1563,7 @@ export default function RegistrationForm() {
                       className="col-span-6"
                       variant="outline"
                       type="button"
+                      disabled={disableGoBack}
                       onClick={goBack}
                     >
                       Back

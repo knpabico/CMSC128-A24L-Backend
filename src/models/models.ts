@@ -176,6 +176,7 @@ export interface WorkExperience {
   location: string;
   latitude: number;
   longitude: number;
+  proofOfEmployment: string;
 }
 
 export interface NewsletterItem {
