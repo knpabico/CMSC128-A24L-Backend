@@ -1,34 +1,33 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
-:root{
-    
+:root {
 }
 
 @theme {
-    --primary-blue: #0856BA;
-    --blue-100: #CCE2FF;
-    --blue-200: #95C1FA;
-    --blue-300: #65A2F1;
-    --blue-400: #347BD6;
-    --blue-600: #094393;
-    --blue-700: #043270;
-    --blue-800: #042856;
-    --blue-900: #001633;
+  --primary-blue: #0856ba;
+  --blue-100: #cce2ff;
+  --blue-200: #95c1fa;
+  --blue-300: #65a2f1;
+  --blue-400: #347bd6;
+  --blue-600: #094393;
+  --blue-700: #043270;
+  --blue-800: #042856;
+  --blue-900: #001633;
 
-    --primary-white: #FFFFFF;
-    --primary-black: #000000;
-    --bg-main: #EAEAEA;
+  --primary-white: #ffffff;
+  --primary-black: #000000;
+  --bg-main: #eaeaea;
 }
 
-body{
-    background-color: lightpink;
-    color: #000000;
+body {
+  background-color: var(--bg-main);
+  color: #000000;
 }
 
-nav{
-    background-color: var(--primary-blue);
-    color: #FFFFFF;
-    font-size: 10pt;
-    font-weight: 500;
+nav {
+  background-color: var(--primary-blue);
+  color: #ffffff;
+  font-size: 10pt;
+  font-weight: 500;
 }
