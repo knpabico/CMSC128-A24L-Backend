@@ -398,22 +398,22 @@ export default function DonationDrives() {
                         </button>
                       </>
                     )}
-                    
+
                     <button
-                      onClick={() => {
-                        setEditForm(true);
-                        setDonationDriveId(drive.donationDriveId);
-                        setCampaignName(drive.campaignName);
-                        setBeneficiary(drive.beneficiary);
-                        setDescription(drive.description);
-                        setTargetAmount(drive.targetAmount);
-                        setEndDate(drive.endDate);
-                        setShowForm(true);
-                      }}
-                      className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-600 transition w-full"
-                    >
-                      Edit
-                    </button>
+                    className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-600 transition w-full"
+                    onClick={() => {
+                      setEditForm(true);
+                      setDonationDriveId(drive.donationDriveId);
+                      setCampaignName(drive.campaignName);
+                      setBeneficiary(drive.beneficiary);
+                      setDescription(drive.description);
+                      setTargetAmount(drive.targetAmount);
+                      setEndDate(drive.endDate);
+                      setShowForm(true);
+                    }}
+                  >
+                    Edit
+                  </button>
                     
                     <button
                       onClick={() => handleDelete(drive.donationDriveId)}
