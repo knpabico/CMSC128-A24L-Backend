@@ -39,6 +39,10 @@ export default function Events() {
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
+  const [filterSearch, setFilterSearch] = useState("all");
+  const [searchBatches, setSearchBatches] = useState<any[]>([]);
+  const [searchAlumni, setSearchAlumni] = useState<any[]>([]);
+
   useEffect(() => { // Properly show the selected filter when Editing the values
     if (isEditing && events) {
       const eventToEdit = events.find(event => event.eventId === editingEventId);
@@ -116,7 +120,7 @@ export default function Events() {
 
         {/* will be used for the filter */}
 
-        {/* {(() => {
+        {(() => {
           // Group alumni by their ID and compile the events they RSVPed to
           const grouped: Record<string, { alum: any; events: string[] }> = {};
 
@@ -128,14 +132,14 @@ export default function Events() {
               if (!rsvp || !alum) return;
               
               // Check if alumni is part of the selected batch or selected alumni
-              const inBatch = selectedBatches.includes(alum.studentNumber?.slice(0, 4));
-              const inAlumni = selectedAlumni.includes(alum.email);
+              const inBatch = searchBatches.includes(alum.studentNumber?.slice(0, 4));
+              const inAlumni = searchAlumni.includes(alum.email);
               
               // Decide if this RSVP should be shown based on the current visibility setting
               const matchesFilter =
-                visibility === "all" ||
-                (visibility === "batch" && inBatch) ||
-                (visibility === "alumni" && inAlumni);
+                filterSearch === "all" ||
+                (filterSearch === "batch" && inBatch) ||
+                (filterSearch === "alumni" && inAlumni);
 
               if (!matchesFilter) return;
               
@@ -163,8 +167,147 @@ export default function Events() {
               ))}
             </ul>
           );
-        })()} */}
+        })()}
 
+        <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
+          {/* Open to All */}
+          <label className="flex items-center space-x-2">
+            <input
+              type="radio"
+              name="filterSearch"
+              value="all"
+              checked={filterSearch === "all"}
+              onChange={() => {
+                setFilterSearch("all");
+                // Clear both to properly show the RSVP
+                setSearchAlumni([]);
+                setSearchBatches([]);
+              }}
+            />
+            <span>Open to all</span>
+          </label>
+
+          {/* Batch Option */}
+          <label className="flex items-start space-x-2">
+            <input
+              type="radio"
+              name="filterSearch"
+              value="batch"
+              checked={filterSearch === "batch"}
+              onChange={() => {
+                setFilterSearch("batch");
+                setSearchAlumni([]); // Clear the Selected Batches List
+              }}
+            />
+            <div className="flex flex-col w-full">
+              <span>Batch:</span>
+              {filterSearch === "batch" && (
+                <>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {searchBatches.map((batch, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center"
+                      >
+                        {batch}
+                        {/* Remove Button */}
+                        <button 
+                          type="button"
+                          className="ml-2 text-red-500 font-bold"
+                          onClick={() =>
+                            setSearchBatches((prev) =>
+                              prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedBatches
+                            )
+                          }
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  {/* User Input */}
+                  <input
+                    type="text"
+                    className="text-black mt-2 p-2 rounded-md w-full"
+                    placeholder="e.g. 2022"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const value = e.currentTarget.value.trim();
+                        // Check if the value is not empty and not already in the selectedBatches list
+                        if (value && !searchBatches.includes(value)) {
+                          // Add the new value to the selectedBatches list
+                          setSearchBatches([...searchBatches, value]);
+                          e.currentTarget.value = "";
+                        }
+                      }
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          </label>
+
+          {/* Alumni Option */}
+          <label className="flex items-start space-x-2 mt-4">
+            <input
+              type="radio"
+              name="filterSearch"
+              value="alumni"
+              checked={filterSearch === "alumni"}
+              onChange={() => {
+                setFilterSearch("alumni");
+                setSearchBatches([]); // Clear the Selected Alumni List
+              }}
+            />
+            <div className="flex flex-col w-full">
+              <span>Alumni:</span>
+              {filterSearch === "alumni" && (
+                <>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {searchAlumni.map((email, index) => (
+                      <span
+                        key={index}
+                        className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center"
+                      >
+                        {email}
+                        <button
+                          type="button"
+                          className="ml-2 text-red-500 font-bold"
+                          onClick={() =>
+                            setSearchAlumni((prev) =>
+                              prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedAlumni
+                            )
+                          }
+                        >
+                          x
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    className="text-black mt-2 p-2 rounded-md w-full"
+                    placeholder="e.g. email1@up.edu.ph"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const value = e.currentTarget.value.trim();
+                        // Check if the value is not empty and not already in the selectedAlumni list
+                        if (value && !searchAlumni.includes(value)) {
+                          // Add the new value to the selectedAlumni list
+                          setSearchAlumni([...searchAlumni, value]);
+                          e.currentTarget.value = "";
+                        }
+                      }
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          </label>
+        </div>
+        
         {/* Sort Buttons for different status*/}
         <div className="flex gap-5 mb-5">
           {["Accepted", "Pending", "Rejected"].map((status) => (
