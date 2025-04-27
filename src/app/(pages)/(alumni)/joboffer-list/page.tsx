@@ -7,10 +7,7 @@ import { Bookmark } from "@/models/models";
 import { useBookmarks } from "@/context/BookmarkContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
@@ -220,7 +217,22 @@ export default function JobOffers() {
       </div>
   
       <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
+
+        <button
+            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
+              activeFilters.length > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+            onClick={() => {
+              setActiveFilters([]);
+              setActiveFilterCategory(null);
+              setShowFilterOptions(false);
+              setCurrentPage(1);
+            }}
+          >
+            Clear Filters
+          </button>
+
           <div className="flex space-x-3">
             <div className="relative" ref={filterContainerRef}>
               <button
@@ -295,9 +307,10 @@ export default function JobOffers() {
           </div>
         </div>
   
-        {activeFilters.length > 0 && (
-          <button
-            className="px-3 py-1 bg-red-50 text-red-700 rounded text-sm mb-4"
+          {/* <button
+            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
+              activeFilters.length > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
             onClick={() => {
               setActiveFilters([]);
               setActiveFilterCategory(null);
@@ -306,8 +319,7 @@ export default function JobOffers() {
             }}
           >
             Clear Filters
-          </button>
-        )}
+          </button> */}
   
         <div className="flex">
             {/* Sidebar */}
