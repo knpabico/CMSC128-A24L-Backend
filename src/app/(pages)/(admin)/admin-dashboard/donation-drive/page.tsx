@@ -14,6 +14,9 @@ export default function Users() {
     addDonationDrive,
     showForm,
     setShowForm,
+    handleBenefiaryChange,
+    handleAddBeneficiary,
+    handleRemoveBeneficiary,
     handleSave,
     handleEdit,
     handleDelete,
@@ -33,6 +36,8 @@ export default function Users() {
     setEndDate,
     status,
     setStatus,
+    oneBeneficiary, 
+    setOneBeneficiary,
     beneficiary,
     setBeneficiary,
     getDonationDriveById,
@@ -186,6 +191,7 @@ export default function Users() {
                         setEditForm(true);
                         setDonationDriveId(drive.donationDriveId);
                         setCampaignName(drive.campaignName);
+                        setBeneficiary(drive.beneficiary);
                         setDescription(drive.description);
                         setTargetAmount(drive.targetAmount);
                         setEndDate(drive.endDate);
@@ -211,6 +217,7 @@ export default function Users() {
                       setEditForm(true);
                       setDonationDriveId(drive.donationDriveId);
                       setCampaignName(drive.campaignName);
+                      setBeneficiary(drive.beneficiary);
                       setDescription(drive.description);
                       setTargetAmount(drive.targetAmount);
                       setEndDate(drive.endDate);
@@ -239,21 +246,29 @@ export default function Users() {
         +
       </button>
 
-		{/* Add/Edit Donation Drive Modal */}
-    {showForm && (
+		{/* Edit Donation Drive Modal */}
+    {setShowForm && setEditForm && donationDriveId && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
               <form
-                onSubmit={!editForm? handleSave :
+                onSubmit={
                   (e) => {
                   e.preventDefault();
-                  handleEdit(donationDriveId, { campaignName, description, targetAmount , endDate }); // Pass the current value if it will be edited
+                  handleEdit(donationDriveId, { campaignName, description, beneficiary, targetAmount, endDate }); // Pass the current value if it will be edited
                   setShowForm(false);
                   setEditForm(false);
-                }}
+                  setDonationDriveId("");
+                  setCampaignName("");
+                  setDescription("");
+                  setOneBeneficiary("");
+                  setBeneficiary([]);
+                  setTargetAmount(0);
+                  setEndDate(new Date());
+                  }
+                }
                 className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
               >
                 <h2 className="text-xl mb-4">
-                  {editForm ? "Edit Donation Drive" : "Add Donation Drive"}
+                  Edit Donation Drive
                 </h2>
                 <input
                   type="text"
@@ -270,6 +285,131 @@ export default function Users() {
                   className="w-full mb-4 p-2 border rounded"
                   required
                 />
+                {beneficiary.map( (beneficiaries: string, index: number) => (
+                  <div key = {index} className="flex justify-between my-1">
+                    <input
+                      type="text"
+                      placeholder="Beneficiary"
+                      value={beneficiaries}
+                      onChange={(e) => handleBenefiaryChange(e,index)}
+                      className="w-full mb-4 p-2 border rounded"
+                      required
+                    />
+                    {beneficiary.length > 1 && (
+                      <button 
+                        type="button" 
+                        className='px-4 py-2 bg-red-500 text-white rounded-md'
+                        onClick={() => handleRemoveBeneficiary(index)}>
+                        Remove
+                      </button>
+                              )}
+                          </div>						
+                  ))}
+                  <button 
+                    type="button" 
+                    className='px-4 py-2 bg-green-500 text-white rounded-md'
+                    onClick={handleAddBeneficiary}>
+                    Add Beneficiary
+                  </button>
+                <input
+                  type="number"
+                  placeholder="Target Amount"
+                  value={targetAmount}
+                  onChange={(e) => setTargetAmount(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                />
+                <label htmlFor="">End Date</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                  min={
+                  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                    .toISOString()
+                    .split("T")[0]
+                  }
+                />
+
+                <div className="flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => {       
+                      setEditForm(false);
+                      setShowForm(false);
+                      setEditForm(true);
+                      setDonationDriveId("");
+                      setCampaignName("");
+                      setDescription("");
+                      setTargetAmount(0);
+                      setEndDate(new Date());}}
+                    className="text-gray-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white p-2 rounded"
+                  >
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+    {/* Add Donation Drive Modal */}
+    {showForm && !editForm && (
+            <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+              <form
+                onSubmit={handleSave}
+                className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
+              >
+                <h2 className="text-xl mb-4">
+                  Add Donation Drive
+                </h2>
+                <input
+                  type="text"
+                  placeholder="Campaign Name"
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                />
+                <textarea
+                  placeholder="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                />
+                {beneficiary.map( (beneficiaries: string, index: number) => (
+                  <div key = {index} className="flex justify-between my-1">
+                    <input
+                      type="text"
+                      placeholder="Beneficiary"
+                      value={beneficiaries}
+                      onChange={(e) => handleBenefiaryChange(e,index)}
+                      className="w-full mb-4 p-2 border rounded"
+                      required
+                    />
+                    {beneficiary.length > 1 && (
+                      <button 
+                        type="button" 
+                        className='px-4 py-2 bg-red-500 text-white rounded-md'
+                        onClick={() => handleRemoveBeneficiary(index)}>
+                        Remove
+                      </button>
+                    )}
+                  </div>						
+                  ))}
+                  <button 
+                    type="button" 
+                    className='px-4 py-2 bg-green-500 text-white rounded-md'
+                    onClick={handleAddBeneficiary}>
+                    Add Beneficiary
+                  </button>
                 <input
                   type="number"
                   placeholder="Target Amount"
@@ -304,7 +444,7 @@ export default function Users() {
                     type="submit"
                     className="bg-blue-500 text-white p-2 rounded"
                   >
-                    {editForm ? "Update" : "Save"}
+                    Save
                   </button>
                 </div>
               </form>

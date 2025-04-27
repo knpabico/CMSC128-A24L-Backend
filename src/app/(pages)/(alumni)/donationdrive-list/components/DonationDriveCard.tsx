@@ -23,12 +23,19 @@ const {user, alumInfo } = useAuth();
 const {
 	showForm, 
 	setShowForm, 
+	handleBenefiaryChange,
+	handleAddBeneficiary,
+	handleRemoveBeneficiary,
 	handleSave,
 	handleEdit,
 	campaignName, 
 	setCampaignName,
 	description, 
 	setDescription,
+	oneBeneficiary, 
+	setOneBeneficiary,
+	beneficiary,
+	setBeneficiary,
 	targetAmount, 
 	setTargetAmount,
 	endDate, 
@@ -251,6 +258,32 @@ return (
 						className="w-full mb-4 p-2 border rounded"
 						required
 					/>
+					{beneficiary.map( (beneficiaries: string, index: number) => (
+						<div key = {index} className="flex justify-between my-1">
+							<input
+								type="text"
+								placeholder="Beneficiary"
+								value={beneficiaries}
+								onChange={(e) => handleBenefiaryChange(e,index)}
+								className="w-full mb-4 p-2 border rounded"
+								required
+							/>
+							{beneficiary.length > 1 && (
+								<button 
+									type="button" 
+									className='px-4 py-2 bg-red-500 text-white rounded-md'
+									onClick={() => handleRemoveBeneficiary(index)}>
+									Remove
+								</button>
+                    		)}
+                		</div>						
+						))}
+						<button 
+							type="button" 
+							className='px-4 py-2 bg-green-500 text-white rounded-md'
+							onClick={handleAddBeneficiary}>
+                			Add Beneficiary
+            			</button>
 					<input
 						type="number"
 						placeholder="Target Amount"

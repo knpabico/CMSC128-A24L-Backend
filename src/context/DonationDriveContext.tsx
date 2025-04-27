@@ -36,7 +36,8 @@ export function DonationDriveProvider({
   const [eventId, setEventId] = useState("");
   const [endDate, setEndDate] = useState(new Date());
   const [status, setStatus] = useState("");
-  const [beneficiary, setBeneficiary] = useState<string[]>([]);
+  const [oneBeneficiary, setOneBeneficiary] = useState("");
+  const [beneficiary, setBeneficiary] = useState<string[]>([""]);
 
   const { user, isAdmin } = useAuth();
 
@@ -161,32 +162,32 @@ export function DonationDriveProvider({
     }
   };
 
-  const checkUserRole = async (userId: string) => {
-    const adminRef = doc(db, "admin", userId);
-    const alumniRef = doc(db, "alumni", userId);
+ const handleBenefiaryChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const  {value } = e.target;
+  const list = [...beneficiary];
+  list[index] = value;
+  setBeneficiary(list);
+ }
 
-    const [adminSnap, alumniSnap] = await Promise.all([
-      getDoc(adminRef),
-      getDoc(alumniRef),
-    ]);
+ const handleAddBeneficiary = async () => {
+  setBeneficiary([...beneficiary,'']);
+ }
 
-    if (adminSnap.exists()) {
-      return { role: "admin", name: null };
-    } else {
-      const alumnusData = alumniSnap.data();
-      return { role: "alumni", name: alumnusData?.name || "Unknown" };
-    }
-  };
+ const handleRemoveBeneficiary = async (index: number) => {
+  const list = [...beneficiary];
+  list.splice(index,1);
+  setBeneficiary(list);
+ }
 
   const addDonationDrive = async (driveData: DonationDrive) => {
-    const { role, name } = await checkUserRole(user!.uid);
+    var role;
+    isAdmin? role = "admin": role = "alumni";
     try {
       const docRef = doc(collection(db, "donation_drive"));
       driveData.donationDriveId = docRef.id;
       driveData.creatorType = role;
       driveData.status = role === "admin" ? "active" : "pending";
-      driveData.creatorId = user!.uid;
-
+      driveData.creatorId = role === "admin" ? "" : user!.uid;
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
@@ -201,7 +202,7 @@ export function DonationDriveProvider({
       donationDriveId: "",
       datePosted: new Date(),
       description,
-      beneficiary: [],
+      beneficiary,
       campaignName,
       status: "",
       creatorId: "",
@@ -222,6 +223,8 @@ export function DonationDriveProvider({
       setShowForm(false);
       setCampaignName("");
       setDescription("");
+      setOneBeneficiary("");
+      setBeneficiary([]);
       setTargetAmount(0);
       setIsEvent(false);
       setEventId("");
@@ -297,6 +300,9 @@ export function DonationDriveProvider({
         addDonationDrive,
         showForm,
         setShowForm,
+        handleBenefiaryChange,
+        handleAddBeneficiary,
+        handleRemoveBeneficiary,
         handleSave,
         handleEdit,
         handleDelete,
@@ -316,6 +322,8 @@ export function DonationDriveProvider({
         setEndDate,
         status,
         setStatus,
+        oneBeneficiary, 
+        setOneBeneficiary,
         beneficiary,
         setBeneficiary,
         getDonationDriveById,
