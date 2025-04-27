@@ -9,11 +9,8 @@ import { DonationDrive, Donation } from '@/models/models';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
-<<<<<<< HEAD
-=======
 import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X } from 'lucide-react';
 import { DonateDialog } from '../DonateDialog';
->>>>>>> 0b3a7f567acf2cefa6e2b864291aa3455ed763e6
 
 const DonationDriveDetailsPage: React.FC = () => {
   const router = useRouter();
@@ -26,10 +23,7 @@ const DonationDriveDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [donationsLoading, setDonationsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-<<<<<<< HEAD
-=======
   const [showDonors, setShowDonors] = useState(false);
->>>>>>> 0b3a7f567acf2cefa6e2b864291aa3455ed763e6
 
   // Format date function with improved type safety
   const formatDate = (timestamp: any): string => {
@@ -49,8 +43,6 @@ const DonationDriveDetailsPage: React.FC = () => {
     }
   };
 
-<<<<<<< HEAD
-=======
 	//Calculate Days Remaining
   const getRemainingDays = (startDate: any, endDate: any) => {
     try {
@@ -66,7 +58,6 @@ const DonationDriveDetailsPage: React.FC = () => {
     }
   };
 
->>>>>>> 0b3a7f567acf2cefa6e2b864291aa3455ed763e6
   // Calculate progress percentage with type safety
   const calculateProgress = (current: number, target: number): string => {
     if (target <= 0 || isNaN(target) || isNaN(current)) return '0';
@@ -234,18 +225,12 @@ const DonationDriveDetailsPage: React.FC = () => {
 
           <div className="mb-6">
             <h3 className="font-semibold text-gray-700 mb-2">Funding Progress</h3>
-<<<<<<< HEAD
-            <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-blue-500 rounded-full transition-all duration-300" 
-=======
             <div className="flex justify-end text-sm font-medium text-gray-700 mb-1">
               {calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%
             </div>
             <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-blue-500 rounded-full" 
->>>>>>> 0b3a7f567acf2cefa6e2b864291aa3455ed763e6
                 style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%` }}
               ></div>
             </div>
@@ -334,11 +319,6 @@ const DonationDriveDetailsPage: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
-<<<<<<< HEAD
-                </div>
-              ) : (
-                <p className="text-gray-500 py-4 text-center">No donations have been made for this donation drive yet.</p>
-=======
                   <div className="mt-2 mx-auto w-fit">
                     <DonateDialog drive={donationDrive} />
                   </div>
@@ -349,7 +329,6 @@ const DonationDriveDetailsPage: React.FC = () => {
                   <p className="text-gray-500">No donations have been made for this donation drive yet.</p>
                   <DonateDialog drive={donationDrive} />
                 </div>
->>>>>>> 0b3a7f567acf2cefa6e2b864291aa3455ed763e6
               )}
             </div>
           </div>
