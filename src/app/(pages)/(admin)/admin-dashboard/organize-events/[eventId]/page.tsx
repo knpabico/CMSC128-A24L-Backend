@@ -14,6 +14,7 @@ const EventPageAdmin = () => {
     showForm,
     handleSave,
     handleEdit,
+    handleDelete,
     date,
     handleReject,
     handleFinalize,
@@ -366,7 +367,10 @@ const EventPageAdmin = () => {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleReject(event.eventId)}
+                  onClick={() => {
+                    handleDelete(event.eventId);  // Deletes the event
+                    router.back();  // Navigates back after the delete
+                  }}
                   className="px-4 py-2 bg-red-500 text-white rounded-md"
                 >
                   Delete
@@ -376,8 +380,11 @@ const EventPageAdmin = () => {
           ) : event.status === "Accepted" ? (
             <div className="flex flex-col gap-2 mt-4">
               <button
-                onClick={() => handleReject(event.eventId)}
-                className="px-4 py-2 bg-red-600 text-white rounded-md"
+                onClick={() => {
+                  handleDelete(event.eventId);  // Deletes the event
+                  router.back();  // Navigates back after the delete
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-md"
               >
                 Delete
               </button>
