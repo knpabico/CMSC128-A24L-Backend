@@ -259,9 +259,9 @@ export default function RegistrationForm() {
 
     console.log("Testing sign-up:");
     console.log(data);
-    //const response = await registerUser(data);
+    // const response = await registerUser(data);
 
-    // display error or success toast message
+    // //display error or success toast message
     // if (response?.error) {
     //   toastError(response.message);
     //   setIsLoading(false);
@@ -332,84 +332,61 @@ export default function RegistrationForm() {
                 <div className="flex min-h-screen">
                   <div className="flex w-[50%] justify-center items-center">
                     <div className="flex flex-col w-full mx-37 items-center">
-                      <p className="text-5xl font-bold text-[#0856ba] pb-10">Create an account</p>
+                      <p className="text-5xl font-bold text-[#0856ba] pb-10">
+                        Create an account
+                      </p>
 
                       <div className="w-full px-9">
                         <div className="space-y-7 w-full">
                           <button className="border-2 border-[#0856ba] flex justify-center items-center p-2 rounded-full space-x-3 cursor-pointer w-full hover:bg-[#92b2dc]">
-                            <Image src={googleImage} alt="hello" className="w-6 h-6" />
-                            <p className="text-[#0856ba]">Continue with Google</p>
+                            <Image
+                              src={googleImage}
+                              alt="hello"
+                              className="w-6 h-6"
+                            />
+                            <p className="text-[#0856ba]">
+                              Continue with Google
+                            </p>
                           </button>
-                  
+
                           <hr></hr>
 
                           <div className="flex flex-col gap-5">
-                            {/* email form field */}
-                            <FormField
-                              control={form.control}
-                              name="email"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Email</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="juandelacruz@example.com"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                            <UserCredentials form={form}></UserCredentials>
 
-                            {/* password form field */}
-                            <FormField
-                              control={form.control}
-                              name="password"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Password</FormLabel>
-                                  <FormControl>
-                                    <PasswordInput placeholder="••••••••" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* passwordConfirm form field */}
-                            <FormField
-                              control={form.control}
-                              name="passwordConfirm"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Confirm Password</FormLabel>
-                                  <FormControl>
-                                    <PasswordInput placeholder="••••••••" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <Button type="button" onClick={goNext} className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]">
+                            <Button
+                              type="button"
+                              onClick={goNext}
+                              className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                            >
                               Sign up
                             </Button>
                           </div>
-                              
+
                           <div className="flex justify-center items-center space-x-2">
                             <p>Already have an account?</p>
-                            <button disabled={form.formState.isSubmitting || isLoading} className="hover:underline text-[#0856ba]"><Link href="/login">Log in</Link></button>
+                            <button
+                              disabled={
+                                form.formState.isSubmitting || isLoading
+                              }
+                              className="hover:underline text-[#0856ba]"
+                            >
+                              <Link href="/login">Log in</Link>
+                            </button>
                           </div>
                         </div>
                       </div>
-                      
                     </div>
                   </div>
 
                   <div className="w-[50%] relative">
-                    <Image src={physciImage} alt="hello" className="w-full h-full object-cover" layout="fill" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-70 h-70 rounded-full"></div> 
+                    <Image
+                      src={physciImage}
+                      alt="hello"
+                      className="w-full h-full object-cover"
+                      layout="fill"
+                    />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-70 h-70 rounded-full"></div>
                   </div>
                 </div>
               )}
@@ -417,184 +394,10 @@ export default function RegistrationForm() {
               {currentPart === 1 && (
                 <>
                   {/* NAME AND PHOTO SECTION*/}
-                  <div>
-                    {/* name form fields */}
-                    <div className="grid grid-cols-12 gap-4">
-                      {/* first name form field */}
-                      <div className="col-span-6">
-                        <FormField
-                          control={form.control}
-                          name="firstName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>First Name*</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Juan"
-                                  type="text"
-                                  {...field}
-                                />
-                              </FormControl>
-                              {/* FormMessage is used for displaying validation error message */}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* middle name form field */}
-                      <div className="col-span-6">
-                        <FormField
-                          control={form.control}
-                          name="middleName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Middle Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Martinez"
-                                  type="text"
-                                  {...field}
-                                />
-                              </FormControl>
-                              {/* FormMessage is used for displaying validation error message */}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* last name form field */}
-                      <div className="col-span-6">
-                        <FormField
-                          control={form.control}
-                          name="lastName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Last Name*</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Dela Cruz"
-                                  type="text"
-                                  {...field}
-                                />
-                              </FormControl>
-                              {/* FormMessage is used for displaying validation error message */}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* last name form field */}
-                      <div className="col-span-6">
-                        <FormField
-                          control={form.control}
-                          name="suffix"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Suffix</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Jr."
-                                  type="text"
-                                  {...field}
-                                />
-                              </FormControl>
-                              {/* FormMessage is used for displaying validation error message */}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <NameAndPhoto form={form}></NameAndPhoto>
 
                   {/* PERSONAL SECTION */}
-                  <div>
-                    {/* birthDate form field */}
-                    <div className="col-span-6">
-                      <FormField
-                        control={form.control}
-                        name="birthDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Birthday*</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="date"
-                                {...field}
-                                // we will not provide a default value to this input field
-                                // that requires a number value when we create the react hook form (the form variable above)
-                                // Instead, if the value of it is undefined initially, then we set
-                                // it to an empty string here
-                                value={field.value ?? ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* address form field */}
-
-                    <div className="grid grid-cols-12 gap-4">
-                      {/* country */}
-                      <div className="col-span-6">
-                        <FormField
-                          control={form.control}
-                          name="address.0"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Current Home Address*</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Country" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      {/* city/municipality */}
-                      <div className="col-span-6 mt-5">
-                        <FormField
-                          control={form.control}
-                          name="address.1"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  placeholder="City/Municipality"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="col-span-6">
-                        {/* province/state */}
-                        <FormField
-                          control={form.control}
-                          name="address.2"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  placeholder="Province/State"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <Personal form={form}></Personal>
 
                   {/* EDUCATION SECTION */}
                   <div>
@@ -626,7 +429,7 @@ export default function RegistrationForm() {
                     <div className="mt-5">
                       <p>AFFILIATIONS</p>
                       {affiliation.map((aff, index) => (
-                        <div key={index}>
+                        <div key={aff.id}>
                           {index > 0 && (
                             <button
                               className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
@@ -637,67 +440,7 @@ export default function RegistrationForm() {
                             </button>
                           )}
 
-                          <div
-                            key={aff.id}
-                            className="grid grid-cols-12 gap-4"
-                          >
-                            {/* affiliation name */}
-                            <div className="col-span-7">
-                              <FormField
-                                control={form.control}
-                                name={`affiliation.${index}.affiliationName`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Affiliation</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Affiliation Name"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            {/* year joined */}
-                            <div className="col-span-5 mt-5">
-                              <FormField
-                                control={form.control}
-                                name={`affiliation.${index}.yearJoined`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Year Joined"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="col-span-12">
-                              {/* university */}
-                              <FormField
-                                control={form.control}
-                                name={`affiliation.${index}.university`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="University"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <Affiliation index={index} form={form}></Affiliation>
                         </div>
                       ))}
 
@@ -721,7 +464,7 @@ export default function RegistrationForm() {
                     <div className="mt-5">
                       <p>BACHELOR'S</p>
                       {bachelors.map((bachelor, index) => (
-                        <div key={index}>
+                        <div key={bachelor.id}>
                           {index > 0 && (
                             <button
                               className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
@@ -732,67 +475,11 @@ export default function RegistrationForm() {
                             </button>
                           )}
 
-                          <div
-                            key={bachelor.id}
-                            className="grid grid-cols-12 gap-4"
-                          >
-                            {/* degree program */}
-                            <div className="col-span-7">
-                              <FormField
-                                control={form.control}
-                                name={`bachelors.${index}.major`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Bachelor's Degree*</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Degree Program"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            {/* year graduated */}
-                            <div className="col-span-5 mt-5">
-                              <FormField
-                                control={form.control}
-                                name={`bachelors.${index}.yearGraduated`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Year Graduated"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="col-span-12">
-                              {/* university */}
-                              <FormField
-                                control={form.control}
-                                name={`bachelors.${index}.university`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="University"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <Education
+                            index={index}
+                            form={form}
+                            type={"bachelors"}
+                          ></Education>
                         </div>
                       ))}
 
@@ -817,7 +504,7 @@ export default function RegistrationForm() {
                     <div className="mt-5">
                       <p>MASTER'S</p>
                       {masters.map((master, index) => (
-                        <div key={index}>
+                        <div key={master.id}>
                           <button
                             className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
                             type="button"
@@ -826,67 +513,11 @@ export default function RegistrationForm() {
                             -
                           </button>
 
-                          <div
-                            key={master.id}
-                            className="grid grid-cols-12 gap-4"
-                          >
-                            {/* degree program */}
-                            <div className="col-span-7">
-                              <FormField
-                                control={form.control}
-                                name={`masters.${index}.major`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Master's Degree*</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Degree Program"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            {/* year graduated */}
-                            <div className="col-span-5 mt-5">
-                              <FormField
-                                control={form.control}
-                                name={`masters.${index}.yearGraduated`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Year Graduated"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="col-span-12">
-                              {/* university */}
-                              <FormField
-                                control={form.control}
-                                name={`masters.${index}.university`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="University"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <Education
+                            index={index}
+                            form={form}
+                            type={"masters"}
+                          ></Education>
                         </div>
                       ))}
 
@@ -910,7 +541,7 @@ export default function RegistrationForm() {
                     <div className="mt-5">
                       <p>DOCTORAL</p>
                       {doctoral.map((doc, index) => (
-                        <div key={index}>
+                        <div key={doc.id}>
                           <button
                             className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
                             type="button"
@@ -919,67 +550,11 @@ export default function RegistrationForm() {
                             -
                           </button>
 
-                          <div
-                            key={doc.id}
-                            className="grid grid-cols-12 gap-4"
-                          >
-                            {/* degree program */}
-                            <div className="col-span-7">
-                              <FormField
-                                control={form.control}
-                                name={`doctoral.${index}.major`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Doctoral Degree*</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Degree Program"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            {/* year graduated */}
-                            <div className="col-span-5 mt-5">
-                              <FormField
-                                control={form.control}
-                                name={`doctoral.${index}.yearGraduated`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Year Graduated"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="col-span-12">
-                              {/* university */}
-                              <FormField
-                                control={form.control}
-                                name={`doctoral.${index}.university`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="University"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <Education
+                            index={index}
+                            form={form}
+                            type={"doctoral"}
+                          ></Education>
                         </div>
                       ))}
 
@@ -1004,7 +579,7 @@ export default function RegistrationForm() {
                   <div className="mt-5">
                     <p>CAREER</p>
                     {career.map((car, index) => (
-                      <div key={index}>
+                      <div key={car.id}>
                         {/*remove field button */}
                         {index > 0 && (
                           <button
@@ -1016,132 +591,7 @@ export default function RegistrationForm() {
                           </button>
                         )}
                         {/* career form field */}
-
-                        <div className="grid grid-cols-12 gap-4">
-                          {/* industry */}
-                          <div className="col-span-4">
-                            <FormField
-                              control={form.control}
-                              name={`career.${index}.industry`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Industry</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Industry"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          {/* job title */}
-                          <div className="col-span-8">
-                            <FormField
-                              control={form.control}
-                              name={`career.${index}.jobTitle`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Job Title</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Job Title"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="col-span-12">
-                            {/* university */}
-                            <FormField
-                              control={form.control}
-                              name={`career.${index}.company`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Company/Organization</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Company/Organization"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="col-span-6">
-                            {/* start year */}
-                            <FormField
-                              control={form.control}
-                              name={`career.${index}.startYear`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Start Year</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Start Year"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="col-span-6">
-                            {/* end year */}
-                            <FormField
-                              control={form.control}
-                              name={`career.${index}.endYear`}
-                              disabled={career[index].presentJob}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>End Year</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="End Year"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div>
-                            {/* checkbox field for identifying whether it is up to present or not*/}
-                            <FormField
-                              control={form.control}
-                              name={`career.${index}.presentJob`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <div className="flex gap-2 justify-start items-center">
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="inline">
-                                      Present job?
-                                    </FormLabel>
-                                  </div>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </div>
+                        <Career index={index} form={form}></Career>
                       </div>
                     ))}
                     {/*add  fields button */}
@@ -1235,368 +685,19 @@ export default function RegistrationForm() {
 
                   <div className="flex justify-center items-center space-x-2">
                     <p>Already have an account?</p>
-                    <button disabled={form.formState.isSubmitting || isLoading} className="hover:underline text-[#0856ba]"><Link href="/login">Login</Link></button>
+                    <button
+                      disabled={form.formState.isSubmitting || isLoading}
+                      className="hover:underline text-[#0856ba]"
+                    >
+                      <Link href="/login">Login</Link>
+                    </button>
                   </div>
                 </div>
               )}
             </fieldset>
           </form>
         </Form>
-
-
-
       </div>
-
-
-
-
-
-
-
-    {false && (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold">Your Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* spread the react hook form instance  into the shadcn ui Form component */}
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)}>
-              <fieldset
-                disabled={form.formState.isSubmitting || isLoading}
-                className="flex flex-col gap-5"
-              >
-                {/*USER CREDENTIALS SECTION */}
-                {currentPart === 0 && (
-                  <UserCredentials form={form}></UserCredentials>
-                )}
-
-                {currentPart === 1 && (
-                  <>
-                    {/* NAME AND PHOTO SECTION*/}
-                    <NameAndPhoto form={form}></NameAndPhoto>
-
-                    {/* PERSONAL SECTION */}
-                    <Personal form={form}></Personal>
-
-                    {/* EDUCATION SECTION */}
-                    <div>
-                      {/* display the SN field*/}
-                      <div className="grid grid-cols-12 gap-4">
-                        {/* studentNumber form field */}
-                        <div className="col-span-12">
-                          <FormField
-                            control={form.control}
-                            name="studentNumber"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Student Number at UPLB*</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="2025-12345"
-                                    type="text"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      {/* affiliations form field */}
-                      <div className="mt-5">
-                        <p>AFFILIATIONS</p>
-                        {affiliation.map((aff, index) => (
-                          <div key={aff.id}>
-                            {index > 0 && (
-                              <button
-                                className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                                type="button"
-                                onClick={() => removeAffiliation(index)}
-                              >
-                                -
-                              </button>
-                            )}
-                            <Affiliation
-                              index={index}
-                              form={form}
-                            ></Affiliation>
-                          </div>
-                        ))}
-
-                        {/*add  fields button */}
-                        <button
-                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                          type="button"
-                          onClick={() => {
-                            addAffiliations({
-                              university: "",
-                              yearJoined: "",
-                              affiliationName: "",
-                            });
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* bachelor's form field */}
-                      <div className="mt-5">
-                        <p>BACHELOR'S</p>
-                        {bachelors.map((bachelor, index) => (
-                          <div key={bachelor.id}>
-                            {index > 0 && (
-                              <button
-                                className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                                type="button"
-                                onClick={() => removeBachelors(index)}
-                              >
-                                -
-                              </button>
-                            )}
-
-                            <Education
-                              index={index}
-                              form={form}
-                              type={"bachelors"}
-                            ></Education>
-                          </div>
-                        ))}
-
-                        {/*add bachelors fields button */}
-                        <button
-                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                          type="button"
-                          onClick={() => {
-                            addBachelors({
-                              university: "",
-                              yearGraduated: "",
-                              major: "",
-                            });
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* master's form field */}
-
-                      <div className="mt-5">
-                        <p>MASTER'S</p>
-                        {masters.map((master, index) => (
-                          <div key={master.id}>
-                            <button
-                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                              type="button"
-                              onClick={() => removeMasters(index)}
-                            >
-                              -
-                            </button>
-
-                            <Education
-                              index={index}
-                              form={form}
-                              type={"masters"}
-                            ></Education>
-                          </div>
-                        ))}
-
-                        {/*add  fields button */}
-                        <button
-                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                          type="button"
-                          onClick={() => {
-                            addMasters({
-                              university: "",
-                              yearGraduated: "",
-                              major: "",
-                            });
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* doctoral form field */}
-                      <div className="mt-5">
-                        <p>DOCTORAL</p>
-                        {doctoral.map((doc, index) => (
-                          <div key={doc.id}>
-                            <button
-                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                              type="button"
-                              onClick={() => removeDoctoral(index)}
-                            >
-                              -
-                            </button>
-
-                            <Education
-                              index={index}
-                              form={form}
-                              type={"doctoral"}
-                            ></Education>
-                          </div>
-                        ))}
-
-                        {/*add  fields button */}
-                        <button
-                          className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                          type="button"
-                          onClick={() => {
-                            addDoctoral({
-                              university: "",
-                              yearGraduated: "",
-                              major: "",
-                            });
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* CAREER SECTION */}
-                    <div className="mt-5">
-                      <p>CAREER</p>
-                      {career.map((car, index) => (
-                        <div key={car.id}>
-                          {/*remove field button */}
-                          {index > 0 && (
-                            <button
-                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                              type="button"
-                              onClick={() => removeCareer(index)}
-                            >
-                              -
-                            </button>
-                          )}
-                          <Career index={index} form={form}></Career>
-                        </div>
-                      ))}
-                      {/*add  fields button */}
-                      <button
-                        className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                        type="button"
-                        onClick={() => {
-                          addCareer({
-                            industry: "",
-                            jobTitle: "",
-                            company: "",
-                            startYear: "",
-                            endYear: "",
-                            presentJob: false,
-                          });
-                        }}
-                      >
-                        +
-                      </button>
-                    </div>
-                    {/* acceptTerms form field */}
-                    <FormField
-                      control={form.control}
-                      name="acceptTerms"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-2 justify-start items-center">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="inline">
-                              I accept the <TermsDialog />
-                              {/* <span>
-                                <Link
-                                  href="/terms"
-                                  className="underline hover:text-blue-500 font-bold"
-                                >
-                                  terms and conditions
-                                </Link>
-                              </span> */}
-                            </FormLabel>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* subscribeToNewsletter form field */}
-                    <FormField
-                      control={form.control}
-                      name="subscribeToNewsletter"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-2 justify-start items-center">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel>Subscribe to our newsletter</FormLabel>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </>
-                )}
-
-                {/* Button galing user credentials (email, pass) papuntang profile */}
-                {currentPart === 0 && (
-                  <Button
-                    variant="outline"
-                    type="button"
-                    disabled={disableGoNext} //disable button after clicking once to prevent double clicking
-                    onClick={goNext}
-                  >
-                    SIGN UP
-                  </Button>
-                )}
-                {/* submit button */}
-                {currentPart === 1 && (
-                  <div className="grid grid-cols-12 gap-4">
-                    <Button
-                      className="col-span-6"
-                      variant="outline"
-                      type="button"
-                      disabled={disableGoBack}
-                      onClick={goBack}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      className="col-span-6"
-                      variant="outline"
-                      type="submit"
-                    >
-                      Submit
-                    </Button>
-                  </div>
-                )}
-              </fieldset>
-            </form>
-          </Form>
-        </CardContent>
-
-
-        <CardFooter className="justify-between items-center">
-          <small>Already have an account?</small>
-          <Button
-            asChild
-            variant="outline"
-            disabled={form.formState.isSubmitting || isLoading}
-          >
-            <Link href="/login">Login</Link>
-          </Button>
-        </CardFooter>
-      </Card>)}
-
-
-
 
       {/* wait for admin's approval dialog */}
       <Dialog

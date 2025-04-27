@@ -22,7 +22,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
   };
 
   return (
-    <div>
+    <>
       {/* career form field */}
 
       <div className="grid grid-cols-12 gap-4">
@@ -137,6 +137,6 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };

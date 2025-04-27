@@ -127,6 +127,7 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
     bachelors,
     masters,
     doctoral,
+    affiliation,
     career,
     passwordConfirm,
     ...alumData

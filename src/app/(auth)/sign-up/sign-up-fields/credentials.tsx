@@ -11,7 +11,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 
 export const UserCredentials = ({ form }: { form: any }) => {
   return (
-    <div>
+    <>
       {/* email form field */}
       <FormField
         control={form.control}
@@ -56,6 +56,6 @@ export const UserCredentials = ({ form }: { form: any }) => {
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 };
