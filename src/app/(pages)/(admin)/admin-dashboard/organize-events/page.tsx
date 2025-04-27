@@ -35,14 +35,14 @@ export default function Events() {
   const [sortAlphabetically, setSortAlphabetically] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [visibility, setVisibility] = useState("default");
+  const [visibility, setVisibility] = useState("all");
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
   useEffect(() => { // Properly show the selected filter when Editing the values
     if (isEditing && events) {
       const eventToEdit = events.find(event => event.eventId === editingEventId);
-      setVisibility("default");
+      setVisibility("all");
       setSelectedAlumni([]);
       setSelectedBatches([]);
 
@@ -191,7 +191,7 @@ export default function Events() {
             setEventDate("");
             setSelectedAlumni([]);
             setSelectedBatches([]);
-            setVisibility("default");
+            setVisibility("all");
           }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
             Create Event
           </button>
