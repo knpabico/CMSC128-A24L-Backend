@@ -18,6 +18,8 @@ import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { ScholarshipProvider } from "@/context/ScholarshipContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
+import { Affiliation } from "./(auth)/sign-up/sign-up-fields/affiliation";
+import { AffiliationProvider } from "@/context/AffiliationContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -59,6 +61,7 @@ export default function RootLayout({
                             <GoogleMapsProvider>
                               <MapProvider>
                                 <EducationProvider>
+                                  <AffiliationProvider>
                                   <body
                                     className={`${poppins.className} antialiased`}
                                   >
@@ -68,6 +71,7 @@ export default function RootLayout({
                                     {children}
                                     <Toaster />
                                   </body>
+                                  </AffiliationProvider>
                                 </EducationProvider>
                               </MapProvider>
                             </GoogleMapsProvider>

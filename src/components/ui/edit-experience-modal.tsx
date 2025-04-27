@@ -55,7 +55,7 @@ const EditWorkExperience: React.FC<{
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+    <div className="fixed inset-0 flex items-center justify-center z-50">
       <Card className="w-full max-w-3xl p-6">
         <CardHeader>
           <CardTitle className="text-3xl font-bold mb-6">

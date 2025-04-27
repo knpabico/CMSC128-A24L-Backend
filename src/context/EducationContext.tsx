@@ -89,7 +89,7 @@ export function EducationProvider({
   ) => {
     try {
       const newDocRef = doc(collection(db, "education"));
-      EducationEntry.EducationId = newDocRef.id;
+      EducationEntry.educationId = newDocRef.id;
       EducationEntry.alumniId = userId;
       await setDoc(newDocRef, EducationEntry);
       return { success: true, message: "success" };

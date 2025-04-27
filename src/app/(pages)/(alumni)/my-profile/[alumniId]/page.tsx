@@ -24,12 +24,16 @@ import EditWorkExperience from "@/components/ui/edit-experience-modal"
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { useRouter } from "next/navigation";
 import AddEducationModal from "@/components/ui/add-aducation-modal";
-import { WorkExperience,Education } from "@/models/models";
+import { WorkExperience,Education, Affiliation } from "@/models/models";
+import AddAffiliationModal from "@/components/ui/add-affiliation-modal";
+import { useAffiliation } from "@/context/AffiliationContext";
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
   const { userWorkExperience, isLoading, deleteWorkExperience } =
     useWorkExperience();
   const { userEducation, isLoadingEducation, deleteEducation} = useEducation();
+  const { userAffiliation } = useAffiliation();
+
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -44,6 +48,8 @@ const UserProfile = () => {
   const [personalView,setPersonalView]= useState(true); //pang track if pinindot ba ni User yung personal same sa career
   const [careerView,setCareerView]= useState(false);
   const [degreeType, setDegreeType] = useState("");
+  const [addAffiliation, setaddAffiliation] = useState(false);
+
 
 
   const [addBachelor,setAddBachelor]= useState(false); 
@@ -105,6 +111,11 @@ const UserProfile = () => {
     setAddBachelor(false);
     setDegreeType("Doctoral");
     setAddDoctoral(true);
+  };
+
+
+  const handleAddAffiliation = () => {
+    setaddAffiliation(true);
   };
 
 
@@ -462,20 +473,23 @@ const UserProfile = () => {
                 {true && (<div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  <div className="flex items-center space-x-5">
-                    <div className="w-6 h-6 rounded-full bg-gray-500"></div>
-                    <div>
-                      <p className="font-medium">Juan Miguel Bawagan Fangirls Society</p>
-                      <p className="text-sm">University of the Philippines Los Baños</p>
-                      <p className="text-sm">Year Joined: 2020</p>
+                  {userAffiliation.map((affiliation:Affiliation, index:number)=> (
+                    <div className="flex items-center space-x-5" key={index}>
+                      <div className="w-6 h-6 rounded-full bg-gray-500"></div>
+                      <div>
+                        <p className="font-medium">{affiliation.affiliationName}</p>
+                        <p className="text-sm">University: {affiliation.university}</p>
+                        <p className="text-sm">Year Joined: 2020</p>
+                      </div>
                     </div>
-                  </div>
+                  )
+                  )}
                   {/* ---- end of individual bullet ---- */}
 
                 </div>)}
                 {/* ---- end of bullet div ---- */}
 
-                <button className="flex items-center space-x-3 cursor-pointer">
+                <button className="flex items-center space-x-3 cursor-pointer" onClick={handleAddAffiliation}>
                   <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
                   <p className="text-[#3675c5] text-sm hover:underline">Add affiliation</p>
                 </button>
@@ -580,6 +594,8 @@ const UserProfile = () => {
 
         </div>
       </div>
+
+      {/* Modal Sectionn */}
       {addBachelor && (
         <AddEducationModal
           open={addBachelor}
@@ -604,7 +620,14 @@ const UserProfile = () => {
           onClose={() => setAddDoctoral(false)}
           userId={alumInfo?.alumniId}
           setSuccess={setSuccess}
-          degreeType={degreeType}
+        />
+      )}
+      {addAffiliation && (
+        <AddAffiliationModal
+        open= {addAffiliation}
+        onClose={()=> setaddAffiliation(false)}
+        userId={alumInfo?.alumniId}
+        setSuccess={setSuccess}
         />
       )}
 
