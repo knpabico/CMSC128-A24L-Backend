@@ -107,190 +107,191 @@ const handleViewDetails = (donationDriveId: string) => {
 
 // Donation Card 
 return (
-	<div className="bg-[#FFFF] rounded-[10px] h-fit hover:cursor-pointer" onClick={() => handleViewDetails(drive.donationDriveId)} >
-		{/* Image */}
-		<div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
-			{!drive.isEvent && (
-				<span className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
-					drive.status === 'active'
-						? 'bg-green-100 text-green-800'
-						: drive.status === 'completed'
-						? 'bg-blue-100 text-blue-800'
-						: drive.status === 'pending'
-						? 'bg-yellow-100 text-yellow-800'
-						: 'bg-gray-100 text-gray-800'
-				}`}>
-					{drive.status === 'completed' ? 'Closed' : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-				</span>
-				
-			)}
-		</div>
-		{/* {event?.image || drive.image ? (
-			<div className="relative">
-				{drive.isEvent && event ? (
-					<img src={event.image} alt={event.title} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
-				) : (
-					<img src={drive.image} alt={drive.campaignName} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
-				)}
+	<div>
+		<div className="bg-[#FFFF] rounded-[10px] h-fit hover:cursor-pointer" onClick={() => handleViewDetails(drive.donationDriveId)} >
+			{/* Image */}
+			<div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
 				{!drive.isEvent && (
-					<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
-						drive.status === 'active' ? 'bg-green-100 text-green-800' :
-						drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-						drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-						'bg-gray-100 text-gray-800'
+					<span className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
+						drive.status === 'active'
+							? 'bg-green-100 text-green-800'
+							: drive.status === 'completed'
+							? 'bg-blue-100 text-blue-800'
+							: drive.status === 'pending'
+							? 'bg-yellow-100 text-yellow-800'
+							: 'bg-gray-100 text-gray-800'
 					}`}>
-						{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+						{drive.status === 'completed' ? 'Closed' : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
 					</span>
+					
 				)}
 			</div>
-		) : (
-			<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
-				{!drive.isEvent && (
-					<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
-						drive.status === 'active' ? 'bg-green-100 text-green-800' :
-						drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-						drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-						'bg-gray-100 text-gray-800'
-					}`}>
-						{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-					</span>
-				)}
-				<span className="text-blue-500 font-medium">
-					<ImageOff className="size-[50px]" />
-				</span>
-			</div>
-		)} */}
-
-		{/* Content */}
-		<div className="px-[30px] py-[20px]">
-			{/* Campaign Name */}
-			<div className="flex justify-between items-center mb-3">
-				<h2 className="text-xl font-semibold truncate">{drive.isEvent && event ? event.title : drive.campaignName}</h2>
-				<BookmarkButton entryId={drive.donationDriveId} type="donation_drive" size="md"/> 
-			</div>
-			{/* Description */}
-			<div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">
-				<p className="text-start">{drive.isEvent && event ? event.description : drive.description}</p>
-			</div>
-			{/* Details */}
-			{drive.isEvent && event ? (
-				<div className='mt-5'>
-					<div className='mt-5 flex justify-between items-center gap-4'>
-						<div className='flex gap-1 items-center w-1/3 justify-center'>
-							<Calendar className='size-[16px]' />
-							<p className='text-xs'>{formatDate(event.datePosted)}</p>
-						</div>
-						<div className='flex gap-1 items-center w-1/3 justify-center'>
-							<Clock className='size-[16px]' />
-							<p className='text-xs'>{event.time}</p>
-						</div>
-						<div className='flex gap-1 items-center w-1/3 justify-center'>
-							<MapPin className='size-[16px]' />
-							<p className='text-xs'>{event.location}</p>
-						</div>
-					</div>
-					<div className='mt-5 text-xs text-start'>
-						<p>Donation Type: {drive.isEvent && event ? 'Event-related Campaign' : 'General Campaign'}</p>
-					</div>
+			{/* {event?.image || drive.image ? (
+				<div className="relative">
+					{drive.isEvent && event ? (
+						<img src={event.image} alt={event.title} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
+					) : (
+						<img src={drive.image} alt={drive.campaignName} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
+					)}
+					{!drive.isEvent && (
+						<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
+							drive.status === 'active' ? 'bg-green-100 text-green-800' :
+							drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+							drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+							'bg-gray-100 text-gray-800'
+						}`}>
+							{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+						</span>
+					)}
 				</div>
 			) : (
-				<div className='mt-5 text-xs text-start'>
-					<p>Donation Type: {drive.isEvent && event ? ' Event-related Campaign' : ' General Campaign'} </p>
+				<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
+					{!drive.isEvent && (
+						<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
+							drive.status === 'active' ? 'bg-green-100 text-green-800' :
+							drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+							drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+							'bg-gray-100 text-gray-800'
+						}`}>
+							{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+						</span>
+					)}
+					<span className="text-blue-500 font-medium">
+						<ImageOff className="size-[50px]" />
+					</span>
 				</div>
-			)}
-			{/* Progress Bar */}
-			<div className="my-5">
-				{/* Patrons and Percentage */}
-				<div className="flex justify-between my-1">
-					<div className='flex gap-2'>
-						<Users className='size-[20px] text-[#616161]'/>
-						<span className="text-sm text-gray-500"> {drive.donorList.length} patrons</span>
+			)} */}
+
+			{/* Content */}
+			<div className="px-[30px] py-[20px]">
+				{/* Campaign Name */}
+				<div className="flex justify-between items-center mb-3">
+					<h2 className="text-xl font-semibold truncate">{drive.isEvent && event ? event.title : drive.campaignName}</h2>
+					<BookmarkButton entryId={drive.donationDriveId} type="donation_drive" size="md"/> 
+				</div>
+				{/* Description */}
+				<div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">
+					<p className="text-start">{drive.isEvent && event ? event.description : drive.description}</p>
+				</div>
+				{/* Details */}
+				{drive.isEvent && event ? (
+					<div className='mt-5'>
+						<div className='mt-5 flex justify-between items-center gap-4'>
+							<div className='flex gap-1 items-center w-1/3 justify-center'>
+								<Calendar className='size-[16px]' />
+								<p className='text-xs'>{formatDate(event.datePosted)}</p>
+							</div>
+							<div className='flex gap-1 items-center w-1/3 justify-center'>
+								<Clock className='size-[16px]' />
+								<p className='text-xs'>{event.time}</p>
+							</div>
+							<div className='flex gap-1 items-center w-1/3 justify-center'>
+								<MapPin className='size-[16px]' />
+								<p className='text-xs'>{event.location}</p>
+							</div>
+						</div>
+						<div className='mt-5 text-xs text-start'>
+							<p>Donation Type: {drive.isEvent && event ? 'Event-related Campaign' : 'General Campaign'}</p>
+						</div>
 					</div>
-					<div className='flex gap-2'>
-						<Clock className='size-[17px] text-[#616161]'/>
-						<span className="text-sm text-gray-500">{getRemainingDays(drive.endDate)}</span>
+				) : (
+					<div className='mt-5 text-xs text-start'>
+						<p>Donation Type: {drive.isEvent && event ? ' Event-related Campaign' : ' General Campaign'} </p>
+					</div>
+				)}
+				{/* Progress Bar */}
+				<div className="my-5">
+					{/* Patrons and Percentage */}
+					<div className="flex justify-between my-1">
+						<div className='flex gap-2'>
+							<Users className='size-[20px] text-[#616161]'/>
+							<span className="text-sm text-gray-500"> {drive.donorList.length} patrons</span>
+						</div>
+						<div className='flex gap-2'>
+							<Clock className='size-[17px] text-[#616161]'/>
+							<span className="text-sm text-gray-500">{getRemainingDays(drive.endDate)}</span>
+						</div>
+					</div>
+					{/* Progress bar */}
+					<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+						<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(drive.currentAmount, drive.targetAmount)}%` }} ></div>
+					</div>
+					{/* Current and Target amount */}
+					<div className="flex justify-between my-1 text-sm">
+						<span className="font-medium">₱{drive.currentAmount?.toLocaleString() || '0'}</span>
+						<span className="text-gray-500">of ₱{drive.targetAmount?.toLocaleString() || '0'}</span>
 					</div>
 				</div>
-				{/* Progress bar */}
-				<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-					<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(drive.currentAmount, drive.targetAmount)}%` }} ></div>
-				</div>
-				{/* Current and Target amount */}
-				<div className="flex justify-between my-1 text-sm">
-					<span className="font-medium">₱{drive.currentAmount?.toLocaleString() || '0'}</span>
-					<span className="text-gray-500">of ₱{drive.targetAmount?.toLocaleString() || '0'}</span>
-				</div>
-				{/* Floating Action Button (FAB) */}
-				<button className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition" onClick={() => setShowForm(true)}>
-					+
-				</button>
 			</div>
 		</div>
-
-		{/* Suggest Donation Drive Modal */}
-		{showForm && (
-			<div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
-				<form
-				onSubmit={handleSave}
-				className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
-				>
-				<h2 className="text-xl bold mb-4">Suggest Donation Drive</h2>
-				<input
-					type="text"
-					placeholder="Campaign Name"
-					value={campaignName}
-					onChange={(e) => setCampaignName(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-				/>
-				<textarea
-					placeholder="Description"
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-				/>
-				<input
-					type="number"
-					placeholder="Target Amount"
-					value={targetAmount}
-					onChange={(e) => setTargetAmount(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-				/>
-				<label htmlFor="">End Date</label>
-				<input
-					type="date"
-					value={endDate}
-					onChange={(e) => setEndDate(e.target.value)}
-					className="w-full mb-4 p-2 border rounded"
-					required
-					min={
-					new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-						.toISOString()
-						.split("T")[0]
-					}
-				/>
-				<div className="flex justify-between">
-					<button
-					type="button"
-					onClick={() => setShowForm(false)}
-					className="text-gray-500"
+			{/* Floating Action Button (FAB) */}
+			<button className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition" onClick={() => setShowForm(true)}>
+				+
+			</button>
+			{/* Suggest Donation Drive Modal */}
+			{showForm && (
+				<div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
+					<form
+					onSubmit={handleSave}
+					className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
 					>
-					Cancel
-					</button>
-					<div className="flex gap-2">
-					<button
-						type="submit"
-						className="bg-[#0856BA] text-white p-2 rounded-[22px]"
-					>
-						Suggest
-					</button>
+					<h2 className="text-xl bold mb-4">Suggest Donation Drive</h2>
+					<input
+						type="text"
+						placeholder="Campaign Name"
+						value={campaignName}
+						onChange={(e) => setCampaignName(e.target.value)}
+						className="w-full mb-4 p-2 border rounded"
+						required
+					/>
+					<textarea
+						placeholder="Description"
+						value={description}
+						onChange={(e) => setDescription(e.target.value)}
+						className="w-full mb-4 p-2 border rounded"
+						required
+					/>
+					<input
+						type="number"
+						placeholder="Target Amount"
+						value={targetAmount}
+						onChange={(e) => setTargetAmount(e.target.value)}
+						className="w-full mb-4 p-2 border rounded"
+						required
+					/>
+					<label htmlFor="">End Date</label>
+					<input
+						type="date"
+						value={endDate}
+						onChange={(e) => setEndDate(e.target.value)}
+						className="w-full mb-4 p-2 border rounded"
+						required
+						min={
+						new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+							.toISOString()
+							.split("T")[0]
+						}
+					/>
+					<div className="flex justify-between">
+						<button
+						type="button"
+						onClick={() => setShowForm(false)}
+						className="text-gray-500"
+						>
+						Cancel
+						</button>
+						<div className="flex gap-2">
+						<button
+							type="submit"
+							className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+						>
+							Suggest
+						</button>
+						</div>
 					</div>
+					</form>
 				</div>
-				</form>
-			</div>
-			)}
+				)}
 	</div>
 );
 };
