@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { Event, RSVP } from "@/models/models";
+import { Event, RSVP, Alumnus } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext"; 
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
