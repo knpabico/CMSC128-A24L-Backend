@@ -122,7 +122,7 @@ export default function RegistrationForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const router = useRouter();
-  const { user, isGoogleSignIn } = useAuth();
+  const { user, isGoogleSignIn, logOut } = useAuth();
 
   // needed for the location-input component
   const [countryName, setCountryName] = useState<string>("");
@@ -184,8 +184,17 @@ export default function RegistrationForm() {
 
   const handleSubmit = async (data: z.infer<typeof signUpFormSchema>) => {
     setIsLoading(true);
+    const response = await registerUser(
+      data,
+      {
+        displayName: user?.displayName ?? "",
+        email: user?.email ?? "",
+        uid: user?.uid ?? "",
+        photoURL: user?.photoURL ?? "",
+      },
+      isGoogleSignIn
+    );
     console.log("heyyy");
-    const response = await registerUser(data, user, isGoogleSignIn);
 
     // display error or success toast message
     if (response?.error) {
@@ -816,10 +825,12 @@ export default function RegistrationForm() {
       {/* wait for admin's approval dialog */}
       <Dialog
         open={showDialog}
-        onOpenChange={(isOpen) => {
+        onOpenChange={async (isOpen) => {
           setShowDialog(isOpen);
           // redirect the user after they manually close the dialog box
-          if (!isOpen) {
+          if (isGoogleSignIn) {
+            await logOut();
+          } else if (!isOpen) {
             router.push("/");
           }
         }}

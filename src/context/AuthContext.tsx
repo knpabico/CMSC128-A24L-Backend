@@ -23,6 +23,8 @@ import {
 } from "firebase/firestore";
 import { getRegStatus, getUserRole } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { GoogleSign } from "./AuthGoogleContext";
+import { toastError } from "@/components/ui/sonner";
 
 const AuthContext = createContext<{
   user: User | null;
@@ -41,6 +43,7 @@ const AuthContext = createContext<{
   status: string | null;
   getAlumInfo: (user: User) => Promise<void>;
   isGoogleSignIn: boolean;
+  signInWithGoogle: () => Promise<void>;
 }>({
   user: null,
   alumInfo: null,
@@ -52,6 +55,7 @@ const AuthContext = createContext<{
   status: null,
   getAlumInfo: async () => {},
   isGoogleSignIn: false,
+  signInWithGoogle: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -85,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         : undefined;
 
       setAlumInfo(alumniCopy);
+      console.log("Set!");
     } else {
       // docSnap.data() will be undefined in this case
       console.log("No such document!");
@@ -125,6 +130,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  const signInWithGoogle = async () => {
+    try {
+      const data = await GoogleSign();
+      if (data.success) {
+        console.log(data);
+        setUser(data.user ?? null);
+        setAlumInfo(data.alumniCopy ?? null);
+        setIsGoogleSignIn(false);
+      } else {
+        if (data.errorMessage === "User not found!") {
+          console.log("User not found!");
+          router.push("/sign-up");
+        } else toastError(data.errorMessage);
+      }
+    } catch (error) {
+      toastError(
+        `An error occurred while signing in with Google. ${
+          (error as Error).message
+        }`
+      );
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -163,6 +191,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signOut(auth);
       setUser(null);
       setIsAdmin(false);
+      setIsGoogleSignIn(false);
+      setStatus(null);
+      setAlumInfo(null);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -182,6 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         status,
         getAlumInfo,
         isGoogleSignIn,
+        signInWithGoogle,
       }}
     >
       {children}

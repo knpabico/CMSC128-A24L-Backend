@@ -97,10 +97,15 @@ const saveEducation = async (
 
 export const registerUser = async (
   data: z.infer<typeof signUpFormSchema>,
-  user: User | null,
+  userInfo: {
+    displayName: string;
+    email: string;
+    uid: string;
+    photoURL: string;
+  },
   isGoogleSignIn: boolean
 ) => {
-  console.log("userCred: ");
+  console.log("userCred: ", userInfo);
   // validate the data one more time in the server side
   const validation = signUpFormSchema.safeParse(data);
 
@@ -127,14 +132,19 @@ export const registerUser = async (
   } = alumnusData;
   try {
     // create a user in firebase auth
-    let userCredential: User | UserRecord | null = user;
+    let userCredential = userInfo;
     if (!isGoogleSignIn) {
       const userRecord = await serverAuth.createUser({
         displayName: `${data.firstName} ${data.lastName}`,
         email: data.email,
         password: data.password,
       });
-      userCredential = userRecord;
+      userCredential = {
+        displayName: userRecord.displayName ?? "",
+        email: userRecord.email ?? "", // Provide a fallback for undefined email
+        uid: userRecord.uid,
+        photoURL: userRecord.photoURL ?? "",
+      };
     }
 
     // save the details of the user as a document in firestore database

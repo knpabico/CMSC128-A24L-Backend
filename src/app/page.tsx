@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { Announcement, Career, Education, NewsletterItem, WorkExperience } from "@/models/models";
+import {
+  Announcement,
+  Career,
+  Education,
+  NewsletterItem,
+  WorkExperience,
+} from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -19,15 +25,22 @@ import { Key, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import PendingPage from "../components/PendingPage";
 import RejectedPage from "../components/RejectedPage";
-import { NewsLetterProvider, useNewsLetters } from "@/context/NewsLetterContext";
-import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementContext";
+import {
+  NewsLetterProvider,
+  useNewsLetters,
+} from "@/context/NewsLetterContext";
+import {
+  AnnouncementProvider,
+  useAnnouncement,
+} from "@/context/AnnouncementContext";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Home() {
-  const { user, loading, alumInfo, isAdmin, status } = useAuth();
+  const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
+    useAuth();
   const { newsLetters } = useNewsLetters();
   const { announces } = useAnnouncement();
   const { userWorkExperience } = useWorkExperience();
@@ -164,53 +177,81 @@ export default function Home() {
                           {alumInfo!.firstName} {alumInfo!.lastName}
                         </p>
                         <p className="text-xl"> &#xb7;</p>
-                        <p className="text-xs">{formatDate(newsLetter.timestamp)}</p>
+                        <p className="text-xs">
+                          {formatDate(newsLetter.timestamp)}
+                        </p>
                       </div>
-                      {newsLetter.category === "announcement" && (() => {
-                        const announcement = announces.find(
-                          (announce: Announcement) => announce.announcementId === newsLetter.referenceId
-                        );
-                        return announcement ? (
-                          <>
-                            <h1 className="text-2xl font-bold">{announcement.title}</h1>
-                            <p className="text-base mt-2">{announcement.description}</p>
-                          </>
-                        ) : (
-                          <p className="text-sm italic text-gray-500">Announcement not found</p>
-                        );
-                      })()}
-                      {newsLetter.category === "donation_drive" && (() => {
-                        return (
-                          <>
-                            <h1 className="text-2xl font-bold">Donation Drive</h1>
-                            <p className="text-base mt-2">Details about the donation drive will go here.</p>
-                          </>
-                        );
-                      })()}
-                      {newsLetter.category === "job_offering" && (() => {
-                        return (
-                          <>
-                            <h1 className="text-2xl font-bold">Job Offering</h1>
-                            <p className="text-base mt-2">Details about the job offering will go here.</p>
-                          </>
-                        );
-                      })()}
-                      {newsLetter.category === "scholarship" && (() => {
-                        return (
-                          <>
-                            <h1 className="text-2xl font-bold">Scholarship</h1>
-                            <p className="text-base mt-2">Details about the scholarship will go here.</p>
-                          </>
-                        );
-                      })()}
-                      {newsLetter.category === "event" && (() => {
-                        return (
-                          <>
-                            <h1 className="text-2xl font-bold">Event</h1>
-                            <p className="text-base mt-2">Details about the event will go here.</p>
-                          </>
-                        );
-                      })()}
+                      {newsLetter.category === "announcement" &&
+                        (() => {
+                          const announcement = announces.find(
+                            (announce: Announcement) =>
+                              announce.announcementId === newsLetter.referenceId
+                          );
+                          return announcement ? (
+                            <>
+                              <h1 className="text-2xl font-bold">
+                                {announcement.title}
+                              </h1>
+                              <p className="text-base mt-2">
+                                {announcement.description}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-sm italic text-gray-500">
+                              Announcement not found
+                            </p>
+                          );
+                        })()}
+                      {newsLetter.category === "donation_drive" &&
+                        (() => {
+                          return (
+                            <>
+                              <h1 className="text-2xl font-bold">
+                                Donation Drive
+                              </h1>
+                              <p className="text-base mt-2">
+                                Details about the donation drive will go here.
+                              </p>
+                            </>
+                          );
+                        })()}
+                      {newsLetter.category === "job_offering" &&
+                        (() => {
+                          return (
+                            <>
+                              <h1 className="text-2xl font-bold">
+                                Job Offering
+                              </h1>
+                              <p className="text-base mt-2">
+                                Details about the job offering will go here.
+                              </p>
+                            </>
+                          );
+                        })()}
+                      {newsLetter.category === "scholarship" &&
+                        (() => {
+                          return (
+                            <>
+                              <h1 className="text-2xl font-bold">
+                                Scholarship
+                              </h1>
+                              <p className="text-base mt-2">
+                                Details about the scholarship will go here.
+                              </p>
+                            </>
+                          );
+                        })()}
+                      {newsLetter.category === "event" &&
+                        (() => {
+                          return (
+                            <>
+                              <h1 className="text-2xl font-bold">Event</h1>
+                              <p className="text-base mt-2">
+                                Details about the event will go here.
+                              </p>
+                            </>
+                          );
+                        })()}
                     </Card>
                   ))}
                 </div>
