@@ -9,12 +9,15 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  getDocs,
+  where
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
+
 const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
@@ -30,9 +33,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [requiredSkill, setRequiredSkill] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState("");
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
-  const { user, isAdmin } = useAuth();
-  const { bookmarks } = useBookmarks();
-
+  const { user, isAdmin, alumInfo } = useAuth();
+  const [alumJobOfferings, setAlumJobOfferings] = useState<JobOffering[]>([]);
+  
+  
   useEffect(() => {
     console.log("User from useAuth:", user);
     let unsubscribe: (() => void) | null;
@@ -48,6 +52,41 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       if (unsubscribe) unsubscribe();
     };
   }, [user, isAdmin]);
+
+  useEffect(() => {
+    const fetchJobOffers = async () => {
+      if (!alumInfo?.alumniId) {
+        return; // Don't fetch if alumniId is not available
+      }
+
+      setLoading(true); // Start loading
+
+      try {
+        const jobOffersQuery = query(
+          collection(db, "job_offering"),
+          where("alumniId", "==", alumInfo.alumniId)
+        );
+
+        const snapshot = await getDocs(jobOffersQuery);
+
+        const fetchedJobOffers = snapshot.docs.map(
+          (doc) => ({
+            jobId: doc.id,
+            ...doc.data(),
+          } as JobOffering)
+        );
+
+        setJobOffers(fetchedJobOffers); // Store the fetched job offers
+      } catch (error) {
+        console.error("Error fetching job offers:", error);
+      } finally {
+        setLoading(false); // End loading
+      }
+    };
+
+    fetchJobOffers();
+  }, [alumInfo?.alumniId]); 
+
 
   const addJobOffer = async (jobOffer: JobOffering, userId: string) => {
     try {
@@ -66,6 +105,44 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const handleSkillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRequiredSkill(e.target.value.split(",").map((skill) => skill.trim()));
   };
+
+
+    //get the Job Offer by Alumni
+    const getJobOfferByAlumni = async (
+      alumniId: string
+    ): Promise<JobOffering[]> => {
+      if (!alumniId) {
+        console.error("No alumni ID provided");
+        return Promise.reject("No alumni ID provided");
+      }
+  
+      setLoading(true);
+  
+      try {
+        const jobOffersQuery = query(
+          collection(db, "job_offering"),
+          where("alumniId", "==", alumniId)
+        );
+  
+        const snapshot = await getDocs(jobOffersQuery);
+  
+        const jobOffers = snapshot.docs.map(
+          (doc) =>
+            ({
+              jobId: doc.id,
+              ...doc.data(),
+            } as JobOffering)
+        );
+  
+        setLoading(false);
+        return jobOffers;
+      } catch (error) {
+        console.error("Error fetching donations by alumni:", error);
+        setLoading(false);
+        throw error;
+      }
+    };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,7 +248,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     <JobOfferContext.Provider
       value={{
         jobOffers,
-        bookmarks,
         isLoading,
         addJobOffer,
         setShowForm,
@@ -185,6 +261,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         setExperienceLevel,
         jobDescription,
         setJobDescription,
+        getJobOfferByAlumni,
         jobType,
         setJobType,
         position,

@@ -55,7 +55,7 @@ const UserProfile = () => {
   const [addBachelor,setAddBachelor]= useState(false); 
   const [addMasters,setAddMasters]= useState(false); 
   const [addDoctoral,setAddDoctoral]= useState(false);
-
+  
   // GAWA NI MAYBELLE
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [city, setCity] = useState('');
@@ -245,8 +245,13 @@ const UserProfile = () => {
             onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/alumni-donations`)}}}>
               Record of Donations
           </button>
-          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Job Postings</button>
-          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Bookmarked Jobs</button>
+          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"
+          onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/alumni-joboffers`)}}}>
+            Job Postings</button>
+          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"
+          onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/alumni-bookmark`)}}}>
+            Bookmarked Jobs
+            </button>
         </div>
       </div>
 
