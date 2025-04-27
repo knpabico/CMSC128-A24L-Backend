@@ -1,33 +1,42 @@
+import { db } from "@/lib/firebase";
+import { Alumnus } from "@/models/models";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { useAlums } from "./AlumContext";
+import { doc, getDoc } from "firebase/firestore";
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth();
-const { addAlumnus } = useAlums();
+
 export async function GoogleSign() {
-  await signInWithPopup(auth, provider)
-    .then((result) => {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      //   const credential = GoogleAuthProvider.credentialFromResult(result);
-      //   const token = credential.accessToken;
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    console.log(user);
+    console.log(user.email, user.displayName, user.uid);
 
-      // The signed-in user info.
-      const user = result.user;
-      console.log(user.email, user.displayName, user.uid);
+    const alumniRef = doc(db, "alumni", user.uid);
+    const alumniDoc = await getDoc(alumniRef);
 
-      // IdP data available using getAdditionalUserInfo(result)
-      // ...
-    })
-    .catch((error) => {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      //   const email = error.customData.email;
-      //   // The AuthCredential type that was used.
-      //   const credential = GoogleAuthProvider.credentialFromError(error);
-      console.log(`${errorCode}`);
-      console.log(`${errorMessage}`);
-      // ...
-    });
+    if (alumniDoc.exists()) {
+      console.log("Document data:", alumniDoc.data());
+      const alumniCopy = alumniDoc.data() as Alumnus;
+
+      alumniCopy.birthDate = alumniDoc.data().birthDate
+        ? alumniDoc
+            .data()
+            .birthDate.toDate()
+            .toISOString()
+            .slice(0, 10)
+            .replaceAll("-", "/")
+        : undefined;
+
+      return { success: true, user, alumniCopy };
+    } else {
+      console.log("Hindi pa nageexist");
+      return { success: false, errorMessage: "User not found!" };
+    }
+  } catch (error: any) {
+    console.log(error.code);
+    console.log(error.message);
+    return { success: false, errorMessage: error.message };
+  }
 }

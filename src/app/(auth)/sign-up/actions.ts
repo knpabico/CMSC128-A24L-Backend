@@ -2,6 +2,8 @@
 
 import { serverAuth, serverFirestoreDB } from "@/lib/firebase/serverSDK";
 import { signUpFormSchema } from "@/validation/auth/sign-up-form-schema";
+import { UserRecord } from "firebase-admin/auth";
+import { User } from "firebase/auth";
 import { z } from "zod";
 
 //function for calculating age (year only) based from birthdate
@@ -93,7 +95,17 @@ const saveEducation = async (
   }
 };
 
-export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
+export const registerUser = async (
+  data: z.infer<typeof signUpFormSchema>,
+  userInfo: {
+    displayName: string;
+    email: string;
+    uid: string;
+    photoURL: string;
+  },
+  isGoogleSignIn: boolean
+) => {
+  console.log("userCred: ", userInfo);
   // validate the data one more time in the server side
   const validation = signUpFormSchema.safeParse(data);
 
@@ -120,11 +132,20 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
   } = alumnusData;
   try {
     // create a user in firebase auth
-    const userCredential = await serverAuth.createUser({
-      displayName: `${data.firstName} ${data.lastName}`,
-      email: data.email,
-      password: data.password,
-    });
+    let userCredential = userInfo;
+    if (!isGoogleSignIn) {
+      const userRecord = await serverAuth.createUser({
+        displayName: `${data.firstName} ${data.lastName}`,
+        email: data.email,
+        password: data.password,
+      });
+      userCredential = {
+        displayName: userRecord.displayName ?? "",
+        email: userRecord.email ?? "", // Provide a fallback for undefined email
+        uid: userRecord.uid,
+        photoURL: userRecord.photoURL ?? "",
+      };
+    }
 
     // save the details of the user as a document in firestore database
     //update - 'yung userId sa firestore ginawang document id sa alumni collection
@@ -137,10 +158,10 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
     // });
     await serverFirestoreDB
       .collection("alumni")
-      .doc(userCredential.uid)
+      .doc(userCredential?.uid ?? "")
       .set({
         ...alumData,
-        alumniId: userCredential.uid,
+        alumniId: userCredential?.uid ?? "",
         regStatus: "pending",
         createdDate: new Date(),
         activeStatus: "false",
@@ -154,7 +175,12 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
       });
 
     //save education
-    await saveEducation(bachelors!, masters!, doctoral!, userCredential.uid);
+    await saveEducation(
+      bachelors!,
+      masters!,
+      doctoral!,
+      userCredential?.uid ?? ""
+    );
 
     //save career
     await saveCareer(career!, userCredential.uid);

@@ -6,14 +6,14 @@ import { CircleUserRound, Menu, X, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function Navbar() {
-  const { user, logOut, loading, isAdmin, status } = useAuth();
+  const { user, logOut, loading, isAdmin, status, isGoogleSignIn } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const dropdownRef = useRef(null);
-  const menuRef = useRef(null);  // Reference for mobile menu container
+  const menuRef = useRef(null); // Reference for mobile menu container
 
   const navItems = [
     { label: "Home", path: "/" },
@@ -46,10 +46,12 @@ export default function Navbar() {
     // Handle click outside to close dropdown and mobile menu
     const handleClickOutside = (event) => {
       if (
-        menuRef.current && !menuRef.current.contains(event.target) && 
-        dropdownRef.current && !dropdownRef.current.contains(event.target)
+        menuRef.current &&
+        !menuRef.current.contains(event.target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
       ) {
-        setMenuOpen(false);    // Close the mobile menu
+        setMenuOpen(false); // Close the mobile menu
         setDropdownOpen(false); // Close the profile dropdown
       }
     };
@@ -64,15 +66,16 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full shadow-md z-50">
-      <div className="flex items-center justify-between h-18" style={{ paddingLeft: '10%', paddingRight: '10%' }}>
+      <div
+        className="flex items-center justify-between h-18"
+        style={{ paddingLeft: "10%", paddingRight: "10%" }}
+      >
         {/* Logo */}
-        <div className="text-white font-[800] text-xl">
-          ICS-ARMS
-        </div>
+        <div className="text-white font-[800] text-xl">ICS-ARMS</div>
 
         <div>
           {/* Login Button */}
-          {!loading && !user && (
+          {!loading && !user && !isAdmin && (
             <div className="flex items-center">
               <button
                 className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
@@ -83,8 +86,19 @@ export default function Navbar() {
             </div>
           )}
 
+          {(isAdmin || isGoogleSignIn) && (
+            <div className="flex items-center">
+              <button
+                className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
+                onClick={() => handleSignOut()}
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+
           {/* Navigation & Profile Menu for Logged-in User */}
-          {user && (
+          {user && !isGoogleSignIn && (
             <div className="hidden xl:flex items-center">
               {navItems.map((item) => (
                 <div
@@ -98,12 +112,19 @@ export default function Navbar() {
                   >
                     {item.label}
                   </div>
-                  <div className={`h-1 w-full ${pathname === item.path ? "bg-[var(--primary-white)]" : ""}`}></div>
+                  <div
+                    className={`h-1 w-full ${
+                      pathname === item.path ? "bg-[var(--primary-white)]" : ""
+                    }`}
+                  ></div>
                 </div>
               ))}
 
               {/* Profile Dropdown */}
-              <div className="flex flex-col items-center cursor-pointer relative" ref={dropdownRef}>
+              <div
+                className="flex flex-col items-center cursor-pointer relative"
+                ref={dropdownRef}
+              >
                 <div className="h-1 w-full"></div>
                 <div
                   className="h-18 flex items-center pl-5 pr-5 cursor-pointer group"
@@ -120,15 +141,15 @@ export default function Navbar() {
 
                 {/* Dropdown Menu */}
                 {dropdownOpen && (
-                  <div 
+                  <div
                     className="absolute top-17 bg-white shadow-md rounded-lg py-2 text-[var(--primary-blue)]"
                     onClick={() => router.push(`/my-profile/${user?.uid}`)}
                   >
-                    <button
-                      className="w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      Profile
-                    </button>
+                    {
+                      <button className="w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                        Profile
+                      </button>
+                    }
                     <button
                       className="w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
                       onClick={handleSignOut}
@@ -137,7 +158,13 @@ export default function Navbar() {
                     </button>
                   </div>
                 )}
-                <div className={`h-1 w-full ${pathname.startsWith("/my-profile") ? "bg-[var(--primary-white)]" : ""}`}></div>
+                <div
+                  className={`h-1 w-full ${
+                    pathname.startsWith("/my-profile")
+                      ? "bg-[var(--primary-white)]"
+                      : ""
+                  }`}
+                ></div>
               </div>
             </div>
           )}
@@ -146,8 +173,15 @@ export default function Navbar() {
         {/* Mobile Hamburger Menu */}
         {user && (
           <div className="xl:hidden flex items-center">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="cursor-pointer">
-              {menuOpen ? <X color="white" size={30} /> : <Menu color="white" size={30} />}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="cursor-pointer"
+            >
+              {menuOpen ? (
+                <X color="white" size={30} />
+              ) : (
+                <Menu color="white" size={30} />
+              )}
             </button>
           </div>
         )}
@@ -182,3 +216,15 @@ export default function Navbar() {
     </nav>
   );
 }
+
+//  {(user || isAdmin || isGoogleSignIn) && (
+//                 <button
+//                   onClick={async () => {
+//                     await logOut();
+//                     router.refresh();
+//                   }}
+//                   className="text-white hover:bg-white hover:text-black rounded-lg px-3 py-2 font-bold"
+//                 >
+//                   Sign Out
+//                 </button>
+//               )}

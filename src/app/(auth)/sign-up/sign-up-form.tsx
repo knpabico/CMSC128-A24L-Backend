@@ -75,6 +75,7 @@ import {
 import { TermsDialog } from "./terms-dialog";
 import { registerUser } from "./actions";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { useAuth } from "@/context/AuthContext";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
@@ -121,10 +122,21 @@ export default function RegistrationForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const router = useRouter();
+  const { user, isGoogleSignIn, logOut } = useAuth();
 
   // needed for the location-input component
   const [countryName, setCountryName] = useState<string>("");
   const [stateName, setStateName] = useState<string>("");
+
+  function splitName(fullName: string | null | undefined) {
+    if (!fullName) {
+      return { firstName: "", lastName: "" };
+    }
+    const parts = fullName.trim().split(" ");
+    const lastName = parts.pop(); // remove and get the last word
+    const firstName = parts.join(" "); // join the rest back together
+    return { firstName, lastName };
+  }
 
   // create a react hook form
   // create the form definition using the signUpFormSchema
@@ -134,15 +146,19 @@ export default function RegistrationForm() {
     // default values of the fields in the form
     defaultValues: {
       //email and password
-      email: "",
+      email: isGoogleSignIn ? user?.email ?? "" : "",
       password: "",
       passwordConfirm: "",
 
       //name
-      firstName: "",
+      firstName: isGoogleSignIn
+        ? splitName(user?.displayName).firstName ?? ""
+        : "",
       middleName: "",
       suffix: "",
-      lastName: "",
+      lastName: isGoogleSignIn
+        ? splitName(user?.displayName).lastName ?? ""
+        : "",
 
       //personal
       //birthday
@@ -168,7 +184,17 @@ export default function RegistrationForm() {
 
   const handleSubmit = async (data: z.infer<typeof signUpFormSchema>) => {
     setIsLoading(true);
-    const response = await registerUser(data);
+    const response = await registerUser(
+      data,
+      {
+        displayName: user?.displayName ?? "",
+        email: user?.email ?? "",
+        uid: user?.uid ?? "",
+        photoURL: user?.photoURL ?? "",
+      },
+      isGoogleSignIn
+    );
+    console.log("heyyy");
 
     // display error or success toast message
     if (response?.error) {
@@ -492,7 +518,7 @@ export default function RegistrationForm() {
                       name="bachelors.0"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Bachelor's Degree</FormLabel>
+                          <FormLabel>Bachelor&apos;s Degree</FormLabel>
                           <FormControl>
                             <Input placeholder="Degree Program" {...field} />
                           </FormControl>
@@ -544,7 +570,7 @@ export default function RegistrationForm() {
                       name="masters.0"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Master's Degree</FormLabel>
+                          <FormLabel>Master&apos;s Degree</FormLabel>
                           <FormControl>
                             <Input placeholder="Degree Program" {...field} />
                           </FormControl>
@@ -799,10 +825,12 @@ export default function RegistrationForm() {
       {/* wait for admin's approval dialog */}
       <Dialog
         open={showDialog}
-        onOpenChange={(isOpen) => {
+        onOpenChange={async (isOpen) => {
           setShowDialog(isOpen);
           // redirect the user after they manually close the dialog box
-          if (!isOpen) {
+          if (isGoogleSignIn) {
+            await logOut();
+          } else if (!isOpen) {
             router.push("/");
           }
         }}
