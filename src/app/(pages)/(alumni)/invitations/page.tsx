@@ -62,7 +62,7 @@ function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done
 export default function Invitations() {
   const { events, isLoading, userId, handleViewEventAlumni } = useEvents();
   const { user, loading, alumInfo } = useAuth();
-  const { rsvpDetails, handleAlumAccept, handleAlumReject} = useRsvpDetails(events);
+  const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject} = useRsvpDetails(events);
 
   
   // State for invitation events
@@ -170,16 +170,17 @@ useEffect(() => {
     if (sortedEvents.length === 0) {
       return <p className="text-gray-500">No specific invites.</p>;
     }
-
+    
     return sortedEvents.map((event, index) => {
       // Find the RSVP for this event and current alumni
-      const matchingRSVP = Array.isArray(rsvpDetails)
-        ? rsvpDetails.find(
-            (rsvp: RSVP) =>
-              rsvp.alumniId === alumInfo?.alumniId &&
-              rsvp.postId === event.eventId
-          )
-        : null;
+
+      const rsvps = Object.values(rsvpDetails) as RSVP[];
+
+      const matchingRSVP = rsvps.find(
+        (rsvp) =>
+          rsvp.alumniId === alumInfo?.alumniId &&
+          rsvp.postId === event.eventId
+      );
       
       return (
         <div 
@@ -231,7 +232,11 @@ useEffect(() => {
     
           {/* RSVP Buttons */}
           <div className="flex gap-2 mt-4">
-            {matchingRSVP && matchingRSVP.status === "Pending" ? (
+            {isLoadingRsvp ? (
+              <div className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">
+                Loading...
+              </div>
+            ) : matchingRSVP?.status === "Pending" ? (
               <>
                 <button
                   onClick={() => {
@@ -258,20 +263,20 @@ useEffect(() => {
                   Not Going
                 </button>
                 <button
-                  onClick={() => handleViewEventAlumni(event)}
+                  onClick={() => handleViewEventAlumni(event, matchingRSVP)}
                   className="px-4 py-2 bg-gray-500 text-white rounded-md"
                 >
                   View More
                 </button>
               </>
-            ) : (
+            ) : matchingRSVP?.status === "Accepted" ? (
               <button
-                onClick={() => handleViewEventAlumni(event)}
+                onClick={() => handleViewEventAlumni(event, matchingRSVP)}
                 className="px-4 py-2 bg-gray-500 text-white rounded-md"
               >
                 View More
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       );
@@ -291,7 +296,7 @@ useEffect(() => {
       {isLoading ? (
         <h1>Loading</h1>
       ) : (
-        <>
+        <>  
           {renderFilterAndSortDropdowns()}
           <div className="mb-6">
             {renderEventList(invitationEvents)}
