@@ -29,9 +29,9 @@ const baseSchema = z.object({
     .array(
       z
         .object({
-          affiliationName: z.string().optional(),
-          yearJoined: z.string().optional(),
-          university: z.string().optional(),
+          affiliationName: z.string(),
+          yearJoined: z.string(),
+          university: z.string(),
         })
         .optional()
     )

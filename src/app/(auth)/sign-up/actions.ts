@@ -1,7 +1,9 @@
 "use server";
 
 import { serverAuth, serverFirestoreDB } from "@/lib/firebase/serverSDK";
+import { Education, WorkExperience } from "@/models/models";
 import { signUpFormSchema } from "@/validation/auth/sign-up-form-schema";
+import { ErrorBoundaryHandler } from "next/dist/client/components/error-boundary";
 import { z } from "zod";
 
 //for checking if the email used in sign-up already exists in firebase auth
@@ -39,70 +41,166 @@ const calculateAge = (birthDate: Date) => {
   return age;
 };
 
-const saveCareer = async (career: string[], alumniId: string) => {
-  //each field shouldn't be empty
-  if (career[0] !== "") {
-    //will contain the id to be used for adding education entry
-    let ref = serverFirestoreDB.collection("career").doc();
+//function for saving career to the work_experience collection
+const saveCareer = async (
+  career:
+    | (
+        | {
+            industry: string;
+            jobTitle: string;
+            company: string;
+            startYear: string;
+            endYear: string;
+            presentJob: Boolean;
+          }
+        | undefined
+      )[]
+    | undefined,
+  alumniId: string
+) => {
+  //if career exists
+  if (career) {
+    //loop for storing each career entry to work_experience
+    for (let i = 0; i < career.length; i++) {
+      if (career[i]) {
+        //if career[i] is not undefined
+        //each field shouldn't be empty
 
-    await serverFirestoreDB.collection("career").doc(ref.id).set({
-      careerId: ref.id,
-      alumniId: alumniId,
-      industry: career[0],
-      jobTitle: career[1],
-      company: career[2],
-      startYear: career[3],
-      endYear: career[4],
-    });
+        //will contain the id to be used for adding education entry
+        let ref = serverFirestoreDB.collection("work_experience").doc();
+
+        //destructure to get presentJob
+        const { presentJob, endYear, ...car } = career[i]!;
+
+        await serverFirestoreDB
+          .collection("work_experience")
+          .doc(ref.id)
+          .set({
+            ...car,
+            workExperienceId: ref.id,
+            alumniId: alumniId,
+            endYear: presentJob ? "present" : endYear, //if present job, set as present
+            //dadagdag yung sa location, latitude, longitude, proofOfEmployment
+          });
+      }
+    }
   }
 };
 
+//function for saving bachelors, masters, and doctoral to the education collection
 const saveEducation = async (
-  bachelors: string[],
-  masters: string[],
-  doctoral: string[],
+  bachelors: { university: string; major: string; yearGraduated: string }[],
+  masters:
+    | (
+        | { university: string; major: string; yearGraduated: string }
+        | undefined
+      )[]
+    | undefined,
+  doctoral:
+    | (
+        | { university: string; major: string; yearGraduated: string }
+        | undefined
+      )[]
+    | undefined,
   alumniId: string
 ) => {
-  //will contain the id to be used for adding education entry
-  let bach = serverFirestoreDB.collection("education").doc();
-
-  await serverFirestoreDB.collection("education").doc(bach.id).set({
-    educationId: bach.id,
-    alumniId: alumniId,
-    major: bachelors[0],
-    yearGraduated: bachelors[1],
-    university: bachelors[2],
-    type: "bachelors",
-  });
-
-  //each field shouldn't be empty
-  if (masters[0] !== "" && masters[1] !== "" && masters[2] !== "") {
+  //loop for adding each bachelors to the education collection
+  for (let i = 0; i < bachelors.length; i++) {
     //will contain the id to be used for adding education entry
-    let ref = serverFirestoreDB.collection("education").doc();
+    let bach = serverFirestoreDB.collection("education").doc();
 
-    await serverFirestoreDB.collection("education").doc(ref.id).set({
-      educationId: ref.id,
-      alumniId: alumniId,
-      major: masters[0],
-      yearGraduated: masters[1],
-      university: masters[2],
-      type: "masters",
-    });
+    //add entry
+    await serverFirestoreDB
+      .collection("education")
+      .doc(bach.id)
+      .set({
+        educationId: bach.id,
+        alumniId: alumniId,
+        ...bachelors[i],
+        type: "bachelors",
+      });
   }
 
-  //each field shouldn't be empty
-  if (doctoral[0] !== "" && doctoral[1] !== "" && doctoral[2] !== "") {
-    //will contain the id to be used for adding education entry
-    let ref = serverFirestoreDB.collection("education").doc();
+  //if masters exist
+  if (masters) {
+    //loop for adding each masters to the education collection
+    for (let i = 0; i < masters.length; i++) {
+      //if current masters entry is not undefined, add to firestore
+      if (masters[i]) {
+        //will contain the id to be used for adding education entry
+        let ref = serverFirestoreDB.collection("education").doc();
 
-    await serverFirestoreDB.collection("education").doc(ref.id).set({
-      educationId: ref.id,
-      alumniId: alumniId,
-      major: doctoral[0],
-      yearGraduated: doctoral[1],
-      university: doctoral[2],
-      type: "doctoral",
-    });
+        await serverFirestoreDB
+          .collection("education")
+          .doc(ref.id)
+          .set({
+            educationId: ref.id,
+            alumniId: alumniId,
+            ...masters[i],
+            type: "masters",
+          });
+      }
+    }
+  }
+
+  //if doctoral exists
+  if (doctoral) {
+    //loop for adding each doctoral to the education collection
+    for (let i = 0; i < doctoral.length; i++) {
+      //if current doctoral entry is not undefined, add to firestore
+      if (doctoral[i]) {
+        //will contain the id to be used for adding education entry
+        let ref = serverFirestoreDB.collection("education").doc();
+
+        await serverFirestoreDB
+          .collection("education")
+          .doc(ref.id)
+          .set({
+            educationId: ref.id,
+            alumniId: alumniId,
+            ...doctoral[i],
+            type: "doctoral",
+          });
+      }
+    }
+  }
+};
+
+//function for saving affiliations to the affiliation collection
+const saveAffiliation = async (
+  affiliation:
+    | (
+        | {
+            affiliationName: string;
+            yearJoined: string;
+            university: string;
+          }
+        | undefined
+      )[]
+    | undefined,
+  alumniId: string
+) => {
+  //if career exists
+  if (affiliation) {
+    //loop for storing each career entry to work_experience
+    for (let i = 0; i < affiliation.length; i++) {
+      if (affiliation[i]) {
+        //if career[i] is not undefined
+        //each field shouldn't be empty
+
+        //will contain the id to be used for adding education entry
+        let ref = serverFirestoreDB.collection("affiliation").doc();
+
+        await serverFirestoreDB
+          .collection("affiliation")
+          .doc(ref.id)
+          .set({
+            affiliationId: ref.id,
+            alumniId: alumniId,
+            ...affiliation[i],
+          });
+      }
+    }
   }
 };
 
@@ -160,20 +258,18 @@ export const registerUser = async (data: z.infer<typeof signUpFormSchema>) => {
         activeStatus: "false",
         age: calculateAge(new Date(alumnusData.birthDate)),
         birthDate: new Date(alumnusData.birthDate),
-        address: [
-          alumData.address[0],
-          alumData.address[1],
-          alumData.address[2],
-        ],
+
+        //dagdag image
       });
 
     //save education
-    await saveEducation(bachelors!, masters!, doctoral!, userCredential.uid);
+    await saveEducation(bachelors, masters, doctoral, userCredential.uid);
 
     //save career
-    await saveCareer(career!, userCredential.uid);
+    await saveCareer(career, userCredential.uid);
 
-    //save career
+    //save affiliation
+    await saveAffiliation(affiliation, userCredential.uid);
   } catch (err: any) {
     return {
       error: true,

@@ -197,22 +197,13 @@ export default function RegistrationForm() {
 
       //education
       studentNumber: "",
-      affiliation: [{ affiliationName: "", yearJoined: "", university: "" }], //affiliation name, year joined, university
+      affiliation: [], //affiliation name, year joined, university
       bachelors: [{ university: "", yearGraduated: "", major: "" }], //degree program, year graduated, university
       masters: [], //degree program, year graduated, university
       doctoral: [], //degree program, year graduated, university
 
       // //career
-      career: [
-        {
-          industry: "",
-          jobTitle: "",
-          company: "",
-          startYear: "",
-          endYear: "",
-          presentJob: false,
-        },
-      ], //industry, jobTitle, company, startYear, endYear
+      career: [], //industry, jobTitle, company, startYear, endYear
 
       acceptTerms: false,
       subscribeToNewsletter: false,
@@ -258,15 +249,15 @@ export default function RegistrationForm() {
     setIsLoading(true);
 
     console.log("Testing sign-up:");
-    console.log(data);
-    // const response = await registerUser(data);
+    //console.log(data);
+    const response = await registerUser(data);
 
-    // //display error or success toast message
-    // if (response?.error) {
-    //   toastError(response.message);
-    //   setIsLoading(false);
-    //   return;
-    // }
+    //display error or success toast message
+    if (response?.error) {
+      toastError(response.message);
+      setIsLoading(false);
+      return;
+    }
 
     // if successful, show a dialog that says
     // wait for admin to approve the account
