@@ -86,19 +86,21 @@ export default function Navbar() {
             </div>
           )}
 
-          {(isAdmin || isGoogleSignIn) && (
-            <div className="flex items-center">
-              <button
-                className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
-                onClick={() => handleSignOut()}
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
+          {isAdmin ||
+            isGoogleSignIn ||
+            (user && status !== "approved" && (
+              <div className="flex items-center">
+                <button
+                  className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
+                  onClick={() => handleSignOut()}
+                >
+                  Sign Out
+                </button>
+              </div>
+            ))}
 
           {/* Navigation & Profile Menu for Logged-in User */}
-          {user && !isGoogleSignIn && (
+          {user && !isGoogleSignIn && status === "approved" && (
             <div className="hidden xl:flex items-center">
               {navItems.map((item) => (
                 <div
