@@ -82,20 +82,20 @@ const EditWorkExperience: React.FC<{
                 required
                 value={company}
                 sx={{
-                  width: '400px',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '0.375rem',
-                    '& fieldset': {
-                      borderColor: '#6b7280',
+                  width: "400px",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "0.375rem",
+                    "& fieldset": {
+                      borderColor: "#6b7280",
                     },
-                    '&:hover fieldset': {
-                      borderColor: '#4b5563',
+                    "&:hover fieldset": {
+                      borderColor: "#4b5563",
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#2563eb',
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#2563eb",
                     },
-                    '& input': {
-                      padding: '10px 16px',
+                    "& input": {
+                      padding: "10px 16px",
                     },
                   },
                 }}
@@ -108,20 +108,20 @@ const EditWorkExperience: React.FC<{
                 required
                 value={details}
                 sx={{
-                  width: '12.5rem',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '0.375rem',
-                    '& fieldset': {
-                      borderColor: '#6b7280',
+                  width: "12.5rem",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "0.375rem",
+                    "& fieldset": {
+                      borderColor: "#6b7280",
                     },
-                    '&:hover fieldset': {
-                      borderColor: '#4b5563',
+                    "&:hover fieldset": {
+                      borderColor: "#4b5563",
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#2563eb',
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#2563eb",
                     },
-                    '& input': {
-                      padding: '10px 16px',
+                    "& input": {
+                      padding: "10px 16px",
                     },
                   },
                 }}
@@ -134,14 +134,16 @@ const EditWorkExperience: React.FC<{
             <div className="flex space-x-7 mb-3">
               {selectedLocation.location !== "" && (
                 <div>
-                  <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{selectedLocation.location}</p>
+                  <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">
+                    {selectedLocation.location}
+                  </p>
                 </div>
               )}
               <Button variant="contained" onClick={() => setIsModalOpen(true)}>
                 {selectedLocation.location !== "" ? "Edit" : "Enter"} location
               </Button>
             </div>
-            
+
             <GoogleMapsModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
@@ -160,7 +162,7 @@ const EditWorkExperience: React.FC<{
                 required
                 value={startDate.toISOString().split("T")[0]}
                 onChange={(e) => setStartDate(new Date(e.target.value))}
-                class="py-2 px-4 border border-gray-500 w-full rounded-md"
+                className="py-2 px-4 border border-gray-500 w-full rounded-md"
               />
             </div>
             <div>
@@ -170,13 +172,19 @@ const EditWorkExperience: React.FC<{
                 required
                 onChange={(e) => setEndDate(new Date(e.target.value))}
                 value={endDate.toISOString().split("T")[0]}
-                class="py-2 px-4 border border-gray-500 w-full rounded-md"
+                className="py-2 px-4 border border-gray-500 w-full rounded-md"
               />
             </div>
           </div>
-          
+
           <div>
-            <Button style={{backgroundColor: "#0856BA"}} type="submit" class="py-2 px-4 border border-gray-500 rounded-md text-white my-5">Save Changes</Button>
+            <Button
+              style={{ backgroundColor: "#0856BA" }}
+              type="submit"
+              className="py-2 px-4 border border-gray-500 rounded-md text-white my-5"
+            >
+              Save Changes
+            </Button>
           </div>
         </form>
       </Card>
