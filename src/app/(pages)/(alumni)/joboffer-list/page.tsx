@@ -13,7 +13,7 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
-import { Briefcase, BookMarked, FilePlus } from 'lucide-react';
+import { Briefcase, Bookmark, FilePlus } from 'lucide-react';
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -307,20 +307,6 @@ export default function JobOffers() {
           </div>
         </div>
   
-          {/* <button
-            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
-              activeFilters.length > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
-            onClick={() => {
-              setActiveFilters([]);
-              setActiveFilterCategory(null);
-              setShowFilterOptions(false);
-              setCurrentPage(1);
-            }}
-          >
-            Clear Filters
-          </button> */}
-  
         <div className="flex">
             {/* Sidebar */}
             <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max">
@@ -343,7 +329,7 @@ export default function JobOffers() {
                     setSidebarFilter("Saved Jobs");
                   }}
                 >
-                  <BookMarked className="w-5 h-5 mr-2" />
+                  <Bookmark className="w-5 h-5 mr-2" />
                   Saved Jobs
                 </button>
               </li>
@@ -366,7 +352,7 @@ export default function JobOffers() {
               <div>
                 {sidebarFilter === "Job Postings" ? (
                   isLoading ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {[...Array(6)].map((_, i) => (
                         <Skeleton key={i} className="h-20 w-full rounded-lg" />
                       ))}
@@ -424,7 +410,6 @@ export default function JobOffers() {
                                   key={`empty-${i}`}
                                   className="h-[72px] invisible"
                                 >
-                                  {/* Maintain column height */}
                                 </div>
                               )
                             )}
@@ -464,11 +449,11 @@ export default function JobOffers() {
                     </>
                   )
                 ) : sidebarFilter === "Saved Jobs" ? (
-                  <div className="bg-white space-y-2">
+                  <div className="space-y-2">
                     {bookmarks.filter(
                       (bookmark: Bookmark) => bookmark.type === "job_offering"
                     ).length === 0 ? (
-                      <div className="text-center text-gray-500 py-8 h-[480px] flex items-center justify-center">
+                      <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
                         <p className="text-lg">No saved jobs found.</p>
                       </div>
                     ) : (
@@ -531,11 +516,11 @@ export default function JobOffers() {
                     )}
                   </div>
                 ) : sidebarFilter === "Create Jobs" ? (
-                  <div>
+                  <div className="space-y-2">
                     {jobOffers.filter(
                       (job: JobOffering) => job.alumniId === user?.uid
                     ).length === 0 ? (
-                      <div className="text-center text-gray-500 py-8 h-[480px] flex items-center justify-center">
+                      <div className="rounded-lg text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
                         <p className="text-lg">No created jobs found.</p>
                       </div>
                     ) : (
@@ -564,7 +549,7 @@ export default function JobOffers() {
                         .map((job: JobOffering, index: number) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 mb-4 ${
+                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -620,8 +605,8 @@ export default function JobOffers() {
                     {selectedJob.company}
                   </p>
   
-                  <div className="bg-white p-3 rounded-lg mb-4">
-                    <div className="flex space-x-4 mb-2">
+                  <div className="bg-[#EAEAEA] p-3 rounded-lg mb-4">
+                    <div className="flex flex-wrap gap-4 mb-2">
                       <div className="text-sm">
                         <span className="text-gray-500">Type:</span>
                         <span className="ml-1 font-medium">
@@ -641,6 +626,12 @@ export default function JobOffers() {
                         {selectedJob.salaryRange}
                       </span>
                     </div>
+                    <div className="text-sm">
+                      <span className="text-gray-500">Location:</span>
+                      <span className="ml-1 font-medium">
+                        {selectedJob.location}
+                      </span>
+                    </div>
                   </div>
   
                   <div className="mb-4">
@@ -652,16 +643,17 @@ export default function JobOffers() {
   
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Required Skills</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedJob.requiredSkill &&
-                        selectedJob.requiredSkill.map((skill, idx) => (
-                          <span
-                            key={idx}
-                            className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs"
-                          >
+                    <div className="pl-[25px]">
+                      {selectedJob.requiredSkill && selectedJob.requiredSkill.map((skill) => (
+                        <ul key={skill} className="max-w-md space-y-1 text-gray-500 list-inside dark:text-gray-500"> 
+                          <li className="flex items-center">
+                            <svg className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+                            </svg>
                             {skill}
-                          </span>
-                        ))}
+                          </li>
+                        </ul>
+                      ))}
                     </div>
                   </div>
   
