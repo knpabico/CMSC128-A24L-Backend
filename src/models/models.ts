@@ -19,6 +19,7 @@ export interface Alumnus {
   image: string;
   fieldOfInterest: string[];
   contactPrivacy: boolean;
+  lastLogin: Date;
 }
 
 export interface Affiliation {

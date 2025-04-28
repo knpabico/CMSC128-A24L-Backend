@@ -3,6 +3,7 @@
 // components
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Button, TextField, Typography, Snackbar } from "@mui/material";
 import {
   FormControl,
   FormField,
@@ -11,14 +12,34 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
+import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 
 export const Career = ({ index, form }: { index: number; form: any }) => {
   //dynamic fields for career
 
   const [endYear, setEndYear] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const handleEndYear = (value: boolean) => {
     setEndYear(value);
+  };
+
+  const [selectedLocation, setSelectedLocation] = useState({
+    location: "",
+    latitude: 14.25,
+    longitude: 121.25,
+  });
+
+  const handleLocationSave = (address: string, lat: number, lng: number) => {
+    setSelectedLocation({
+      location: address,
+      latitude: lat,
+      longitude: lng,
+    });
+
+    //manually update values of location, latitude, presentJob
+    form.setValue(`career.${index}.location`, address);
+    form.setValue(`career.${index}.latitude`, lat);
+    form.setValue(`career.${index}.longitude`, lng);
   };
 
   return (
@@ -112,7 +133,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
           )}
         </div>
 
-        <div>
+        <div className="col-span-6">
           {/* checkbox field for identifying whether it is up to present or not*/}
           <FormField
             control={form.control}
@@ -134,6 +155,27 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                 <FormMessage />
               </FormItem>
             )}
+          />
+        </div>
+
+        {/*kinopya lang 'yung implementation sa add-work-experience */}
+        <div className="col-span-6">
+          <Typography>Please specify location</Typography>
+          {selectedLocation.location !== "" && (
+            <div>
+              <Typography>{selectedLocation.location}</Typography>
+            </div>
+          )}
+          <Button variant="contained" onClick={() => setIsModalOpen(true)}>
+            {selectedLocation.location !== "" ? "Edit" : "Enter"} location
+          </Button>
+          <GoogleMapsModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            initialAddress={selectedLocation.location}
+            initialLatitude={selectedLocation.latitude}
+            initialLongitude={selectedLocation.longitude}
+            onSave={handleLocationSave}
           />
         </div>
       </div>

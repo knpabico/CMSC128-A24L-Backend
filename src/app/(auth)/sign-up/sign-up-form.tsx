@@ -249,15 +249,15 @@ export default function RegistrationForm() {
     setIsLoading(true);
 
     console.log("Testing sign-up:");
-    //console.log(data);
-    const response = await registerUser(data);
+    console.log(data);
+    //const response = await registerUser(data);
 
     //display error or success toast message
-    if (response?.error) {
-      toastError(response.message);
-      setIsLoading(false);
-      return;
-    }
+    // if (response?.error) {
+    //   toastError(response.message);
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     // if successful, show a dialog that says
     // wait for admin to approve the account
@@ -597,6 +597,9 @@ export default function RegistrationForm() {
                           startYear: "",
                           endYear: "",
                           presentJob: false,
+                          location: "",
+                          latitude: 14.25,
+                          longitude: 121.25,
                         });
                       }}
                     >

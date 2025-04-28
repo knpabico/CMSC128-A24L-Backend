@@ -84,6 +84,9 @@ const baseSchema = z.object({
           company: z.string(),
           startYear: z.string(),
           endYear: z.string(),
+          location: z.string(),
+          latitude: z.number(),
+          longitude: z.number(),
           presentJob: z.boolean(),
         })
         .optional()
