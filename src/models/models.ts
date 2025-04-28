@@ -124,6 +124,7 @@ export interface DonationDrive {
   startDate: Date;
   endDate: Date;
   donorList: string[];
+  image: string;
 }
 
 export interface Donation {

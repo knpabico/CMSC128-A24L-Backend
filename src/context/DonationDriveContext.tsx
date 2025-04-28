@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { DonationDrive } from "@/models/models";
+import { DonationDrive, Event } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 
 const DonationDriveContext = createContext<any>(null);
@@ -24,6 +24,7 @@ export function DonationDriveProvider({
   children: React.ReactNode;
 }) {
   const [donationDrives, setDonationDrives] = useState<DonationDrive[]>([]);
+  const [events, setEvents] = useState<Record<string, Event>>({});
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
 
@@ -35,7 +36,8 @@ export function DonationDriveProvider({
   const [eventId, setEventId] = useState("");
   const [endDate, setEndDate] = useState(new Date());
   const [status, setStatus] = useState("");
-  const [beneficiary, setBeneficiary] = useState<string[]>([]);
+  const [oneBeneficiary, setOneBeneficiary] = useState("");
+  const [beneficiary, setBeneficiary] = useState<string[]>([""]);
 
   const { user, isAdmin } = useAuth();
 
@@ -56,6 +58,42 @@ export function DonationDriveProvider({
     };
   }, [user, isAdmin]);
 
+  // When donationDrives change, fetch all related events
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const eventIds = donationDrives
+        .filter(drive => drive.isEvent && drive.eventId)
+        .map(drive => drive.eventId);
+
+      // Remove duplicates
+      const uniqueEventIds = [...new Set(eventIds)];
+
+      if (uniqueEventIds.length === 0) return;
+
+      const newEvents: Record<string, Event> = {};
+
+      for (const id of uniqueEventIds) {
+        try {
+          const event = await getEventById(id);
+          if (event) {
+            newEvents[id] = event;
+          }
+        } catch (error) {
+          console.error("Error fetching event ${id}:", error);
+        }
+      }
+
+      setEvents(prevEvents => ({
+        ...prevEvents,
+        ...newEvents
+      }));
+    };
+
+    if (donationDrives.length > 0) {
+      fetchEvents();
+    }
+  }, [donationDrives]);
+
   const subscribeToDonationDrives = () => {
     setLoading(true);
     const q = query(collection(db, "donation_drive"));
@@ -65,7 +103,7 @@ export function DonationDriveProvider({
       (querySnapshot: any) => {
         // const donationDriveList = querySnapshot.docs.map((doc: any) => doc.data() as DonationDrive);
         const donationDriveList = querySnapshot.docs.map((doc: any) => ({
-          donationDriveId: doc.id, // ✅ Add Firestore document ID
+          donationDriveId: doc.id, // Add Firestore document ID
           ...doc.data(),
         })) as DonationDrive[];
         setDonationDrives(donationDriveList);
@@ -94,7 +132,7 @@ export function DonationDriveProvider({
           ...donationDriveData,
         } as DonationDrive;
       } else {
-        console.log(`No donation drive found with ID: ${donationDriveId}`);
+        console.log("No donation drive found with ID: ${donationDriveId}");
         return null;
       }
     } catch (error) {
@@ -103,32 +141,69 @@ export function DonationDriveProvider({
     }
   };
 
-  const checkUserRole = async (userId: string) => {
-    const adminRef = doc(db, "admin", userId);
-    const alumniRef = doc(db, "alumni", userId);
+  const getEventById = async (eventId: string): Promise<Event | null> => {
+    try {
+      const eventDoc = doc(db, "event", eventId);
+      const snapshot = await getDoc(eventDoc);
 
-    const [adminSnap, alumniSnap] = await Promise.all([
-      getDoc(adminRef),
-      getDoc(alumniRef),
-    ]);
-
-    if (adminSnap.exists()) {
-      return { role: "admin", name: null };
-    } else {
-      const alumnusData = alumniSnap.data();
-      return { role: "alumni", name: alumnusData?.name || "Unknown" };
+      if (snapshot.exists()) {
+        const eventData = snapshot.data();
+        return {
+          eventId: snapshot.id,
+          ...eventData,
+        } as Event;
+      } else {
+        console.log("No event found with ID: ${eventId}");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching event:", error);
+      throw new Error((error as FirebaseError).message);
     }
   };
 
+  const fetchAlumnusById = async (alumnusId: string) => {
+    try {
+      const alumnusRef = doc(db, "alumni", alumnusId);
+      const alumnusSnap = await getDoc(alumnusRef);
+  
+      if (alumnusSnap.exists()) {
+        return alumnusSnap.data(); // contains firstName, lastName, etc.
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching alumnus:", error);
+      return null;
+    }
+  };
+
+ const handleBenefiaryChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const  {value } = e.target;
+  const list = [...beneficiary];
+  list[index] = value;
+  setBeneficiary(list);
+ }
+
+ const handleAddBeneficiary = async () => {
+  setBeneficiary([...beneficiary,'']);
+ }
+
+ const handleRemoveBeneficiary = async (index: number) => {
+  const list = [...beneficiary];
+  list.splice(index,1);
+  setBeneficiary(list);
+ }
+
   const addDonationDrive = async (driveData: DonationDrive) => {
-    const { role, name } = await checkUserRole(user!.uid);
+    var role;
+    isAdmin? role = "admin": role = "alumni";
     try {
       const docRef = doc(collection(db, "donation_drive"));
       driveData.donationDriveId = docRef.id;
       driveData.creatorType = role;
       driveData.status = role === "admin" ? "active" : "pending";
-      driveData.creatorId = user!.uid;
-
+      driveData.creatorId = role === "admin" ? "" : user!.uid;
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
@@ -143,7 +218,7 @@ export function DonationDriveProvider({
       donationDriveId: "",
       datePosted: new Date(),
       description,
-      beneficiary: [],
+      beneficiary,
       campaignName,
       status: "",
       creatorId: "",
@@ -155,6 +230,7 @@ export function DonationDriveProvider({
       startDate: new Date(),
       endDate,
       donorList: [],
+      image: "",
     };
 
     const response = await addDonationDrive(newDonoDrive);
@@ -163,6 +239,8 @@ export function DonationDriveProvider({
       setShowForm(false);
       setCampaignName("");
       setDescription("");
+      setOneBeneficiary("");
+      setBeneficiary([]);
       setTargetAmount(0);
       setIsEvent(false);
       setEventId("");
@@ -219,7 +297,7 @@ export function DonationDriveProvider({
   const handleAccept = async (donationDriveId: string) => {
     try {
       const driveRef = doc(db, "donation_drive", donationDriveId);
-      await updateDoc(driveRef, { status: "active" });
+      await updateDoc(driveRef, { status: "active", startDate: new Date() });
       return {
         success: true,
         message: "Donation drive successfully activated",
@@ -233,10 +311,14 @@ export function DonationDriveProvider({
     <DonationDriveContext.Provider
       value={{
         donationDrives,
+        events,
         isLoading,
         addDonationDrive,
         showForm,
         setShowForm,
+        handleBenefiaryChange,
+        handleAddBeneficiary,
+        handleRemoveBeneficiary,
         handleSave,
         handleEdit,
         handleDelete,
@@ -256,9 +338,13 @@ export function DonationDriveProvider({
         setEndDate,
         status,
         setStatus,
+        oneBeneficiary, 
+        setOneBeneficiary,
         beneficiary,
         setBeneficiary,
         getDonationDriveById,
+        getEventById,
+        fetchAlumnusById,
       }}
     >
       {children}
