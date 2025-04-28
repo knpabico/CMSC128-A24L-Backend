@@ -10,7 +10,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user || isAdmin) {
-      if (!isGoogleSignIn) {
+      if (isAdmin) router.push("/admin-dashboard");
+      else if (!isGoogleSignIn) {
         router.push("/");
       }
     }
