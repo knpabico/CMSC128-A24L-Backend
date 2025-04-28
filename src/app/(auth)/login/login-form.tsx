@@ -59,7 +59,7 @@ export default function LoginForm() {
       // if user is logged in, then middleware will redirect the user to another page
       // router.refresh();
 
-      if (alumInfo?.activeStatus === true) {
+      if (alumInfo?.regStatus === "approved") {
         //set lastLogIn
         const userRef = doc(db, "alumni", alumInfo.alumniId);
 
