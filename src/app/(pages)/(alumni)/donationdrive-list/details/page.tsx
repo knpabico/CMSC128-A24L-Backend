@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from '@/components/ui/bookmark-button';
 import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
-import { ThankYouDialog } from '../ThankYouDialog';
+import { ThankYouDialog } from '../../../../../components/ThankYouDialog';
 
 
 const DonationDriveDetailsPage: React.FC = () => {

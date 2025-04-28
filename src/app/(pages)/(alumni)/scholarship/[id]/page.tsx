@@ -6,13 +6,15 @@ import { useParams, useRouter } from 'next/navigation';
 import { useScholarship } from '@/context/ScholarshipContext';
 import { useAuth } from '@/context/AuthContext';
 import { Scholarship, NewsletterItem, Announcement, JobOffering } from '@/models/models';
-import { CircleCheck, HandCoins, MoveLeft } from 'lucide-react';
+import { CircleAlert, CircleCheck, CircleHelp, HandCoins, MoveLeft } from 'lucide-react';
 import { useNewsLetters } from '@/context/NewsLetterContext';
 
 //for featured stories
 import { useAnnouncement } from '@/context/AnnouncementContext';
 import { useEvents } from '@/context/EventContext';
 import { useJobOffer } from "@/context/JobOfferContext";
+import { Dialog, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
+import { DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
@@ -27,6 +29,8 @@ const ScholarshipDetailPage: React.FC = () => {
   const { announces = [] } = useAnnouncement() || {};
   const { jobs = [] } = useJobOffer() || {};
   const scholarshipId = params?.id as string;
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [isThankYouOpen, setIsThankYouOpen] = useState(false);
 
   useEffect(() => {
     const fetchScholarship = async () => {
@@ -117,7 +121,7 @@ const ScholarshipDetailPage: React.FC = () => {
                     Currently Sponsoring
                   </button>
                 ) : (
-                  <button onClick={handleSponsor} className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md">
+                  <button onClick={() => setIsConfirmationOpen(true)} className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md">
                     <HandCoins className='size-6'/>
                     Sponsor a Student
                   </button>
@@ -143,6 +147,49 @@ const ScholarshipDetailPage: React.FC = () => {
               <span className="font-medium">{scholarship?.alumList.length}</span>
             </div>
           </div>
+
+		  {/* Confirmation Dialog */}
+		  {isConfirmationOpen && (
+			<Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+				<DialogContent className='w-96'>
+					<DialogHeader className='text-orange-500 flex items-center'>
+						<CircleAlert className='size-15'/>
+						<DialogTitle className='text-2xl'> Confirm Sponsorship </DialogTitle>
+					</DialogHeader>
+					<DialogDescription> Are you sure you want to become a sponsor for the <strong>{scholarship?.title}</strong> scholarship? </DialogDescription>
+					<DialogFooter className='mt-5'>
+						<button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] bg-[#0856BA]  hover:bg-blue-500 hover:cursor-pointer" 
+							onClick={() => {
+								setIsConfirmationOpen(false);
+								handleSponsor();
+								setIsThankYouOpen(true);
+							}} >Become a sponsor</button>
+						<button className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100" onClick={() => setIsConfirmationOpen(false)}>Cancel</button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		  )}
+
+		  {/* ThankYou Dialog */}
+		  {isThankYouOpen && (
+			<Dialog open={isThankYouOpen} onOpenChange={setIsThankYouOpen}>
+				<DialogContent className='w-96'>
+					<DialogHeader className='text-green-700 flex items-center'>
+						<CircleCheck className='size-15'/>
+						<DialogTitle className='text-2xl'> Thank You! </DialogTitle>
+					</DialogHeader>
+					<DialogDescription className='text-center'> 
+							Like an open-source project, your generosity makes everything better! Thank you for contributing to something bigger than yourself!
+					</DialogDescription>
+					<DialogDescription className='italic text-xs'>
+						Our admin team will reach out to you soon to coordinate the next steps and discuss how your support can make a meaningful impact through our scholarship program.
+					</DialogDescription>
+					<DialogFooter className='mt-5'>
+						<button className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100" onClick={() => setIsThankYouOpen(false)}>Close</button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		  )}
           
           {/* Stories */}
           <div className='my-12 w-full'>
@@ -177,7 +224,6 @@ const ScholarshipDetailPage: React.FC = () => {
                       );
                     })()}
 
-                    
                     {/* {newsLetter.category === "job_offering" && (() => {
                       const joboffering = jobs.find(
                         (job: JobOffering) => job.jobId === newsLetter.referenceId

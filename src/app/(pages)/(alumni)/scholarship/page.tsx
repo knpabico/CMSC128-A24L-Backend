@@ -70,8 +70,8 @@ const ScholarshipPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[100px] xl:mx-[200px]'>
-        <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max'>
+      <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[100px] xl:mx-[200px] static'>
+        <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7'>
           <button onClick={() => setActiveTab('all')} className='flex items-center gap-3'>
             <CalendarDays />
             <p className={`group w-max relative py-1 transition-all ${activeTab === 'all' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
