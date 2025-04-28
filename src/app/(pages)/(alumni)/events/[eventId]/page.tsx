@@ -39,7 +39,10 @@ const EventPageAlumni = () => {
       {event ? (
         <div>
           <h1 className="text-2xl font-bold">{event.title}</h1>
-          <h1 className="text-2xl font-bold">Your invite status: {matchingRSVP?.status}</h1>
+          <h1 className="text-2xl font-bold">{event.status}</h1>
+          {event.status !== "Pending" && matchingRSVP ? (
+            <h1 className="text-2xl font-bold">Your invite status: {matchingRSVP.status}</h1>
+          ) : null}
           <p className="text-gray-700">{event.date}</p>
           <p className="mt-2">{event.time}</p>
           <p className="mt-2">{event.location}</p>
@@ -82,14 +85,16 @@ const EventPageAlumni = () => {
               </>
             ) : null} {/* This ensures that when the RSVP is not "Pending", nothing is displayed */}
           </div>
-          <button
-            onClick={() => {
-              router.push(`/donationdrive-list/details?id=${event.donationDriveId}`);
-            }}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md"
-          >
-            View more about the donation
-          </button>
+          {event.needSponsorship ? (
+            <button
+              onClick={() => {
+                router.push(`/donationdrive-list/details?id=${event.donationDriveId}`);
+              }}
+              className="px-4 py-2 bg-gray-500 text-white rounded-md"
+              >
+                View more about the donation
+            </button>
+          ) : null}
         </div>
       ) : (
         <p>Event not found.</p>

@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
-import { Event } from "@/models/models";
+import { Event, RSVP } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
+import { useRsvpDetails } from "@/context/RSVPContext"; 
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -62,6 +63,7 @@ export default function Events() {
     setShowForm,
     showForm,
     handleSave,
+    handleDelete,
     handleViewEventAlumni,
     date,
     setEventDate,
@@ -73,9 +75,10 @@ export default function Events() {
     setEventTitle,
   } = useEvents();
 
-  const { user } = useAuth();
+  const { user, alumInfo } = useAuth();
   const [confirmForm, setConfirmForm] = useState(false);
   const [userInput, setUserInput] = useState("");
+  const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject} = useRsvpDetails(events);
 
   const requiredSentence = "I certify on my honor that the proposed event details are accurate, correct, and complete.";
   const formComplete = title.trim() !== "" && description.trim() !== "" && date.trim() !== "";
@@ -176,10 +179,21 @@ export default function Events() {
     const sortedEvents = sortEvents(dateFilteredEvents);
     if (sortedEvents.length === 0)
       return <p className="text-gray-500">No events found.</p>;
-
+    
     return (
-      <div className="flex flex-wrap gap-4">
-        {sortedEvents.map((event, index) => (
+    <div className="flex flex-wrap gap-4">
+      {sortedEvents.map((event, index) => {
+        const rsvps = Object.values(rsvpDetails) as RSVP[];
+
+        const matchingRSVP = rsvps.find(
+          (rsvp) =>
+            rsvp.alumniId === alumInfo?.alumniId &&
+            rsvp.postId === event.eventId
+        );
+
+        const isPendingEvent = event.status === "Pending";
+
+        return (
           <div
             key={index}
             className="relative w-full sm:w-1/2 md:w-1/5 lg:w-1/5 xl:w-1/6 p-4 mb-4 rounded-lg shadow-sm border"
@@ -199,14 +213,74 @@ export default function Events() {
                 <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
               </div>
             )}
-            <button
-              onClick={() => handleViewEventAlumni(event)}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md"
-            >
-              View More
-            </button>
+            <div className="flex gap-2 mt-4 flex-wrap">
+              {isLoadingRsvp ? (
+                <div className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">
+                  Loading...
+                </div>
+              ) : matchingRSVP?.status === "Pending" ? (
+                <>
+                  <button
+                    onClick={() => {
+                      if (alumInfo?.alumniId) {
+                        handleAlumAccept(event.eventId, alumInfo.alumniId);
+                      } else {
+                        console.log("Alumni ID is not available.");
+                      }
+                    }}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    Going
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (alumInfo?.alumniId) {
+                        handleAlumReject(event.eventId, alumInfo.alumniId);
+                      } else {
+                        console.log("Alumni ID is not available.");
+                      }
+                    }}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md"
+                  >
+                    Not Going
+                  </button>
+                  <button
+                    onClick={() => handleViewEventAlumni(event)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </>
+              ) : matchingRSVP?.status === "Accepted" ? (
+                <button
+                  onClick={() => handleViewEventAlumni(event)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                >
+                  View More
+                </button>
+              ) : null}
+
+              {/* Buttons for event status */}
+              {isPendingEvent && (
+                <>
+                  <button
+                    onClick={() => handleDelete(event.eventId)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleViewEventAlumni(event)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        ))}
+        );
+      })}
       </div>
     );
   };

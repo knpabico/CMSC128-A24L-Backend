@@ -56,6 +56,7 @@ export default function Events() {
         setEventTitle(eventToEdit.title);
         setEventDescription(eventToEdit.description);
         setEventDate(eventToEdit.date);
+        setEventLocation(eventToEdit.location);
         setShowForm(true);
   
         // Properly check targetGuests for alumni and batches
@@ -355,7 +356,7 @@ export default function Events() {
                     : null;
 
                 if (isEditing && editingEventId) {
-                    handleEdit(editingEventId, { title, description, date, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
+                    handleEdit(editingEventId, { title, description, location, date, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
                   } else {
                     handleSave(e, targetGuests, visibility); // Pass the value entered in the current form
                   }
@@ -730,10 +731,12 @@ export default function Events() {
               {activeTab === "Pending" && (
                 <div className="flex gap-3 mt-2">
                   <button 
-                    onClick={() =>
+                    onClick={() => {
                       handleFinalize(
                         events.eventId,
                       )
+                      setShowForm(false)
+                    }
                     }
                     className="px-4 py-2 bg-green-500 text-white rounded-md"
                   >
