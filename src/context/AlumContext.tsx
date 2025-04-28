@@ -28,7 +28,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   const [myCareer, setCareer] = useState<Career[]>([]);
   const [myEducation, setEducation] = useState<Education[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -41,6 +41,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       unsubscribeActive = subscribeToActiveUsers();
       unsubscribeCareer = subscribeToMyCareer();
       unsubscribeEducation = subscribeToMyEducation();
+    } else if (isAdmin) {
+      unsubscribe = subscribeToUsers();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);
@@ -64,7 +66,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         unsubscribeEducation();
       }
     };
-  }, [user]);
+  }, [user, isAdmin]);
 
   //for fetching career of current user
   const subscribeToMyCareer = () => {
@@ -146,6 +148,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         alumRef,
         {
           regStatus: regStatus,
+          activeStatus: true,
         },
         { merge: true }
       );

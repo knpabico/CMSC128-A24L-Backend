@@ -3,19 +3,23 @@
 import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { Check, EyeIcon, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface UserActionButtonsProps {
   alumniId: string;
   alumniEmail: string;
   alumniName: string;
+  regStatus: string;
 }
 
 export function UserActionButtons({
   alumniId,
   alumniEmail,
   alumniName,
+  regStatus,
 }: UserActionButtonsProps) {
   const { updateAlumnus } = useAlums();
+  const router = useRouter();
   const handleApprove = async () => {
     try {
       const data = await updateAlumnus(
@@ -46,17 +50,22 @@ export function UserActionButtons({
 
   const handleView = () => {
     // Add your view logic here
+    router.push(`/admin-dashboard/manage-users/${alumniId}`); // Example: navigate to the alumni details page
     console.log("Viewing alumni with ID:", alumniId);
   };
 
   return (
     <div className="flex gap-3">
-      <Button onClick={handleApprove} variant="outline" size="sm">
-        <Check />
-      </Button>
-      <Button onClick={handleReject} variant="outline" size="sm">
-        <X />
-      </Button>
+      {regStatus !== "approved" && (
+        <Button onClick={handleApprove} variant="outline" size="sm">
+          <Check />
+        </Button>
+      )}
+      {regStatus === "pending" && (
+        <Button onClick={handleReject} variant="outline" size="sm">
+          <X />
+        </Button>
+      )}
       <Button onClick={handleView} variant="outline" size="sm">
         <EyeIcon />
       </Button>

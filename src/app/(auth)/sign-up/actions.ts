@@ -164,7 +164,7 @@ export const registerUser = async (
         alumniId: userCredential?.uid ?? "",
         regStatus: "pending",
         createdDate: new Date(),
-        activeStatus: "false",
+        activeStatus: false,
         age: calculateAge(new Date(alumnusData.birthDate)),
         birthDate: new Date(alumnusData.birthDate),
         address: [
