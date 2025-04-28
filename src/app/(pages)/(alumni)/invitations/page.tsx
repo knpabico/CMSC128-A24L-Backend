@@ -3,11 +3,13 @@
 
 import { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
-import { Event } from "@/models/models";
+import { Event, RSVP } from "@/models/models";
 import { Timestamp } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
+import { useRsvpDetails } from "@/context/RSVPContext"; 
 import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
+
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -58,8 +60,9 @@ function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done
 }
 
 export default function Invitations() {
-  const { events, isLoading, userId } = useEvents();
+  const { events, isLoading, userId, handleViewEventAlumni } = useEvents();
   const { user, loading, alumInfo } = useAuth();
+  const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject} = useRsvpDetails(events);
 
   
   // State for invitation events
@@ -74,8 +77,8 @@ export default function Invitations() {
 
 // Filter events to those that include the current user's email in targetGuests
 useEffect(() => {
-    if (events.length > 0 && alumInfo?.email) {
-      const userEmail = alumInfo.email;
+    if (events.length > 0 && alumInfo?.alumniId) {
+      const userId = alumInfo.alumniId;
       
       const filtered = events.filter((event: Event) => {
         return (
@@ -83,9 +86,9 @@ useEffect(() => {
           event.targetGuests && 
           (
             // Handle array of targetGuests containing emails
-            (Array.isArray(event.targetGuests) && event.targetGuests.includes(userEmail)) ||
+            (Array.isArray(event.targetGuests) && event.targetGuests.includes(userId)) ||
             // Handle single targetGuest as string
-            (typeof event.targetGuests === 'string' && event.targetGuests === userEmail)
+            (typeof event.targetGuests === 'string' && event.targetGuests === userId)
           )
         );
       });
@@ -167,54 +170,117 @@ useEffect(() => {
     if (sortedEvents.length === 0) {
       return <p className="text-gray-500">No specific invites.</p>;
     }
+    
+    return sortedEvents.map((event, index) => {
+      // Find the RSVP for this event and current alumni
 
-    return sortedEvents.map((event, index) => (
-      <div 
-        key={index} 
-        className="relative border p-4 mb-4 rounded-lg shadow-sm"
-      >
-        <h2 className="text-xl font-bold mb-2">{event.title}</h2>
-        {/* Bookmark Button */}
-        <div className="absolute top-3 right-3">
-          <BookmarkButton 
-            entryId={event.eventId}  
-            type="event" 
-            size="lg"
-          />
-        </div>
-        <div className="mb-2">
-          <strong>Event Date:</strong> {formatEventDate(event.date)}
-        </div>
-        
-        {event.time && (
+      const rsvps = Object.values(rsvpDetails) as RSVP[];
+
+      const matchingRSVP = rsvps.find(
+        (rsvp) =>
+          rsvp.alumniId === alumInfo?.alumniId &&
+          rsvp.postId === event.eventId
+      );
+      
+      return (
+        <div 
+          key={index} 
+          className="relative border p-4 mb-4 rounded-lg shadow-sm"
+        >
+          <h2 className="text-xl font-bold mb-2">{event.title}</h2>
+    
+          {/* Bookmark Button */}
+          <div className="absolute top-3 right-3">
+            <BookmarkButton 
+              entryId={event.eventId}  
+              type="event" 
+              size="lg"
+            />
+          </div>
+    
           <div className="mb-2">
-            <strong>Time:</strong> {event.time}
+            <strong>Event Date:</strong> {formatEventDate(event.date)}
           </div>
-        )}
-        
-        {event.location && (
+    
+          {event.time && (
+            <div className="mb-2">
+              <strong>Time:</strong> {event.time}
+            </div>
+          )}
+    
+          {event.location && (
+            <div className="mb-2">
+              <strong>Location:</strong> {event.location}
+            </div>
+          )}
+    
           <div className="mb-2">
-            <strong>Location:</strong> {event.location}
+            <strong>Description:</strong> {event.description}
           </div>
-        )}
-        
-        <div className="mb-2">
-          <strong>Description:</strong> {event.description}
+    
+          {event.numofAttendees !== undefined && (
+            <div className="mb-2">
+              <strong>Attendees:</strong> {event.numofAttendees}
+            </div>
+          )}
+    
+          {event.datePosted && (
+            <div className="text-sm text-gray-600">
+              <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
+            </div>
+          )}
+    
+          {/* RSVP Buttons */}
+          <div className="flex gap-2 mt-4">
+            {isLoadingRsvp ? (
+              <div className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">
+                Loading...
+              </div>
+            ) : matchingRSVP?.status === "Pending" ? (
+              <>
+                <button
+                  onClick={() => {
+                    if (alumInfo?.alumniId) {
+                      handleAlumAccept(event.eventId, alumInfo.alumniId);
+                    } else {
+                      console.log("Alumni ID is not available.");
+                    }
+                  }}
+                  className="px-4 py-2 bg-green-500 text-white rounded-md"
+                >
+                  Going
+                </button>
+                <button
+                  onClick={() => {
+                    if (alumInfo?.alumniId) {
+                      handleAlumReject(event.eventId, alumInfo.alumniId);
+                    } else {
+                      console.log("Alumni ID is not available.");
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-md"
+                >
+                  Not Going
+                </button>
+                <button
+                  onClick={() => handleViewEventAlumni(event, matchingRSVP)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                >
+                  View More
+                </button>
+              </>
+            ) : matchingRSVP?.status === "Accepted" ? (
+              <button
+                onClick={() => handleViewEventAlumni(event, matchingRSVP)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md"
+              >
+                View More
+              </button>
+            ) : null}
+          </div>
         </div>
-        
-        {event.numofAttendees !== undefined && (
-          <div className="mb-2">
-            <strong>Attendees:</strong> {event.numofAttendees}
-          </div>
-        )}
-        
-        {event.datePosted && (
-          <div className="text-sm text-gray-600">
-            <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
-          </div>
-        )}
-      </div>
-    ));
+      );
+    });
   };
 
   return (
@@ -230,7 +296,7 @@ useEffect(() => {
       {isLoading ? (
         <h1>Loading</h1>
       ) : (
-        <>
+        <>  
           {renderFilterAndSortDropdowns()}
           <div className="mb-6">
             {renderEventList(invitationEvents)}

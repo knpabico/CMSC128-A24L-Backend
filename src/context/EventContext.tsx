@@ -9,12 +9,15 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  getDoc,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { Event } from "@/models/models";
+import { Event, RSVP, Alumnus } from "@/models/models";
+import { useRsvpDetails } from "@/context/RSVPContext"; 
+import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
+import { useRouter } from 'next/navigation';
 
 const EventContext = createContext<any>(null);
 
@@ -22,6 +25,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
+  
 
   // event form fields
   const [title, setEventTitle] = useState("");
@@ -34,8 +38,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [targetGuests, setTargetGuests] = useState<string[]>([]);
   const [stillAccepting, setStillAccepting] = useState(false);
   const [needSponsorship, setNeedSponsorship] = useState(false);
+  const router = useRouter();
 
-  const { user, isAdmin } = useAuth();
+  const { rsvpDetails, alumniDetails} = useRsvpDetails(events);
+  const { user, alumInfo, isAdmin } = useAuth();
+  const { addNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -76,41 +83,39 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     return unsubscribeEvents;
   };
 
-  const checkUserRole = async (userId: string) => {
-    const adminRef = doc(db, "admin", userId);
-    const alumniRef = doc(db, "alumni", userId);
-
-    const [adminSnap, alumniSnap] = await Promise.all([
-      getDoc(adminRef),
-      getDoc(alumniRef),
-    ]);
-
-    if (adminSnap.exists()) {
-      return { role: "Admin", name: null };
-    } else {
-      const alumnusData = alumniSnap.data();
-      return { role: "Alumni", name: alumnusData?.name || "Unknown" };
-    }
+  const fetchAllAlumni = async () => {
+    const alumniSnapshot = await getDocs(collection(db, "alumni"));
+    return alumniSnapshot.docs.map(doc => doc.data() as Alumnus);
   };
-
+  
   const addEvent = async (newEvent: Event) => {
-    const { role, name } = await checkUserRole(user.uid);
     try {
       const docRef = doc(collection(db, "event"));
       newEvent.eventId = docRef.id;
-      newEvent.status = role === "Alumni" ? "Pending" : "Accepted";
-      newEvent.creatorId = user.uid;
-      newEvent.creatorName = role === "Alumni" ? name : "Admin";
-      newEvent.creatorType = role;
-
-      await setDoc(doc(db, "event", docRef.id), newEvent);
+  
+      if (isAdmin) {
+        newEvent.creatorName = "Admin";
+        newEvent.creatorType = "admin";
+        newEvent.creatorId = "admin";
+      } else {
+        const lastName = alumInfo?.lastName || "";
+        const firstName = alumInfo?.firstName || "";
+        const middleName = alumInfo?.middleName || "";
+        const fullName = `${lastName}, ${firstName} ${middleName}`.trim();
+  
+        newEvent.creatorName = fullName || "Unknown";
+        newEvent.creatorType = "alumni";
+        newEvent.creatorId = user.uid;
+      }
+  
+      await setDoc(docRef, newEvent);  // reuse docRef directly
       return { success: true, message: "Event added successfully" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent, selectedGuests: string[], inviteType: string) => {
     e.preventDefault();
 
     const newEvent: Event = {
@@ -121,8 +126,9 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       time,
       location,
       image,
+      inviteType,
       numofAttendees,
-      targetGuests,
+      targetGuests: selectedGuests,
       stillAccepting,
       needSponsorship,
       rsvps: [],
@@ -162,7 +168,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleEdit = async (eventId: string, updatedData: Partial<Event>) => {
+  const handleEdit = async (eventId: string, updatedData: Partial<Event>, ) => {
     try {
       await updateDoc(doc(db, "event", eventId), updatedData);
       setEvents((prev) =>
@@ -187,13 +193,86 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleFinalize = async (eventId: string) => {
+    const alums = await fetchAllAlumni();
+    console.log("Alumni data:", alums); // Debugging line
     try {
       const eventRef = doc(db, "event", eventId);
-      await updateDoc(eventRef, { status: "Accepted" });
+      const updatedRSVPIds: string[] = [];
+      const updatedTargetGuests: string[] = [];
+  
+      // Helper function to create a new RSVP
+      const createRSVP = async (alumniId: string) => {
+        const docRef = doc(collection(db, "RSVP"));
+        const newRSVP: RSVP = {
+          rsvpId: docRef.id,
+          status: "Pending",
+          alumniId,
+          postId: eventId,
+        };
+        await setDoc(docRef, newRSVP);
+        updatedRSVPIds.push(docRef.id);
+        updatedTargetGuests.push(alumniId);
+      };
+      
+      // Find the specific event once
+      const event = events.find((e) => e.eventId === eventId);
+
+      if (!event) {
+        throw new Error("Event not found.");
+      }
+
+      if (event.inviteType === "batch") {
+        for (const alumni of alums) {
+          const batchYear = alumni.studentNumber?.slice(0, 4).trim();
+          if (batchYear && event.targetGuests.includes(batchYear)) {
+            await createRSVP(alumni.alumniId);
+          }
+        }
+      } else if (event.inviteType === "alumni") {
+
+        const targetEmails = event.targetGuests.map(email => email.trim().toLowerCase());
+
+        for (const alumni of alums) {
+          const alumniEmail = alumni.email?.trim().toLowerCase();
+          if (alumniEmail && targetEmails.includes(alumniEmail)) {
+            await createRSVP(alumni.alumniId);
+          }
+        }
+      } else if (event.inviteType === "all") {
+        for (const alumni of alums) {
+          await createRSVP(alumni.alumniId);
+        }
+      }
+
+      if (event.inviteType !== "all") {
+        // Update both rsvps and targetGuests if inviteType is not "all"
+        await updateDoc(eventRef, {
+          rsvps: updatedRSVPIds,
+          targetGuests: updatedTargetGuests,
+          status: "Accepted" 
+        });
+      } else {
+        // Only update rsvps if inviteType is "all"
+        await updateDoc(eventRef, {
+          rsvps: updatedRSVPIds,
+          status: "Accepted" 
+        });
+      }
+
+      await addNewsLetter(eventId, "event");
+      
       return { success: true, message: "Event successfully finalized" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
+  };
+
+  const handleViewEventAdmin = (event: Event) => {
+    router.push(`/admin-dashboard/organize-events/${event.eventId}`);
+  };
+
+  const handleViewEventAlumni = (event: Event) => {
+    router.push(`/events/${event.eventId}`);
   };
 
   return (
@@ -209,6 +288,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         handleEdit,
         handleReject,
         handleFinalize,
+        handleViewEventAdmin,
+        handleViewEventAlumni,
         title,
         setEventTitle,
         description,
