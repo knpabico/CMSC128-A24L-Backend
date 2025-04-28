@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/fe-feed
 import { z } from "zod";
 
 // this schema defines the name of the form's fields, their types,
@@ -13,6 +16,7 @@ const baseSchema = z.object({
   suffix: z.string().min(1, "Input your suffix").optional().or(z.literal("")),
   lastName: z.string().min(1, "Input your last name"),
   email: z.string().email(),
+<<<<<<< HEAD
   currentLocation: z
     .tuple([
       z.string(),
@@ -38,6 +42,33 @@ const baseSchema = z.object({
       return !link || linkedinRegex.test(link!);
     }, "Please enter a valid GitHub link"),
   affiliation: z.array(z.string()).optional(),
+=======
+  address: z
+    .tuple([
+      z.string().min(1, "Input your country"), //country
+      z.string().optional().or(z.literal("")), // city/municipality (optional)
+      z.string().optional().or(z.literal("")), //province/state (optional)
+    ])
+    .refine((input) => input[0] !== "", "Please input your address"),
+  affiliation: z.tuple([z.string(), z.string(), z.string()]).optional(),
+
+  bachelors: z
+    .tuple([
+      z.string().min(1, "Input  your degree program"),
+      z.string().refine((input) => {
+        const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+        return regex.test(input);
+      }, "Please input a valid year"),
+      z.string().min(1, "Input your university"),
+    ])
+    .refine((input) => input[0] !== "", "Please input your bachelor's degree"),
+  masters: z.tuple([z.string(), z.string(), z.string()]).optional(),
+  doctoral: z.tuple([z.string(), z.string(), z.string()]).optional(),
+  career: z
+    .tuple([z.string(), z.string(), z.string(), z.string(), z.string()])
+    .optional(),
+
+>>>>>>> origin/fe-feed
   acceptTerms: z
     .boolean()
     .refine(
@@ -64,9 +95,15 @@ const passwordSchema = z
   });
 
 const ageAndBirthDateSchema = z.object({
+<<<<<<< HEAD
   age: z.string().refine((age) => !isNaN(parseInt(age)), {
     message: "Please input a valid age",
   }),
+=======
+  // age: z.string().refine((age) => !isNaN(parseInt(age)), {
+  //   message: "Please input a valid age",
+  // }),
+>>>>>>> origin/fe-feed
   birthDate: z
     .string()
     .refine((date) => new Date(date).toString() !== "Invalid Date", {
@@ -74,6 +111,7 @@ const ageAndBirthDateSchema = z.object({
     }),
 });
 
+<<<<<<< HEAD
 const studentNumberAndGraduationYearSchema = z
   .object({
     studentNumber: z
@@ -173,6 +211,20 @@ const employmentSchema = z
       });
     }
   });
+=======
+const studentNumberAndGraduationYearSchema = z.object({
+  studentNumber: z
+    .string()
+    .refine((input) => {
+      const regex = /^\d{4}-\d{5}$/;
+      return regex.test(input);
+    }, "Format: YYYY-XXXXX")
+    .refine((input) => {
+      const regex = /^(19[8-9]\d|20\d\d|2100)-\d{5}$/;
+      return regex.test(input);
+    }, "Please make sure that your student number is valid"),
+});
+>>>>>>> origin/fe-feed
 
 // combine the schemas shown above into a single schema
 // we split the schema into multiple schemas to make the validations for a single field
@@ -180,6 +232,7 @@ const employmentSchema = z
 export const signUpFormSchema = baseSchema
   .and(passwordSchema)
   .and(ageAndBirthDateSchema)
+<<<<<<< HEAD
   .and(studentNumberAndGraduationYearSchema)
   .and(employmentSchema);
 =======
@@ -279,3 +332,6 @@ export const signUpFormSchema = baseSchema
   .and(ageAndBirthDateSchema)
   .and(studentNumberAndGraduationYearSchema);
 >>>>>>> origin/vinly-be-newsletter
+=======
+  .and(studentNumberAndGraduationYearSchema);
+>>>>>>> origin/fe-feed

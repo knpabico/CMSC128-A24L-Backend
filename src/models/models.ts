@@ -69,6 +69,7 @@ export interface Scholarship {
   description: string;
   alumList: string[];
   datePosted: Date;
+  image: string;
 }
 
 export interface Event {
@@ -79,6 +80,7 @@ export interface Event {
   date: string;
   rsvps: string[];
   status: string;
+  inviteType: string;
   creatorId: string;
   creatorName: string;
   creatorType: string;

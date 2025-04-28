@@ -1,16 +1,27 @@
+<<<<<<< HEAD
 <<<<<<< HEAD:src/app/(pages)/(alumni)/sponsorship/details/page.tsx
+=======
+>>>>>>> origin/fe-feed
 "use client";
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+<<<<<<< HEAD
 import { useSponsorships } from '@/context/SponsorshipContext';
 import { useDonationContext } from '@/context/DonationContext';
 import { useAuth } from '@/context/AuthContext';
 import { Sponsorship, Donation } from '@/models/models';
+=======
+import { useDonationDrives } from '@/context/DonationDriveContext';
+import { useDonationContext } from '@/context/DonationContext';
+import { useAuth } from '@/context/AuthContext';
+import { DonationDrive, Donation } from '@/models/models';
+>>>>>>> origin/fe-feed
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X } from 'lucide-react';
+<<<<<<< HEAD
 
 const SponsorshipDetailsPage: React.FC = () => {
   const router = useRouter();
@@ -19,6 +30,17 @@ const SponsorshipDetailsPage: React.FC = () => {
   const { getSponsorshipById } = useSponsorships();
   const { getDonationsBySponsorship } = useDonationContext();
   const [sponsorship, setSponsorship] = useState<Sponsorship | null>(null);
+=======
+import { DonateDialog } from '../DonateDialog';
+
+const DonationDriveDetailsPage: React.FC = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const donationDriveId = searchParams.get('id');
+  const { getDonationDriveById } = useDonationDrives();
+  const { getDonationsByDonationDrive } = useDonationContext();
+  const [donationDrive, setDonationDrive] = useState<DonationDrive | null>(null);
+>>>>>>> origin/fe-feed
   const [donations, setDonations] = useState<(Donation & { displayName?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [donationsLoading, setDonationsLoading] = useState(true);
@@ -66,17 +88,27 @@ const SponsorshipDetailsPage: React.FC = () => {
   };
 
   useEffect(() => {
+<<<<<<< HEAD
     if (!sponsorshipId) {
       setError('No sponsorship ID provided');
+=======
+    if (!donationDriveId) {
+      setError('No donation drive ID provided');
+>>>>>>> origin/fe-feed
       setLoading(false);
       return;
     }
 
+<<<<<<< HEAD
     const fetchSponsorship = async () => {
+=======
+    const fetchDonationDrive = async () => {
+>>>>>>> origin/fe-feed
       try {
         setLoading(true);
         setError(null);
         
+<<<<<<< HEAD
         const data = await getSponsorshipById(sponsorshipId);
         if (!data) {
           throw new Error('Sponsorship not found');
@@ -85,11 +117,22 @@ const SponsorshipDetailsPage: React.FC = () => {
       } catch (err) {
         console.error('Error fetching sponsorship:', err);
         setError(err instanceof Error ? err.message : 'Failed to load sponsorship details');
+=======
+        const data = await getDonationDriveById(donationDriveId);
+        if (!data) {
+          throw new Error('Donation drive not found');
+        }
+        setDonationDrive(data);
+      } catch (err) {
+        console.error('Error fetching donation drive:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load donation drive details');
+>>>>>>> origin/fe-feed
       } finally {
         setLoading(false);
       }
     };
 
+<<<<<<< HEAD
     fetchSponsorship();
   }, [sponsorshipId, getSponsorshipById]);
 
@@ -102,6 +145,22 @@ const SponsorshipDetailsPage: React.FC = () => {
         const donationsData = await getDonationsBySponsorship(sponsorshipId);
         
         // Fetch alumni details for non-anonymous donations
+=======
+    fetchDonationDrive();
+  }, [donationDriveId, getDonationDriveById]);
+
+  useEffect(() => {
+    const fetchDonations = async () => {
+      if (!donationDriveId) return;
+      
+      try {
+        setDonationsLoading(true); // Set loading to true at the start
+        
+        // Use the updated function with donationDriveId parameter
+        const donationsData = await getDonationsByDonationDrive(donationDriveId);
+        
+        // Fetch donor details for non-anonymous donations
+>>>>>>> origin/fe-feed
         const enhancedDonations = await Promise.all(
           donationsData.map(async (donation) => {
             // Skip fetching details for anonymous donations
@@ -110,6 +169,7 @@ const SponsorshipDetailsPage: React.FC = () => {
             }
             
             try {
+<<<<<<< HEAD
               // Fetch alumni details from Firestore
               const alumniRef = doc(db, "alumni", donation.alumniId);
               const alumniSnap = await getDoc(alumniRef);
@@ -119,28 +179,56 @@ const SponsorshipDetailsPage: React.FC = () => {
                 return { 
                   ...donation, 
                   displayName: `${alumniData.firstName || ''} ${alumniData.lastName || ''}`.trim() || 'Unknown'
+=======
+              // Directly fetch donor details from Firestore using the alumniId from the donation
+              const donorRef = doc(db, "alumni", donation.alumniId);
+              const donorSnap = await getDoc(donorRef);
+              
+              if (donorSnap.exists()) {
+                const donorData = donorSnap.data();
+                return { 
+                  ...donation, 
+                  displayName: `${donorData.firstName || ''} ${donorData.lastName || ''}`.trim() || 'Unknown'
+>>>>>>> origin/fe-feed
                 };
               } else {
                 return { ...donation, displayName: 'Unknown' };
               }
             } catch (error) {
+<<<<<<< HEAD
               console.error(`Error fetching alumni info for ${donation.alumniId}:`, error);
+=======
+              console.error(`Error fetching donor info for ${donation.alumniId}:`, error);
+>>>>>>> origin/fe-feed
               return { ...donation, displayName: 'Unknown' };
             }
           })
         );
         
         setDonations(enhancedDonations);
+<<<<<<< HEAD
+=======
+        setDonationsLoading(false);
+>>>>>>> origin/fe-feed
       } catch (err) {
         console.error('Error fetching donations:', err);
         // We don't set the main error state here to avoid blocking the whole view
       } finally {
+<<<<<<< HEAD
         setDonationsLoading(false);
       }
     };
 
     fetchDonations();
   }, [sponsorshipId, getDonationsBySponsorship]);
+=======
+        setDonationsLoading(false); // Make sure loading is set to false whether successful or not
+      }
+    };
+  
+    fetchDonations();
+  }, [donationDriveId, getDonationsByDonationDrive]);
+>>>>>>> origin/fe-feed
 
   if (loading) {
     return (
@@ -157,16 +245,24 @@ const SponsorshipDetailsPage: React.FC = () => {
           <h2 className="font-bold text-lg">Error</h2>
           <p>{error}</p>
           <Link 
+<<<<<<< HEAD
             href="/sponsorship" 
             className="mt-2 inline-block text-blue-600 hover:underline"
           >
             Back to Sponsorships
+=======
+            href="/donationdrive-list" 
+            className="mt-2 inline-block text-blue-600 hover:underline"
+          >
+            Back to Donation Drives
+>>>>>>> origin/fe-feed
           </Link>
         </div>
       </div>
     );
   }
 
+<<<<<<< HEAD
   if (!sponsorship) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -177,6 +273,18 @@ const SponsorshipDetailsPage: React.FC = () => {
             className="mt-2 inline-block text-blue-600 hover:underline"
           >
             Back to Sponsorships
+=======
+  if (!donationDrive) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium text-gray-600">Donation drive not found</h3>
+          <Link 
+            href="/donationdrive-list" 
+            className="mt-2 inline-block text-blue-600 hover:underline"
+          >
+            Back to Donation Drives
+>>>>>>> origin/fe-feed
           </Link>
         </div>
       </div>
@@ -184,6 +292,10 @@ const SponsorshipDetailsPage: React.FC = () => {
   }
 
   return (
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD:src/app/(pages)/(alumni)/sponsorship/details/page.tsx
+>>>>>>> origin/fe-feed
     <div className="bg-[#EAEAEA] mx-auto px-10 py-8">
 		<Link href="/sponsorship" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
 			<MoveLeft className='size-[17px]'/>
@@ -193,7 +305,11 @@ const SponsorshipDetailsPage: React.FC = () => {
 		<div className="flex flex-col gap-[20px] md:px-[70px] lg:px-[100px] xl:px-[100px]">
 			{/* Title */}
 			<div className="flex justify-between items-start">
+<<<<<<< HEAD
 				<h1 className="text-5xl font-bold text-gray-800">{sponsorship.campaignName}</h1>
+=======
+				<h1 className="text-5xl font-bold text-gray-800">{donationDrive.campaignName}</h1>
+>>>>>>> origin/fe-feed
 				{/* <span className={`px-3 py-1 text-sm rounded-full ${
 					sponsorship.status === 'active' ? 'bg-green-100 text-green-800' :
 					sponsorship.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -225,22 +341,34 @@ const SponsorshipDetailsPage: React.FC = () => {
 							<p className='text-sm'>Event Location</p>
 						</div>
 					</div>
+<<<<<<< HEAD
 					<p className="mb-6">{sponsorship.description}</p>
+=======
+					<p className="mb-6">{donationDrive.description}</p>
+>>>>>>> origin/fe-feed
 					<div className="grid grid-cols-2 gap-6 mb-6">
 						{/* Creator Details */}
 						<div>
 							<h3 className="font-semibold text-gray-700 mb-2">Creator Information</h3>
 							<p className="text-gray-600">
+<<<<<<< HEAD
 								<span className="font-medium">Name:</span> {sponsorship.creatorName || 'N/A'}
 							</p>
 							<p className="text-gray-600">
 								<span className="font-medium">Type:</span> {sponsorship.creatorType || 'N/A'}
+=======
+								<span className="font-medium">Name:</span> {donationDrive.creatorName || 'N/A'}
+							</p>
+							<p className="text-gray-600">
+								<span className="font-medium">Type:</span> {donationDrive.creatorType || 'N/A'}
+>>>>>>> origin/fe-feed
 							</p>
 						</div>
 						{/* Campaign Details */}
 						<div>
 							<h3 className="font-semibold text-gray-700 mb-2">Campaign Dates</h3>
 							<p className="text-gray-600">
+<<<<<<< HEAD
 								<span className="font-medium">Start:</span> {formatDate(sponsorship.startDate)}
 							</p>
 							<p className="text-gray-600">
@@ -248,6 +376,15 @@ const SponsorshipDetailsPage: React.FC = () => {
 							</p>
 							<p className="text-gray-600">
 								<span className="font-medium">Status:</span> {sponsorship.isAcceptingtrue ? 'Accepting sponsors' : 'Not accepting'}
+=======
+								<span className="font-medium">Start:</span> {formatDate(donationDrive.startDate)}
+							</p>
+							<p className="text-gray-600">
+								<span className="font-medium">End:</span> {formatDate(donationDrive.endDate)}
+							</p>
+							<p className="text-gray-600">
+								<span className="font-medium">Status:</span> {donationDrive.isAcceptingtrue ? 'Accepting sponsors' : 'Not accepting'}
+>>>>>>> origin/fe-feed
 							</p>
 						</div>
 					</div>
@@ -271,18 +408,31 @@ const SponsorshipDetailsPage: React.FC = () => {
 									</div>
 									<div className='flex gap-2'>
 										<Clock className='size-[17px] text-[#616161]'/>
+<<<<<<< HEAD
 										<span className="text-sm text-gray-500">{getRemainingDays(sponsorship.startDate, sponsorship.endDate)}</span>
+=======
+										<span className="text-sm text-gray-500">{getRemainingDays(donationDrive.startDate, donationDrive.endDate)}</span>
+>>>>>>> origin/fe-feed
 									</div>
 								</div>
 								<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
 									<div 
 										className="h-full bg-blue-500 rounded-full" 
+<<<<<<< HEAD
 										style={{ width: `${calculateProgress(sponsorship.currentAmount, sponsorship.targetAmount)}%` }}
 									></div>
 								</div>
 								<div className="flex justify-between my-1 text-sm">
 									<span className="font-medium">${sponsorship.currentAmount.toLocaleString()}</span>
 									<span className="text-gray-500">of ${sponsorship.targetAmount.toLocaleString()}</span>
+=======
+										style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}
+									></div>
+								</div>
+								<div className="flex justify-between my-1 text-sm">
+									<span className="font-medium">${donationDrive.currentAmount.toLocaleString()}</span>
+									<span className="text-gray-500">of ${donationDrive.targetAmount.toLocaleString()}</span>
+>>>>>>> origin/fe-feed
 								</div>
 							</div>
 							{/* Recent Donation */}
@@ -369,7 +519,11 @@ const SponsorshipDetailsPage: React.FC = () => {
 										</table>
 									</div>
 								) : (
+<<<<<<< HEAD
 									<p className="text-gray-500 py-4 text-center">No donations have been made for this sponsorship yet.</p>
+=======
+									<p className="text-gray-500 py-4 text-center">No donations have been made for this donationDrive yet.</p>
+>>>>>>> origin/fe-feed
 								)}
 							</div>
 						</div>
@@ -377,10 +531,163 @@ const SponsorshipDetailsPage: React.FC = () => {
 				</div>
 			</div>
 		</div>    
+<<<<<<< HEAD
+=======
+=======
+    <div className="container mx-auto px-4 py-8">
+      <Link 
+        href="/donationdrive-list" 
+        className="mb-4 inline-flex items-center text-blue-600 hover:underline"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="h-5 w-5 mr-1" 
+          viewBox="0 0 20 20" 
+          fill="currentColor"
+        >
+          <path 
+            fillRule="evenodd" 
+            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" 
+            clipRule="evenodd" 
+          />
+        </svg>
+        Back to Donation Drives
+      </Link>
+      
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">{donationDrive.campaignName}</h1>
+            <span className={`px-3 py-1 text-sm rounded-full ${
+              donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
+              donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+              donationDrive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+              'bg-gray-100 text-gray-800'
+            }`}>
+              {donationDrive.status.charAt(0).toUpperCase() + donationDrive.status.slice(1)}
+            </span>
+          </div>
+
+          <p className="text-gray-600 mb-6">{donationDrive.description}</p>
+
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-700 mb-2">Funding Progress</h3>
+            <div className="flex justify-end text-sm font-medium text-gray-700 mb-1">
+              {calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%
+            </div>
+            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-blue-500 rounded-full" 
+                style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.totalAmount)}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-2 text-sm">
+              <span className="font-medium">
+                ₱{donationDrive.currentAmount?.toLocaleString() ?? '0'}
+              </span>
+              <span className="text-gray-500">
+                of ₱{donationDrive.totalAmount?.toLocaleString() ?? '0'}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-2">Beneficiary Information</h3>
+              <p className="text-gray-600">
+                <span className="font-medium">Beneficiaries:</span> {donationDrive.beneficiary?.join(', ') || 'N/A'}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-medium">Event Related:</span> {donationDrive.isEvent ? 'Yes' : 'No'}
+              </p>
+              {donationDrive.isEvent && (
+                <p className="text-gray-600">
+                  <span className="font-medium">Event ID:</span> {donationDrive.eventId || 'N/A'}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-2">Campaign Dates</h3>
+              <p className="text-gray-600">
+                <span className="font-medium">Start:</span> {formatDate(donationDrive.startDate)}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-medium">End:</span> {formatDate(donationDrive.endDate)}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-medium">Date Posted:</span> {formatDate(donationDrive.datePosted)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h3 className="font-semibold text-xl text-gray-700 mb-4">Donation Details</h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              {donationsLoading ? (
+                <div className="flex justify-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                </div>
+              ) : donations.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Donor
+                        </th>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Amount
+                        </th>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Date
+                        </th>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Payment Method
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {donations.map((donation) => (
+                        <tr key={donation.donationId} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                            {donation.isAnonymous ? 'Anonymous' : donation.displayName || 'Unknown'}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ₱{donation.amount?.toLocaleString() || '0'}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {formatDate(donation.date)}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {donation.paymentMethod || 'N/A'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="mt-2 mx-auto w-fit">
+                    <DonateDialog drive={donationDrive} />
+                  </div>
+
+                </div>
+              ) : (
+                <div className="py-4 text-center space-y-4">
+                  <p className="text-gray-500">No donations have been made for this donation drive yet.</p>
+                  <DonateDialog drive={donationDrive} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+>>>>>>> origin/merged-branch-db-be-v1:src/app/(pages)/(alumni)/donationdrive-list/details/page.tsx
+>>>>>>> origin/fe-feed
     </div>
   );
 };
 
+<<<<<<< HEAD
 export default SponsorshipDetailsPage;
 =======
 "use client";
@@ -921,3 +1228,6 @@ const DonationDriveDetailsPage: React.FC = () => {
 
 export default DonationDriveDetailsPage;
 >>>>>>> origin/vinly-be-newsletter:src/app/(pages)/(alumni)/donationdrive-list/details/page.tsx
+=======
+export default DonationDriveDetailsPage;
+>>>>>>> origin/fe-feed
