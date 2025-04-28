@@ -10,7 +10,7 @@ import {
 
 const types = {
   bachelors: "Bachelor's",
-  masters: "Masters",
+  masters: "Master's",
   doctoral: "Doctoral",
 };
 

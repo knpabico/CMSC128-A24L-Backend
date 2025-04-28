@@ -29,13 +29,16 @@ import Link from "next/link";
 import { toastError } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import Image from "next/image";
 import googleImage from "./google.png";
+import { useAuth } from "@/context/AuthContext";
+import { updateDoc, doc } from "firebase/firestore";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { alumInfo } = useAuth();
 
   // create a react hook form
   // create the form definition using the LoginFormSchema
@@ -55,7 +58,16 @@ export default function LoginForm() {
       // refresh the page, middleware runs
       // if user is logged in, then middleware will redirect the user to another page
       // router.refresh();
-      router.push('/');
+
+      if (alumInfo?.activeStatus === true) {
+        //set lastLogIn
+        const userRef = doc(db, "alumni", alumInfo.alumniId);
+
+        //add lastLogin and set to current date
+        await updateDoc(userRef, { lastLogin: new Date() });
+      }
+
+      router.push("/");
     } catch (err: any) {
       const errorMessage =
         err.code === "auth/invalid-credential"
@@ -128,10 +140,12 @@ export default function LoginForm() {
             </fieldset>
           </form>
         </Form>
-        
+
         <div className="flex justify-center items-center space-x-2">
           <p>No account yet?</p>
-          <button className="hover:underline text-[#0856ba]"><Link href="/sign-up">Sign up</Link></button>
+          <button className="hover:underline text-[#0856ba]">
+            <Link href="/sign-up">Sign up</Link>
+          </button>
         </div>
       </div>
     </div>

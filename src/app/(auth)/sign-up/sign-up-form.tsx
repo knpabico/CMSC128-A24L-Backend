@@ -250,14 +250,14 @@ export default function RegistrationForm() {
 
     console.log("Testing sign-up:");
     console.log(data);
-    //const response = await registerUser(data);
+    const response = await registerUser(data);
 
     //display error or success toast message
-    // if (response?.error) {
-    //   toastError(response.message);
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (response?.error) {
+      toastError(response.message);
+      setIsLoading(false);
+      return;
+    }
 
     // if successful, show a dialog that says
     // wait for admin to approve the account
