@@ -42,7 +42,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const { rsvpDetails, alumniDetails} = useRsvpDetails(events);
   const { user, alumInfo, isAdmin } = useAuth();
-  const { addNewsLetter } = useNewsLetters();
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -105,7 +105,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   
         newEvent.creatorName = fullName || "Unknown";
         newEvent.creatorType = "alumni";
-        newEvent.creatorId = user.uid;
+        newEvent.creatorId = user!.uid;
       }
   
       await setDoc(docRef, newEvent);  // reuse docRef directly
@@ -161,6 +161,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const handleDelete = async (eventId: string) => {
     try {
       await deleteDoc(doc(db, "event", eventId));
+      deleteNewsLetter(eventId);
       setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
       return { success: true, message: "Event successfully deleted" };
     } catch (error) {

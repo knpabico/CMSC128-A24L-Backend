@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { Announcement, Career, Education, JobOffering, NewsletterItem, WorkExperience } from "@/models/models";
+import { Announcement, Career, Education, JobOffering, NewsletterItem, WorkExperience, Event, Alumnus } from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
@@ -18,6 +18,7 @@ import { NewsLetterProvider, useNewsLetters } from "@/context/NewsLetterContext"
 import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementContext";
 import { useJobOffer } from "@/context/JobOfferContext";
 import CollapseText from '@/components/CollapseText';
+import { useEvents } from "@/context/EventContext";
 
 
 
@@ -30,6 +31,8 @@ export default function Home() {
   const { newsLetters } = useNewsLetters();
   const { announces } = useAnnouncement();
   const { jobOffers } = useJobOffer();
+  const { events } = useEvents();
+  const { alums } = useAlums();
   const { userWorkExperience } = useWorkExperience();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
@@ -167,7 +170,23 @@ export default function Home() {
                           className="w-10 h-10 object-cover object-top rounded-full border border-[#DADADA]"
                         />
                         <p className="text-[18px]">
-                          {alumInfo!.firstName} {alumInfo!.lastName}
+                          {newsLetter.category === "announcement"
+                            ? "Admin"
+                            : newsLetter.category === "job_offering"
+                            ? (() => {
+                                const jobOffering = jobOffers.find(
+                                  (jobOffer: JobOffering) =>
+                                    jobOffer.jobId === newsLetter.referenceId
+                                );
+                                return jobOffering
+                                  ? alums.find(
+                                      (alum: Alumnus) => alum.alumniId === jobOffering.alumniId
+                                    )?.firstName + " " + alums.find(
+                                      (alum: Alumnus) => alum.alumniId === jobOffering.alumniId
+                                    )?.lastName || "Unknown Alumni"
+                                  : "Job Offering Not Found";
+                              })()
+                            : "Admin"}
                         </p>
                         <p className="text-[24px]"> &#xb7;</p>
                         <p className="text-[12px]">{formatDate(newsLetter.timestamp)}</p>
@@ -310,15 +329,35 @@ export default function Home() {
 
                       {/* if newsletter is an event */}
                       {newsLetter.category === "event" && (() => {
+                        const event_array = events.filter(
+                          (event: Event) => event.eventId === newsLetter.referenceId
+                        ); // Using filter to get all matching events
+
                         return (
                           <>
-                            <h1 className="text-[24px] font-bold">Event</h1>
-                            <p className="text-[15px] mt-2">Details about the event will go here.</p>
+                            {/* Map over the event_array */}
+                            <div>
+                              {event_array.map((event: Event) => (
+                                <div key={event.eventId} className="event-card">
+                                  <h2 className="text-[18px] font-semibold">{event.title}</h2>
+                                  <p className="text-[14px]">{event.description}</p>
+                                  <p className="text-[12px] text-gray-500">Date: {event.date}</p>
+                                  <button
+                                    onClick={() => console.log('Event clicked')}
+                                    className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                                  >
+                                    View Event
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+
                             <button
                               onClick={() => router.push(`/events`)}
                               className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-
-                            >View More Events</button>
+                            >
+                              View More Events
+                            </button>
                           </>
                         );
                       })()}
@@ -333,7 +372,7 @@ export default function Home() {
             {/* Donation Sample */}
             <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] px-[10px] py-[10px] rounded-lg items-center ">
               {/* left button */}
-              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
+              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 -in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
                 <svg
                   fill="none"
                   stroke="currentColor"
