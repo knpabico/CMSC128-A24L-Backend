@@ -4,7 +4,7 @@ import { validateFirebaseEmail } from "@/app/(auth)/sign-up/actions";
 // this schema defines the name of the form's fields, their types,
 // and the conditions for those fields
 const baseSchema = z.object({
-  image: z.string(),
+  image: z.string().optional(),
   firstName: z.string().min(1, "Input your first name"),
   middleName: z
     .string()
