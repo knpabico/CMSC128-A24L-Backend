@@ -13,7 +13,7 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
-import { Briefcase, Bookmark, FilePlus } from 'lucide-react';
+import { Briefcase, Bookmark, FilePlus, MapPin } from 'lucide-react';
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -378,7 +378,6 @@ export default function JobOffers() {
                               <div className="flex">
                                 <div className="mr-2">
                                   <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
-                                    {/* Company logo or placeholder */}
                                     {job.company.charAt(0).toUpperCase()}
                                   </div>
                                 </div>
@@ -389,8 +388,9 @@ export default function JobOffers() {
                                   <p className="text-sm text-gray-600">
                                     {job.company}
                                   </p>
-                                  <p className="text-xs text-gray-400 flex items-center">
-                                    {/* Placeholder location */}
+                                  <p className="text-xs text-[#0856BA] flex items-center">
+                                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                                    {job.location}
                                   </p>
                                 </div>
                                 <div className="ml-2">
