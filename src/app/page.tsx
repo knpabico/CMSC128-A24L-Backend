@@ -186,7 +186,21 @@ export default function Home() {
                                     )?.lastName || "Unknown Alumni"
                                   : "Job Offering Not Found";
                               })()
-                            : "Admin"}
+                            : newsLetter.category === "event" 
+                            ? (() => {
+                                const event = events.find(
+                                  (event: Event) => event.eventId === newsLetter.referenceId
+                                );
+                                return event
+                                  ? alums.find(
+                                      (alum: Alumnus) => alum.alumniId === event.creatorId
+                                    )?.firstName + " " + alums.find(
+                                      (alum: Alumnus) => alum.alumniId === event.creatorId
+                                    )?.lastName || "Unknown Alumni"
+                                  : "Event Not Found";
+                              })()
+                            : ""
+                            }
                         </p>
                         <p className="text-[24px]"> &#xb7;</p>
                         <p className="text-[12px]">{formatDate(newsLetter.timestamp)}</p>
