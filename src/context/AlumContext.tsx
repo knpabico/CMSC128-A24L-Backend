@@ -12,13 +12,15 @@ import {
   orderBy,
   addDoc,
   updateDoc,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
-import { sendStatusEmail } from "@/lib/email";
-import sendEmailTemplate from "@/lib/emailTemplate";
+import { sendEmailTemplateForNewsletter } from "@/lib/emailTemplate";
+import { sendEmailTemplate } from "@/lib/emailTemplate";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 const AlumContext = createContext<any>(null);
 
@@ -164,6 +166,38 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const emailNewsLettertoAlums = async (
+    title: string,
+    content: string,
+    photoURL: string,
+    category: string
+  ) => {
+    try {
+      const q = query(
+        collection(db, "alumni"),
+        where("activeStatus", "==", true),
+        where("subscribeToNewsletter", "==", true)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.docs.map(
+        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
+          await sendEmailTemplateForNewsletter(
+            photoURL,
+            title,
+            content,
+            doc.data().email,
+            category
+          )
+      );
+      // const data =
+      // if (data.success) {
+      //   toastSuccess(data.message);
+      // } else toastError(data.message);
+    } catch (error) {
+      console.error("Error sending newsletter:", error);
+    }
+  };
+
   const subscribeToUsers = () => {
     setLoading(true);
     const q = query(collection(db, "alumni"));
@@ -222,6 +256,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         myCareer,
         myEducation,
         updateAlumnus,
+        emailNewsLettertoAlums,
       }}
     >
       {children}
