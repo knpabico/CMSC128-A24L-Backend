@@ -160,6 +160,14 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const handleDelete = async (eventId: string) => {
     try {
+      const rsvps = Object.values(rsvpDetails) as RSVP[];
+      
+      for (const rsvp of rsvps) {
+        if (rsvp.postId === eventId) {
+          await deleteDoc(doc(db, "RSVP", rsvp.rsvpId));
+        }
+      }
+
       await deleteDoc(doc(db, "event", eventId));
       setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
       return { success: true, message: "Event successfully deleted" };
