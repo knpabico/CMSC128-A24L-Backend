@@ -160,15 +160,15 @@ const Donations: React.FC = () => {
 			</div>
 		</div>
 		{/* Body */}
-		<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px]'>
+		<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static '>
 			{/* Sidebar */}
-			<div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max'>
+			<div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7'>
 				<DonationDriveSidebar />
 			</div>
 			{/* Main content */}
 			<div className='flex flex-col gap-[10px] w-full mb-10'>
 				{/* Sort Tab */}
-				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center">
+				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200 ">
 					<h2 className="text-lg font-semibold">Your Donations</h2>
 					<div className="flex items-center">
 						<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
@@ -182,7 +182,7 @@ const Donations: React.FC = () => {
 				{displayError && <p className="text-red-500">{displayError}</p>}
 				{showLoading && <p>Loading...</p>}
 
-				<div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3">
+				<div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
 					{userDonations && userDonations.length > 0 ? (
 						<div className="overflow-x-auto">
 							<table className="min-w-full divide-y divide-gray-200">

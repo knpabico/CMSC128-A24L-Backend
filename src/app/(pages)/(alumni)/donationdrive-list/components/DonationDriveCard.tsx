@@ -115,23 +115,20 @@ const handleViewDetails = (donationDriveId: string) => {
 // Donation Card 
 return (
 	<div>
-		<div className="bg-[#FFFF] rounded-[10px] h-fit hover:cursor-pointer" onClick={() => handleViewDetails(drive.donationDriveId)} >
+		<div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleViewDetails(drive.donationDriveId)} >
 			{/* Image */}
 			<div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
-				{!drive.isEvent && (
-					<span className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
-						drive.status === 'active'
-							? 'bg-green-100 text-green-800'
-							: drive.status === 'completed'
-							? 'bg-blue-100 text-blue-800'
-							: drive.status === 'pending'
-							? 'bg-yellow-100 text-yellow-800'
-							: 'bg-gray-100 text-gray-800'
-					}`}>
-						{drive.status === 'completed' ? 'Closed' : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-					</span>
-					
-				)}
+				<span className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
+					drive.status === 'active'
+						? 'bg-green-100 text-green-800 px-2 py-1 font-bold'
+						: drive.status === 'completed'
+						? 'bg-blue-100 text-blue-800 px-2 py-1 font-bold'
+						: drive.status === 'pending'
+						? 'bg-yellow-100 text-yellow-800 px-2 py-1 font-bold'
+						: 'bg-gray-100 text-gray-800'
+				}`}>
+					{drive.status === 'completed' ? 'Closed' : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+				</span>
 			</div>
 			{/* {event?.image || drive.image ? (
 				<div className="relative">
@@ -170,15 +167,18 @@ return (
 			)} */}
 
 			{/* Content */}
-			<div className="px-[30px] py-[20px]">
+			<div className="px-6 pt-3 pb-6">
 				{/* Campaign Name */}
 				<div className="flex justify-between items-center mb-3">
 					<h2 className="text-xl font-semibold truncate">{drive.isEvent && event ? event.title : drive.campaignName}</h2>
 					<BookmarkButton entryId={drive.donationDriveId} type="donation_drive" size="md"/> 
 				</div>
 				{/* Description */}
-				<div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">
-					<p className="text-start">{drive.isEvent && event ? event.description : drive.description}</p>
+				<div className="mb-5 text-sm h-10 overflow-hidden text-clip">
+					<p className="text-start">{drive.isEvent && event ? 
+						event.description.length > 100 ? event.description.slice(0, 100) + "..." : event.description
+						: drive.description.length > 100 ? drive.description.slice(0, 100) + "..." : drive.description}
+					</p>
 				</div>
 				{/* Details */}
 				{drive.isEvent && event ? (
@@ -232,11 +232,11 @@ return (
 			</div>
 		</div>
 			{/* Floating Action Button (FAB) */}
-			<button className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition" onClick={() => setShowForm(true)}>
+			{/* <button className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition" onClick={() => setShowForm(true)}>
 				+
-			</button>
+			</button> */}
 			{/* Suggest Donation Drive Modal */}
-			{showForm && (
+			{/* {showForm && (
 				<div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
 					<form
 					onSubmit={handleSave}
@@ -324,7 +324,7 @@ return (
 					</div>
 					</form>
 				</div>
-				)}
+				)} */}
 	</div>
 );
 };

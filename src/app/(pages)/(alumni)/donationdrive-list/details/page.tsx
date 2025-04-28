@@ -271,10 +271,10 @@ const getRemainingDays = (endDate: any) => {
 			Back to Donation Drives
 		</Link>
 
-		<div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[85px]">
+		<div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[85px] h-screen">
 			{/* Title */}
-			<div className="flex justify-between items-start">
-				<h1 className="text-5xl font-bold text-gray-800">{donationDrive.isEvent && event ? event.title : donationDrive.campaignName}</h1>
+			<div className="flex justify-between items-center">
+				<h1 className="text-3xl lg:text-5xl font-bold text-gray-800">{donationDrive.isEvent && event ? event.title : donationDrive.campaignName}</h1>
 				{/* <span className={`px-3 py-1 text-sm rounded-full ${
 					donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
 					donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -373,16 +373,11 @@ const getRemainingDays = (endDate: any) => {
 							<p className="text-gray-600">
 								<span className="font-medium">Event Related:</span> {donationDrive.isEvent ? 'Yes' : 'No'}
 							</p>
-							{donationDrive.isEvent && (
-								<p className="text-gray-600">
-								<span className="font-medium">Event ID:</span> {donationDrive.eventId || 'N/A'}
-								</p>
-							)}
 						</div>
 					</div>
 					<div>
 						{/* Target guests */}
-						{event?.targetGuests && event.targetGuests.length > 0 && (
+						{/* {event?.targetGuests && event.targetGuests.length > 0 && (
 							<div>
 							<p className="text-sm text-gray-600 mb-2">Target audience:</p>
 							<div className="flex flex-wrap gap-2">
@@ -396,36 +391,58 @@ const getRemainingDays = (endDate: any) => {
 								))}
 							</div>
 							</div>
-						)}
+						)} */}
 					</div>
 				</div>
 				{/* Action Bar */}
-				<div className='min-w-[390px]'>
+				<div className='self-start min-w-[390px] sticky top-1/8'>
 					{/* Side bar */}
 					<div className='flex flex-col gap-[10px] w-full'>
 						{/* Invitation Status */}
-						{ donationDrive.isEvent && event && (
-							<div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex justify-between w-full'>
-							<div className='w-1/2'>
-								<p>Event Status: </p>
-							</div>
-							<div className='w-full flex'>
-								{event?.stillAccepting ? (
-									<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
-										Still accepting guests
-										<CircleCheck />
+						<div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex flex-col gap-2 w-full shadow-md border border-gray-200'>
+							{ donationDrive.isEvent && event && (
+								<div >
+									<div className='w-full flex justify-between'>
+										<div className='w-1/2'>
+											<p>Event Status: </p>
+										</div>
+										<div className='w-full flex'>
+											{event?.stillAccepting ? (
+												<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
+													Still accepting guests
+													<CircleCheck />
+												</div>
+											) : (
+												<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
+													<X />
+													Registration closed
+												</div>
+											)}
+										</div>
 									</div>
-								) : (
-									<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
-										<X />
-										Registration closed
-									</div>
-								)}
+								</div>
+							)}
+							<div className='w-full flex justify-between'>
+								<div className='w-full'>
+									<p>Donation Status: </p>
+								</div>
+								<div className='w-full flex'>
+									{donationDrive.status == 'active' ? (
+										<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
+											Active
+											<CircleCheck />
+										</div>
+									) : (
+										<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
+											Closed
+											<X />
+										</div>
+									)}
+								</div>
 							</div>
 						</div>
-						)}
 						{/* Donation Bar */}
-						<div className='bg-[#FFFF] py-[30px] px-[20px] rounded-[10px] flex flex-col gap-3'>
+						<div className='bg-[#FFFF] py-[30px] px-[20px] rounded-[10px] flex flex-col gap-3 shadow-md border border-gray-200'>
 							{/* Progress bar */}
 							<div className="">
 								<div className="flex justify-between mb-1">
@@ -452,7 +469,7 @@ const getRemainingDays = (endDate: any) => {
 							{donationDrive.donorList.length > 0 && recentDonation && highestDonation &&(
 								<>
 									{/* Recent Donation */}
-									<div className='flex items-center justify-between'>
+									{/* <div className='flex items-center justify-between'>
 										<div className='flex items-center gap-3'>
 											<HandHeart className='size-[17px]' />
 											<div>
@@ -467,7 +484,7 @@ const getRemainingDays = (endDate: any) => {
 										<div>
 											<p className='text-xs'>Recent Donation</p>
 										</div>
-									</div>
+									</div> */}
 
 									{/* Top Donation */}
 									<div className='flex items-center justify-between'>
@@ -500,23 +517,21 @@ const getRemainingDays = (endDate: any) => {
 							</div>
 						</div>
 					</div>
-					{isThankYouOpen && (<ThankYouDialog />)}
-					{/* Donors */}
 					{showDonors && (
-						<div className="bg-[#FFFF] py-[30px] px-[30px] rounded-[10px] mt-3">
+						<div className="bg-[#FFFF] py-[30px] px-[30px] rounded-[10px] mt-3 shadow-md border border-gray-200">
 							<div className='flex justify-between items-start'>
 								<h3 className="font-semibold text-l mb-4">Donation History</h3>
 								<button onClick={() => setShowDonors(false)}>
 									<X className='size-[17px] hover:cursor-pointer hover:text-gray-600'/>
 								</button>
 							</div>
-							<div className="bg-gray-50 rounded-lg">
+							<div className="bg-gray-50 rounded-lg h-[25svh]">
 								{donationsLoading ? (
 									<div className="flex justify-center py-4">
 										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
 									</div>
 								) : donations.length > 0 ? (
-									<div className="overflow-x-auto">
+									<div className="overflow-y-auto h-full">
 										<table className="min-w-full divide-y divide-gray-200">
 											<thead className="bg-gray-100">
 												<tr>
@@ -526,9 +541,9 @@ const getRemainingDays = (endDate: any) => {
 													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 														Amount
 													</th>
-													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+													{/* <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 														Date
-													</th>
+													</th> */}
 												</tr>
 											</thead>
 											<tbody className="bg-white divide-y divide-gray-200">
@@ -540,9 +555,9 @@ const getRemainingDays = (endDate: any) => {
 														<td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
 															${donation.amount?.toLocaleString() || '0'}
 														</td>
-														<td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+														{/* <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
 															{formatDate(donation.date)}
-														</td>
+														</td> */}
 													</tr>
 												))}
 											</tbody>
@@ -555,6 +570,8 @@ const getRemainingDays = (endDate: any) => {
 						</div>
 					)}
 				</div>
+				{isThankYouOpen && (<ThankYouDialog />)}
+					{/* Donors */}
 			</div>
 		</div>    
     </div>

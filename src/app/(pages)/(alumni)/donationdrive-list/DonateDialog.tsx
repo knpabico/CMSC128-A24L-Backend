@@ -165,21 +165,21 @@ return (
 			<DialogTrigger asChild>
 				<button className={`text-sm w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 ${drive.status === 'pending' || drive.status === 'completed' || getRemainingDays(drive.endDate) < 0 ? 'bg-gray-400 text-white cursor-not-allowed border-gray-400 border-2' : 'bg-[#0856BA] text-white hover:bg-[#0855baa2] cursor-pointer'}`} disabled={drive.status === 'pending' || drive.status === 'completed' || getRemainingDays(drive.endDate) < 0}>Donate</button>
 			</DialogTrigger>
-			<DialogContent className="max-w-[430px] p-8">
-				<DialogHeader className="text-start">
+			<DialogContent className="w-fit p-8">
+				<DialogHeader className="text-center flex items-center">
 					<DialogTitle className="text-2xl">{drive.campaignName}</DialogTitle>
 					<DialogDescription className="text-xs italic" >Enter your donation amount and select your preferred payment method.</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)}>
-						<div className="">
+						<div className="flex gap-3">
 							<fieldset disabled={form.formState.isSubmitting} className="flex flex-col gap-3 mt-3">
 								<FormField control={form.control} name="amount" render={({ field }) => (
 									<FormItem className="flex flex-col gap-2">
 										<FormLabel className="w-full">Amount (₱):</FormLabel>
 										<div className="flex flex-col gap-3 px-7 mt-2">
 											<div className="flex gap-2 justify-between w-full">
-												{[50, 100, 500, 1000].map((amount) => (
+												{[500, 1000, 1500, 2000].map((amount) => (
 													<button key={amount} type="button" className="px-3 py-1.5 w-full bg-[#fffff] border-blue-400 text-blue-900 border-1 hover:bg-blue-200 rounded text-sm" onClick={() => field.onChange(amount)} >
 														₱{amount}
 													</button>
@@ -212,10 +212,10 @@ return (
 									</FormItem>
 								)} />
 								<FormItem className="flex flex-col gap-2 mt-1">
-									<FormLabel>Payment Proof (Optional): </FormLabel>
+									<FormLabel>Payment Proof: </FormLabel>
 									<div className="flex flex-col px-7 ">
 										<FormControl>
-											<Input type="file" accept="image/*" onChange={handleImageChange} className="border-blue-600 text-blue-900 text-sm" />
+											<Input type="file" required accept="image/*" onChange={handleImageChange} className="border-blue-600 text-blue-900 text-sm" />
 										</FormControl>
 										<FormDescription className="text-xs p-1 italic">Upload a screenshot of your payment receipt</FormDescription>
 									</div>
@@ -232,31 +232,17 @@ return (
 									</FormItem>
 								)} />
 							</fieldset>
+							{/* Will change depending on the chosen payment method */}
+							<div className="mt-3 w-auto h-96">
+								<p className="text-center">QR CODE </p>
+								<img src={'/proof.jpg'} alt="Payment Proof" className="w-auto h-80 rounded-2xl" />
+							</div>
 						</div>
-						<DialogFooter className="mt-6">
+						<DialogFooter className="mx-30">
 							<Button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 bg-[#0856BA]" type="submit" disabled={isLoading}>{isLoading ? "Processing..." : "Donate"}</Button>
 						</DialogFooter>
 					</form>
 				</Form>
-			</DialogContent>
-		</Dialog>
-
-		<Dialog open={isThankYouOpen} onOpenChange={setIsThankYouOpen}>
-			<DialogContent className="max-w-[400px] p-8 text-center">
-				<DialogHeader>
-					<DialogTitle className="text-2xl">Thank You!</DialogTitle>
-					<DialogDescription className="text-sm mt-2">
-						Your donation has been successfully processed. We appreciate your support!
-					</DialogDescription>
-				</DialogHeader>
-				<DialogFooter className="mt-6">
-					<Button 
-						className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 bg-[#0856BA]" 
-						onClick={() => setIsThankYouOpen(false)}
-					>
-						Close
-					</Button>
-				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	</>

@@ -38,8 +38,8 @@ useEffect(() => {
 }, [pathname]);
 
 	return (
-		<nav className='bg-[#FFFFFF]'>
-			<ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-content h-max">
+		<div className='bg-[#FFFFFF]'>
+			<ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-content h-max ">
 				{sidebarItems.map((item) => {
 					const Icon = item.icon;
 					return(
@@ -55,7 +55,7 @@ useEffect(() => {
 					)
 				})}
 			</ul>
-		</nav>
+		</div>
 	);
 	// return(
 	// 	<div>
