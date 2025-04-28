@@ -10,6 +10,7 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
+import { useBookmarks } from "@/context/BookmarkContext";
 
 function formatPostedDate(timestamp: Timestamp | any) {
   if (!timestamp) return "Unknown Date";
@@ -74,8 +75,10 @@ export default function Events() {
   } = useEvents();
 
   const { user } = useAuth();
+  const { isBookmarked } = useBookmarks();
   const [confirmForm, setConfirmForm] = useState(false);
   const [userInput, setUserInput] = useState("");
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
 
   const requiredSentence = "I certify on my honor that the proposed event details are accurate, correct, and complete.";
   const formComplete = title.trim() !== "" && description.trim() !== "" && date.trim() !== "";
@@ -84,9 +87,9 @@ export default function Events() {
     "event-closest" | "event-farthest" | "posted-newest" | "posted-oldest"
   >("event-closest");
   const [dateFilterType, setDateFilterType] = useState<
-    "All" | "Upcoming" | "Ongoing" | "Done"
-  >("All");
-  const [activeTab, setActiveTab] = useState<"all" | "invites">("all");
+    null | "Upcoming" | "Ongoing" | "Done"
+  >(null);
+  const [activeTab, setActiveTab] = useState<"all" | "invites" | "saved">("all");
 
   const sortEvents = (events: Event[]) =>
     [...events].sort((a, b) => {
@@ -118,9 +121,21 @@ export default function Events() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Filter events based on active tab
+  const filteredEvents = (() => {
+    switch(activeTab) {
+      case "saved":
+        return events.filter(event => isBookmarked(event.eventId, "event"));
+      case "invites":
+        // Keep existing logic for invites tab
+        return events;
+      default:
+        return events;
+    }
+  })();
+
   const renderFilterAndSortDropdowns = () => (
     <div className="flex items-center justify-end flex-wrap gap-4 w-full">
-      {/* Move this to the top */}
       <button
         onClick={() => setShowForm(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded-md"
@@ -128,22 +143,60 @@ export default function Events() {
         Propose an Event
       </button>
 
-      {/* Filter Dropdown */}
-      <div>
-        <label htmlFor="filter-select" className="mr-2">
-          Filter by:
-        </label>
-        <select
-          id="filter-select"
-          value={dateFilterType}
-          onChange={(e) => setDateFilterType(e.target.value as any)}
-          className="p-2 border rounded"
+      {/* Filter Button */}
+      <div className="relative">
+        <button
+          onClick={() => setShowFilterOptions(!showFilterOptions)}
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md flex items-center"
         >
-          <option value="All">All Events</option>
-          <option value="Upcoming">Upcoming</option>
-          <option value="Ongoing">Ongoing</option>
-          <option value="Done">Done</option>
-        </select>
+          Filter {dateFilterType ? `(${dateFilterType})` : ""}
+          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        
+        {showFilterOptions && (
+          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
+            <div className="py-1">
+              <button 
+                onClick={() => {
+                  setDateFilterType(null);
+                  setShowFilterOptions(false);
+                }}
+                className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${dateFilterType === null ? 'font-bold bg-gray-100' : ''}`}
+              >
+                Clear Filter
+              </button>
+              <button 
+                onClick={() => {
+                  setDateFilterType("Upcoming");
+                  setShowFilterOptions(false);
+                }}
+                className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${dateFilterType === "Upcoming" ? 'font-bold bg-gray-100' : ''}`}
+              >
+                Upcoming
+              </button>
+              <button
+                onClick={() => {
+                  setDateFilterType("Ongoing");
+                  setShowFilterOptions(false);
+                }}
+                className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${dateFilterType === "Ongoing" ? 'font-bold bg-gray-100' : ''}`}
+              >
+                Ongoing
+              </button>
+              <button
+                onClick={() => {
+                  setDateFilterType("Done");
+                  setShowFilterOptions(false);
+                }}
+                className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${dateFilterType === "Done" ? 'font-bold bg-gray-100' : ''}`}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sort Dropdown */}
@@ -167,11 +220,10 @@ export default function Events() {
   );
 
   const renderEventList = (filteredEvents: Event[]) => {
-    const dateFilteredEvents = filteredEvents.filter(
-      (event) =>
-        dateFilterType === "All" ||
-        getEventStatus(event.date) === dateFilterType
-    );
+    // Apply the filter if one is selected
+    const dateFilteredEvents = dateFilterType
+      ? filteredEvents.filter(event => getEventStatus(event.date) === dateFilterType)
+      : filteredEvents;
 
     const sortedEvents = sortEvents(dateFilteredEvents);
     if (sortedEvents.length === 0)
@@ -211,6 +263,21 @@ export default function Events() {
     );
   };
 
+  // Close filter dropdown when clicking outside
+  useState(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showFilterOptions && !target.closest('.filter-dropdown')) {
+        setShowFilterOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  });
+
   return (
     <>
       <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
@@ -230,7 +297,6 @@ export default function Events() {
         <div className="flex items-center gap-4 mb-4">
           <h1 className="text-2xl font-bold">Events</h1>
           <span className="text-gray-400">|</span> 
-          {/* para makita specific invitations sa user na galing kay admin */}
           <Link href="/invitations" className="text-blue-500 hover:text-blue-700 font-medium">
             Invitations
           </Link>
@@ -239,7 +305,7 @@ export default function Events() {
         {isLoading && <h1>Loading</h1>}
 
         {/* BUTTON ROW */}
-        <div className="flex flex-wrap justify-end mb-4 gap-4">
+        <div className="flex flex-wrap justify-end mb-4 gap-4 filter-dropdown">
           {renderFilterAndSortDropdowns()}
         </div>
 
@@ -288,8 +354,7 @@ export default function Events() {
                   new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                     .toISOString()
                     .split("T")[0]
-                } // Events must be scheduled
-                // at least one week in advance
+                }
               />
 
               <div className="flex justify-between">
@@ -391,31 +456,54 @@ export default function Events() {
           <button
             type="button"
             onClick={() => setActiveTab("invites")}
-            className={`text-black ${
+            className={`text-black mb-2 ${
               activeTab === "invites" ? "underline font-semibold" : ""
             }`}
           >
             Invitations
           </button>
+          <br />
+          <button
+            type="button"
+            onClick={() => setActiveTab("saved")}
+            className={`text-black ${
+              activeTab === "saved" ? "underline font-semibold" : ""
+            }`}
+          >
+            Saved Events
+          </button>
         </div>
 
-        {/* EVENTS SECTION */}
-        <div className="mb-6 z-10">
-          <h2 className="text-xl font-semibold mb-4">Approved</h2>
-          {renderEventList(
-            events.filter((event: Event) => event.status === "Accepted")
-          )}
-        </div>
+        {/* EVENTS SECTION - Handle different tabs */}
+        {activeTab === "saved" ? (
+          <div className="mb-6 z-10">
+            <h2 className="text-xl font-semibold mb-4">Saved Events</h2>
+            {filteredEvents.length === 0 ? (
+              <p className="text-gray-500">No saved events found.</p>
+            ) : (
+              renderEventList(filteredEvents)
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="mb-6 z-10">
+              <h2 className="text-xl font-semibold mb-4">Approved</h2>
+              {renderEventList(
+                filteredEvents.filter((event: Event) => event.status === "Accepted")
+              )}
+            </div>
 
-        <div className="z-10">
-          <h2 className="text-xl font-semibold mb-4">Pending</h2>
-          {renderEventList(
-            events.filter(
-              (event: Event) =>
-                event.status === "Pending" && event.creatorId == user.uid
-            )
-          )}
-        </div>
+            <div className="z-10">
+              <h2 className="text-xl font-semibold mb-4">Pending</h2>
+              {renderEventList(
+                filteredEvents.filter(
+                  (event: Event) =>
+                    event.status === "Pending" && event.creatorId == user.uid
+                )
+              )}
+            </div>
+          </>
+        )}
       </div>
     </>
   );
