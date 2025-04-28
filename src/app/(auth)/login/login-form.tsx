@@ -32,13 +32,12 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import Image from "next/image";
 import googleImage from "./google.png";
-import { useAuth } from "@/context/AuthContext";
-import { updateDoc, doc } from "firebase/firestore";
+import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { Alumnus } from "@/models/models";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { alumInfo } = useAuth();
 
   // create a react hook form
   // create the form definition using the LoginFormSchema
@@ -54,18 +53,31 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      await signInWithEmailAndPassword(auth, data.email, data.password).then(
+        async (userCredentials) => {
+          //get alum data from the "alumni" collection
+          const alumniRef = doc(db, "alumni", userCredentials.user.uid);
+          const alumniDoc = await getDoc(alumniRef);
+
+          //check if alum document exists in firestore
+          if (alumniDoc.exists()) {
+            const alum = alumniDoc.data() as Alumnus;
+            //if regStatus is approved, update lastLogin and activeStatus
+            if (alum.regStatus === "approved") {
+              //add lastLogin and set to current date
+              await updateDoc(alumniRef, {
+                lastLogin: new Date(),
+                activeStatus: true,
+              });
+            }
+          } else {
+            console.log("Alum does not exist!");
+          }
+        }
+      );
       // refresh the page, middleware runs
       // if user is logged in, then middleware will redirect the user to another page
       // router.refresh();
-
-      if (alumInfo?.regStatus === "approved") {
-        //set lastLogIn
-        const userRef = doc(db, "alumni", alumInfo.alumniId);
-
-        //add lastLogin and set to current date
-        await updateDoc(userRef, { lastLogin: new Date() });
-      }
 
       router.push("/");
     } catch (err: any) {
