@@ -10,19 +10,20 @@ import {
 
 export const NameAndPhoto = ({ form }: { form: any }) => {
   return (
-    <div>
+    <div className="space-y-2">
       {/* name form fields */}
-      <div className="grid grid-cols-12 gap-4">
+      <p className="text-sm font-semibold">Full Name</p>
+      <div className="grid grid-cols-12 gap-x-4 gap-y-3">
         {/* first name form field */}
         <div className="col-span-6">
           <FormField
             control={form.control}
             name="firstName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Name*</FormLabel>
+              <FormItem className="gap-0">
+                <FormLabel className="text-xs font-light">First Name*</FormLabel>
                 <FormControl>
-                  <Input placeholder="Juan" type="text" {...field} />
+                  <Input placeholder="Juan" type="text" {...field} className=" bg-white border border-gray-500"/>
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />
@@ -37,10 +38,10 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
             control={form.control}
             name="middleName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Middle Name</FormLabel>
+              <FormItem className="gap-0">
+                <FormLabel className="text-xs font-light">Middle Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Martinez" type="text" {...field} />
+                  <Input placeholder="Martinez" type="text" {...field} className="bg-white border border-gray-500"/>
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />
@@ -55,10 +56,10 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
             control={form.control}
             name="lastName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name*</FormLabel>
+              <FormItem className="gap-0">
+                <FormLabel className="text-xs font-light">Last Name*</FormLabel>
                 <FormControl>
-                  <Input placeholder="Dela Cruz" type="text" {...field} />
+                  <Input placeholder="Dela Cruz" type="text" {...field} className="bg-white border border-gray-500" />
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />
@@ -73,10 +74,10 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
             control={form.control}
             name="suffix"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Suffix</FormLabel>
+              <FormItem className="gap-0">
+                <FormLabel className="text-xs font-light">Suffix</FormLabel>
                 <FormControl>
-                  <Input placeholder="Jr." type="text" {...field} />
+                  <Input placeholder="Jr." type="text" {...field} className="bg-white border border-gray-500" />
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />

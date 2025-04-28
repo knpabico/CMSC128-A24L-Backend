@@ -24,17 +24,17 @@ export const Education = ({
   type: "bachelors" | "doctoral" | "masters";
 }) => {
   return (
-    <div className="grid grid-cols-12 gap-4">
+    <div className="grid grid-cols-12 gap-x-4 gap-y-3 bg-gray-200 rounded-xl py-5 p-4">
       {/* degree program */}
       <div className="col-span-7">
         <FormField
           control={form.control}
           name={`${type}.${index}.major`}
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>{types[type]} Degree*</FormLabel>
+            <FormItem className="gap-0">
+              <FormLabel className="text-xs font-light">Degree Program</FormLabel>
               <FormControl>
-                <Input placeholder="Degree Program" {...field} />
+                <Input placeholder="BS Computer Science" {...field} className="bg-white border border-gray-500"/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -42,14 +42,15 @@ export const Education = ({
         />
       </div>
       {/* year graduated */}
-      <div className="col-span-5 mt-5">
+      <div className="col-span-5">
         <FormField
           control={form.control}
           name={`${type}.${index}.yearGraduated`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="gap-0">
+              <FormLabel className="text-xs font-light">Year Graduated</FormLabel>
               <FormControl>
-                <Input placeholder="Year Graduated" {...field} />
+                <Input placeholder="2024" {...field} className="bg-white border border-gray-500"/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -63,9 +64,10 @@ export const Education = ({
           control={form.control}
           name={`${type}.${index}.university`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="gap-0">
+              <FormLabel className="text-xs font-light">University</FormLabel>
               <FormControl>
-                <Input placeholder="University" {...field} />
+                <Input placeholder="University of the Philippines" {...field} className="bg-white border border-gray-500"/>
               </FormControl>
               <FormMessage />
             </FormItem>

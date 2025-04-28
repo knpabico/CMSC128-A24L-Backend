@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { workFieldOptions } from "@/data/work-field-options";
 import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, Trash2Icon } from "lucide-react";
 
 // components
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
@@ -329,19 +330,6 @@ export default function RegistrationForm() {
 
                       <div className="w-full px-9">
                         <div className="space-y-7 w-full">
-                          <button className="border-2 border-[#0856ba] flex justify-center items-center p-2 rounded-full space-x-3 cursor-pointer w-full hover:bg-[#92b2dc]">
-                            <Image
-                              src={googleImage}
-                              alt="hello"
-                              className="w-6 h-6"
-                            />
-                            <p className="text-[#0856ba]">
-                              Continue with Google
-                            </p>
-                          </button>
-
-                          <hr></hr>
-
                           <div className="flex flex-col gap-5">
                             <UserCredentials form={form}></UserCredentials>
 
@@ -383,309 +371,333 @@ export default function RegistrationForm() {
               )}
 
               {currentPart === 1 && (
-                <>
-                  {/* NAME AND PHOTO SECTION*/}
-                  <NameAndPhoto form={form}></NameAndPhoto>
+                <div className="my-20">
+                  <button onClick={goBack} className="pl-45 italic underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer">
+                    <ChevronLeft/>
+                    <p>Back</p>
+                  </button>
 
-                  {/* PERSONAL SECTION */}
-                  <Personal form={form}></Personal>
+                  <div className="flex flex-col items-center">
+                    
+                    <div className="space-y-10">
+                      <div className="bg-gray-100 rounded-3xl p-10 space-y-15">
+                        <div className="flex flex-col items-center">
+                          <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full">
+                            pic
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-7">
+                          <div className="space-y-2">
+                            <p className="font-bold text-xl">Personal Information</p>
+                            <hr></hr>
+                          </div>
+                          
+                          {/* NAME AND PHOTO SECTION*/}
+                          <NameAndPhoto form={form}></NameAndPhoto>
+                          
+                          {/* PERSONAL SECTION */}
+                          <Personal form={form}></Personal>
+                        </div>
 
-                  {/* EDUCATION SECTION */}
-                  <div>
-                    {/* display the SN field*/}
-                    <div className="grid grid-cols-12 gap-4">
-                      {/* studentNumber form field */}
-                      <div className="col-span-12">
+
+                        {/* EDUCATION SECTION */}
+                        <div className="space-y-7">
+                          <div className="space-y-2">
+                            <p className="font-bold text-xl">Educational Background</p>
+                            <hr></hr>
+                          </div>
+
+                          {/* studentNumber form field */}
+                          <div className="grid grid-cols-12 gap-x-4 gap-y-3">
+                            <div className="col-span-6">
+                              <FormField
+                                control={form.control}
+                                name="studentNumber"
+                                render={({ field }) => (
+                                  <FormItem className="gap-0">
+                                    <p className="text-sm font-semibold">Student Number at UPLB*</p>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="2020-12345"
+                                        type="text"
+                                        {...field}
+                                        className="bg-white border border-gray-500"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+
+                          {/* bachelor's form field */}
+                          <div>
+                            <p className="text-sm font-semibold pb-2">Bachelor's Degree*</p>
+                            {bachelors.map((bachelor, index) => (
+                              <div key={bachelor.id} className="relative pb-5">
+                                {index > 0 && (
+                                  <button
+                                    className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                    type="button"
+                                    onClick={() => removeBachelors(index)}
+                                  >
+                                    <Trash2Icon className="w-4"/>
+                                  </button>
+                                )}
+
+                                <Education
+                                  index={index}
+                                  form={form}
+                                  type={"bachelors"}
+                                ></Education>
+                              </div>
+                            ))}
+
+                            {/*add bachelors fields button */}
+                            <button
+                                className="flex items-center space-x-3 cursor-pointer"
+                                type="button"
+                                onClick={() => {
+                                addBachelors({
+                                  university: "",
+                                  yearGraduated: "",
+                                  major: "",
+                                });
+                              }}>
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                              <p className="text-[#0856ba] text-sm hover:underline">Add bachelor's degree</p>
+                            </button>
+                          </div>
+
+                          {/* master's form field */}
+                          <div>
+                            <p className="text-sm font-semibold pb-2">Master's Degree</p>
+                            {masters.map((master, index) => (
+                              <div key={master.id} className="relative pb-5">
+                                <button
+                                  className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                  type="button"
+                                  onClick={() => removeMasters(index)}
+                                >
+                                  <Trash2Icon className="w-4"/>
+                                </button>
+
+                                <Education
+                                  index={index}
+                                  form={form}
+                                  type={"masters"}
+                                ></Education>
+                              </div>
+                            ))}
+
+                            {/*add  fields button */}
+                            <button
+                              className="flex items-center space-x-3 cursor-pointer"
+                              type="button"
+                              onClick={() => {
+                                addMasters({
+                                  university: "",
+                                  yearGraduated: "",
+                                  major: "",
+                                });
+                              }}
+                            >
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                              <p className="text-[#0856ba] text-sm hover:underline">Add master's degree</p>
+                            </button>
+                          </div>
+
+                          {/* doctoral form field */}
+                          <div className="mt-5">
+                            <p className="text-sm font-semibold pb-2">Doctoral Degree</p>
+                            {doctoral.map((doc, index) => (
+                              <div key={doc.id} className="relative pb-5">
+                                  <button
+                                    className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                    type="button"
+                                    onClick={() => removeDoctoral(index)}
+                                  >
+                                    <Trash2Icon className="w-4"/>
+                                  </button>
+
+                                <Education
+                                  index={index}
+                                  form={form}
+                                  type={"doctoral"}
+                                ></Education>
+                              </div>
+                            ))}
+
+                            {/*add  fields button */}
+                            <button
+                              className="flex items-center space-x-3 cursor-pointer"
+                              type="button"
+                              onClick={() => {
+                                addDoctoral({
+                                  university: "",
+                                  yearGraduated: "",
+                                  major: "",
+                                });
+                              }}
+                            >
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                              <p className="text-[#0856ba] text-sm hover:underline">Add doctoral degree</p>
+                            </button>
+                          </div>
+
+                          {/* affiliations form field */}
+                          <div className="mt-5">
+                            <p className="text-sm font-semibold pb-2">Affiliation</p>
+                            {affiliation.map((aff, index) => (
+                              <div key={aff.id} className="relative pb-5">
+                                  <button
+                                    className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                    type="button"
+                                    onClick={() => removeAffiliation(index)}
+                                  >
+                                    <Trash2Icon className="w-4"/>
+                                  </button>
+
+                                <Affiliation index={index} form={form}></Affiliation>
+                              </div>
+                            ))}
+
+                            {/*add  fields button */}
+                            <button
+                              className="flex items-center space-x-3 cursor-pointer"
+                              type="button"
+                              onClick={() => {
+                                addAffiliations({
+                                  university: "",
+                                  yearJoined: "",
+                                  affiliationName: "",
+                                });
+                              }}
+                            >
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                              <p className="text-[#0856ba] text-sm hover:underline">Add affiliation</p>
+                            </button>
+                          </div>
+                        </div>
+
+                        
+                        {/* CAREER SECTION */}
+                        <div className="space-y-7">
+                          <div className="space-y-2">
+                            <p className="font-bold text-xl">Career</p>
+                            <hr></hr>
+                          </div>
+                          
+                          <div className="mt-5">
+                            <p className="text-sm font-semibold pb-2">Work Experience</p>
+                            {career.map((car, index) => (
+                              <div key={car.id} className="relative pb-5">
+                                {/*remove field button */}
+                                  <button
+                                    className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                    type="button"
+                                    onClick={() => removeCareer(index)}
+                                  >
+                                    <Trash2Icon className="w-4"/>
+                                  </button>
+
+                                {/* career form field */}
+                                <Career index={index} form={form}></Career>
+                              </div>
+                            ))}
+                            {/*add  fields button */}
+                            <button
+                              className="flex items-center space-x-3 cursor-pointer"
+                              type="button"
+                              onClick={() => {
+                                addCareer({
+                                  industry: "",
+                                  jobTitle: "",
+                                  company: "",
+                                  startYear: "",
+                                  endYear: "",
+                                  presentJob: false,
+                                  location: "",
+                                  latitude: 14.25,
+                                  longitude: 121.25,
+                                });
+                              }}
+                            >
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
+                              <p className="text-[#0856ba] text-sm hover:underline">Add work experience</p>
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                      
+                      <div className="space-y-3 px-5">
+                        {/* acceptTerms form field */}
                         <FormField
                           control={form.control}
-                          name="studentNumber"
+                          name="acceptTerms"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Student Number at UPLB*</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="2025-12345"
-                                  type="text"
-                                  {...field}
-                                />
-                              </FormControl>
+                              <div className="flex gap-2 justify-start items-center">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="inline">
+                                  I accept the <TermsDialog />
+                                  {/* <span>
+                                    <Link
+                                      href="/terms"
+                                      className="underline hover:text-blue-500 font-bold"
+                                    >
+                                      terms and conditions
+                                    </Link>
+                                  </span> */}
+                                </FormLabel>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* subscribeToNewsletter form field */}
+                        <FormField
+                          control={form.control}
+                          name="subscribeToNewsletter"
+                          render={({ field }) => (
+                            <FormItem>
+                              <div className="flex gap-2 justify-start items-center">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel>Subscribe to our newsletter</FormLabel>
+                              </div>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-                    </div>
-
-                    {/* affiliations form field */}
-                    <div className="mt-5">
-                      <p>AFFILIATIONS</p>
-                      {affiliation.map((aff, index) => (
-                        <div key={aff.id}>
-                          {index > 0 && (
-                            <button
-                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                              type="button"
-                              onClick={() => removeAffiliation(index)}
-                            >
-                              -
-                            </button>
-                          )}
-
-                          <Affiliation index={index} form={form}></Affiliation>
-                        </div>
-                      ))}
-
-                      {/*add  fields button */}
-                      <button
-                        className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                        type="button"
-                        onClick={() => {
-                          addAffiliations({
-                            university: "",
-                            yearJoined: "",
-                            affiliationName: "",
-                          });
-                        }}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    {/* bachelor's form field */}
-                    <div className="mt-5">
-                      <p>BACHELOR'S</p>
-                      {bachelors.map((bachelor, index) => (
-                        <div key={bachelor.id}>
-                          {index > 0 && (
-                            <button
-                              className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                              type="button"
-                              onClick={() => removeBachelors(index)}
-                            >
-                              -
-                            </button>
-                          )}
-
-                          <Education
-                            index={index}
-                            form={form}
-                            type={"bachelors"}
-                          ></Education>
-                        </div>
-                      ))}
-
-                      {/*add bachelors fields button */}
-                      <button
-                        className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                        type="button"
-                        onClick={() => {
-                          addBachelors({
-                            university: "",
-                            yearGraduated: "",
-                            major: "",
-                          });
-                        }}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    {/* master's form field */}
-
-                    <div className="mt-5">
-                      <p>MASTER'S</p>
-                      {masters.map((master, index) => (
-                        <div key={master.id}>
-                          <button
-                            className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                            type="button"
-                            onClick={() => removeMasters(index)}
-                          >
-                            -
-                          </button>
-
-                          <Education
-                            index={index}
-                            form={form}
-                            type={"masters"}
-                          ></Education>
-                        </div>
-                      ))}
-
-                      {/*add  fields button */}
-                      <button
-                        className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                        type="button"
-                        onClick={() => {
-                          addMasters({
-                            university: "",
-                            yearGraduated: "",
-                            major: "",
-                          });
-                        }}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    {/* doctoral form field */}
-                    <div className="mt-5">
-                      <p>DOCTORAL</p>
-                      {doctoral.map((doc, index) => (
-                        <div key={doc.id}>
-                          <button
-                            className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                            type="button"
-                            onClick={() => removeDoctoral(index)}
-                          >
-                            -
-                          </button>
-
-                          <Education
-                            index={index}
-                            form={form}
-                            type={"doctoral"}
-                          ></Education>
-                        </div>
-                      ))}
-
-                      {/*add  fields button */}
-                      <button
-                        className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                        type="button"
-                        onClick={() => {
-                          addDoctoral({
-                            university: "",
-                            yearGraduated: "",
-                            major: "",
-                          });
-                        }}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* CAREER SECTION */}
-                  <div className="mt-5">
-                    <p>CAREER</p>
-                    {career.map((car, index) => (
-                      <div key={car.id}>
-                        {/*remove field button */}
-                        {index > 0 && (
-                          <button
-                            className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5 "
-                            type="button"
-                            onClick={() => removeCareer(index)}
-                          >
-                            -
-                          </button>
-                        )}
-                        {/* career form field */}
-                        <Career index={index} form={form}></Career>
+                      
+                      <div className="flex flex-col items-start px-5">
+                        <Button
+                          className="w-50 col-span-6 bg-[#0856ba] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                          variant="outline"
+                          type="submit"
+                        >
+                          Submit
+                        </Button>
                       </div>
-                    ))}
-                    {/*add  fields button */}
-                    <button
-                      className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                      type="button"
-                      onClick={() => {
-                        addCareer({
-                          industry: "",
-                          jobTitle: "",
-                          company: "",
-                          startYear: "",
-                          endYear: "",
-                          presentJob: false,
-                          location: "",
-                          latitude: 14.25,
-                          longitude: 121.25,
-                        });
-                      }}
-                    >
-                      +
-                    </button>
+                      
+                    </div>
                   </div>
-                  {/* acceptTerms form field */}
-                  <FormField
-                    control={form.control}
-                    name="acceptTerms"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex gap-2 justify-start items-center">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="inline">
-                            I accept the <TermsDialog />
-                            {/* <span>
-                              <Link
-                                href="/terms"
-                                className="underline hover:text-blue-500 font-bold"
-                              >
-                                terms and conditions
-                              </Link>
-                            </span> */}
-                          </FormLabel>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
-                  {/* subscribeToNewsletter form field */}
-                  <FormField
-                    control={form.control}
-                    name="subscribeToNewsletter"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex gap-2 justify-start items-center">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel>Subscribe to our newsletter</FormLabel>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-
-              {/* submit button */}
-              {currentPart === 1 && (
-                <div className="grid grid-cols-12 gap-4">
-                  <Button
-                    className="col-span-6"
-                    variant="outline"
-                    type="button"
-                    onClick={goBack}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    className="col-span-6"
-                    variant="outline"
-                    type="submit"
-                  >
-                    Submit
-                  </Button>
-
-                  <div className="flex justify-center items-center space-x-2">
-                    <p>Already have an account?</p>
-                    <button
-                      disabled={form.formState.isSubmitting || isLoading}
-                      className="hover:underline text-[#0856ba]"
-                    >
-                      <Link href="/login">Login</Link>
-                    </button>
-                  </div>
                 </div>
               )}
             </fieldset>
