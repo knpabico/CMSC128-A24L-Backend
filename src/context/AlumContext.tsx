@@ -155,7 +155,6 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         toastSuccess(data.message);
       } else toastError(data.message);
 
-      // Update the document with its ID as bookmarkId
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
