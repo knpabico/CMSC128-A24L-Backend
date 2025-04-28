@@ -66,6 +66,7 @@ export interface Scholarship {
   description: string;
   alumList: string[];
   datePosted: Date;
+  image: string;
 }
 
 export interface Event {
