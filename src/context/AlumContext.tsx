@@ -18,6 +18,8 @@ import { useAuth } from "./AuthContext";
 import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
 import { sendStatusEmail } from "@/lib/email";
+import sendEmailTemplate from "@/lib/emailTemplate";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -147,21 +149,11 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         },
         { merge: true }
       );
-
-      await addDoc(collection(db, "mail"), {
-        to: alumniEmail,
-        message: {
-          subject: "ICS-ARMS Registration Status Update",
-          text:
-            regStatus === "approved"
-              ? `Dear ${alumniName},\n\nYour registration status is now ${regStatus}.\n\nYou can now log in to the website. \n\nThank you!`
-              : `Dear ${alumniName}.\n\n We regret to inform you that your registration status has been ${regStatus}.\n\nThank you!`,
-          html:
-            regStatus === "approved"
-              ? `<p>Dear ${alumniName},</p><p>Your registration status is now <strong>${regStatus}</strong>.</p><p>You can now log in to the website</p><p>Thank you!</p>`
-              : `<p>Dear ${alumniName},</p><p>We regret to inform you that your registration status has been <strong>${regStatus}</strong>.</p><p>Thank you!</p>`,
-        },
-      });
+      const isApproved = regStatus === "approved";
+      const data = await sendEmailTemplate(alumniEmail, alumniName, isApproved);
+      if (data.success) {
+        toastSuccess(data.message);
+      } else toastError(data.message);
 
       // Update the document with its ID as bookmarkId
       return { success: true, message: "success" };

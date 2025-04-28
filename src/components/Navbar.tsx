@@ -86,7 +86,9 @@ export default function Navbar() {
             </div>
           )}
 
-          {(isAdmin || isGoogleSignIn || (user && status !== "approved")) && (
+          {(isAdmin ||
+            isGoogleSignIn ||
+            (user && status && status !== "approved")) && (
             <div className="flex items-center">
               <button
                 className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
@@ -171,7 +173,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Hamburger Menu */}
-        {user && (
+        {user && !isGoogleSignIn && status === "approved" && (
           <div className="xl:hidden flex items-center">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
