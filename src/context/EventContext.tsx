@@ -137,6 +137,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       creatorId: "",
       creatorName: "",
       creatorType: "",
+      donationDriveId: ""
     };
 
     const response = await addEvent(newEvent);

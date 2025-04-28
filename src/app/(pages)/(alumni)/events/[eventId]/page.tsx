@@ -82,6 +82,14 @@ const EventPageAlumni = () => {
               </>
             ) : null} {/* This ensures that when the RSVP is not "Pending", nothing is displayed */}
           </div>
+          <button
+            onClick={() => {
+              router.push(`/donationdrive-list/details?id=${event.donationDriveId}`);
+            }}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md"
+          >
+            View more about the donation
+          </button>
         </div>
       ) : (
         <p>Event not found.</p>

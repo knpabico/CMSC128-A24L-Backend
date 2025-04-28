@@ -26,6 +26,8 @@ export default function Events() {
     setEventDescription,
     title,
     setEventTitle,
+    location,
+    setEventLocation
   } = useEvents();
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
   const [activeTab, setActiveTab] = useState("Pending");
@@ -380,6 +382,14 @@ export default function Events() {
                   placeholder="Event Description (Format: online / F2F & Venue/Platform)"
                   value={description}
                   onChange={(e) => setEventDescription(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                  required
+                />
+
+                <textarea
+                  placeholder="Event Location"
+                  value={location}
+                  onChange={(e) => setEventLocation(e.target.value)}
                   className="w-full mb-4 p-2 border rounded"
                   required
                 />
