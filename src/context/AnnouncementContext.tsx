@@ -9,11 +9,13 @@ import {
   doc,
   deleteDoc,
   updateDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Announcement } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 const AnnouncementContext = createContext<any>(null);
 
 export function AnnouncementProvider({
@@ -24,35 +26,41 @@ export function AnnouncementProvider({
   const [announces, setAnnounce] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<string[]>([]);
   const { user, isAdmin } = useAuth();
+  const [currentAnnouncementId, setCurrentAnnouncementId] = useState<
+    string | null
+  >(null);
+
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
+    console.log("Admin", isAdmin);
     let unsubscribe: (() => void) | null;
 
     if (user || isAdmin) {
-      unsubscribe = subscribeToUsers(); //maglilisten sa firestore
+      unsubscribe = subscribeToUsers(); // listen to firestore
     } else {
-      setAnnounce([]); //reset once logged out
+      setAnnounce([]); // reset once logged out
       setLoading(false);
     }
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe(); //stops listening after logg out
-      }
+      if (unsubscribe) unsubscribe();
     };
-  }, [user, isAdmin]);
+  }, [user, isAdmin]); // added admin role
 
-  const addAnnouncement = async (announce: Announcement, userId: string) => {
+  const addAnnouncement = async (announce: Announcement) => {
     try {
       const docRef = doc(collection(db, "Announcement"));
       announce.announcementId = docRef.id;
       announce.datePosted = new Date();
       console.log(announce);
-      await setDoc(doc(db, "Announcement", userId), announce);
+      await setDoc(docRef, announce);
+      await addNewsLetter(announce.announcementId, "announcement");
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -67,6 +75,9 @@ export function AnnouncementProvider({
           (announcement) => announcement.announcementId !== announcementId
         )
       );
+
+      await deleteNewsLetter(announcementId);
+    
       console.log(
         "Succesfully deleted announcement with id of:",
         announcementId
@@ -76,16 +87,37 @@ export function AnnouncementProvider({
     }
   };
 
-  // const handleEdit = async (announcementId: string) => {
-  //   try {
-  //     await updateDoc(doc(db, "Announcement", announcementId), {
-  //       foo: 'bar'
-  //     });
-  //     return { success: true, message: "success" };
-  //   } catch (error) {
-  //     return { success: false, message: (error as FirebaseError).message };
-  //   }
-  // };
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const updatedAnnouncement: Announcement = {
+      title,
+      description,
+      datePosted: new Date(),
+      type,
+      announcementId: currentAnnouncementId!,
+      image: "",
+      isPublic: false
+    };
+
+    try {
+      if (currentAnnouncementId) {
+        await updateDoc(doc(db, "Announcement", currentAnnouncementId), {
+          ...updatedAnnouncement,
+        });
+      } else {
+        console.error("Error: ann id is null");
+      }
+      console.log("Announcement updated successfully!");
+      // Optionally, reset the form and close the form
+      setShowForm(false);
+      setTitle("");
+      setDescription("");
+      setIsEdit(false); // Reset the edit mode
+    } catch (error) {
+      console.error("Error updating announcement:", error);
+    }
+  };
 
   const subscribeToUsers = () => {
     setLoading(true);
@@ -96,6 +128,7 @@ export function AnnouncementProvider({
       q,
       (querySnapshot: any) => {
         const userList = querySnapshot.docs.map((doc: any) => doc.data());
+        console.log("User List:", userList);
         setAnnounce(userList);
         setLoading(false);
       },
@@ -124,10 +157,11 @@ export function AnnouncementProvider({
       datePosted: new Date(),
       type,
       announcementId: "",
-      userReference: user!.uid,
+      image: "",
+      isPublic: false,
     };
 
-    const response = await addAnnouncement(newAnnouncement, user!.uid);
+    const response = await addAnnouncement(newAnnouncement);
 
     if (response.success) {
       setShowForm(false);
@@ -143,10 +177,12 @@ export function AnnouncementProvider({
       value={{
         announces,
         isLoading,
+        isEdit,
         addAnnouncement,
         handleSubmit,
         handleCheckbox,
         handleDelete,
+        handleEdit,
         title,
         description,
         showForm,
@@ -155,6 +191,8 @@ export function AnnouncementProvider({
         setDescription,
         setShowForm,
         setType,
+        setIsEdit,
+        setCurrentAnnouncementId,
       }}
     >
       {children}

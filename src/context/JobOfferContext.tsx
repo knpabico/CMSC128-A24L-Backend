@@ -14,6 +14,9 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { useBookmarks } from "./BookmarkContext";
+import { useNewsLetters } from "./NewsLetterContext";
+import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
@@ -28,23 +31,26 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [position, setPosition] = useState("");
   const [requiredSkill, setRequiredSkill] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState("");
+  const [location, setLocation] = useState("");
+  const [image, setImage] = useState("");
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
+  const { bookmarks } = useBookmarks();
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
+    console.log("User from useAuth:", user);
     let unsubscribe: (() => void) | null;
 
     if (user || isAdmin) {
-      unsubscribe = subscribeToJobOffers(); //maglilisten sa firestore
+      unsubscribe = subscribeToJobOffers();
     } else {
-      setJobOffers([]); //reset once logged out
+      setJobOffers([]);
       setLoading(false);
     }
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe(); //stops listening after logg out
-      }
+      if (unsubscribe) unsubscribe();
     };
   }, [user, isAdmin]);
 
@@ -82,11 +88,14 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       alumniId: "",
       datePosted: new Date(),
       status: "",
+      location,
+      image,
     };
 
     const response = await addJobOffer(newJobOffering, user!.uid);
 
     if (response.success) {
+      console.log("Job offer successfully added:", newJobOffering);
       setShowForm(false);
       setCompany("");
       setEmploymentType("");
@@ -96,6 +105,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setPosition("");
       setRequiredSkill([]);
       setSalaryRange("");
+      setLocation("");
+      setImage("");
     } else {
       console.error("Error adding job:", response.message);
     }
@@ -109,11 +120,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     const unsubscribeJobOfffers = onSnapshot(
       q,
       (querySnapshot: any) => {
-        const offers = querySnapshot.docs.map(
-          (doc: any) => doc.data() as JobOffering
-        );
+        const offers = querySnapshot.docs.map((doc: any) => doc.data());
         setJobOffers(offers);
         setLoading(false);
+        console.log("Success! Fetched job offers:", offers);
       },
       (error) => {
         console.error("Error fetching job offers:", error);
@@ -129,6 +139,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       await updateDoc(doc(db, "job_offering", jobId), {
         status: "Accepted",
       });
+      await addNewsLetter(jobId, "job_offering")
+      console.log("Job offer accepted and added to newsletter:", jobId);
     } catch (error) {
       console.error("Error updating job:", error);
     }
@@ -159,6 +171,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setJobOffers((prev) =>
         prev.filter((jobOffers) => jobOffers.jobId !== jobId)
       );
+
+      await deleteNewsLetter(jobId);
+
       console.log("Succesfully deleted job with id of:", jobId);
     } catch (error) {
       console.error("Error deleting job:", error);
@@ -169,6 +184,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     <JobOfferContext.Provider
       value={{
         jobOffers,
+        bookmarks,
         isLoading,
         addJobOffer,
         setShowForm,
@@ -194,6 +210,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         handleView,
         closeModal,
         selectedJob,
+        location,
+        setLocation,
         handleDelete,
       }}
     >

@@ -25,26 +25,34 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
-import { Donation, DonationDrive } from "@/models/models";
+import { DonationDrive } from "@/models/models";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
 import { createDonation } from "@/data/donation";
-import { donationDataSchema } from "@/validation/donation/donationSchemas";
 import { useState } from "react";
+import { useDonationDrives } from '@/context/DonationDriveContext';
 
+// Update the schema to include the new fields
 export const donationFormSchema = z.object({
   amount: z.coerce
     .number()
     .min(1, "Minimum amount is PHP 1 in order to donate."),
   paymentMethod: z.enum(["gcash", "maya", "debit card"]),
+  isAnonymous: z.boolean().default(false),
+  imageProof: z.string().optional(),
 });
 
 export function DonateDialog({ drive }: { drive: DonationDrive }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  
+  // Import the refresh function from context
+  // const { refreshDonationDrives } = useDonationDrives();
 
   // grab the details about the current user
   const { user, alumInfo } = useAuth();
@@ -52,34 +60,77 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
   const handleSubmit = async (data: z.infer<typeof donationFormSchema>) => {
     setIsLoading(true);
     const token = await user?.getIdToken();
-    if (!token) return;
-
-    // add the ID of the donation event and the ID of the user to the
-    // donation data
-    const donationData: z.infer<typeof donationDataSchema> = {
-      ...data,
-      postId: drive.donationDriveId,
-      alumniId: alumInfo?.alumniId!,
-    };
-
-    const response = await createDonation(donationData);
-
-    // if there is an error, then display error toast
-    if (response.error) {
-      toastError(response.message);
+    if (!token) {
+      toastError("Authentication required");
       setIsLoading(false);
       return;
     }
 
-    // if there is no error, then display a success toast message
-    toastSuccess(`You have donated ₱${data.amount} to ${drive.campaignName}.`);
+    // Handle image upload if provided
+    let imageProofUrl = "";
+    if (imageFile) {
+      try {
+        // You'll need to implement an image upload function that returns the URL
+        // imageProofUrl = await uploadImage(imageFile); 
+        // For now, let's just set it to a placeholder
+        imageProofUrl = "image_url_placeholder";
+      } catch (error) {
+        toastError("Failed to upload image proof");
+        setIsLoading(false);
+        return;
+      }
+    }
 
-    // clear the input fields
-    form.reset();
+    // Optimistically update the UI - only for amount
+    // This will show the progress bar updating immediately
+    const currentAmount = drive.currentAmount || 0;
+    drive.currentAmount = currentAmount + data.amount;
 
-    // close the dialog box
-    setIsDialogOpen(false);
-    setIsLoading(false);
+    // add the ID of the donation drive and the ID of the user to the donation data
+    const donationData = {
+      amount: data.amount,
+      paymentMethod: data.paymentMethod,
+      isAnonymous: data.isAnonymous,
+      donationDriveId: drive.donationDriveId,
+      alumniId: alumInfo?.alumniId!,
+      imageProof: imageProofUrl,
+    };
+
+    try {
+      // Call the server action to create the donation
+      await createDonation(donationData);
+      
+      // if there is no error, then display a success toast message
+      toastSuccess(`You have donated ₱${data.amount} to ${drive.campaignName}.`);
+      
+      // Refresh the donation drives to get the updated data from the server
+      // refreshDonationDrives();
+      
+      // clear the input fields
+      form.reset();
+      setImageFile(null);
+      
+      // close the dialog box
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error creating donation:", error);
+      toastError("Failed to process donation. Please try again.");
+      
+      // Revert the optimistic update
+      drive.currentAmount = currentAmount;
+      
+      // Refresh to ensure UI is in sync with server
+      // refreshDonationDrives();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle image file selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
   };
 
   // react hook form
@@ -88,6 +139,8 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
     defaultValues: {
       amount: 0,
       paymentMethod: "gcash",
+      isAnonymous: false,
+      imageProof: ""
     },
   });
 
@@ -98,11 +151,12 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
         setIsDialogOpen(isOpen);
         if (!isOpen) {
           form.reset(); // Reset any state when closing
+          setImageFile(null);
         }
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline">Donate</Button>
+        <Button variant="outline" disabled={drive.status === 'pending' || drive.status === 'completed'}>Donate</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[430px]">
         <DialogHeader>
@@ -114,11 +168,8 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* use shadcn form component, which uses zod and react hook form for data validation */}
-        {/* Example form with validation for a single input field - https://ui.shadcn.com/docs/components/form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            {/* use grid layout */}
             <div className="grid gap-4 py-4">
               <fieldset disabled={form.formState.isSubmitting}>
                 {/* amount form field */}
@@ -129,7 +180,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
                     <FormItem>
                       <FormLabel>Amount (₱)</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} type="number" min="1" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -165,12 +216,50 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
                   )}
                 />
 
+                {/* Anonymous donation checkbox */}
+                <FormField
+                  control={form.control}
+                  name="isAnonymous"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Make donation anonymous</FormLabel>
+                        <FormDescription>
+                          Your name will not be displayed publicly
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Image proof upload */}
+                <FormItem className="mt-4">
+                  <FormLabel>Payment Proof (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Upload a screenshot of your payment receipt
+                  </FormDescription>
+                </FormItem>
+
               </fieldset>
-              {/* end of grid layout div */}
             </div>
 
             <DialogFooter>
-              <Button type="submit" disabled={isLoading}>Donate</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Processing..." : "Donate"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
