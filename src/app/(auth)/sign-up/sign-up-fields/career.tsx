@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
 import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
+import { AlumDocumentUpload } from "./career_proof";
 
 export const Career = ({ index, form }: { index: number; form: any }) => {
   //dynamic fields for career
@@ -130,6 +131,11 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                 </FormItem>
               )}
             />
+          )}
+
+          {/*if presentJob, needs proof of Employment */}
+          {endYear === true && (
+            <AlumDocumentUpload index={index} form={form}></AlumDocumentUpload>
           )}
         </div>
 

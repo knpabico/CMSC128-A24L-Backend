@@ -600,6 +600,7 @@ export default function RegistrationForm() {
                           location: "",
                           latitude: 14.25,
                           longitude: 121.25,
+                          proofOfEmployment: "",
                         });
                       }}
                     >
