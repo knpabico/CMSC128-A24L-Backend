@@ -50,11 +50,11 @@ export default function BookmarkButton({
   };
   
   // Size configurations
-  const sizeClasses = {
-    sm: "p-1",
-    md: "p-2",
-    lg: "p-3"
-  };
+//   const sizeClasses = {
+//     sm: "p-1",
+//     md: "p-2",
+//     lg: "p-3"
+//   };
   
   const iconSize = {
     sm: 16,
@@ -64,7 +64,7 @@ export default function BookmarkButton({
   
   return (
     <button
-      className={`flex items-center gap-1 rounded-md transition-colors ${isBookmarkedItem ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-400 hover:text-gray-600'} ${sizeClasses[size]} ${className}`}
+      className={`flex items-center gap-1 rounded-md transition-colors ${isBookmarkedItem ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-400 hover:text-gray-600'} ${className}`}
       onClick={handleToggleBookmark}
       disabled={isProcessing}
       aria-label={isBookmarkedItem ? "Remove bookmark" : "Add bookmark"}

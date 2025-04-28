@@ -46,16 +46,30 @@ export const donationFormSchema = z.object({
   imageProof: z.string().optional(),
 });
 
-export function DonateDialog({ drive }: { drive: DonationDrive }) {
+export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive; onDonationSuccess: () => void; }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isThankYouOpen, setIsThankYouOpen] = useState(false);
   
   // Import the refresh function from context
   // const { refreshDonationDrives } = useDonationDrives();
 
   // grab the details about the current user
   const { user, alumInfo } = useAuth();
+
+  	//Calculate Days Remaining
+	const getRemainingDays = (endDate: any) => {
+		try {
+			const today = new Date(); // Current date
+			const end = endDate.toDate(); // Firestore Timestamp to JS Date
+			const diffTime = end.getTime() - today.getTime();
+			const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+			return diffDays;
+		} catch (err) {
+			return -1;
+		}
+	};
 
   const handleSubmit = async (data: z.infer<typeof donationFormSchema>) => {
     setIsLoading(true);
@@ -102,6 +116,7 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
       
       // if there is no error, then display a success toast message
       toastSuccess(`You have donated ₱${data.amount} to ${drive.campaignName}.`);
+	  setIsThankYouOpen(true);
       
       // Refresh the donation drives to get the updated data from the server
       // refreshDonationDrives();
@@ -109,9 +124,9 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
       // clear the input fields
       form.reset();
       setImageFile(null);
-      
       // close the dialog box
       setIsDialogOpen(false);
+	  onDonationSuccess();
     } catch (error) {
       console.error("Error creating donation:", error);
       toastError("Failed to process donation. Please try again.");
@@ -144,126 +159,92 @@ export function DonateDialog({ drive }: { drive: DonationDrive }) {
     },
   });
 
-  return (
-    <Dialog
-      open={isDialogOpen}
-      onOpenChange={(isOpen) => {
-        setIsDialogOpen(isOpen);
-        if (!isOpen) {
-          form.reset(); // Reset any state when closing
-          setImageFile(null);
-        }
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button variant="outline" disabled={drive.status === 'pending' || drive.status === 'completed'}>Donate</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[430px]">
-        <DialogHeader>
-          <DialogTitle>
-            Donate to {drive.campaignName} donation drive
-          </DialogTitle>
-          <DialogDescription>
-            Please input donation amount and method.
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className="grid gap-4 py-4">
-              <fieldset disabled={form.formState.isSubmitting}>
-                {/* amount form field */}
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Amount (₱)</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="number" min="1" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* payment method form field */}
-                <FormField
-                  control={form.control}
-                  name="paymentMethod"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Payment Method</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="gcash">GCash</SelectItem>
-                            <SelectItem value="maya">Maya</SelectItem>
-                            <SelectItem value="debit card">
-                              Debit Card
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Anonymous donation checkbox */}
-                <FormField
-                  control={form.control}
-                  name="isAnonymous"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Make donation anonymous</FormLabel>
-                        <FormDescription>
-                          Your name will not be displayed publicly
-                        </FormDescription>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                {/* Image proof upload */}
-                <FormItem className="mt-4">
-                  <FormLabel>Payment Proof (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Upload a screenshot of your payment receipt
-                  </FormDescription>
-                </FormItem>
-
-              </fieldset>
-            </div>
-
-            <DialogFooter>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Processing..." : "Donate"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
+return (
+    <>
+		<Dialog open={isDialogOpen} onOpenChange={(isOpen) => { setIsDialogOpen(isOpen); if (!isOpen) { form.reset(); setImageFile(null);}}}>
+			<DialogTrigger asChild>
+				<button className={`text-sm w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 ${drive.status === 'pending' || drive.status === 'completed' || getRemainingDays(drive.endDate) < 0 ? 'bg-gray-400 text-white cursor-not-allowed border-gray-400 border-2' : 'bg-[#0856BA] text-white hover:bg-[#0855baa2] cursor-pointer'}`} disabled={drive.status === 'pending' || drive.status === 'completed' || getRemainingDays(drive.endDate) < 0}>Donate</button>
+			</DialogTrigger>
+			<DialogContent className="w-fit p-8">
+				<DialogHeader className="text-center flex items-center">
+					<DialogTitle className="text-2xl">{drive.campaignName}</DialogTitle>
+					<DialogDescription className="text-xs italic" >Enter your donation amount and select your preferred payment method.</DialogDescription>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)}>
+						<div className="flex gap-3">
+							<fieldset disabled={form.formState.isSubmitting} className="flex flex-col gap-3 mt-3">
+								<FormField control={form.control} name="amount" render={({ field }) => (
+									<FormItem className="flex flex-col gap-2">
+										<FormLabel className="w-full">Amount (₱):</FormLabel>
+										<div className="flex flex-col gap-3 px-7 mt-2">
+											<div className="flex gap-2 justify-between w-full">
+												{[500, 1000, 1500, 2000].map((amount) => (
+													<button key={amount} type="button" className="px-3 py-1.5 w-full bg-[#fffff] border-blue-400 text-blue-900 border-1 hover:bg-blue-200 rounded text-sm" onClick={() => field.onChange(amount)} >
+														₱{amount}
+													</button>
+												))}
+											</div>
+											<FormControl className="w-full">
+												<Input {...field} type="number" min="1" className="border-blue-400  text-blue-900" />
+											</FormControl>
+											<FormMessage className="text-red-600 text-sm text-center"/>
+										</div>
+									</FormItem>
+								)} />
+								<FormField control={form.control} name="paymentMethod" render={({ field }) => (
+									<FormItem className="flex flex-col gap-2">
+										<FormLabel className="w-full">Payment Method:</FormLabel>
+										<div className="flex flex-col gap-3 px-7 mt-2">
+											<FormControl className="w-full">
+												<Select onValueChange={field.onChange} defaultValue={field.value}>
+													<SelectTrigger className="border-blue-400 w-full  text-blue-900">
+														<SelectValue />
+													</SelectTrigger>
+												<SelectContent className="bg-[#ffff] border-0">
+													<SelectItem value="gcash">GCash</SelectItem>
+													<SelectItem value="maya">Maya</SelectItem>
+													<SelectItem value="debit card">Debit Card</SelectItem>
+												</SelectContent></Select>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)} />
+								<FormItem className="flex flex-col gap-2 mt-1">
+									<FormLabel>Payment Proof: </FormLabel>
+									<div className="flex flex-col px-7 ">
+										<FormControl>
+											<Input type="file" required accept="image/*" onChange={handleImageChange} className="border-blue-600 text-blue-900 text-sm" />
+										</FormControl>
+										<FormDescription className="text-xs p-1 italic">Upload a screenshot of your payment receipt</FormDescription>
+									</div>
+								</FormItem>
+								<FormField control={form.control} name="isAnonymous" render={({ field }) => (
+									<FormItem className="flex flex-row items-center">
+										<FormControl>
+											<Checkbox checked={field.value} onCheckedChange={field.onChange} className="border-blue-600 border-2"/>
+										</FormControl>
+										<div className="leading-none">
+											<FormLabel className="text-sm">Make donation anonymous</FormLabel>
+											<FormDescription className="text-[10px] italic">Your name will not be displayed publicly</FormDescription>
+										</div>
+									</FormItem>
+								)} />
+							</fieldset>
+							{/* Will change depending on the chosen payment method */}
+							<div className="mt-3 w-auto h-96">
+								<p className="text-center">QR CODE </p>
+								<img src={'/proof.jpg'} alt="Payment Proof" className="w-auto h-80 rounded-2xl" />
+							</div>
+						</div>
+						<DialogFooter className="mx-30">
+							<Button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 bg-[#0856BA]" type="submit" disabled={isLoading}>{isLoading ? "Processing..." : "Donate"}</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	</>
+);
 }
