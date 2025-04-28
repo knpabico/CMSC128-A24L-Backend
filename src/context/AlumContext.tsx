@@ -148,7 +148,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         alumRef,
         {
           regStatus: regStatus,
-          activeStatus: true,
+          activeStatus: regStatus === "approved" ? true : false,
         },
         { merge: true }
       );

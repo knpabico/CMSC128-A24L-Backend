@@ -4,13 +4,23 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { CircleUserRound, Menu, X, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { stat } from "fs";
 
 export default function Navbar() {
-  const { user, logOut, loading, isAdmin, status, isGoogleSignIn } = useAuth();
+  const {
+    user,
+    logOut,
+    loading,
+    isAdmin,
+    status,
+    isGoogleSignIn,
+    logOutAndDelete,
+  } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const dropdownRef = useRef(null);
   const menuRef = useRef(null); // Reference for mobile menu container
@@ -36,6 +46,9 @@ export default function Navbar() {
   };
 
   const handleSignOut = async () => {
+    if (status === "rejected") {
+      await logOutAndDelete(); // Assuming you have a function to delete the user
+    }
     await logOut();
     setMenuOpen(false);
     setDropdownOpen(false);
@@ -92,10 +105,49 @@ export default function Navbar() {
             <div className="flex items-center">
               <button
                 className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
-                onClick={() => handleSignOut()}
+                onClick={() => {
+                  if (user && status === "rejected") {
+                    setShowDeleteModal(true);
+                  } else {
+                    handleSignOut();
+                  }
+                }}
               >
                 Sign Out
               </button>
+
+              {/* Delete Account Confirmation Modal */}
+              {showDeleteModal && (
+                <div className="fixed inset-0  flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                    <h3 className="text-xl font-semibold mb-4 text-black">
+                      Account Deletion
+                    </h3>
+                    <p className="mb-6 text-black">
+                      Your application was rejected. By signing out, your
+                      account will be deleted so you can apply again. Do you
+                      want to continue?
+                    </p>
+                    <div className="flex justify-end gap-4">
+                      <button
+                        className="px-4 py-2 bg-gray-400 rounded hover:bg-gray-700 transition"
+                        onClick={() => setShowDeleteModal(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                        onClick={() => {
+                          setShowDeleteModal(false);
+                          handleSignOut();
+                        }}
+                      >
+                        Delete Account
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

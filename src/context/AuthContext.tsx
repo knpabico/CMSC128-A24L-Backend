@@ -8,6 +8,7 @@ import {
   User,
   createUserWithEmailAndPassword,
   UserCredential,
+  deleteUser,
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { ReactNode } from "react";
@@ -15,6 +16,7 @@ import { FirebaseError } from "firebase/app";
 import { Alumnus } from "@/models/models";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -44,6 +46,7 @@ const AuthContext = createContext<{
   getAlumInfo: (user: User) => Promise<void>;
   isGoogleSignIn: boolean;
   signInWithGoogle: () => Promise<void>;
+  logOutAndDelete: () => Promise<void>;
 }>({
   user: null,
   alumInfo: null,
@@ -56,6 +59,7 @@ const AuthContext = createContext<{
   getAlumInfo: async () => {},
   isGoogleSignIn: false,
   signInWithGoogle: async () => {},
+  logOutAndDelete: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -200,6 +204,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
+
+  const logOutAndDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteDoc(doc(db, "alumni", user?.uid ?? ""));
+      if (user) {
+        await deleteUser(user);
+      }
+      await signOut(auth);
+      setUser(null);
+      setIsAdmin(false);
+      setIsGoogleSignIn(false);
+      setStatus(null);
+      setAlumInfo(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <AuthContext.Provider
       value={{
@@ -214,6 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         getAlumInfo,
         isGoogleSignIn,
         signInWithGoogle,
+        logOutAndDelete,
       }}
     >
       {children}
