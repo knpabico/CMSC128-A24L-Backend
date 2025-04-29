@@ -2,6 +2,7 @@
 import { uploadDocument } from "@/lib/upload";
 import { Button } from "@mui/material";
 import React, { useState } from "react";
+import { UploadIcon } from "lucide-react";
 
 export const AlumDocumentUpload = ({
   index,
@@ -80,28 +81,33 @@ export const AlumDocumentUpload = ({
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Upload Proof of Employment</h2>
-      <p className="mb-2">Accepted formats: PDF, DOC, DOCX, and images</p>
-
-      <input
-        type="file"
-        accept=".pdf,.doc,.docx,image/*"
-        onChange={handleDocumentChange}
-        className="mb-4"
-      />
-
+    <div>
       {document && (
-        <div className="mt-2 mb-4">
-          <p className="font-medium">Selected file: {document.name}</p>
+        <div className="text-sm bg-gray-300 py-[7.2px] px-2.5 border border-gray-500 w-full text-gray-500 rounded-md">
+          <p >Selected file: {document.name}</p>
           <p>Type: {getDocumentTypeDisplay()}</p>
           <p>Size: {(document.size / 1024).toFixed(2)} KB</p>
         </div>
       )}
 
+      <label
+          className="flex items-center space-x-2 cursor-pointer pt-2"
+          onClick={handleUpload}>
+        <p className="text-[#0856ba]"><UploadIcon className="w-4"/></p>
+        <p className="text-[#0856ba] text-sm hover:underline">Upload document</p>
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx,image/*"
+          onChange={handleDocumentChange}
+          className="hidden"
+        />
+      </label>
+
+      <p className="text-xs font-extralight pt-2">Accepted formats: PDF, DOC, DOCX, and images</p>
+
       {preview && (
         <div className="mt-2 mb-4">
-          <p>Preview:</p>
+          <p className="text-xs font-light">Preview:</p>
           <img
             src={preview}
             alt="Image Preview"
@@ -110,12 +116,8 @@ export const AlumDocumentUpload = ({
         </div>
       )}
 
-      <Button variant="contained" onClick={handleUpload} disabled={!document}>
-        Upload Document
-      </Button>
-
       {message && (
-        <p className={`mt-2 ${isError ? "text-red-600" : "text-green-600"}`}>
+        <p className={`mt-2 text-sm ${isError ? "text-red-600" : "text-green-600"}`}>
           {message}
         </p>
       )}

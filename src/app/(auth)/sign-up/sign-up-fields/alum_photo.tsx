@@ -5,6 +5,7 @@ import { uploadImage } from "@/lib/upload";
 import { Button } from "@mui/material";
 import React, { useState } from "react";
 import { set } from "zod";
+import { CameraIcon } from "lucide-react";
 
 export const AlumPhotoUpload = ({ form }: { form: any }) => {
   const [image, setImage] = useState(null);
@@ -54,8 +55,19 @@ export const AlumPhotoUpload = ({ form }: { form: any }) => {
   };
 
   return (
-    <div className="p-4">
-      <input type="file" accept="image/*" onChange={handleImageChange} />
+    <div>
+      
+      {/* original */}
+      {/* <input type="file" accept="image/*" onChange={handleImageChange} />
+      <Button onClick={handleUpload}>Upload Photo</Button> */}
+
+      {/* isang icon lang */}
+      <label onClick={handleUpload}>
+        <input type="file" accept="image/*" onChange={handleImageChange} className="hidden"/>
+        <Button><CameraIcon className="w-10 h-10 text-[#0856ba]"/></Button>
+      </label>
+
+
       {preview && (
         <div className="mt-4">
           <p>Preview:</p>
@@ -66,7 +78,7 @@ export const AlumPhotoUpload = ({ form }: { form: any }) => {
           />
         </div>
       )}
-      <Button onClick={handleUpload}>Upload Photo</Button>
+      
       {message && (
         <p className={`mt-2 ${isError ? "text-red-600" : "text-green-600"}`}>
           {message}

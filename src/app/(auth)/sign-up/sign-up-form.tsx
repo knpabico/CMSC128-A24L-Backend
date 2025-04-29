@@ -82,6 +82,7 @@ import { Education } from "./sign-up-fields/education";
 import { Affiliation } from "./sign-up-fields/affiliation";
 import { NameAndPhoto } from "./sign-up-fields/name-and-photo";
 import { UserCredentials } from "./sign-up-fields/credentials";
+import { AlumPhotoUpload } from "./sign-up-fields/alum_photo";
 
 import Image from "next/image";
 import physciImage from "./physci.png";
@@ -312,7 +313,7 @@ export default function RegistrationForm() {
     // shadcn/ui form docs: https://ui.shadcn.com/docs/components/form
     // create the UI of the form
     <>
-      <div>
+      <div className="">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <fieldset
@@ -321,14 +322,14 @@ export default function RegistrationForm() {
             >
               {/*USER CREDENTIALS SECTION */}
               {currentPart === 0 && (
-                <div className="flex min-h-screen">
+                <div className="flex h-screen bg-white">
                   <div className="flex w-[50%] justify-center items-center">
-                    <div className="flex flex-col w-full mx-37 items-center">
+                    <div className="flex flex-col w-full mx-41 items-center">
                       <p className="text-5xl font-bold text-[#0856ba] pb-10">
                         Create an account
                       </p>
 
-                      <div className="w-full px-9">
+                      <div className="w-full px-8">
                         <div className="space-y-7 w-full">
                           <div className="flex flex-col gap-5">
                             <UserCredentials form={form}></UserCredentials>
@@ -372,18 +373,18 @@ export default function RegistrationForm() {
 
               {currentPart === 1 && (
                 <div className="my-20">
-                  <button onClick={goBack} className="pl-45 italic underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer">
+                  <button onClick={goBack} className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer">
                     <ChevronLeft/>
                     <p>Back</p>
                   </button>
 
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center mx-110">
                     
                     <div className="space-y-10">
-                      <div className="bg-gray-100 rounded-3xl p-10 space-y-15">
+                      <div className="bg-white rounded-3xl p-10 space-y-15">
                         <div className="flex flex-col items-center">
                           <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full">
-                            pic
+                            <AlumPhotoUpload form={form}></AlumPhotoUpload>
                           </div>
                         </div>
                         
@@ -622,6 +623,7 @@ export default function RegistrationForm() {
                                   location: "",
                                   latitude: 14.25,
                                   longitude: 121.25,
+                                  proofOfEmployment: ""
                                 });
                               }}
                             >
@@ -694,29 +696,6 @@ export default function RegistrationForm() {
                           Submit
                         </Button>
                       </div>
-                      
-                    ))}
-                    {/*add  fields button */}
-                    <button
-                      className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                      type="button"
-                      onClick={() => {
-                        addCareer({
-                          industry: "",
-                          jobTitle: "",
-                          company: "",
-                          startYear: "",
-                          endYear: "",
-                          presentJob: false,
-                          location: "",
-                          latitude: 14.25,
-                          longitude: 121.25,
-                          proofOfEmployment: "",
-                        });
-                      }}
-                    >
-                      +
-                    </button>
                       
                     </div>
                     

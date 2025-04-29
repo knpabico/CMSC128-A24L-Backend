@@ -92,7 +92,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex flex-col w-full mx-46 items-center">
+    <div className="flex flex-col w-full mx-49 items-center">
       <p className="text-5xl font-bold text-[#0856ba] pb-10">Welcome back!</p>
 
       <div className="space-y-7 w-full">
