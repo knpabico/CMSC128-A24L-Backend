@@ -5,6 +5,7 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ChevronRight, ChevronDown, Trash2 } from "lucide-react";
 
 export default function Users() {
   const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
@@ -32,119 +33,141 @@ export default function Users() {
   };
 
   return (
-    <div className="bg-[#EAEAEA] left-[#280px] flex flex-col h-full w-full p-6">
-      <h1 className="text-2xl font-bold mb-6 text-left">Job Offers</h1>
-
-      <div className="flex w-full">
-      {/* Stats Sidebar kasi gusto ko eh ba8 ba!! */}
-      <div className="w-64 bg-white shadow-md p-6 rounded-[10px] w-content h-max">
-      <div className="space-y-4">
-        <div className="bg-gray-200 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Total Jobs</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
-            </div>
-
-            <div className="bg-gray-200 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Pending</p>
-              <p className="text-2xl font-bold">{stats.pending}</p>
-            </div>
-
-            <div className="bg-gray-200 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Accepted</p>
-              <p className="text-2xl font-bold">{stats.accepted}</p>
-            </div>
-
-            <div className="bg-gray-200 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Rejected</p>
-              <p className="text-2xl font-bold">{stats.rejected}</p>
-            </div>
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-2">
+        <div>
+          Home
+        </div>
+        <div>
+          <ChevronRight size={15} />
+        </div>
+        <div>
+          Manage Job Offers
+        </div>
+      </div>
+      <div className="w-full">
+        <div className="flex items-center justify-between">
+          <div className="font-bold text-3xl">
+            Manage Job Offers
+          </div>
+          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
+            + Create Job Offer
           </div>
         </div>
+      </div>
 
-    <div className="flex-1 pl-6">
-
-      {/* Filter Tab Buttons */}
-      <div className='flex flex-col gap-[10px] w-full mb-10'>
-        <div className="bg-[#FFFFFF] rounded-[10px] flex justify-around">
-          {["Accepted", "Pending", "Rejected"].map((status) => (
-            <button 
-              key={status}
-              className="mr-2" 
-              onClick={() => setActiveTab(status)}
+      <div className="flex flex-col gap-3">
+        {/* Tabs */}
+        <div className="w-full flex gap-2">
+          {["Accepted", "Pending", "Rejected"].map((tab) => (
+            <div
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
+                activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-white"
+              }`}
             >
-              <p className={`relative px-4 py-2 w-full transition-all ${activeTab === status ? 'font-semibold border-b-2 border-blue-500' : 'text-gray-600 group'}`}>
-                <span>{status}</span>
-                {activeTab !== status && (
-                  <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                )}
-              </p>
-            </button>
+              {/* Blue bar above active tab */}
+              <div
+                className={`w-full h-1 transition-colors ${
+                  activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-transparent"
+                }`}
+              ></div>
+              <div
+                className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
+                  activeTab === tab
+                    ? "text-[var(--primary-blue)] bg-white"
+                    : "text-blue-200 bg-white"
+                }`}
+              >
+                {tab} 
+                <div
+                  className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                    activeTab === tab
+                      ? "bg-amber-400"
+                      : "bg-blue-200"
+                  }`}
+                >
+                  {tab === "Pending" ? stats.pending : tab === "Accepted" ? stats.accepted : stats.rejected}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      </div>
 
-      {isLoading && <div className="text-center py-6">Loading...</div>}
-
-      {/* Job Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {filterJobs(activeTab).map((job: JobOffering, index: number) => (
-          <Card key={index} className="bg-white border-0 overflow-hidden relative flex flex-col">
-            <div className="p-4 flex-1">
-              <div className="flex items-start mb-4">
-                <div className="h-16 w-16 bg-gray-200 rounded-md mr-4 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold">{job.position}</h2>
-                  <p className="text-gray-700">{job.company}</p>
-                  <div className="text-gray-500 text-sm mt-1">
+        <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+          <div className="rounded-xl overflow-hidden border border-gray-300 relative">
+            <div className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm">
+              <div className="w-1/2 flex items-center justify-baseline font-semibold">
+                Job Offer Info
+              </div>
+              <div className="w-1/2 flex justify-end items-center">
+                <div className="w-1/6 flex items-center justify-center font-semibold">Status</div>
+                <div className="w-1/6 flex items-center justify-center font-semibold">Actions</div>
+                <div className="w-1/6 flex items-center justify-center"></div>
+              </div>
+            </div>
+            
+            {filterJobs(activeTab).map((job, index) => (
+              <div
+                key={index}
+                className={`w-full flex gap-4 border-t border-gray-300 ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                } hover:bg-blue-50`}
+              >
+                <div className="w-1/2 flex flex-col p-4 gap-1">
+                  <div className="text-base font-bold">{job.position}</div>
+                  <div className="text-sm text-gray-600">{job.company}</div>
+                  <div className="text-sm text-gray-500">
+                    {job.employmentType} • {job.experienceLevel} • {job.salaryRange}
                   </div>
                 </div>
-                <div className="ml-2">
-                  {job.status === "Pending" && <span className="inline-block px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Pending</span>}
-                  {job.status === "Accepted" && <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Accepted</span>}
-                  {job.status === "Rejected" && <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Rejected</span>}
+                <div className="w-1/2 flex items-center justify-end p-5">
+                  <div className="w-1/6 flex items-center justify-center">
+                    <div className={`px-2 py-1 text-xs rounded ${
+                      job.status === "Accepted" ? "bg-green-100 text-green-800" : 
+                      job.status === "Pending" ? "bg-yellow-100 text-yellow-800" : 
+                      "bg-red-100 text-red-800"
+                    }`}>
+                      {job.status}
+                    </div>
+                  </div>
+
+                  <div className="w-1/6 flex items-center justify-center">
+                    <div 
+                      className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                      onClick={() => handleView(job.jobId)}
+                    >View Details</div>
+                  </div>
+                  <div className="w-1/6 flex items-center justify-center">
+                    {activeTab === "Pending" ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleReject(job.jobId)}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          onClick={() => handleAccept(job.jobId)}
+                          className="text-green-500 hover:text-green-700 text-sm"
+                        >
+                          Accept
+                        </button>
+                      </div>
+                    ) : (
+                      <Trash2 
+                        size={20} 
+                        className="text-gray-500 hover:text-red-500 cursor-pointer"
+                        onClick={() => handleDelete(job.jobId)}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
-              
-              <div className="text-gray-700 line-clamp-3 text-ellipsis overflow-hidden">
-                <p className="line-clamp-3">{job.jobDescription}</p>
-              </div>
-              
-              {activeTab === "Accepted" && (
-                <Button className="absolute bottom-4 right-1 flex justify-end">
-                  <button
-                    onClick={() => handleDelete(job.jobId)}
-                    className="px-4 py-2 bg-[#D42020] text-white rounded-md hover:bg-opacity-90"
-                  >
-                    Delete
-                  </button>
-                </Button>
-              )}
-
-              {activeTab === "Pending" && (
-                <Button className="absolute bottom-4 right-1 flex">
-                  <button 
-                    onClick={() => handleView(job.jobId)}
-                    className="px-4 py-2 bg-white text-[#0856BA] border border-[#0856BA] rounded-md hover:bg-gray-50">
-                    View More
-                  </button>
-                  <button
-                    onClick={() => handleReject(job.jobId)}
-                    className="px-4 py-2 bg-[#D42020] text-white rounded-md hover:bg-opacity-90"
-                  >
-                    Reject
-                  </button>
-                  <button
-                    onClick={() => handleAccept(job.jobId)}
-                    className="px-4 py-2 bg-[#0856BA] text-white rounded-md hover:bg-opacity-90"
-                  >
-                    Accept
-                  </button>
-                </Button>
-              )}
-            </div>
-          </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Job Details Modal */}
@@ -182,7 +205,6 @@ export default function Users() {
           </div>
         </div>
       )}
-    </div>
     </div>
   );
 }
