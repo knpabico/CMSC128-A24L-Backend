@@ -20,7 +20,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   } else if (!isAdmin && user) {
     return <NotFound />;
   } else if (isAdmin) {
-    return <div className="max-w-screen-lg mx-auto px-4 py-10">{children}</div>;
+    return (
+      <div
+        className="ml-64"
+        style={{ padding: "3%" }}
+      >
+        {children}
+      </div>
+    );
   } else if (!isAdmin && !user) {
     return <LoadingPage />;
   }

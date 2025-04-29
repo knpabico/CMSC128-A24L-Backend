@@ -23,6 +23,7 @@
 body {
   background-color: var(--bg-main);
   color: #000000;
+  font-size: 14px;
 }
 
 nav {

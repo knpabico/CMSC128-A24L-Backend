@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   } else if (isAdmin || status !== "approved") {
     return <NotFound />;
   } else if (user) {
-    return <div className="">{children}</div>;
+    return <div className="mt-18">{children}</div>;
   } else if (!isAdmin && !user) {
     return <Home />;
   }
