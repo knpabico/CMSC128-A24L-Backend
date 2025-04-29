@@ -6,7 +6,8 @@ import { useRsvpDetails } from "@/context/RSVPContext";
 import { Event, RSVP } from "@/models/models";
 import { useAuth } from "@/context/AuthContext";
 
-const EventPageAlumni = () => {
+const EventPageAlumni = () => 
+{
   const { events } = useEvents();
   const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject } = useRsvpDetails(events);
   const { alumInfo } = useAuth();
@@ -16,7 +17,8 @@ const EventPageAlumni = () => {
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
 
-  if (!eventId || events.length === 0) {
+  if (!eventId || events.length === 0)
+  {
     return <p>Loading...</p>;
   }
 
@@ -71,10 +73,15 @@ const EventPageAlumni = () => {
                   Going
                 </button>
                 <button
-                  onClick={() => {
-                    if (alumInfo?.alumniId) {
+                  onClick={() =>
+                  {
+                    if (alumInfo?.alumniId)
+                    {
                       handleAlumReject(event.eventId, alumInfo.alumniId);
-                    } else {
+                    } 
+                    
+                    else
+                    {
                       console.log("Alumni ID is not available.");
                     }
                   }}
@@ -85,6 +92,7 @@ const EventPageAlumni = () => {
               </>
             ) : null} {/* This ensures that when the RSVP is not "Pending", nothing is displayed */}
           </div>
+<<<<<<< HEAD
           {event.needSponsorship ? (
             <button
               onClick={() => {
@@ -95,6 +103,17 @@ const EventPageAlumni = () => {
                 View more about the donation
             </button>
           ) : null}
+=======
+          <button
+            onClick={() =>
+            {
+              router.push(`/donationdrive-list/details?id=${event.donationDriveId}`);
+            }}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md"
+          >
+            View more about the donation
+          </button>
+>>>>>>> f07c2f2d50f9c521398e69f5cbce07cd59a373e2
         </div>
       ) : (
         <p>Event not found.</p>
