@@ -16,7 +16,15 @@ import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 import { AlumDocumentUpload } from "./career_proof";
 import { MapPin, PencilIcon } from "lucide-react";
 
-export const Career = ({ index, form }: { index: number; form: any }) => {
+export const Career = ({
+  index,
+  form,
+  proofSetter,
+}: {
+  index: number;
+  form: any;
+  proofSetter: (value: File) => void;
+}) => {
   //dynamic fields for career
 
   const [endYear, setEndYear] = useState(false);
@@ -135,14 +143,6 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                 </FormItem>
               )}
             />
-
-            {/*if presentJob, needs proof of Employment */}
-            {endYear === true && (
-              <AlumDocumentUpload
-                index={index}
-                form={form}
-              ></AlumDocumentUpload>
-            )}
           </div>
           <p className="text-xs font-light pt-3">Location</p>
         </div>
@@ -212,7 +212,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
       </div>
 
       {/*kinopya lang 'yung implementation sa add-work-experience */}
-      <div className="col-span-6">
+      <div className="col-span-12">
         {selectedLocation.location !== "" && (
           <div>
             <p className="text-sm bg-gray-300 py-[7.2px] px-2.5 border border-gray-500 w-full text-gray-500 rounded-md">
@@ -245,6 +245,17 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
           onSave={handleLocationSave}
         />
       </div>
+
+      {endYear === true && (
+        <div className="col-span-12">
+          <p className="text-xs font-light pt-3">Proof of Employment</p>
+          <AlumDocumentUpload
+            index={index}
+            form={form}
+            proofSetter={proofSetter}
+          ></AlumDocumentUpload>
+        </div>
+      )}
     </div>
   );
 };

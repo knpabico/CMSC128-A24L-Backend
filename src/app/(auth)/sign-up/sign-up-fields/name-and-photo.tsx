@@ -7,7 +7,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { AlumPhotoUpload } from "./alum_photo";
 
 export const NameAndPhoto = ({ form }: { form: any }) => {
   return (
@@ -22,9 +21,16 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
             name="firstName"
             render={({ field }) => (
               <FormItem className="gap-0">
-                <FormLabel className="text-xs font-light">First Name*</FormLabel>
+                <FormLabel className="text-xs font-light">
+                  First Name*
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Juan" type="text" {...field} className=" bg-white border border-gray-500"/>
+                  <Input
+                    placeholder="Juan"
+                    type="text"
+                    {...field}
+                    className=" bg-white border border-gray-500"
+                  />
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />
@@ -40,9 +46,16 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
             name="middleName"
             render={({ field }) => (
               <FormItem className="gap-0">
-                <FormLabel className="text-xs font-light">Middle Name</FormLabel>
+                <FormLabel className="text-xs font-light">
+                  Middle Name
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Martinez" type="text" {...field} className="bg-white border border-gray-500"/>
+                  <Input
+                    placeholder="Martinez"
+                    type="text"
+                    {...field}
+                    className="bg-white border border-gray-500"
+                  />
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />
@@ -60,7 +73,12 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
               <FormItem className="gap-0">
                 <FormLabel className="text-xs font-light">Last Name*</FormLabel>
                 <FormControl>
-                  <Input placeholder="Dela Cruz" type="text" {...field} className="bg-white border border-gray-500" />
+                  <Input
+                    placeholder="Dela Cruz"
+                    type="text"
+                    {...field}
+                    className="bg-white border border-gray-500"
+                  />
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />
@@ -78,18 +96,18 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
               <FormItem className="gap-0">
                 <FormLabel className="text-xs font-light">Suffix</FormLabel>
                 <FormControl>
-                  <Input placeholder="Jr." type="text" {...field} className="bg-white border border-gray-500" />
+                  <Input
+                    placeholder="Jr."
+                    type="text"
+                    {...field}
+                    className="bg-white border border-gray-500"
+                  />
                 </FormControl>
                 {/* FormMessage is used for displaying validation error message */}
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
-
-        {/*alum photo */}
-        <div>
-          <AlumPhotoUpload form={form}></AlumPhotoUpload>
         </div>
       </div>
     </div>

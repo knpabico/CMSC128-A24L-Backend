@@ -7,6 +7,8 @@ import { ErrorBoundaryHandler } from "next/dist/client/components/error-boundary
 import { UserRecord } from "firebase-admin/auth";
 import { User } from "firebase/auth";
 import { z } from "zod";
+import { uploadToFirebase } from "./sign-up-fields/alum_photo";
+import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 
 //for checking if the email used in sign-up already exists in firebase auth
 export const validateFirebaseEmail = async (email: string) => {
@@ -63,8 +65,10 @@ const saveCareer = async (
         | undefined
       )[]
     | undefined,
-  alumniId: string
+  alumniId: string,
+  proofOfEmployment: any
 ) => {
+  let workExperienceId = null;
   //if career exists
   if (career) {
     //loop for storing each career entry to work_experience
@@ -89,9 +93,16 @@ const saveCareer = async (
             endYear: presentJob ? "present" : endYear, //if present job, set as present
             //dadagdag yung sa location, latitude, longitude, proofOfEmployment
           });
+
+        if (presentJob) {
+          workExperienceId = ref.id;
+        }
       }
     }
   }
+
+  //return id of current job
+  return workExperienceId;
 };
 
 //function for saving bachelors, masters, and doctoral to the education collection
@@ -213,6 +224,8 @@ const saveAffiliation = async (
 
 export const registerUser = async (
   data: z.infer<typeof signUpFormSchema>,
+  alumImage: any,
+  proofOfEmployment: any,
   userInfo: {
     displayName: string;
     email: string;
@@ -292,10 +305,20 @@ export const registerUser = async (
     await saveEducation(bachelors!, masters!, doctoral!, userCredential.uid);
 
     //save career
-    await saveCareer(career, userCredential.uid);
+    let workExperienceId = await saveCareer(
+      career,
+      userCredential.uid,
+      proofOfEmployment
+    );
 
     //save affiliation
     await saveAffiliation(affiliation, userCredential.uid);
+
+    return {
+      error: false,
+      alumniId: userCredential.uid,
+      workExperienceId: workExperienceId,
+    };
   } catch (err: any) {
     return {
       error: true,

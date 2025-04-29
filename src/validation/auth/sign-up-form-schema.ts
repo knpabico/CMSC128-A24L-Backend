@@ -89,7 +89,6 @@ const baseSchema = z.object({
           latitude: z.number(),
           longitude: z.number(),
           presentJob: z.boolean(),
-          proofOfEmployment: z.string(),
         })
         .optional()
     )
