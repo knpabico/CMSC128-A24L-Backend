@@ -76,41 +76,41 @@ export default function AllEventsPage()
                     <h1 className="text-5xl font-bold my-2 text-white">Events</h1>
                     <p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
                 </div>
-                {/* Body */}
-                <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
-                    {/* Sidebar */}
-                    <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-                    <EventSidebar />
-                    </div>
-                    {/* Main content */}
-                    <div className='flex flex-col gap-[10px] w-full mb-10'>
-                        {/* Filter tabs */}
-                        <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
-                            <h2 className="text-md lg:text-lg font-semibold">All Events</h2>
-                            <div className="flex items-center">
-                                <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                                <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
-                                    <option value="event-closest">Event Date (Closest)</option>
-                                    <option value="event-farthest">Event Date(Farthest)</option>
-                                    <option value="posted-newest">Newest Post</option>
-                                    <option value="post-oldest">Oldest Post</option>
-                                </select>
-                            </div>
+            </div>
+            {/* Body */}
+            <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+                {/* Sidebar */}
+                <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+                <EventSidebar />
+                </div>
+                {/* Main content */}
+                <div className='flex flex-col gap-[10px] w-full mb-10'>
+                    {/* Filter tabs */}
+                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+                        <h2 className="text-md lg:text-lg font-semibold">All Events</h2>
+                        <div className="flex items-center">
+                            <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+                            <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+                                <option value="event-closest">Event Date (Closest)</option>
+                                <option value="event-farthest">Event Date(Farthest)</option>
+                                <option value="posted-newest">Newest Post</option>
+                                <option value="post-oldest">Oldest Post</option>
+                            </select>
                         </div>
-                        {sortedEvents.length > 0 ? (
-                            // event cards
-                            <EventsList
-                                events = {events}
-                                isLoading = {isLoading}
-                                emptyMessage = "No Events have been created yet."
-                            />
-                        ) : (
-                            <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
-                                <h3 className="text-xl font-medium text-gray-600">No events found</h3>
-                                <p className="text-gray-500 mt-2">There are no events with the selected filter.</p>
-                            </div>
-                        )}
                     </div>
+                    {sortedEvents.length > 0 ? (
+                        // event cards
+                        <EventsList
+                            events = {events}
+                            isLoading = {isLoading}
+                            emptyMessage = "No Events have been created yet."
+                        />
+                    ) : (
+                        <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+                            <h3 className="text-xl font-medium text-gray-600">No events found</h3>
+                            <p className="text-gray-500 mt-2">There are no events with the selected filter.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
