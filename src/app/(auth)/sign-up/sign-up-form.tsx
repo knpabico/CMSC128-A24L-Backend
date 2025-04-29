@@ -3,7 +3,7 @@ import { signUpFormSchema } from "@/validation/auth/sign-up-form-schema";
 import * as z from "zod";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { workFieldOptions } from "@/data/work-field-options";
 import { techStackOptions } from "@/data/tech-stack-options";
@@ -87,6 +87,7 @@ import Image from "next/image";
 import physciImage from "./physci.png";
 import googleImage from "./google.png";
 import { useAuth } from "@/context/AuthContext";
+import { VerificationCodeModal } from "./sign-up-fields/emailverify";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
@@ -177,6 +178,10 @@ export default function RegistrationForm() {
   const [countryName, setCountryName] = useState<string>("");
   const [stateName, setStateName] = useState<string>("");
 
+  const [isVerify, setIsVerify] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
+
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
       return { firstName: "", lastName: "" };
@@ -266,8 +271,21 @@ export default function RegistrationForm() {
     remove: removeCareer,
   } = useFieldArray({ control: form.control, name: "career" });
 
-  const handleSubmit = async (data: z.infer<typeof signUpFormSchema>) => {
-    setIsLoading(true);
+  useEffect(() => {
+    if (isVerified && !isVerify) {
+    }
+  }, [isVerified, isVerify]);
+
+  // const handleInitiateSignUp = async () => {
+  //   setIsLoading(true);
+  //   setIsVerify(true); // This opens the verification modal
+  // };
+
+  const completeRegistration = async (
+    data: z.infer<typeof signUpFormSchema>
+  ) => {
+    // setIsLoading(true);
+    setIsLoadingModal(true);
     const response = await registerUser(
       data,
       {
@@ -278,7 +296,8 @@ export default function RegistrationForm() {
       },
       isGoogleSignIn
     );
-    console.log("heyyy");
+    setIsVerify(false);
+    setIsLoadingModal(false);
 
     console.log("Testing sign-up:");
     console.log(data);
@@ -293,6 +312,41 @@ export default function RegistrationForm() {
     // if successful, show a dialog that says
     // wait for admin to approve the account
     setShowDialog(true);
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setIsVerify(true);
+    // if (isVerified && !isVerify) {
+    //   console.log("putangin");
+    //   const response = await registerUser(
+    //     data,
+    //     {
+    //       displayName: user?.displayName ?? "",
+    //       email: user?.email ?? "",
+    //       uid: user?.uid ?? "",
+    //       photoURL: user?.photoURL ?? "",
+    //     },
+    //     isGoogleSignIn
+    //   );
+    //   console.log("heyyy");
+
+    //   console.log("Testing sign-up:");
+    //   console.log(data);
+
+    //   //display error or success toast message
+    //   if (response?.error) {
+    //     toastError(response.message);
+    //     setIsLoading(false);
+    //     return;
+    //   }
+
+    //   // if successful, show a dialog that says
+    //   // wait for admin to approve the account
+    //   setShowDialog(true);
+    // } else {
+    //   toastError("Verification failed");
+    // }
   };
 
   type fieldName = keyof z.infer<typeof signUpFormSchema>;
@@ -316,6 +370,7 @@ export default function RegistrationForm() {
     if (currentPart < formParts.length - 1) {
       //checking if already in the last part of the form
       if (currentPart === formParts.length - 1) {
+        setIsVerify(true);
         form.handleSubmit(handleSubmit);
       } else if (currentPart === formParts.length - 2) {
         setCurrentPart((currentPart) => currentPart + 1);
@@ -416,7 +471,16 @@ export default function RegistrationForm() {
                       <div className="bg-gray-100 rounded-3xl p-10 space-y-15">
                         <div className="flex flex-col items-center">
                           <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full">
-                            pic
+                            <Image
+                              alt="profile"
+                              src={
+                                user?.photoURL ??
+                                "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+                              }
+                              width={250}
+                              height={250}
+                              className="rounded-full"
+                            />
                           </div>
                         </div>
 
@@ -809,6 +873,22 @@ export default function RegistrationForm() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <VerificationCodeModal
+        isOpen={isVerify}
+        onClose={() => {
+          setIsVerify(false);
+          setIsLoading(false);
+          setIsVerified(false);
+        }}
+        email={form.getValues("email") || user?.email || ""}
+        onVerify={() => {
+          setIsVerified(true);
+          setIsLoading(true);
+          completeRegistration(form.getValues());
+        }}
+        isLoadingModal={isLoadingModal}
+      />
     </>
   );
 }

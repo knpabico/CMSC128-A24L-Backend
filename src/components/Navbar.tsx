@@ -84,18 +84,34 @@ export default function Navbar() {
         style={{ paddingLeft: "10%", paddingRight: "10%" }}
       >
         {/* Logo */}
-        <div className="text-white font-[800] text-xl">ICS-ARMS</div>
+        <div
+          className="text-white font-[800] text-xl cursor-pointer"
+          onClick={() => router.push("/")}
+        >
+          ICS-ARMS
+        </div>
 
         <div>
           {/* Login Button */}
           {!loading && !user && !isAdmin && (
             <div className="flex items-center">
-              <button
-                className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
-                onClick={() => router.push("/login")}
-              >
-                Log In
-              </button>
+              {pathname !== "/login" ? (
+                <button
+                  className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
+                  onClick={() => router.push("/login")}
+                >
+                  Log In
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
+                    onClick={() => router.push("/sign-up")}
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
             </div>
           )}
 

@@ -8,12 +8,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useAuth } from "@/context/AuthContext";
 
 export const UserCredentials = ({ form }: { form: any }) => {
+  const { isGoogleSignIn } = useAuth();
   return (
     <>
       {/* email form field */}
       <FormField
+        disabled={isGoogleSignIn}
         control={form.control}
         name="email"
         render={({ field }) => (

@@ -18,10 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronUp, ChevronDown, X } from "lucide-react";
+import { ChevronUp, ChevronDown, X, Loader2 } from "lucide-react";
 
 const Page = () => {
-  const { alums } = useAlums();
+  const { alums, isLoading } = useAlums();
   const [activeTab, setActiveTab] = useState("Pending");
   const [activeStatus, setActiveStatus] = useState("");
   const [sortBy, setSortBy] = useState("name");
@@ -177,12 +177,22 @@ const Page = () => {
       </div>
 
       {sortedAlums.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-md">
-          <p className="text-gray-500">
-            No {activeStatus ? activeStatus.toLowerCase() + " " : ""}
-            {activeTab.toLowerCase()} alumni records found.
-          </p>
-        </div>
+        isLoading ? (
+          <div className=" justify-center py-12 rounded-md bg-gray-50">
+            <div className="text-center py-12 rounded-md">
+              <p className="text-gray-500">
+                <Loader2 className="animate-spin w-6 h-6 mx-auto" />
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-gray-50 rounded-md">
+            <p className="text-gray-500">
+              No {activeStatus ? activeStatus.toLowerCase() + " " : ""}
+              {activeTab.toLowerCase()} alumni records found.
+            </p>
+          </div>
+        )
       ) : (
         <div>
           <p className="text-sm text-gray-500 mb-2">

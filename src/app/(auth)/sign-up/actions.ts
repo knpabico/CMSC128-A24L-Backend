@@ -15,9 +15,12 @@ export const validateFirebaseEmail = async (email: string) => {
       .collection("alumni")
       .where("email", "==", email)
       .get();
+    const snapshot1 = await serverFirestoreDB
+      .collection("admin")
+      .where("email", "==", email)
+      .get();
 
-    console.log("Query empty:", snapshot.empty);
-    return snapshot.empty; // true = email not found, false = email exists
+    return snapshot.empty && snapshot1.empty; // true = email not found, false = email exists
   } catch (error) {
     console.error("Error checking email in Firestore:", error);
     return false;

@@ -67,6 +67,46 @@ export async function sendEmailTemplate(
   }
 }
 
+export async function sendVerificationCode(code: string, alumniEmail: string) {
+  try {
+    await addDoc(collection(db, "mail"), {
+      to: alumniEmail,
+      message: {
+        subject: "ICS-ARMS - New Account Registration",
+        text: "Dear user, your verification code is ...",
+        html: `<!DOCTYPE html>
+                    <html lang="en" style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                    <head>
+                        <meta charset="UTF-8" />
+                        <title>Email Verification</title>
+                    </head>
+                    <body style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #004aad;">ICS-ARMS</h2>
+                        </div>
+                        
+                        <h3 style="color: #333;">Dear User, your verification code is</h3>
+                        <strong>${code}</strong>
+                        <p>Please use this code to verify your registration</p>
+                        <br/>
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                        <p style="font-size: 0.8em; color: #999; text-align: center;">
+                        © 2025 ICS-ARMS | University of the Philippines Los Baños<br />
+                        All rights reserved. <br />
+                        </p>
+                    </body>
+                    </html>`,
+      },
+    });
+    return {
+      success: true,
+      message: `Verification sent successfully!`,
+    };
+  } catch (error) {
+    return { success: false, message: (error as FirebaseError).message };
+  }
+}
+
 export async function sendEmailTemplateForNewsletter(
   photoURL: string,
   title: string,
