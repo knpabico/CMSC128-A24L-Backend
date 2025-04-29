@@ -4,6 +4,9 @@ import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useEducation } from "@/context/EducationContext";
+import AlumnusUploadPic from "./upload-profile/page";
+import Image from "next/image";
+
 
 import {
   Button,
@@ -21,6 +24,7 @@ import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon } from "lucide-r
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "@/components/ui/edit-experience-modal"
+import PhotoUpload from "../../upload-photo/page";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { useRouter } from "next/navigation";
 import AddEducationModal from "@/components/ui/add-aducation-modal";
@@ -31,10 +35,11 @@ const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
   const { userWorkExperience, isLoading, deleteWorkExperience } =
     useWorkExperience();
-  const { userEducation, isLoadingEducation, deleteEducation} = useEducation();
-  const { userAffiliation } = useAffiliation();
+    const { userEducation, isLoadingEducation, deleteEducation} = useEducation();
+    const { userAffiliation } = useAffiliation();
 
-
+    
+  const [uploading, setUploading] =useState(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [success, setSuccess] = useState(false);
@@ -55,6 +60,7 @@ const UserProfile = () => {
   const [addBachelor,setAddBachelor]= useState(false); 
   const [addMasters,setAddMasters]= useState(false); 
   const [addDoctoral,setAddDoctoral]= useState(false);
+  const [showUploader, setShowUploader] = useState(false);
   
   // GAWA NI MAYBELLE
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -89,6 +95,17 @@ const UserProfile = () => {
     setCareerView(true);
   };
   //===========================
+
+
+  //upload Image
+  const handleUploadImage =() => {
+    console.log("Hello");
+    if (uploading){
+      setUploading(false);
+    }else{
+      setUploading(true)
+    }
+  }
 
   //pagdagdag sa education
   const handleAddBachelor = () => {
@@ -230,8 +247,19 @@ const UserProfile = () => {
     <div className="">
       <div style={{backgroundColor: "#3675c5"}} className="pt-20 pb-2 px-60 h-max w-full text-white">
         <div className="flex space-x-10 pb-5">
-          <div className="bg-blue-300 w-50 h-50 flex justify-center items-center mb-2 rounded-full">
-            pic
+          <div className="bg-blue-300 w-50 h-50 flex justify-center items-center mb-2 rounded-full" onClick={handleUploadImage}>
+          {alumInfo?.image ? (
+          <Image
+            src={alumInfo.image}
+            alt="Alumnus Image"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="object-cover w-full h-full rounded-full"
+          />
+        ) : (
+          <span className="text-white">pic</span>
+        )}
           </div>
           <div className="flex flex-col justify-end pb-10">
             <p className="font-bold text-5xl pb-3">{alumInfo?.firstName} {alumInfo?.lastName}</p>
@@ -646,6 +674,8 @@ const UserProfile = () => {
         setSuccess={setSuccess}
         />
       )}
+
+      {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => setUploading(false)}/>}
 
 
 

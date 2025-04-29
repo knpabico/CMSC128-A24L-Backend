@@ -10,11 +10,14 @@ import {
   where,
   getDocs,
   orderBy,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
+import { uploadImage } from "@/lib/upload";
+
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -60,6 +63,27 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       }
     };
   }, [user]);
+
+
+  //for fetching the photo of alumni
+  const uploadAlumniPhoto = async (alum:Alumnus, imageFile:any) => {
+    try {
+      //uploading
+      const data = await uploadImage(imageFile, `alumni/${user?.uid}`);
+      if (!data.success) {
+        throw new Error(data.result);
+      }
+
+      // Update the Firestore document with the image URL
+      const alumniRef = doc(db, "alumni", alum.alumniId);
+      await updateDoc(alumniRef, { image: data.url });
+
+      return { success: true, url: data.url };
+    } catch (error) {
+      console.error("Error uploading alumni photo:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
   //for fetching career of current user
   const subscribeToMyCareer = () => {
@@ -183,6 +207,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         alums,
         isLoading,
         addAlumnus,
+        uploadAlumniPhoto,
         activeAlums,
         myCareer,
         myEducation,
