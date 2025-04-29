@@ -364,14 +364,16 @@ export function EventProvider({ children }: { children: React.ReactNode })
         {
           rsvps: updatedRSVPIds,
           targetGuests: updatedTargetGuests,
-          status: "Accepted" 
+          status: "Accepted",
+          datePosted: new Date() 
         });
       } else {
         // Only update rsvps if inviteType is "all"
         await updateDoc(eventRef,
         {
           rsvps: updatedRSVPIds,
-          status: "Accepted" 
+          status: "Accepted",
+          datePosted: new Date()  
         });
       }
 

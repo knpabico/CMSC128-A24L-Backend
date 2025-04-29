@@ -76,6 +76,8 @@ export default function Events()
     setEventDate,
     description,
     setEventDescription,
+    location,
+    setEventLocation,
     title,
     needSponsorship,
     setNeedSponsorship,
@@ -352,6 +354,15 @@ export default function Events()
                 className="w-full mb-4 p-2 border rounded"
                 required
               />
+
+              <textarea
+                placeholder="Event Location"
+                value={location}
+                onChange={(e) => setEventLocation(e.target.value)}
+                className="w-full mb-4 p-2 border rounded"
+                required
+              />
+
               <Button onClick={() => setIsModalOpen(true)}>
                 Need AI help for description?
               </Button>

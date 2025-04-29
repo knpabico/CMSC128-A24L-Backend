@@ -420,11 +420,12 @@ export default function Events() {
                   className="w-full mb-4 p-2 border rounded"
                   required
                   min={
-                    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                      .toISOString()
-                      .split("T")[0]
-                  } // Events must be scheduled
-                  // at least one week in advance
+                    date
+                      ? new Date(date).toISOString().split("T")[0] // allow same date or later
+                      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                          .toISOString()
+                          .split("T")[0]
+                  }
                 />
 
                 <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
