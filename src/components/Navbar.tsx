@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
-import { CircleUserRound, Menu, X, ChevronDown } from "lucide-react";
+import { CircleUserRound, Menu, X, ChevronDown, LogOut, ChevronUp } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function Navbar() {
@@ -11,6 +11,83 @@ export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  // Dynamic navigation configuration
+  const navConfig = [
+    {
+      id: 'alumni',
+      label: 'Alumni',
+      initiallyCollapsed: false,
+      subItems: [
+        { id: 'manage-alumni', label: 'Manage Alumni', path: '/admin/alumni/manage' },
+        { id: 'pending-alumni', label: 'View Pending Alumni', path: '/admin/alumni/pending' },
+        { id: 'stats-alumni', label: 'Statistical Report', path: '/admin/alumni/stats' },
+      ]
+    },
+    {
+      id: 'events',
+      label: 'Events',
+      initiallyCollapsed: true,
+      subItems: [
+        { id: 'manage-events', label: 'Manage Events', path: '/admin/events/manage' },
+        { id: 'add-events', label: 'Add Events', path: '/admin/events/add' },
+        { id: 'pending-events', label: 'View Pending Events', path: '/admin/events/pending' },
+      ]
+    },
+    {
+      id: 'donations',
+      label: 'Donations',
+      initiallyCollapsed: true,
+      subItems: [
+        { id: 'manage-donations', label: 'Manage Donations', path: '/admin/donations/manage' },
+        { id: 'add-donations', label: 'Add Donations', path: '/admin/donations/add' },
+      ]
+    },
+    {
+      id: 'scholarships',
+      label: 'Scholarship Grants',
+      initiallyCollapsed: true,
+      subItems: [
+        { id: 'manage-scholarships', label: 'Manage Scholarships', path: '/admin/scholarships/manage' },
+        { id: 'add-scholarships', label: 'Add Scholarship Drive', path: '/admin/scholarships/add' },
+      ]
+    },
+    {
+      id: 'jobs',
+      label: 'Job Posting',
+      initiallyCollapsed: true,
+      subItems: [
+        { id: 'manage-jobs', label: 'Manage Job Posting', path: '/admin/jobs/manage' },
+        { id: 'add-jobs', label: 'Add Job Posting', path: '/admin/jobs/add' },
+        { id: 'view-jobs', label: 'View Job Posting', path: '/admin/jobs/view' },
+      ]
+    },
+    {
+      id: 'announcements',
+      label: 'Announcements',
+      initiallyCollapsed: true,
+      subItems: [
+        { id: 'manage-announcements', label: 'Manage Posts', path: '/admin/announcements/manage' },
+        { id: 'add-announcements', label: 'Add Posts', path: '/admin/announcements/add' },
+      ]
+    },
+  ];
+
+  // Generate initial collapsed state from config
+  const generateInitialCollapsedState = () => {
+    const initialState = {};
+    navConfig.forEach(section => {
+      initialState[section.id] = section.initiallyCollapsed;
+    });
+    return initialState;
+  };
+  
+  // State to track which sections are collapsed
+  const [collapsedSections, setCollapsedSections] = useState(generateInitialCollapsedState());
+  
+  // State to track active section and subheading
+  const [activeSection, setActiveSection] = useState(null);
+  const [activeSubheading, setActiveSubheading] = useState(null);
 
   const dropdownRef = useRef(null);
   const menuRef = useRef(null); // Reference for mobile menu container
@@ -41,6 +118,57 @@ export default function Navbar() {
     setDropdownOpen(false);
     router.refresh();
   };
+  
+  // Toggle section collapse
+  const toggleSection = (sectionId) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+    setActiveSection(sectionId);
+    setActiveSubheading(null); // Clear active subheading when changing sections
+  };
+  
+  // Handle subheading click
+  const handleSubheadingClick = (sectionId, subheadingId, path = null) => {
+    setActiveSection(sectionId);
+    setActiveSubheading(subheadingId);
+    if (path) {
+      router.push(path);
+    }
+  };
+
+  // Function to check if a subitem is active based on the current path
+  const isSubItemActive = (path) => {
+    if (!pathname) return false;
+    return pathname === path || pathname.startsWith(`${path}/`);
+  };
+
+  // Function to find and set active section and subheading based on current pathname
+  const findActiveFromPath = () => {
+    if (!pathname) return;
+    
+    for (const section of navConfig) {
+      for (const subItem of section.subItems) {
+        if (isSubItemActive(subItem.path)) {
+          setActiveSection(section.id);
+          setActiveSubheading(subItem.id);
+          
+          // Ensure the section is expanded
+          setCollapsedSections(prev => ({
+            ...prev,
+            [section.id]: false
+          }));
+          return;
+        }
+      }
+    }
+  };
+
+  // Update active state when path changes
+  useEffect(() => {
+    findActiveFromPath();
+  }, [pathname]);
 
   useEffect(() => {
     // Handle click outside to close dropdown and mobile menu
@@ -63,6 +191,7 @@ export default function Navbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
 
   return (
     <div>
@@ -207,77 +336,49 @@ export default function Navbar() {
       )}
 
       {(isAdmin || isGoogleSignIn) && (
-        <nav className="fixed top-0 left-0 w-64 h-screen flex flex-col gap-5" style={{ "padding": "2%" }}>
-          <div>
+        <nav className="fixed top-0 left-0 w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white" style={{ "paddingTop": "2%", "paddingBottom": "2%" }}>
+          <div className="text-xl font-bold px-5">
             ICS-ARMS
           </div>
-          <div>
-            <div>
-              <div>
-                Alumni
+          <div className="flex-1 overflow-y-auto">
+            {/* Dynamically generate menu sections */}
+            {navConfig.map((section) => (
+              <div className="mb-2" key={section.id}>
+                <div 
+                  className={`flex items-center justify-between cursor-pointer hover:text-blue-300 ${activeSection === section.id ? 'bg-[var(--blue-600)]' : ''}`}
+                  style={{ padding: "3% 10% 3% 10%" }}
+                  onClick={() => toggleSection(section.id)}
+                >
+                  {section.label} 
+                  {collapsedSections[section.id] ? 
+                    <ChevronDown className="cursor-pointer" size={20}/> : 
+                    <ChevronUp className="cursor-pointer" size={20}/>
+                  }
+                </div>
+                {!collapsedSections[section.id] && (
+                  <div>
+                    {section.subItems.map((subItem) => (
+                      <div 
+                        key={subItem.id}
+                        className={`hover:bg-[var(--blue-600)] cursor-pointer ${activeSection === section.id && activeSubheading === subItem.id ? 'text-sky-400 font-bold' : ''}`} 
+                        style={{ padding: "3% 10% 3% 18%" }}
+                        onClick={() => handleSubheadingClick(section.id, subItem.id, subItem.path)}
+                      >
+                        {subItem.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div>
-                <div>Manage Alumni</div>
-                <div>View Pending Alumni</div>
-                <div>Statistical Report</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Events
-              </div>
-              <div>
-                <div>Manage Events</div>
-                <div>Add Events</div>
-                <div>View Pending Events</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Donations
-              </div>
-              <div>
-                <div>Manage Donations</div>
-                <div>Add Donations</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Scholarship Grants
-              </div>
-              <div>
-                <div>Manage Scholarships</div>
-                <div>Add Scholarship Drive</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Job Posting
-              </div>
-              <div>
-                <div>Manage Job Posting</div>
-                <div>Add Job Posting</div>
-                <div>View Job Posting</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Announcements
-              </div>
-              <div>
-                <div>Manage Posts</div>
-                <div>Add Posts</div>
-              </div>
-            </div>
+            ))}
           </div>
-          <div>
+          <div className="hover:bg-[var(--blue-600)] cursor-pointer" style={{ padding: "5% 10% 5% 10%" }}>
             <button
-              className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
+              className="text-white flex items-center gap-2 cursor-pointer"
               onClick={() => handleSignOut()}
             >
-              Sign Out
+              <LogOut size={20} /> Log Out
             </button>
-
           </div>
         </nav>
       )}
