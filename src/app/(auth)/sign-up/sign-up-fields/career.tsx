@@ -58,7 +58,11 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
               <FormItem className="gap-0">
                 <FormLabel className="text-xs font-light">Industry</FormLabel>
                 <FormControl>
-                  <Input placeholder="Cybersecurity" {...field} className="bg-white border border-gray-500"/>
+                  <Input
+                    placeholder="Cybersecurity"
+                    {...field}
+                    className="bg-white border border-gray-500"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -74,7 +78,11 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
               <FormItem className="gap-0">
                 <FormLabel className="text-xs font-light">Job Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Programmer" {...field} className="bg-white border border-gray-500"/>
+                  <Input
+                    placeholder="Programmer"
+                    {...field}
+                    className="bg-white border border-gray-500"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -89,9 +97,15 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
             name={`career.${index}.company`}
             render={({ field }) => (
               <FormItem className="gap-0">
-                <FormLabel className="text-xs font-light">Company/Organization</FormLabel>
+                <FormLabel className="text-xs font-light">
+                  Company/Organization
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Company X" {...field} className="bg-white border border-gray-500"/>
+                  <Input
+                    placeholder="Company X"
+                    {...field}
+                    className="bg-white border border-gray-500"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -107,20 +121,28 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
               name={`career.${index}.startYear`}
               render={({ field }) => (
                 <FormItem className="gap-0">
-                  <FormLabel className="text-xs font-light">Start Year</FormLabel>
+                  <FormLabel className="text-xs font-light">
+                    Start Year
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="2020" {...field} className="bg-white border border-gray-500"/>
+                    <Input
+                      placeholder="2020"
+                      {...field}
+                      className="bg-white border border-gray-500"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          )}
 
-          {/*if presentJob, needs proof of Employment */}
-          {endYear === true && (
-            <AlumDocumentUpload index={index} form={form}></AlumDocumentUpload>
-          )}
+            {/*if presentJob, needs proof of Employment */}
+            {endYear === true && (
+              <AlumDocumentUpload
+                index={index}
+                form={form}
+              ></AlumDocumentUpload>
+            )}
           </div>
           <p className="text-xs font-light pt-3">Location</p>
         </div>
@@ -134,9 +156,15 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                 name={`career.${index}.endYear`}
                 render={({ field }) => (
                   <FormItem className="gap-0">
-                  <FormLabel className="text-xs font-light">End Year</FormLabel>
+                    <FormLabel className="text-xs font-light">
+                      End Year
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder={"2025"} {...field} className="bg-white border border-gray-500"/>
+                      <Input
+                        placeholder={"2025"}
+                        {...field}
+                        className="bg-white border border-gray-500"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -146,7 +174,9 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
             {endYear === true && (
               <div>
                 <p className="text-xs font-light">End Year</p>
-                <p className="cursor-not-allowed text-sm bg-gray-300 py-[7.2px] px-2.5 border border-gray-500 w-full text-gray-500 rounded-md">Present</p>
+                <p className="cursor-not-allowed text-sm bg-gray-300 py-[7.2px] px-2.5 border border-gray-500 w-full text-gray-500 rounded-md">
+                  Present
+                </p>
               </div>
             )}
           </div>
@@ -169,7 +199,9 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                         className="bg-white"
                       />
                     </FormControl>
-                    <FormLabel className="text-xs font-light">Present job?</FormLabel>
+                    <FormLabel className="text-xs font-light">
+                      Present job?
+                    </FormLabel>
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -177,23 +209,32 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
             />
           </div>
         </div>
-
-        
       </div>
 
       {/*kinopya lang 'yung implementation sa add-work-experience */}
       <div className="col-span-6">
         {selectedLocation.location !== "" && (
           <div>
-            <p className="text-sm bg-gray-300 py-[7.2px] px-2.5 border border-gray-500 w-full text-gray-500 rounded-md">{selectedLocation.location}</p>
+            <p className="text-sm bg-gray-300 py-[7.2px] px-2.5 border border-gray-500 w-full text-gray-500 rounded-md">
+              {selectedLocation.location}
+            </p>
           </div>
         )}
         <button
-            className="flex items-center space-x-2 cursor-pointer pt-2"
-            type="button"
-            onClick={() => setIsModalOpen(true)}>
-          <p className="text-[#0856ba]">{selectedLocation.location !== "" ? <PencilIcon className="w-4"/> : <MapPin className="w-4"/>}</p>
-          <p className="text-[#0856ba] text-sm hover:underline">{selectedLocation.location !== "" ? "Edit" : "Enter"} location</p>
+          className="flex items-center space-x-2 cursor-pointer pt-2"
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <p className="text-[#0856ba]">
+            {selectedLocation.location !== "" ? (
+              <PencilIcon className="w-4" />
+            ) : (
+              <MapPin className="w-4" />
+            )}
+          </p>
+          <p className="text-[#0856ba] text-sm hover:underline">
+            {selectedLocation.location !== "" ? "Edit" : "Enter"} location
+          </p>
         </button>
         <GoogleMapsModal
           isOpen={isModalOpen}

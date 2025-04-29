@@ -372,13 +372,15 @@ export default function RegistrationForm() {
 
               {currentPart === 1 && (
                 <div className="my-20">
-                  <button onClick={goBack} className="pl-45 italic underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer">
-                    <ChevronLeft/>
+                  <button
+                    onClick={goBack}
+                    className="pl-45 italic underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
+                  >
+                    <ChevronLeft />
                     <p>Back</p>
                   </button>
 
                   <div className="flex flex-col items-center">
-                    
                     <div className="space-y-10">
                       <div className="bg-gray-100 rounded-3xl p-10 space-y-15">
                         <div className="flex flex-col items-center">
@@ -386,25 +388,28 @@ export default function RegistrationForm() {
                             pic
                           </div>
                         </div>
-                        
+
                         <div className="space-y-7">
                           <div className="space-y-2">
-                            <p className="font-bold text-xl">Personal Information</p>
+                            <p className="font-bold text-xl">
+                              Personal Information
+                            </p>
                             <hr></hr>
                           </div>
-                          
+
                           {/* NAME AND PHOTO SECTION*/}
                           <NameAndPhoto form={form}></NameAndPhoto>
-                          
+
                           {/* PERSONAL SECTION */}
                           <Personal form={form}></Personal>
                         </div>
 
-
                         {/* EDUCATION SECTION */}
                         <div className="space-y-7">
                           <div className="space-y-2">
-                            <p className="font-bold text-xl">Educational Background</p>
+                            <p className="font-bold text-xl">
+                              Educational Background
+                            </p>
                             <hr></hr>
                           </div>
 
@@ -416,7 +421,9 @@ export default function RegistrationForm() {
                                 name="studentNumber"
                                 render={({ field }) => (
                                   <FormItem className="gap-0">
-                                    <p className="text-sm font-semibold">Student Number at UPLB*</p>
+                                    <p className="text-sm font-semibold">
+                                      Student Number at UPLB*
+                                    </p>
                                     <FormControl>
                                       <Input
                                         placeholder="2020-12345"
@@ -434,7 +441,9 @@ export default function RegistrationForm() {
 
                           {/* bachelor's form field */}
                           <div>
-                            <p className="text-sm font-semibold pb-2">Bachelor's Degree*</p>
+                            <p className="text-sm font-semibold pb-2">
+                              Bachelor's Degree*
+                            </p>
                             {bachelors.map((bachelor, index) => (
                               <div key={bachelor.id} className="relative pb-5">
                                 {index > 0 && (
@@ -443,7 +452,7 @@ export default function RegistrationForm() {
                                     type="button"
                                     onClick={() => removeBachelors(index)}
                                   >
-                                    <Trash2Icon className="w-4"/>
+                                    <Trash2Icon className="w-4" />
                                   </button>
                                 )}
 
@@ -457,23 +466,30 @@ export default function RegistrationForm() {
 
                             {/*add bachelors fields button */}
                             <button
-                                className="flex items-center space-x-3 cursor-pointer"
-                                type="button"
-                                onClick={() => {
+                              className="flex items-center space-x-3 cursor-pointer"
+                              type="button"
+                              onClick={() => {
                                 addBachelors({
                                   university: "",
                                   yearGraduated: "",
                                   major: "",
                                 });
-                              }}>
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                              <p className="text-[#0856ba] text-sm hover:underline">Add bachelor's degree</p>
+                              }}
+                            >
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
+                                +
+                              </p>
+                              <p className="text-[#0856ba] text-sm hover:underline">
+                                Add bachelor's degree
+                              </p>
                             </button>
                           </div>
 
                           {/* master's form field */}
                           <div>
-                            <p className="text-sm font-semibold pb-2">Master's Degree</p>
+                            <p className="text-sm font-semibold pb-2">
+                              Master's Degree
+                            </p>
                             {masters.map((master, index) => (
                               <div key={master.id} className="relative pb-5">
                                 <button
@@ -481,7 +497,7 @@ export default function RegistrationForm() {
                                   type="button"
                                   onClick={() => removeMasters(index)}
                                 >
-                                  <Trash2Icon className="w-4"/>
+                                  <Trash2Icon className="w-4" />
                                 </button>
 
                                 <Education
@@ -504,23 +520,29 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                              <p className="text-[#0856ba] text-sm hover:underline">Add master's degree</p>
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
+                                +
+                              </p>
+                              <p className="text-[#0856ba] text-sm hover:underline">
+                                Add master's degree
+                              </p>
                             </button>
                           </div>
 
                           {/* doctoral form field */}
                           <div className="mt-5">
-                            <p className="text-sm font-semibold pb-2">Doctoral Degree</p>
+                            <p className="text-sm font-semibold pb-2">
+                              Doctoral Degree
+                            </p>
                             {doctoral.map((doc, index) => (
                               <div key={doc.id} className="relative pb-5">
-                                  <button
-                                    className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
-                                    type="button"
-                                    onClick={() => removeDoctoral(index)}
-                                  >
-                                    <Trash2Icon className="w-4"/>
-                                  </button>
+                                <button
+                                  className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                  type="button"
+                                  onClick={() => removeDoctoral(index)}
+                                >
+                                  <Trash2Icon className="w-4" />
+                                </button>
 
                                 <Education
                                   index={index}
@@ -542,25 +564,34 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                              <p className="text-[#0856ba] text-sm hover:underline">Add doctoral degree</p>
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
+                                +
+                              </p>
+                              <p className="text-[#0856ba] text-sm hover:underline">
+                                Add doctoral degree
+                              </p>
                             </button>
                           </div>
 
                           {/* affiliations form field */}
                           <div className="mt-5">
-                            <p className="text-sm font-semibold pb-2">Affiliation</p>
+                            <p className="text-sm font-semibold pb-2">
+                              Affiliation
+                            </p>
                             {affiliation.map((aff, index) => (
                               <div key={aff.id} className="relative pb-5">
-                                  <button
-                                    className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
-                                    type="button"
-                                    onClick={() => removeAffiliation(index)}
-                                  >
-                                    <Trash2Icon className="w-4"/>
-                                  </button>
+                                <button
+                                  className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                  type="button"
+                                  onClick={() => removeAffiliation(index)}
+                                >
+                                  <Trash2Icon className="w-4" />
+                                </button>
 
-                                <Affiliation index={index} form={form}></Affiliation>
+                                <Affiliation
+                                  index={index}
+                                  form={form}
+                                ></Affiliation>
                               </div>
                             ))}
 
@@ -576,32 +607,37 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                              <p className="text-[#0856ba] text-sm hover:underline">Add affiliation</p>
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
+                                +
+                              </p>
+                              <p className="text-[#0856ba] text-sm hover:underline">
+                                Add affiliation
+                              </p>
                             </button>
                           </div>
                         </div>
 
-                        
                         {/* CAREER SECTION */}
                         <div className="space-y-7">
                           <div className="space-y-2">
                             <p className="font-bold text-xl">Career</p>
                             <hr></hr>
                           </div>
-                          
+
                           <div className="mt-5">
-                            <p className="text-sm font-semibold pb-2">Work Experience</p>
+                            <p className="text-sm font-semibold pb-2">
+                              Work Experience
+                            </p>
                             {career.map((car, index) => (
                               <div key={car.id} className="relative pb-5">
                                 {/*remove field button */}
-                                  <button
-                                    className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
-                                    type="button"
-                                    onClick={() => removeCareer(index)}
-                                  >
-                                    <Trash2Icon className="w-4"/>
-                                  </button>
+                                <button
+                                  className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                  type="button"
+                                  onClick={() => removeCareer(index)}
+                                >
+                                  <Trash2Icon className="w-4" />
+                                </button>
 
                                 {/* career form field */}
                                 <Career index={index} form={form}></Career>
@@ -622,17 +658,21 @@ export default function RegistrationForm() {
                                   location: "",
                                   latitude: 14.25,
                                   longitude: 121.25,
+                                  proofOfEmployment: "",
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                              <p className="text-[#0856ba] text-sm hover:underline">Add work experience</p>
+                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
+                                +
+                              </p>
+                              <p className="text-[#0856ba] text-sm hover:underline">
+                                Add work experience
+                              </p>
                             </button>
                           </div>
                         </div>
-
                       </div>
-                      
+
                       <div className="space-y-3 px-5">
                         {/* acceptTerms form field */}
                         <FormField
@@ -677,14 +717,16 @@ export default function RegistrationForm() {
                                     onCheckedChange={field.onChange}
                                   />
                                 </FormControl>
-                                <FormLabel>Subscribe to our newsletter</FormLabel>
+                                <FormLabel>
+                                  Subscribe to our newsletter
+                                </FormLabel>
                               </div>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-                      
+
                       <div className="flex flex-col items-start px-5">
                         <Button
                           className="w-50 col-span-6 bg-[#0856ba] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
@@ -694,34 +736,8 @@ export default function RegistrationForm() {
                           Submit
                         </Button>
                       </div>
-                      
-                    ))}
-                    {/*add  fields button */}
-                    <button
-                      className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
-                      type="button"
-                      onClick={() => {
-                        addCareer({
-                          industry: "",
-                          jobTitle: "",
-                          company: "",
-                          startYear: "",
-                          endYear: "",
-                          presentJob: false,
-                          location: "",
-                          latitude: 14.25,
-                          longitude: 121.25,
-                          proofOfEmployment: "",
-                        });
-                      }}
-                    >
-                      +
-                    </button>
-                      
                     </div>
-                    
                   </div>
-
                 </div>
               )}
             </fieldset>
