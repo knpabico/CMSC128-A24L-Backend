@@ -2,10 +2,10 @@
 
 import { Scholarship } from "@/models/models"
 import { useScholarship } from "@/context/ScholarshipContext"
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { toastSuccess } from "@/components/ui/sonner";
-import { ChevronRight, CircleAlert, CircleX, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, CircleAlert, CircleX, Trash2 } from "lucide-react";
 import { Dialog, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import { DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 
@@ -19,7 +19,10 @@ export default function ManageScholarship(){
 		deleteScholarship,
 		getScholarshipById
 	} = useScholarship();
-
+	const [activeTab, setActiveTab] = useState("Posted");
+  const tableRef = useRef(null);
+  const [headerWidth, setHeaderWidth] = useState("100%");
+  const [isSticky, setIsSticky] = useState(false);
 	const router  = useRouter();
 	const navigateToDetail = (scholarshipId: string) => {
 		router.push(`/admin-dashboard/manage-scholarship/${scholarshipId}`);
@@ -55,6 +58,38 @@ export default function ManageScholarship(){
 
 	const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 	const [selectedScholarship, setSelectedScholarship] = useState<Scholarship>();
+
+	// Track scroll position and update header state
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!tableRef.current) return;
+      
+      const tableRect = tableRef.current.getBoundingClientRect();
+      
+      if (tableRect.top <= 0 && !isSticky) {
+        setIsSticky(true);
+        setHeaderWidth(tableRect.width);
+      } else if (tableRect.top > 0 && isSticky) {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    // Set initial width
+    if (tableRef.current) {
+      setHeaderWidth(tableRef.current.offsetWidth);
+    }
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isSticky]);
+
+	const create = () => {
+    router.push("/admin-dashboard/add-scholarship");
+  };
 	
 	return (
 		<div className="flex flex-col gap-5">
@@ -68,15 +103,15 @@ export default function ManageScholarship(){
           <div className="font-bold text-3xl">
             Manage Scholarships
           </div>
-          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
+          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600" onClick={create}>
             + Create Scholarship
           </div>
         </div>
       </div>
-			<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
-				<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
-				<div className="flex items-center">
-					<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+			{/* Filter tabs */}
+			<div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
+				<div className="text-sm font-medium">Filter by:</div>
+				<div className=" pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300">
 					<select id="sort" value={sortOption} onChange={(e) => setSortOption(e.target.value as any)} className="flex items-center text-sm" >
 						<option value="newest">Newest</option>
 						<option value="oldest">Oldest</option>
@@ -85,43 +120,66 @@ export default function ManageScholarship(){
 					</select>
 				</div>
 			</div>
-			{sortedScholarships.length === 0 ? (
-				<div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
-					'No scholarships available.'
-				</div>
-			) : (
-				<div className="flex flex-col gap-3 w-full">
-					{sortedScholarships.map((scholarship : Scholarship) => (
-					<div 
-						key={scholarship.scholarshipId} 
-						className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
-					>
-						{/* Body */}
-						<div className="px-6 py-3 flex justify-between items-center">
-							{/* Details */}
-							<div className="flex flex-col justify-start">
-								<h2 className="text-xl font-semibold truncate">{scholarship.title}</h2>
-								<p className="text-sm text-gray-600">
-									Posted on {scholarship.datePosted.toLocaleDateString()}
-								</p>
-								<p className="text-sm text-gray-600">
-									Total Number of Sponsors: {scholarship.alumList.length}
-								</p>
-							</div>
-							<div className='flex gap-5'>
-								<button className="text-blue-700 hover:cursor-pointer" onClick={() => navigateToDetail(scholarship.scholarshipId)}>View Details</button>
-								<button className="text-red-700 hover:cursor-pointer" onClick={() => {
-									setSelectedScholarship(scholarship);
-									setIsConfirmationOpen(true);
-								}} >
-									<Trash2 className='size-6'/>
-								</button>
-							</div>       
-						</div>
-					</div>
-					))}
-				</div>
-			)}
+			{/* Table Container with Fixed Height for Scrolling */}
+			<div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+          {/* This is the key: Adding a fixed height container with overflow */}
+          <div className="rounded-xl overflow-hidden border border-gray-300 relative" ref={tableRef}>
+            {/* Sticky header - will stick to top of viewport when scrolled */}
+            <div 
+              className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
+                isSticky ? 'fixed top-0' : ''
+              }`}
+              style={{ width: isSticky ? headerWidth : '100%' }}
+            >
+              <div className="w-1/2 flex items-center justify-baseline font-semibold">
+                Scholarship Info
+              </div>
+              <div className="w-1/2 flex justify-end items-center">
+                <div className="w-1/6 flex items-center justify-center font-semibold">Actions</div>
+                <div className="w-1/6 flex items-center justify-center"></div>
+              </div>
+            </div>
+            
+            {/* Spacer div to prevent content jump when header becomes fixed */}
+            {isSticky && <div style={{ height: '56px' }}></div>}
+
+            {/* Dynamic rows */}
+            {sortedScholarships.length === 0 ? (
+								<div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
+									'No scholarships available.'
+								</div>
+							) : (
+								<div className="">
+									{sortedScholarships.map((scholarship : Scholarship, index) => (
+									<div 
+										key={scholarship.scholarshipId} 
+										className={`w-full flex gap-4 border-t border-gray-300 ${
+											index % 2 === 0 ? "bg-white" : "bg-gray-50"
+										} hover:bg-blue-50`}
+									>
+										<div className="w-5/6 flex flex-col p-4 gap-1">
+											<div className="text-base font-bold">{scholarship.title}</div>
+											<div className="text-sm text-gray-600">Date Posted: {scholarship.datePosted.toLocaleDateString()}</div>
+											<div className="text-sm text-gray-600">Sponsors: {scholarship.alumList.length}</div>
+										</div>
+										<div className="w-1/7 flex items-center justify-center">
+											<button className="text-[var(--primary-blue)] hover:underline cursor-pointer" onClick={() => navigateToDetail(scholarship.scholarshipId)}>View Details</button>
+										</div>
+										<div className="w-1/7 flex items-center justify-center">
+											<button className="text-red-700 hover:cursor-pointer" onClick={() => {
+													setSelectedScholarship(scholarship);
+													setIsConfirmationOpen(true);
+												}} >
+													<Trash2 className='size-6'/>
+											</button>
+										</div>
+									</div>
+									))}
+								</div>
+							)}
+          </div>
+        </div>
+
 			{/* Confirmation Dialog */}
 			{isConfirmationOpen && (
 			<Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>

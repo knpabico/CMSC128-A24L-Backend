@@ -109,7 +109,7 @@ export function ScholarshipProvider({
       scholarship.scholarshipId = docRef.id;
       scholarship.datePosted = new Date();
       await setDoc(docRef, scholarship);
-	  	await addNewsLetter(scholarship.scholarshipId, "scholarship");
+	  await addNewsLetter(scholarship.scholarshipId, "scholarship");
       
       return { success: true, message: "Scholarship added successfully" };
     } catch (error) {
