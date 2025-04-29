@@ -260,15 +260,15 @@ const UserProfile = () => {
 
         <div className="flex space-x-7">
           <div style={{backgroundColor: "#3675c5"}} className="flex flex-col px-2 py-2.5 rounded-xl max-h-fit space-y-1">
-            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition" onClick={handlePersonalClick}>Personal</button>
-            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition" onClick={handleEducationClick}>Education</button>
-            <button className="text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition" onClick={handleCareerClick}>Career</button>
+            <button className={`text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition ${personalView ? "bg-gray-100/20" : ""}`} onClick={handlePersonalClick}>Personal</button>
+            <button className={`text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition ${educationView ? "bg-gray-100/20" : ""}`} onClick={handleEducationClick}>Education</button>
+            <button className={`text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition ${careerView ? "bg-gray-100/20" : ""}`} onClick={handleCareerClick}>Career</button>
           </div>
 
           {/* INFO BOX */}
 
           {/* personal section */}
-          {personalView && (<div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+          {personalView && (<div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
 
             {/* FULL NAME */}
             <p className="font-semibold">Full Name</p>
@@ -377,7 +377,7 @@ const UserProfile = () => {
           {/* education section */}
           {educationView && (<div className="space-y-7 w-full">
             {/* degree */}
-            <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1">
+            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1">
               <div className="space-y-3">
                 <p className="font-semibold">Bachelor's Degree</p>
                 
@@ -480,7 +480,7 @@ const UserProfile = () => {
             </div>
 
             {/* affiliations */}
-            <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1">
+            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1">
               <div className="space-y-3">
                 <p className="font-semibold">Affiliations</p>
                 
@@ -519,7 +519,7 @@ const UserProfile = () => {
             <Typography>No Work Experience Yet!</Typography>
           )}
           {careerView && (
-            <div className="bg-gray-100 flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
               <div className="space-y-3">
                 <p className="font-semibold">Work Experience</p>
 
@@ -535,7 +535,7 @@ const UserProfile = () => {
                             <p className="text-sm">
                               {item.company} &nbsp;•&nbsp; <span className="font-light italic">{item.details}</span>
                             </p>
-                            {/* <p className="text-sm">{item.startingDate}</p> */}
+                            <p className="text-sm">{item.startYear}</p>
                           </div>
                         </div>
                         <div className="flex space-x-10">
@@ -546,7 +546,6 @@ const UserProfile = () => {
                           <button className="flex items-center space-x-2 cursor-pointer" onClick={() => {if (!isEditModalOpen[index]) openEditModal(index); else closeEditModal(index);}}>
                             <p className="text-[#3675c5]"><PencilIcon/></p>
                             <p className="text-[#3675c5] text-sm hover:underline">Edit</p>
-                            {!isEditModalOpen[index] ? <ChevronRight /> : <ChevronDown />}
                           </button>
                           
                           <Divider/>
