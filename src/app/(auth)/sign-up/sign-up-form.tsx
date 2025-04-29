@@ -251,14 +251,14 @@ export default function RegistrationForm() {
 
     console.log("Testing sign-up:");
     console.log(data);
-    //const response = await registerUser(data);
+    const response = await registerUser(data);
 
     //display error or success toast message
-    // if (response?.error) {
-    //   toastError(response.message);
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (response?.error) {
+      toastError(response.message);
+      setIsLoading(false);
+      return;
+    }
 
     // if successful, show a dialog that says
     // wait for admin to approve the account
@@ -695,7 +695,31 @@ export default function RegistrationForm() {
                         </Button>
                       </div>
                       
+                    ))}
+                    {/*add  fields button */}
+                    <button
+                      className="flex justify-center bg-blue-500 text-white rounded-full items-center w-5 h-5"
+                      type="button"
+                      onClick={() => {
+                        addCareer({
+                          industry: "",
+                          jobTitle: "",
+                          company: "",
+                          startYear: "",
+                          endYear: "",
+                          presentJob: false,
+                          location: "",
+                          latitude: 14.25,
+                          longitude: 121.25,
+                          proofOfEmployment: "",
+                        });
+                      }}
+                    >
+                      +
+                    </button>
+                      
                     </div>
+                    
                   </div>
 
                 </div>

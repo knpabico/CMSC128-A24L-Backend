@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
 import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
+import { AlumDocumentUpload } from "./career_proof";
 import { MapPin, PencilIcon } from "lucide-react";
 
 export const Career = ({ index, form }: { index: number; form: any }) => {
@@ -114,6 +115,12 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                 </FormItem>
               )}
             />
+          )}
+
+          {/*if presentJob, needs proof of Employment */}
+          {endYear === true && (
+            <AlumDocumentUpload index={index} form={form}></AlumDocumentUpload>
+          )}
           </div>
           <p className="text-xs font-light pt-3">Location</p>
         </div>

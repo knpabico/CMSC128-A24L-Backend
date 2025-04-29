@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { AlumPhotoUpload } from "./alum_photo";
 
 export const NameAndPhoto = ({ form }: { form: any }) => {
   return (
@@ -84,6 +85,11 @@ export const NameAndPhoto = ({ form }: { form: any }) => {
               </FormItem>
             )}
           />
+        </div>
+
+        {/*alum photo */}
+        <div>
+          <AlumPhotoUpload form={form}></AlumPhotoUpload>
         </div>
       </div>
     </div>

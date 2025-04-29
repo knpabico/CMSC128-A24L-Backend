@@ -29,9 +29,11 @@ import Link from "next/link";
 import { toastError } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import Image from "next/image";
 import googleImage from "./google.png";
+import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { Alumnus } from "@/models/models";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,11 +53,33 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      await signInWithEmailAndPassword(auth, data.email, data.password).then(
+        async (userCredentials) => {
+          //get alum data from the "alumni" collection
+          const alumniRef = doc(db, "alumni", userCredentials.user.uid);
+          const alumniDoc = await getDoc(alumniRef);
+
+          //check if alum document exists in firestore
+          if (alumniDoc.exists()) {
+            const alum = alumniDoc.data() as Alumnus;
+            //if regStatus is approved, update lastLogin and activeStatus
+            if (alum.regStatus === "approved") {
+              //add lastLogin and set to current date
+              await updateDoc(alumniRef, {
+                lastLogin: new Date(),
+                activeStatus: true,
+              });
+            }
+          } else {
+            console.log("Alum does not exist!");
+          }
+        }
+      );
       // refresh the page, middleware runs
       // if user is logged in, then middleware will redirect the user to another page
       // router.refresh();
-      router.push('/');
+
+      router.push("/");
     } catch (err: any) {
       const errorMessage =
         err.code === "auth/invalid-credential"
@@ -128,10 +152,12 @@ export default function LoginForm() {
             </fieldset>
           </form>
         </Form>
-        
+
         <div className="flex justify-center items-center space-x-2">
           <p>No account yet?</p>
-          <button className="hover:underline text-[#0856ba]"><Link href="/sign-up">Sign up</Link></button>
+          <button className="hover:underline text-[#0856ba]">
+            <Link href="/sign-up">Sign up</Link>
+          </button>
         </div>
       </div>
     </div>
