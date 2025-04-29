@@ -32,7 +32,7 @@ export default function Users() {
   };
 
   return (
-    <div className="bg-[#EAEAEA] flex flex-col h-full w-full p-6">
+    <div className="bg-[#EAEAEA] left-[#280px] flex flex-col h-full w-full p-6">
       <h1 className="text-2xl font-bold mb-6 text-left">Job Offers</h1>
 
       <div className="flex w-full">

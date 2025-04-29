@@ -309,37 +309,52 @@ export default function JobOffers() {
   
         <div className="flex">
             {/* Sidebar */}
-            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max">
+            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max sticky">
             <ul className="space-y-2">
               <li>
                 <button
-                  className="bg -white w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
+                  className={`flex items center w-full px-3 py-2 rounded ${sidebarFilter === 'Job Postings' ? 'bg-blue-100' : ''}`}
                   onClick={() => {
                     setSidebarFilter("Job Postings");
                   }}
                 >
                   <Briefcase className="w-5 h-5 mr-2" />
-                  All Job Postings
+                  <p className="group relative w-max">
+                    <span>All Job Postings</span>
+                    <span 
+                      className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${sidebarFilter === 'Job Postings' ? 'w-full' : 'w-0'}`}
+                    ></span>
+                  </p>
                 </button>
               </li>
               <li>
                 <button
-                  className="bg-white w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
+                  className={`flex items center w-full px-3 py-2 rounded ${sidebarFilter === 'Saved Jobs' ? 'bg-blue-100' : ''}`}
                   onClick={() => {
                     setSidebarFilter("Saved Jobs");
                   }}
                 >
                   <Bookmark className="w-5 h-5 mr-2" />
-                  Saved Jobs
+                  <p className="group relative w-max">
+                    <span>Saved Jobs</span>
+                    <span 
+                      className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${sidebarFilter === 'Saved Jobs' ? 'w-full' : 'w-0'}`}
+                    ></span>
+                  </p>
                 </button>
               </li>
               <li>
                 <button
-                  className="bg-white w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center"
+                  className={`flex items center w-full px-3 py-2 rounded ${sidebarFilter === 'Create Jobs' ? 'bg-blue-100' : ''}`}
                   onClick={() => setSidebarFilter("Create Jobs")}
                 >
                   <FilePlus className="w-5 h-5 mr-2" />
-                  Created Jobs
+                  <p className="group relative w-max">
+                    <span>Created Jobs</span>
+                    <span 
+                      className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${sidebarFilter === 'Create Jobs' ? 'w-full' : 'w-0'}`}
+                    ></span>
+                  </p>
                 </button>
               </li>
             </ul>
