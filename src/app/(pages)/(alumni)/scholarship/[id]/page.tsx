@@ -181,7 +181,7 @@ const ScholarshipDetailPage: React.FC = () => {
 					<DialogDescription className='text-center'> 
 							Like an open-source project, your generosity makes everything better! Thank you for contributing to something bigger than yourself!
 					</DialogDescription>
-					<DialogDescription className='italic text-xs'>
+					<DialogDescription className='italic text-sx'>
 						Our admin team will reach out to you soon to coordinate the next steps and discuss how your support can make a meaningful impact through our scholarship program.
 					</DialogDescription>
 					<DialogFooter className='mt-5'>
