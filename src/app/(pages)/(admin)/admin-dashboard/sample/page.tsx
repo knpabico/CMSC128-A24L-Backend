@@ -113,7 +113,7 @@ export default function SampleAdminPage() {
                 <div
                   className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
                     activeTab === tab
-                      ? "bg-blue-400"
+                      ? "bg-amber-400"
                       : "bg-blue-200"
                   }`}
                 >
