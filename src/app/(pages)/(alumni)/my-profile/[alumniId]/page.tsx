@@ -6,6 +6,7 @@ import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useEducation } from "@/context/EducationContext";
 import AlumnusUploadPic from "./upload-profile/page";
 import Image from "next/image";
+import { Alumnus } from "@/models/models";
 
 
 import {
@@ -31,12 +32,14 @@ import AddEducationModal from "@/components/ui/add-aducation-modal";
 import { WorkExperience,Education, Affiliation } from "@/models/models";
 import AddAffiliationModal from "@/components/ui/add-affiliation-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
+import { useAlums } from "@/context/AlumContext";
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
   const { userWorkExperience, isLoading, deleteWorkExperience } =
     useWorkExperience();
     const { userEducation, isLoadingEducation, deleteEducation} = useEducation();
     const { userAffiliation } = useAffiliation();
+    const {updateAlumniDetails} = useAlums();
 
     
   const [uploading, setUploading] =useState(false);
@@ -78,7 +81,7 @@ const UserProfile = () => {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [date, setDate] = useState("");
-    const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -86,11 +89,29 @@ const UserProfile = () => {
   const years = Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i);
 
   useEffect(() => {
-    if (alumInfo?.birthDate) {
-      const date = new Date(alumInfo.birthDate);
-      setDay(date.getDate().toString());
-      setMonth((date.getMonth() + 1).toString());
-      setYear(date.getFullYear().toString());
+    if (alumInfo) {
+      setFirstName(alumInfo.firstName || "");
+      setMiddleName(alumInfo.middleName || "");
+      setLastName(alumInfo.lastName || "");
+      setSuffix(alumInfo.suffix || "");
+      setEmail(alumInfo.email || "");
+      setStudentNumber(alumInfo.studentNumber || "");
+      setCity(alumInfo.address?.[1] || "");
+      setProvince(alumInfo.address?.[2] || "");
+      setCountry(alumInfo.address?.[0] || "");
+  
+      // For birthday (parse and split to day, month, year)
+      if (alumInfo.birthDate) {
+        const date = new Date(alumInfo.birthDate);
+        setDay(date.getDate().toString());
+        setMonth((date.getMonth() + 1).toString());
+        setYear(date.getFullYear().toString());
+      }
+  
+      // For fields of interest
+      if (alumInfo.fieldOfInterest) {
+        setSelectedFields(alumInfo.fieldOfInterest);
+      }
     }
   }, [alumInfo]);
 
@@ -127,6 +148,32 @@ const UserProfile = () => {
     };
 
 
+  //function when save changes was clicked
+  const handleTheSaveChages = () => {
+    // let updatedAlumnus = {
+    //   firstName: firstName,
+    //   middleName:middleName,
+    //   lastName: lastName,
+    //   suffix:suffix,
+    //   email: email,
+    //   studentNumber: studentNumber,
+    //   address: [country, province, city],
+    //   birthDate: new Date(`${month} ${day}, ${year}`),
+    //   fieldOfInterest: selectedFields,
+    // }
+    updateAlumniDetails(alumInfo,{
+      firstName: firstName,
+      middleName:middleName,
+      lastName: lastName,
+      suffix:suffix,
+      email: email,
+      studentNumber: studentNumber,
+      address: [country, province, city],
+      birthDate: new Date(`${month} ${day}, ${year}`),
+      fieldOfInterest: selectedFields,
+    });
+    // console.log(updatedAlumnus);
+  }
   
   // GAWA NI MAYBELLE
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -538,7 +585,7 @@ const UserProfile = () => {
             <div className="flex flex-col space-y-2">
               <p className="font-semibold">field of interest</p>
               <div className="flex flex-wrap gap-2">
-                {/* Display selected tags */}
+                {/* Display fields */}
                 {selectedFields.map((tag) => (
                   <div
                     key={tag}
@@ -568,7 +615,7 @@ const UserProfile = () => {
                 ))}
               </div>
             </div>
-                <Button>Save Changes</Button>
+                <Button onClick={handleTheSaveChages}>Save Changes</Button>
           </div>)}
 
           {/* education section */}

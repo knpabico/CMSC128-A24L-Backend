@@ -17,6 +17,7 @@ import { useAuth } from "./AuthContext";
 import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
 import { uploadImage } from "@/lib/upload";
+import { messaging } from "firebase-admin";
 
 
 const AlumContext = createContext<any>(null);
@@ -65,6 +66,39 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
+  //for updateing changes of alumni
+
+  const updateAlumniDetails = async (
+    alum:Alumnus,
+    firstName:string,
+    middleName:string,
+    lastName:string,
+    suffix:string,
+    email: string,
+    studentNumber: string,
+    address: string[],
+    birthDate: Date,
+    fieldOfInterest: string[]
+  ) => {
+    try{
+    const alumniRef = doc(db, "alumni", alum.alumniId);
+    await updateDoc(alumniRef, { 
+      firstName: firstName ?? "",
+      middleName: middleName ?? "",
+      lastName: lastName ?? "",
+      suffix: suffix ?? "",
+      email: email ?? "",
+      studentNumber: studentNumber ?? "",
+      address: address ?? [],
+      birthDate: birthDate ?? new Date(), // fallback to current date, or handle accordingly
+      fieldOfInterest: fieldOfInterest ?? [],
+    })
+     return { success: true, message: "Your changes are successfully saved"};
+    } catch (error) {
+      console.error("Error:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
   //for fetching the photo of alumni
   const uploadAlumniPhoto = async (alum:Alumnus, imageFile:any) => {
@@ -222,6 +256,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         addAlumnus,
         uploadAlumniPhoto,
         handleUpdateBirthday,
+        updateAlumniDetails,
         activeAlums,
         myCareer,
         myEducation,
