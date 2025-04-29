@@ -54,17 +54,24 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
             <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleViewDetails(event.eventId)} >
                 {/* Image */}
                 <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
-                    <span className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
-                        event.status === 'approved'
-                            ? 'bg-green-100 text-green-800 px-2 py-1 font-bold'
-                            : event.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800 px-2 py-1 font-bold'
-                            : event.status === 'declined'
-                            ? 'bg-red-100 text-red-800 px-2 py-1 font-bold'
-                            : 'bg-gray-100 text-gray-800'
-                    }`}>
-                        {event.status === 'approved' ? 'Closed' : event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                    </span>
+                <span className={`absolute bottom-2 right-2 px-3 py-1 text-sm rounded-full ${
+                (() => 
+                {
+                    switch (event.status)
+                    {
+                        case 'Accepted':
+                            return 'bg-green-100 text-green-800 px-2 py-1 font-bold';
+                        case 'Pending':
+                            return 'bg-yellow-100 text-yellow-800 px-2 py-1 font-bold';
+                        case 'Rejected':
+                            return 'bg-red-100 text-red-800 px-2 py-1 font-bold';
+                        default:
+                            return 'bg-gray-100 text-gray-800 px-2 py-1 font-bold';
+                    }
+                })()
+                }`}>
+                    {event.status === 'Accepted' ? 'Approved' : event.status}
+                </span>
                 </div>
                 {/* Content */}
                 <div className="px-6 pt-3 pb-6">
@@ -73,6 +80,40 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
                         <h2 className="text-xl font-semibold truncate">{event.title}</h2>
                         <BookmarkButton entryId={event.eventId} type="event_e" size="md"/> 
 				    </div>
+                    {/* Details */}
+                    <div className="flex items-center gap-6 text-xs text-gray-700 mb-3">
+                        <div className="flex items-center gap-1">
+                            <Calendar className="size-[16px]" />
+                            <span>{formatDate(event.datePosted)}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Clock className="size-[16px]" />
+                            <span>{event.time}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <MapPin className="size-[16px]" />
+                            <span>{event.location}</span>
+                        </div>
+                    </div>
+                    {/* Description with View More */}
+                    <div className="mb-5 text-sm text-start">
+                        <p className={`h-10 overflow-hidden text-clip ${event.description.length > 100 ? 'mb-1' : ''}`}>
+                            {event.description.length > 100
+                                ? event.description.slice(0, 100) + "..."
+                                : event.description}
+                        </p>
+
+                        <button
+                            className="text-xs text-gray-600 hover:text-gray-800"
+                            onClick={(e) =>
+                            {
+                                e.stopPropagation(); // Prevent card click navigation
+                                router.push(`/events/details?id=${event.eventId}`);
+                            }}
+                        >
+                            View More
+                        </button>
+                    </div>
 
                 </div>
             </div>

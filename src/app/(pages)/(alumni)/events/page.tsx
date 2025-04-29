@@ -10,16 +10,17 @@ export default function AllEventsPage()
 {
     const { events, isLoading } = useEvents();
     const [sortedEvents, setSortedEvents] = useState<Event[]>([]);
-    const [sortOption, setSortOption] = useState<string>('closest');
+    const [sortOption, setSortOption] = useState<string>('event-closest');
 
     useEffect(() => 
     {
+        console.log("Events:", events); 
         if(events.length > 0)
         {
             const filteredEvents = events.filter(
-                (e : { status: string }) => (e.status === 'approved' || e.status === 'rejected')
-            );
-    
+                (e: { status: string }) => (e.status === 'Accepted' || e.status === 'Pending' || e.status === 'Rejected'));
+
+            console.log("Filtered:", filteredEvents);
             const sorted = [...filteredEvents].sort((x, y) =>
             {
                 switch (sortOption)
@@ -53,6 +54,7 @@ export default function AllEventsPage()
                 }
             });
 
+            console.log("Sorted Events:", sorted);
             setSortedEvents(sorted);
         }
 
@@ -93,15 +95,15 @@ export default function AllEventsPage()
                             <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
                                 <option value="event-closest">Upcoming Events (Soonest First)</option>
                                 <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
-                                <option value="posted-newest">Newest Post</option>
-                                <option value="post-oldest">Oldest Post</option>
+                                <option value="posted-newest">Approval Date (Newest)</option>
+                                <option value="post-oldest">Approval Date (Earliest)</option>
                             </select>
                         </div>
                     </div>
                     {sortedEvents.length > 0 ? (
                         // event cards
                         <EventsList
-                            events = {events}
+                            events = {sortedEvents}
                             isLoading = {isLoading}
                             emptyMessage = "No Events have been created yet."
                         />
