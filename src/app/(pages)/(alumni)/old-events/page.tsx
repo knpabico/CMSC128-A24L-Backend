@@ -74,6 +74,7 @@ export default function Events()
     handleImageChange,
     date,
     setEventDate,
+    setEventImage,
     description,
     setEventDescription,
     location,
@@ -151,7 +152,14 @@ export default function Events()
   const renderFilterAndSortDropdowns = () => (
     <div className="flex items-center justify-end flex-wrap gap-4 w-full">
       <button
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          setShowForm(true);
+          setEventTitle(""); 
+          setEventDescription("");
+          setEventDate("");
+          setEventLocation("");
+          setEventImage(null);
+        }}
         className="px-4 py-2 bg-blue-500 text-white rounded-md"
       >
         Propose an Event
@@ -379,12 +387,15 @@ export default function Events()
                 type="date"
                 value={date}
                 onChange={(e) => setEventDate(e.target.value)}
+                onKeyDown={(e) => e.preventDefault()} // prevent manual typing
                 className="w-full mb-4 p-2 border rounded"
                 required
                 min={
-                  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0]
+                  date
+                    ? new Date(date).toISOString().split("T")[0]
+                    : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                        .toISOString()
+                        .split("T")[0]
                 }
               />
 
@@ -397,6 +408,7 @@ export default function Events()
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
+                required
               />
 
               <div className="flex justify-between">

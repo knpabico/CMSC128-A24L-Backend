@@ -46,6 +46,7 @@ export function EventProvider({ children }: { children: React.ReactNode })
   const { addNewsLetter } = useNewsLetters();
 
   const [image, setEventImage] = useState(null);
+  const [fileName, setFileName] = useState<string>("");
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
@@ -135,8 +136,9 @@ export function EventProvider({ children }: { children: React.ReactNode })
       if (image) {
         const uploadResult = await uploadImage(image, `event/${docRef.id}`);
         if (uploadResult.success) {
-          newEvent.image = image;
-  
+          newEvent.image = uploadResult.url;
+          
+          await setDoc(docRef, newEvent);
           // Optional: also store under photoURL
           await updateDoc(docRef, { photoURL: uploadResult.url });
         } else {
@@ -151,7 +153,6 @@ export function EventProvider({ children }: { children: React.ReactNode })
       }
   
       // Save event data including image URL
-      await setDoc(docRef, newEvent);
   
       setIsError(false);
       setMessage("Event and image uploaded successfully!");
@@ -170,11 +171,12 @@ export function EventProvider({ children }: { children: React.ReactNode })
     const file = e.target.files[0];
     if (file) {
       setEventImage(file);
-      // setPreview(URL.createObjectURL(file)); //preview
+      setFileName(file.name); // Store the filename
+      setPreview(URL.createObjectURL(file)); //preview
     }
   };
 
-  const handleSave = async (e: React.FormEvent, selectedGuests: string[], inviteType: string) => {
+  const handleSave = async (e: React.FormEvent, image: File, selectedGuests: string[], inviteType: string) => {
     e.preventDefault();
 
     if (!image) {
@@ -191,7 +193,7 @@ export function EventProvider({ children }: { children: React.ReactNode })
       date,
       time,
       location,
-      image: image,
+      image: "",
       inviteType,
       numofAttendees,
       targetGuests: selectedGuests,
@@ -434,6 +436,8 @@ export function EventProvider({ children }: { children: React.ReactNode })
         setStillAccepting,
         needSponsorship,
         setNeedSponsorship,
+        fileName,
+        setFileName,
       }}
     >
       {children}

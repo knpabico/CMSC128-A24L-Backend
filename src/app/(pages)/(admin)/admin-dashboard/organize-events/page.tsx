@@ -30,7 +30,9 @@ export default function Events() {
     title,
     setEventTitle,
     location,
-    setEventLocation
+    setEventLocation,
+    fileName,
+    setFileName
   } = useEvents();
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
   const [activeTab, setActiveTab] = useState("Pending");
@@ -339,6 +341,8 @@ export default function Events() {
             setEventTitle(""); 
             setEventDescription("");
             setEventDate("");
+            setEventLocation("");
+            setFileName("");
             setEventImage(null);
             setSelectedAlumni([]);
             setSelectedBatches([]);
@@ -363,7 +367,7 @@ export default function Events() {
                 if (isEditing && editingEventId) {
                     handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
                   } else {
-                    handleSave(e, targetGuests, visibility); // Pass the value entered in the current form
+                    handleSave(e, image, targetGuests, visibility); // Pass the value entered in the current form
                   }
                   setShowForm(false);
                   setEdit(false);
@@ -417,18 +421,22 @@ export default function Events() {
                   type="date"
                   value={date}
                   onChange={(e) => setEventDate(e.target.value)}
+                  onKeyDown={(e) => e.preventDefault()} // prevent manual typing
                   className="w-full mb-4 p-2 border rounded"
                   required
                   min={
                     date
-                      ? new Date(date).toISOString().split("T")[0] // allow same date or later
+                      ? new Date(date).toISOString().split("T")[0]
                       : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                           .toISOString()
                           .split("T")[0]
                   }
                 />
 
-                <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
                   Upload Photo
                 </label>
                 <input
@@ -437,7 +445,12 @@ export default function Events() {
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
+                  required
                 />
+
+                {fileName && (
+                  <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>
+                )}
 
                 <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
                   {/* Open to All */}
@@ -646,7 +659,9 @@ export default function Events() {
             <strong>
               <h2>{events.title}</h2>
             </strong>
-
+            <p>
+            <img src={events.image} alt="Event Poster" className="w-64 h-auto" />
+            </p>
             <p>
               {" "}
               <strong>Date:</strong> {events.date}
