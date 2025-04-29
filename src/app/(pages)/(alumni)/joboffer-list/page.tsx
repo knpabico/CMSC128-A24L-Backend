@@ -309,51 +309,51 @@ export default function JobOffers() {
   
         <div className="flex">
             {/* Sidebar */}
-            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max sticky">
+          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max">
             <ul className="space-y-2">
               <li>
                 <button
-                  className={`flex items center w-full px-3 py-2 rounded ${sidebarFilter === 'Job Postings' ? 'bg-blue-100' : ''}`}
+                  className="flex gap-3 items-center w-full px-3 py-2"
                   onClick={() => {
                     setSidebarFilter("Job Postings");
                   }}
                 >
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  <p className="group relative w-max">
-                    <span>All Job Postings</span>
-                    <span 
-                      className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${sidebarFilter === 'Job Postings' ? 'w-full' : 'w-0'}`}
-                    ></span>
+                  <Briefcase className="w-5 h-5" />
+                  <p className={`group w-max relative py-1 transition-all ${sidebarFilter === 'Job Postings' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>All Job Posts</span>
+                    {sidebarFilter !== 'Job Postings' && (
+                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    )}
                   </p>
                 </button>
               </li>
               <li>
                 <button
-                  className={`flex items center w-full px-3 py-2 rounded ${sidebarFilter === 'Saved Jobs' ? 'bg-blue-100' : ''}`}
+                  className="flex gap-3 items-center w-full px-3 py-2"
                   onClick={() => {
                     setSidebarFilter("Saved Jobs");
                   }}
                 >
-                  <Bookmark className="w-5 h-5 mr-2" />
-                  <p className="group relative w-max">
+                  <Bookmark className="w-5 h-5" />
+                  <p className={`group w-max relative py-1 transition-all ${sidebarFilter === 'Saved Jobs' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
                     <span>Saved Jobs</span>
-                    <span 
-                      className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${sidebarFilter === 'Saved Jobs' ? 'w-full' : 'w-0'}`}
-                    ></span>
+                    {sidebarFilter !== 'Saved Jobs' && (
+                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    )}
                   </p>
                 </button>
               </li>
               <li>
                 <button
-                  className={`flex items center w-full px-3 py-2 rounded ${sidebarFilter === 'Create Jobs' ? 'bg-blue-100' : ''}`}
+                  className="flex gap-3 items-center w-full px-3 py-2"
                   onClick={() => setSidebarFilter("Create Jobs")}
                 >
-                  <FilePlus className="w-5 h-5 mr-2" />
-                  <p className="group relative w-max">
+                  <FilePlus className="w-5 h-5" />
+                  <p className={`group w-max relative py-1 transition-all ${sidebarFilter === 'Create Jobs' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
                     <span>Created Jobs</span>
-                    <span 
-                      className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${sidebarFilter === 'Create Jobs' ? 'w-full' : 'w-0'}`}
-                    ></span>
+                    {sidebarFilter !== 'Create Jobs' && (
+                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    )}
                   </p>
                 </button>
               </li>
