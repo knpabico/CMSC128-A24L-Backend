@@ -12,43 +12,41 @@ export default function AllEventsPage()
     const [sortedEvents, setSortedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
 
-    useEffect(() => 
+    useEffect(() =>
     {
-        console.log("Events:", events); 
-        if(events.length > 0)
-        {
-            const filteredEvents = events.filter(
-                (e: { status: string }) => (e.status === 'Accepted' || e.status === 'Pending' || e.status === 'Rejected'));
+        console.log("Events:", events);
 
-            console.log("Filtered:", filteredEvents);
+        if (events.length > 0)
+        {
+
+            const filteredEvents = events.filter(
+                (e: Event) => (e.status === 'Accepted') && new Date(e.date) > new Date()
+            );
+
+            console.log("Filtered Events:", filteredEvents);
+
+
+            // Sort events based on the selected sort option
             const sorted = [...filteredEvents].sort((x, y) =>
             {
                 switch (sortOption)
                 {
                     case 'event-closest':
                         return new Date(x.date).getTime() - new Date(y.date).getTime();
-    
+
                     case 'event-farthest':
                         return new Date(y.date).getTime() - new Date(x.date).getTime();
-                    
+
                     case 'posted-newest':
-                        const dateX = x.datePosted?.seconds
-                        ? new Date(x.datePosted.seconds * 1000)
-                        : new Date(0);
-                        const dateY = y.datePosted?.seconds
-                        ? new Date(y.datePosted.seconds * 1000)
-                        : new Date(0);
+                        const dateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
+                        const dateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
                         return dateY.getTime() - dateX.getTime();
-    
+
                     case 'posted-oldest':
-                        const oldDateX = x.datePosted?.seconds
-                        ? new Date(x.datePosted.seconds * 1000)
-                        : new Date(0);
-                        const oldDateY = y.datePosted?.seconds
-                        ? new Date(y.datePosted.seconds * 1000)
-                        : new Date(0);
+                        const oldDateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
+                        const oldDateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
                         return oldDateX.getTime() - oldDateY.getTime();
-    
+
                     default:
                         return 0;
                 }
@@ -56,8 +54,8 @@ export default function AllEventsPage()
 
             console.log("Sorted Events:", sorted);
             setSortedEvents(sorted);
-        }
-
+        } 
+        
         else
         {
             setSortedEvents([]);
@@ -89,14 +87,14 @@ export default function AllEventsPage()
                 <div className='flex flex-col gap-[10px] w-full mb-10'>
                     {/* Filter tabs */}
                     <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
-                        <h2 className="text-md lg:text-lg font-semibold">All Events</h2>
+                        <h2 className="text-md lg:text-lg font-semibold">All Upcoming Events</h2>
                         <div className="flex items-center">
                             <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
                             <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
                                 <option value="event-closest">Upcoming Events (Soonest First)</option>
                                 <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
-                                <option value="posted-newest">Approval Date (Newest)</option>
-                                <option value="post-oldest">Approval Date (Earliest)</option>
+                                <option value="posted-newest">Date Approved (Newest)</option>
+                                <option value="post-oldest">Date Approved (Earliest)</option>
                             </select>
                         </div>
                     </div>

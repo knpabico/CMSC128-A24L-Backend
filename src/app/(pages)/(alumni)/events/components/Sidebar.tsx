@@ -8,22 +8,17 @@ import {CalendarCheck, Bookmark, Mailbox, BookOpen, FileText, LucideIcon} from "
 
 type SidebarItem =
 {
-    id: "all" | "invites" | "saved" | "proposed" | "featured";
+    id: string;
     label: string;
     href: string;
     icon: LucideIcon;
 };
 
-interface EventSidebarProps
-{
-    onTabChange?: (tab: "all" | "invites" | "saved" | "proposed" | "featured") => void;
-    activeTab?: "all" | "invites" | "saved" | "proposed" | "featured";
-}
 
-const EventSidebar = ({ onTabChange, activeTab = "all" }: EventSidebarProps) =>
+const EventSidebar = () =>
 {
     const pathname = usePathname();
-    const [selectedItem, setSelectedItem] = useState<"all" | "invites" | "saved" | "proposed" | "featured">(activeTab);
+    const [activeItem, setActiveItem] = useState('');
 
     const sidebarItems: SidebarItem[] = 
     [
@@ -36,34 +31,17 @@ const EventSidebar = ({ onTabChange, activeTab = "all" }: EventSidebarProps) =>
 
     useEffect(() =>
     {
-        if (activeTab)
+        const currentItem = sidebarItems.find(item => pathname === item.href);
+        if (currentItem)
         {
-            setSelectedItem(activeTab);
+            setActiveItem(currentItem.id);
         } 
         
-        else 
+        else if (pathname.includes('/events'))
         {
-            const currentItem = sidebarItems.find(item => pathname === item.href);
-            if (currentItem)
-            {
-                setSelectedItem(currentItem.id);
-            }
-
-            else if(pathname.includes('/events'))
-            {
-                setSelectedItem('all');
-            }
+            setActiveItem('all');
         }
-    }, [pathname, activeTab]);
-
-    const handleItemClick = (item: SidebarItem) =>
-    {
-        setSelectedItem(item.id);
-        if (onTabChange)
-        {
-            onTabChange(item.id);
-        }
-    };
+    }, [pathname]);
 
     return (
         <div className='bg-[#FFFFFF]'>
@@ -71,15 +49,14 @@ const EventSidebar = ({ onTabChange, activeTab = "all" }: EventSidebarProps) =>
                 {sidebarItems.map((item) =>
                 {
                     const Icon = item.icon;
-                    const isActive = selectedItem === item.id;
                     
                     return(
                         <li key={item.id}>
-                            <Link className='flex gap-5 items-center justify-start' href={item.href} onClick={() => handleItemClick(item)} >
+                            <Link className='flex gap-5 items-center justify-start' href={item.href} onClick={() => setActiveItem(item.id)} >
                                 <Icon />
-                                <p className={`group w-max relative py-1 transition-all ${isActive ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                                <p className={`group w-max relative py-1 transition-all ${activeItem === item.id ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
                                     <span>{item.label}</span>
-                                    {!isActive && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                                    {activeItem !== item.id && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
                                 </p>
                             </Link>
                         </li>

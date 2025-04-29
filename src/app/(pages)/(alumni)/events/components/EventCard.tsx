@@ -43,10 +43,11 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
             return 'Invalid Date';
         }
     };
+      
 
     const handleViewDetails = (eventId: string) =>
     {
-        router.push(`/events/details?id=${eventId}`);
+        router.push(`/events/${eventId}`);
     };
 
     return(
@@ -78,13 +79,13 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
 				    {/* Event Title */}
                     <div className="flex justify-between items-center mb-3">
                         <h2 className="text-xl font-semibold truncate">{event.title}</h2>
-                        <BookmarkButton entryId={event.eventId} type="event_e" size="md"/> 
+                        <BookmarkButton entryId={event.eventId} type="event" size="md"/> 
 				    </div>
                     {/* Details */}
                     <div className="flex items-center gap-6 text-xs text-gray-700 mb-3">
                         <div className="flex items-center gap-1">
                             <Calendar className="size-[16px]" />
-                            <span>{formatDate(event.datePosted)}</span>
+                            <span>{formatDate(event.date)}</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <Clock className="size-[16px]" />
@@ -94,9 +95,14 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
                             <MapPin className="size-[16px]" />
                             <span>{event.location}</span>
                         </div>
+                        <div className="flex items-center gap-1">
+                            Posted on
+                            <span>{event.date}</span>
+                        </div>
+
                     </div>
                     {/* Description with View More */}
-                    <div className="mb-5 text-sm text-start">
+                    <div className="mb-3 text-sm text-start">
                         <p className={`h-10 overflow-hidden text-clip ${event.description.length > 100 ? 'mb-1' : ''}`}>
                             {event.description.length > 100
                                 ? event.description.slice(0, 100) + "..."
@@ -104,11 +110,10 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
                         </p>
 
                         <button
-                            className="text-xs text-gray-600 hover:text-gray-800"
-                            onClick={(e) =>
+                            className="text-xs text-gray-600 hover:text-gray-800 pt-5"
+                            onClick={() => (eventId: string) =>
                             {
-                                e.stopPropagation(); // Prevent card click navigation
-                                router.push(`/events/details?id=${event.eventId}`);
+                                router.push(`/events/${eventId}`);
                             }}
                         >
                             View More
