@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useEvents } from "@/context/EventContext";
 import EventSidebar from "./components/Sidebar";
-import EventsList from "./components/EventList";
+import EventsList from "./components/EventsList";
 import { Event } from "@/models/models";
 
 export default function AllEventsPage()
@@ -91,8 +91,8 @@ export default function AllEventsPage()
                         <div className="flex items-center">
                             <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
                             <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
-                                <option value="event-closest">Event Date (Closest)</option>
-                                <option value="event-farthest">Event Date(Farthest)</option>
+                                <option value="event-closest">Upcoming Events (Soonest First)</option>
+                                <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
                                 <option value="posted-newest">Newest Post</option>
                                 <option value="post-oldest">Oldest Post</option>
                             </select>

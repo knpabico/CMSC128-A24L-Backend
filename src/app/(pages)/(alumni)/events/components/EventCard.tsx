@@ -66,7 +66,18 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
                         {event.status === 'approved' ? 'Closed' : event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                     </span>
                 </div>
+                {/* Content */}
+                <div className="px-6 pt-3 pb-6">
+				    {/* Event Title */}
+                    <div className="flex justify-between items-center mb-3">
+                        <h2 className="text-xl font-semibold truncate">{event.title}</h2>
+                        <BookmarkButton entryId={event.eventId} type="event_e" size="md"/> 
+				    </div>
+
+                </div>
             </div>
         </div>
     );
 };    
+
+export default EventCard;
