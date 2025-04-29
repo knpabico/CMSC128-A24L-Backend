@@ -21,7 +21,10 @@ export default function Events() {
     handleReject,
     handleFinalize,
     handleViewEventAdmin, 
+    handleImageChange,
     setEventDate,
+    image,
+    setEventImage,
     description,
     setEventDescription,
     title,
@@ -55,6 +58,7 @@ export default function Events() {
       if (eventToEdit) {
         setEventTitle(eventToEdit.title);
         setEventDescription(eventToEdit.description);
+        setEventImage(eventToEdit.image);
         setEventDate(eventToEdit.date);
         setEventLocation(eventToEdit.location);
         setShowForm(true);
@@ -335,6 +339,7 @@ export default function Events() {
             setEventTitle(""); 
             setEventDescription("");
             setEventDate("");
+            setEventImage(null);
             setSelectedAlumni([]);
             setSelectedBatches([]);
             setVisibility("all");
@@ -356,7 +361,7 @@ export default function Events() {
                     : null;
 
                 if (isEditing && editingEventId) {
-                    handleEdit(editingEventId, { title, description, location, date, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
+                    handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
                   } else {
                     handleSave(e, targetGuests, visibility); // Pass the value entered in the current form
                   }
@@ -420,6 +425,17 @@ export default function Events() {
                       .split("T")[0]
                   } // Events must be scheduled
                   // at least one week in advance
+                />
+
+                <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                  Upload Photo
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
                 />
 
                 <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">

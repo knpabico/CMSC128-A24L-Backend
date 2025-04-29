@@ -18,6 +18,7 @@ import { useRsvpDetails } from "@/context/RSVPContext";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
 import { useRouter } from 'next/navigation';
+import { uploadImage } from "@/lib/upload";
 
 const EventContext = createContext<any>(null);
 
@@ -33,7 +34,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [date, setEventDate] = useState("");
   const [time, setEventTime] = useState("");
   const [location, setEventLocation] = useState("");
-  const [image, setEventImage] = useState("");
   const [numofAttendees, setnumofAttendees] = useState(0);
   const [targetGuests, setTargetGuests] = useState<string[]>([]);
   const [stillAccepting, setStillAccepting] = useState(false);
@@ -44,6 +44,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const { user, alumInfo, isAdmin } = useAuth();
   const { addNewsLetter } = useNewsLetters();
 
+  const [image, setEventImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  
   useEffect(() => {
     let unsubscribe: (() => void) | null;
 
@@ -108,15 +113,54 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         newEvent.creatorId = user.uid;
       }
   
-      await setDoc(docRef, newEvent);  // reuse docRef directly
+      if (image) {
+        const uploadResult = await uploadImage(image, `event/${docRef.id}`);
+        if (uploadResult.success) {
+          newEvent.image = uploadResult.url;
+  
+          // Optional: also store under photoURL
+          await updateDoc(docRef, { photoURL: uploadResult.url });
+        } else {
+          setMessage(uploadResult.result || "Failed to upload image.");
+          setIsError(true);
+          return { success: false, message: "Image upload failed" };
+        }
+      } else {
+        setMessage("No image selected.");
+        setIsError(true);
+        return { success: false, message: "No image provided" };
+      }
+  
+      // Save event data including image URL
+      await setDoc(docRef, newEvent);
+  
+      setIsError(false);
+      setMessage("Event and image uploaded successfully!");
+      setEventImage(null);
+      setPreview(null);
+
       return { success: true, message: "Event added successfully" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEventImage(file);
+      // setPreview(URL.createObjectURL(file)); //preview
+    }
+  };
+
   const handleSave = async (e: React.FormEvent, selectedGuests: string[], inviteType: string) => {
     e.preventDefault();
+
+    if (!image) {
+      setMessage("No image uploaded.");
+      setIsError(true);
+      return;
+    }
 
     const newEvent: Event = {
       datePosted: new Date(),
@@ -125,7 +169,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       date,
       time,
       location,
-      image,
+      image: image,
       inviteType,
       numofAttendees,
       targetGuests: selectedGuests,
@@ -299,6 +343,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         handleFinalize,
         handleViewEventAdmin,
         handleViewEventAlumni,
+        handleImageChange,
         title,
         setEventTitle,
         description,
