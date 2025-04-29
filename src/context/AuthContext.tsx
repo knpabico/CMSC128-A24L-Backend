@@ -45,7 +45,7 @@ const AuthContext = createContext<{
   status: string | null;
   getAlumInfo: (user: User) => Promise<void>;
   isGoogleSignIn: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<boolean>;
   logOutAndDelete: () => Promise<void>;
 }>({
   user: null,
@@ -58,7 +58,7 @@ const AuthContext = createContext<{
   status: null,
   getAlumInfo: async () => {},
   isGoogleSignIn: false,
-  signInWithGoogle: async () => {},
+  signInWithGoogle: async () => false,
   logOutAndDelete: async () => {},
 });
 
@@ -142,11 +142,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user ?? null);
         setAlumInfo(data.alumniCopy ?? null);
         setIsGoogleSignIn(false);
+        return false;
       } else {
         if (data.errorMessage === "User not found!") {
           console.log("User not found!");
           router.push("/sign-up");
-        } else toastError(data.errorMessage);
+        } else if (data.errorMessage === "Popup closed by user") {
+          return true;
+        } else {
+          toastError(data.errorMessage);
+          return false;
+        }
       }
     } catch (error) {
       toastError(

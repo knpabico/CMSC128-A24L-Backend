@@ -1,3 +1,4 @@
+import { toastError } from "@/components/ui/sonner";
 import { db } from "@/lib/firebase";
 import { Alumnus } from "@/models/models";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
@@ -35,6 +36,9 @@ export async function GoogleSign() {
       return { success: false, errorMessage: "User not found!" };
     }
   } catch (error: any) {
+    if (error.code === "auth/popup-closed-by-user") {
+      return { success: false, errorMessage: "Popup closed by user" };
+    }
     console.log(error.code);
     console.log(error.message);
     return { success: false, errorMessage: error.message };

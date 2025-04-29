@@ -29,7 +29,11 @@ import Link from "next/link";
 import { toastError } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import Image from "next/image";
+import googleImage from "./google.png";
+import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { Alumnus } from "@/models/models";
 import { GoogleSign } from "@/context/AuthGoogleContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -52,7 +56,28 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      await signInWithEmailAndPassword(auth, data.email, data.password).then(
+        async (userCredentials) => {
+          //get alum data from the "alumni" collection
+          const alumniRef = doc(db, "alumni", userCredentials.user.uid);
+          const alumniDoc = await getDoc(alumniRef);
+
+          //check if alum document exists in firestore
+          if (alumniDoc.exists()) {
+            const alum = alumniDoc.data() as Alumnus;
+            //if regStatus is approved, update lastLogin and activeStatus
+            if (alum.regStatus === "approved") {
+              //add lastLogin and set to current date
+              await updateDoc(alumniRef, {
+                lastLogin: new Date(),
+                activeStatus: true,
+              });
+            }
+          } else {
+            console.log("Alum does not exist!");
+          }
+        }
+      );
       // refresh the page, middleware runs
       // if user is logged in, then middleware will redirect the user to another page
       // router.refresh();
@@ -71,17 +96,28 @@ export default function LoginForm() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     const data = await signInWithGoogle();
-    console.log(data);
+    setIsLoading(!data);
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold">Login</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="flex flex-col w-full mx-46 items-center">
+      <p className="text-5xl font-bold text-[#0856ba] pb-10">Welcome back!</p>
+
+      <div className="space-y-7 w-full">
+        <button
+          onClick={() => {
+            handleGoogleSignIn();
+          }}
+          className="border-2 border-[#0856ba] flex justify-center items-center p-2 rounded-full space-x-3 cursor-pointer w-full hover:bg-[#92b2dc]"
+        >
+          <Image src={googleImage} alt="hello" className="w-6 h-6" />
+          <p className="text-[#0856ba]">Sign in with Google</p>
+        </button>
+
+        <hr></hr>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
             <fieldset
               disabled={form.formState.isSubmitting || isLoading}
               className="flex flex-col gap-5"
@@ -122,29 +158,21 @@ export default function LoginForm() {
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting || isLoading}
+                className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
               >
-                Submit
+                Log in
               </Button>
             </fieldset>
           </form>
         </Form>
-        <Button
-          onClick={() => {
-            handleGoogleSignIn();
-          }}
-          variant="outline"
-          className=" bg-black text-white hover:bg-white hover:text-black w-full mt-4"
-          disabled={form.formState.isSubmitting || isLoading}
-        >
-          Sign In With Google
-        </Button>
-      </CardContent>
-      <CardFooter className="justify-between items-center">
-        <small>Don't have an account?</small>
-        <Button asChild variant="outline">
-          <Link href="/sign-up">Sign up</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+
+        <div className="flex justify-center items-center space-x-2">
+          <p>No account yet?</p>
+          <button className="hover:underline text-[#0856ba]">
+            <Link href="/sign-up">Sign up</Link>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
