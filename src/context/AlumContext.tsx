@@ -18,6 +18,7 @@ import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
 import { uploadImage } from "@/lib/upload";
 
+
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -153,6 +154,18 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  //birthdayy
+  const handleUpdateBirthday = async (alumniId: string, birthDate: Date) => {
+    try {
+      const alumniRef = doc(db, "alumni", alumniId);
+      await updateDoc(alumniRef, { birthDate });
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update birthday:", error);
+      return { success: false, message: (error as Error).message };
+    }
+  };
+
   const subscribeToUsers = () => {
     setLoading(true);
     const q = query(collection(db, "alumni"));
@@ -208,6 +221,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         addAlumnus,
         uploadAlumniPhoto,
+        handleUpdateBirthday,
         activeAlums,
         myCareer,
         myEducation,

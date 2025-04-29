@@ -61,11 +61,76 @@ const UserProfile = () => {
   const [addMasters,setAddMasters]= useState(false); 
   const [addDoctoral,setAddDoctoral]= useState(false);
   const [showUploader, setShowUploader] = useState(false);
+
+  //Edit the personal field information
+  const [email, setEmail] = useState(alumInfo?.email || "");
+  const [firstName, setFirstName] = useState(alumInfo?.firstName || "");
+  const [lastName, setLastName] = useState(alumInfo?.lastName || "");
+  const [middleName, setMiddleName] = useState(alumInfo?.middleName || "");
+  const [suffix,setSuffix] = useState(alumInfo?.suffix || "");
+  const [studentNumber,setStudentNumber] = useState(alumInfo?.studentNumber || "");
+  const [city,setCity] = useState(alumInfo?.address[2] || "");
+  const [province,setProvince] = useState(alumInfo?.address[1] || "");
+  const [country,setCountry] = useState(alumInfo?.address[0] || "");
+
+  //for birthday
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
+  const [date, setDate] = useState("");
+    const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const years = Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i);
+
+  useEffect(() => {
+    if (alumInfo?.birthDate) {
+      const date = new Date(alumInfo.birthDate);
+      setDay(date.getDate().toString());
+      setMonth((date.getMonth() + 1).toString());
+      setYear(date.getFullYear().toString());
+    }
+  }, [alumInfo]);
+
+
+
+  //for the fields of interest
+  const [selectedFields, setSelectedFields] = useState<string[]>([]);
+
+  const fields = [
+    "Software Development",
+    "Cybersecurity",
+    "Artificial Intelligence & Machine Learning",
+    "Data Science & Big Data",
+    "Cloud Computing & DevOps",
+    "Computer Networks & Systems Administration",
+    "Blockchain & Web3 Development",
+    "Computer Graphics & Multimedia",
+    "Embedded Systems & IoT (Internet of Things)",
+    "Bioinformatics & Computational Biology",
+    "Robotics & Automation",
+    "Theoretical Computer Science & Research",
+  ];
+  
+  const handleFieldsSelect = (field: string) => {
+    if (!selectedFields.includes(field)) {
+        setSelectedFields([...selectedFields, field]);
+      }
+
+      console.log("here is my intereste:", selectedFields);
+    };
+
+  const handleFieldRemove = (fieldToRemove: string) => {
+      setSelectedFields(selectedFields.filter((field) => field !== fieldToRemove));
+    };
+
+
   
   // GAWA NI MAYBELLE
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
+
   // -----------------
 
   const handleDelete = async (id: any) => {
@@ -231,12 +296,12 @@ const UserProfile = () => {
   //   }
   // }, [alumInfo?.birthDate, alumInfo?.address]);
 
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const years = Array.from({ length: 50 }, (_, i) => 1990 + i);
+  // const months = [
+  //   'January', 'February', 'March', 'April', 'May', 'June',
+  //   'July', 'August', 'September', 'October', 'November', 'December',
+  // ];
+  // const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  // const years = Array.from({ length: 50 }, (_, i) => 1990 + i);
 
   const selectedMonth = selectedDate.getMonth();
   const selectedDay = selectedDate.getDate();
@@ -303,19 +368,47 @@ const UserProfile = () => {
             <div className="flex space-x-7 mb-5">
               <div>
                 <p className="text-xs font-light">First Name</p>
-                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.firstName}</p>
+                  <div className="flex">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                  />
+                  </div>
               </div>
               <div>
                 <p className="text-xs font-light">Middle Name</p>
-                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.middleName ? alumInfo?.middleName : "N/A"}</p>
+                <div className="flex">
+                <input
+                  type="text"
+                  value={middleName? middleName: "N/A"}
+                  onChange={(e) => setMiddleName(e.target.value)}
+                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                />
+                </div>
               </div>
               <div>
                 <p className="text-xs font-light">Last Name</p>
-                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.lastName}</p>
+                <div className="flex">
+                <input
+                  type="text"
+                  value={lastName? lastName: "N/A"}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                />
+                </div>
               </div>
               <div>
                 <p className="text-xs font-light">Suffix</p>
-                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.suffix ? alumInfo?.suffix : "N/A"}</p>
+                <div className="flex">
+                <input
+                  type="text"
+                  value={suffix? suffix: "N/A"}
+                  onChange={(e) => setSuffix(e.target.value)}
+                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                />
+                </div>
               </div>
             </div>
             {/* --------------------- */}
@@ -325,18 +418,24 @@ const UserProfile = () => {
               <div>
                 <p className="font-semibold">Email Address</p>
                 <div className="flex">
-                  <div>
-                    <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.email}</p>
-                  </div>
+                <input
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                />
                 </div>
               </div>
 
               <div>
                 <p className="font-semibold">Student Number</p>
                 <div className="flex">
-                  <div>
-                    <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md">{alumInfo?.studentNumber}</p>
-                  </div>
+                <input
+                  type="text"
+                  value={studentNumber}
+                  onChange={(e) => setStudentNumber(e.target.value)}
+                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                />
                 </div>
               </div>
             </div>
@@ -344,22 +443,55 @@ const UserProfile = () => {
             {/* --------------------- */}
 
             {/* BIRTHDAY */}
-            <p className="font-semibold">Birthday</p>
-            <div className="flex space-x-7 mb-5">
+            <p className="font-semibold mb-1">Birthday*</p>
+            <div className="flex space-x-4 mb-5">
               <div>
-                <p className="text-xs font-light">Month</p>
-                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{getFullMonthName(new Date(alumInfo?.birthDate).getMonth())}</p>
+                <p className="text-xs font-light mb-1">Month</p>
+                <select
+                  value={month}
+                  onChange={(e) => setMonth(e.target.value)}
+                  className="bg-white py-2 px-4 border border-gray-300 rounded-md w-35 text-gray-700"
+                >
+                  <option value="">Month</option>
+                  {months.map((m, i) => (
+                    <option key={i} value={i + 1}>{m}</option>
+                  ))}
+                </select>
               </div>
               <div>
-                <p className="text-xs font-light">Day</p>
-                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getDay()}</p>
+                <p className="text-xs font-light mb-1">Day</p>
+                <select
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+                className="bg-white py-2 px-4 border border-gray-300 rounded-md w-20 text-gray-700"
+                >
+                  <option value="">Day</option>
+                  {days.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </div>
               <div>
-                <p className="text-xs font-light">Year</p>
-                <p className="bg-gray-200 py-2 px-4 border border-gray-500 w-25 text-gray-500 rounded-md">{new Date(alumInfo?.birthDate).getFullYear()}</p>
+                <p className="text-xs font-light mb-1">Year</p>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className="bg-white py-2 px-4 border border-gray-300 rounded-md w-30 text-gray-700"
+                >
+                  <option value="">Year</option>
+                  {years.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
               </div>
             </div>
-            {/* --------------------- */}
+            <div className="flex space-x-2 mb-4">
+
+      </div>
+
+      {/* <div className="text-gray-700">
+        Selected Date: <span className="font-medium">{date || "—"}</span>
+      </div> */}
 
             {/* CURRENT LOCATION */}
             <p className="font-semibold">Current Location</p>
@@ -369,10 +501,10 @@ const UserProfile = () => {
                 {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[0]}</p>*/}
                 <input
                   type="text"
-                  placeholder="City/Municipality"
+                  // placeholder="City/Municipality"
                   className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  // value={}
-                  // onChange={(e) => setCity(e.target.value)}
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
                 />
               </div>
               <div>
@@ -382,8 +514,8 @@ const UserProfile = () => {
                   type="text"
                   placeholder="Province/State"
                   className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  // value={}
-                  // onChange={(e) => setCity(e.target.value)}
+                  value={province}
+                  onChange={(e) => setProvince(e.target.value)}
                 />
               </div>
               <div>
@@ -391,17 +523,54 @@ const UserProfile = () => {
                 {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[1]}</p>*/}
                 <input
                   type="text"
-                  placeholder="Country"
+                  // placeholder="Country"
                   className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  // value={}
-                  // onChange={(e) => setCountry(e.target.value)}
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
                 />
               </div>
             </div>
             {/* --------------------- */}
 
+            {/* field if interest */}
+            {/* sorry di ko na na by row TmT */}
+
+            <div className="flex flex-col space-y-2">
+              <p className="font-semibold">field of interest</p>
+              <div className="flex flex-wrap gap-2">
+                {/* Display selected tags */}
+                {selectedFields.map((tag) => (
+                  <div
+                    key={tag}
+                    className="bg-blue-200 px-4 py-2 rounded-full flex items-center justify-between"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      className="ml-2 text-red-600"
+                      onClick={() => handleFieldRemove(tag)}
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* List of all tags */}
+              <div className="flex flex-wrap gap-2">
+                {fields.map((field) => (
+                  <button
+                    key={field}
+                    className="bg-gray-200 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+                    onClick={() => handleFieldsSelect(field)}
+                  >
+                    {field}
+                  </button>
+                ))}
+              </div>
+            </div>
+                <Button>Save Changes</Button>
           </div>)}
-          
+
           {/* education section */}
           {educationView && (<div className="space-y-7 w-full">
             {/* degree */}
@@ -676,8 +845,6 @@ const UserProfile = () => {
       )}
 
       {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => setUploading(false)}/>}
-
-
 
     </div>
   );
