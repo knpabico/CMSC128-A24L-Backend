@@ -23,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return (
       <div
         className="ml-64"
-        style={{ padding: "3%" }}
+        style={{ padding: "2%" }}
       >
         {children}
       </div>
