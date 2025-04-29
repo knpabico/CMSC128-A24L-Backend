@@ -103,13 +103,22 @@ export default function SampleAdminPage() {
                 }`}
               ></div>
               <div
-                className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${
+                className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
                   activeTab === tab
                     ? "text-[var(--primary-blue)] bg-white"
                     : "text-blue-200 bg-white"
                 }`}
               >
-                {tab}
+                {tab} 
+                <div
+                  className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                    activeTab === tab
+                      ? "bg-blue-400"
+                      : "bg-blue-200"
+                  }`}
+                >
+                  50
+                </div>
               </div>
             </div>
           ))}

@@ -66,83 +66,7 @@ export default function Navbar() {
 
   return (
     <div>
-      {(isAdmin || isGoogleSignIn) && (
-        <nav className="fixed top-0 left-0 w-64 h-screen">
-          <div>
-            ICS-ARMS
-          </div>
-          <div>
-            <div>
-              <div>
-                Alumni
-              </div>
-              <div>
-                <div>Manage Alumni</div>
-                <div>View Pending Alumni</div>
-                <div>Statistical Report</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Events
-              </div>
-              <div>
-                <div>Manage Events</div>
-                <div>Add Events</div>
-                <div>View Pending Events</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Donations
-              </div>
-              <div>
-                <div>Manage Donations</div>
-                <div>Add Donations</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Scholarship Grants
-              </div>
-              <div>
-                <div>Manage Scholarships</div>
-                <div>Add Scholarship Drive</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Job Posting
-              </div>
-              <div>
-                <div>Manage Job Posting</div>
-                <div>Add Job Posting</div>
-                <div>View Job Posting</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                Announcements
-              </div>
-              <div>
-                <div>Manage Posts</div>
-                <div>Add Posts</div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <button
-              className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
-              onClick={() => handleSignOut()}
-            >
-              Sign Out
-            </button>
-          </div>
-        </nav>
-
-      )}
-
-      {(user) && (
+      {((!loading && !user && !isAdmin) || (!loading && !isAdmin)) &&  (
         <nav className="fixed top-0 w-full shadow-md z-50">
           <div
             className="flex items-center justify-between h-18"
@@ -151,32 +75,20 @@ export default function Navbar() {
             {/* Logo */}
             <div className="text-white font-[800] text-xl">ICS-ARMS</div>
 
-            <div>
-              {/* Login Button */}
-              {!loading && !user && !isAdmin && (
-                <div className="flex items-center">
-                  <button
-                    className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
-                    onClick={() => router.push("/login")}
-                  >
-                    Log In
-                  </button>
-                </div>
-              )}
+            {/* Right Side Navbar */}
+            {(!user) && (
+              <div className="flex items-center">
+                <button
+                  className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
+                  onClick={() => router.push("/auth/login")}
+                >
+                  Log In
+                </button>
+              </div>
+            )}
 
-              {(isAdmin || isGoogleSignIn) && (
-                <div className="flex items-center">
-                  <button
-                    className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
-                    onClick={() => handleSignOut()}
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              )}
-
-              {/* Navigation & Profile Menu for Logged-in User */}
-              {user && !isGoogleSignIn && (
+            {/* Navigation & Profile Menu for Logged-in User */}
+            {user && !isGoogleSignIn && (
                 <div className="hidden xl:flex items-center">
                   {navItems.map((item) => (
                     <div
@@ -246,7 +158,6 @@ export default function Navbar() {
                   </div>
                 </div>
               )}
-            </div>
 
             {/* Mobile Hamburger Menu */}
             {user && (
@@ -263,48 +174,114 @@ export default function Navbar() {
                 </button>
               </div>
             )}
-          </div>
 
-          {/* Mobile Menu */}
-          {menuOpen && (
-            <div className="flex flex-col w-full pb-5 xl:hidden" ref={menuRef}>
-              {navItems.map((item) => (
+            {/* Mobile Menu */}
+            {menuOpen && (
+              <div className="flex flex-col w-full pb-5 xl:hidden" ref={menuRef}>
+                {navItems.map((item) => (
+                  <div
+                    key={item.path}
+                    className="py-3 text-center border-blue-300 text-white hover:bg-[var(--blue-600)] transition-colors cursor-pointer"
+                    onClick={() => handleNavClick(item.path)}
+                  >
+                    {item.label}
+                  </div>
+                ))}
                 <div
-                  key={item.path}
-                  className="py-3 text-center border-blue-300 text-white hover:bg-[var(--blue-600)] transition-colors cursor-pointer"
-                  onClick={() => handleNavClick(item.path)}
+                  className="py-3 text-center text-white hover:bg-[var(--blue-600)] transition-colors cursor-pointer"
+                  onClick={() => handleNavClick(`/my-profile/${user?.uid}`)}
                 >
-                  {item.label}
+                  Profile
                 </div>
-              ))}
-              <div
-                className="py-3 text-center text-white hover:bg-[var(--blue-600)] transition-colors cursor-pointer"
-                onClick={() => handleNavClick(`/my-profile/${user?.uid}`)}
-              >
-                Profile
+                <div
+                  className="py-3 text-center text-white hover:bg-[var(--blue-600)] transition-colors cursor-pointer"
+                  onClick={handleSignOut}
+                >
+                  Sign Out
+                </div>
               </div>
-              <div
-                className="py-3 text-center text-white hover:bg-[var(--blue-600)] transition-colors cursor-pointer"
-                onClick={handleSignOut}
-              >
-                Sign Out
-              </div>
-            </div>
-          )}
+            )}
+
+          </div>
         </nav>
       )}
+
+      {(isAdmin || isGoogleSignIn) && (
+        <nav className="fixed top-0 left-0 w-64 h-screen flex flex-col gap-5" style={{ "padding": "2%" }}>
+          <div>
+            ICS-ARMS
+          </div>
+          <div>
+            <div>
+              <div>
+                Alumni
+              </div>
+              <div>
+                <div>Manage Alumni</div>
+                <div>View Pending Alumni</div>
+                <div>Statistical Report</div>
+              </div>
+            </div>
+            <div>
+              <div>
+                Events
+              </div>
+              <div>
+                <div>Manage Events</div>
+                <div>Add Events</div>
+                <div>View Pending Events</div>
+              </div>
+            </div>
+            <div>
+              <div>
+                Donations
+              </div>
+              <div>
+                <div>Manage Donations</div>
+                <div>Add Donations</div>
+              </div>
+            </div>
+            <div>
+              <div>
+                Scholarship Grants
+              </div>
+              <div>
+                <div>Manage Scholarships</div>
+                <div>Add Scholarship Drive</div>
+              </div>
+            </div>
+            <div>
+              <div>
+                Job Posting
+              </div>
+              <div>
+                <div>Manage Job Posting</div>
+                <div>Add Job Posting</div>
+                <div>View Job Posting</div>
+              </div>
+            </div>
+            <div>
+              <div>
+                Announcements
+              </div>
+              <div>
+                <div>Manage Posts</div>
+                <div>Add Posts</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button
+              className="pl-5 pr-5 h-18 text-[var(--primary-white)] hover:bg-[var(--blue-600)] transition"
+              onClick={() => handleSignOut()}
+            >
+              Sign Out
+            </button>
+
+          </div>
+        </nav>
+      )}
+
     </div>
   );
 }
-
-//  {(user || isAdmin || isGoogleSignIn) && (
-//                 <button
-//                   onClick={async () => {
-//                     await logOut();
-//                     router.refresh();
-//                   }}
-//                   className="text-white hover:bg-white hover:text-black rounded-lg px-3 py-2 font-bold"
-//                 >
-//                   Sign Out
-//                 </button>
-//               )}
