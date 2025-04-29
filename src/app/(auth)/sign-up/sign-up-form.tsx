@@ -82,11 +82,12 @@ import { Education } from "./sign-up-fields/education";
 import { Affiliation } from "./sign-up-fields/affiliation";
 import { NameAndPhoto } from "./sign-up-fields/name-and-photo";
 import { UserCredentials } from "./sign-up-fields/credentials";
-import { AlumPhotoUpload } from "./sign-up-fields/alum_photo";
+import { AlumPhotoUpload, uploadToFirebase } from "./sign-up-fields/alum_photo";
 
 import Image from "next/image";
 import physciImage from "./physci.png";
 import googleImage from "./google.png";
+import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
@@ -169,6 +170,8 @@ export default function RegistrationForm() {
   //for preventing double click
   const [disableGoNext, setDisableGoNext] = useState(false);
   const [disableGoBack, setDisableGoBack] = useState(false);
+  const [alumImage, setImage] = useState<File | null>(null); // for alum photo
+  const [proofOfEmployment, setProof] = useState<File | null>(null);
 
   const router = useRouter();
 
@@ -206,7 +209,6 @@ export default function RegistrationForm() {
 
       // //career
       career: [], //industry, jobTitle, company, startYear, endYear
-
       acceptTerms: false,
       subscribeToNewsletter: false,
     },
@@ -252,7 +254,9 @@ export default function RegistrationForm() {
 
     console.log("Testing sign-up:");
     console.log(data);
-    const response = await registerUser(data);
+    console.log(alumImage);
+    console.log(proofOfEmployment);
+    const response = await registerUser(data, alumImage, proofOfEmployment);
 
     //display error or success toast message
     if (response?.error) {
@@ -261,12 +265,36 @@ export default function RegistrationForm() {
       return;
     }
 
+    if (alumImage) {
+      uploadToFirebase(alumImage, response.alumniId!);
+    }
+
+    if (proofOfEmployment) {
+      uploadDocToFirebase(
+        proofOfEmployment,
+        response.alumniId!,
+        response.workExperienceId!
+      );
+    }
+
     // if successful, show a dialog that says
     // wait for admin to approve the account
     setShowDialog(true);
   };
 
   type fieldName = keyof z.infer<typeof signUpFormSchema>;
+
+  //callback for image upload
+  const handleImageUpload = (image: File): void => {
+    setImage(image);
+    console.log("Uploaded image:", image);
+  };
+
+  //callback for document upload
+  const handleDocUpload = (doc: File): void => {
+    setProof(doc);
+    console.log("Uploaded document:", doc);
+  };
 
   //for proceeding to the "Your Profile" part after validating the user credentials
   const goNext = async () => {
@@ -373,18 +401,22 @@ export default function RegistrationForm() {
 
               {currentPart === 1 && (
                 <div className="my-20">
-                  <button onClick={goBack} className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer">
-                    <ChevronLeft/>
+                  <button
+                    onClick={goBack}
+                    className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
+                  >
+                    <ChevronLeft />
                     <p>Back</p>
                   </button>
 
                   <div className="flex flex-col items-center mx-110">
-                    
                     <div className="space-y-10">
                       <div className="bg-white rounded-3xl p-10 space-y-15">
                         <div className="flex flex-col items-center">
                           <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full">
-                            <AlumPhotoUpload form={form}></AlumPhotoUpload>
+                            <AlumPhotoUpload
+                              imageSetter={handleImageUpload}
+                            ></AlumPhotoUpload>
                           </div>
                         </div>
 
@@ -639,7 +671,11 @@ export default function RegistrationForm() {
                                 </button>
 
                                 {/* career form field */}
-                                <Career index={index} form={form}></Career>
+                                <Career
+                                  index={index}
+                                  form={form}
+                                  proofSetter={handleDocUpload}
+                                ></Career>
                               </div>
                             ))}
                             {/*add  fields button */}
@@ -657,7 +693,6 @@ export default function RegistrationForm() {
                                   location: "",
                                   latitude: 14.25,
                                   longitude: 121.25,
-                                  proofOfEmployment: ""
                                 });
                               }}
                             >
@@ -735,7 +770,6 @@ export default function RegistrationForm() {
                           Submit
                         </Button>
                       </div>
-                      
                     </div>
                   </div>
                 </div>

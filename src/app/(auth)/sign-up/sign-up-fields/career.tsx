@@ -16,7 +16,15 @@ import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 import { AlumDocumentUpload } from "./career_proof";
 import { MapPin, PencilIcon } from "lucide-react";
 
-export const Career = ({ index, form }: { index: number; form: any }) => {
+export const Career = ({
+  index,
+  form,
+  proofSetter,
+}: {
+  index: number;
+  form: any;
+  proofSetter: (value: File) => void;
+}) => {
   //dynamic fields for career
 
   const [endYear, setEndYear] = useState(false);
@@ -201,7 +209,6 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
             />
           </div>
         </div>
-
       </div>
 
       {/*kinopya lang 'yung implementation sa add-work-experience */}
@@ -242,7 +249,11 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
       {endYear === true && (
         <div className="col-span-12">
           <p className="text-xs font-light pt-3">Proof of Employment</p>
-          <AlumDocumentUpload index={index} form={form}></AlumDocumentUpload>
+          <AlumDocumentUpload
+            index={index}
+            form={form}
+            proofSetter={proofSetter}
+          ></AlumDocumentUpload>
         </div>
       )}
     </div>
