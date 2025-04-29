@@ -135,7 +135,7 @@ export function EventProvider({ children }: { children: React.ReactNode })
       if (image) {
         const uploadResult = await uploadImage(image, `event/${docRef.id}`);
         if (uploadResult.success) {
-          newEvent.image = uploadResult.url;
+          newEvent.image = image;
   
           // Optional: also store under photoURL
           await updateDoc(docRef, { photoURL: uploadResult.url });

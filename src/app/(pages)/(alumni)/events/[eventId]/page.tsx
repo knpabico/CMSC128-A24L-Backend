@@ -92,10 +92,10 @@ const EventPageAlumni = () =>
               </>
             ) : null} {/* This ensures that when the RSVP is not "Pending", nothing is displayed */}
           </div>
-<<<<<<< HEAD
           {event.needSponsorship ? (
             <button
-              onClick={() => {
+              onClick={() =>
+            {
                 router.push(`/donationdrive-list/details?id=${event.donationDriveId}`);
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md"
@@ -103,17 +103,6 @@ const EventPageAlumni = () =>
                 View more about the donation
             </button>
           ) : null}
-=======
-          <button
-            onClick={() =>
-            {
-              router.push(`/donationdrive-list/details?id=${event.donationDriveId}`);
-            }}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md"
-          >
-            View more about the donation
-          </button>
->>>>>>> f07c2f2d50f9c521398e69f5cbce07cd59a373e2
         </div>
       ) : (
         <p>Event not found.</p>
