@@ -146,7 +146,6 @@ export function ScholarshipProvider({
     }
   };
 
-
   const getScholarshipById = async (id: string): Promise<Scholarship | null> => {
     try {
       const scholarshipDoc = doc(db, 'scholarship', id);

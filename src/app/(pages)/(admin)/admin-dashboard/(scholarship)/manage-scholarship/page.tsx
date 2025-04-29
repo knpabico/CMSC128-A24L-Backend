@@ -4,7 +4,10 @@ import { Scholarship } from "@/models/models"
 import { useScholarship } from "@/context/ScholarshipContext"
 import React, { useState } from "react";
 import { useRouter } from 'next/navigation';
-
+import { toastSuccess } from "@/components/ui/sonner";
+import { ChevronRight, CircleAlert, CircleX, Trash2 } from "lucide-react";
+import { Dialog, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
+import { DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 
 export default function ManageScholarship(){
 	const {
@@ -39,12 +42,37 @@ export default function ManageScholarship(){
 			}
 		});
 	const sortedScholarships = sortScholarships(scholarships);
+
+	//  Scholarship Deletion
+	const handleDelete = (scholarship : Scholarship) => {
+		if (!scholarship.scholarshipId) {
+			console.error("No scholarship ID provided.");
+			return;
+		}
+		deleteScholarship(scholarship.scholarshipId);
+		toastSuccess(`${scholarship.title} has been deleted successfully.`)
+	}
+
+	const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+	const [selectedScholarship, setSelectedScholarship] = useState<Scholarship>();
 	
 	return (
-		<div className="mx-20 my-30">
-			<div>
-				<h1 className="text-3xl font-medium">Manage Scholarships</h1>
+		<div className="flex flex-col gap-5">
+			<div className="flex items-center gap-2">
+				<div> Home </div>
+				<div> <ChevronRight size={15} /> </div>
+				<div> Manage Scholarships </div>
 			</div>
+			<div className="w-full">
+        <div className="flex items-center justify-between">
+          <div className="font-bold text-3xl">
+            Manage Scholarships
+          </div>
+          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
+            + Create Scholarship
+          </div>
+        </div>
+      </div>
 			<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
 				<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
 				<div className="flex items-center">
@@ -66,8 +94,7 @@ export default function ManageScholarship(){
 					{sortedScholarships.map((scholarship : Scholarship) => (
 					<div 
 						key={scholarship.scholarshipId} 
-						className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-						onClick={() => navigateToDetail(scholarship.scholarshipId)}
+						className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
 					>
 						{/* Body */}
 						<div className="px-6 py-3 flex justify-between items-center">
@@ -81,14 +108,43 @@ export default function ManageScholarship(){
 									Total Number of Sponsors: {scholarship.alumList.length}
 								</p>
 							</div>
-							<div className=''>
-								<button onClick={() => navigateToDetail(scholarship.scholarshipId)}>View Details</button>
+							<div className='flex gap-5'>
+								<button className="text-blue-700 hover:cursor-pointer" onClick={() => navigateToDetail(scholarship.scholarshipId)}>View Details</button>
+								<button className="text-red-700 hover:cursor-pointer" onClick={() => {
+									setSelectedScholarship(scholarship);
+									setIsConfirmationOpen(true);
+								}} >
+									<Trash2 className='size-6'/>
+								</button>
 							</div>       
 						</div>
 					</div>
 					))}
 				</div>
 			)}
+			{/* Confirmation Dialog */}
+			{isConfirmationOpen && (
+			<Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+				<DialogContent className='w-96'>
+					<DialogHeader className='text-red-500 flex items-center gap-5'>
+						<CircleX className='size-15'/>
+						<DialogTitle className="text-md text-center">
+							Are you sure you want to delete <br /> <strong>{selectedScholarship?.title}</strong>?
+						</DialogTitle>
+					</DialogHeader>
+					<DialogFooter className='mt-5'>
+						<button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer" 
+							onClick={() => {
+								if(selectedScholarship){
+									handleDelete(selectedScholarship);
+									setIsConfirmationOpen(false);
+								}
+							}} >Delete</button>
+						<button className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100" onClick={() => setIsConfirmationOpen(false)}>Cancel</button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		  )}
 		</div>
 	)
 }
