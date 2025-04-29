@@ -82,7 +82,7 @@ export default function SampleAdminPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4 h-200">
+        <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
           <div className="flex flex-col gap-5">
             {/* Basic text input with individual state */}
             <div className="space-y-2">
