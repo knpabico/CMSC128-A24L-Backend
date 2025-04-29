@@ -182,7 +182,7 @@ export default function DonationDrives() {
           >
             Active
           </button>
-          <button 
+          {/* <button 
             onClick={() => setStatusFilter("pending")}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
               statusFilter === "pending" 
@@ -191,7 +191,7 @@ export default function DonationDrives() {
             }`}
           >
             Pending
-          </button>
+          </button> */}
           <button 
             onClick={() => setStatusFilter("completed")}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
@@ -202,7 +202,7 @@ export default function DonationDrives() {
           >
             Completed
           </button>
-          <button 
+          {/* <button 
             onClick={() => setStatusFilter("rejected")}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
               statusFilter === "rejected" 
@@ -211,7 +211,7 @@ export default function DonationDrives() {
             }`}
           >
             Rejected
-          </button>
+          </button> */}
         </div>
         
         {/* Sorting Dropdown */}
@@ -237,11 +237,14 @@ export default function DonationDrives() {
       {/* Donation Drive List */}
       <div>
         <h2 className="text-2xl font-bold mb-4">
-          {statusFilter === "all" ? "All Donation Drives" :
+          {/* {statusFilter === "all" ? "All Donation Drives" :
            statusFilter === "active" ? "Active Donation Drives" :
            statusFilter === "pending" ? "Pending Donation Drives" :
            statusFilter === "completed" ? "Completed Donation Drives" :
-           "Rejected Donation Drives"}
+           "Rejected Donation Drives"} */}
+           {statusFilter === "all" ? "All Donation Drives" :
+           statusFilter === "active" ? "Active Donation Drives" :
+           "Completed Donation Drives"}
         </h2>
         
         {filteredDrives.length === 0 ? (
@@ -289,12 +292,12 @@ export default function DonationDrives() {
                     className={`ml-4 px-2 py-0.5 text-xs font-medium rounded-full ${
                       drive.status === "active"
                         ? "bg-green-100 text-green-800"
-                        : drive.status === "pending"
-                        ? "bg-yellow-100 text-yellow-800"
+                        // : drive.status === "pending"
+                        // ? "bg-yellow-100 text-yellow-800"
                         : drive.status === "completed"
                         ? "bg-purple-100 text-purple-800"
-                        : drive.status === "rejected"
-                        ? "bg-red-100 text-red-800"
+                        // : drive.status === "rejected"
+                        // ? "bg-red-100 text-red-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
@@ -382,7 +385,7 @@ export default function DonationDrives() {
                   
                   {/* Action Buttons - Right Side */}
                   <div className="p-4 bg-gray-50 border-l flex flex-col justify-center gap-2 min-w-32">
-                    {drive.status === "pending" && (
+                    {/* {drive.status === "pending" && (
                       <>
                         <button
                           onClick={() => handleAccept(drive.donationDriveId)}
@@ -397,7 +400,7 @@ export default function DonationDrives() {
                           Reject
                         </button>
                       </>
-                    )}
+                    )} */}
 
                     { drive.status !== "rejected" &&
                       <button
