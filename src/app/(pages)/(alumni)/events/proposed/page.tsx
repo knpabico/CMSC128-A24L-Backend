@@ -5,25 +5,41 @@ import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
-import ProposeEventForm from "../components/ProposeEventForm";
 import { Event } from "@/models/models";
+import ProposeEventForm from "../components/ProposeEventForm";
 
 export default function ProposedEventsPage()
 {
-    const { events, isLoading } = useEvents();
+    const { 
+        events, 
+        isLoading, 
+        setShowForm,
+        showForm,
+        handleSave,
+        handleImageChange,
+        date,
+        setEventDate,
+        description,
+        setEventDescription,
+        title,
+        setEventTitle,
+        needSponsorship,
+        setNeedSponsorship,
+    } = useEvents();
+    
+
     const { user, alumInfo } = useAuth();
 
     const [proposedEvents, setProposedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
     const [statusFilter, setStatusFilter] = useState<string>('all');
-
+    
     useEffect(() =>
     {
         console.log("Events:", events);
 
         if (events.length > 0 && user)
         {
-
             const filteredEvents = events.filter(
                 (e: { status: string; creatorId: string; creatorType: string; }) =>
                 (statusFilter === 'all' || e.status === statusFilter) &&
@@ -85,6 +101,8 @@ export default function ProposedEventsPage()
           default: return 'Proposed Events';
         }
     };
+    
+ 
     return(
         <div className="bg-[#EAEAEA]">
             {/* Page Title */}
@@ -108,7 +126,10 @@ export default function ProposedEventsPage()
                         <h2 className="text-lg font-semibold">{getStatusDisplayTitle()}</h2>
                         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                             {/* Propose Event */}
-                            <button className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600">
+                            <button 
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600"
+                                onClick={() => setShowForm(true)}
+                            >
                                 Propose Event
                             </button>
                             {/* Status filter */}
@@ -131,6 +152,22 @@ export default function ProposedEventsPage()
                             </div>
                         </div>
                     </div>
+                    
+                    {/* Event Proposal Modal - Using the new component */}
+                    <ProposeEventForm 
+                        isOpen={showForm}
+                        onClose={() => setShowForm(false)}
+                        title={title}
+                        setEventTitle={setEventTitle}
+                        description={description}
+                        setEventDescription={setEventDescription}
+                        date={date}
+                        setEventDate={setEventDate}
+                        handleImageChange={handleImageChange}
+                        handleSave={handleSave}
+                        alumInfo={alumInfo}
+                    />
+                    
                     {proposedEvents.length > 0 ? (
                         // event cards
                         <EventsList

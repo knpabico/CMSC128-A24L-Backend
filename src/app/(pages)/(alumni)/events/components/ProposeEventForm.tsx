@@ -1,208 +1,190 @@
-// components/ProposeEventForm.tsx
-import React, { useState } from 'react';
+"use client";
+
+import React, { useState } from "react";
+import { Button } from "@mui/material";
+import ModalInput from "@/components/ModalInputForm";
 
 interface ProposeEventFormProps {
-  onSaveDraft: (eventDetails: EventDetails) => void;
-  onSubmit: (eventDetails: EventDetails) => void;
-  onCancel: () => void;
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  setEventTitle: (title: string) => void;
+  description: string;
+  setEventDescription: (description: string) => void;
+  date: string;
+  setEventDate: (date: string) => void;
+  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSave: (e: React.FormEvent, categories: string[], visibility: string, creatorId: string | undefined, creatorName: string | undefined, creatorType: string) => void;
+  alumInfo: any;
 }
-
-interface EventDetails {
-  eventTitle: string;
-  eventDescription: string;
-  eventLocation: string;
-  eventDate: string;
-}
-
-const requiredSentence =
-  'I certify on my honor that the proposed event details are accurate, correct, and complete.';
 
 const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
-  onSaveDraft,
-  onSubmit,
-  onCancel,
+  isOpen,
+  onClose,
+  title,
+  setEventTitle,
+  description,
+  setEventDescription,
+  date,
+  setEventDate,
+  handleImageChange,
+  handleSave,
+  alumInfo,
 }) => {
-  const [eventDetails, setEventDetails] = useState<EventDetails>({
-    eventTitle: '',
-    eventDescription: '',
-    eventLocation: '',
-    eventDate: '',
-  });
-  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const [userInput, setUserInput] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmForm, setConfirmForm] = useState(false);
+  const [userInput, setUserInput] = useState("");
+  
+  const requiredSentence = "I certify on my honor that the proposed event details are accurate, correct, and complete.";
+  const formComplete = title.trim() !== "" && description.trim() !== "" && date.trim() !== "";
 
-  const handleChange = (
-    field: keyof EventDetails,
-    value: string
-  ): void => {
-    setEventDetails((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleSaveAsDraft = (): void => {
-    onSaveDraft(eventDetails);
-  };
-
-  const handleProposeEvent = (): void => {
-    setShowConfirmModal(true);
-  };
-
-  const handleConfirmSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-    if (userInput !== requiredSentence) {
-      alert('Please type the sentence exactly to confirm.');
-      return;
-    }
-
-    onSubmit(eventDetails);
-    setShowConfirmModal(false);
-  };
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
-      <form onSubmit={(e) => e.preventDefault()} className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
-      >
-        <h2 className="text-xl font-bold mb-4">Propose Event</h2>
-
-        <InputField
-          label="Event Title"
-          value={eventDetails.eventTitle}
-          onChange={(value) => handleChange('eventTitle', value)}
-        />
-        <InputField
-          label="Event Description"
-          value={eventDetails.eventDescription}
-          onChange={(value) => handleChange('eventDescription', value)}
-          isTextArea
-        />
-        <InputField
-          label="Event Location"
-          value={eventDetails.eventLocation}
-          onChange={(value) => handleChange('eventLocation', value)}
-        />
-        <InputField
-          label="Event Date"
-          value={eventDetails.eventDate}
-          onChange={(value) => handleChange('eventDate', value)}
-          type="date"
-        />
-
-        <div className="flex justify-between">
-          <button type="button" onClick={onCancel} className="text-gray-500">
-            Cancel
-          </button>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleSaveAsDraft}
-              className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
-            >
-              Save As Draft
-            </button>
-            <button
-              type="button"
-              onClick={handleProposeEvent}
-              className="bg-[#0856BA] text-white p-2 rounded-[22px]"
-            >
-              Propose
-            </button>
-          </div>
-        </div>
-
-        {showConfirmModal && (
-          <ConfirmationModal
-            userInput={userInput}
-            onUserInputChange={setUserInput}
-            onCancel={() => setShowConfirmModal(false)}
-            onConfirm={handleConfirmSubmit}
+    <>
+      {/* Event Proposal Modal */}
+      <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
+        <form
+          className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
+        >
+          <h2 className="text-xl bold mb-4">Propose Event</h2>
+          <input
+            type="text"
+            placeholder="Event Title"
+            value={title}
+            onChange={(e) => setEventTitle(e.target.value)}
+            className="w-full mb-4 p-2 border rounded"
+            required
           />
-        )}
-      </form>
-    </div>
-  );
-};
+          <textarea
+            placeholder="Event Description"
+            value={description}
+            onChange={(e) => setEventDescription(e.target.value)}
+            className="w-full mb-4 p-2 border rounded"
+            required
+          />
+          <Button onClick={() => setIsModalOpen(true)}>
+            Need AI help for description?
+          </Button>
+          <ModalInput
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSubmit={(response) => setEventDescription(response)}
+            title="AI Assistance for Events"
+            type="event"
+            mainTitle={title}
+            subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
+          />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setEventDate(e.target.value)}
+            className="w-full mb-4 p-2 border rounded"
+            required
+            min={
+              new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0]
+            } // Events must be scheduled at least one week in advance
+          />
 
-interface InputFieldProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  isTextArea?: boolean;
-}
+          <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Upload Photo
+          </label>
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
 
-const InputField: React.FC<InputFieldProps> = ({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  isTextArea = false,
-}) => {
-  return (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold mb-2">{label}</label>
-      {isTextArea ? (
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-      ) : (
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-      )}
-    </div>
-  );
-};
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-gray-500"
+            >
+              Cancel
+            </button>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
+              >
+                Save As Draft
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmForm(true)}
+                className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+                disabled={!formComplete}
+              >
+                Propose
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
 
-interface ConfirmationModalProps {
-  userInput: string;
-  onUserInputChange: (value: string) => void;
-  onCancel: () => void;
-  onConfirm: (e: React.FormEvent) => void;
-}
+      {/* Confirmation Modal */}
+      {confirmForm && (
+        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-30">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (userInput !== requiredSentence) {
+                alert("Please type the sentence exactly to confirm.");
+                return;
+              }
+              
+              // Add creator information to the event
+              handleSave(e, [], "all", alumInfo?.alumniId, alumInfo?.firstName, "alumni");
+              onClose();
+              setConfirmForm(false);
+            }}
+            className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
+          >
+            <h2 className="text-xl font-bold mb-4">Please certify on your honor that all the details are accurate, correct, and complete.</h2>
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
-  userInput,
-  onUserInputChange,
-  onCancel,
-  onConfirm,
-}) => {
-  return (
-    <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-30">
-      <form
-        onSubmit={onConfirm}
-        className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
-      >
-        <h2 className="text-xl font-bold mb-4">
-          Please certify on your honor that all the details are accurate, correct, and complete.
-        </h2>
-        <p className="text-gray-700 text-sm">
-          As a sign of your confirmation, please type the following text in the text field below:
-        </p>
-        <p className="text-gray-900 text-left my-2">{requiredSentence}</p>
-        <InputField
-          label="Confirm Details"
-          value={userInput}
-          onChange={onUserInputChange}
-        />
-        <div className="flex justify-between">
-          <button type="button" onClick={onCancel} className="text-gray-500">
-            Cancel
-          </button>
-          <button type="submit" className="bg-[#0856BA] text-white p-2 rounded-[22px]">
-            Confirm
-          </button>
+            <div className="mb-4">
+              <p className="text-gray-700 text-sm">
+                As a sign of your confirmation, please type the following text in the text field below:
+              </p>
+              <p className="text-gray-900 italic text-center my-2">
+                I certify on my honor that the proposed event details are accurate, correct, and complete.
+              </p>
+            </div>
+
+            <input
+              type="text"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onPaste={(e) => e.preventDefault()} // Prevent paste
+              placeholder="Type the sentence here"
+              className="w-full mb-4 p-2 border rounded"
+              required
+            />
+
+            <div className="flex justify-between">
+              <button
+                type="button"
+                onClick={() => setConfirmForm(false)}
+                className="text-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+              >
+                Confirm
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+      )}
+    </>
   );
 };
 
