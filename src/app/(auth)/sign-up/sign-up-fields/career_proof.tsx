@@ -70,7 +70,9 @@ export const AlumDocumentUpload = ({
     if (file) {
       setDocument(file);
       setDocumentType(file.type);
-      proofSetter(file);
+      //proofSetter(file);
+      //update form file
+      form.setValue(`career.${index}.proof`, file);
       //update hasProof of career[index]
       form.setValue(`career.${index}.hasProof`, true);
       // Only create preview for image files
@@ -87,10 +89,12 @@ export const AlumDocumentUpload = ({
     setDocument(null);
     setDocumentType("");
     setPreview(null);
-    proofSetter(null);
+    //proofSetter(null);
     setFirstClick(false); //reset firstClick
     //update hasProof of career[index]
     form.setValue(`career.${index}.hasProof`, false);
+    //update form file
+    form.setValue(`career.${index}.proof`, null);
   };
 
   useEffect(() => {

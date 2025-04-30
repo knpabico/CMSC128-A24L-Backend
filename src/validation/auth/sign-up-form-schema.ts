@@ -98,6 +98,7 @@ const baseSchema = z.object({
           longitude: z.number(),
           presentJob: z.boolean(),
           hasProof: z.boolean(),
+          proof: z.any().optional(),
         })
         .superRefine((data, ctx) => {
           const regex = /^(19[8-9]\d|20\d\d|2100)$/;

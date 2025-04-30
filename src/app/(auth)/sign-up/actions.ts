@@ -41,6 +41,8 @@ const calculateAge = (birthDate: Date) => {
   const month = birthDate.getMonth();
   const year = birthDate.getFullYear();
 
+  //student number
+
   let age = current_year - year;
   //if current day < day or current month < month
   if (current_day < day || current_month < month) {
@@ -62,14 +64,15 @@ const saveCareer = async (
             endYear: string;
             presentJob: boolean;
             hasProof: boolean;
+            proof: any;
           }
         | undefined
       )[]
     | undefined,
-  alumniId: string,
-  proofOfEmployment: any
+  alumniId: string
 ) => {
   let workExperienceId = null;
+  let workExpIds = []; //ids of work experience
   //if career exists
   if (career) {
     //loop for storing each career entry to work_experience
@@ -82,7 +85,7 @@ const saveCareer = async (
         let ref = serverFirestoreDB.collection("work_experience").doc();
 
         //destructure to get presentJob
-        const { presentJob, endYear, hasProof, ...car } = career[i]!;
+        const { presentJob, endYear, hasProof, proof, ...car } = career[i]!;
 
         await serverFirestoreDB
           .collection("work_experience")
@@ -97,13 +100,14 @@ const saveCareer = async (
 
         if (presentJob) {
           workExperienceId = ref.id;
+          workExpIds.push(workExperienceId);
         }
       }
     }
   }
 
   //return id of current job
-  return workExperienceId;
+  return workExpIds;
 };
 
 //function for saving bachelors, masters, and doctoral to the education collection
@@ -225,8 +229,6 @@ const saveAffiliation = async (
 
 export const registerUser = async (
   data: z.infer<typeof signUpFormSchema>,
-  alumImage: any,
-  proofOfEmployment: any,
   userInfo: {
     displayName: string;
     email: string;
@@ -261,6 +263,7 @@ export const registerUser = async (
     passwordConfirm,
     ...alumData
   } = alumnusData;
+
   try {
     // create a user in firebase auth
     let userCredential = userInfo;
@@ -306,11 +309,7 @@ export const registerUser = async (
     await saveEducation(bachelors!, masters!, doctoral!, userCredential.uid);
 
     //save career
-    let workExperienceId = await saveCareer(
-      career,
-      userCredential.uid,
-      proofOfEmployment
-    );
+    let workExperienceIds = await saveCareer(career, userCredential.uid);
 
     //save affiliation
     await saveAffiliation(affiliation, userCredential.uid);
@@ -318,7 +317,7 @@ export const registerUser = async (
     return {
       error: false,
       alumniId: userCredential.uid,
-      workExperienceId: workExperienceId,
+      workExpIds: workExperienceIds,
     };
   } catch (err: any) {
     return {

@@ -291,8 +291,6 @@ export default function RegistrationForm() {
     setIsLoadingModal(true);
     const response = await registerUser(
       data,
-      alumImage,
-      proofOfEmployment,
       {
         displayName: user?.displayName ?? "",
         email: user?.email ?? "",
@@ -308,6 +306,7 @@ export default function RegistrationForm() {
     console.log(data);
     console.log(alumImage);
     console.log(proofOfEmployment);
+    console.log(response.workExpIds);
 
     //display error or success toast message
     if (response?.error) {
@@ -316,16 +315,25 @@ export default function RegistrationForm() {
       return;
     }
 
+    //upload alum photo to firebase storage
     if (alumImage) {
       uploadToFirebase(alumImage, response.alumniId!);
     }
 
-    if (proofOfEmployment) {
-      uploadDocToFirebase(
-        proofOfEmployment,
-        response.alumniId!,
-        response.workExperienceId!
-      );
+    //uploading multiple documents by batch
+    if (data && data.career) {
+      let index = 0;
+      for (let i = 0; i < data.career?.length!; i++) {
+        //upload proof of employment document to firebase storage
+        if (data.career[i].hasProof === true && response.workExpIds) {
+          uploadDocToFirebase(
+            data.career[i].proof,
+            response.alumniId!,
+            response.workExpIds[index]
+          );
+          index = index + 1;
+        }
+      }
     }
 
     // if successful, show a dialog that says
@@ -776,6 +784,7 @@ export default function RegistrationForm() {
                                   latitude: 14.25,
                                   longitude: 121.25,
                                   hasProof: false,
+                                  proof: null,
                                 });
                               }}
                             >
