@@ -8,7 +8,7 @@ import {
   setDoc,
   doc,
   where,
-  getDocs,
+  getDoc,
   orderBy,
   updateDoc,
 } from "firebase/firestore";
@@ -69,31 +69,44 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   //for updateing changes of alumni
 
   const updateAlumniDetails = async (
-    alum:Alumnus,
-    firstName:string,
-    middleName:string,
-    lastName:string,
-    suffix:string,
+    alum: Alumnus,
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    suffix: string,
     email: string,
     studentNumber: string,
     address: string[],
     birthDate: Date,
     fieldOfInterest: string[]
   ) => {
-    try{
-    const alumniRef = doc(db, "alumni", alum.alumniId);
-    await updateDoc(alumniRef, { 
-      firstName: firstName ?? "",
-      middleName: middleName ?? "",
-      lastName: lastName ?? "",
-      suffix: suffix ?? "",
-      email: email ?? "",
-      studentNumber: studentNumber ?? "",
-      address: address ?? [],
-      birthDate: birthDate ?? new Date(), // fallback to current date, or handle accordingly
-      fieldOfInterest: fieldOfInterest ?? [],
-    })
-     return { success: true, message: "Your changes are successfully saved"};
+    try {
+      const alumniRef = doc(db, "alumni", alum.alumniId);
+      const docSnap = await getDoc(alumniRef);  // Fetch current data to check for existing fields
+  
+      const updatedData: any = {};  // Will hold fields to update
+  
+      if (docSnap.exists()) {
+        const currentData = docSnap.data();
+        
+        // Only update fields that have changed
+        if (firstName !== currentData.firstName) updatedData.firstName = firstName ?? "";
+        if (middleName !== currentData.middleName) updatedData.middleName = middleName ?? "";
+        if (lastName !== currentData.lastName) updatedData.lastName = lastName ?? "";
+        if (suffix !== currentData.suffix) updatedData.suffix = suffix ?? "";
+        if (email !== currentData.email) updatedData.email = email ?? "";
+        if (studentNumber !== currentData.studentNumber) updatedData.studentNumber = studentNumber ?? "";
+        if (address !== currentData.address) updatedData.address = address ?? [];
+        if (birthDate !== currentData.birthDate) updatedData.birthDate = birthDate ?? new Date();
+        if (fieldOfInterest !== currentData.fieldOfInterest) updatedData.fieldOfInterest = fieldOfInterest ?? [];
+  
+        // If there's any updated data, update the document
+        if (Object.keys(updatedData).length > 0) {
+          await updateDoc(alumniRef, updatedData);
+        }
+      }
+  
+      return { success: true, message: "Your changes are successfully saved" };
     } catch (error) {
       console.error("Error:", error);
       return { success: false, error: error.message };

@@ -169,17 +169,18 @@ const UserProfile = () => {
     //   birthDate: new Date(`${month} ${day}, ${year}`),
     //   fieldOfInterest: selectedFields,
     // }
-    updateAlumniDetails(alumInfo,{
-      firstName: firstName,
-      middleName:middleName,
-      lastName: lastName,
-      suffix:suffix,
-      email: email,
-      studentNumber: studentNumber,
-      address: [country, province, city],
-      birthDate: new Date(`${month} ${day}, ${year}`),
-      fieldOfInterest: selectedFields,
-    });
+    updateAlumniDetails(
+      alumInfo,
+      firstName,
+      middleName,
+      lastName,
+      suffix,
+      email,
+      studentNumber,
+      [country, province, city],
+      new Date(`${month} ${day}, ${year}`),
+      selectedFields
+    );
     // console.log(updatedAlumnus);
   }
   
