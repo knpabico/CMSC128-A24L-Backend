@@ -7,13 +7,13 @@ import { Bookmark } from "@/models/models";
 import { useBookmarks } from "@/context/BookmarkContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DropdownMenu, DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
+//import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
-import { Briefcase, Bookmark, FilePlus, MapPin } from 'lucide-react';
+import { Briefcase, Bookmark, FilePlus, MapPin, ChevronDown } from 'lucide-react';
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -52,6 +52,8 @@ export default function JobOffers() {
 
   
   const [currentPage, setCurrentPage] = useState(1);
+  const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
+const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [activeFilterCategory, setActiveFilterCategory] = useState<
@@ -200,6 +202,58 @@ export default function JobOffers() {
   const endIndex = startIndex + jobsPerPage;
   const currentJobs = filteredAndSortedJobs.slice(startIndex, endIndex);
 
+  // Saved Jobs pagination
+  const filteredSavedJobs = bookmarks
+  .filter((bookmark) => bookmark.type === "job_offering")
+  .map((bookmark) => jobOffers.find((job) => job.jobId === bookmark.entryId))
+  .filter(Boolean)
+  .filter((job) => 
+    activeFilters.length === 0 || activeFilters.some(
+      (filter) =>
+        job.experienceLevel === filter ||
+        job.jobType === filter ||
+        job.employmentType === filter ||
+        job.requiredSkill.includes(filter)
+    )
+  )
+  .sort((a, b) => {
+    const dateA = a.timestamp ? a.timestamp.seconds : a.datePosted.seconds;
+    const dateB = b.timestamp ? b.timestamp.seconds : b.datePosted.seconds;
+    return latestFirst ? dateB - dateA : dateA - dateB;
+  });
+
+  const savedJobsTotalPages = Math.ceil(filteredSavedJobs.length / jobsPerPage);
+  const savedJobsStartIndex = (savedJobsCurrentPage - 1) * jobsPerPage;
+  const savedJobsEndIndex = savedJobsStartIndex + jobsPerPage;
+  const currentSavedJobs = filteredSavedJobs.slice(savedJobsStartIndex, savedJobsEndIndex);
+
+  // Created Jobs pagination
+  const filteredCreatedJobs = jobOffers
+  .filter((job) => job.alumniId === user?.uid)
+  .filter((job) => {
+    if (activeFilters.length === 0) return true;
+    return activeFilters.some(
+      (filter) =>
+        [
+          job.experienceLevel,
+          job.jobType,
+          job.employmentType,
+          job.status,
+        ].includes(filter) ||
+        job.requiredSkill.includes(filter)
+    );
+  })
+  .sort((a, b) => {
+    const dateA = a.datePosted.seconds;
+    const dateB = b.datePosted.seconds;
+    return latestFirst ? dateB - dateA : dateA - dateB;
+  });
+
+  const createdJobsTotalPages = Math.ceil(filteredCreatedJobs.length / jobsPerPage);
+  const createdJobsStartIndex = (createdJobsCurrentPage - 1) * jobsPerPage;
+  const createdJobsEndIndex = createdJobsStartIndex + jobsPerPage;
+  const currentCreatedJobs = filteredCreatedJobs.slice(createdJobsStartIndex, createdJobsEndIndex);
+
   return (
     <>
       {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
@@ -228,6 +282,8 @@ export default function JobOffers() {
               setActiveFilterCategory(null);
               setShowFilterOptions(false);
               setCurrentPage(1);
+              setSavedJobsCurrentPage(1);
+              setCreatedJobsCurrentPage(1);
             }}
           >
             Clear Filters
@@ -236,7 +292,7 @@ export default function JobOffers() {
           <div className="flex space-x-3">
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="px-4 py-2 bg-[#0856BA] text-white rounded shadow hover:bg-[#0648a0] text-sm flex items-center"
+                className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -249,7 +305,8 @@ export default function JobOffers() {
                   }, 5000);
                 }}
               >
-                Filter
+                Filter by
+                <ChevronDown className="size-4 fill-white/60 ml-5" />
               </button>
   
               {showFilterDropdown && (
@@ -299,7 +356,7 @@ export default function JobOffers() {
             </div>
   
             <button
-              className="px-4 py-2 bg-[#0856BA] text-white rounded shadow hover:bg-[#0648a0] text-sm flex items-center"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -361,13 +418,13 @@ export default function JobOffers() {
           </div>
   
           {/* Main content revised yass */}
-          <div className="flex-1 grid grid-cols-2 gap-4 pl-4">
+          <div className="flex-1 flex-col grid grid-cols-2 gap-4 pl-4 min-h-[600px]">
             {/* Left Column - Job Listings */}
               {/* Job Postings Filter */}
               <div>
                 {sidebarFilter === "Job Postings" ? (
                   isLoading ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2 flex-grow">
                       {[...Array(6)].map((_, i) => (
                         <Skeleton key={i} className="h-20 w-full rounded-lg" />
                       ))}
@@ -472,28 +529,9 @@ export default function JobOffers() {
                         <p className="text-lg">No saved jobs found.</p>
                       </div>
                     ) : (
-                      bookmarks
-                        .filter(
-                          (bookmark: Bookmark) => bookmark.type === "job_offering"
-                        )
-                        .sort((a, b) => {
-                          const dateA = a.timestamp.seconds;
-                          const dateB = b.timestamp.seconds;
-                          return latestFirst ? dateB - dateA : dateA - dateB;
-                        })
-                        .map((bookmark: Bookmark, index: number) => {
-                          const job = jobOffers.find(
-                            (job: { jobId: string }) =>
-                              job.jobId === bookmark.entryId
-                          );
-                          return job &&
-                            activeFilters.every(
-                              (filter) =>
-                                job.experienceLevel === filter ||
-                                job.jobType === filter ||
-                                job.employmentType === filter ||
-                                job.requiredSkill.includes(filter)
-                            ) ? (
+                      <>
+                        <div className="space-y-2">
+                          {currentSavedJobs.map((job, index) => (
                             <div
                               key={index}
                               className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
@@ -516,6 +554,10 @@ export default function JobOffers() {
                                   <p className="text-sm text-gray-600">
                                     {job.company}
                                   </p>
+                                  <p className="text-xs text-[#0856BA] flex items-center">
+                                    <MapPin className="w-3.5 h-3.5 mr-1" />
+                                    {job.location}
+                                  </p>
                                 </div>
                                 <div className="ml-2">
                                   <BookmarkButton
@@ -526,8 +568,50 @@ export default function JobOffers() {
                                 </div>
                               </div>
                             </div>
-                          ) : null;
-                        })
+                          ))}
+                          {currentSavedJobs.length < jobsPerPage &&
+                            [...Array(jobsPerPage - currentSavedJobs.length)].map(
+                              (_, i) => (
+                                <div
+                                  key={`empty-saved-${i}`}
+                                  className="h-[72px] invisible"
+                                >
+                                </div>
+                              )
+                            )}
+                        </div>
+                        
+                        {/* Pagination Controls for Saved Jobs */}
+                        {filteredSavedJobs.length > 0 && (
+                          <div className="flex justify-center mt-4 space-x-2">
+                            <button
+                              className="px-3 py-1 bg-white rounded text-sm"
+                              onClick={() =>
+                                setSavedJobsCurrentPage((prev) => Math.max(prev - 1, 1))
+                              }
+                              disabled={savedJobsCurrentPage === 1}
+                            >
+                              Prev
+                            </button>
+
+                            <span className="text-sm font-medium px-3 py-1">
+                              {savedJobsCurrentPage} of {savedJobsTotalPages || 1}
+                            </span>
+
+                            <button
+                              className="px-3 py-1 bg-white rounded text-sm"
+                              onClick={() =>
+                                setSavedJobsCurrentPage((prev) =>
+                                  Math.min(prev + 1, savedJobsTotalPages || 1)
+                                )
+                              }
+                              disabled={savedJobsCurrentPage === savedJobsTotalPages || filteredSavedJobs.length <= jobsPerPage}
+                            >
+                              Next
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 ) : sidebarFilter === "Create Jobs" ? (
@@ -539,71 +623,98 @@ export default function JobOffers() {
                         <p className="text-lg">No created jobs found.</p>
                       </div>
                     ) : (
-                      [...jobOffers]
-                        .filter((job: JobOffering) => {
-                          if (job.alumniId !== user?.uid) return false;
-  
-                          if (activeFilters.length === 0) return true;
-  
-                          return activeFilters.some(
-                            (filter) =>
-                              [
-                                job.experienceLevel,
-                                job.jobType,
-                                job.employmentType,
-                                job.status,
-                              ].includes(filter) ||
-                              job.requiredSkill.includes(filter)
-                          );
-                        })
-                        .sort((a, b) => {
-                          const dateA = a.datePosted.seconds;
-                          const dateB = b.datePosted.seconds;
-                          return latestFirst ? dateB - dateA : dateA - dateB;
-                        })
-                        .map((job: JobOffering, index: number) => (
-                          <div
-                            key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
-                              selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
-                                : "border-gray-200"
-                            }`}
-                            onClick={() => setSelectedJob(job)}
-                          >
-                            <div className="flex justify-between items-center">
-                              <div className="flex">
-                                <div className="mr-3">
-                                  <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
-                                    {job.company.charAt(0).toUpperCase()}
+                      <>
+                        <div className="space-y-2">
+                          {currentCreatedJobs.map((job, index) => (
+                            <div
+                              key={index}
+                              className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                                selectedJob?.jobId === job.jobId
+                                  ? "border-blue-500"
+                                  : "border-gray-200"
+                              }`}
+                              onClick={() => setSelectedJob(job)}
+                            >
+                              <div className="flex justify-between items-center">
+                                <div className="flex">
+                                  <div className="mr-3">
+                                    <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+                                      {job.company.charAt(0).toUpperCase()}
+                                    </div>
+                                  </div>
+                                  <div className="flex-1">
+                                    <h2 className="font-semibold text-md">
+                                      {job.position}
+                                    </h2>
+                                    <p className="text-sm text-gray-600">
+                                      {job.company}
+                                    </p>
+                                    <p className="text-xs text-[#0856BA] flex items-center">
+                                      <MapPin className="w-3.5 h-3.5 mr-1" />
+                                      {job.location}
+                                    </p>
                                   </div>
                                 </div>
-                                <div className="flex-1">
-                                  <h2 className="font-semibold text-md">
-                                    {job.position}
-                                  </h2>
-                                  <p className="text-sm text-gray-600">
-                                    {job.company}
-                                  </p>
+                                <div>
+                                  <span
+                                    className={`px-2 py-1 rounded text-xs font-medium ${
+                                      job.status === "Accepted"
+                                        ? "bg-green-100 text-green-700"
+                                        : job.status === "Rejected"
+                                        ? "bg-red-100 text-red-700"
+                                        : "bg-yellow-100 text-yellow-700"
+                                    }`}
+                                  >
+                                    {job.status.charAt(0).toUpperCase() +
+                                      job.status.slice(1)}
+                                  </span>
                                 </div>
                               </div>
-                              <div>
-                                <span
-                                  className={`px-2 py-1 rounded text-xs font-medium ${
-                                    job.status === "Accepted"
-                                      ? "bg-green-100 text-green-700"
-                                      : job.status === "Rejected"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-yellow-100 text-yellow-700"
-                                  }`}
-                                >
-                                  {job.status.charAt(0).toUpperCase() +
-                                    job.status.slice(1)}
-                                </span>
-                              </div>
                             </div>
+                          ))}
+                          {currentCreatedJobs.length < jobsPerPage &&
+                            [...Array(jobsPerPage - currentCreatedJobs.length)].map(
+                              (_, i) => (
+                                <div
+                                  key={`empty-created-${i}`}
+                                  className="h-[72px] invisible"
+                                >
+                                </div>
+                              )
+                            )}
+                        </div>
+                          
+                        {/* Pagination Controls for Created Jobs */}
+                        {filteredCreatedJobs.length > 0 && (
+                          <div className="flex justify-center mt-4 space-x-2">
+                            <button
+                              className="px-3 py-1 bg-white rounded text-sm"
+                              onClick={() =>
+                                setCreatedJobsCurrentPage((prev) => Math.max(prev - 1, 1))
+                              }
+                              disabled={createdJobsCurrentPage === 1}
+                            >
+                              Prev
+                            </button>
+
+                            <span className="text-sm font-medium px-3 py-1">
+                              {createdJobsCurrentPage} of {createdJobsTotalPages || 1}
+                            </span>
+
+                            <button
+                              className="px-3 py-1 bg-white rounded text-sm"
+                              onClick={() =>
+                                setCreatedJobsCurrentPage((prev) =>
+                                  Math.min(prev + 1, createdJobsTotalPages || 1)
+                                )
+                              }
+                              disabled={createdJobsCurrentPage === createdJobsTotalPages || filteredCreatedJobs.length <= jobsPerPage}
+                            >
+                              Next
+                            </button>
                           </div>
-                        ))
+                        )}
+                      </>
                     )}
                   </div>
                 ) : null}
