@@ -1,9 +1,17 @@
+"use client";
+import { useAuth } from "@/context/AuthContext";
 import LoginExample from "./login-example";
+import LoadingPage from "@/components/Loading";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
-  return (
-    <>
-      <LoginExample />
-    </>
-  );
+  const { isGoogleSignIn } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (isGoogleSignIn) {
+      router.push("/sign-up");
+    }
+  }, [isGoogleSignIn, router]);
+  return <>{isGoogleSignIn ? <LoadingPage /> : <LoginExample />}</>;
 }

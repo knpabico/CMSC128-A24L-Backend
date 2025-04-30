@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import MapComponent from "../../map/map";
+import MapComponent from "../../../../(alumni)/map/map";
 
 export default function AlumPage() {
   const { alums, loading: alumsloading } = useAlums();
