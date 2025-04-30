@@ -89,6 +89,8 @@ export const AlumDocumentUpload = ({
     setPreview(null);
     proofSetter(null);
     setFirstClick(false); //reset firstClick
+    //update hasProof of career[index]
+    form.setValue(`career.${index}.hasProof`, false);
   };
 
   useEffect(() => {
@@ -183,7 +185,7 @@ export const AlumDocumentUpload = ({
         </div>
       )}
 
-      {message && (
+      {/* {message && (
         <p
           className={`mt-2 text-sm ${
             isError ? "text-red-600" : "text-green-600"
@@ -191,6 +193,17 @@ export const AlumDocumentUpload = ({
         >
           {message}
         </p>
+      )} */}
+
+      {/*display validation message for document*/}
+      {document === null && (
+        <>
+          {form.formState.errors.career?.[index]?.hasProof && (
+            <p className="text-red-500 text-sm">
+              {form.formState.errors.career[index].hasProof.message}
+            </p>
+          )}
+        </>
       )}
     </div>
   );

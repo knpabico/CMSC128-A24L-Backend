@@ -110,6 +110,17 @@ const baseSchema = z.object({
               });
             }
           }
+
+          //if no proof but a presentJob, send a message
+          if (data.presentJob === true) {
+            if (data.hasProof === false) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Please select a valid document",
+                path: ["hasProof"],
+              });
+            }
+          }
         })
     )
     .optional(),
