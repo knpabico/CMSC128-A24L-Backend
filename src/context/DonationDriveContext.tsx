@@ -249,6 +249,34 @@ export function DonationDriveProvider({
     try {
       const docRef = doc(collection(db, "donation_drive"));
       driveData.donationDriveId = docRef.id;
+      if (qrGcash) {
+        const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash${docRef.id}`);
+        if (uploadResult.success) {
+          driveData.qrGcash = uploadResult.url;
+          
+          await setDoc(docRef, driveData);
+          // Optional: also store under photoURL
+          await updateDoc(docRef, { photoURL: uploadResult.url });
+        } else {
+          return { success: false, message: "QR Code upload failed" };
+        }
+      } else {
+        return { success: false, message: "No QR Code provided" };
+      }
+      if (qrGcash) {
+        const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash${docRef.id}`);
+        if (uploadResult.success) {
+          driveData.qrGcash = uploadResult.url;
+          
+          await setDoc(docRef, driveData);
+          // Optional: also store under photoURL
+          await updateDoc(docRef, { photoURL: uploadResult.url });
+        } else {
+          return { success: false, message: "QR Code upload failed" };
+        }
+      } else {
+        return { success: false, message: "No QR Code provided" };
+      }
       if (image) {
         const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
         if (uploadResult.success) {
@@ -291,7 +319,7 @@ export function DonationDriveProvider({
       isEvent,
       eventId,
       startDate: new Date(),
-      endDate,
+      endDate: new Date(endDate),
       donorList: [],
       image: "",
     };
@@ -323,10 +351,18 @@ export function DonationDriveProvider({
       setDonationDrives((prev) =>
         prev.map((donationDrive) =>
           donationDrive.donationDriveId === donationDriveId
-            ? { ...donationDrive, ...updatedData }
+            ? { ...donationDrive,endDate: new Date(endDate), ...updatedData }
             : donationDrive
         )
       );
+      setShowForm(false);
+      setCreatorId("");
+      setCampaignName("");
+      setDescription("");
+      setOneBeneficiary("");
+      setBeneficiary([]);
+      setTargetAmount(0);
+      setEndDate(new Date());
       return { success: true, message: "Donation drive edited successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };

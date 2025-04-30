@@ -418,17 +418,9 @@ export default function DonationDrives() {
                   (e) => {
                   e.preventDefault();
                   handleEdit(donationDriveId, { campaignName, description, image, beneficiary, targetAmount, endDate }); // Pass the current value if it will be edited
-                  setShowForm(false);
                   setEditForm(false);
-                  setDonationDriveId("");
-                  setCreatorId("");
-                  setCampaignName("");
-                  setDescription("");
-                  setOneBeneficiary("");
-                  setBeneficiary([]);
-                  setTargetAmount(0);
-                  setEndDate(new Date());
-                  }
+                  setDonationDriveId(""); 
+                 }
                 }
                 className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
               >
@@ -450,7 +442,7 @@ export default function DonationDrives() {
                   className="w-full mb-4 p-2 border rounded"
                   required
                 />
-                <label
+                {/* <label
                   htmlFor="image-upload"
                   className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
@@ -463,7 +455,7 @@ export default function DonationDrives() {
                   onChange={handleImageChange}
                   className="hidden"
                   required
-                />                
+                />                 */}
                 {beneficiary.map( (beneficiaries: string, index: number) => (
                   <div key = {index} className="flex justify-between my-1">
                     <input
