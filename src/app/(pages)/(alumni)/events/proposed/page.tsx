@@ -7,6 +7,8 @@ import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 import { Event } from "@/models/models";
 import ProposeEventForm from "../components/ProposeEventForm";
+import { FilePlus2 } from "lucide-react";
+
 
 export default function ProposedEventsPage()
 {
@@ -126,17 +128,11 @@ export default function ProposedEventsPage()
                     <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-2 shadow-md border border-gray-200">
                         <h2 className="text-lg font-semibold">{getStatusDisplayTitle()}</h2>
                         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                            {/* Propose Event */}
-                            <button 
-                                className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600"
-                                onClick={() => setShowForm(true)}
-                            >
-                                Propose Event
-                            </button>
+
                             {/* Status filter */}
                             <div className="flex items-center">
                                 <label htmlFor="status" className="mr-2 text-sm">Status:</label>
-                                <select id="status" value={statusFilter} onChange={handleStatusFilterChange} className="flex items-center text-sm" >
+                                <select id="status" value={statusFilter} onChange={handleStatusFilterChange} className="text-gray-600 flex items-center text-sm" >
                                     <option value="all">All</option>
                                     <option value="Accepted">Approved</option>
                                     <option value="Pending">Pending</option>
@@ -144,14 +140,24 @@ export default function ProposedEventsPage()
                                     <option value="null">Draft</option>
                                 </select>
                             </div>
+                            <div> | </div>
                             {/* Sort by */}
                             <div className="flex items-center">
                                 <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                                <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+                                <select id="sort" value={sortOption} onChange={handleSortChange} className="text-gray-600 flex items-center text-sm" >
                                     <option value="newest">Newest</option>
                                     <option value="oldest">Earliest</option>
                                 </select>
                             </div>
+
+                            {/* Propose Event */}
+                            <button 
+                                className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
+                                onClick={() => setShowForm(true)}
+                            >
+                                <FilePlus2 className="w-5 h-5" />
+                                Propose Event
+                            </button>
                         </div>
                     </div>
                     

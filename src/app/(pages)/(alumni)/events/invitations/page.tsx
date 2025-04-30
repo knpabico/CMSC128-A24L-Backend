@@ -131,15 +131,16 @@ export default function Invitations()
                 id="filter"
                 value={filterOption}
                 onChange={(e) => setFilterOption(e.target.value)}
-                className="flex items-center text-sm"
+                className="text-gray-600 flex items-center text-sm"
               >
                 <option value="All">All Events</option>
                 <option value="Upcoming">Upcoming</option>
                 <option value="Ongoing">Ongoing</option>
                 <option value="Done">Done</option>
               </select>
+              <div className="mx-2"> |</div>
               <label htmlFor="sort" className="ml-4 mr-2 text-sm">Sort by:</label>
-              <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm">
+              <select id="sort" value={sortOption} onChange={handleSortChange} className="text-gray-600 flex items-center text-sm">
                 <option value="event-closest">Event Date (Closest First)</option>
                 <option value="event-farthest">Event Date (Farthest First)</option>
                 <option value="posted-newest">Date Posted (Newest First)</option>

@@ -102,7 +102,7 @@ export default function SavedEventsPage()
                         <h2 className="text-md lg:text-lg font-semibold">Saved Events</h2>
                         <div className="flex items-center">
                             <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                            <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+                            <select id="sort" value={sortOption} onChange={handleSortChange} className="text-gray-600 flex items-center text-sm" >
                                 <option value="event-closest">Upcoming Events (Soonest First)</option>
                                 <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
                                 <option value="posted-newest">Date Approved (Newest)</option>
