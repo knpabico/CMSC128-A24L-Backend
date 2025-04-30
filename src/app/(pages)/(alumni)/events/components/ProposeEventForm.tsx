@@ -2,10 +2,11 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 import { useEvents } from "@/context/EventContext";
+import { useRouter } from 'next/navigation';
 
 interface ProposeEventFormProps {
   isOpen: boolean;
@@ -25,9 +26,18 @@ interface ProposeEventFormProps {
     e: React.FormEvent,
     image: string,
     targetGuests: any[] | null,
-    visibility: string
+    visibility: string,
+    status: string
   ) => void;
+  image: string;
+  setEventImage: (image: string) => void;
+  inviteType: string;
+  targetGuests: any[] | null;
   alumInfo: any;
+  isEditing: boolean;
+  editingEventId: string | null;
+  events: any[];
+  setEdit: (isEditing: boolean) => void;
 }
 
 const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
@@ -45,15 +55,72 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   setEventLocation,
   handleImageChange,
   handleSave,
+  inviteType,
+  targetGuests,
+  isEditing,
+  editingEventId,
+  setEdit,
+  events,
+  image,
+  setEventImage,
   alumInfo,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmForm, setConfirmForm] = useState(false);
   const [userInput, setUserInput] = useState("");
-  const [visibility, setVisibility] = useState("all");
-  const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
-  const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
-  const { image, fileName, setFileName } = useEvents();
+  const [visibility, setVisibility] = useState(inviteType || "all");
+  const [selectedBatches, setSelectedBatches] = useState<any[]>(
+    inviteType === "batch" && targetGuests ? targetGuests : []
+  );
+  const [selectedAlumni, setSelectedAlumni] = useState<any[]>(
+    inviteType === "alumni" && targetGuests ? targetGuests : []
+  );
+  const router = useRouter();
+  
+  const {fileName, setFileName, handleEdit } = useEvents();
+
+  useEffect(() => {
+    if (isEditing && events) {
+      const eventToEdit = events.find(event => event.eventId === editingEventId);
+  
+      setVisibility("all");
+      setSelectedAlumni([]);
+      setSelectedBatches([]);
+  
+      if (eventToEdit) {
+        setEventTitle(eventToEdit.title);
+        setEventDescription(eventToEdit.description);
+        setEventDate(eventToEdit.date);
+        setEventLocation(eventToEdit.location);
+        // Optional: handle image if you prefill it somehow
+  
+        // Properly set visibility and guests
+        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
+          if (eventToEdit.targetGuests[0].length === 4) {
+            setSelectedBatches(eventToEdit.targetGuests);
+            setVisibility("batch");
+          } else {
+            setSelectedAlumni(eventToEdit.targetGuests);
+            setVisibility("alumni");
+          }
+        }
+      }
+    }
+  }, [isEditing, events, editingEventId]);
+
+  const resetFormState = () => {
+    setEdit(false);
+    setEventTitle(""); 
+    setEventDescription("");
+    setEventDate("");
+    setEventLocation("");
+    setEventImage("");
+    setVisibility("all");
+    setSelectedBatches([]);
+    setSelectedAlumni([]);
+    setFileName("");
+    setUserInput("");
+  };
 
   const requiredSentence =
     "I certify on my honor that the proposed event details are accurate, correct, and complete.";
@@ -297,12 +364,26 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               Cancel
             </button>
             <div className="flex gap-2 my-5">
-              <button
-                type="submit"
-                className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
-              >
-                Save As Draft
-              </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                const targetGuests =
+                  visibility === "batch"
+                    ? selectedBatches
+                    : visibility === "alumni"
+                    ? selectedAlumni
+                    : null;
+
+                handleSave(e, image, targetGuests, visibility, "Draft");
+
+                resetFormState();
+
+                onClose();
+              }}
+              className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
+            >
+              Save As Draft
+            </button>
               <button
                 type="button"
                 onClick={() =>
@@ -332,28 +413,38 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-30">
           <form
             onSubmit={(e) => {
+              resetFormState();
+
               e.preventDefault();
               if (userInput !== requiredSentence) {
                 alert("Please type the sentence exactly to confirm.");
                 return;
               }
-              // store the selected guests
               const targetGuests =
-              visibility === "batch"
-                ? selectedBatches
-                : visibility === "alumni"
-                ? selectedAlumni
-                : null;
+                visibility === "batch" ? selectedBatches :
+                visibility === "alumni" ? selectedAlumni :
+                null;
+
+              if (isEditing && editingEventId) {
+                handleEdit(editingEventId, {
+                  title,
+                  description,
+                  location,
+                  date,
+                  image,
+                  targetGuests,
+                  status: "Pending",
+                  inviteType: visibility,
+                });
+              } else {
+                handleSave(e, image, targetGuests, visibility, "Pending");
+              }
               
-              handleSave(e, image, targetGuests, visibility);
+              router.push(`/events/proposed`)
 
-              setVisibility("all");
-              setSelectedBatches([]);
-              setSelectedAlumni([]);
-              setFileName("");
-              setUserInput("");
-
+              resetFormState();
               onClose();
+              setEdit(false);
               setConfirmForm(false);
             }}
               className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"

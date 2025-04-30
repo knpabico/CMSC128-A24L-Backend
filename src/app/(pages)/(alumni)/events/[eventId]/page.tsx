@@ -4,17 +4,40 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEvents } from "@/context/EventContext";
 import { useRsvpDetails } from "@/context/RSVPContext";  
 import { Event, RSVP } from "@/models/models";
+import { useState} from "react";
 import { useAuth } from "@/context/AuthContext";
 import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, X } from 'lucide-react';
 import { useFeatured } from "@/context/FeaturedStoryContext";
+import ProposeEventForm from "../components/ProposeEventForm";
 
 const EventPageAlumni = () => {
-  const { events } = useEvents();
+  
+  const { 
+      events, 
+      setShowForm,
+      showForm,
+      handleSave,
+      handleImageChange,
+      date,
+      setEventDate,
+      description,
+      setEventDescription,
+      title,
+      setEventTitle,
+      location,
+      setEventLocation,
+      time,
+      setEventTime,
+      setEventImage,
+      handleDelete,
+  } = useEvents();
+
   const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject } = useRsvpDetails(events);
   const { alumInfo } = useAuth();
   const params = useParams();
   const router = useRouter();
   const { featuredItems, isLoading } = useFeatured();
+  const [isEditing, setEdit] = useState(false);
 
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
@@ -81,8 +104,10 @@ const EventPageAlumni = () => {
                   <span className="text-red-600 flex items-center gap-1">
                     Rejected <X className="w-4 h-4" />
                   </span>
-                ) : (
+                ) : event.status === "Pending" ? (
                   <span className="text-yellow-600">Pending</span>
+                ) : (
+                  <span className="text-gray-600">Draft</span>
                 )}
               </div>
             </div>
@@ -142,6 +167,57 @@ const EventPageAlumni = () => {
                   </button>
                 </>
               )}
+            </div>
+          )}
+
+          {/* RSVP Buttons */}
+          {event.status === "Draft" && (
+            <div className="bg-white py-4 px-6 rounded-[10px] shadow-md border border-gray-200 flex gap-4">
+                <>
+                  <button
+                    onClick={() => {
+                      setEdit(true); // Allow editing
+                      setShowForm(true);  // Show the form for editing
+                    }}
+                    className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDelete(event.eventId);
+                      router.back();}}
+                    className="w-full py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                  
+                  <ProposeEventForm 
+                    isOpen={showForm}
+                    onClose={() => setShowForm(false)}
+                    title={event.title}
+                    setEventTitle={setEventTitle}
+                    description={event.description}
+                    setEventDescription={setEventDescription}
+                    date={event.date}
+                    setEventDate={setEventDate}
+                    handleImageChange={handleImageChange}
+                    handleSave={handleSave}
+                    alumInfo={alumInfo}
+                    location={event.location}
+                    setEventLocation={setEventLocation}
+                    image={event.image}
+                    setEventImage={setEventImage}
+                    time={event.time}
+                    setEventTime={setEventTime}
+                    inviteType={event.inviteType}
+                    targetGuests={event.targetGuests}
+                    setEdit={setEdit}
+                    isEditing={isEditing} 
+                    editingEventId={event.eventId} 
+                    events={events}
+                  />
+                </>
             </div>
           )}
 

@@ -29,8 +29,8 @@ export default function ProposedEventsPage()
         setEventLocation,
         time,
         setEventTime,
-        needSponsorship,
-        setNeedSponsorship,
+        image,
+        setEventImage
     } = useEvents();
 
 
@@ -39,6 +39,11 @@ export default function ProposedEventsPage()
     const [proposedEvents, setProposedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
     const [statusFilter, setStatusFilter] = useState<string>('all');
+
+    const [inviteType, setInviteType] = useState<string>('all');
+    const [targetGuests, setTargetGuests] = useState<string[]>([]);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [editingEventId, setEditingEventId] = useState<string | null>(null);
     
     useEffect(() =>
     {
@@ -104,7 +109,7 @@ export default function ProposedEventsPage()
           case 'Pending': return 'Pending Proposals';
           case 'Rejected': return 'Rejected Proposals';
           case 'all': return 'All Proposals';
-          case 'null': return 'Draft Proposals';
+          case 'Draft': return 'Draft Proposals';
           default: return 'Proposed Events';
         }
     };
@@ -141,7 +146,7 @@ export default function ProposedEventsPage()
                                     <option value="Accepted">Approved</option>
                                     <option value="Pending">Pending</option>
                                     <option value="Rejected">Rejected</option>
-                                    <option value="null">Draft</option>
+                                    <option value="Draft">Draft</option>
                                 </select>
                             </div>
                             <div> | </div>
@@ -179,11 +184,18 @@ export default function ProposedEventsPage()
                         alumInfo={alumInfo}
                         location={location}
                         setEventLocation={setEventLocation}
+                        image={image}
+                        setEventImage={setEventImage}
                         time={time}
                         setEventTime={setEventTime}
+                        inviteType={inviteType}
+                        targetGuests={targetGuests}
+                        isEditing={isEditing}
+                        editingEventId={editingEventId}
+                        events={events}
+                        setEdit={(value) => setIsEditing(false)}
                     />
 
-                    
                     {proposedEvents.length > 0 ? (
                         // event cards
                         <EventsList

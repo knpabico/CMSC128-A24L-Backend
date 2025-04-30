@@ -139,8 +139,6 @@ export function EventProvider({ children }: { children: React.ReactNode })
           newEvent.image = uploadResult.url;
           
           await setDoc(docRef, newEvent);
-          // Optional: also store under photoURL
-          await updateDoc(docRef, { photoURL: uploadResult.url });
         } else {
           setMessage(uploadResult.result || "Failed to upload image.");
           setIsError(true);
@@ -176,7 +174,7 @@ export function EventProvider({ children }: { children: React.ReactNode })
     }
   };
 
-  const handleSave = async (e: React.FormEvent, image: File, selectedGuests: string[], inviteType: string) => {
+  const handleSave = async (e: React.FormEvent, image: File, selectedGuests: string[], inviteType: string, status: string) => {
     e.preventDefault();
 
     if (!image) {
@@ -201,7 +199,7 @@ export function EventProvider({ children }: { children: React.ReactNode })
       needSponsorship,
       rsvps: [],
       eventId: "",
-      status: "Pending",
+      status,
       creatorId: "",
       creatorName: "",
       creatorType: "",

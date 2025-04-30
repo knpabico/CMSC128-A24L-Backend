@@ -367,7 +367,7 @@ export default function Events() {
                 if (isEditing && editingEventId) {
                     handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
                   } else {
-                    handleSave(e, image, targetGuests, visibility); // Pass the value entered in the current form
+                    handleSave(e, image, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
                   }
                   setShowForm(false);
                   setEdit(false);
