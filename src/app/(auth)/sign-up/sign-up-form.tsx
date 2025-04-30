@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { workFieldOptions } from "@/data/work-field-options";
 import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Trash2Icon } from "lucide-react";
+import { ChevronLeft, Trash2Icon, PlusCircleIcon } from "lucide-react";
 
 // components
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
@@ -585,7 +585,7 @@ export default function RegistrationForm() {
 
                             {/*add bachelors fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addBachelors({
@@ -595,11 +595,11 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
-                                Add bachelor&apos;s degree
+                              <PlusCircleIcon 
+                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
+                              />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
+                                Add bachelor's degree
                               </p>
                             </button>
                           </div>
@@ -629,7 +629,7 @@ export default function RegistrationForm() {
 
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addMasters({
@@ -639,11 +639,11 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
-                                Add master&apos;s degree
+                              <PlusCircleIcon 
+                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
+                              />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
+                                Add master's degree
                               </p>
                             </button>
                           </div>
@@ -673,7 +673,7 @@ export default function RegistrationForm() {
 
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addDoctoral({
@@ -683,10 +683,10 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
+                              <PlusCircleIcon 
+                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
+                              />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add doctoral degree
                               </p>
                             </button>
@@ -716,7 +716,7 @@ export default function RegistrationForm() {
 
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addAffiliations({
@@ -726,10 +726,10 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
+                              <PlusCircleIcon 
+                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
+                              />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add affiliation
                               </p>
                             </button>
@@ -768,7 +768,7 @@ export default function RegistrationForm() {
                             ))}
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addCareer({
@@ -784,10 +784,10 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
+                              <PlusCircleIcon 
+                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
+                              />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add work experience
                               </p>
                             </button>
