@@ -61,7 +61,7 @@ const formatDate = (timestamp: any) => {
   const getRemainingDays = (endDate: any) => {
     try {
         const today = new Date(); // Current date
-        const end = new Date(endDate); // Firestore Timestamp to JS Date
+        const end = endDate.toDate(); // Firestore Timestamp to JS Date
         const diffTime = end.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
