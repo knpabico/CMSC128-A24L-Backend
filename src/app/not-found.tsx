@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function NotFound() {
-  const { status, isAdmin, loading } = useAuth();
+  const { isGoogleSignIn, status, isAdmin, loading } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    if (status !== "approved" && !isAdmin && !loading) {
+    if (isGoogleSignIn) {
+      router.push("/sign-up");
+    } else if (status !== "approved" && !isAdmin && !loading) {
       router.push("/");
     }
-  }, [status, isAdmin, router, loading]);
+  }, [status, isAdmin, router, loading, isGoogleSignIn]);
   if (status === "approved" || isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-2xl font-bold">

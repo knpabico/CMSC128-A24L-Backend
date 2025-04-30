@@ -34,17 +34,17 @@ export const uploadImage = async (file: File, path: string) => {
       };
     }
 
-    const auth = getAuth();
-    const user = auth.currentUser;
+    // const auth = getAuth();
+    // const user = auth.currentUser;
 
-    if (!user) {
-      return {
-        result: "You must be logged in to upload images",
-        success: false,
-      };
-    }
+    // if (!user) {
+    //   return {
+    //     result: "You must be logged in to upload images",
+    //     success: false,
+    //   };
+    // }
 
-    const idToken = await user.getIdToken();
+    // const idToken = await user.getIdToken();
 
     const formData = new FormData();
     formData.append("file", file);
@@ -52,9 +52,9 @@ export const uploadImage = async (file: File, path: string) => {
     const response = await fetch("/api/upload-image", {
       method: "POST",
       body: formData,
-      headers: {
-        Authorization: `Bearer ${idToken}`,
-      },
+      // headers: {
+      //   Authorization: `Bearer ${idToken}`,
+      // },
     });
 
     if (!response.ok) {
@@ -119,14 +119,14 @@ export const uploadDocument = async (file: File, path: string) => {
     const auth = getAuth();
     const user = auth.currentUser;
 
-    if (!user) {
-      return {
-        result: "You must be logged in to upload documents",
-        success: false,
-      };
-    }
+    // if (!user) {
+    //   return {
+    //     result: "You must be logged in to upload documents",
+    //     success: false,
+    //   };
+    // }
 
-    const idToken = await user.getIdToken();
+    // const idToken = await user.getIdToken();
 
     const formData = new FormData();
     formData.append("file", file);
@@ -134,9 +134,6 @@ export const uploadDocument = async (file: File, path: string) => {
     const response = await fetch("/api/upload-document", {
       method: "POST",
       body: formData,
-      headers: {
-        Authorization: `Bearer ${idToken}`,
-      },
     });
 
     if (!response.ok) {

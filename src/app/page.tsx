@@ -28,7 +28,8 @@ const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Home() {
-  const { user, loading, alumInfo, isAdmin, status } = useAuth();
+  const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
+    useAuth();
   const { newsLetters } = useNewsLetters();
   const { announces } = useAnnouncement();
   const { jobOffers } = useJobOffer();
