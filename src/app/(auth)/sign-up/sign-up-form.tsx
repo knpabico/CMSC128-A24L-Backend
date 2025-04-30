@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { workFieldOptions } from "@/data/work-field-options";
 import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Trash2Icon } from "lucide-react";
+import { ChevronLeft, Trash2Icon, PlusCircleIcon } from "lucide-react";
 
 // components
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
@@ -340,6 +340,7 @@ export default function RegistrationForm() {
     setShowDialog(true);
   };
 
+  //will enable the verification modal
   const handleSubmit = async () => {
     setIsLoading(true);
     setIsVerify(true);
@@ -394,7 +395,6 @@ export default function RegistrationForm() {
   const goNext = async () => {
     //temporarily disable the go next button to prevent double click
     setDisableGoNext(true);
-    console.log("hey");
     const currentFields = formParts[currentPart].fields;
     const result = await form.trigger(currentFields as fieldName[], {
       shouldFocus: true,
@@ -461,6 +461,7 @@ export default function RegistrationForm() {
                             <Button
                               type="button"
                               onClick={goNext}
+                              disabled={disableGoNext}
                               className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
                             >
                               Sign up
@@ -513,7 +514,7 @@ export default function RegistrationForm() {
                     <div className="space-y-10">
                       <div className="bg-white rounded-3xl p-10 space-y-15">
                         <div className="flex flex-col items-center">
-                          <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full">
+                          <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full overflow-hidden">
                             <AlumPhotoUpload
                               imageSetter={handleImageUpload}
                             ></AlumPhotoUpload>
@@ -597,7 +598,7 @@ export default function RegistrationForm() {
 
                             {/*add bachelors fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addBachelors({
@@ -607,11 +608,9 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
-                                Add bachelor&apos;s degree
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
+                                Add bachelor's degree
                               </p>
                             </button>
                           </div>
@@ -641,7 +640,7 @@ export default function RegistrationForm() {
 
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addMasters({
@@ -651,11 +650,9 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
-                                Add master&apos;s degree
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
+                                Add master's degree
                               </p>
                             </button>
                           </div>
@@ -685,7 +682,7 @@ export default function RegistrationForm() {
 
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addDoctoral({
@@ -695,10 +692,8 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add doctoral degree
                               </p>
                             </button>
@@ -728,7 +723,7 @@ export default function RegistrationForm() {
 
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addAffiliations({
@@ -738,10 +733,8 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add affiliation
                               </p>
                             </button>
@@ -780,7 +773,7 @@ export default function RegistrationForm() {
                             ))}
                             {/*add  fields button */}
                             <button
-                              className="flex items-center space-x-3 cursor-pointer"
+                              className="flex items-center space-x-3 cursor-pointer group"
                               type="button"
                               onClick={() => {
                                 addCareer({
@@ -796,10 +789,8 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <p className="text-[#0856ba] border-2 border-[#0856ba] hover:bg-[#0856ba] hover:text-white bg-white px-1.5 py-0 rounded-full">
-                                +
-                              </p>
-                              <p className="text-[#0856ba] text-sm hover:underline">
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                              <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add work experience
                               </p>
                             </button>

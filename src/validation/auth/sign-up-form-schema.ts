@@ -22,17 +22,20 @@ const baseSchema = z.object({
   address: z
     .tuple([
       z.string().min(1, "Input your country"), //country
-      z.string().optional().or(z.literal("")), // city/municipality (optional)
-      z.string().optional().or(z.literal("")), //province/state (optional)
+      z.string().min(1, "Input your city/municipality"), // city/municipality (optional)
+      z.string().min(1, "Input your province/state"), //province/state (optional)
     ])
     .refine((input) => input[0] !== "", "Please input your address"),
   affiliation: z
     .array(
       z
         .object({
-          affiliationName: z.string(),
-          yearJoined: z.string(),
-          university: z.string(),
+          affiliationName: z.string().min(1, "Input  your affiliation's name"),
+          yearJoined: z.string().refine((input) => {
+            const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+            return regex.test(input);
+          }, "Please input a valid year"),
+          university: z.string().min(1, "Input your affiliation's university"),
         })
         .optional()
     )
@@ -80,17 +83,31 @@ const baseSchema = z.object({
     .array(
       z
         .object({
-          industry: z.string(),
-          jobTitle: z.string(),
-          company: z.string(),
-          startYear: z.string(),
+          industry: z.string().min(1, "Input your job's industry"),
+          jobTitle: z.string().min(1, "Input your job title"),
+          company: z.string().min(1, "Input your company's name"),
+          startYear: z.string().refine((input) => {
+            const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+            return regex.test(input);
+          }, "Please input a valid year"),
           endYear: z.string(),
           location: z.string(),
           latitude: z.number(),
           longitude: z.number(),
           presentJob: z.boolean(),
         })
-        .optional()
+        .superRefine((data, ctx) => {
+          const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+          if (data.presentJob === false) {
+            if (regex.test(data.endYear) === false) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Please input a valid year",
+                path: ["endYear"],
+              });
+            }
+          }
+        })
     )
     .optional(),
 
