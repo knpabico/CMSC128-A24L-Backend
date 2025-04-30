@@ -373,13 +373,13 @@ export default function RegistrationForm() {
   type fieldName = keyof z.infer<typeof signUpFormSchema>;
 
   //callback for image upload
-  const handleImageUpload = (image: File): void => {
+  const handleImageUpload = (image: File | null): void => {
     setImage(image);
     console.log("Uploaded image:", image);
   };
 
   //callback for document upload
-  const handleDocUpload = (doc: File): void => {
+  const handleDocUpload = (doc: File | null): void => {
     setProof(doc);
     console.log("Uploaded document:", doc);
   };

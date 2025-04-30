@@ -1,8 +1,8 @@
 "use client";
 import { uploadDocument } from "@/lib/upload";
 import { Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { UploadIcon } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Trash2Icon, UploadIcon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -53,7 +53,7 @@ export const AlumDocumentUpload = ({
 }: {
   index: number;
   form: any;
-  proofSetter: (file: File) => void;
+  proofSetter: (file: File | null) => void;
 }) => {
   const [document, setDocument] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -61,6 +61,9 @@ export const AlumDocumentUpload = ({
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
+
+  //ref for resetting current value of the file input button
+  const fileInput = useRef(null);
 
   const handleDocumentChange = (e) => {
     const file = e.target.files[0];
@@ -79,6 +82,15 @@ export const AlumDocumentUpload = ({
     }
   };
 
+  //handle removal of file
+  const handleRemoval = () => {
+    setDocument(null);
+    setDocumentType("");
+    setPreview(null);
+    proofSetter(null);
+    setFirstClick(false); //reset firstClick
+  };
+
   useEffect(() => {
     if (!document && firstClick) {
       setMessage("No document selected");
@@ -91,6 +103,10 @@ export const AlumDocumentUpload = ({
 
   const handleUpload = () => {
     setFirstClick(true);
+    //reset current value of the file input button before choosing a file
+    if (fileInput.current) {
+      fileInput.current.value = "";
+    }
   };
 
   const getDocumentTypeDisplay = () => {
@@ -129,12 +145,28 @@ export const AlumDocumentUpload = ({
           Upload document
         </p>
         <input
+          ref={fileInput}
           type="file"
           accept=".pdf,.doc,.docx,image/*"
           onChange={handleDocumentChange}
           className="hidden"
         />
       </label>
+
+      {/*for clearing file upload */}
+      {document && (
+        <label
+          className="flex items-center space-x-2 cursor-pointer pt-2"
+          onClick={handleRemoval}
+        >
+          <p className="text-red-500">
+            <Trash2Icon className="w-4" />
+          </p>
+          <p className="text-red-500 text-sm hover:underline">
+            Remove document
+          </p>
+        </label>
+      )}
 
       <p className="text-xs font-extralight pt-2">
         Accepted formats: PDF, DOC, DOCX, and images

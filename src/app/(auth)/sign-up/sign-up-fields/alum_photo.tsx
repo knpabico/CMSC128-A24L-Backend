@@ -3,9 +3,9 @@
 "use client";
 import { uploadImage } from "@/lib/upload";
 import { Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { set } from "zod";
-import { CameraIcon } from "lucide-react";
+import { CameraIcon, Trash2Icon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -49,13 +49,16 @@ export const uploadToFirebase = async (image: any, alumniId: string) => {
 export const AlumPhotoUpload = ({
   imageSetter,
 }: {
-  imageSetter: (file: File) => void;
+  imageSetter: (file: File | null) => void;
 }) => {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
+
+  //ref for resetting current value of the image input button
+  const imageInput = useRef(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -64,6 +67,14 @@ export const AlumPhotoUpload = ({
       setPreview(URL.createObjectURL(file)); //preview
       imageSetter(file);
     }
+  };
+
+  //handle removal of file
+  const handleRemoval = () => {
+    setImage(null);
+    setPreview(null);
+    imageSetter(null);
+    setFirstClick(false); //reset firstClick
   };
 
   useEffect(() => {
@@ -78,18 +89,33 @@ export const AlumPhotoUpload = ({
 
   const handleUpload = () => {
     setFirstClick(true);
+    //reset current value of the image input button before choosing an image
+    if (imageInput.current) {
+      imageInput.current.value = "";
+    }
   };
 
   return (
     <div>
       <div>
+        {preview && (
+          <button
+            className="absolute text-gray-500 cursor-pointer text-red-500"
+            onClick={handleRemoval}
+            type="button"
+          >
+            <Trash2Icon className="w-4" />
+          </button>
+        )}
         <div className="relative w-55 h-55 flex items-center justify-center">
           {preview ? (
-            <img
-              src={preview}
-              alt="Uploaded Preview"
-              className="w-full h-full object-cover"
-            />
+            <>
+              <img
+                src={preview}
+                alt="Uploaded Preview"
+                className="w-full h-full object-cover"
+              />
+            </>
           ) : (
             <p
               className={`text-center mt-20 ${
@@ -107,6 +133,7 @@ export const AlumPhotoUpload = ({
             <CameraIcon className="w-12 h-12 text-white" />
 
             <input
+              ref={imageInput}
               type="file"
               accept="image/*"
               onChange={handleImageChange}
