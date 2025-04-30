@@ -218,9 +218,9 @@ export function DonationDriveProvider({
  const handlePaymayaChange = (e: { target: { files: any[]; }; }) => {
   const file = e.target.files[0];
   if (file) {
-    setImage(file);
-    setFileName(file.name); // Store the filename
-    setPreview(URL.createObjectURL(file)); //preview
+    setQrPaymaya(file);
+    setFilePaymayaName(file.name); // Store the filename
+    setPreviewPaymaya(URL.createObjectURL(file)); //preview
   }
  };
 
@@ -250,32 +250,28 @@ export function DonationDriveProvider({
       const docRef = doc(collection(db, "donation_drive"));
       driveData.donationDriveId = docRef.id;
       if (qrGcash) {
-        const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash${docRef.id}`);
+        const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash/${docRef.id}`);
         if (uploadResult.success) {
           driveData.qrGcash = uploadResult.url;
           
           await setDoc(docRef, driveData);
-          // Optional: also store under photoURL
-          await updateDoc(docRef, { photoURL: uploadResult.url });
         } else {
-          return { success: false, message: "QR Code upload failed" };
+          return { success: false, message: "Gcash QR Code upload failed" };
         }
       } else {
-        return { success: false, message: "No QR Code provided" };
+        return { success: false, message: "No Gcash QR Code provided" };
       }
-      if (qrGcash) {
-        const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash${docRef.id}`);
+      if (qrPaymaya) {
+        const uploadResult = await uploadImage(qrPaymaya, `donation-drive/qr_paymaya/${docRef.id}`);
         if (uploadResult.success) {
-          driveData.qrGcash = uploadResult.url;
+          driveData.qrPaymaya = uploadResult.url;
           
           await setDoc(docRef, driveData);
-          // Optional: also store under photoURL
-          await updateDoc(docRef, { photoURL: uploadResult.url });
         } else {
-          return { success: false, message: "QR Code upload failed" };
+          return { success: false, message: "Paymaya QR Code upload failed" };
         }
       } else {
-        return { success: false, message: "No QR Code provided" };
+        return { success: false, message: "No Paymaya QR Code provided" };
       }
       if (image) {
         const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
@@ -283,8 +279,6 @@ export function DonationDriveProvider({
           driveData.image = uploadResult.url;
           
           await setDoc(docRef, driveData);
-          // Optional: also store under photoURL
-          await updateDoc(docRef, { photoURL: uploadResult.url });
         } else {
           return { success: false, message: "Image upload failed" };
         }
@@ -355,7 +349,6 @@ export function DonationDriveProvider({
             : donationDrive
         )
       );
-      setShowForm(false);
       setCreatorId("");
       setCampaignName("");
       setDescription("");
@@ -383,29 +376,6 @@ export function DonationDriveProvider({
     }
   };
 
-  // const handleReject = async (donationDriveId: string) => {
-  //   try {
-  //     const driveRef = doc(db, "donation_drive", donationDriveId);
-  //     await updateDoc(driveRef, { status: "rejected" });
-  //     return { success: true, message: "Donation drive successfully rejected" };
-  //   } catch (error) {
-  //     return { success: false, message: (error as FirebaseError).message };
-  //   }
-  // };
-
-  // const handleAccept = async (donationDriveId: string) => {
-  //   try {
-  //     const driveRef = doc(db, "donation_drive", donationDriveId);
-  //     await updateDoc(driveRef, { status: "active", startDate: new Date() });
-  //     return {
-  //       success: true,
-  //       message: "Donation drive successfully activated",
-  //     };
-  //   } catch (error) {
-  //     return { success: false, message: (error as FirebaseError).message };
-  //   }
-  // };
-
   return (
     <DonationDriveContext.Provider
       value={{
@@ -415,6 +385,8 @@ export function DonationDriveProvider({
         addDonationDrive,
         showForm,
         setShowForm,
+        handleGcashChange,
+        handlePaymayaChange,
         handleImageChange,
         handleBenefiaryChange,
         handleAddBeneficiary,

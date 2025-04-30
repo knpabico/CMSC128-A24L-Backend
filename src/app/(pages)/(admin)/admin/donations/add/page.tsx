@@ -19,6 +19,8 @@ export default function DonationDrives() {
     addDonationDrive,
     showForm,
     setShowForm,
+    handleGcashChange,
+    handlePaymayaChange,
     handleImageChange,
     handleBenefiaryChange,
     handleAddBeneficiary,
@@ -418,6 +420,7 @@ export default function DonationDrives() {
                   (e) => {
                   e.preventDefault();
                   handleEdit(donationDriveId, { campaignName, description, image, beneficiary, targetAmount, endDate }); // Pass the current value if it will be edited
+                  setShowForm(false);
                   setEditForm(false);
                   setDonationDriveId(""); 
                  }
@@ -555,20 +558,50 @@ export default function DonationDrives() {
                   className="w-full mb-4 p-2 border rounded"
                   required
                 />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Upload Photo
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  required
-                />                
+                <div className="flex justify-between my-1">
+                  <label
+                    htmlFor="image-upload"
+                    className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Upload Photo
+                  </label>
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    required
+                  />
+                  <label
+                    htmlFor="gcash-upload"
+                    className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Upload GCash QR Code
+                  </label>
+                  <input
+                    id="gcash-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleGcashChange}
+                    className="hidden"
+                    required
+                  />
+                  <label
+                    htmlFor="paymaya-upload"
+                    className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Upload PayMaya QR Code
+                  </label>
+                  <input
+                    id="paymaya-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePaymayaChange}
+                    className="hidden"
+                    required
+                  />                   
+                </div>
                 {beneficiary.map( (beneficiaries: string, index: number) => (
                   <div key = {index} className="flex justify-between my-1">
                     <input
