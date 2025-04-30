@@ -10,11 +10,10 @@ import { CircleAlert, CircleCheck, CircleHelp, HandCoins, MoveLeft } from 'lucid
 import { useNewsLetters } from '@/context/NewsLetterContext';
 
 //for featured stories
-import { useAnnouncement } from '@/context/AnnouncementContext';
-import { useEvents } from '@/context/EventContext';
-import { useJobOffer } from "@/context/JobOfferContext";
-import { Dialog, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
-import { DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
+import { useFeatured } from "@/context/FeaturedStoryContext";
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { DialogHeader, DialogFooter } from '@/components/ui/dialog';
+import { DialogDescription } from '@radix-ui/react-dialog';
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
@@ -25,12 +24,42 @@ const ScholarshipDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sponsoring, setSponsoring] = useState(false);
-  const { newsLetters, isLoading: newslettersLoading } = useNewsLetters();
-  const { announces = [] } = useAnnouncement() || {};
-  const { jobs = [] } = useJobOffer() || {};
   const scholarshipId = params?.id as string;
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
+  const { featuredItems, isLoading } = useFeatured();
+  
+  const eventStories = featuredItems.filter(story => story.type === "scholarship");
+ 
+
+  const sortedStories = [...eventStories].sort((a, b) => {
+    const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
+    const dateB = b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  const formatDate = (date: any) => {
+    if (!date) return "Unknown date";
+
+    const dateObj = date instanceof Date ? date : new Date(date);
+
+    if (isNaN(dateObj.getTime())) {
+      if (date?.toDate && typeof date.toDate === 'function') {
+        return date.toDate().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        });
+      }
+      return "Invalid date";
+    }
+
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  };
 
   useEffect(() => {
     const fetchScholarship = async () => {
@@ -191,68 +220,44 @@ const ScholarshipDetailPage: React.FC = () => {
 			</Dialog>
 		  )}
           
-          {/* Stories */}
-          <div className='my-12 w-full'>
-            <h1 className='font-semibold text-3xl text-center mb-6'>Featured Stories</h1>
-            
-            {newslettersLoading ? (
-              <p className="text-center py-4">Loading newsletters...</p>
-            ) : newsLetters && newsLetters.length > 0 ? (
-              <div className="space-y-4">
-                {newsLetters.map((newsLetter: NewsletterItem) => (
-                  <div key={newsLetter.newsletterId} className="bg-white p-4 rounded-md shadow">
-                  {/* <h3 className="font-bold text-lg">
-                    {newsLetter.category === 'scholarship' ? 'Scholarship Story' : 
-                    newsLetter.category === 'event' ? 'Event Update' : 
-                    newsLetter.category === 'announcement' ? 'Announcement' :
-                    newsLetter.category === 'job_offering' ? 'Job Opportunity' : 'Job'} 
-                  </h3> */}
+      {/* Featured Stories Section */}
+      <div className="mt-16">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Featured Stories</h2>
 
-                  {/* sa ngayon, announcement palang nakukuha */}
-
-                    {newsLetter.category === "announcement" && (() => {
-                      const announcement = announces.find(
-                        (announce: Announcement) => announce.announcementId === newsLetter.referenceId
-                      );
-                      return announcement ? (
-                        <>
-                          <h4 className="font-medium">{announcement.title}</h4>
-                          <p>{announcement.description}</p>
-                        </>
-                      ) : (
-                        <p>Announcement not found</p>
-                      );
-                    })()}
-
-                    {/* {newsLetter.category === "job_offering" && (() => {
-                      const joboffering = jobs.find(
-                        (job: JobOffering) => job.jobId === newsLetter.referenceId
-                      );
-                      return joboffering ? (
-                        <>
-                          <h4 className="font-medium">{joboffering.company}</h4>
-                          <p>{joboffering.jobDescription}</p>
-                        </>
-                      ) : (
-                        <p>JOb not found</p>
-                      );
-                    })()} */}
-
-                    <p className="text-sm text-gray-600">
-                      Reference ID: {newsLetter.referenceId}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Posted: {newsLetter.timestamp instanceof Date 
-                        ? newsLetter.timestamp.toLocaleDateString() 
-                        : new Date(newsLetter.timestamp.seconds * 1000).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
+        {loading ? (
+          <p className="text-gray-500">Loading featured stories...</p>
+        ) : sortedStories.length === 0 ? (
+          <p className="text-gray-500">No featured stories found.</p>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {sortedStories.map((story) => (
+              <div
+                key={story.featuredId}
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                onClick={() => router.push(`/scholarship/featured/${story.featuredId}`)}
+              >
+                {story.image && (
+                  <div
+                    className="h-40 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${story.image})` }}
+                  />
+                )}
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg text-gray-800 truncate">
+                    {story.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {formatDate(story.datePosted)}
+                  </p>
+                  <p className="text-sm text-gray-700 mt-2 line-clamp-3">
+                    {story.text}
+                  </p>
+                </div>
               </div>
-            ) : (
-              <p className="text-center text-gray-500 py-4">No stories have been published yet.</p>
-            )}
+            ))}
           </div>
+        )}
+      </div>
         </div>
       </div>
     </>
