@@ -16,6 +16,12 @@ import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { ScholarshipProvider } from "@/context/ScholarshipContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
+import { Affiliation } from "./(auth)/sign-up/sign-up-fields/affiliation";
+import { AffiliationProvider } from "@/context/AffiliationContext";
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
 import { Inter } from "next/font/google";
 
@@ -45,11 +51,13 @@ export default function RootLayout({
                             <GoogleMapsProvider>
                               <MapProvider>
                                 <EducationProvider>
+                                  <AffiliationProvider>
                                   <body className={inter.className}>
                                     <Navbar />
                                     <div className="">{children}</div>
                                     <Toaster />
                                   </body>
+                                  </AffiliationProvider>
                                 </EducationProvider>
                               </MapProvider>
                             </GoogleMapsProvider>

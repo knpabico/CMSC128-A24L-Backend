@@ -28,6 +28,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   const [entries, setEntries] = useState<{ [key: string]: any }>({});
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -237,6 +238,43 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  //get the alumni bookmarks
+    const getBookmarksByAlumni = async (
+      alumniId: string
+    ): Promise<Bookmark[]> => {
+      if (!alumniId) {
+        console.error("No alumni ID provided");
+        return Promise.reject("No alumni ID provided");
+      }
+  
+      setLoading(true);
+  
+      try {
+        const bookmarksQuery = query(
+          collection(db, "bookmark"),
+          where("alumniId", "==", alumniId)
+        );
+  
+        const snapshot = await getDocs(bookmarksQuery);
+  
+        const bookmarks = snapshot.docs.map(
+          (doc) =>
+            ({
+              bookmarkId: doc.id,
+              ...doc.data(),
+            } as Bookmark)
+        );
+  
+        setLoading(false);
+        return bookmarks;
+      } catch (error) {
+        console.error("Error fetching donations by alumni:", error);
+        setError("Failed to fetch donations for this alumni.");
+        setLoading(false);
+        throw error;
+      }
+    };
+
   // Context value
   const contextValue = {
     bookmarks,
@@ -245,6 +283,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
     addBookmark,
     removeBookmark,
     toggleBookmark,
+    getBookmarksByAlumni,
     isBookmarked,
     getBookmarkId,
     filteredBookmarks,

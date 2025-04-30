@@ -4,7 +4,6 @@
 import { uploadImage } from "@/lib/upload";
 import { Button } from "@mui/material";
 import React, { useState } from "react";
-import { set } from "zod";
 
 function PhotoUpload() {
   const [image, setImage] = useState(null);
@@ -12,13 +11,13 @@ function PhotoUpload() {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setPreview(URL.createObjectURL(file)); //preview
-    }
-  };
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setImage(file);
+  //     setPreview(URL.createObjectURL(file)); //preview
+  //   }
+  // };
 
   const handleUpload = async () => {
     if (!image) {
@@ -55,7 +54,7 @@ function PhotoUpload() {
 
   return (
     <div className="p-4">
-      <input type="file" accept="image/*" onChange={handleImageChange} />
+      <input type="file" accept="image/*" onChange={handleUpload} />
       {preview && (
         <div className="mt-4">
           <p>Preview:</p>
