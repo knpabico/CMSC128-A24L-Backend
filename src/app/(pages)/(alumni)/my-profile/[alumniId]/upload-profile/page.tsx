@@ -4,6 +4,8 @@ import Image from "next/image";
 import { ref,uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+// import {PhotoUpload} from "../../../upload-photo/";
+import { uploadImage } from "@/lib/upload";
 
 interface AlumnusUploadPicProps {
     alumnus: Alumnus;
@@ -18,39 +20,78 @@ const AlumnusUploadPic: React.FC<AlumnusUploadPicProps> = ({ alumnus , uploading
     const [image, setImage ] = useState<File |null > (null);
     const [file, setFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+      const [message, setMessage] = useState("");
+      const [isError, setIsError] = useState(false);
 
 
     //getting the file (image uploaded)
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target.files?.[0];         
+        const selectedFile = event.target.files?.[0];
         if (selectedFile) {
+          setImage(selectedFile);         
           setFile(selectedFile);
           const localPreview = URL.createObjectURL(selectedFile);
           setPreviewUrl(localPreview);
         }
       };
       
-    const handleUpload = async () => {
-        if (!file) return;
+    // const handleUpload = async () => {
+    //     if (!file) return;
     
-        setImgUploading(true);
-        const storageRef = ref(storage, `alumni/${alumnus.alumniId}/${file.name}`);
+    //     setImgUploading(true);
+    //     const storageRef = ref(storage, `alumni/${alumnus.alumniId}/${file.name}`);
     
-        try {
-            // Upload image to Firebase Storage
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
+    //     try {
+    //         // Upload image to Firebase Storage
+    //         await uploadBytes(storageRef, file);
+    //         const url = await getDownloadURL(storageRef);
     
-            // Save URL to Firestore
-            const alumnusDocRef = doc(db, "alumni", alumnus.alumniId);
-            await updateDoc(alumnusDocRef, { image: url });
+    //         // Save URL to Firestore
+    //         const alumnusDocRef = doc(db, "alumni", alumnus.alumniId);
+    //         await updateDoc(alumnusDocRef, { image: url });
 
-        } catch (error) {
-            console.error("Error uploading or saving image URL:", error);
-        } finally {
-            setImgUploading(false);
+    //     } catch (error) {
+    //         console.error("Error uploading or saving image URL:", error);
+    //     } finally {
+    //         setImgUploading(false);
+    //     }
+    // };
+
+    const handleUpload = async () => {
+        if (!image) {
+          setMessage("No image selected");
+          setIsError(true);
+          return;
         }
-    };
+        try {
+          const data = await uploadImage(image, "photos/uploads"); //ITO YUNG PINAKAFUNCTION NA IUUTILIZE
+          // 1st parameter is the actual image, 2nd is yung path sa firebase storage. Bale icustomize niyo na lang ito based sa klase ng image na iuupload niyo.
+          // Kapag photo ng alumni, magiging await uploadImage(image, `alumni/${alumniId}`)"
+          //Kapag donation drive, magiging await uploadImage(image, `donation_drive/${donationDriveId}`)"
+          // Kapag event, magiging await uploadImage(image, `event/${eventId}`)"
+          // etc. etc (please take a look sa firebase console).
+    
+          //Pero, need pa ng attribute na photoURL (or 'image', depende sa pangalan) sa bawat collection (e.g. alumni, event, etc.) para ma-save sa database. So, iupdate niyo na lang yun sa database after uploading the image.
+    
+          //Example: Sa backend niyo, especially sa pagcreate/update ng event, alumni, etc, ganito ang mangyayari:
+          // await updateDoc(docRef, { photoURL: data.url });
+          //Ang data.url ay URL ng uploaded image which is nirereturn ng uploadImage function.
+    
+          if (data.success) {
+            setIsError(false);
+            setMessage("Image uploaded successfully!");
+            console.log("Image URL:", data.url); // URL of the uploaded image
+          } else {
+            setMessage(data.result);
+            setIsError(true);
+          }
+        } catch (error) {
+          console.error("Error uploading image:", error);
+        }finally{
+            setImgUploading(false);
+
+        }
+      };
 
     return (
         <>
