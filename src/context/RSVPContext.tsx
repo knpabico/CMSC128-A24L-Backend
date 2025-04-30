@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 
 export function useRsvpDetails(events) {
@@ -80,6 +80,13 @@ export function useRsvpDetails(events) {
           await updateDoc(rsvpRef, { status: "Accepted" });
           console.log(`RSVP ${rsvpId} updated to Accepted`); // Log confirmation
           rsvpFound = true;
+          
+        // Increment attendee count
+        const eventRef = doc(db, "event", eventId);
+        await updateDoc(eventRef, {
+          numofAttendees: increment(1), 
+        });
+
           break;
         }
       }
