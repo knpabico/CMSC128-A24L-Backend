@@ -1,7 +1,7 @@
 "use client";
 import { uploadDocument } from "@/lib/upload";
 import { Button } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UploadIcon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -60,6 +60,7 @@ export const AlumDocumentUpload = ({
   const [documentType, setDocumentType] = useState("");
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [firstClick, setFirstClick] = useState(false);
 
   const handleDocumentChange = (e) => {
     const file = e.target.files[0];
@@ -77,12 +78,18 @@ export const AlumDocumentUpload = ({
     }
   };
 
-  const handleUpload = () => {
-    if (!document) {
+  useEffect(() => {
+    if (!document && firstClick) {
       setMessage("No document selected");
       setIsError(true);
-      return;
+    } else {
+      setIsError(false);
+      setMessage("");
     }
+  }, [document, firstClick]);
+
+  const handleUpload = () => {
+    setFirstClick(true);
   };
 
   const getDocumentTypeDisplay = () => {
