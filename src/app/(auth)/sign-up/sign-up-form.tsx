@@ -532,6 +532,7 @@ export default function RegistrationForm() {
                               Educational Background
                             </p>
                             <hr></hr>
+                            <p className="text-xs">Kindly ensure that you include the degree you obtained from UPLB ICS.</p>
                           </div>
 
                           {/* studentNumber form field */}
@@ -872,7 +873,7 @@ export default function RegistrationForm() {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent className="w-fit">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <HourglassIcon /> Account Pending Approval
@@ -885,7 +886,7 @@ export default function RegistrationForm() {
           </p>
           <DialogFooter className="sm:justify-start">
             <DialogClose asChild>
-              <Button type="button" variant="secondary">
+              <Button type="button" variant="secondary" className="cursor-pointer">
                 Close
               </Button>
             </DialogClose>

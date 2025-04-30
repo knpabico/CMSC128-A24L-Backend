@@ -104,7 +104,7 @@ export const AlumPhotoUpload = ({
             className="absolute inset-0 flex items-center justify-center"
             onClick={handleUpload}
           >
-            <CameraIcon className="w-12 h-12 text-white" />
+            <CameraIcon className="w-12 h-12 text-white cursor-pointer" />
 
             <input
               type="file"

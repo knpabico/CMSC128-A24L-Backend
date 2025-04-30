@@ -62,22 +62,7 @@ export const Personal = ({ form }: { form: any }) => {
               )}
             />
           </div>
-          {/* city/municipality */}
-          <div className="col-span-6">
-            <FormField
-              control={form.control}
-              name="address.1"
-              render={({ field }) => (
-                <FormItem className="gap-0">
-                  <FormLabel className="text-xs font-light">City/Municipality*</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Los Baños" {...field} className="bg-white border border-gray-500"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          
           <div className="col-span-6">
             {/* province/state */}
             <FormField
@@ -88,6 +73,23 @@ export const Personal = ({ form }: { form: any }) => {
                   <FormLabel className="text-xs font-light">Province/State*</FormLabel>
                   <FormControl>
                     <Input placeholder="Laguna" {...field} className="bg-white border border-gray-500"/>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* city/municipality */}
+          <div className="col-span-6">
+            <FormField
+              control={form.control}
+              name="address.1"
+              render={({ field }) => (
+                <FormItem className="gap-0">
+                  <FormLabel className="text-xs font-light">City/Municipality*</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Los Baños" {...field} className="bg-white border border-gray-500"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
