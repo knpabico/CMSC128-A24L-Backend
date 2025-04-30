@@ -23,8 +23,6 @@ import { Progress } from "@material-tailwind/react";
 import React from "react";
 
 
-
-
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
@@ -135,9 +133,9 @@ export default function Home() {
               </p>
               <p className="text-[14px]">{alumInfo!.email}</p>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <p className="text-[14px]"><i>Current based on {alumInfo!.address}</i></p>
+              <div className="text-[14px] justify-items-center wrap-break-word"><i>Currently based on {alumInfo!.address}</i></div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col it  ems-center">
                 <p className="text-[14px]">Std. No. {alumInfo!.studentNumber}</p>
                 <p className="text-[14px]">Graduated: {alumInfo!.graduationYear}</p>
               </div>
@@ -354,60 +352,77 @@ export default function Home() {
                       {/* if newsletter is a scholarship */}
                       {newsLetter.category === "scholarship" && (() => {
                         return (
-                          <div className="flex flex-col gap-[20px] px-[20px]">                         
+                          <div className="flex flex-col gap-[20px] px-[20px] mb-[20px]">                         
                             <p className="text-[24px] font-semibold">Scholarship</p>
                             <p className="text-[15px] mt-2">Details about the scholarship will go here.</p>
-                            <button
+                            {/* <button
                               onClick={() => router.push(`/sponsorship`)}
                               className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-                            >View More Sponsorships</button>
+                            >View More Sponsorships</button> */}
                           </div>
                         );
                       })()}
 
                       {/* if newsletter is an event */}
                       {newsLetter.category === "event" && (() => {
+                        const event_array = events.filter(
+                          (event: Event) => event.eventId === newsLetter.referenceId
+                        ); // Using filter to get all matching events
+
                         return (
-                          <div className="flex flex-col gap-[20px]">
-                            <div className="flex flex-col gap-[20px] px-[20px]">
-                              <div>
-                                <p className="text-[24px] font-semibold">Event</p>
-                                <p className="text-[15px] mt-2">Details about the event will go here.</p>
-                              </div>
-                            </div>
-                            
-                            <img src="/ICS3.jpg"></img>
-                            
-                            <div className="flex flex-col px-[20px]">
-                              <div className="flex flex-row text-[15px] gap-1">
-                                <span className="font-semibold">₱{partial}</span> raised from <span className="font-semibold">₱{total}</span> total
-                              </div>
-
-                              {/* progress bar */}
-                              <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
-                                <div className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
-                              </div>
-
-
-                              <div className="flex flex-row text-[15px] gap-[20px]">
-                                <div className="flex flex-row items-center gap-1">
-                                <Users className="size-5"/>
-                                  <div className="flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
+                          <>
+                            {/* Map over the event_array */}
+                            <div>
+                              {event_array.map((event: Event) => (
+                              <div className="flex flex-col gap-[20px]" key={event.eventId}>
+                                <div className="flex flex-col gap-[20px] px-[20px]">
+                                  <div>
+                                    <p className="text-[24px] font-semibold">{event.title}</p>
+                                    <p className="text-[15px] mt-2">{event.description}</p>
+                                  </div>
                                 </div>
-                                <div className="flex flex-row items-center gap-1">
-                                  <Clock className="size-4"/>
-                                  <div className="flex flex-row gap-1"><p className="font-semibold">10</p> days left</div>
-                              </div>
+                              
+                              <img src="/ICS3.jpg"></img>
+                              <>
+                              
+                              {event.needSponsorship === true && (
+                              <>
+                              <div className="flex flex-col px-[20px]">
+                                <div className="flex flex-row text-[15px] gap-1">
+                                  <span className="font-semibold">₱{partial}</span> raised from <span className="font-semibold">₱{total}</span> total
                                 </div>
+
+                                {/* progress bar */}
+                                <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
+                                  <div className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
+                                </div>
+
+
+                                <div className="flex flex-row text-[15px] gap-[20px]">
+                                  <div className="flex flex-row items-center gap-1">
+                                  <Users className="size-5"/>
+                                    <div className="flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
+                                  </div>
+                                  <div className="flex flex-row items-center gap-1">
+                                    <Clock className="size-4"/>
+                                    <div className="flex flex-row gap-1"><p className="font-semibold">10</p> days left</div>
+                                </div>
+                                  </div>
+                              </div>
+                              </>)}</>
+
+                              
+                              <div className="px-[20px]">
+                                <button
+                                    onClick={() => router.push(`/events`)}
+                                    className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                                  >View More Events</button>
+                              </div>
                             </div>
-                            <div className="px-[20px]">
-                              <button
-                                  onClick={() => router.push(`/events`)}
-                                  className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-                                >View More Events</button>
+                              ))}
                             </div>
-                          </div>
-                        );
+                          </>                        
+                          );
                       })()}
                     </div>
                   ))}

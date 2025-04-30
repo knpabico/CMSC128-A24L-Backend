@@ -97,6 +97,8 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
             break;
           case "event":
             collectionName = "event";
+          case "scholarship":
+            collectionName = "scholarship";
             break;
           default:
             console.warn(`Unsupported bookmark type: ${bookmark.type}`);
