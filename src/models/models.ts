@@ -197,3 +197,12 @@ export interface AIQuestion {
   when: string;
   where: string;
 }
+
+export interface Featured {
+  featuredId: string;
+  text: string;
+  image: string;
+  title: string;
+  type: string;
+  datePosted: Date;
+}
