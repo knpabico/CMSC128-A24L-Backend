@@ -35,6 +35,7 @@ const EventPageAlumni = () => {
           <div className="bg-white py-6 px-6 rounded-[10px] shadow-md border border-gray-200">
             <div className="flex justify-between items-start mb-4">
               <div>
+                <img src={event.image} alt="Event Poster" className="w-64 h-auto" />
                 <h1 className="text-2xl font-bold">{event.title}</h1>
                 <p className="text-gray-500 mt-1">{event.description}</p>
               </div>
