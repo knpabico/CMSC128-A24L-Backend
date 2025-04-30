@@ -77,7 +77,7 @@ const EventPageAlumni = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-[#616161]" />
-                {event.numOfAttendees} Attendees
+                {event.numofAttendees} Attendees
               </div>
             </div>
           </div>
