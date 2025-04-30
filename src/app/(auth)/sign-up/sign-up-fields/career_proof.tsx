@@ -140,7 +140,7 @@ export const AlumDocumentUpload = ({
       </p>
 
       {preview && (
-        <div className="mt-2 mb-4">
+        <div className="mt-2">
           <p className="text-xs font-light">Preview:</p>
           <img
             src={preview}
