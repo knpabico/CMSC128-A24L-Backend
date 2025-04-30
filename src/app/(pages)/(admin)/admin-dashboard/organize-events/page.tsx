@@ -526,6 +526,7 @@ export default function Events() {
                               }
                             }}
                           />
+                          <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the batch.</p>
                         </>
                       )}
                     </div>
@@ -585,6 +586,7 @@ export default function Events() {
                               }
                             }}
                           />
+                          <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the alumni.</p>
                         </>
                       )}
                     </div>

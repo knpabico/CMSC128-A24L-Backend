@@ -294,6 +294,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                         }
                       }}
                     />
+                    <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the batch.</p>
                   </>
                 )}
               </div>
@@ -353,6 +354,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                         }
                       }}
                     />
+                    <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the alumni.</p>
                   </>
                 )}
               </div>
