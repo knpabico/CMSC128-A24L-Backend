@@ -23,10 +23,14 @@ export default function ProposedEventsPage()
         setEventDescription,
         title,
         setEventTitle,
+        location,
+        setEventLocation,
+        time,
+        setEventTime,
         needSponsorship,
         setNeedSponsorship,
     } = useEvents();
-    
+
 
     const { user, alumInfo } = useAuth();
 
@@ -155,7 +159,6 @@ export default function ProposedEventsPage()
                         </div>
                     </div>
                     
-                    {/* Event Proposal Modal - Using the new component */}
                     <ProposeEventForm 
                         isOpen={showForm}
                         onClose={() => setShowForm(false)}
@@ -168,7 +171,12 @@ export default function ProposedEventsPage()
                         handleImageChange={handleImageChange}
                         handleSave={handleSave}
                         alumInfo={alumInfo}
+                        location={location}
+                        setEventLocation={setEventLocation}
+                        time={time}
+                        setEventTime={setEventTime}
                     />
+
                     
                     {proposedEvents.length > 0 ? (
                         // event cards
