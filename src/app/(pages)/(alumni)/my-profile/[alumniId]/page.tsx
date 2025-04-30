@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 import AddEducationModal from "@/components/ui/add-aducation-modal";
 import { WorkExperience,Education, Affiliation } from "@/models/models";
 import AddAffiliationModal from "@/components/ui/add-affiliation-modal";
+import RecordOfDonations from "./alumni-donations/page";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { useAlums } from "@/context/AlumContext";
 const UserProfile = () => {
@@ -57,6 +58,11 @@ const UserProfile = () => {
   const [careerView,setCareerView]= useState(false);
   const [degreeType, setDegreeType] = useState("");
   const [addAffiliation, setaddAffiliation] = useState(false);
+
+  //for tabs
+  const [seeDonations, setSeeDonations]= useState(false)
+  const [seeBookmarks, setSeeBookmarks]= useState(false)
+  const [seeJobpostings, setSeeJobPosting]= useState(false)
 
 
 
@@ -187,8 +193,11 @@ const UserProfile = () => {
     setDeleteModal(true);
   };
 
-  //pagpindot sa buttons
+  //pagpindot sa buttons and tabs
   const handleEducationClick = () => {
+    setSeeBookmarks(false);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
     setPersonalView(false);
     setCareerView(false);
     setEducationView(true);
@@ -197,15 +206,45 @@ const UserProfile = () => {
   const handlePersonalClick = () => {
     setEducationView(false);
     setCareerView(false);
+    setSeeBookmarks(false);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
     setPersonalView(true);
   };
 
   
   const handleCareerClick = () => {
     setEducationView(false);
+    setSeeBookmarks(false);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
     setPersonalView(false);
     setCareerView(true);
   };
+  const handleDonationsClick =() => {
+    setEducationView(false);
+    setSeeBookmarks(false);
+    setSeeDonations(true);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+  }
+  const handleBookmarksClick =() => {
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+  }
+  const handleJobpostingClick =() => {
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(true);
+    setPersonalView(false);
+    setCareerView(false);
+  }
   //===========================
 
 
@@ -322,34 +361,6 @@ const UserProfile = () => {
     return monthNames[monthIndex];
   }
 
-  // // GAWA NI MAYBELLE
-  // useEffect(() => {
-  //   // Birthdate parsing
-  //   if (alumInfo?.birthDate) {
-  //     const safeDate = new Date(alumInfo.birthDate.replaceAll('/', '-'));
-  //     setSelectedDate(safeDate);
-  //   }
-  
-  //   // Address parsing
-  //   if (Array.isArray(alumInfo?.address) && typeof alumInfo.address[0] === 'string') {
-  //     const [cityVal = '', countryVal = ''] = alumInfo.address[0]
-  //       .split(',')
-  //       .map((part) => part.trim());
-  
-  //     setCity(cityVal);
-  //     setCountry(countryVal);
-  //   } else {
-  //     console.warn("Address not in expected format:", alumInfo?.address);
-  //   }
-  // }, [alumInfo?.birthDate, alumInfo?.address]);
-
-  // const months = [
-  //   'January', 'February', 'March', 'April', 'May', 'June',
-  //   'July', 'August', 'September', 'October', 'November', 'December',
-  // ];
-  // const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  // const years = Array.from({ length: 50 }, (_, i) => 1990 + i);
-
   const selectedMonth = selectedDate.getMonth();
   const selectedDay = selectedDate.getDate();
   const selectedYear = selectedDate.getFullYear();
@@ -382,14 +393,14 @@ const UserProfile = () => {
         <div className="flex gap-3">
           <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Profile</button>
           <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"  
-            onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/alumni-donations`)}}}>
+            onClick={handleDonationsClick}>
               Record of Donations
           </button>
           <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"
-          onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/alumni-joboffers`)}}}>
+          onClick={handleJobpostingClick}>
             Job Postings</button>
           <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"
-          onClick={() => { if(user?.uid) {router.push(`/my-profile/${user.uid}/alumni-bookmark`)}}}>
+          onClick={handleBookmarksClick}>
             Bookmarked Jobs
             </button>
         </div>
@@ -890,6 +901,8 @@ const UserProfile = () => {
         setSuccess={setSuccess}
         />
       )}
+
+      {seeDonations && <RecordOfDonations/>}
 
       {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => setUploading(false)}/>}
 
