@@ -22,8 +22,8 @@ const baseSchema = z.object({
   address: z
     .tuple([
       z.string().min(1, "Input your country"), //country
-      z.string().optional().or(z.literal("")), // city/municipality (optional)
-      z.string().optional().or(z.literal("")), //province/state (optional)
+      z.string().min(1, "Input your city/municipality"), // city/municipality (optional)
+      z.string().min(1, "Input your province/state"), //province/state (optional)
     ])
     .refine((input) => input[0] !== "", "Please input your address"),
   affiliation: z
