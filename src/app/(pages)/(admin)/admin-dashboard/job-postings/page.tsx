@@ -5,7 +5,7 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronDown, Trash2 } from "lucide-react";
+import { ChevronRight, Trash2, ThumbsDown, ThumbsUp } from "lucide-react";
 
 export default function Users() {
   const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
@@ -98,7 +98,6 @@ export default function Users() {
                 activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-white"
               }`}
             >
-              {/* Blue bar above active tab */}
               <div
                 className={`w-full h-1 transition-colors ${
                   activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-transparent"
@@ -181,18 +180,14 @@ export default function Users() {
                   </div>
                   <div className="w-1/6 flex items-center justify-center">
                     {activeTab === "Pending" ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleReject(job.jobId)}
-                          className="text-red-500 hover:text-red-700 text-sm"
-                        >
-                          Reject
+                      <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
+                        <button className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
+                          <ThumbsDown size={14} />
+                          <span>Reject</span>
                         </button>
-                        <button
-                          onClick={() => handleAccept(job.jobId)}
-                          className="text-green-500 hover:text-green-700 text-sm"
-                        >
-                          Accept
+                        <button className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1">
+                          <ThumbsUp size={14} />
+                          <span>Accept</span>
                         </button>
                       </div>
                     ) : (
@@ -213,7 +208,7 @@ export default function Users() {
       {/* Job Details Modal */}
       {selectedJob && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <div className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-3/4 max-w-4xl">
+          <div className="bg-white border-0 p-8 rounded-lg border-gray shadow-lg w-3/4 max-w-4xl">
             <h1 className="text-3xl mb-6 font-semibold border-b pb-4">Job Details</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <p><strong>Company:</strong> {selectedJob.company}</p>
