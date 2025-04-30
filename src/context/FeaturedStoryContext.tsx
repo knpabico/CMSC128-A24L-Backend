@@ -9,6 +9,7 @@ import {
   doc,
   deleteDoc,
   updateDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -84,7 +85,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "Featured", id));
+      await deleteDoc(doc(db, "featured", id));
       setFeaturedItems((prev) => prev.filter((item) => item.featuredId !== id));
     } catch (error) {
       console.error("Error deleting featured item:", error);
@@ -140,6 +141,22 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
     return unsubscribe;
   };
 
+  const getFeaturedById = async (id: string): Promise<Featured | null> => {
+    try {
+      const docRef = doc(db, "featured", id);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        return docSnap.data() as Featured;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching featured story by ID:", error);
+      return null;
+    }
+  };
+
   return (
     <FeaturedStoryContext.Provider
       value={{
@@ -162,6 +179,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
         handleSubmit,
         handleDelete,
         handleEdit,
+        getFeaturedById,
       }}
     >
       {children}

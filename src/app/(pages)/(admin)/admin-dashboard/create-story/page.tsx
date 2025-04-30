@@ -181,7 +181,7 @@ export default function FeaturedStoriesPage() {
             <input
               type="text"
               placeholder="TITLE"
-              value={text}
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full mb-4 p-2 border rounded"
               required
