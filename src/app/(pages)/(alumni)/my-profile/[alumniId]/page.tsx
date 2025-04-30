@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { WorkExperienceModal } from "./add-work-experience";
 import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
@@ -33,6 +32,7 @@ import { WorkExperience,Education, Affiliation } from "@/models/models";
 import AddAffiliationModal from "@/components/ui/add-affiliation-modal";
 import RecordOfDonations from "@/components/ui/return-of-donations-modal";
 import AlumniBookmarks from "@/components/ui/bookmarks-alumni-modal";
+import AddWorkExperience from "@/components/ui/add-experience-modal";
 import AlumniJobOffers from "@/components/ui/job-posting-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { useAlums } from "@/context/AlumContext";
@@ -185,6 +185,7 @@ const UserProfile = () => {
   
   // GAWA NI MAYBELLE
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [openAddModal, setOpenAddModal] = useState(false);
 
   // -----------------
 
@@ -213,6 +214,7 @@ const UserProfile = () => {
     setSeeJobPosting(false);
     setPersonalView(true);
   };
+
 
   
   const handleCareerClick = () => {
@@ -858,6 +860,24 @@ const UserProfile = () => {
                   </div>
                 )}
               </div>
+              <Button onClick={() => setOpenAddModal(true)}>Add Experience</Button>
+              {alumInfo?.alumniId && (
+                <AddWorkExperience
+                  open={openAddModal}
+                  alumniId={alumInfo.alumniId}
+                  onClose={() => setOpenAddModal(false)}
+                  snackbar={snackbar}
+                  setSnackbar={setSnackbar}
+                  setSuccess={setSuccess}
+                  setMessage={setMessage}
+                />
+              )}
+              <Snackbar
+                open={snackbar}
+                autoHideDuration={4000}
+                onClose={() => setSnackbar(false)}
+                message={message}
+              />
             </div>
           )}
 

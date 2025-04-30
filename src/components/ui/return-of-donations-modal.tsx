@@ -7,17 +7,7 @@ import { Donation } from "@/models/models";
 import { useDonationContext } from "@/context/DonationContext";
 
 
-const RecordOfDonations = ({
-  open,
-  onClose,
-  userId,
-  setSuccess,
-}: {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  setSuccess: (success: boolean) => void;
-}) => {
+const RecordOfDonations = () => {
 
 
   const { userDonations } = useDonationContext();
