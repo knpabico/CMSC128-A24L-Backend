@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Ellipsis, Trash2, Eye } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 
 export default function SampleAdminPage() {
@@ -8,6 +8,8 @@ export default function SampleAdminPage() {
   const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   const tabs = ["Posted", "Pending", "Rejected"];
 
@@ -32,6 +34,56 @@ export default function SampleAdminPage() {
   const [toggles, setToggles] = useState(
     donationDrives.map(() => false) // initialize all to false
   );
+
+  // Sample announcement data
+  const sampleAnnouncement = {
+    date: "April 30, 2025",
+    title: "Announcement Title Announcement Title Announcement Title Announcement Title Announcement Titleaaaaaaaaaaa",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dolor mauris, scelerisque vel lobortis sit amet, iaculis ut odio. Duis id neque erat. Proin lacinia pretium lorem nec venenatis. Ut a dui at enim tincidunt vulputate eget at lorem. Donec molestie ut turpis ut ornare. Nam quam augue, convallis quis pharetra non, elementum vel erat. Suspendisse scelerisque nisl turpis, vitae consectetur ante vestibulum ac. Nullam nisl velit, semper vestibulum cursus sit amet, varius ac mauris. Duis lacinia tincidunt vehicula. Donec elementum suscipit nunc, vitae volutpat libero ultricies sit amet. Donec lacinia ex at blandit finibus. Cras vel viverra nulla. Pellentesque congue, erat eget feugiat eleifend, augue diam euismod urna, ac pulvinar dui nunc condimentum nulla. Fusce dapibus ac nisl sed posuere. Morbi faucibus odio magna, faucibus vehicula turpis pulvinar vel. Ut mattis ultricies luctus. Suspendisse lacinia eu magna posuere suscipit. Maecenas id libero rhoncus, consequat sem eget, ullamcorper augue. Mauris ut porta purus, quis varius erat. Etiam tortor lectus, eleifend in vehicula eu, sollicitudin sed erat. Nam vel rutrum leo. In hac habitasse platea dictumst. In enim ipsum, luctus et turpis non, feugiat pharetra erat. Nam posuere justo eget dui consectetur ullamcorper. Proin vel venenatis nisi. Morbi eu fringilla massa. Vivamus vel felis convallis, imperdiet velit iaculis, imperdiet nibh. Mauris ligula sapien, placerat eget efficitur ac, luctus eu erat. Suspendisse facilisis dolor risus, elementum pretium eros malesuada sit amet. Curabitur at eleifend lacus. Phasellus vitae vulputate tortor. Vestibulum ornare mattis magna sed blandit. Nullam et posuere ex, id accumsan ex. Maecenas sed nulla a elit accumsan faucibus ac quis elit. Suspendisse vel euismod arcu. Pellentesque interdum tellus tortor, ut porta turpis sagittis non. In hac habitasse platea dictumst. Maecenas id blandit justo. Donec ac hendrerit nisl, non porta justo. Vestibulum tempor urna vel justo pharetra vulputate. Sed vel nisl pretium, dignissim est vel, consectetur tortor. Curabitur vitae leo commodo, finibus urna eget, aliquam diam. Cras metus quam, sodales et vehicula vitae, ultricies eu est. Curabitur suscipit finibus urna, ac condimentum velit pretium eget. Etiam ut maximus lectus. Pellentesque in nulla elit. Nulla metus augue, bibendum nec condimentum quis, euismod congue eros. Etiam in bibendum metus. Nulla ornare odio non massa pellentesque porttitor. Phasellus a dolor at felis tempor hendrerit vel eget nunc. Nullam varius, nibh at ullamcorper rhoncus, turpis tellus cursus massa, non venenatis eros velit ut neque. Suspendisse vel justo rhoncus, ullamcorper metus eu, convallis urna. Duis sed tellus orci. Nam orci nunc, sodales a purus non, aliquet rhoncus ligula. Aliquam feugiat auctor consequat. Vivamus tellus neque, semper in finibus quis, ullamcorper commodo risus. Nulla laoreet quis odio non tempus. Vivamus finibus tellus arcu, a commodo enim maximus et. Sed maximus consectetur nulla, ut gravida diam pulvinar a. Nunc dapibus, magna vel mollis rhoncus, mi felis luctus odio, eu elementum nibh turpis eget ipsum."
+  };
+
+  const [showFullTitle, setShowFullTitle] = useState(false);
+  const [showFullContent, setShowFullContent] = useState(false);
+
+  // Function to truncate text with "See more" button
+  const truncateText = (text, limit) => {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return text.substring(0, limit) + "...";
+  };
+
+  // Handle dropdown toggle
+  const toggleDropdown = () => {
+    setShowDropdown(prev => !prev);
+  };
+
+  // Function to handle view button click
+  const handleView = () => {
+    alert("View details clicked");
+    setShowDropdown(false);
+  };
+
+  // Function to handle delete button click
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this announcement?")) {
+      alert("Announcement deleted");
+    }
+    setShowDropdown(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Track scroll position and update header state
   useEffect(() => {
@@ -134,6 +186,65 @@ export default function SampleAdminPage() {
           <div className="bg-gray-300 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400">
             <div className="text-xs">Status</div>
             <ChevronDown size={20} />
+          </div>
+        </div>
+
+        {/* Announcement Card with Truncation */}
+        <div className="bg-white flex justify-between rounded-2xl overflow-hidden p-5">
+          <div className="flex flex-col gap-1 pr-5 w-3/4">
+            <div className="text-xs text-gray-500">
+              Date Posted: {sampleAnnouncement.date}
+            </div>
+            
+            {/* Title with truncation */}
+            <div className="relative">
+              <div className={`text-base font-bold ${!showFullTitle ? "line-clamp-2" : ""}`}>
+                {showFullTitle ? sampleAnnouncement.title : sampleAnnouncement.title}
+              </div>
+            </div>
+            
+            {/* Content with truncation */}
+            <div className="text-[12px] text-gray-600 overflow-hidden">
+              <div className={`${!showFullContent ? "line-clamp-5" : ""}`}>
+                {showFullContent ? sampleAnnouncement.content : sampleAnnouncement.content}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-end justify-between gap-2 w-1/4">
+            <div className="relative" ref={dropdownRef}>
+              <div 
+                className="cursor-pointer hover:bg-gray-100 p-1 rounded-full"
+                onClick={toggleDropdown}
+              >
+                <Ellipsis size={18} />
+              </div>
+              
+              {/* Dropdown menu */}
+              {showDropdown && (
+                <div className="absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                  <ul className="py-1">
+                    <li 
+                      className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+                      onClick={handleView}
+                    >
+                      <Eye size={16} />
+                      <span>View</span>
+                    </li>
+                    <li 
+                      className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+                      onClick={handleDelete}
+                    >
+                      <Trash2 size={16} />
+                      <span>Delete</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="bg-amber-300 h-full aspect-square rounded-md">
+              {/* Image placeholder */}
+            </div>
           </div>
         </div>
 
