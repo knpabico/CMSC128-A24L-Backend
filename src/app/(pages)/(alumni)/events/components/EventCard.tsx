@@ -12,10 +12,11 @@ import { Timestamp } from 'firebase-admin/firestore';
 interface EventCardProps
 {
     event: Event;
+    type: string;
     showBookmark?: boolean;
 }
 
-const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
+const EventCard = ({ event, type, showBookmark = false }: EventCardProps) =>
 {
     const router = useRouter();
     const {user, alumInfo} = useAuth();
@@ -55,24 +56,26 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
             <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleViewDetails(event.eventId)} >
                 {/* Image */}
                 <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: event.image ? `url(${event.image})` : 'url("/ICS3.jpg")' }} >
-                <span className={`absolute bottom-2 right-2 px-3 py-1 text-sm rounded-full ${
-                (() => 
-                {
-                    switch (event.status)
-                    {
-                        case 'Accepted':
-                            return 'bg-green-100 text-green-800 px-2 py-1 font-bold';
-                        case 'Pending':
-                            return 'bg-yellow-100 text-yellow-800 px-2 py-1 font-bold';
-                        case 'Rejected':
-                            return 'bg-red-100 text-red-800 px-2 py-1 font-bold';
-                        default:
-                            return 'bg-gray-100 text-gray-800 px-2 py-1 font-bold';
-                    }
-                })()
-                }`}>
-                    {event.status === 'Accepted' ? 'Approved' : event.status}
-                </span>
+                {type !== "All Events" && (
+                    <span className={`absolute bottom-2 right-2 px-3 py-1 text-sm rounded-full ${
+                        (() => 
+                        {
+                            switch (event.status)
+                            {
+                                case 'Accepted':
+                                    return 'bg-green-100 text-green-800 px-2 py-1 font-bold';
+                                case 'Pending':
+                                    return 'bg-yellow-100 text-yellow-800 px-2 py-1 font-bold';
+                                case 'Rejected':
+                                    return 'bg-red-100 text-red-800 px-2 py-1 font-bold';
+                                default:
+                                    return 'bg-gray-100 text-gray-800 px-2 py-1 font-bold';
+                            }
+                        })()
+                        }`}>
+                            {event.status === 'Accepted' ? 'Approved' : event.status}
+                    </span>
+                )}
                 </div>
                 {/* Content */}
                 <div className="px-6 pt-3 pb-6">

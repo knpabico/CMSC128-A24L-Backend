@@ -189,6 +189,7 @@ export default function ProposedEventsPage()
                         <EventsList
                             events = {proposedEvents}
                             isLoading = {isLoading}
+                            type = {"Proposed Events"}
                             emptyMessage = "No Events have been created yet."
                         />
                     ) : (

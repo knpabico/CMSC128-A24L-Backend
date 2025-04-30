@@ -6,6 +6,7 @@ interface EventsListProps
 {
   events: Event[];
   isLoading?: boolean;
+  type: string;
   emptyMessage?: string;
 }
 
@@ -13,6 +14,7 @@ const EventsList = (
 {
   events,
   isLoading = false,
+  type,
   emptyMessage = "No events found.",
 }: EventsListProps) => 
 {
@@ -52,7 +54,7 @@ const EventsList = (
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
       {events.map((event) => (
-        <EventCard key={event.eventId} event={event} />
+        <EventCard key={event.eventId} event={event} type={type} />
       ))}
     </div>
   );
