@@ -13,7 +13,7 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
-import { Briefcase, Bookmark, FilePlus, MapPin, ChevronDown } from 'lucide-react';
+import { Briefcase, Bookmark, FilePlus, MapPin, ChevronDown, DollarSign, Award, FileText } from 'lucide-react';
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -723,43 +723,48 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
             {/* Right Column - Job Details */}
             <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
               {selectedJob ? (
-                <div className="w-full">
-                  <h2 className="text-2xl font-bold mb-2">
-                    {selectedJob.position}
-                  </h2>
-                  <p className="text-gray-600 text-lg mb-4">
-                    {selectedJob.company}
-                  </p>
+                <div className="w-full space-y-4">
+                <div>
+                  <h2 className="text-2xl font-bold">{selectedJob.position}</h2>
+                  <p className="text-gray-600 text-lg">{selectedJob.company}</p>
+                  <div className="flex items-center text-sm text-gray-600">
+                  <MapPin className="w-4 h-4 text-[#0856BA] mr-1" />
+                  <span className="ml-1 font-semibold text-[#0856BA]">{selectedJob.location}</span>
+                </div>
+                </div>
+          
+                
   
-                  <div className="bg-[#EAEAEA] p-3 rounded-lg mb-4">
-                    <div className="flex flex-wrap gap-4 mb-2">
-                      <div className="text-sm">
-                        <span className="text-gray-500">Type:</span>
-                        <span className="ml-1 font-medium">
-                          {selectedJob.employmentType}
-                        </span>
+                  <div className="bg-white border border-[#0856BA] p-3 rounded-lg mb-4 space-y-2">
+                      <div className="text-sm flex items-center">
+                        <DollarSign className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                        <span className="text-[#0856BA] font-semibold">Salary Range:</span>
+                        <span className="ml-1 font-medium">{selectedJob.salaryRange}</span>
                       </div>
-                      <div className="text-sm">
-                        <span className="text-gray-500">Level:</span>
-                        <span className="ml-1 font-medium">
-                          {selectedJob.experienceLevel}
-                        </span>
+
+                      <div className="text-sm flex items-center">
+                        <Briefcase className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                        <span className="text-[#0856BA] font-semibold">Employment Type:</span>
+                        <span className="ml-1 font-medium">{selectedJob.employmentType}</span>
                       </div>
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-gray-500">Salary:</span>
-                      <span className="ml-1 font-medium">
-                        {selectedJob.salaryRange}
-                      </span>
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-gray-500">Location:</span>
-                      <span className="ml-1 font-medium">
-                        {selectedJob.location}
-                      </span>
-                    </div>
+
+                      <div className="text-sm flex items-center">
+                        <Award className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                        <span className="text-[#0856BA] font-semibold">Experience Level:</span>
+                        <span className="ml-1 font-medium">{selectedJob.experienceLevel}</span>
+                      </div>
+
+                    {selectedJob.jobType && (
+                      <div className="flex flex-wrap gap-4">
+                        <div className="text-sm flex items-center">
+                          <FileText className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                          <span className="text-[#0856BA] font-semibold">Job Type:</span>
+                          <span className="ml-1 font-medium">{selectedJob.jobType}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-  
+                
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Job Description</h3>
                     <p className="text-sm text-gray-700">
