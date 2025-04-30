@@ -4,14 +4,14 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const authResult = await verifyAuth(req);
+    // const authResult = await verifyAuth(req);
 
-    if (!authResult.authenticated) {
-      return NextResponse.json(
-        { error: authResult.error },
-        { status: authResult.status }
-      );
-    }
+    // if (!authResult.authenticated) {
+    //   return NextResponse.json(
+    //     { error: authResult.error },
+    //     { status: authResult.status }
+    //   );
+    // }
 
     console.log("Received document upload request");
 

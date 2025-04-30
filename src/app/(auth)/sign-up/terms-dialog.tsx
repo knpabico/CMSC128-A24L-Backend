@@ -19,18 +19,18 @@ export function TermsDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <span className="underline hover:text-blue-500 font-bold">
+        <span className="underline hover:text-blue-500 font-bold cursor-pointer">
           terms and conditions
         </span>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="sm:max-w-4xl bg-white">
         <DialogHeader>
           <DialogTitle>Terms and Conditions</DialogTitle>
           <DialogDescription>
-            <p className="text-base text-gray-700">
+            <span className="text-base text-gray-700">
               By registering for an account on <strong>ICS-ARMS</strong>, you
               agree to the following terms and conditions:
-            </p>
+            </span>
           </DialogDescription>
         </DialogHeader>
 

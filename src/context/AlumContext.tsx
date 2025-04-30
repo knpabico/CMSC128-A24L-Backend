@@ -10,11 +10,18 @@ import {
   where,
   getDocs,
   orderBy,
+  addDoc,
+  updateDoc,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
+import { sendEmailTemplateForNewsletter } from "@/lib/emailTemplate";
+import { sendEmailTemplate } from "@/lib/emailTemplate";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -23,7 +30,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   const [myCareer, setCareer] = useState<Career[]>([]);
   const [myEducation, setEducation] = useState<Education[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -36,6 +43,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       unsubscribeActive = subscribeToActiveUsers();
       unsubscribeCareer = subscribeToMyCareer();
       unsubscribeEducation = subscribeToMyEducation();
+    } else if (isAdmin) {
+      unsubscribe = subscribeToUsers();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);
@@ -59,7 +68,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         unsubscribeEducation();
       }
     };
-  }, [user]);
+  }, [user, isAdmin]);
 
   //for fetching career of current user
   const subscribeToMyCareer = () => {
@@ -129,6 +138,66 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateAlumnus = async (
+    alumniId: string,
+    alumniEmail: string,
+    regStatus: string,
+    alumniName: string
+  ) => {
+    try {
+      const alumRef = doc(db, "alumni", alumniId);
+      await setDoc(
+        alumRef,
+        {
+          regStatus: regStatus,
+          activeStatus: regStatus === "approved" ? true : false,
+        },
+        { merge: true }
+      );
+      const isApproved = regStatus === "approved";
+      const data = await sendEmailTemplate(alumniEmail, alumniName, isApproved);
+      if (data.success) {
+        toastSuccess(data.message);
+      } else toastError(data.message);
+
+      return { success: true, message: "success" };
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const emailNewsLettertoAlums = async (
+    title: string,
+    content: string,
+    photoURL: string,
+    category: string
+  ) => {
+    try {
+      const q = query(
+        collection(db, "alumni"),
+        where("activeStatus", "==", true),
+        where("subscribeToNewsletter", "==", true)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.docs.map(
+        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
+          await sendEmailTemplateForNewsletter(
+            photoURL,
+            title,
+            content,
+            doc.data().email,
+            category
+          )
+      );
+      // const data =
+      // if (data.success) {
+      //   toastSuccess(data.message);
+      // } else toastError(data.message);
+    } catch (error) {
+      console.error("Error sending newsletter:", error);
+    }
+  };
+
   const subscribeToUsers = () => {
     setLoading(true);
     const q = query(collection(db, "alumni"));
@@ -186,6 +255,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         activeAlums,
         myCareer,
         myEducation,
+        updateAlumnus,
+        emailNewsLettertoAlums,
       }}
     >
       {children}

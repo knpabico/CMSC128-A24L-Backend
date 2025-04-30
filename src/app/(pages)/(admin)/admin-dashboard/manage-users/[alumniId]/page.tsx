@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import MapComponent from "../../map/map";
+import MapComponent from "../../../../(alumni)/map/map";
 
 export default function AlumPage() {
   const { alums, loading: alumsloading } = useAlums();
@@ -107,18 +107,9 @@ export default function AlumPage() {
                 <p>Company Name: {work.company}</p>
                 <p>Location: {work.location}</p>
                 <h2>
-                  Duration:{" "}
-                  {work.startingDate
-                    .toDate()
-                    .toISOString()
-                    .slice(0, 10)
-                    .replaceAll("-", "/")}
+                  Duration: {work.startYear}
                   {" - "}
-                  {work.endingDate
-                    .toDate()
-                    .toISOString()
-                    .slice(0, 10)
-                    .replaceAll("-", "/")}
+                  {work.endYear}
                 </h2>
               </div>
             ))

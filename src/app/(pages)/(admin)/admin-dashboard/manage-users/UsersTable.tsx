@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getAlumni } from "@/data/alumni";
+import { UserActionButtons } from "@/components/UserActionButtons";
 // import { useEffect, useState } from "react";
 
 // this table will only render the data in the specified page
@@ -117,15 +118,11 @@ export async function UsersTable({
                       : ""}
                   </TableCell>
                   <TableCell className="flex gap-3">
-                    <Button variant="outline" size="sm">
-                      <Trash2Icon />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Settings />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <EyeIcon />
-                    </Button>
+                    <UserActionButtons
+                      alumniEmail={alumni.email}
+                      alumniId={alumni.alumniId}
+                      alumniName={`${alumni.firstName} ${alumni.lastName}`}
+                    ></UserActionButtons>
                   </TableCell>
                 </TableRow>
               );

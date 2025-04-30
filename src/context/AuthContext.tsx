@@ -8,6 +8,7 @@ import {
   User,
   createUserWithEmailAndPassword,
   UserCredential,
+  deleteUser,
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { ReactNode } from "react";
@@ -15,6 +16,7 @@ import { FirebaseError } from "firebase/app";
 import { Alumnus } from "@/models/models";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -23,6 +25,8 @@ import {
 } from "firebase/firestore";
 import { getRegStatus, getUserRole } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { GoogleSign } from "./AuthGoogleContext";
+import { toastError } from "@/components/ui/sonner";
 
 const AuthContext = createContext<{
   user: User | null;
@@ -39,6 +43,10 @@ const AuthContext = createContext<{
   ) => Promise<UserCredential | undefined>;
   isAdmin: boolean;
   status: string | null;
+  getAlumInfo: (user: User) => Promise<void>;
+  isGoogleSignIn: boolean;
+  signInWithGoogle: () => Promise<boolean>;
+  logOutAndDelete: () => Promise<void>;
 }>({
   user: null,
   alumInfo: null,
@@ -48,6 +56,10 @@ const AuthContext = createContext<{
   signUp: async () => undefined,
   isAdmin: false,
   status: null,
+  getAlumInfo: async () => {},
+  isGoogleSignIn: false,
+  signInWithGoogle: async () => false,
+  logOutAndDelete: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -57,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [isGoogleSignIn, setIsGoogleSignIn] = useState<boolean>(false);
   const router = useRouter();
 
   //function for getting currently logged in user info from the "alumni" collection
@@ -80,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         : undefined;
 
       setAlumInfo(alumniCopy);
+      console.log("Set!");
     } else {
       // docSnap.data() will be undefined in this case
       console.log("No such document!");
@@ -92,8 +106,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         const userRole = await getUserRole(user.email);
         setRole(userRole);
-        console.log(userRole);
-        if (userRole === "admin") {
+        console.log("userRole: " + userRole);
+        if (!userRole) {
+          setUser(user);
+          setIsGoogleSignIn(true);
+          return;
+        } else if (userRole === "admin") {
           setIsAdmin(true);
         } else if (userRole === "user") {
           const regStat = await getRegStatus(user.uid);
@@ -107,23 +125,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           logOut();
         }
-
-        //get alumInfo of currently logged in user
-
-        // const token = await user.getIdToken();
-        // await fetch("/api/session", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({ token }),
-        // });
       } else {
+        setIsGoogleSignIn(false);
         setUser(null);
-        // await fetch("/api/session", { method: "DELETE" });
       }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
+
+  const signInWithGoogle = async () => {
+    try {
+      const data = await GoogleSign();
+      if (data.success) {
+        console.log(data);
+        setUser(data.user ?? null);
+        setAlumInfo(data.alumniCopy ?? null);
+        setIsGoogleSignIn(false);
+        return false;
+      } else {
+        if (data.errorMessage === "User not found!") {
+          console.log("User not found!");
+          router.push("/sign-up");
+        } else if (data.errorMessage === "Popup closed by user") {
+          return true;
+        } else {
+          toastError(data.errorMessage);
+          return false;
+        }
+      }
+    } catch (error) {
+      toastError(
+        `An error occurred while signing in with Google. ${
+          (error as Error).message
+        }`
+      );
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -163,6 +201,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signOut(auth);
       setUser(null);
       setIsAdmin(false);
+      setIsGoogleSignIn(false);
+      setStatus(null);
+      setAlumInfo(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logOutAndDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteDoc(doc(db, "alumni", user?.uid ?? ""));
+      if (user) {
+        await deleteUser(user);
+      }
+      await signOut(auth);
+      router.push("/");
+      setUser(null);
+      setIsAdmin(false);
+      setIsGoogleSignIn(false);
+      setStatus(null);
+      setAlumInfo(null);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -180,6 +242,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         isAdmin,
         status,
+        getAlumInfo,
+        isGoogleSignIn,
+        signInWithGoogle,
+        logOutAndDelete,
       }}
     >
       {children}
