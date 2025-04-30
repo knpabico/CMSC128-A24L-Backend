@@ -31,7 +31,9 @@ import { useRouter } from "next/navigation";
 import AddEducationModal from "@/components/ui/add-aducation-modal";
 import { WorkExperience,Education, Affiliation } from "@/models/models";
 import AddAffiliationModal from "@/components/ui/add-affiliation-modal";
-import RecordOfDonations from "./alumni-donations/page";
+import RecordOfDonations from "@/components/ui/return-of-donations-modal";
+import AlumniBookmarks from "@/components/ui/bookmarks-alumni-modal";
+import AlumniJobOffers from "@/components/ui/job-posting-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { useAlums } from "@/context/AlumContext";
 const UserProfile = () => {
@@ -770,7 +772,8 @@ const UserProfile = () => {
           </div>)}
 
           {/* career section */}
-          {userWorkExperience.length == 0 && (
+          {/* Plain text lang pala ito baka di mapansinn */}
+          {careerView && userWorkExperience.length == 0 && ( 
             <Typography>No Work Experience Yet!</Typography>
           )}
           {careerView && (
@@ -903,6 +906,10 @@ const UserProfile = () => {
       )}
 
       {seeDonations && <RecordOfDonations/>}
+      {seeBookmarks && <AlumniBookmarks/>}
+      {seeJobpostings && <AlumniJobOffers/>}
+
+
 
       {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => setUploading(false)}/>}
 

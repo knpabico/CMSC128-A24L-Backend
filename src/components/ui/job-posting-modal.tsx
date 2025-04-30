@@ -14,7 +14,7 @@ const AlumniJobOffers = () => {
         return <div>Loading job offers...</div>;
     }
 
-    if (!jobOffers || jobOffers.length === 0) {
+    if (!jobOffers) {
         return <div>No job offers found.</div>;
     }
 
