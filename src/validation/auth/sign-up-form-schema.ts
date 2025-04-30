@@ -22,17 +22,20 @@ const baseSchema = z.object({
   address: z
     .tuple([
       z.string().min(1, "Input your country"), //country
-      z.string().optional().or(z.literal("")), // city/municipality (optional)
-      z.string().optional().or(z.literal("")), //province/state (optional)
+      z.string().min(1, "Input your city/municipality"), // city/municipality (optional)
+      z.string().min(1, "Input your province/state"), //province/state (optional)
     ])
     .refine((input) => input[0] !== "", "Please input your address"),
   affiliation: z
     .array(
       z
         .object({
-          affiliationName: z.string(),
-          yearJoined: z.string(),
-          university: z.string(),
+          affiliationName: z.string().min(1, "Input  your affiliation's name"),
+          yearJoined: z.string().refine((input) => {
+            const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+            return regex.test(input);
+          }, "Please input a valid year"),
+          university: z.string().min(1, "Input your affiliation's university"),
         })
         .optional()
     )
@@ -80,12 +83,12 @@ const baseSchema = z.object({
     .array(
       z
         .object({
-          industry: z.string(),
-          jobTitle: z.string(),
-          company: z.string(),
-          startYear: z.string(),
-          endYear: z.string(),
-          location: z.string(),
+          industry: z.string().min(1, "Input your job's industry"),
+          jobTitle: z.string().min(1, "Input your job title"),
+          company: z.string().min(1, "Input your company's name"),
+          startYear: z.string().min(1, "Input your starting year"),
+          endYear: z.string().min(1, "Input your ending year"),
+          location: z.string().min(1, "Input your location"),
           latitude: z.number(),
           longitude: z.number(),
           presentJob: z.boolean(),

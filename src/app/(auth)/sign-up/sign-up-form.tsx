@@ -501,7 +501,7 @@ export default function RegistrationForm() {
                     <div className="space-y-10">
                       <div className="bg-white rounded-3xl p-10 space-y-15">
                         <div className="flex flex-col items-center">
-                          <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full">
+                          <div className="bg-gray-300 w-50 h-50 flex justify-center items-center rounded-full overflow-hidden">
                             <AlumPhotoUpload
                               imageSetter={handleImageUpload}
                             ></AlumPhotoUpload>

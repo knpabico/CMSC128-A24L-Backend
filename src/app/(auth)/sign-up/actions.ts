@@ -91,7 +91,7 @@ const saveCareer = async (
             workExperienceId: ref.id,
             alumniId: alumniId,
             endYear: presentJob ? "present" : endYear, //if present job, set as present
-            //dadagdag yung sa location, latitude, longitude, proofOfEmployment
+            proofOfEmployment: "",
           });
 
         if (presentJob) {
@@ -298,7 +298,7 @@ export const registerUser = async (
         age: calculateAge(new Date(alumnusData.birthDate)),
         birthDate: new Date(alumnusData.birthDate),
         contactPrivacy: true, //if true, contact (email) should be private
-        //dagdag image
+        image: alumData.image ?? "",
       });
 
     //save education

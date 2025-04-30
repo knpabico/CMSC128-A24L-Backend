@@ -3,7 +3,7 @@
 "use client";
 import { uploadImage } from "@/lib/upload";
 import { Button } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { set } from "zod";
 import { CameraIcon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -55,6 +55,7 @@ export const AlumPhotoUpload = ({
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [firstClick, setFirstClick] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -65,47 +66,55 @@ export const AlumPhotoUpload = ({
     }
   };
 
-  const handleUpload = () => {
-    if (!image) {
+  useEffect(() => {
+    if (!image && firstClick) {
       setMessage("No image selected");
       setIsError(true);
-      return;
+    } else {
+      setIsError(false);
+      setMessage("");
     }
+  }, [image, firstClick]);
+
+  const handleUpload = () => {
+    setFirstClick(true);
   };
 
   return (
     <div>
-      {/* original */}
-      {/* <input type="file" accept="image/*" onChange={handleImageChange} />
-      <Button onClick={handleUpload}>Upload Photo</Button> */}
-      {/* isang icon lang */}
-      <label onClick={handleUpload}>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="hidden"
-        />
-        {/* <Button> */}
-        <CameraIcon className="w-10 h-10 text-[#0856ba]" />
-        {/* </Button> */}
-      </label>
+      <div>
+        <div className="relative w-55 h-55 flex items-center justify-center">
+          {preview ? (
+            <img
+              src={preview}
+              alt="Uploaded Preview"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <p
+              className={`text-center mt-20 ${
+                isError ? "text-red-600" : "text-green-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
 
-      {preview && (
-        <div className="mt-4">
-          <p>Preview:</p>
-          <img
-            src={preview}
-            alt="Uploaded Preview"
-            style={{ width: "200px", borderRadius: "8px" }}
-          />
+          <label
+            className="absolute inset-0 flex items-center justify-center"
+            onClick={handleUpload}
+          >
+            <CameraIcon className="w-12 h-12 text-white" />
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </label>
         </div>
-      )}
-      {message && (
-        <p className={`mt-2 ${isError ? "text-red-600" : "text-green-600"}`}>
-          {message}
-        </p>
-      )}
+      </div>
     </div>
   );
 };
