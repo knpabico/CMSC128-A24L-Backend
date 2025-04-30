@@ -82,7 +82,7 @@ export const AlumPhotoUpload = ({
 
   return (
     <div>
-      <div className="mt-4">
+      <div>
         <div className="relative w-55 h-55 flex items-center justify-center">
           {preview ? (
             <img
@@ -92,7 +92,7 @@ export const AlumPhotoUpload = ({
             />
           ) : (
             <p
-              className={`text-center mt-2 ${
+              className={`text-center mt-20 ${
                 isError ? "text-red-600" : "text-green-600"
               }`}
             >
