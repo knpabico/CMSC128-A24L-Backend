@@ -78,14 +78,22 @@ export function useRsvpDetails(events) {
         if (rsvp.alumniId === alumniId && rsvp.postId === eventId) {
           const rsvpRef = doc(db, "RSVP", rsvpId);
           await updateDoc(rsvpRef, { status: "Accepted" });
-          console.log(`RSVP ${rsvpId} updated to Accepted`); // Log confirmation
-          rsvpFound = true;
           
-        // Increment attendee count
-        const eventRef = doc(db, "event", eventId);
-        await updateDoc(eventRef, {
-          numofAttendees: increment(1), 
-        });
+          // Increment attendee count
+          const eventRef = doc(db, "event", eventId);
+          await updateDoc(eventRef, {
+            numofAttendees: increment(1), 
+          });
+
+          setRsvpDetails(prev => ({
+            ...prev,
+            [rsvpId]: {
+              ...prev[rsvpId],
+              status: "Accepted",
+            },
+          }));
+
+          rsvpFound = true;
 
           break;
         }
@@ -114,7 +122,17 @@ export function useRsvpDetails(events) {
         if (rsvp.alumniId === alumniId && rsvp.postId === eventId) {
           const rsvpRef = doc(db, "RSVP", rsvpId); // Dynamically create the reference for each RSVP
           await updateDoc(rsvpRef, { status: "Rejected" });
+
+          setRsvpDetails(prev => ({
+            ...prev,
+            [rsvpId]: {
+              ...prev[rsvpId],
+              status: "Rejected",
+            },
+          }));
+
           rsvpFound = true; // Mark as found
+          
           break;  // Exit the loop once the RSVP is found and updated
         }
       }
