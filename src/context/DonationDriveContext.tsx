@@ -15,6 +15,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { DonationDrive, Event } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { uploadImage } from "@/lib/upload";
 
 const DonationDriveContext = createContext<any>(null);
 
@@ -31,6 +32,10 @@ export function DonationDriveProvider({
   // donation drive form fields
   const [campaignName, setCampaignName] = useState("");
   const [description, setDescription] = useState("");
+  const [creatorId, setCreatorId] = useState("");
+  const [image, setImage] = useState(null);
+  const [fileName, setFileName] = useState<string>("");
+  const [preview, setPreview] = useState<string|null>(null);
   const [targetAmount, setTargetAmount] = useState(0);
   const [isEvent, setIsEvent] = useState(false);
   const [eventId, setEventId] = useState("");
@@ -195,15 +200,36 @@ export function DonationDriveProvider({
   setBeneficiary(list);
  }
 
+ const handleImageChange = (e: { target: { files: any[]; }; }) => {
+  const file = e.target.files[0];
+  if (file) {
+    setImage(file);
+    setFileName(file.name); // Store the filename
+    setPreview(URL.createObjectURL(file)); //preview
+  }
+  };
+
   const addDonationDrive = async (driveData: DonationDrive) => {
-    var role;
-    isAdmin? role = "admin": role = "alumni";
+    
     try {
       const docRef = doc(collection(db, "donation_drive"));
+
+      if (image) {
+        const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
+        if (uploadResult.success) {
+          driveData.image = uploadResult.url;
+          
+          await setDoc(docRef, driveData);
+          // Optional: also store under photoURL
+          await updateDoc(docRef, { photoURL: uploadResult.url });
+        } else {
+          return { success: false, message: "Image upload failed" };
+        }
+      } else {
+        return { success: false, message: "No image provided" };
+      }
+
       driveData.donationDriveId = docRef.id;
-      driveData.creatorType = role;
-      driveData.status = role === "admin" ? "active" : "pending";
-      driveData.creatorId = role === "admin" ? "" : user!.uid;
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
@@ -220,12 +246,12 @@ export function DonationDriveProvider({
       description,
       beneficiary,
       campaignName,
-      status: "",
-      creatorId: "",
-      creatorType: "",
+      status,
+      creatorId,
+      creatorType: "alimni",
       currentAmount: 0,
       targetAmount,
-      isEvent,
+      isEvent: true,
       eventId,
       startDate: new Date(),
       endDate,
@@ -242,10 +268,10 @@ export function DonationDriveProvider({
       setOneBeneficiary("");
       setBeneficiary([]);
       setTargetAmount(0);
-      setIsEvent(false);
       setEventId("");
       setEndDate(new Date());
       setStatus("");
+      setImage(null);
     } else {
       console.error("Error adding donation drive:", response.message);
     }
@@ -284,28 +310,28 @@ export function DonationDriveProvider({
     }
   };
 
-  const handleReject = async (donationDriveId: string) => {
-    try {
-      const driveRef = doc(db, "donation_drive", donationDriveId);
-      await updateDoc(driveRef, { status: "rejected" });
-      return { success: true, message: "Donation drive successfully rejected" };
-    } catch (error) {
-      return { success: false, message: (error as FirebaseError).message };
-    }
-  };
+  // const handleReject = async (donationDriveId: string) => {
+  //   try {
+  //     const driveRef = doc(db, "donation_drive", donationDriveId);
+  //     await updateDoc(driveRef, { status: "rejected" });
+  //     return { success: true, message: "Donation drive successfully rejected" };
+  //   } catch (error) {
+  //     return { success: false, message: (error as FirebaseError).message };
+  //   }
+  // };
 
-  const handleAccept = async (donationDriveId: string) => {
-    try {
-      const driveRef = doc(db, "donation_drive", donationDriveId);
-      await updateDoc(driveRef, { status: "active", startDate: new Date() });
-      return {
-        success: true,
-        message: "Donation drive successfully activated",
-      };
-    } catch (error) {
-      return { success: false, message: (error as FirebaseError).message };
-    }
-  };
+  // const handleAccept = async (donationDriveId: string) => {
+  //   try {
+  //     const driveRef = doc(db, "donation_drive", donationDriveId);
+  //     await updateDoc(driveRef, { status: "active", startDate: new Date() });
+  //     return {
+  //       success: true,
+  //       message: "Donation drive successfully activated",
+  //     };
+  //   } catch (error) {
+  //     return { success: false, message: (error as FirebaseError).message };
+  //   }
+  // };
 
   return (
     <DonationDriveContext.Provider
@@ -316,18 +342,27 @@ export function DonationDriveProvider({
         addDonationDrive,
         showForm,
         setShowForm,
+        handleImageChange,
         handleBenefiaryChange,
         handleAddBeneficiary,
         handleRemoveBeneficiary,
         handleSave,
         handleEdit,
         handleDelete,
-        handleReject,
-        handleAccept,
+        // handleReject,
+        // handleAccept,
         campaignName,
         setCampaignName,
         description,
         setDescription,
+        creatorId,
+        setCreatorId,
+        image,
+        setImage,
+        fileName,
+        setFileName,
+        preview,
+        setPreview,
         targetAmount,
         setTargetAmount,
         isEvent,

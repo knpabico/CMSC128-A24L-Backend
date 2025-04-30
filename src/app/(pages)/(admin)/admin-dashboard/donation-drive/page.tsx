@@ -19,18 +19,27 @@ export default function DonationDrives() {
     addDonationDrive,
     showForm,
     setShowForm,
+    handleImageChange,
     handleBenefiaryChange,
     handleAddBeneficiary,
     handleRemoveBeneficiary,
     handleSave,
     handleEdit,
     handleDelete,
-    handleReject,
-    handleAccept,
+    // handleReject,
+    // handleAccept,
     campaignName,
     setCampaignName,
     description,
     setDescription,
+    creatorId,
+    setCreatorId,
+    image,
+    setImage,
+    fileName,
+    setFileName,
+    preview,
+    setPreview,
     targetAmount,
     setTargetAmount,
     isEvent,
@@ -409,6 +418,7 @@ export default function DonationDrives() {
                         setEditForm(true);
                         setDonationDriveId(drive.donationDriveId);
                         setCampaignName(drive.campaignName);
+                        setImage(drive.image);
                         setBeneficiary(drive.beneficiary);
                         setDescription(drive.description);
                         setTargetAmount(drive.targetAmount);
@@ -433,12 +443,21 @@ export default function DonationDrives() {
         )}
       </div>
 
-      <button
+      {/* <button
         className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition"
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          setShowForm(true)
+          setEventId(event.eventId)
+          setDonationDriveId(event.donationDriveId);
+          setCampaignName(event.title);
+          setImage(event.image);
+          setDescription(event.description);
+          setEndDate(event.date);
+          setShowForm(true);
+        }}
       >
         +
-      </button>
+      </button> */}
 
     {/* Edit Donation Drive Modal */}
     {setShowForm && setEditForm && donationDriveId && (
@@ -447,10 +466,11 @@ export default function DonationDrives() {
                 onSubmit={
                   (e) => {
                   e.preventDefault();
-                  handleEdit(donationDriveId, { campaignName, description, beneficiary, targetAmount, endDate }); // Pass the current value if it will be edited
+                  handleEdit(donationDriveId, { campaignName, description, image, beneficiary, targetAmount, endDate }); // Pass the current value if it will be edited
                   setShowForm(false);
                   setEditForm(false);
                   setDonationDriveId("");
+                  setCreatorId("");
                   setCampaignName("");
                   setDescription("");
                   setOneBeneficiary("");
@@ -479,6 +499,20 @@ export default function DonationDrives() {
                   className="w-full mb-4 p-2 border rounded"
                   required
                 />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Upload Photo
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  required
+                />                
                 {beneficiary.map( (beneficiaries: string, index: number) => (
                   <div key = {index} className="flex justify-between my-1">
                     <input
@@ -554,7 +588,7 @@ export default function DonationDrives() {
             </div>
           )}
     {/* Add Donation Drive Modal */}
-    {showForm && !editForm && (
+    {/* {showForm && !editForm && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
               <form
                 onSubmit={handleSave}
@@ -578,6 +612,20 @@ export default function DonationDrives() {
                   className="w-full mb-4 p-2 border rounded"
                   required
                 />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Upload Photo
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  required
+                />                
                 {beneficiary.map( (beneficiaries: string, index: number) => (
                   <div key = {index} className="flex justify-between my-1">
                     <input
@@ -643,7 +691,7 @@ export default function DonationDrives() {
                 </div>
               </form>
             </div>
-          )}
+          )} */}
     </div>
   );
 }
