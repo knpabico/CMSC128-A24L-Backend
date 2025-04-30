@@ -26,8 +26,6 @@ export default function DonationDrives() {
     handleSave,
     handleEdit,
     handleDelete,
-    // handleReject,
-    // handleAccept,
     campaignName,
     setCampaignName,
     description,
@@ -191,16 +189,6 @@ export default function DonationDrives() {
           >
             Active
           </button>
-          {/* <button 
-            onClick={() => setStatusFilter("pending")}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              statusFilter === "pending" 
-                ? "bg-yellow-600 text-white" 
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-          >
-            Pending
-          </button> */}
           <button 
             onClick={() => setStatusFilter("completed")}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
@@ -211,16 +199,6 @@ export default function DonationDrives() {
           >
             Completed
           </button>
-          {/* <button 
-            onClick={() => setStatusFilter("rejected")}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              statusFilter === "rejected" 
-                ? "bg-red-600 text-white" 
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-          >
-            Rejected
-          </button> */}
         </div>
         
         {/* Sorting Dropdown */}
@@ -246,11 +224,6 @@ export default function DonationDrives() {
       {/* Donation Drive List */}
       <div>
         <h2 className="text-2xl font-bold mb-4">
-          {/* {statusFilter === "all" ? "All Donation Drives" :
-           statusFilter === "active" ? "Active Donation Drives" :
-           statusFilter === "pending" ? "Pending Donation Drives" :
-           statusFilter === "completed" ? "Completed Donation Drives" :
-           "Rejected Donation Drives"} */}
            {statusFilter === "all" ? "All Donation Drives" :
            statusFilter === "active" ? "Active Donation Drives" :
            "Completed Donation Drives"}
@@ -394,23 +367,6 @@ export default function DonationDrives() {
                   
                   {/* Action Buttons - Right Side */}
                   <div className="p-4 bg-gray-50 border-l flex flex-col justify-center gap-2 min-w-32">
-                    {/* {drive.status === "pending" && (
-                      <>
-                        <button
-                          onClick={() => handleAccept(drive.donationDriveId)}
-                          className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(drive.donationDriveId)}
-                          className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-600 transition w-full"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )} */}
-
                     { drive.status !== "rejected" &&
                       <button
                       className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-600 transition w-full"
@@ -443,21 +399,16 @@ export default function DonationDrives() {
         )}
       </div>
 
-      {/* <button
+      <button
         className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition"
         onClick={() => {
           setShowForm(true)
-          setEventId(event.eventId)
-          setDonationDriveId(event.donationDriveId);
-          setCampaignName(event.title);
-          setImage(event.image);
-          setDescription(event.description);
-          setEndDate(event.date);
+          setIsEvent(false);
           setShowForm(true);
         }}
       >
         +
-      </button> */}
+      </button>
 
     {/* Edit Donation Drive Modal */}
     {setShowForm && setEditForm && donationDriveId && (
@@ -588,7 +539,7 @@ export default function DonationDrives() {
             </div>
           )}
     {/* Add Donation Drive Modal */}
-    {/* {showForm && !editForm && (
+    {showForm && !editForm && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
               <form
                 onSubmit={handleSave}
@@ -691,7 +642,7 @@ export default function DonationDrives() {
                 </div>
               </form>
             </div>
-          )} */}
+          )}
     </div>
   );
 }

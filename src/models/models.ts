@@ -117,6 +117,8 @@ export interface DonationDrive {
   beneficiary: string[];
   currentAmount: number;
   targetAmount: number;
+  qrGcash: string;
+  qrPaymaya: string;
   status: string;
   isEvent: boolean;
   eventId: string;

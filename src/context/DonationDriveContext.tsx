@@ -33,6 +33,12 @@ export function DonationDriveProvider({
   const [campaignName, setCampaignName] = useState("");
   const [description, setDescription] = useState("");
   const [creatorId, setCreatorId] = useState("");
+  const [qrGcash, setQrGcash] = useState(null);
+  const [fileGcashName, setFileGcashName] = useState<string>("");
+  const [previewGcash, setPreviewGcash] = useState<string|null>(null);
+  const [qrPaymaya, setQrPaymaya] = useState(null);
+  const [filePaymayaName, setFilePaymayaName] = useState<string>("");
+  const [previewPaymaya, setPreviewPaymaya] = useState<string|null>(null);  
   const [image, setImage] = useState(null);
   const [fileName, setFileName] = useState<string>("");
   const [preview, setPreview] = useState<string|null>(null);
@@ -200,6 +206,24 @@ export function DonationDriveProvider({
   setBeneficiary(list);
  }
 
+ const handleGcashChange = (e: { target: { files: any[]; }; }) => {
+  const file = e.target.files[0];
+  if (file) {
+    setQrGcash(file);
+    setFileGcashName(file.name); // Store the filename
+    setPreviewGcash(URL.createObjectURL(file)); //preview
+  }
+ };
+
+ const handlePaymayaChange = (e: { target: { files: any[]; }; }) => {
+  const file = e.target.files[0];
+  if (file) {
+    setImage(file);
+    setFileName(file.name); // Store the filename
+    setPreview(URL.createObjectURL(file)); //preview
+  }
+ };
+
  const handleImageChange = (e: { target: { files: any[]; }; }) => {
   const file = e.target.files[0];
   if (file) {
@@ -207,13 +231,24 @@ export function DonationDriveProvider({
     setFileName(file.name); // Store the filename
     setPreview(URL.createObjectURL(file)); //preview
   }
-  };
+ };
 
   const addDonationDrive = async (driveData: DonationDrive) => {
-    
+    var event;
+
+    if(isEvent){
+      event = await getEventById(eventId);
+      driveData.creatorType = event!.creatorType
+      driveData.status = event!.status;
+      driveData.creatorId = event!.creatorId;
+    }else{
+      driveData.creatorType = "admin";
+      driveData.status = "active";
+      driveData.creatorId = "";
+    } 
     try {
       const docRef = doc(collection(db, "donation_drive"));
-
+      driveData.donationDriveId = docRef.id;
       if (image) {
         const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
         if (uploadResult.success) {
@@ -251,7 +286,9 @@ export function DonationDriveProvider({
       creatorType: "alimni",
       currentAmount: 0,
       targetAmount,
-      isEvent: true,
+      qrGcash: "",
+      qrPaymaya: "",
+      isEvent,
       eventId,
       startDate: new Date(),
       endDate,
