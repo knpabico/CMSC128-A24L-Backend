@@ -244,6 +244,17 @@ export const Career = ({
           initialLongitude={selectedLocation.longitude}
           onSave={handleLocationSave}
         />
+
+        {/*display validation message for location*/}
+        {selectedLocation.location === "" && (
+          <>
+            {form.formState.errors.career?.[index]?.location && (
+              <p className="text-red-500 text-sm">
+                {form.formState.errors.career[index].location.message}
+              </p>
+            )}
+          </>
+        )}
       </div>
 
       {endYear === true && (

@@ -22,8 +22,8 @@ const baseSchema = z.object({
   address: z
     .tuple([
       z.string().min(1, "Input your country"), //country
-      z.string().min(1, "Input your city/municipality"), // city/municipality (optional)
-      z.string().min(1, "Input your province/state"), //province/state (optional)
+      z.string().min(1, "Input your city/municipality"), // city/municipality
+      z.string().min(1, "Input your province/state"), //province/state
     ])
     .refine((input) => input[0] !== "", "Please input your address"),
   affiliation: z
@@ -91,10 +91,13 @@ const baseSchema = z.object({
             return regex.test(input);
           }, "Please input a valid year"),
           endYear: z.string(),
-          location: z.string(),
+          location: z
+            .string()
+            .min(1, "Input your job's location using the map"),
           latitude: z.number(),
           longitude: z.number(),
           presentJob: z.boolean(),
+          hasProof: z.boolean(),
         })
         .superRefine((data, ctx) => {
           const regex = /^(19[8-9]\d|20\d\d|2100)$/;

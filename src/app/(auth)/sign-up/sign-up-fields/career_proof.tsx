@@ -68,7 +68,8 @@ export const AlumDocumentUpload = ({
       setDocument(file);
       setDocumentType(file.type);
       proofSetter(file);
-
+      //update hasProof of career[index]
+      form.setValue(`career.${index}.hasProof`, true);
       // Only create preview for image files
       if (file.type.startsWith("image/")) {
         setPreview(URL.createObjectURL(file));

@@ -61,6 +61,7 @@ const saveCareer = async (
             startYear: string;
             endYear: string;
             presentJob: boolean;
+            hasProof: boolean;
           }
         | undefined
       )[]
@@ -81,7 +82,7 @@ const saveCareer = async (
         let ref = serverFirestoreDB.collection("work_experience").doc();
 
         //destructure to get presentJob
-        const { presentJob, endYear, ...car } = career[i]!;
+        const { presentJob, endYear, hasProof, ...car } = career[i]!;
 
         await serverFirestoreDB
           .collection("work_experience")
