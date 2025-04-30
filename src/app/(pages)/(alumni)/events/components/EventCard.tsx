@@ -85,7 +85,7 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
                     <div className="flex items-center gap-6 text-xs text-gray-700 mb-3">
                         <div className="flex items-center gap-1">
                             <Calendar className="size-[16px]" />
-                            <span>{formatDate(event.date)}</span>
+                            <span>{event.date}</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <Clock className="size-[16px]" />
@@ -96,10 +96,9 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
                             <span>{event.location}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            Posted on
-                            <span>{event.date}</span>
+                            {event.status === "Accepted" ? "Posted on" : "Created at"}
+                            <span>{formatDate(event.datePosted)}</span>
                         </div>
-
                     </div>
                     {/* Description with View More */}
                     <div className="mb-3 text-sm text-start">

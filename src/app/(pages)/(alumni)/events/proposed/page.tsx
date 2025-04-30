@@ -1,84 +1,88 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
-import { useBookmarks } from "@/context/BookmarkContext";
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 import { Event } from "@/models/models";
 
-export default function SavedEventsPage()
+export default function ProposedEventsPage()
 {
     const { events, isLoading } = useEvents();
     const { user, alumInfo } = useAuth();
-    const { bookmarks, entries, isLoading: isLoadingBookmarks } = useBookmarks();
-    const [savedEvents, setSavedEvents] = useState<Event[]>([]);
+    const [proposedEvents, setProposedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
+    const [statusFilter, setStatusFilter] = useState<string>('all');
 
     useEffect(() =>
     {
+        console.log("Events:", events);
 
-        if (events.length > 0 && bookmarks.length > 0 && user)
+        if (events.length > 0 && user)
         {
-            const eventBookmarks = bookmarks.filter(bookmark =>
-                bookmark.type === "event" &&
-                bookmark.alumniId === alumInfo?.alumniId
+
+            const filteredEvents = events.filter(
+                (e: { status: string; creatorId: string; creatorType: string; }) =>
+                (statusFilter === 'all' || e.status === statusFilter) &&
+                e.creatorId === alumInfo?.alumniId &&
+                e.creatorType === 'alumni'
             );
 
-            console.log("Filtered Event Bookmarks:", eventBookmarks);
-
-            const savedEventIds = eventBookmarks.map(bookmark => bookmark.entryId);
-            console.log("Saved Event IDs:", savedEventIds);
-    
-            const filteredEvents = events.filter((e: { eventId: string }) =>
-                savedEventIds.includes(e.eventId)
-            );
-    
             console.log("Filtered Events:", filteredEvents);
-    
+
 
             // Sort events based on the selected sort option
             const sorted = [...filteredEvents].sort((x, y) =>
             {
                 switch (sortOption)
                 {
-                    case 'event-closest':
-                        return new Date(x.date).getTime() - new Date(y.date).getTime();
-
-                    case 'event-farthest':
-                        return new Date(y.date).getTime() - new Date(x.date).getTime();
-
-                    case 'posted-newest':
+                    case 'newest':
                         const dateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
                         const dateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
                         return dateY.getTime() - dateX.getTime();
 
-                    case 'posted-oldest':
+                    case 'oldest':
                         const oldDateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
                         const oldDateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
                         return oldDateX.getTime() - oldDateY.getTime();
-
+                
                     default:
                         return 0;
                 }
             });
 
-            console.log("Sorted Events:", sorted);
-            setSavedEvents(sorted);
+            console.log("Proposed Events:", sorted);
+            setProposedEvents(sorted);
         } 
         
         else
         {
-            setSavedEvents([]);
+            setProposedEvents([]);
         }
-    }, [events, bookmarks, sortOption]);
+    }, [events, sortOption, statusFilter, user, alumInfo]);
 
     const handleSortChange = (f: React.ChangeEvent<HTMLSelectElement>) =>
     {
         setSortOption(f.target.value);
     }
 
+    const handleStatusFilterChange = (f: React.ChangeEvent<HTMLSelectElement>) => 
+    {
+        setStatusFilter(f.target.value);
+    };
+
+    const getStatusDisplayTitle = () =>
+    {
+        switch (statusFilter)
+        {
+          case 'Accepted': return 'Accepted Proposals';
+          case 'Pending': return 'Pending Proposals';
+          case 'Rejected': return 'Rejected Proposals';
+          case 'all': return 'All Proposals';
+          default: return 'Proposed Events';
+        }
+    };
     return(
         <div className="bg-[#EAEAEA]">
             {/* Page Title */}
@@ -98,24 +102,38 @@ export default function SavedEventsPage()
                 {/* Main content */}
                 <div className='flex flex-col gap-[10px] w-full mb-10'>
                     {/* Filter tabs */}
-                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
-                        <h2 className="text-md lg:text-lg font-semibold">Saved Events</h2>
-                        <div className="flex items-center">
-                            <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                            <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
-                                <option value="event-closest">Upcoming Events (Soonest First)</option>
-                                <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
-                                <option value="posted-newest">Date Approved (Newest)</option>
-                                <option value="post-oldest">Date Approved (Earliest)</option>
-                            </select>
+                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-2 shadow-md border border-gray-200">
+                        <h2 className="text-lg font-semibold">{getStatusDisplayTitle()}</h2>
+                        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                            {/* Propose Event */}
+                            
+                            {/* Status filter */}
+                            <div className="flex items-center">
+                                <label htmlFor="status" className="mr-2 text-sm">Status:</label>
+                                <select id="status" value={statusFilter} onChange={handleStatusFilterChange} className="flex items-center text-sm" >
+                                    <option value="all">All</option>
+                                    <option value="Accepted">Accepted</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div> | </div>
+                            {/* Sort by */}
+                            <div className="flex items-center">
+                                <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+                                <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+                                    <option value="newest">Newest</option>
+                                    <option value="oldest">Earliest</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    {savedEvents.length > 0 ? (
+                    {proposedEvents.length > 0 ? (
                         // event cards
                         <EventsList
-                            events = {savedEvents}
+                            events = {proposedEvents}
                             isLoading = {isLoading}
-                            emptyMessage = "You have not bookmarked any events have been created yet."
+                            emptyMessage = "No Events have been created yet."
                         />
                     ) : (
                         <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
@@ -128,4 +146,3 @@ export default function SavedEventsPage()
         </div>
     );
 }
-

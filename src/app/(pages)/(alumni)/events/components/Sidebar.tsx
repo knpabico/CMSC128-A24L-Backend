@@ -22,7 +22,7 @@ const EventSidebar = () =>
 
     const sidebarItems: SidebarItem[] = 
     [
-        { id: 'all', label: 'All Events', href: '/events', icon: CalendarCheck},
+        { id: 'all', label: 'All Upcoming Events', href: '/events', icon: CalendarCheck},
         { id: 'saved', label: 'Saved Events', href: '/events/saved', icon: Bookmark},
         { id: 'proposed', label: 'Proposed Events', href: '/events/proposed', icon: FileText},
         { id: 'invites', label: 'Invitations', href: '/events/invitations', icon: Mailbox},
