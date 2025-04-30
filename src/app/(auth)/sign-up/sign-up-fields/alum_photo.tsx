@@ -3,11 +3,13 @@
 "use client";
 import { uploadImage } from "@/lib/upload";
 import { Button } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { set } from "zod";
 import { CameraIcon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 //function for uploading to firebase
 export const uploadToFirebase = async (image: any, alumniId: string) => {
@@ -51,6 +53,8 @@ export const AlumPhotoUpload = ({
 }: {
   imageSetter: (file: File) => void;
 }) => {
+  const { user } = useAuth();
+
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
@@ -73,6 +77,8 @@ export const AlumPhotoUpload = ({
     }
   };
 
+  console.log("photoURL:" + user?.photoURL);
+
   return (
     <div>
       {/* original */}
@@ -90,7 +96,20 @@ export const AlumPhotoUpload = ({
         <CameraIcon className="w-10 h-10 text-[#0856ba]" />
         {/* </Button> */}
       </label>
-
+      {user && !preview && (
+        <div className="mt-4">
+          <Image
+            src={
+              user?.photoURL ??
+              "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+            }
+            alt="Uploaded Preview"
+            width={200}
+            height={200}
+            className="rounded-lg"
+          />
+        </div>
+      )}
       {preview && (
         <div className="mt-4">
           <p>Preview:</p>
@@ -101,6 +120,7 @@ export const AlumPhotoUpload = ({
           />
         </div>
       )}
+
       {message && (
         <p className={`mt-2 ${isError ? "text-red-600" : "text-green-600"}`}>
           {message}

@@ -186,10 +186,6 @@ export default function RegistrationForm() {
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
 
-  useEffect(() => {
-    if (isGoogleSignIn) setCurrentPart(currentPart + 1);
-  }, []);
-
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
       return { firstName: "", lastName: "" };
@@ -209,8 +205,8 @@ export default function RegistrationForm() {
     defaultValues: {
       //email and password
       email: isGoogleSignIn ? user?.email ?? "" : "",
-      password: "",
-      passwordConfirm: "",
+      password: isGoogleSignIn ? "googlesign" : "",
+      passwordConfirm: isGoogleSignIn ? "googlesign" : "",
 
       //name
       firstName: isGoogleSignIn
@@ -283,6 +279,13 @@ export default function RegistrationForm() {
     }
   }, [isVerified, isVerify]);
 
+  useEffect(() => {
+    if (isGoogleSignIn) {
+      setCurrentPart(currentPart + 1);
+      console.log(form);
+    }
+  }, []);
+
   // const handleInitiateSignUp = async () => {
   //   setIsLoading(true);
   //   setIsVerify(true); // This opens the verification modal
@@ -340,6 +343,7 @@ export default function RegistrationForm() {
   const handleSubmit = async () => {
     setIsLoading(true);
     setIsVerify(true);
+
     // if (isVerified && !isVerify) {
     //   console.log("putangin");
     //   const response = await registerUser(
@@ -493,13 +497,17 @@ export default function RegistrationForm() {
 
               {currentPart === 1 && (
                 <div className="my-20">
-                  <button
-                    onClick={goBack}
-                    className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
-                  >
-                    <ChevronLeft />
-                    <p>Back</p>
-                  </button>
+                  {!isGoogleSignIn && (
+                    <button
+                      onClick={() => {
+                        goBack();
+                      }}
+                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
+                    >
+                      <ChevronLeft />
+                      <p>Back</p>
+                    </button>
+                  )}
 
                   <div className="flex flex-col items-center mx-110">
                     <div className="space-y-10">

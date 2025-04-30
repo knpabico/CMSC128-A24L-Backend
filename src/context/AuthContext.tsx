@@ -219,6 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await deleteUser(user);
       }
       await signOut(auth);
+      router.push("/");
       setUser(null);
       setIsAdmin(false);
       setIsGoogleSignIn(false);
