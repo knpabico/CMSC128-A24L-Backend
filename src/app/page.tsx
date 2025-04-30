@@ -19,6 +19,9 @@ import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementCon
 import { useJobOffer } from "@/context/JobOfferContext";
 import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
+import { Progress } from "@material-tailwind/react";
+import React from "react";
+
 
 
 
@@ -73,6 +76,9 @@ export default function Home() {
     return defaultSort;
   }
   const { myCareer, myEducation } = useAlums();
+  let total = 30000
+  let partial = 3000
+  let progress = Math.ceil((partial/total)*100) + "%";
 
   function adminHeader() {
     const adminPic = '/ics-logo.jpg';
@@ -87,6 +93,12 @@ export default function Home() {
       </p>
     </>)
   }
+ 
+
+
+ 
+  
+  
 
 
 
@@ -115,7 +127,7 @@ export default function Home() {
             {/* Profile Panel */}
             <div className="w-70 fixed top-23 left-[100px] h-auto flex flex-col items-center bg-[#FFFFFF] p-5 rounded-[10px] border border-[#DADADA]">
               <img
-              src="https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+              src={alumInfo!.image}
                 className="w-50 h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
               ></img>
               <p className="text-[20px] font-bold">
@@ -141,17 +153,18 @@ export default function Home() {
             </div>
 
             {/* Feed */}
-            <div className="ml-[300px] flex flex-col w-150 ">
+            <div className="ml-[300px] flex flex-col w-150 gap-[10px]">
 
-              {/*sorting dropdown*/}
-              {/* <div className="flex flex-row w-full justify-end">
+            {/*sorting dropdown*/}
+              <div className="flex flex-row w-full justify-end">
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="px-5 h-10 w-30 place-content-between items-center flex flex-row rounded-md bg-gray-800 text-[14px] font-semibold text-white shadow-inner shadow-white/10 focus:outline-none hover:bg-gray-700">
-                    {selectedSort}
-                    <ChevronDownIcon className="size-4 fill-white/60 ml-2" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-30 justify-center bg-gray-600 border border-white/10 p-1 text-[14px] text-white">
-                    {sortTypes.map((sortType, index) => (
+                <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10">
+                  {selectedSort}
+                  <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+                </DropdownMenuTrigger>
+                
+                <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-[#FFFFFF] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">                    
+                  {sortTypes.map((sortType, index) => (
                       <DropdownMenuItem key={sortType} asChild>
                         <button
                           onClick={() => {
@@ -159,17 +172,17 @@ export default function Home() {
                             setLatestFirst(sortType === "Latest"); // Optionally used elsewhere
                             handleSortChange(sortValues[index]); // Update URL param
                           }}
-                          className={`w-full justify-center py-1.5 rounded-md ${
-                            selectedSort === sortType ? "bg-white/10" : ""
+                          className={`flex w-full items-center rounded-md py-1.5 px-3 ${
+                            selectedSort === sortType ? "bg-[#FFFFFF] text-[#0856BA] font-semibold" : ""
                           }`}
                         >
                           {sortType}
                         </button>
                       </DropdownMenuItem>
                     ))}
-                    </DropdownMenu>
                     </DropdownMenuContent>
-                </div> */}
+                  </DropdownMenu>
+                </div>
 
                 <div className="scroll-smooth flex flex-col gap-[5px]">
                   {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
@@ -316,9 +329,9 @@ export default function Home() {
 
                             
                             
-                          </div>
-                          </div>
 
+                          </div>
+                          </div>
                         ) : (
                           <p className="text-[14px] italic text-gray-500">Job offering not found</p>
                         );
@@ -367,11 +380,14 @@ export default function Home() {
                             
                             <div className="flex flex-col px-[20px]">
                               <div className="flex flex-row text-[15px] gap-1">
-                                <p className="font-semibold">₱10,000</p> raised from <p className="font-semibold">₱30,000</p> total
+                                <span className="font-semibold">₱{partial}</span> raised from <span className="font-semibold">₱{total}</span> total
                               </div>
 
-                              {/* dummy progress bar */}
-                              <hr className="w-full h-2.5 bg-[#D7D7D7] rounded-sm md:my-3 "></hr>
+                              {/* progress bar */}
+                              <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
+                                <div className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
+                              </div>
+
 
                               <div className="flex flex-row text-[15px] gap-[20px]">
                                 <div className="flex flex-row items-center gap-1">
@@ -431,16 +447,19 @@ export default function Home() {
                 <img src="/ICS2.jpg" className="mb-[10px]"></img>
                 <div className="w-full">
                   <div className="flex flex-row text-[13px] gap-1">
-                    <p className="font-semibold">₱10,000</p> raised from <p className="font-semibold">₱30,000</p> total
+                    <p className="font-semibold">₱{partial}</p> raised from <p className="font-semibold">₱{total}</p> total
                   </div>
-                  <hr className="w-full h-2.5 bg-[#D7D7D7] rounded-sm md:my-3 "></hr>
+                  {/* progress bar */}
+                  <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
+                    <div className="bg-blue-600 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
+                  </div>                  
                   <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
                     <div className="flex flex-row items-center gap-1">
                     <Users className="size-4"/>
                       <div className="text-[13px] flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
+                      <Clock className="size-4"/>
                     </div>
                     <div className="flex flex-row items-center gap-1">
-                      <Clock className="size-4"/>
                       <div className="flex flex-row text-[13px] gap-1"><p className="font-semibold">10</p> days left</div>
                     </div>
                   </div>

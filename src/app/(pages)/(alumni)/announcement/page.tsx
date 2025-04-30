@@ -138,7 +138,7 @@ export default function Announcements() {
       (
         <>
           {currentAnnouncements.length === 0 ? (
-            <p className="text-center text-gray-500">No announcements found.</p>
+            <div className="text-center text-gray-500 mb-[100px]">No announcements found.</div>
           ) : (
             currentAnnouncements.map((user: Announcement, index: number) => (
               <div
@@ -146,7 +146,7 @@ export default function Announcements() {
                 className="h-full relative m-20 mt-0 bg-[#FFFFFF] rounded-lg shadow-sm"
               >
                 <div>
-                {/* <img src="https://www.cdc.gov/healthy-pets/media/images/2024/04/Cat-on-couch.jpg"/> */}
+                <img src="/ICS3.jpg" className="w-full max-h-[500px] object-cover"/>
                   <div className="p-10">
                     <div className="flex flex-row justify-between w-full">
                       <p className="text-4xl font-bold uppercase">{user.title}</p>
@@ -172,7 +172,7 @@ export default function Announcements() {
                         </span>
                       ))}
                     </div>
-                    <div className="place-self-center"><a href="./redirect" className="hover:font-semibold">See more here &#8594;</a></div>
+                    <div className="place-self-center"><a href="./redirect" className="hover:font-semibold">Learn more &#8594;</a></div>
                   </div>
                 </div>
               </div>
