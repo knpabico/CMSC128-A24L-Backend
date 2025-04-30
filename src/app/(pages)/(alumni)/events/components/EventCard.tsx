@@ -54,7 +54,7 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
         <div>
             <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleViewDetails(event.eventId)} >
                 {/* Image */}
-                <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
+                <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: event.image ? `url(${event.image})` : 'url("/ICS3.jpg")' }} >
                 <span className={`absolute bottom-2 right-2 px-3 py-1 text-sm rounded-full ${
                 (() => 
                 {
@@ -109,7 +109,7 @@ const EventCard = ({ event, showBookmark = false }: EventCardProps) =>
                         </p>
 
                         <button
-                            className="text-xs text-gray-600 hover:text-gray-800 pt-5"
+                            className="text-xs text-gray-600 hover:text-gray-800 pt-2"
                             onClick={() => (eventId: string) =>
                             {
                                 router.push(`/events/${eventId}`);

@@ -98,6 +98,7 @@ export default function ProposedEventsPage()
           case 'Pending': return 'Pending Proposals';
           case 'Rejected': return 'Rejected Proposals';
           case 'all': return 'All Proposals';
+          case 'null': return 'Draft Proposals';
           default: return 'Proposed Events';
         }
     };
@@ -140,6 +141,7 @@ export default function ProposedEventsPage()
                                     <option value="Accepted">Approved</option>
                                     <option value="Pending">Pending</option>
                                     <option value="Rejected">Rejected</option>
+                                    <option value="null">Draft</option>
                                 </select>
                             </div>
                             {/* Sort by */}

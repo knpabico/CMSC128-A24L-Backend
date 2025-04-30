@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 
-interface ProposeEventFormProps {
+interface ProposeEventFormProps
+{
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -18,7 +19,8 @@ interface ProposeEventFormProps {
   alumInfo: any;
 }
 
-const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
+const ProposeEventForm: React.FC<ProposeEventFormProps> = (
+{
   isOpen,
   onClose,
   title,
@@ -30,7 +32,8 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   handleImageChange,
   handleSave,
   alumInfo,
-}) => {
+}) => 
+{
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmForm, setConfirmForm] = useState(false);
   const [userInput, setUserInput] = useState("");
@@ -47,7 +50,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
         <form
           className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
         >
-          <h2 className="text-xl bold mb-4">Propose Event</h2>
+          <h2 className="text-xl font-bold mb-4">Propose Event</h2>
           <input
             type="text"
             placeholder="Event Title"
@@ -88,7 +91,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             } // Events must be scheduled at least one week in advance
           />
 
-          <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <label htmlFor="image-upload" className="text-[14px] cursor-pointer px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             Upload Photo
           </label>
           <input
@@ -107,7 +110,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             >
               Cancel
             </button>
-            <div className="flex gap-2">
+            <div className="flex gap-2 my-5">
               <button
                 type="submit"
                 className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
@@ -116,9 +119,20 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setConfirmForm(true)}
-                className="bg-[#0856BA] text-white p-2 rounded-[22px]"
-                disabled={!formComplete}
+                onClick={() =>
+                {
+                  const form = document.querySelector("form");
+                  if (form && form.checkValidity())
+                  {
+                    setConfirmForm(true);
+                  } 
+                  
+                  else
+                  {
+                    form?.reportValidity(); // Show browser's validation tooltips
+                  }
+                }}
+                className="bg-[#0856BA] text-white p-3 rounded-[25px]"
               >
                 Propose
               </button>
@@ -131,9 +145,11 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       {confirmForm && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-30">
           <form
-            onSubmit={(e) => {
+            onSubmit={(e) =>
+            {
               e.preventDefault();
-              if (userInput !== requiredSentence) {
+              if (userInput !== requiredSentence)
+              {
                 alert("Please type the sentence exactly to confirm.");
                 return;
               }
@@ -145,14 +161,16 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             }}
             className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
           >
-            <h2 className="text-xl font-bold mb-4">Please certify on your honor that all the details are accurate, correct, and complete.</h2>
+            <h2 className="text-xl text-justify font-bold mb-4">Please certify on your honor that all the details are accurate, correct, and complete.</h2>
 
             <div className="mb-4">
-              <p className="text-gray-700 text-sm">
+              <p className="text-[16px] text-gray-900 font-semibold">
                 As a sign of your confirmation, please type the following text in the text field below:
               </p>
-              <p className="text-gray-900 italic text-center my-2">
-                I certify on my honor that the proposed event details are accurate, correct, and complete.
+            </div>
+            <div className="border-l-4 border-[#0856BA] pl-4">
+              <p className="text-[14px] text-gray-700 text-left my-4">
+                  I certify on my honor that the proposed event details are accurate, correct, and complete.
               </p>
             </div>
 
@@ -176,7 +194,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               </button>
               <button
                 type="submit"
-                className="bg-[#0856BA] text-white p-2 rounded-[22px]"
+                className="bg-[#0856BA] text-white p-2 w-1/3 rounded-[30px]"
               >
                 Confirm
               </button>
