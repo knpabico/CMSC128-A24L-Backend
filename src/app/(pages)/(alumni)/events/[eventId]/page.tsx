@@ -6,6 +6,7 @@ import { useRsvpDetails } from "@/context/RSVPContext";
 import { Event, RSVP } from "@/models/models";
 import { useAuth } from "@/context/AuthContext";
 import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, X } from 'lucide-react';
+import { useFeatured } from "@/context/FeaturedStoryContext";
 
 const EventPageAlumni = () => {
   const { events } = useEvents();
@@ -13,14 +14,46 @@ const EventPageAlumni = () => {
   const { alumInfo } = useAuth();
   const params = useParams();
   const router = useRouter();
+  const { featuredItems, isLoading } = useFeatured();
 
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
 
-  if (!eventId || events.length === 0) return <p>Loading...</p>;
-
   const rsvps = Object.values(rsvpDetails) as RSVP[];
   const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
+
+  const eventStories = featuredItems.filter(story => story.type === "event");
+
+  const sortedStories = [...eventStories].sort((a, b) => {
+    const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
+    const dateB = b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  const formatDate = (date: any) => {
+    if (!date) return "Unknown date";
+
+    const dateObj = date instanceof Date ? date : new Date(date);
+
+    if (isNaN(dateObj.getTime())) {
+      if (date?.toDate && typeof date.toDate === 'function') {
+        return date.toDate().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        });
+      }
+      return "Invalid date";
+    }
+
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  };
+
+  if (!eventId || events.length === 0) return <p>Loading...</p>;
 
   return (
     <div className="w-full px-6 md:px-10 lg:px-20 pt-6 pb-10">
@@ -126,7 +159,48 @@ const EventPageAlumni = () => {
               </button>
             </div>
           )}
-        </div>
+
+      {/* Featured Stories Section */}
+      <div className="mt-16">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Featured Stories</h2>
+
+        {isLoading ? (
+          <p className="text-gray-500">Loading featured stories...</p>
+        ) : sortedStories.length === 0 ? (
+          <p className="text-gray-500">No featured stories found.</p>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {sortedStories.map((story) => (
+              <div
+                key={story.featuredId}
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                onClick={() => router.push(`/events/featured/${story.featuredId}`)}
+              >
+                {story.image && (
+                  <div
+                    className="h-40 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${story.image})` }}
+                  />
+                )}
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg text-gray-800 truncate">
+                    {story.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {formatDate(story.datePosted)}
+                  </p>
+                  <p className="text-sm text-gray-700 mt-2 line-clamp-3">
+                    {story.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+    </div>
+  
       ) : (
         <p className="text-gray-600">Event not found.</p>
       )}
