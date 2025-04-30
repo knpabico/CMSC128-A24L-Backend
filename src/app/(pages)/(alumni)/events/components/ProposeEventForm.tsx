@@ -98,25 +98,30 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
           />
 
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setEventDate(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-            required
-            min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-              .toISOString()
-              .split("T")[0]}
-          />
-
-          {/* Time Field */}
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setEventTime(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-            required
-          />
+          {/* Date and Time Fields - Placed Side by Side */}
+          <div className="flex gap-4 mb-4">
+            <div className="w-1/2">
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setEventDate(e.target.value)}
+                className="w-full p-2 border rounded text-center"
+                required
+                min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                  .toISOString()
+                  .split("T")[0]}
+              />
+            </div>
+            <div className="w-1/3">
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setEventTime(e.target.value)}
+                className="w-full p-2 border rounded text-center"
+                required
+              />
+            </div>
+          </div>
 
           {/* Location Field */}
           <input
