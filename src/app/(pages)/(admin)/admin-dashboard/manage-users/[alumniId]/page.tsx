@@ -107,18 +107,9 @@ export default function AlumPage() {
                 <p>Company Name: {work.company}</p>
                 <p>Location: {work.location}</p>
                 <h2>
-                  Duration:{" "}
-                  {work.startingDate
-                    .toDate()
-                    .toISOString()
-                    .slice(0, 10)
-                    .replaceAll("-", "/")}
+                  Duration: {work.startYear}
                   {" - "}
-                  {work.endingDate
-                    .toDate()
-                    .toISOString()
-                    .slice(0, 10)
-                    .replaceAll("-", "/")}
+                  {work.endYear}
                 </h2>
               </div>
             ))

@@ -186,6 +186,10 @@ export default function RegistrationForm() {
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
 
+  useEffect(() => {
+    if (isGoogleSignIn) setCurrentPart(currentPart + 1);
+  }, []);
+
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
       return { firstName: "", lastName: "" };
