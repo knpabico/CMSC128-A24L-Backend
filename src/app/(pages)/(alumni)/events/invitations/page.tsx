@@ -1,43 +1,19 @@
-
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
-import { Event, RSVP } from "@/models/models";
-import { Timestamp } from "firebase/firestore";
+import { Event } from "@/models/models";
 import { useAuth } from "@/context/AuthContext";
 import { useRsvpDetails } from "@/context/RSVPContext"; 
+import EventSidebar from "../components/Sidebar";
+import EventsList from "../components/EventsList";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
 
-
-function formatPostedDate(timestamp: Timestamp | any) {
-  if (!timestamp) return "Unknown Date";
-
-  // Handle Firebase Timestamp
-  const date = timestamp instanceof Timestamp 
-    ? timestamp.toDate() 
-    : timestamp.seconds 
-    ? new Date(timestamp.seconds * 1000) 
-    : new Date(timestamp);
-
-  // FORMAT:  Year-Month-Day, Time
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  
-  const hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = hours % 12 || 12;
-
-  return `${year}-${month}-${day}, ${formattedHours}:${minutes} ${ampm}`;
-}
-
-function formatEventDate(dateString: string) {
+// Function to format the event date
+function formatEventDate(dateString: string)
+{
   const date = new Date(dateString);
-  
-  // FORMAT sample: March 22, 2025
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -45,61 +21,54 @@ function formatEventDate(dateString: string) {
   });
 }
 
-function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done' {
+// Function to get the event status based on the date
+function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done'
+{
   const eventDate = new Date(eventDateString);
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize the date
   
-  // normalize today's date to ignore time differences
-  today.setHours(0, 0, 0, 0);
-  eventDate.setHours(0, 0, 0, 0);
-
   if (eventDate > today) return 'Upcoming';
   if (eventDate.getTime() === today.getTime()) return 'Ongoing';
-  
   return 'Done';
 }
 
-export default function Invitations() {
-  const { events, isLoading, userId, handleViewEventAlumni } = useEvents();
-  const { user, loading, alumInfo } = useAuth();
-  const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject} = useRsvpDetails(events);
+export default function Invitations()
+{
+  const { events, isLoading } = useEvents();
+  const { alumInfo } = useAuth();
+  const { rsvpDetails } = useRsvpDetails(events);
 
-  
-  // State for invitation events
+  // State for sorting and filtering
   const [invitationEvents, setInvitationEvents] = useState<Event[]>([]);
-  
-  // Sorting states
-  const [dateSortType, setDateSortType] = useState<'event-closest' | 'event-farthest' | 'posted-newest' | 'posted-oldest'>('event-closest');
+  const [sortOption, setSortOption] = useState<string>('event-closest');
+  const [filterOption, setFilterOption] = useState<string>('All');
 
-  // New state for date filtering
-  const [dateFilterType, setDateFilterType] = useState<'All' | 'Upcoming' | 'Ongoing' | 'Done'>('All');
-
-
-// Filter events to those that include the current user's email in targetGuests
-useEffect(() => {
-    if (events.length > 0 && alumInfo?.alumniId) {
-      const userId = alumInfo.alumniId;
-      
-      const filtered = events.filter((event: Event) => {
+  // Filter the events based on the user's info and RSVP status
+  useEffect(() =>
+  {
+    if (events.length > 0 && alumInfo?.alumniId)
+    {
+      const filtered = events.filter((event: Event) =>
+      {
         return (
           event.status === "Accepted" &&
-          event.targetGuests && 
-          (
-            // Handle array of targetGuests containing emails
-            (Array.isArray(event.targetGuests) && event.targetGuests.includes(userId)) ||
-            // Handle single targetGuest as string
-            (typeof event.targetGuests === 'string' && event.targetGuests === userId)
-          )
+          event.targetGuests &&
+          ((Array.isArray(event.targetGuests) && event.targetGuests.includes(alumInfo.alumniId)) ||
+            (typeof event.targetGuests === 'string' && event.targetGuests === alumInfo.alumniId))
         );
       });
       setInvitationEvents(filtered);
     }
   }, [events, alumInfo]);
 
-  // Sorting function for events
-  const sortEvents = (events: Event[]) => {
-    return [...events].sort((a, b) => {
-      switch (dateSortType) {
+  // Sort events based on the selected sort option
+  const sortEvents = (events: Event[]) =>
+  {
+    return [...events].sort((a, b) =>
+    {
+      switch (sortOption)
+      {
         case 'event-closest':
           return new Date(a.date).getTime() - new Date(b.date).getTime();
         case 'event-farthest':
@@ -118,191 +87,78 @@ useEffect(() => {
     });
   };
 
-  // Sorting and filtering dropdown
-  const renderFilterAndSortDropdowns = () => (
-    <div className="flex space-x-4 mb-4">
-      {/* Date Filter Dropdown */}
-      <div>
-        <label htmlFor="filter-select" className="mr-2">Filter by:</label>
-        <select 
-          id="filter-select"
-          value={dateFilterType}
-          onChange={(e) => setDateFilterType(e.target.value as any)}
-          className="p-2 border rounded"
-        >
-          <option value="All">All Events</option>
-          <option value="Upcoming">Upcoming</option>
-          <option value="Ongoing">Ongoing</option>
-          <option value="Done">Done</option>
-        </select>
-      </div>
-
-      {/* Sort Dropdown */}
-      <div>
-        <label htmlFor="sort-select" className="mr-2">Sort by:</label>
-        <select 
-          id="sort-select"
-          value={dateSortType}
-          onChange={(e) => setDateSortType(e.target.value as any)}
-          className="p-2 border rounded"
-        >
-          <option value="event-closest">Event Date (Closest First)</option>
-          <option value="event-farthest">Event Date (Farthest First)</option>
-          <option value="posted-newest">Date Posted (Newest First)</option>
-          <option value="posted-oldest">Date Posted (Oldest First)</option>
-        </select>
-      </div>
-    </div>
-  );
-
-  // Render event list with common structure and filtering
-  const renderEventList = (filteredEvents: Event[]) => {
-    // First, filter by date status
-    const dateFilteredEvents = filteredEvents.filter(event => {
-      if (dateFilterType === 'All') return true;
-      return getEventStatus(event.date) === dateFilterType;
-    });
-
-    // Then sort the filtered events
-    const sortedEvents = sortEvents(dateFilteredEvents);
-    
-    // If no events after filtering
-    if (sortedEvents.length === 0) {
-      return <p className="text-gray-500">No specific invites.</p>;
-    }
-    
-    return sortedEvents.map((event, index) => {
-      // Find the RSVP for this event and current alumni
-
-      const rsvps = Object.values(rsvpDetails) as RSVP[];
-
-      const matchingRSVP = rsvps.find(
-        (rsvp) =>
-          rsvp.alumniId === alumInfo?.alumniId &&
-          rsvp.postId === event.eventId
-      );
-      
-      return (
-        <div 
-          key={index} 
-          className="relative border p-4 mb-4 rounded-lg shadow-sm"
-        >
-          <h2 className="text-xl font-bold mb-2">{event.title}</h2>
-    
-          {/* Bookmark Button */}
-          <div className="absolute top-3 right-3">
-            <BookmarkButton 
-              entryId={event.eventId}  
-              type="event" 
-              size="lg"
-            />
-          </div>
-    
-          <div className="mb-2">
-            <strong>Event Date:</strong> {formatEventDate(event.date)}
-          </div>
-    
-          {event.time && (
-            <div className="mb-2">
-              <strong>Time:</strong> {event.time}
-            </div>
-          )}
-    
-          {event.location && (
-            <div className="mb-2">
-              <strong>Location:</strong> {event.location}
-            </div>
-          )}
-    
-          <div className="mb-2">
-            <strong>Description:</strong> {event.description}
-          </div>
-    
-          {event.numofAttendees !== undefined && (
-            <div className="mb-2">
-              <strong>Attendees:</strong> {event.numofAttendees}
-            </div>
-          )}
-    
-          {event.datePosted && (
-            <div className="text-sm text-gray-600">
-              <strong>Posted on:</strong> {formatPostedDate(event.datePosted)}
-            </div>
-          )}
-    
-          {/* RSVP Buttons */}
-          <div className="flex gap-2 mt-4">
-            {isLoadingRsvp ? (
-              <div className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">
-                Loading...
-              </div>
-            ) : matchingRSVP?.status === "Pending" ? (
-              <>
-                <button
-                  onClick={() => {
-                    if (alumInfo?.alumniId) {
-                      handleAlumAccept(event.eventId, alumInfo.alumniId);
-                    } else {
-                      console.log("Alumni ID is not available.");
-                    }
-                  }}
-                  className="px-4 py-2 bg-green-500 text-white rounded-md"
-                >
-                  Going
-                </button>
-                <button
-                  onClick={() => {
-                    if (alumInfo?.alumniId) {
-                      handleAlumReject(event.eventId, alumInfo.alumniId);
-                    } else {
-                      console.log("Alumni ID is not available.");
-                    }
-                  }}
-                  className="px-4 py-2 bg-red-500 text-white rounded-md"
-                >
-                  Not Going
-                </button>
-                <button
-                  onClick={() => handleViewEventAlumni(event, matchingRSVP)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md"
-                >
-                  View More
-                </button>
-              </>
-            ) : matchingRSVP?.status === "Accepted" ? (
-              <button
-                onClick={() => handleViewEventAlumni(event, matchingRSVP)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md"
-              >
-                View More
-              </button>
-            ) : null}
-          </div>
-        </div>
-      );
-    });
+  // Handle sort change
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
+  {
+    setSortOption(e.target.value);
   };
 
+  // Filter events based on filter option
+  const filteredEvents = invitationEvents.filter(event =>
+  {
+    if (filterOption === 'All') return true;
+    return getEventStatus(event.date) === filterOption;
+  });
+
+  const sortedEvents = sortEvents(filteredEvents);
+
   return (
-      <div className="container mx-auto p-4">
-      <div className="flex items-center gap-4 mb-4">
-        <h1 className="text-2xl font-bold">Invitations</h1>
-        <span className="text-gray-400">|</span>
-        <Link href="/events" className="text-blue-500 hover:text-blue-700 font-medium">
-          Back to Events
-        </Link>
+    <div className="bg-[#EAEAEA]">
+      {/* Page Title */}
+      <div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
+        <div className="absolute inset-0 bg-blue-500/50" />
+        <div className="relative z-10">
+        <h1 className="text-5xl font-bold my-2 text-white">Events</h1>
+        <p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
+        </div>
       </div>
-      
-      {isLoading ? (
-        <h1>Loading</h1>
-      ) : (
-        <>  
-          {renderFilterAndSortDropdowns()}
-          <div className="mb-6">
-            {renderEventList(invitationEvents)}
+
+      {/* Main Content */}
+      <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+        {/* Sidebar */}
+        <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+          <EventSidebar />
+        </div>
+        
+        {/* Main content */}
+        <div className='flex flex-col gap-[10px] w-full mb-10'>
+          {/* Filter and Sort Controls */}
+          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+            <h2 className="text-md lg:text-lg font-semibold">Invitations</h2>
+            <div className="flex items-center">
+              <label htmlFor="filter" className="mr-2 text-sm">Filter by:</label>
+              <select
+                id="filter"
+                value={filterOption}
+                onChange={(e) => setFilterOption(e.target.value)}
+                className="flex items-center text-sm"
+              >
+                <option value="All">All Events</option>
+                <option value="Upcoming">Upcoming</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Done">Done</option>
+              </select>
+              <label htmlFor="sort" className="ml-4 mr-2 text-sm">Sort by:</label>
+              <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm">
+                <option value="event-closest">Event Date (Closest First)</option>
+                <option value="event-farthest">Event Date (Farthest First)</option>
+                <option value="posted-newest">Date Posted (Newest First)</option>
+                <option value="posted-oldest">Date Posted (Oldest First)</option>
+              </select>
+            </div>
           </div>
-        </>
-      )}
+
+          {/* Event List */}
+          {sortedEvents.length > 0 ? (
+            <EventsList events={sortedEvents} isLoading={isLoading} />
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+              <h3 className="text-xl font-medium text-gray-600">No current invites</h3>
+              <p className="text-gray-500 mt-2">There are no invites matching your selected filter.</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

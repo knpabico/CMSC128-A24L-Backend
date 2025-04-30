@@ -5,12 +5,14 @@ import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
+import ProposeEventForm from "../components/ProposeEventForm";
 import { Event } from "@/models/models";
 
 export default function ProposedEventsPage()
 {
     const { events, isLoading } = useEvents();
     const { user, alumInfo } = useAuth();
+
     const [proposedEvents, setProposedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -76,7 +78,7 @@ export default function ProposedEventsPage()
     {
         switch (statusFilter)
         {
-          case 'Accepted': return 'Accepted Proposals';
+          case 'Accepted': return 'Approved Proposals';
           case 'Pending': return 'Pending Proposals';
           case 'Rejected': return 'Rejected Proposals';
           case 'all': return 'All Proposals';
@@ -106,18 +108,19 @@ export default function ProposedEventsPage()
                         <h2 className="text-lg font-semibold">{getStatusDisplayTitle()}</h2>
                         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                             {/* Propose Event */}
-                            
+                            <button className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600">
+                                Propose Event
+                            </button>
                             {/* Status filter */}
                             <div className="flex items-center">
                                 <label htmlFor="status" className="mr-2 text-sm">Status:</label>
                                 <select id="status" value={statusFilter} onChange={handleStatusFilterChange} className="flex items-center text-sm" >
                                     <option value="all">All</option>
-                                    <option value="Accepted">Accepted</option>
+                                    <option value="Accepted">Approved</option>
                                     <option value="Pending">Pending</option>
                                     <option value="Rejected">Rejected</option>
                                 </select>
                             </div>
-                            <div> | </div>
                             {/* Sort by */}
                             <div className="flex items-center">
                                 <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
