@@ -16,7 +16,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { FirebaseError } from "firebase/app";
 import { Scholarship } from "@/models/models";
-
+import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 
 const ScholarshipContext = createContext<any>(null);
 
@@ -29,6 +29,7 @@ export function ScholarshipProvider({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { user, isAdmin } = useAuth();
+	const { addNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -102,17 +103,13 @@ export function ScholarshipProvider({
         return { role: "Alumni", name: alumnusData?.name || "Unknown" };
       }
     };
-
   const addScholarship = async (scholarship: Scholarship) => {
     try {
       const docRef = doc(collection(db, "scholarship"));
       scholarship.scholarshipId = docRef.id;
       scholarship.datePosted = new Date();
-      
-      await setDoc(docRef, {
-        ...scholarship,
-        datePosted: Timestamp.fromDate(scholarship.datePosted),
-      });
+      await setDoc(docRef, scholarship);
+	  await addNewsLetter(scholarship.scholarshipId, "scholarship");
       
       return { success: true, message: "Scholarship added successfully" };
     } catch (error) {
@@ -148,7 +145,6 @@ export function ScholarshipProvider({
       return { success: false, message: (error as FirebaseError).message };
     }
   };
-
 
   const getScholarshipById = async (id: string): Promise<Scholarship | null> => {
     try {
