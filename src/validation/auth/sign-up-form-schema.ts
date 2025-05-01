@@ -33,7 +33,15 @@ const baseSchema = z.object({
           affiliationName: z.string().min(1, "Input  your affiliation's name"),
           yearJoined: z.string().refine((input) => {
             const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-            return regex.test(input);
+            const currentYear = new Date().getFullYear(); //get current year for checking
+            const validYearTest = regex.test(input);
+            let maxYearTest = false;
+            //valid if year is <= 2025
+            if (parseInt(input, 10) <= currentYear) {
+              maxYearTest = true;
+            }
+            //if true validation passes
+            return validYearTest && maxYearTest;
           }, "Please input a valid year"),
           university: z.string().min(1, "Input your affiliation's university"),
         })
@@ -46,7 +54,15 @@ const baseSchema = z.object({
       major: z.string().min(1, "Input  your degree program"),
       yearGraduated: z.string().refine((input) => {
         const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-        return regex.test(input);
+        const currentYear = new Date().getFullYear(); //get current year for checking
+        const validYearTest = regex.test(input);
+        let maxYearTest = false;
+        //valid if year is <= 2025
+        if (parseInt(input, 10) <= currentYear) {
+          maxYearTest = true;
+        }
+        //if true validation passes
+        return validYearTest && maxYearTest;
       }, "Please input a valid year"),
       university: z.string().min(1, "Input your university"),
     })
@@ -58,7 +74,15 @@ const baseSchema = z.object({
           major: z.string().min(1, "Input  your degree program"),
           yearGraduated: z.string().refine((input) => {
             const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-            return regex.test(input);
+            const currentYear = new Date().getFullYear(); //get current year for checking
+            const validYearTest = regex.test(input);
+            let maxYearTest = false;
+            //valid if year is <= 2025
+            if (parseInt(input, 10) <= currentYear) {
+              maxYearTest = true;
+            }
+            //if true validation passes
+            return validYearTest && maxYearTest;
           }, "Please input a valid year"),
           university: z.string().min(1, "Input your university"),
         })
@@ -72,7 +96,15 @@ const baseSchema = z.object({
           major: z.string().min(1, "Input  your degree program"),
           yearGraduated: z.string().refine((input) => {
             const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-            return regex.test(input);
+            const currentYear = new Date().getFullYear(); //get current year for checking
+            const validYearTest = regex.test(input);
+            let maxYearTest = false;
+            //valid if year is <= 2025
+            if (parseInt(input, 10) <= currentYear) {
+              maxYearTest = true;
+            }
+            //if true validation passes
+            return validYearTest && maxYearTest;
           }, "Please input a valid year"),
           university: z.string().min(1, "Input your university"),
         })
@@ -87,11 +119,27 @@ const baseSchema = z.object({
         company: z.string().min(1, "Input your company's name"),
         startYear: z.string().refine((input) => {
           const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-          return regex.test(input);
+          const currentYear = new Date().getFullYear(); //get current year for checking
+          const validYearTest = regex.test(input);
+          let maxYearTest = false;
+          //valid if year is <= 2025
+          if (parseInt(input, 10) <= currentYear) {
+            maxYearTest = true;
+          }
+          //if true validation passes
+          return validYearTest && maxYearTest;
         }, "Please input a valid year"),
         endYear: z.string().refine((input) => {
           const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-          return regex.test(input);
+          const currentYear = new Date().getFullYear(); //get current year for checking
+          const validYearTest = regex.test(input);
+          let maxYearTest = false;
+          //valid if year is <= 2025
+          if (parseInt(input, 10) <= currentYear) {
+            maxYearTest = true;
+          }
+          //if true validation passes
+          return validYearTest && maxYearTest;
         }, "Please input a valid year"),
         location: z.string().min(1, "Input your job's location using the map"),
         latitude: z.number(),
@@ -108,7 +156,15 @@ const baseSchema = z.object({
           company: z.string().min(1, "Input your company's name"),
           startYear: z.string().refine((input) => {
             const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-            return regex.test(input);
+            const currentYear = new Date().getFullYear(); //get current year for checking
+            const validYearTest = regex.test(input);
+            let maxYearTest = false;
+            //valid if year is <= 2025
+            if (parseInt(input, 10) <= currentYear) {
+              maxYearTest = true;
+            }
+            //if true validation passes
+            return validYearTest && maxYearTest;
           }, "Please input a valid year"),
           endYear: z.string(),
           location: z
