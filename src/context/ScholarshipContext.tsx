@@ -16,6 +16,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { FirebaseError } from "firebase/app";
 import { Scholarship } from "@/models/models";
+import { useNewsLetters } from "./NewsLetterContext";
 
 
 const ScholarshipContext = createContext<any>(null);
@@ -29,6 +30,7 @@ export function ScholarshipProvider({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { user, isAdmin } = useAuth();
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -113,7 +115,7 @@ export function ScholarshipProvider({
         ...scholarship,
         datePosted: Timestamp.fromDate(scholarship.datePosted),
       });
-      
+      addNewsLetter(scholarship.scholarshipId, "scholarship");
       return { success: true, message: "Scholarship added successfully" };
     } catch (error) {
       console.error("Error adding scholarship:", error);
@@ -142,6 +144,7 @@ export function ScholarshipProvider({
   const deleteScholarship = async (scholarshipId: string) => {
     try {
       await deleteDoc(doc(db, "scholarship", scholarshipId));
+      deleteNewsLetter(scholarshipId);
       return { success: true, message: "Scholarship deleted successfully" };
     } catch (error) {
       console.error("Error deleting scholarship:", error);

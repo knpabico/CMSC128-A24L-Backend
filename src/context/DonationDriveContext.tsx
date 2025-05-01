@@ -15,6 +15,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { DonationDrive, Event } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { useNewsLetters } from "./NewsLetterContext";
 
 const DonationDriveContext = createContext<any>(null);
 
@@ -38,6 +39,7 @@ export function DonationDriveProvider({
   const [status, setStatus] = useState("");
   const [oneBeneficiary, setOneBeneficiary] = useState("");
   const [beneficiary, setBeneficiary] = useState<string[]>([""]);
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   const { user, isAdmin } = useAuth();
 
@@ -204,6 +206,7 @@ export function DonationDriveProvider({
       driveData.creatorType = role;
       driveData.status = role === "admin" ? "active" : "pending";
       driveData.creatorId = role === "admin" ? "" : user!.uid;
+      addNewsLetter(driveData.donationDriveId, "donation_drive");
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
@@ -278,6 +281,7 @@ export function DonationDriveProvider({
           (driveData) => driveData.donationDriveId !== donationDriveId
         )
       );
+      deleteNewsLetter(donationDriveId);
       return { success: true, message: "Donation drive deleted successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -297,6 +301,7 @@ export function DonationDriveProvider({
   const handleAccept = async (donationDriveId: string) => {
     try {
       const driveRef = doc(db, "donation_drive", donationDriveId);
+      addNewsLetter(donationDriveId, "donation_drive");
       await updateDoc(driveRef, { status: "active", startDate: new Date() });
       return {
         success: true,

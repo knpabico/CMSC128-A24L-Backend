@@ -8,6 +8,7 @@ import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { Alumnus,
   Announcement,
   Career,
+  Donation,
   Education, JobOffering,
   NewsletterItem,
   WorkExperience,
@@ -33,6 +34,9 @@ import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
 import { Progress } from "@material-tailwind/react";  
 import React from "react";
+import { useDonationContext } from "@/context/DonationContext";
+import { useDonationDrives } from "@/context/DonationDriveContext";
+import { log } from "console";
 
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
@@ -47,6 +51,7 @@ export default function Home() {
   const { jobOffers } = useJobOffer();
   const { events } = useEvents();
   const { alums } = useAlums();
+  const { donationDrives } = useDonationDrives();
   const { userWorkExperience } = useWorkExperience();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
@@ -340,18 +345,29 @@ export default function Home() {
                         );
                       })()}
 
-                      {/* if newsletter is a donation */}
+                 
+                      {/* if newsletter is a donation drive */}
                       {newsLetter.category === "donation_drive" && (() => {
-                        return (
-                          <div className="flex flex-col gap-[20px] px-[20px]">                          
-                            <p className="text-[24px] font-semibold">Donation Drive</p>
-                            <p className="text-[15px] mt-2">Details about the Donation Drive will go here.</p>
-                            <button
-                              onClick={() => router.push(`/donationdrive-list`)}
-                              className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-                            >View More Sponsorships</button>
+                        const donationDrive = donationDrives.find((donation:Donation) => {
+                          console.log(donation.donationDriveId, newsLetter.referenceId); // Log the values being compared
+                          return donation.donationDriveId === newsLetter.referenceId;
+                        });
+                        
+                        return donationDrive ? (
+                          <div className="flex flex-col gap-[20px]">
+                            <div className="flex flex-col">
+                              <div className="flex flex-col gap-[10px] px-[20px] mb-[20px]">
+                                <p className="text-[24px] font-semibold">{donationDrive.campaignName}</p>
+                                <p className="text-[24px] font-semibold">{donationDrive.title}</p>
+                                <CollapseText text={donationDrive.description + " "} maxChars={300} />
+                              </div>
+                            <img src="/ICS3.jpg" className="w-full"></img>
                           </div>
+                            </div>
+                        ) : (
+                          <p className="text-[14px] mx-[20px] my-[10px] italic text-gray-500">Donation Drive not found</p>
                         );
+
                       })()}
 
                       {/* if newsletter is a scholarship */}
