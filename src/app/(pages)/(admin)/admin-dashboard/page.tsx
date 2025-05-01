@@ -13,6 +13,7 @@ const links = [
   { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
   { label: "Site Settings", link: "site-settings" },
   { label: "Statistical Reports", link: "statistical-reports" },
+  { label: "Write story", link: "create-story" },
 ];
 
 export default async function AdminDashboard() {

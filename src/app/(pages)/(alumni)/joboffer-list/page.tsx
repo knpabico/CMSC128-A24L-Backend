@@ -47,7 +47,10 @@ export default function JobOffers() {
     location,
     setLocation,
     image,
-    setImage,
+    setJobImage,
+    preview,
+    fileName,
+    handleImageChange,
   } = useJobOffer();
 
   
@@ -934,7 +937,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="Company"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full p-1.5 border rounded text-sm"
+                      className="w-full p-2 border rounded"
                       required
                     />
                   </div>
@@ -944,10 +947,10 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                     </label>
                     <input
                       type="text"
-                      placeholder="Pedro R. Sandoval Ave, Los Baños, 4031 Laguna, Philippines"
+                      placeholder="Location"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="w-full p-1.5 border rounded text-sm"
+                      className="w-full p-2 border rounded"
                       required
                     />
                   </div>
@@ -1014,14 +1017,10 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       required
                     />
                   </div>
-                </div>
-              </div>
 
-              <hr className="my-2 border-t border-gray-300" />
-
-              <div className="mb-6">
+                  <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
-                      Company Logo
+                      Company Logo<span className="text-red-500">*</span>
                     </label>
                     <div className="flex items-center gap-4">
                       <label className="cursor-pointer">
@@ -1031,39 +1030,42 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => setImage(e.target.files?.[0] || null)}
+                          onChange={handleImageChange}
                           className="hidden"
                         />
                       </label>
                       <span className="text-sm text-gray-500">
-                        {image ? image.name : 'No file chosen'}
+                        {fileName || "No file chosen"}
                       </span>
                     </div>
-                    {image && (
+
+                    {preview && (
                       <div className="mt-3">
                         <img
-                          src={URL.createObjectURL(image)}
+                          src={preview}
                           alt="Preview"
                           className="h-20 object-contain"
                         />
                       </div>
                     )}
                   </div>
-              <div className="flex justify-end gap-4 mt-6">
-              <button 
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                onClick={handleSubmit}
-                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-              >
-                Submit
-              </button>
+                </div>
+              </div>
+
+              <div className="flex justify-between mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="text-gray-500 p-2 rounded ring-1 ring-[#0856BA]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#0856BA] text-white p-2 rounded"
+                >
+                  Submit
+                </button>
               </div>
             </form>
           </div>

@@ -18,6 +18,7 @@ import { useBookmarks } from "./BookmarkContext";
 import { useNewsLetters } from "./NewsLetterContext";
 import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
+import { uploadImage } from "@/lib/upload"; 
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -36,7 +37,12 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
-  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
+  const [image, setJobImage] = useState(null);
+  const [location, setLocation] = useState("");
+  const [fileName, setFileName] = useState<string>("");
+  const [preview, setPreview] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     console.log("User from useAuth:", user);
@@ -53,6 +59,15 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       if (unsubscribe) unsubscribe();
     };
   }, [user, isAdmin]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setJobImage(file);
+      setFileName(file.name);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
   const addJobOffer = async (jobOffer: JobOffering, userId: string) => {
     try {
@@ -74,7 +89,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     const newJobOffering: JobOffering = {
       company,
       employmentType,
@@ -85,17 +100,28 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       requiredSkill,
       salaryRange,
       jobId: "",
-      alumniId: "",
+      alumniId: user?.uid || "",
       datePosted: new Date(),
-      status: "",
-      location,
-      image,
+      status: "Pending",
+      location: "",
+      image: "",
     };
-
+  
+    if (image) {
+      const uploadResult = await uploadImage(image, `job_offers/${Date.now()}`);
+      if (uploadResult.success) {
+        newJobOffering.image = uploadResult.url;
+      } else {
+        setMessage(uploadResult.result || "Failed to upload image.");
+        setIsError(true);
+        return;
+      }
+    }
+  
     const response = await addJobOffer(newJobOffering, user!.uid);
-
     if (response.success) {
-      console.log("Job offer successfully added:", newJobOffering);
+      console.log("Job offer added:", newJobOffering);
+      // Reset form
       setShowForm(false);
       setCompany("");
       setEmploymentType("");
@@ -105,8 +131,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setPosition("");
       setRequiredSkill([]);
       setSalaryRange("");
-      setLocation("");
-      setImage("");
+      setJobImage(null);
+      setPreview(null);
     } else {
       console.error("Error adding job:", response.message);
     }
@@ -213,6 +239,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         location,
         setLocation,
         handleDelete,
+        location,
+        setLocation,
+        image,
+        setJobImage,
+        preview,
+        fileName,
+        handleImageChange,
       }}
     >
       {children}
