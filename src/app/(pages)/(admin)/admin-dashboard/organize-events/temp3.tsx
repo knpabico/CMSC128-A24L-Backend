@@ -287,7 +287,7 @@ export default function EventPageAdmin()
                                             {/* Image Section */}
                                             <div
                                             className="cursor-pointer w-1/4 min-w-64 bg-gray-200"
-                                            onClick={() => setStatusFilter("Rejected")}
+                                            onClick={() => handleViewEventAdmin(events)}
                                             >
                                             {ev.image ? (
                                                 <img
