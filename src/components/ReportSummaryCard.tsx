@@ -13,7 +13,9 @@ const ReportSummaryCard = ({ data }: ReportSummaryCardProps) => {
   const { activeAlums, alums } = useAlums();
   const { allWorkExperience } = useWorkExperience();
   const [loading, setLoading] = useState(true);
-  const [report, setReport] = useState("");
+  const [report, setReport] = useState(
+    "AI-Generated Report Summary and Insight: Cinomment out ko muna yung reports kasi may limit lang AI, baka maubos"
+  );
 
   const handleSend = async () => {
     setLoading(true);
@@ -24,21 +26,21 @@ const ReportSummaryCard = ({ data }: ReportSummaryCardProps) => {
       return;
     }
 
-    const idToken = await user.getIdToken();
-    const response = await fetch("/api/report-generator", {
-      method: "POST",
-      body: JSON.stringify({ data }),
-      headers: {
-        Authorization: `Bearer ${idToken}`,
-      },
-    });
+    // const idToken = await user.getIdToken();
+    // const response = await fetch("/api/report-generator", {
+    //   method: "POST",
+    //   body: JSON.stringify({ data }),
+    //   headers: {
+    //     Authorization: `Bearer ${idToken}`,
+    //   },
+    // });
 
-    if (!response.ok) {
-      throw new Error("Failed to send question");
-    }
-    const message = await response.json();
-    setReport(message.answer);
-    console.log(`Message ${message.answer}`);
+    // if (!response.ok) {
+    //   throw new Error("Failed to send question");
+    // }
+    // const message = await response.json();
+    // setReport(message.answer);
+    // console.log(`Message ${message.answer}`);
     setLoading(false);
   };
 
