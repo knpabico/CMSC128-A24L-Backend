@@ -36,7 +36,7 @@ import AddWorkExperience from "@/components/ui/add-experience-modal";
 import AlumniJobOffers from "@/components/ui/job-posting-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { useAlums } from "@/context/AlumContext";
-import { PlusCircleIcon } from "lucide-react";
+import { PlusCircleIcon, CircleUserRoundIcon, GraduationCapIcon, BriefcaseIcon } from "lucide-react";
 
 
 const UserProfile = () => {
@@ -409,22 +409,22 @@ const UserProfile = () => {
   //---------------------------
 
   return (
-    <div className="">
-      <div style={{backgroundColor: "#3675c5"}} className="pt-20 px-60 h-max w-full text-white">
+    <div>
+      <div style={{backgroundColor: "#3675c5"}} className="relative bg-cover bg-center pt-15 px-50 text-white shadow-md">
         <div className="flex space-x-10 pb-5">
           <div className="bg-blue-300 w-50 h-50 flex justify-center items-center mb-2 rounded-full" onClick={handleUploadImage}>
-          {alumInfo?.image ? (
-          <Image
-            src={alumInfo.image}
-            alt="Alumnus Image"
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="object-cover w-full h-full rounded-full"
-          />
-        ) : (
-          <span className="text-white">pic</span>
-        )}
+            {alumInfo?.image ? (
+            <Image
+              src={alumInfo.image}
+              alt="Alumnus Image"
+              width={0}
+              height={0}
+              sizes="100vw"
+              className="object-cover w-full h-full rounded-full"
+            />
+          ) : (
+            <span className="text-white">pic</span>
+          )}
           </div>
           <div className="flex flex-col justify-end pb-10">
             <p className="font-bold text-5xl pb-3">{alumInfo?.firstName} {alumInfo?.lastName}</p>
@@ -437,39 +437,47 @@ const UserProfile = () => {
             }
           </div>
         </div>
-
-        <div className="flex gap-3">
-          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeProfile ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}
-            onClick={handleProfileClick}>Profile</button>
-          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeDonations ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}  
-            onClick={handleDonationsClick}>
-              Record of Donations
-          </button>
-          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeJobpostings ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}
-          onClick={handleJobpostingClick}>
-            Job Postings</button>
-          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeBookmarks ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}
-          onClick={handleBookmarksClick}>
-            Bookmarked Jobs
-            </button>
+        <hr className="text-xs"></hr>
+        <div className="flex gap-10">
+          <div className={`${seeProfile ? "border-b-5 border-[#EAEAEA]" : ""}`}>
+            <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeProfile ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
+              onClick={handleProfileClick}>Profile</button>
+          </div>
+          <div className={`${seeDonations ? "border-b-5 border-[#EAEAEA]" : ""}`}>
+            <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeDonations ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
+              onClick={handleDonationsClick}>Record of Donations</button>
+          </div>
+          <div className={`${seeJobpostings ? "border-b-5 border-[#EAEAEA]" : ""}`}>
+            <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeJobpostings ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
+              onClick={handleJobpostingClick}>Job Postings</button>
+          </div>
+          <div className={`${seeBookmarks ? "border-b-5 border-[#EAEAEA]" : ""}`}>
+            <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeBookmarks ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
+              onClick={handleBookmarksClick}>Bookmarks</button>
+          </div>
         </div>
       </div>
 
-      {seeProfile && (<div className="mx-60 my-10">
-        {/* <p style={{color: "#3675c5"}} className="text-3xl font-bold mb-5">Your Profile</p> */}
-
+      {seeProfile && (<div className="mx-50 my-15">
         <div className="flex space-x-7">
-          <div style={{backgroundColor: "#3675c5"}} className="flex flex-col px-2 py-2.5 rounded-xl max-h-fit space-y-1">
-            <button className={`text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition ${personalView ? "bg-gray-100/20" : ""}`} onClick={handlePersonalClick}>Personal</button>
-            <button className={`text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition ${educationView ? "bg-gray-100/20" : ""}`} onClick={handleEducationClick}>Education</button>
-            <button className={`text-left text-white whitespace-nowrap py-2 px-5 w-70 cursor-pointer font-semibold hover:bg-gray-100/20 rounded-sm transition ${careerView ? "bg-gray-100/20" : ""}`} onClick={handleCareerClick}>Career</button>
+
+          <div className='bg-[#3675c5] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${personalView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handlePersonalClick}>
+              <span><CircleUserRoundIcon/></span><span>Personal</span>
+            </button>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${educationView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleEducationClick}>
+              <span><GraduationCapIcon/></span><span>Education</span>
+            </button>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${careerView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleCareerClick}>
+              <span><BriefcaseIcon/></span><span>Career</span>
+            </button>
           </div>
 
           {/* INFO BOX */}
 
           {/* personal section */}
           {personalView && (<div>
-            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+            <div className="bg-white flex flex-col p-7 rounded-xl max-h-fit space-y-1 w-full shadow-md">
 
               {/* FULL NAME */}
               <p className="font-semibold">Full Name</p>
@@ -711,11 +719,11 @@ const UserProfile = () => {
           {/* education section */}
           {educationView && (<div className="space-y-7 w-full">
             {/* degree */}
-            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1">
+            <div className="bg-white flex flex-col p-7 rounded-xl max-h-fit space-y-1 shadow-md">
               <div className="space-y-3">
                 <p className="font-semibold">Bachelor's Degree</p>
                 
-                <div className="space-y-3">
+                <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
                   {userEducation.filter((edu: { type: string; }) => edu.type === "Bachelor").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
@@ -736,7 +744,7 @@ const UserProfile = () => {
                 </div>
 
                 <button
-                  className="flex items-center space-x-3 cursor-pointer group"
+                  className="flex items-center space-x-3 cursor-pointer group pt-3"
                   type="button"
                   onClick={handleAddBachelor}
                 >
@@ -754,7 +762,7 @@ const UserProfile = () => {
                 <p className="font-semibold">Master's Degree</p>
                 
                 {/* BULLET DIV ; set of all bullets ito */}
-                <div className="space-y-3">
+                <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
                   {userEducation.filter((edu: { type: string; }) => edu.type === "Masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
@@ -776,7 +784,7 @@ const UserProfile = () => {
                 {/* ---- end of bullet div ---- */}
 
                 <button
-                  className="flex items-center space-x-3 cursor-pointer group"
+                  className="flex items-center space-x-3 cursor-pointer group pt-3"
                   type="button"
                   onClick={handleAddMasters}
                 >
@@ -794,7 +802,7 @@ const UserProfile = () => {
                 <p className="font-semibold">Doctoral Degree</p>
 
                 {/* BULLET DIV ; set of all bullets ito */}
-                <div className="space-y-3">
+                <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
                   {userEducation.filter((edu: { type: string; }) => edu.type === "Doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
@@ -814,7 +822,7 @@ const UserProfile = () => {
                 {/* ---- end of bullet div ---- */}
 
                 <button
-                  className="flex items-center space-x-3 cursor-pointer group"
+                  className="flex items-center space-x-3 cursor-pointer group pt-3"
                   type="button"
                   onClick={handleAddDoctoral}
                 >
@@ -830,12 +838,12 @@ const UserProfile = () => {
             </div>
 
             {/* affiliations */}
-            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1">
+            <div className="bg-white flex flex-col p-7 rounded-xl max-h-fit space-y-1 shadow-md">
               <div className="space-y-3">
                 <p className="font-semibold">Affiliations</p>
                 
                 {/* BULLET DIV ; all bullets ito */}
-                <div className="space-y-3">
+                <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
                   {userAffiliation.sort((a, b) => b.yearJoined - a.yearJoined).map((affiliation:Affiliation, index:number)=> (
@@ -855,7 +863,7 @@ const UserProfile = () => {
                 {/* ---- end of bullet div ---- */}
 
                 <button
-                  className="flex items-center space-x-3 cursor-pointer group"
+                  className="flex items-center space-x-3 cursor-pointer group pt-3"
                   type="button"
                   onClick={handleAddAffiliation}
                 >
@@ -872,12 +880,12 @@ const UserProfile = () => {
 
           {/* career section */}
           {careerView && (<div className="space-y-7 w-full">
-            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+            <div className="bg-white flex flex-col p-7 rounded-xl max-h-fit space-y-1 w-full shadow-md">
               <div className="space-y-3">
                 <p className="font-semibold">Work Experience</p>
 
                 {/* BULLET DIV */}
-                <div className="space-y-3">
+                <div className="space-y-5">
 
                   {userWorkExperience.map((item:WorkExperience, index:number) => (
                     <div key={index} className="flex justify-between">
@@ -953,7 +961,7 @@ const UserProfile = () => {
                 </div>
 
                 <button
-                  className="flex items-center space-x-3 cursor-pointer group"
+                  className="flex items-center space-x-3 cursor-pointer group pt-3"
                   type="button"
                   onClick={() => {setOpenAddModal(true); document.body.style.overflow = 'hidden'}}
                 >
@@ -1035,7 +1043,6 @@ const UserProfile = () => {
       {seeDonations && <RecordOfDonations/>}
       {seeBookmarks && <AlumniBookmarks/>}
       {seeJobpostings && <AlumniJobOffers/>}
-
 
 
       {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => setUploading(false)}/>}
