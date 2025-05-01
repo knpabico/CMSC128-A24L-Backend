@@ -130,6 +130,7 @@ export const Career = ({
                   </FormLabel>
                   <FormControl>
                     <Input
+                      type="number"
                       placeholder="2020"
                       {...field}
                       className="bg-white border border-gray-500"
@@ -157,6 +158,7 @@ export const Career = ({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        type="number"
                         placeholder={"2025"}
                         {...field}
                         className="bg-white border border-gray-500"

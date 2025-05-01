@@ -18,9 +18,15 @@ export const Affiliation = ({ index, form }: { index: number; form: any }) => {
           name={`affiliation.${index}.affiliationName`}
           render={({ field }) => (
             <FormItem className="gap-0">
-              <FormLabel className="text-xs font-light">Affiliation Name</FormLabel>
+              <FormLabel className="text-xs font-light">
+                Affiliation Name
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Society of X" {...field} className="bg-white border border-gray-500"/>
+                <Input
+                  placeholder="Society of X"
+                  {...field}
+                  className="bg-white border border-gray-500"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -36,7 +42,12 @@ export const Affiliation = ({ index, form }: { index: number; form: any }) => {
             <FormItem className="gap-0">
               <FormLabel className="text-xs font-light">Year Joined</FormLabel>
               <FormControl>
-                <Input placeholder="2024" {...field} className="bg-white border border-gray-500"/>
+                <Input
+                  type="number"
+                  placeholder="2024"
+                  {...field}
+                  className="bg-white border border-gray-500"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -51,9 +62,13 @@ export const Affiliation = ({ index, form }: { index: number; form: any }) => {
           name={`affiliation.${index}.university`}
           render={({ field }) => (
             <FormItem className="gap-0">
-                          <FormLabel className="text-xs font-light">University</FormLabel>
+              <FormLabel className="text-xs font-light">University</FormLabel>
               <FormControl>
-                <Input placeholder="University of the Philippines" {...field} className="bg-white border border-gray-500"/>
+                <Input
+                  placeholder="University of the Philippines"
+                  {...field}
+                  className="bg-white border border-gray-500"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

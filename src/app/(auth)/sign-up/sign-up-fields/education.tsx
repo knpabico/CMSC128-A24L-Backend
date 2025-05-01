@@ -32,9 +32,15 @@ export const Education = ({
           name={`${type}.${index}.major`}
           render={({ field }) => (
             <FormItem className="gap-0">
-              <FormLabel className="text-xs font-light">Degree Program</FormLabel>
+              <FormLabel className="text-xs font-light">
+                Degree Program
+              </FormLabel>
               <FormControl>
-                <Input placeholder="BS Computer Science" {...field} className="bg-white border border-gray-500"/>
+                <Input
+                  placeholder="BS Computer Science"
+                  {...field}
+                  className="bg-white border border-gray-500"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -48,9 +54,16 @@ export const Education = ({
           name={`${type}.${index}.yearGraduated`}
           render={({ field }) => (
             <FormItem className="gap-0">
-              <FormLabel className="text-xs font-light">Year Graduated</FormLabel>
+              <FormLabel className="text-xs font-light">
+                Year Graduated
+              </FormLabel>
               <FormControl>
-                <Input placeholder="2024" {...field} className="bg-white border border-gray-500"/>
+                <Input
+                  type="number"
+                  placeholder="2024"
+                  {...field}
+                  className="bg-white border border-gray-500"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -67,7 +80,11 @@ export const Education = ({
             <FormItem className="gap-0">
               <FormLabel className="text-xs font-light">University</FormLabel>
               <FormControl>
-                <Input placeholder="University of the Philippines" {...field} className="bg-white border border-gray-500"/>
+                <Input
+                  placeholder="University of the Philippines"
+                  {...field}
+                  className="bg-white border border-gray-500"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
