@@ -105,7 +105,7 @@ const DonationReportPage = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
           {/* Breadcrumb Navigation */}
           <div className="flex items-center gap-2">
             <div className="hover:text-[#0856BA] cursor-pointer transition-colors">Home</div>
@@ -136,7 +136,7 @@ const DonationReportPage = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="mb-6 space-y-8 bg-white rounded-xl shadow-sm p-8 border border-gray-100">
+      <div className="mb-2 space-y-8 bg-white rounded-xl shadow-sm p-8 border border-gray-100">
         <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 border-gray-100">Donation Charts</h2>
 
         <div className="flex flex-col lg:flex-row gap-6">
