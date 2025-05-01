@@ -205,4 +205,5 @@ export interface Featured {
   title: string;
   type: string;
   datePosted: Date;
+  isPublic: boolean;
 }

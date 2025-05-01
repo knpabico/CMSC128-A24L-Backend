@@ -15,6 +15,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Featured } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { set } from "zod";
 
 const FeaturedStoryContext = createContext<any>(null);
 
@@ -28,6 +29,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
   const [image, setImage] = useState("");
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
+  const [isPublic, setIsPublic] = useState(true); 
 
   const { user, isAdmin } = useAuth();
 
@@ -51,6 +53,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       const docRef = doc(collection(db, "featured"));
       item.featuredId = docRef.id;
       item.datePosted = new Date();
+      item.isPublic = true; // Default to public
       await setDoc(docRef, item);
       return { success: true, message: "success" };
     } catch (error) {
@@ -67,6 +70,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       image,
       title,
       type,
+      isPublic,
       datePosted: new Date(),
     };
 
@@ -78,6 +82,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       setImage("");
       setTitle("");
       setType("");
+      setIsPublic(true);
     } else {
       console.error("Error adding featured item:", response.message);
     }
@@ -101,6 +106,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       image,
       title,
       type,
+      isPublic,
       datePosted: new Date(),
     };
 
@@ -112,6 +118,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
         setImage("");
         setTitle("");
         setType("");
+        setIsPublic(true);
         setIsEdit(false);
       } else {
         console.error("Error: featuredId is null");
@@ -167,6 +174,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
         image,
         title,
         type,
+        isPublic,
         showForm,
         setText,
         setImage,
@@ -174,6 +182,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
         setType,
         setShowForm,
         setIsEdit,
+        setIsPublic,
         setCurrentFeaturedId,
         addFeatured,
         handleSubmit,
