@@ -20,6 +20,7 @@ export interface Alumnus {
   fieldOfInterest: string[];
   contactPrivacy: boolean;
   lastLogin: Date;
+  subscribeToNewsletter: boolean;
 }
 
 export interface Affiliation {

@@ -39,7 +39,7 @@ export default function Navbar() {
         {
           id: "manage-alumni",
           label: "Manage Alumni",
-          path: "/admin/alumni/manage",
+          path: "/admin-dashboard/manage-users",
         },
         {
           id: "pending-alumni",
@@ -49,7 +49,7 @@ export default function Navbar() {
         {
           id: "stats-alumni",
           label: "Statistical Report",
-          path: "/admin/alumni/stats",
+          path: "/admin-dashboard/alum-statistical-reports",
         },
       ],
     },
@@ -69,6 +69,11 @@ export default function Navbar() {
           label: "View Pending Events",
           path: "/admin/events/pending",
         },
+        {
+          id: "stats-events",
+          label: "Statistical Report",
+          path: "/admin-dashboard/events-statistical-reports",
+        },
       ],
     },
     {
@@ -85,6 +90,11 @@ export default function Navbar() {
           id: "add-donations",
           label: "Add Donations",
           path: "/admin/donations/add",
+        },
+        {
+          id: "stats-donation",
+          label: "Statistical Report",
+          path: "/admin-dashboard/donation-statistical-reports",
         },
       ],
     },
