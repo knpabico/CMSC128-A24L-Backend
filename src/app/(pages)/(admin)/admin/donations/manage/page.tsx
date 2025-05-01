@@ -31,8 +31,6 @@ export default function ManageDonationDrive() {
     handleSave,
     handleEdit,
     handleDelete,
-    // handleReject,
-    // handleAccept,
     campaignName,
     setCampaignName,
     description,
@@ -40,7 +38,6 @@ export default function ManageDonationDrive() {
     creatorId,
     setCreatorId,
     image,
-		
     setImage,
     fileName,
     setFileName,

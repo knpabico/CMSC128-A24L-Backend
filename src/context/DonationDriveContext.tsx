@@ -18,6 +18,7 @@ import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
 import { uploadImage } from "@/lib/upload";
 import { toastSuccess } from "@/components/ui/sonner";
+import { useRouter } from "next/navigation";
 
 const DonationDriveContext = createContext<any>(null);
 
@@ -41,7 +42,7 @@ export function DonationDriveProvider({
   const [qrPaymaya, setQrPaymaya] = useState(null);
   const [filePaymayaName, setFilePaymayaName] = useState<string>("");
   const [previewPaymaya, setPreviewPaymaya] = useState<string|null>(null);  
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<any>(null);
   const [fileName, setFileName] = useState<string>("");
   const [preview, setPreview] = useState<string|null>(null);
   const [targetAmount, setTargetAmount] = useState(0);
@@ -54,7 +55,7 @@ export function DonationDriveProvider({
 
   const { user, isAdmin } = useAuth();
   const { addNewsLetter } = useNewsLetters(); 
-
+  const router = useRouter();
   useEffect(() => {
     let unsubscribe: (() => void) | null;
 
@@ -237,18 +238,13 @@ export function DonationDriveProvider({
  };
 
   const addDonationDrive = async (driveData: DonationDrive) => {
-    var event;
-
-    if(isEvent){
-      event = await getEventById(eventId);
-      driveData.creatorType = event!.creatorType
-      driveData.status = event!.status;
-      driveData.creatorId = event!.creatorId;
-    }else{
+    if(!isEvent){
       driveData.creatorType = "admin";
       driveData.status = "active";
       driveData.creatorId = "";
-    } 
+    } else{
+      driveData.creatorType = creatorId === "admin?"? "admin":"alumni";
+    }
     try {
       const docRef = doc(collection(db, "donation_drive"));
       driveData.donationDriveId = docRef.id;
@@ -292,6 +288,9 @@ export function DonationDriveProvider({
       driveData.donationDriveId = docRef.id;
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       await addNewsLetter(driveData.donationDriveId, "donation_drive");
+      if (isEvent) {
+        await updateDoc(doc(db, "event", eventId), {donationDriveId: docRef.id});
+      }
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -309,7 +308,7 @@ export function DonationDriveProvider({
       campaignName,
       status,
       creatorId,
-      creatorType: "alimni",
+      creatorType: "",
       currentAmount: 0,
       targetAmount,
       qrGcash: "",
@@ -333,7 +332,7 @@ export function DonationDriveProvider({
       setTargetAmount(0);
       setEventId("");
       setEndDate(new Date());
-      setStatus("");
+      setStatus("active");
       setImage(null);
 	  setPreview(null);
 	  setPreviewGcash(null);
@@ -342,6 +341,24 @@ export function DonationDriveProvider({
       console.error("Error adding donation drive:", response.message);
     }
   };
+
+  const handleAddEventRelated = async (event: Event) => {
+    // const event = await getEventById(eventId);
+    console.log(event);
+    if(event === null){
+      console.error("No event found with ID: ${eventId}");
+    }else{
+      setIsEvent(true);
+      setCreatorId(event.creatorId);
+      setEventId(event.eventId)
+      setCampaignName(event.title);
+      setImage(event.image);
+      setDescription(event.description);
+      setEndDate(new Date(event.date));
+      router.push(`./donations/add`);
+    }
+    
+  }
 
   const handleEdit = async (
     donationDriveId: string,
@@ -399,16 +416,27 @@ export function DonationDriveProvider({
         handleAddBeneficiary,
         handleRemoveBeneficiary,
         handleSave,
+        handleAddEventRelated,
         handleEdit,
         handleDelete,
-        // handleReject,
-        // handleAccept,
         campaignName,
         setCampaignName,
         description,
         setDescription,
         creatorId,
         setCreatorId,
+        qrGcash, 
+        setQrGcash, 
+        fileGcashName, 
+        setFileGcashName, 
+        previewGcash, 
+        setPreviewGcash, 
+        qrPaymaya, 
+        setQrPaymaya, 
+        filePaymayaName, 
+        setFilePaymayaName, 
+        previewPaymaya, 
+        setPreviewPaymaya,
         image,
         setImage,
         fileName,
@@ -432,8 +460,6 @@ export function DonationDriveProvider({
         getDonationDriveById,
         getEventById,
         fetchAlumnusById,
-		previewGcash,
-		previewPaymaya,
       }}
     >
       {children}
