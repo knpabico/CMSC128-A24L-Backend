@@ -13,8 +13,10 @@ interface ProposeEventFormProps {
   isOpen: boolean;
   onClose: () => void;
   isEditing: boolean;
+  isDetails: boolean;
   editingEventId: string | null;
   setEdit: (isEditing: boolean) => void;
+  setDetailsPage: (isDetails: boolean) => void;
 }
 
 const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
@@ -22,7 +24,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   onClose,
   isEditing,
   editingEventId,
-  setEdit
+  setEdit,
+  isDetails,
+  setDetailsPage
 }) => {
   const { 
       events, 
@@ -437,7 +441,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       {confirmForm && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-30">
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
 
               if (userInput !== requiredSentence) {
@@ -450,12 +454,18 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                 visibility === "alumni" ? selectedAlumni :
                 [];
 
-              handleSave(e, image, targetGuests, visibility, "Pending");
+              if(isDetails){
+                await handleEdit(editingEventId, {title, description, location, date, image, time, targetGuests, status: "Pending", inviteType: visibility });
+              } else {
+                await handleSave(e, image, targetGuests, visibility, "Pending");
+              }
+              
               
               router.push(`/events/proposed`)
 
               resetFormState();
               onClose();
+              setDetailsPage(false);
               setConfirmForm(false);
             }}
               className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
