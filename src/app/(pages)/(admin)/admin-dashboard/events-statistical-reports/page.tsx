@@ -1,6 +1,7 @@
 "use client";
 import BarGraph from "@/components/charts/BarGraph";
 import DonutChart from "@/components/charts/DonutChart";
+import EventCalendar from "@/components/EventCalendar";
 import { useAlums } from "@/context/AlumContext";
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
@@ -19,6 +20,30 @@ const Page = () => {
     return approvedEvents.filter(
       (event: Event) => event.donationDriveId !== ""
     );
+  }, [approvedEvents]);
+
+  const upcomingEvents = useMemo(() => {
+    return approvedEvents
+      .filter((event: Event) => {
+        const eventDate = new Date(event.date);
+        const today = new Date();
+        return eventDate > today;
+      })
+      .sort((a: Event, b: Event) => {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+  }, [approvedEvents]);
+
+  const pastEvents = useMemo(() => {
+    return approvedEvents
+      .filter((event: Event) => {
+        const eventDate = new Date(event.date);
+        const today = new Date();
+        return eventDate < today;
+      })
+      .sort((a: Event, b: Event) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
   }, [approvedEvents]);
 
   const eventsRSVPs = useMemo(() => {
@@ -114,89 +139,38 @@ const Page = () => {
             ))}
           </ul>
         </div>
-        {/*
-        <div className="flex-1 bg-white shadow-md rounded-lg p-4">
-          <Typography variant="h6" className="font-semibold mb-2">
-            Users subscribed to newsletters
-          </Typography>
-          {isLoading ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : (
-            <Typography className="text-blue-600">
-              Total: {alumsSubscribedToNewsletters.length}
-            </Typography>
-          )}
-          <ul className="list-disc list-inside mt-2">
-            {alumsSubscribedToNewsletters.map(
-              (alum: Alumnus, index: number) => (
-                <li key={index} className="text-gray-700">
-                  {alum.firstName} {alum.lastName}
-                </li>
-              )
-            )}
-          </ul>
-        </div> */}
       </div>
 
-      {/* <div className="flex justify-between gap-6 mb-4">
-        <div className="flex-1 bg-white shadow-md rounded-lg p-4 pb-7">
-          <Typography variant="h6" className="font-semibold mb-2 text-center">
-            Alumni Current Work Experience
+      <div className="flex justify-between gap-6 mb-4">
+        <div className="flex-1 bg-white shadow-md rounded-lg p-4">
+          <Typography variant="h6" className="font-semibold mb-2">
+            Upcoming Events
           </Typography>
-          <div className="flex items-center justify-around">
-            <div className="flex-1 flex flex-col items-center">
-              <Typography variant="subtitle2" className="text-center mb-2">
-                Number of Alumni Currently Employed
-              </Typography>
-              <div>
-                <DonutChart
-                  labels={["Employed", "Unemployed"]}
-                  data={[
-                    currentWorkExperience.length,
-                    approvedAlums.length - currentWorkExperience.length,
-                  ]}
-                />
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col items-center">
-              <Typography variant="subtitle2" className="text-center mb-2">
-                Current Work Experience Locations
-              </Typography>
-              <div>
-                <DonutChart
-                  labels={["Philippines", "Other Countries"]}
-                  data={[
-                    philippineWorkExperience.length,
-                    currentWorkExperience.length -
-                      philippineWorkExperience.length,
-                  ]}
-                />
-              </div>
-            </div>
-          </div>
+          {eventLoading && <p className="text-gray-500">Loading...</p>}
+          <ul className="list-disc list-inside mt-2">
+            {upcomingEvents.map((event: Event, index: number) => (
+              <li key={index} className="text-gray-700">
+                {`${event.title} - ${event.date}`}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex-1 bg-white shadow-md rounded-lg p-4">
+          <Typography variant="h6" className="font-semibold mb-2">
+            Past Events
+          </Typography>
+          {eventLoading && <p className="text-gray-500">Loading...</p>}
+          <ul className="list-disc list-inside mt-2">
+            {pastEvents.map((event: Event, index: number) => (
+              <li key={index} className="text-gray-700">
+                {`${event.title} - ${event.date}`}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-      <ReportSummaryCard
-        data={`
-            Total Number of alumni: ${approvedAlums.length} 
-            Active alumni: ${approvedActiveAlums.length} 
-            Inactive alumni: ${
-              approvedAlums.length - approvedActiveAlums.length
-            } 
-            Number of alumni subscribed to newsletters: ${
-              alumsSubscribedToNewsletters.length
-            } 
-            Number of alumni not subscribed to newsletters: ${
-              approvedAlums.length - alumsSubscribedToNewsletters.length
-            } 
-            Number of Alumni currently employed: ${
-              currentWorkExperience.length
-            } 
-            Number of alumni currently unemployed: ${
-              approvedAlums.length - currentWorkExperience.length
-            }
-          `}
-      /> */}
+      <EventCalendar />
     </div>
   );
 };
