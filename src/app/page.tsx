@@ -209,37 +209,6 @@ export default function Home() {
     setIsUploading(false);
   };
 
-  // const announcements = [
-  //   {
-  //     id: 1,
-  //     date: "April 28, 2025",
-  //     title: "Annual Alumni Gathering 2025 - Special Edition with Distinguished Guest Speakers",
-  //     description: "Join us for our annual alumni gathering featuring keynote presentations from industry leaders, networking opportunities, and updates on the latest university developments. This year we're celebrating our 50th anniversary with special events and recognition of outstanding alumni contributions.",
-  //     image: "/api/placeholder/400/200"
-  //   },
-  //   {
-  //     id: 2,
-  //     date: "April 15, 2025",
-  //     title: "New Scholarship Program Launched for Alumni Children",
-  //     description: "We're excited to announce a new scholarship program exclusively for children of our alumni. Applications are now open for the 2025-2026 academic year with multiple funding opportunities available across all departments.",
-  //     image: "/api/placeholder/400/200"
-  //   },
-  //   {
-  //     id: 3,
-  //     date: "April 3, 2025",
-  //     title: "Alumni Mentorship Program Registration Opens Next Week",
-  //     description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
-  //     image: "/api/placeholder/400/200"
-  //   },
-  //   {
-  //     id: 4,
-  //     date: "April 3, 2025",
-  //     title: "Alumni Mentorship Program Registration Opens Next Week",
-  //     description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
-  //     image: "/api/placeholder/400/200"
-  //   }
-  // ];
-
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
@@ -277,7 +246,7 @@ export default function Home() {
                 <div className="text-xs text-gray-500">
                   {formatDate(item.datePosted)}
                 </div>
-                <div className="font-bold text-md line-clamp-2 h-12">
+                <div className="font-bold text-md line-clamp-2">
                   {item.title}
                 </div>
                 <div className="text-xs text-gray-700 line-clamp-3">
