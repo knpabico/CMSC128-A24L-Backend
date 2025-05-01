@@ -38,6 +38,7 @@ export default function ProposedEventsPage()
     const [sortOption, setSortOption] = useState<string>('event-closest');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [isEditing, setEdit] = useState<boolean>(false);
+    const [isDetails, setDetailsPage] = useState<boolean>(false);
     
     useEffect(() =>
     {
@@ -168,6 +169,8 @@ export default function ProposedEventsPage()
                         isOpen={showForm}
                         onClose={() => setShowForm(false)}
                         isEditing={isEditing}
+                        isDetails={false}
+                        setDetailsPage={setDetailsPage}
                         editingEventId={""}
                         setEdit={setEdit}
                     />
