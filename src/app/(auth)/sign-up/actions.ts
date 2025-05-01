@@ -343,6 +343,7 @@ export const registerUser = async (
         birthDate: new Date(alumnusData.birthDate),
         contactPrivacy: true, //if true, contact (email) should be private
         image: alumData.image ?? "",
+        fieldOfInterest: [],
       });
 
     //save education
