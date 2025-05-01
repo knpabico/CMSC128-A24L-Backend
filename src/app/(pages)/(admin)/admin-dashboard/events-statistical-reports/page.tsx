@@ -2,7 +2,7 @@
 import BarGraph from "@/components/charts/BarGraph";
 import DonutChart from "@/components/charts/DonutChart";
 import EventCalendar from "@/components/EventCalendar";
-import { useAlums } from "@/context/AlumContext";
+import ReportSummaryCard from "@/components/ReportSummaryCard";
 import { useEvents } from "@/context/EventContext";
 import formatTimeString from "@/lib/timeFormatter";
 import { Event } from "@/models/models";
@@ -10,7 +10,6 @@ import { Typography } from "@mui/material";
 import { useMemo } from "react";
 
 const Page = () => {
-  const { alums, isloading: alumloading } = useAlums();
   const { events, isLoading: eventLoading } = useEvents();
 
   const approvedEvents = useMemo(() => {
@@ -60,6 +59,14 @@ const Page = () => {
   const rsvpData = useMemo(() => {
     return eventsRSVPs.map((event: Event) => event.rsvps.length);
   }, [eventsRSVPs]);
+
+  const rsvpStats = eventsRSVPs
+    .map((event: Event) => `${event.title} - ${event.rsvps.length} RSVP(s)`)
+    .join("\n");
+
+  const eventDates = approvedEvents
+    .map((event: Event) => `${event.title} - ${event.date}`)
+    .join("\n");
 
   return (
     <div className="p-6">
@@ -174,6 +181,17 @@ const Page = () => {
         </div>
       </div>
       <EventCalendar />
+      <ReportSummaryCard
+        data={`
+        Total Number of events: ${approvedEvents.length} 
+        Number of events with donation drives: ${eventsWithDonations.length}
+        Number of RSVPs per event: ${rsvpStats} 
+       Number of upcoming events: ${upcomingEvents.length}
+       Number of past events: ${pastEvents.length}
+       Also please give number of events that will happen this week and this month based on the current actual date. Here are the events' dates:
+       ${eventDates} 
+      `}
+      />
     </div>
   );
 };

@@ -53,6 +53,7 @@ const ReportSummaryCard = ({ data }: ReportSummaryCardProps) => {
       <div className="flex-1 bg-white shadow-md rounded-lg p-6">
         {loading ? (
           <div className="flex justify-center items-center h-full">
+            <h1>Reports Summary</h1>
             <Loader2 className="animate-spin w-8 h-8 text-blue-500" />
           </div>
         ) : (

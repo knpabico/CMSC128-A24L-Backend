@@ -209,6 +209,9 @@ const StatisticalReports = () => {
           approvedAlums.length - alumsSubscribedToNewsletters.length
         } 
         Number of Alumni currently employed: ${currentWorkExperience.length} 
+        Number of alumni currently working in the Philippines: ${
+          philippineWorkExperience.length
+        }
         Number of alumni currently unemployed: ${
           approvedAlums.length - currentWorkExperience.length
         }

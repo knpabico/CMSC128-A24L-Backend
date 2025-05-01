@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         {
           role: "system",
           content:
-            "You are a renowned expert in writing concise and easy to understand report summary for a given set of data from an Alumni Management System of University of the Philippines Los Banos.",
+            "You are a renowned expert in writing concise and easy to understand report summary for a given set of data from an Alumni Relations Management System of the Institute of Computer Science - University of the Philippines Los Banos.",
         },
         {
           role: "user",
