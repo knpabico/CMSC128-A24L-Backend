@@ -107,187 +107,6 @@ export function EventProvider({ children }: { children: React.ReactNode })
     return alumniSnapshot.docs.map(doc => doc.data() as Alumnus);
   };
   
-  const addEvent = async (newEvent: Event) =>
-  {
-    try
-    {
-      const docRef = doc(collection(db, "event"));
-      newEvent.eventId = docRef.id;
-  
-      if (isAdmin)
-      {
-        newEvent.creatorName = "Admin";
-        newEvent.creatorType = "admin";
-        newEvent.creatorId = "admin";
-      } 
-      
-      else
-      {
-        const lastName = alumInfo?.lastName || "";
-        const firstName = alumInfo?.firstName || "";
-        const middleName = alumInfo?.middleName || "";
-        const fullName = `${lastName}, ${firstName} ${middleName}`.trim();
-  
-        newEvent.creatorName = fullName || "Unknown";
-        newEvent.creatorType = "alumni";
-        newEvent.creatorId = user!.uid;
-      }
-  
-      if (image) {
-        const uploadResult = await uploadImage(image, `event/${docRef.id}`);
-        if (uploadResult.success) {
-          newEvent.image = uploadResult.url;
-          
-          await setDoc(docRef, newEvent);
-        } else {
-          setMessage(uploadResult.result || "Failed to upload image.");
-          setIsError(true);
-          return { success: false, message: "Image upload failed" };
-        }
-      } else {
-        setMessage("No image selected.");
-        setIsError(true);
-        return { success: false, message: "No image provided" };
-      }
-  
-      // Save event data including image URL
-  
-      setIsError(false);
-      setMessage("Event and image uploaded successfully!");
-      setEventImage(null);
-      setPreview(null);
-
-      return { success: true, message: "Event added successfully" };
-    } 
-    catch (error)
-    {
-      return { success: false, message: (error as FirebaseError).message };
-    }
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setEventImage(file);
-      setFileName(file.name); // Store the filename
-      setPreview(URL.createObjectURL(file)); //preview
-    }
-  };
-
-  const handleSave = async (e: React.FormEvent, image: File, selectedGuests: string[], inviteType: string, status: string) => {
-    e.preventDefault();
-
-    if (!image) {
-      setMessage("No image uploaded.");
-      setIsError(true);
-      return;
-    }
-
-    const newEvent: Event =
-    {
-      datePosted: new Date(),
-      title,
-      description,
-      date,
-      time,
-      location,
-      image: "",
-      inviteType,
-      numofAttendees,
-      targetGuests: selectedGuests,
-      stillAccepting,
-      needSponsorship,
-      rsvps: [],
-      eventId: "",
-      status,
-      creatorId: "",
-      creatorName: "",
-      creatorType: "",
-      donationDriveId: ""
-    };
-
-    const response = await addEvent(newEvent);
-
-    if (response.success)
-    {
-      setShowForm(false);
-      setEventTitle("");
-      setEventDescription("");
-      setEventDate("");
-      setEventTime("");
-      setEventLocation("");
-      setEventImage(null);
-      setnumofAttendees(0);
-      setTargetGuests([]);
-      setStillAccepting(false);
-      setNeedSponsorship(false);
-    }
-    
-    else
-    {
-      console.error("Error adding event:", response.message);
-    }
-  };
-
-  const handleDelete = async (eventId: string) =>
-  {
-    try
-    {
-      const rsvps = Object.values(rsvpDetails) as RSVP[];
-      
-      for (const rsvp of rsvps)
-      {
-        if (rsvp.postId === eventId)
-        {
-          await deleteDoc(doc(db, "RSVP", rsvp.rsvpId));
-        }
-      }
-
-      await deleteDoc(doc(db, "event", eventId));
-      setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
-      return { success: true, message: "Event successfully deleted" };
-    } 
-    
-    catch (error)
-    {
-      return { success: false, message: (error as FirebaseError).message };
-    }
-  };
-
-  const handleEdit = async (eventId: string, updatedData: Partial<Event>, ) =>
-  {
-    try
-    {
-      await updateDoc(doc(db, "event", eventId), updatedData);
-      setEvents((prev) =>
-        prev.map((event) =>
-          event.eventId === eventId ? { ...event, ...updatedData } : event
-        )
-      );
-      return { success: true, message: "Event successfully updated" };
-    } 
-    
-    catch (error)
-    {
-      return { success: false, message: (error as FirebaseError).message };
-    }
-  };
-
-  const handleReject = async (eventId: string) =>
-  {
-    try
-    {
-      const eventRef = doc(db, "event", eventId);
-      await updateDoc(eventRef, { status: "Rejected" });
-      return { success: true, message: "Event successfully rejected" };
-    } 
-    
-    catch (error)
-    {
-      return { success: false, message: (error as FirebaseError).message };
-    }
-  };
-
   const handleFinalize = async (eventId: string) =>
   {
     const alums = await fetchAllAlumni();
@@ -380,6 +199,193 @@ export function EventProvider({ children }: { children: React.ReactNode })
       await addNewsLetter(eventId, "event");
       
       return { success: true, message: "Event successfully finalized" };
+    } 
+    
+    catch (error)
+    {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const addEvent = async (newEvent: Event) =>
+  {
+    try
+    {
+      const docRef = doc(collection(db, "event"));
+      newEvent.eventId = docRef.id;
+  
+      if (isAdmin)
+      {
+        newEvent.creatorName = "Admin";
+        newEvent.creatorType = "admin";
+        newEvent.creatorId = "admin";
+      } 
+      
+      else
+      {
+        const lastName = alumInfo?.lastName || "";
+        const firstName = alumInfo?.firstName || "";
+        const middleName = alumInfo?.middleName || "";
+        const fullName = `${lastName}, ${firstName} ${middleName}`.trim();
+  
+        newEvent.creatorName = fullName || "Unknown";
+        newEvent.creatorType = "alumni";
+        newEvent.creatorId = user!.uid;
+      }
+  
+      if (image) {
+        const uploadResult = await uploadImage(image, `event/${docRef.id}`);
+        if (uploadResult.success) {
+          newEvent.image = uploadResult.url;
+          
+          await setDoc(docRef, newEvent);
+
+          if(newEvent.status === "Accepted"){
+            await handleFinalize(docRef.id)
+          }
+          
+        } else {
+          setMessage(uploadResult.result || "Failed to upload image.");
+          setIsError(true);
+          return { success: false, message: "Image upload failed" };
+        }
+      } else {
+        setMessage("No image selected.");
+        setIsError(true);
+        return { success: false, message: "No image provided" };
+      }
+  
+      // Save event data including image URL
+  
+      setIsError(false);
+      setMessage("Event and image uploaded successfully!");
+      setEventImage(null);
+      setPreview(null);
+
+      return { success: true, message: "Event added successfully" };
+    } 
+    catch (error)
+    {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEventImage(file);
+      setFileName(file.name); // Store the filename
+      setPreview(URL.createObjectURL(file)); //preview
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent, image: File, selectedGuests: string[], inviteType: string, status: string) => {
+    e.preventDefault();
+
+    if (!image) {
+      setMessage("No image uploaded.");
+      setIsError(true);
+      return;
+    }
+
+    const newEvent: Event =
+    {
+      datePosted: new Date(),
+      title,
+      description,
+      date,
+      time,
+      location,
+      image: "",
+      inviteType,
+      numofAttendees,
+      targetGuests: selectedGuests,
+      stillAccepting,
+      needSponsorship,
+      rsvps: [],
+      eventId: "",
+      status,
+      creatorId: "",
+      creatorName: "",
+      creatorType: "",
+      donationDriveId: ""
+    };
+
+    const response = await addEvent(newEvent);
+
+    if (response.success)
+    {
+      setShowForm(false);
+      setEventTitle("");
+      setEventDescription("");
+      setEventDate("");
+      setEventTime("");
+      setEventLocation("");
+      setEventImage(null);
+      setnumofAttendees(0);
+      setTargetGuests([]);
+      setStillAccepting(false);
+      setNeedSponsorship(false);
+      return { success: true };
+    }
+    
+    else
+    {
+      console.error("Error adding event:", response.message);
+    }
+  };
+
+  const handleDelete = async (eventId: string) =>
+  {
+    try
+    {
+      const rsvps = Object.values(rsvpDetails) as RSVP[];
+      
+      for (const rsvp of rsvps)
+      {
+        if (rsvp.postId === eventId)
+        {
+          await deleteDoc(doc(db, "RSVP", rsvp.rsvpId));
+        }
+      }
+
+      await deleteDoc(doc(db, "event", eventId));
+      setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
+      return { success: true, message: "Event successfully deleted" };
+    } 
+    
+    catch (error)
+    {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const handleEdit = async (eventId: string, updatedData: Partial<Event>, ) =>
+  {
+    try
+    {
+      await updateDoc(doc(db, "event", eventId), updatedData);
+      setEvents((prev) =>
+        prev.map((event) =>
+          event.eventId === eventId ? { ...event, ...updatedData } : event
+        )
+      );
+      return { success: true, message: "Event successfully updated" };
+    } 
+    
+    catch (error)
+    {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+  const handleReject = async (eventId: string) =>
+  {
+    try
+    {
+      const eventRef = doc(db, "event", eventId);
+      await updateDoc(eventRef, { status: "Rejected" });
+      return { success: true, message: "Event successfully rejected" };
     } 
     
     catch (error)

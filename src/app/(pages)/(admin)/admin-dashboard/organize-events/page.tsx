@@ -32,7 +32,8 @@ export default function Events() {
     location,
     setEventLocation,
     fileName,
-    setFileName
+    setFileName,
+    time
   } = useEvents();
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
   const [activeTab, setActiveTab] = useState("Pending");
@@ -49,6 +50,10 @@ export default function Events() {
   const [filterSearch, setFilterSearch] = useState("all");
   const [searchBatches, setSearchBatches] = useState<any[]>([]);
   const [searchAlumni, setSearchAlumni] = useState<any[]>([]);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [selectedButton, setButton] = useState("");
+
 
   useEffect(() => { // Properly show the selected filter when Editing the values
     if (isEditing && events) {
@@ -85,7 +90,12 @@ export default function Events() {
     return events.filter((event: Event) => event.status === status);
   };
 
-
+  const formComplete =
+    title.trim() !== "" &&
+    description.trim() !== "" &&
+    date.trim() !== "" &&
+    // time.trim() !== "" &&
+    location.trim() !== "";
 
   return (
     <>
@@ -183,6 +193,7 @@ export default function Events() {
             setSelectedAlumni([]);
             setSelectedBatches([]);
             setVisibility("all");
+            setButton("");
           }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
             Create Event
           </button>
@@ -198,15 +209,59 @@ export default function Events() {
                     ? selectedBatches
                     : visibility === "alumni"
                     ? selectedAlumni
-                    : null;
+                    : [];
 
                 if (isEditing && editingEventId) {
-                    handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
-                  } else {
-                    handleSave(e, image, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
+                  handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
+                }
+                
+                if (selectedButton === "Create") {
+                  setErrorMessage(""); // Clear errors first
+            
+                  if (!formComplete) {
+                    setErrorMessage("Please fill out all required fields before proposing the event.");
+                    return;
                   }
-                  setShowForm(false);
-                  setEdit(false);
+            
+                  if (visibility === "batch") {
+                    if (selectedBatches.length === 0) {
+                      setErrorMessage("Please add at least one batch.");
+                      return;
+                    }
+                    if (selectedBatches.some(batch => !/^\d+$/.test(batch))) {
+                      setErrorMessage("Batch inputs must contain only numbers.");
+                      return;
+                    }
+                  }
+            
+                  if (visibility === "alumni") {
+                    if (selectedAlumni.length === 0) {
+                      setErrorMessage("Please add at least one alumni email.");
+                      return;
+                    }
+                    if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+                      setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
+                      return;
+                    }
+                  }
+            
+                  const form = document.querySelector("form");
+                  if (!form || !form.checkValidity()) {
+                    form?.reportValidity();
+                    return;
+                  }
+            
+                  handleSave(e, image, targetGuests, visibility, "Accepted");
+          
+            
+                } else {
+                  // If button is not "Create", just save
+                  handleSave(e, image, targetGuests, visibility, "Pending");
+                }
+                
+                setShowForm(false);
+                setEdit(false);
+                setButton("");
                 }}
                 className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
               >
@@ -428,6 +483,9 @@ export default function Events() {
                     </div>
                   </label>
                 </div>
+                {errorMessage && (
+                  <p className="text-red-500 text-sm mt-4">{errorMessage}</p>
+                )}
                 <div className="flex justify-between">
                   <button
                     type="button"
@@ -441,6 +499,13 @@ export default function Events() {
                     className="bg-blue-500 text-white p-2 rounded"
                   >
                     {isEditing ? "Update" : "Save"}
+                  </button>
+                  <button 
+                    type="submit"
+                    onClick={() => setButton("Create")}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    Create
                   </button>
                 </div>
               </form>
@@ -543,12 +608,25 @@ export default function Events() {
                   >
                     Edit
                   </button>
-                  <button
-                    onClick={() => handleReject(events.eventId)}
-                    className="px-4 py-2 bg-red-500 text-white rounded-md"
-                  >
-                    Delete
-                  </button>
+                  {events.creatorType === "admin" ? (
+                    <>                      
+                      <button
+                        onClick={() => handleDelete(events.eventId)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleReject(events.eventId)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
                   <button
                     onClick={() => handleViewEventAdmin(events)}
                     className="px-4 py-2 bg-gray-500 text-white rounded-md"

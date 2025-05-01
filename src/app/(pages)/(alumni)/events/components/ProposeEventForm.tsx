@@ -379,7 +379,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                     ? selectedBatches
                     : visibility === "alumni"
                     ? selectedAlumni
-                    : null;
+                    : [];
 
                 handleSave(e, image, targetGuests, visibility, "Draft");
 
