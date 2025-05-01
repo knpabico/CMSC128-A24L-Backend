@@ -839,23 +839,26 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                     <label className="block text-sm font-medium mb-1">
                       Employment Type<span className="text-red-500">*</span>
                     </label>
-                    <select
-                      value={employmentType}
-                      onChange={(e) => setEmploymentType(e.target.value)}
-                      className={`w-full p-2 border rounded ${
-                        !employmentType ? "text-gray-500" : ""
-                      }`}
-                      required
-                    >
-                      <option value="">Select Employment Type</option>
-                      {filterCategories["Employment Type"].map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="w-full p-2 border rounded flex justify-between items-center text-left">
+                        <span className={!employmentType ? "text-gray-500" : ""}>
+                          {employmentType || "Select Employment Type"}
+                        </span>
+                        <ChevronDown className="size-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-full min-w-[200px]">
+                        {filterCategories["Employment Type"].map((type) => (
+                          <DropdownMenuItem 
+                            key={type} 
+                            onClick={() => setEmploymentType(type)}
+                          >
+                            {type}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-  
+                  
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Job Type<span className="text-red-500">*</span>
