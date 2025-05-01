@@ -156,6 +156,7 @@ export function ScholarshipProvider({
   };
 
 
+
   // Get all scholarships including deleted ones (for admin purposes)
   const getAllScholarships = async () => {
     try {
