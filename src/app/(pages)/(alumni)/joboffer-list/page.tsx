@@ -13,7 +13,7 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
-import { Briefcase, Bookmark, FilePlus, MapPin, ChevronDown, DollarSign, Award, FileText } from 'lucide-react';
+import { Briefcase, Bookmark, FilePlus, MapPin, ChevronDown, DollarSign, Award, FileText, Check } from 'lucide-react';
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -812,13 +812,13 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
               onSubmit={handleSubmit}
-              className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-3/4 max-w-4xl"
+              className="bg-white p-6 rounded-lg border-2 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto border-0"
             >
-              <h2 className="text-3xl mb-6 font-semibold border-b pb-4">
-                Post a Job Opportunity
-              </h2>
+             <div className="sticky top-0 py-2 bg-white z-30 w-full border-b">
+              <h2 className="text-3xl font-semibold py-3">Post a Job Opportunity</h2>
+              </div>
   
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-6 mt-5">
                 {/* Left Column ng form */}
                 <div>
                   <div className="mb-4">
@@ -830,7 +830,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="e.g. Software Engineer"
                       value={position}
                       onChange={(e) => setPosition(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1 border rounded placeholder:text-sm"
                       required
                     />
                   </div>
@@ -840,20 +840,26 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       Employment Type<span className="text-red-500">*</span>
                     </label>
                     <DropdownMenu>
-                      <DropdownMenuTrigger className="w-full p-2 border rounded flex justify-between items-center text-left">
-                        <span className={!employmentType ? "text-gray-500" : ""}>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
                           {employmentType || "Select Employment Type"}
-                        </span>
-                        <ChevronDown className="size-4" />
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full min-w-[200px]">
+                      <DropdownMenuContent className="w-full bg-white p-1 border rounded shadow-md">
                         {filterCategories["Employment Type"].map((type) => (
-                          <DropdownMenuItem 
-                            key={type} 
+                          <Button
+                            key={type}
+                            variant="ghost"
+                            className="w-full justify-start px-2 py-1.5 text-left hover:bg-gray-100"
                             onClick={() => setEmploymentType(type)}
                           >
                             {type}
-                          </DropdownMenuItem>
+                            {employmentType === type && <Check className="ml-auto h-4 w-4" />}
+                          </Button>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -863,21 +869,30 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                     <label className="block text-sm font-medium mb-1">
                       Job Type<span className="text-red-500">*</span>
                     </label>
-                    <select
-                      value={jobType}
-                      onChange={(e) => setJobType(e.target.value)}
-                      className={`w-full p-2 border rounded ${
-                        !jobType ? "text-gray-500" : ""
-                      }`}
-                      required
-                    >
-                      <option value="">Select Job Type</option>
-                      {filterCategories["Job Type"].map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {jobType || "Select Job Type"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
+                        {filterCategories["Job Type"].map((type) => (
+                          <Button
+                            key={type}
+                            variant="ghost"
+                            className="w-full justify-start px-2 py-1.5 text-left hover:bg-gray-100"
+                            onClick={() => setJobType(type)}
+                          >
+                            {type}
+                            {jobType === type && <Check className="ml-auto h-4 w-4" />}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
   
                   <div className="mb-4">
@@ -888,10 +903,15 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
-                      className="w-full p-2 border rounded h-20"
+                      className="w-full p-2 border rounded resize-none placeholder:text-sm"
+                      style={{ height: "110px" }} // Increased height (4x the original)
                       required
                     />
-                    <Button onClick={() => setIsModalOpen(true)}>
+                    <Button 
+                      onClick={() => setIsModalOpen(true)} 
+                      variant="ghost" 
+                      className="pl-2 text-[#0856BA] hover:text-blue-700 text-sm bg-transparent hover:bg-transparent"
+                    >
                       Need AI help for description?
                     </Button>
                     <ModalInput
@@ -917,7 +937,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="Company"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1 border rounded placeholder:text-sm"
                       required
                     />
                   </div>
@@ -930,7 +950,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="Pedro R. Sandoval Ave, Los Baños, 4031 Laguna, Philippines"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1 border rounded placeholder:text-sm"
                       required
                     />
                   </div>
@@ -939,21 +959,30 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                     <label className="block text-sm font-medium mb-1">
                       Experience Level<span className="text-red-500">*</span>
                     </label>
-                    <select
-                      value={experienceLevel}
-                      onChange={(e) => setExperienceLevel(e.target.value)}
-                      className={`w-full p-2 border rounded ${
-                        !experienceLevel ? "text-gray-500" : ""
-                      }`}
-                      required
-                    >
-                      <option value="">Select Experience Level</option>
-                      {filterCategories["Experience Level"].map((level) => (
-                        <option key={level} value={level}>
-                          {level}
-                        </option>
-                      ))}
-                    </select>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {experienceLevel || "Select Experience Level"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-full bg-white p-1 border rounded shadow-md">
+                        {filterCategories["Experience Level"].map((level) => (
+                          <Button
+                            key={level}
+                            variant="ghost"
+                            className="w-full justify-start px-2 py-1.5 text-left hover:bg-gray-100"
+                            onClick={() => setExperienceLevel(level)}
+                          >
+                            {level}
+                            {experienceLevel === level && <Check className="ml-auto h-4 w-4" />}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
   
                   <div className="mb-4">
@@ -970,7 +999,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       value={salaryRange}
                       onChange={(e) =>
                         setSalaryRange(e.target.value)}
-                      className="w-full pl-8 py-2 border rounded"
+                      className="w-full pl-8 py-1 border rounded placeholder:text-sm"
                       required
                     />
                   </div>
@@ -984,12 +1013,17 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       type="text"
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1 border rounded placeholder:text-sm"
                       required
                     />
                   </div>
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                </div>
+              </div>
+
+              <hr className="my-2 border-t border-gray-300" />
+
+              <div className="mb-6">
+                    <label className="block text-sm font-medium mb-1">
                       Company Logo
                     </label>
                     <div className="flex items-center gap-4">
@@ -1018,8 +1052,6 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
   
               <div className="flex justify-between mt-6">
                 <button
