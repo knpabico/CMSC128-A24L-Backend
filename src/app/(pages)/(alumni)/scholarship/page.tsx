@@ -3,19 +3,78 @@
 import React, { useState, useEffect } from 'react';
 import { useScholarship } from '@/context/ScholarshipContext';
 import BookmarkButton from "@/components/ui/bookmark-button";
-import { CalendarDays, Bookmark, HandHeart, BookOpen, Clock, User } from "lucide-react";
+import { CalendarDays, Bookmark, HandHeart, BookOpen, Clock, User, Filter } from "lucide-react";
 import { useBookmarks } from '@/context/BookmarkContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';;
 import { useFeatured } from '@/context/FeaturedStoryContext';
-import {  Featured } from '@/models/models';
+import { Featured } from '@/models/models';
 
+// Status Badge Component
+const StatusBadge = ({ status }: { status: string }) => {
+  let bgColor = "bg-gray-100";
+  let textColor = "text-gray-800";
+  
+  if (status === "active") {
+    bgColor = "bg-green-100";
+    textColor = "text-green-800";
+  } else if (status === "closed") {
+    bgColor = "bg-gray-100";
+    textColor = "text-gray-800";
+  }
+  
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor} capitalize`}>
+      {status}
+    </span>
+  );
+};
+
+// Status Filter Component
+const StatusFilter = ({ activeFilter, setActiveFilter }: { 
+  activeFilter: 'all' | 'active' | 'closed', 
+  setActiveFilter: (filter: 'all' | 'active' | 'closed') => void 
+}) => {
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      <Filter size={16} className="text-gray-600" />
+      <span className="text-sm font-medium text-gray-700">Status:</span>
+      <div className="flex rounded-full bg-gray-200 p-1">
+        <button 
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+            activeFilter === 'all' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+          }`}
+          onClick={() => setActiveFilter('all')}
+        >
+          All
+        </button>
+        <button 
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+            activeFilter === 'active' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+          }`}
+          onClick={() => setActiveFilter('active')}
+        >
+          Active
+        </button>
+        <button 
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+            activeFilter === 'closed' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+          }`}
+          onClick={() => setActiveFilter('closed')}
+        >
+          Closed
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const ScholarshipPage: React.FC = () => {
   const { scholarships, loading, error } = useScholarship();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
   const router = useRouter();
 
   const { featuredItems, isLoading: featuredLoading } = useFeatured();
@@ -25,7 +84,7 @@ const ScholarshipPage: React.FC = () => {
     // Filter featured items with type "scholarship"
     if (featuredItems && featuredItems.length > 0) {
       const filteredStories = featuredItems.filter(
-        (item: Featured) => item.type === "scholarship"
+        (item: Featured) => item.type === "scholarship" && item.status !== "deleted"
       );
       setScholarshipStories(filteredStories);
     }
@@ -45,24 +104,72 @@ const ScholarshipPage: React.FC = () => {
     router.push(`/scholarship/featured/${featuredId}`);
   };
 
+  // Function to determine if scholarship is active based on deadline
+  const isScholarshipActive = (scholarship: any) => {
+    if (scholarship.status === "deleted") return false;
+    
+    if (scholarship.status) {
+      return scholarship.status === "active";
+    }
+    
+    // Default to active if no status or deadline
+    return true;
+  };
+
+  // Get scholarship status
+  const getScholarshipStatus = (scholarship: any) => {
+    if (scholarship.status === "deleted") return "deleted";
+    
+    if (scholarship.status) {
+      return scholarship.status;
+    }
+    
+    // Default
+    return "active";
+  };
+
   if (loading || featuredLoading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>;
   
   if (error) return <div className="text-red-500 text-center p-8">{error}</div>;
 
-  // Filter scholarships based on active tab
-  const filteredScholarships = (() => {
+  // First filter based on tab
+  const tabFilteredScholarships = (() => {
+    // Remove all scholarships with status "deleted"
+    const nonDeletedScholarships = scholarships.filter(
+      (scholarship: any) => getScholarshipStatus(scholarship) !== "deleted"
+    );
+    
     switch(activeTab) {
       case 'saved':
-        return scholarships.filter((scholarship : Scholarship) => isBookmarked(scholarship.scholarshipId));
+        return nonDeletedScholarships.filter((scholarship: any) => 
+          isBookmarked(scholarship.scholarshipId)
+        );
       case 'myScholars':
         // Only show scholarships where the current user is in the alumList
         return user 
-          ? scholarships.filter((scholarship : Scholarship) => scholarship.alumList.includes(user.uid)) 
+          ? nonDeletedScholarships.filter((scholarship: any) => 
+              scholarship.alumList.includes(user.uid)
+            ) 
           : [];
       case 'stories':
         return [];
       default:
-        return scholarships;
+        return nonDeletedScholarships;
+    }
+  })();
+
+  // Then filter based on status
+  const filteredScholarships = (() => {
+    if (statusFilter === 'all') {
+      return tabFilteredScholarships;
+    } else if (statusFilter === 'active') {
+      return tabFilteredScholarships.filter((scholarship: any) => 
+        isScholarshipActive(scholarship)
+      );
+    } else { // closed
+      return tabFilteredScholarships.filter((scholarship: any) => 
+        !isScholarshipActive(scholarship)
+      );
     }
   })();
 
@@ -111,6 +218,13 @@ const ScholarshipPage: React.FC = () => {
         </div>
 
         <div className='flex flex-col gap-[10px] w-full mb-10'>
+          {/* Status Filter - Only show on non-stories tabs */}
+          {activeTab !== 'stories' && (
+            <div className="bg-white p-4 rounded-lg shadow mb-4">
+              <StatusFilter activeFilter={statusFilter} setActiveFilter={setStatusFilter} />
+            </div>
+          )}
+          
           {/* Content based on active tab */}
           {activeTab === 'stories' ? (
             <>
@@ -136,6 +250,7 @@ const ScholarshipPage: React.FC = () => {
                         {/* Title */}
                         <div className="flex justify-between items-center mb-2">
                           <h2 className="text-xl font-semibold truncate">{story.title}</h2>
+                          <StatusBadge status={story.status || 'active'} />
                         </div>
                         {/* Description */}
                         <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
@@ -155,7 +270,6 @@ const ScholarshipPage: React.FC = () => {
                                 : new Date(story.datePosted).toLocaleDateString()}
                             </p>
                           </div>
-                        
                         </div>       
                       </div>
                     </div>
@@ -168,57 +282,65 @@ const ScholarshipPage: React.FC = () => {
             <>
               {filteredScholarships.length === 0 ? (
                 <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
-                  {activeTab === 'saved' ? 'No saved scholarships' : 
-                   activeTab === 'myScholars' ? 'No scholarships available.' : 
-                   'No scholarships available.'}
+                  {activeTab === 'saved' ? `No ${statusFilter !== 'all' ? statusFilter : ''} saved scholarships` : 
+                   activeTab === 'myScholars' ? `No ${statusFilter !== 'all' ? statusFilter : ''} scholarships available.` : 
+                   `No ${statusFilter !== 'all' ? statusFilter : ''} scholarships available.`}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-                  {filteredScholarships.map((scholarship : Scholarship) => (
-                    <div 
-                      key={scholarship.scholarshipId} 
-                      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-                      onClick={() => navigateToDetail(scholarship.scholarshipId)}
-                    >
-                      {/* Image */}
-                      <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
-                      {/* Body */}
-                      <div className="px-6 pt-3 pb-6">
-                        {/* Name */}
-                        <div className="flex justify-between items-center mb-2">
-                          <h2 className="text-xl font-semibold truncate">{scholarship.title}</h2>
-                          <div onClick={(e) => handleToggleBookmark(e, scholarship.scholarshipId)}>
-                            <BookmarkButton 
-                              entryId={scholarship.scholarshipId}  
-                              type="scholarship" 
-                              size="lg"
-                            />
+                  {filteredScholarships.map((scholarship: any) => {
+                    const status = getScholarshipStatus(scholarship);
+                    return (
+                      <div 
+                        key={scholarship.scholarshipId} 
+                        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                        onClick={() => navigateToDetail(scholarship.scholarshipId)}
+                      >
+                        {/* Image */}
+                        <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
+                        {/* Body */}
+                        <div className="px-6 pt-3 pb-6">
+                          {/* Name */}
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex flex-col gap-1">
+                              <h2 className="text-xl font-semibold truncate">{scholarship.title}</h2>
+                              <div className="flex items-center gap-2">
+                                <StatusBadge status={status} />
+                              </div>
+                            </div>
+                            <div onClick={(e) => handleToggleBookmark(e, scholarship.scholarshipId)}>
+                              <BookmarkButton 
+                                entryId={scholarship.scholarshipId}  
+                                type="scholarship" 
+                                size="lg"
+                              />
+                            </div>
                           </div>
-                        </div>
-                        {/* Description */}
-                        <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
-                          <p className="text-start">
-                            {scholarship.description.length > 150 
-                              ? scholarship.description.slice(0, 150) + "..." 
-                              : scholarship.description}
-                          </p>
-                        </div>
-                        <div className='grid grid-cols-2 w-full items-center'>
-                          {/* Date */}
-                          <div className='flex items-center'>
-                            <p className="text-sm text-gray-600">
-                              Posted on {scholarship.datePosted.toLocaleDateString()}
+                          {/* Description */}
+                          <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
+                            <p className="text-start">
+                              {scholarship.description.length > 150 
+                                ? scholarship.description.slice(0, 150) + "..." 
+                                : scholarship.description}
                             </p>
                           </div>
-                          {/* Sponsors */}
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span className="mr-2">Sponsors:</span>
-                            <span className="font-medium">{scholarship.alumList.length}</span>
-                          </div>
-                        </div>       
+                          <div className='grid grid-cols-2 w-full items-center'>
+                            {/* Date */}
+                            <div className='flex items-center'>
+                              <p className="text-sm text-gray-600">
+                                Posted on {scholarship.datePosted.toLocaleDateString()}
+                              </p>
+                            </div>
+                            {/* Sponsors */}
+                            <div className="flex items-center text-sm text-gray-600">
+                              <span className="mr-2">Sponsors:</span>
+                              <span className="font-medium">{scholarship.alumList.length}</span>
+                            </div>
+                          </div>       
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </>
