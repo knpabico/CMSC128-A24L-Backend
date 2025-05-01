@@ -159,6 +159,7 @@ export interface JobOffering {
   datePosted: Date;
   jobType: string;
   status: string;
+  location: string;
   image: string;
 }
 

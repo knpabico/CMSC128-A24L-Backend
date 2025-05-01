@@ -49,6 +49,11 @@ export default function JobOffers() {
     setSalaryRange,
     location,
     setLocation,
+    image,
+    setJobImage,
+    preview,
+    fileName,
+    handleImageChange,
   } = useJobOffer();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -779,6 +784,19 @@ export default function JobOffers() {
                       required
                     />
                   </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Location<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
@@ -826,6 +844,38 @@ export default function JobOffers() {
                       className="w-full p-2 border rounded"
                       required
                     />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Company Logo<span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <label className="cursor-pointer">
+                        <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                          Choose File
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-sm text-gray-500">
+                        {fileName || "No file chosen"}
+                      </span>
+                    </div>
+
+                    {preview && (
+                      <div className="mt-3">
+                        <img
+                          src={preview}
+                          alt="Preview"
+                          className="h-20 object-contain"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
