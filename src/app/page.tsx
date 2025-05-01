@@ -60,11 +60,39 @@ export default function Home() {
   const searchParams = useSearchParams();
   const sort = searchParams.get("sort"); //get current sort param
 
+  const [currentDonationIndex, setCurrentDonationIndex] = useState(0);
+  const [currentEventIndex, setCurrentEventIndex] = useState(0);
+
+
+  const nextDonation = () => {
+      setCurrentDonationIndex((prev) => 
+          prev === donationDrives.length - 1 ? 0 : prev + 1
+      );
+  };
+
+  const previousDonation = () => {
+      setCurrentDonationIndex((prev) => 
+          prev === 0 ? donationDrives.length - 1 : prev - 1
+      );
+  };
+
   function formatDate(timestamp: any) {
     if (!timestamp || !timestamp.seconds) return "Invalid Date";
     const date = new Date(timestamp.seconds * 1000);
     return date.toISOString().split("T")[0];
   }
+
+  const nextEvent = () => {
+    setCurrentEventIndex((prev) => 
+        prev === events.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const previousEvent = () => {
+      setCurrentEventIndex((prev) => 
+          prev === 0 ? events.length - 1 : prev - 1
+      );
+  };
 
   useEffect(() => {
     if (isAdmin) {
@@ -109,7 +137,27 @@ export default function Home() {
       </p>
     </>)
   }
- 
+
+ // Calculate days remaining until the donation drive ends
+  function getDaysRemaining(endDate: Date): number {
+    const now = new Date();
+    
+    // Clear time portions to calculate full days
+    const endDateOnly = new Date(endDate);
+    endDateOnly.setHours(0, 0, 0, 0);
+    
+    const todayOnly = new Date(now);
+    todayOnly.setHours(0, 0, 0, 0);
+    
+    // Calculate difference in days
+    const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
+    const differenceInDays = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24));
+    
+    // Return 0 if ended or negative
+    return Math.max(0, differenceInDays);
+  }
+
+
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
@@ -349,7 +397,6 @@ export default function Home() {
                       {/* if newsletter is a donation drive */}
                       {newsLetter.category === "donation_drive" && (() => {
                         const donationDrive = donationDrives.find((donation:Donation) => {
-                          console.log(donation.donationDriveId, newsLetter.referenceId); // Log the values being compared
                           return donation.donationDriveId === newsLetter.referenceId;
                         });
                         
@@ -452,92 +499,100 @@ export default function Home() {
 
           {/*Sidebar*/}
           <div className="w-[350px] fixed top-23 right-[90px] h-auto flex flex-col items-center px-5 gap-5 rounded-[10px] ">
-            
             {/* Donation Sample */}
-            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center ">
-              {/* left button */}
-              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-              <svg
-                    fill="none"
-                    stroke="currentColor"
-                    width="11"
-                    height="11"
-                    viewBox="0 0 10 10"
-                    aria-hidden="true"
-                    strokeWidth={1.5}
-                    className="-ml-0.5 rotate-180"
-                  >
-                    <path
-                      className="opacity-0 transition group-hover:opacity-100"
-                      d="M0 5h7"
-                    />
-                    <path
-                      className="transition group-hover:translate-x-[3px]"
-                      d="M1 1l4 4-4 4"
-                    />
-                  </svg>
-                </button>
-
-              {/* donation contents */}
-              <div className="w-full flex flex-col py-[10px] place-items-center ">
-                <img src="/ICS2.jpg" className="mb-[10px]"></img>
-                <div className="w-full">
-                  <div className="flex flex-row text-[13px] gap-1">
-                    <p className="font-semibold">₱{partial}</p> raised from <p className="font-semibold">₱{total}</p> total
-                  </div>
-                  {/* progress bar */}
-                  <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
-                    <div className="bg-blue-600 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
-                  </div>                  
-                  <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
-                    <div className="flex flex-row items-center gap-1">
-                    <Users className="size-4"/>
-                      <div className="text-[13px] flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
-                      <Clock className="size-4"/>
-                    </div>
-                    <div className="flex flex-row items-center gap-1">
-                      <div className="flex flex-row text-[13px] gap-1"><p className="font-semibold">10</p> days left</div>
-                    </div>
-                  </div>
-                  {/* <div className="flex flex-col w-full gap-[3px] mt-3">
-                      <button
-                          onClick={() => router.push(`/sponsorship`)}
-                          className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-
-                      >View More</button>                          
-                  </div>  */}
-                </div>
-              </div>
-              
-              {/* right button */}
-              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  width="11"
-                  height="11"
-                  viewBox="0 0 10 10"
-                  aria-hidden="true"
-                  strokeWidth={1.5}
-                  className="-mr-0.5"
+            {donationDrives.length > 0 && (
+              <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center">
+                {/* left button (previous) */}
+                <button 
+                  onClick={previousDonation} 
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                 >
-                  <path
-                    className="opacity-0 transition group-hover:opacity-100"
-                    d="M0 5h7"
-                  />
-                  <path
-                    className="transition group-hover:translate-x-[3px]"
-                    d="M1 1l4 4-4 4"
-                  />
-                </svg>
-              </button>            
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 10 10"
+                    aria-hidden="true" 
+                    strokeWidth={1.5}
+                    className="-ml-0.5 rotate-180"
+                  >
+                    <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                    <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
+                  </svg>
+                </button>
+
+                {/* donation contents */}
+                <div className="w-full flex flex-col py-[10px] place-items-center">
+                  <img src={donationDrives[currentDonationIndex].image} className="mb-[10px]" alt="Donation drive" />
+                  <div className="w-full">
+                    <p className="font-semibold mb-2">{donationDrives[currentDonationIndex].campaignName}</p>
+                    <div className="flex flex-row text-[13px] gap-1">
+                      <p className="font-semibold">₱{donationDrives[currentDonationIndex].currentAmount || 0}</p> raised from <p className="font-semibold">₱{donationDrives[currentDonationIndex].targetAmount}</p> total
+                    </div>
+
+                    {/* progress bar */}
+                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
+                      <div 
+                        className="bg-blue-600 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                        style={{
+                          width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                        }}
+                      >
+                        {Math.round((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100)}%
+                      </div>
+                    </div>
+
+                    <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
+                      <div className="flex flex-row items-center gap-1">
+                        <Users className="size-4"/>
+                        <div className="text-[13px] flex flex-row gap-1 items-center">
+                          <p className="font-semibold">{donationDrives[currentDonationIndex].donorList?.length || 0}</p>patrons
+                        </div>
+                      </div>
+                      <div className="flex flex-row items-center gap-1">
+                        <Clock className="size-4"/>
+                        <div className="flex flex-row text-[13px] gap-1">
+                          <p className="font-semibold">          
+                            {getDaysRemaining(donationDrives[currentDonationIndex].endDate)}
+                          </p> days left
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* right button (next) */}
+                <button 
+                  onClick={nextDonation}
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
+                >
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 10 10"
+                    aria-hidden="true"
+                    strokeWidth={1.5}
+                    className="-mr-0.5"
+                  >
+                    <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                    <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
+                  </svg>
+                </button>
               </div>
-              {/* End of donation sample */}
-                
+            )}
+                            
             {/* Event Sample */}
-            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center ">
-              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-              <svg
+            {events.length > 0 && (
+              <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center">
+                {/* left button (previous) */}
+                <button 
+                  onClick={previousEvent}
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
+                >
+                  <svg
                     fill="none"
                     stroke="currentColor"
                     width="11"
@@ -547,72 +602,65 @@ export default function Home() {
                     strokeWidth={1.5}
                     className="-ml-0.5 rotate-180"
                   >
-                    <path
-                      className="opacity-0 transition group-hover:opacity-100"
-                      d="M0 5h7"
-                    />
-                    <path
-                      className="transition group-hover:translate-x-[3px]"
-                      d="M1 1l4 4-4 4"
-                    />
+                    <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                    <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
                   </svg>
                 </button>
 
+                {/* event contents */}
                 <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                   <div className="w-full">
-                  <img src="/ICS2.jpg" className="mb-[10px]"></img>
+                    <img src="/ICS2.jpg" className="mb-[10px]" alt="Event" />
                     <div className="flex flex-col text-[15px]">
-                      <p className="font-semibold">Event Name</p>
-                      {/* <p>Event description</p> */}
+                      <p className="font-semibold">{events[currentEventIndex].title}</p>
                     </div>
                     <div className="flex flex-col gap-[5px] place-self-center">
                       <div className="flex flex-row text-[13px] gap-[30px] mt-[10px]">
                         <div className="flex flex-row items-center gap-1">
                           <Calendar className="size-4"/>
-                        <p className="text-[13px] flex flex-row gap-1 items-center">January 1, 2025</p>
+                          <p className="text-[13px] flex flex-row gap-1 items-center">
+                            {new Date(events[currentEventIndex].date).toLocaleDateString()}
+                          </p>
                         </div>
-                          <div className="flex flex-row items-center gap-1">
-                            <Clock className="size-4"/>
-                              <p className="flex flex-row text-[13px] gap-1">3:00 PM</p>
+                        <div className="flex flex-row items-center gap-1">
+                          <Clock className="size-4"/>
+                          <p className="flex flex-row text-[13px] gap-1">
+                            {new Date(events[currentEventIndex].date).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
                         </div>
                       </div>
                       <div className="flex flex-row text-[13px] gap-[3px] place-self-start my-[2px]">
                         <MapPin className="size-4"/>
-                        <p className="text-[13px]">ICS Mega Hall</p>
+                        <p className="text-[13px]">{events[currentEventIndex].location}</p>
                       </div>
                     </div>
-                    
-                {/* <div className="flex flex-col w-full gap-[3px] mt-3">
-                    <button
-                      onClick={() => router.push(`/sponsorship`)}
-                      className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-                    >View More</button>                           
-                  </div>  */}
+                  </div>
                 </div>
-              </div>
 
-              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  width="11"
-                  height="11"
-                  viewBox="0 0 10 10"
-                  aria-hidden="true"
-                  strokeWidth={1.5}
-                  className="-mr-0.5"
+                {/* right button (next) */}
+                <button 
+                  onClick={nextEvent}
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                 >
-                  <path
-                    className="opacity-0 transition group-hover:opacity-100"
-                    d="M0 5h7"
-                  />
-                  <path
-                    className="transition group-hover:translate-x-[3px]"
-                    d="M1 1l4 4-4 4"
-                  />
-                </svg>
-              </button>               
-            </div>
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 10 10"
+                    aria-hidden="true"
+                    strokeWidth={1.5}
+                    className="-mr-0.5"
+                  >
+                    <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                    <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
+                  </svg>
+                </button>
+              </div>
+            )}
             {/* End of event sample */}
 
             </div>
