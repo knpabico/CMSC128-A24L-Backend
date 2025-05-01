@@ -5,7 +5,7 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Trash2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, Check, X } from "lucide-react";
 
 export default function Users() {
   const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
@@ -174,26 +174,26 @@ export default function Users() {
 
                   <div className="w-1/6 flex items-center justify-center">
                     <div 
-                      className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                      className="text-[var(--primary-blue)] hover:underline cursor-pointe pl-6"
                       onClick={() => handleView(job.jobId)}
                     >View Details</div>
                   </div>
                   <div className="w-1/6 flex items-center justify-center">
                     {activeTab === "Pending" ? (
-                      <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
-                        <button className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
-                          <ThumbsDown size={14} />
-                          <span>Reject</span>
-                        </button>
-                        <button className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1">
-                          <ThumbsUp size={14} />
-                          <span>Accept</span>
-                        </button>
-                      </div>
+                      <div className="w-1/3 flex flex-row gap-4 items-center justify-center">
+                      <button className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
+                        <X size={24} />
+                        {/* <span>Reject</span> */}
+                      </button>
+                      <button className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1">
+                        <Check size={24} />
+                        {/* <span>Accept</span> */}
+                      </button>
+                    </div>
                     ) : (
                       <Trash2 
                         size={20} 
-                        className="text-gray-500 hover:text-red-500 cursor-pointer"
+                        className="text-[#D42020] hover:text-[#6C0505] cursor-pointer"
                         onClick={() => handleDelete(job.jobId)}
                       />
                     )}
