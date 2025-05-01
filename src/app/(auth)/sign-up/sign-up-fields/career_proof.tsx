@@ -49,11 +49,9 @@ export const uploadDocToFirebase = async (
 export const AlumDocumentUpload = ({
   index,
   form,
-  proofSetter,
 }: {
   index: number;
   form: any;
-  proofSetter: (file: File | null) => void;
 }) => {
   const [document, setDocument] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -70,7 +68,6 @@ export const AlumDocumentUpload = ({
     if (file) {
       setDocument(file);
       setDocumentType(file.type);
-      //proofSetter(file);
       //update form file
       form.setValue(`career.${index}.proof`, file);
       //update hasProof of career[index]
@@ -89,12 +86,15 @@ export const AlumDocumentUpload = ({
     setDocument(null);
     setDocumentType("");
     setPreview(null);
-    //proofSetter(null);
     setFirstClick(false); //reset firstClick
     //update hasProof of career[index]
     form.setValue(`career.${index}.hasProof`, false);
     //update form file
     form.setValue(`career.${index}.proof`, null);
+    //reset current value of the file input button before choosing a file
+    if (fileInput.current) {
+      fileInput.current.value = "";
+    }
   };
 
   useEffect(() => {
@@ -109,10 +109,6 @@ export const AlumDocumentUpload = ({
 
   const handleUpload = () => {
     setFirstClick(true);
-    //reset current value of the file input button before choosing a file
-    if (fileInput.current) {
-      fileInput.current.value = "";
-    }
   };
 
   const getDocumentTypeDisplay = () => {

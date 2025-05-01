@@ -75,6 +75,10 @@ export const AlumPhotoUpload = ({
     setPreview(null);
     imageSetter(null);
     setFirstClick(false); //reset firstClick
+    //reset current value of the image input button before choosing an image
+    if (imageInput.current) {
+      imageInput.current.value = "";
+    }
   };
 
   useEffect(() => {
@@ -89,10 +93,6 @@ export const AlumPhotoUpload = ({
 
   const handleUpload = () => {
     setFirstClick(true);
-    //reset current value of the image input button before choosing an image
-    if (imageInput.current) {
-      imageInput.current.value = "";
-    }
   };
 
   return (
@@ -127,7 +127,7 @@ export const AlumPhotoUpload = ({
           )}
 
           <label
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute w-12 h-12 flex items-center justify-center"
             onClick={handleUpload}
           >
             <CameraIcon className="w-12 h-12 text-white" />

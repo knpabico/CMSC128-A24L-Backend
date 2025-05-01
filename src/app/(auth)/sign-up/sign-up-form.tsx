@@ -173,7 +173,6 @@ export default function RegistrationForm() {
   const [disableGoNext, setDisableGoNext] = useState(false);
   const [disableGoBack, setDisableGoBack] = useState(false);
   const [alumImage, setImage] = useState<File | null>(null); // for alum photo
-  const [proofOfEmployment, setProof] = useState<File | null>(null);
 
   const router = useRouter();
   const { user, isGoogleSignIn, logOut } = useAuth();
@@ -305,7 +304,6 @@ export default function RegistrationForm() {
     console.log("Testing sign-up:");
     console.log(data);
     console.log(alumImage);
-    console.log(proofOfEmployment);
     console.log(response.workExpIds);
 
     //display error or success toast message
@@ -324,14 +322,18 @@ export default function RegistrationForm() {
     if (data && data.career) {
       let index = 0;
       for (let i = 0; i < data.career?.length!; i++) {
-        //upload proof of employment document to firebase storage
-        if (data.career[i].hasProof === true && response.workExpIds) {
-          uploadDocToFirebase(
-            data.career[i].proof,
-            response.alumniId!,
-            response.workExpIds[index]
-          );
-          index = index + 1;
+        if (data.career[i]) {
+          //upload proof of employment document to firebase storage
+          if (data.career[i].hasProof === true && response.workExpIds) {
+            if (response.workExpIds[index]) {
+              uploadDocToFirebase(
+                data.career[i].proof,
+                response.alumniId!,
+                response.workExpIds[index]
+              );
+              index = index + 1;
+            }
+          }
         }
       }
     }
@@ -384,12 +386,6 @@ export default function RegistrationForm() {
   const handleImageUpload = (image: File | null): void => {
     setImage(image);
     console.log("Uploaded image:", image);
-  };
-
-  //callback for document upload
-  const handleDocUpload = (doc: File | null): void => {
-    setProof(doc);
-    console.log("Uploaded document:", doc);
   };
 
   //for proceeding to the "Your Profile" part after validating the user credentials
@@ -761,11 +757,7 @@ export default function RegistrationForm() {
                                 </button>
 
                                 {/* career form field */}
-                                <Career
-                                  index={index}
-                                  form={form}
-                                  proofSetter={handleDocUpload}
-                                ></Career>
+                                <Career index={index} form={form}></Career>
                               </div>
                             ))}
                             {/*add  fields button */}

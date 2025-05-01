@@ -45,7 +45,7 @@ const calculateAge = (birthDate: Date) => {
 
   let age = current_year - year;
   //if current day < day or current month < month
-  if (current_day < day || current_month < month) {
+  if ((current_month === month && current_day < day) || current_month < month) {
     age = age - 1; //subtract 1 from age
   }
 
@@ -64,14 +64,13 @@ const saveCareer = async (
             endYear: string;
             presentJob: boolean;
             hasProof: boolean;
-            proof: any;
+            proof?: any;
           }
         | undefined
       )[]
     | undefined,
   alumniId: string
 ) => {
-  let workExperienceId = null;
   let workExpIds = []; //ids of work experience
   //if career exists
   if (career) {
@@ -98,9 +97,9 @@ const saveCareer = async (
             proofOfEmployment: "",
           });
 
-        if (presentJob) {
-          workExperienceId = ref.id;
-          workExpIds.push(workExperienceId);
+        //push work experience id if has proof
+        if (presentJob && hasProof) {
+          workExpIds.push(ref.id);
         }
       }
     }
