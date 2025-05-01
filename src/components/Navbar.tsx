@@ -61,7 +61,7 @@ export default function Navbar() {
         {
           id: "manage-events",
           label: "Manage Events",
-          path: "/admin/events/manage",
+          path: "/admin-dashboard/organize-events",
         },
         { id: "add-events", label: "Add Events", path: "/admin/events/add" },
         {

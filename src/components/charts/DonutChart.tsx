@@ -1,7 +1,6 @@
 "use client";
 import { useRef, useEffect } from "react";
 import { Chart } from "chart.js/auto";
-import { useAlums } from "@/context/AlumContext";
 
 interface DonutChartProps {
   labels: string[];
@@ -9,7 +8,6 @@ interface DonutChartProps {
 }
 
 const DonutChart = ({ labels, data }: DonutChartProps) => {
-  const { alums, activeAlums } = useAlums();
   const chartRef = useRef<(HTMLCanvasElement & { chart?: Chart }) | null>(null);
 
   useEffect(() => {

@@ -1,7 +1,13 @@
 "use client";
 import { useRef, useEffect } from "react";
 import { Chart } from "chart.js/auto";
-const BarGraph = () => {
+interface BarGraphProps {
+  labels: string[];
+  data: number[];
+  type: string;
+}
+
+const BarGraph = ({ data, labels, type }: BarGraphProps) => {
   const chartRef = useRef<HTMLCanvasElement & { chart?: Chart }>(null);
 
   useEffect(() => {
@@ -14,12 +20,12 @@ const BarGraph = () => {
       const newChart = new Chart(context, {
         type: "bar",
         data: {
-          labels: ["John", "jane", "Doe", "Dave", "Jose"],
+          labels,
           datasets: [
             {
-              label: "Info",
-              data: [34, 64, 23, 45, 67],
-              backgroundColor: ["orange", "red", "blue", "green", "violet"],
+              label: type,
+              data,
+              backgroundColor: "blue",
               borderColor: "black",
               borderWidth: 1,
             },
@@ -40,9 +46,9 @@ const BarGraph = () => {
 
       chartRef.current.chart = newChart;
     }
-  }, []);
+  }, [data, labels]);
   return (
-    <div style={{ position: "relative", width: "70vw", height: "70vh" }}>
+    <div style={{ position: "relative" }}>
       <canvas ref={chartRef} />
     </div>
   );
