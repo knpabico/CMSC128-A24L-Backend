@@ -26,8 +26,8 @@ const DonutChart = ({ labels, data }: DonutChartProps) => {
               {
                 label: "Number",
                 data,
-                backgroundColor: ["blue", "gray"],
-                borderColor: "black",
+                backgroundColor: ["#0856BA", "#979FAD"],
+                borderColor: "#D1D5DB",
                 borderWidth: 1,
               },
             ],
