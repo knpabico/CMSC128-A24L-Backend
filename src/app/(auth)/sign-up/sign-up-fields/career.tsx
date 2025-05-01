@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 import { AlumDocumentUpload } from "./career_proof";
 import { MapPin, PencilIcon } from "lucide-react";
+import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
 
 export const Career = ({
   index,
@@ -131,6 +132,7 @@ export const Career = ({
                   <FormControl>
                     <Input
                       type="number"
+                      onKeyDown={handleYearInput}
                       placeholder="2020"
                       {...field}
                       className="bg-white border border-gray-500"
@@ -159,6 +161,7 @@ export const Career = ({
                     <FormControl>
                       <Input
                         type="number"
+                        onKeyDown={handleYearInput}
                         placeholder={"2025"}
                         {...field}
                         className="bg-white border border-gray-500"

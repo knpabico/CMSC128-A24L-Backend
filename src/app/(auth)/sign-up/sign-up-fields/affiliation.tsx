@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
 
 export const Affiliation = ({ index, form }: { index: number; form: any }) => {
   return (
@@ -44,6 +45,7 @@ export const Affiliation = ({ index, form }: { index: number; form: any }) => {
               <FormControl>
                 <Input
                   type="number"
+                  onKeyDown={handleYearInput}
                   placeholder="2024"
                   {...field}
                   className="bg-white border border-gray-500"

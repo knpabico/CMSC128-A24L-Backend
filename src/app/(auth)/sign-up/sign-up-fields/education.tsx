@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
 
 const types = {
   bachelors: "Bachelor's",
@@ -60,6 +61,7 @@ export const Education = ({
               <FormControl>
                 <Input
                   type="number"
+                  onKeyDown={handleYearInput}
                   placeholder="2024"
                   {...field}
                   className="bg-white border border-gray-500"

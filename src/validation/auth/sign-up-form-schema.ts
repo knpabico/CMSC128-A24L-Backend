@@ -237,6 +237,12 @@ const studentNumberAndGraduationYearSchema = z.object({
     }, "Please make sure that your student number is valid"),
 });
 
+export const handleYearInput = (e: any) => {
+  if (["e", "E", ".", "-", "+"].includes(e.key)) {
+    e.preventDefault();
+  }
+};
+
 // combine the schemas shown above into a single schema
 // we split the schema into multiple schemas to make the validations for a single field
 // and the validations in the super refine run at the same time
