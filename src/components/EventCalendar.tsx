@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { Calendar, ChevronLeft, ChevronRight, Users2 } from "lucide-react";
+import formatTimeString from "@/lib/timeFormatter";
 
 export default function EventCalendar() {
   const { events, isLoading } = useEvents();
@@ -317,19 +318,39 @@ export default function EventCalendar() {
                     )}
                   </div>
                   <div className="overflow-y-auto max-h-16">
-                    {dayEvents.map((event, idx) => (
-                      <div
-                        key={idx}
-                        className="text-xs p-1 mb-1 rounded bg-blue-100 truncate cursor-pointer hover:bg-blue-200 transition-colors"
-                        onClick={(e) => handleEventClick(event, e)}
-                      >
-                        {new Date(event.date).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}{" "}
-                        - {event.title}
-                      </div>
-                    ))}
+                    {dayEvents
+                      .sort((a: Event, b: Event) => {
+                        const normalize = (time: string | null | undefined) => {
+                          if (!time) return null;
+                          const [h, m] = time.split(":");
+                          const hour = h.padStart(2, "0");
+                          const minute = m.padStart(2, "0");
+                          return `${hour}:${minute}`;
+                        };
+
+                        const timeA = normalize(a.time);
+                        const timeB = normalize(b.time);
+
+                        if (!timeA) return 1;
+                        if (!timeB) return -1;
+
+                        return timeA.localeCompare(timeB);
+                      })
+                      .map((event, idx) => (
+                        <div
+                          key={idx}
+                          className="text-xs p-1 mb-1 rounded bg-blue-100 truncate cursor-pointer hover:bg-blue-200 transition-colors"
+                          onClick={(e) => handleEventClick(event, e)}
+                        >
+                          {`${
+                            formatTimeString(event.time).includes(
+                              "No time indicated"
+                            )
+                              ? ""
+                              : `${formatTimeString(event.time)}-`
+                          } ${event.title}`}
+                        </div>
+                      ))}
                   </div>
                 </div>
               );

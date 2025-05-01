@@ -2,7 +2,6 @@
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience } from "@/models/models";
 import { Typography } from "@mui/material";
-import BarGraph from "@/components/charts/BarGraph";
 import React, { useMemo } from "react";
 import DonutChart from "@/components/charts/DonutChart";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
@@ -21,7 +20,10 @@ const StatisticalReports = () => {
   }, [alums]);
 
   const inactiveAlums = useMemo(() => {
-    return alums.filter((alum: Alumnus) => alum.activeStatus === false);
+    return alums.filter(
+      (alum: Alumnus) =>
+        alum.activeStatus === false && alum.regStatus === "approved"
+    );
   }, [alums]);
 
   const currentWorkExperience: WorkExperience[] = useMemo(() => {

@@ -4,6 +4,7 @@ import DonutChart from "@/components/charts/DonutChart";
 import EventCalendar from "@/components/EventCalendar";
 import { useAlums } from "@/context/AlumContext";
 import { useEvents } from "@/context/EventContext";
+import formatTimeString from "@/lib/timeFormatter";
 import { Event } from "@/models/models";
 import { Typography } from "@mui/material";
 import { useMemo } from "react";
@@ -150,7 +151,9 @@ const Page = () => {
           <ul className="list-disc list-inside mt-2">
             {upcomingEvents.map((event: Event, index: number) => (
               <li key={index} className="text-gray-700">
-                {`${event.title} - ${event.date}`}
+                {`${event.title} - ${event.date} ${formatTimeString(
+                  event.time
+                )}`}
               </li>
             ))}
           </ul>

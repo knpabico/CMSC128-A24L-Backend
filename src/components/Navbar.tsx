@@ -94,7 +94,7 @@ export default function Navbar() {
         {
           id: "stats-donation",
           label: "Statistical Report",
-          path: "/admin-dashboard/donation-statistical-reports",
+          path: "/admin-dashboard/donations-statistical-reports",
         },
       ],
     },
