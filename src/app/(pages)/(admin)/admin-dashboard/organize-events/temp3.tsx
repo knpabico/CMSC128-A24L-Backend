@@ -8,7 +8,7 @@ import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import ModalInput from "@/components/ModalInputForm";
-import { useParams } from "next/navigation";
+import { useParams } from "next/navigation";;
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@mui/material";
 
@@ -48,6 +48,9 @@ export default function EventPageAdmin()
 
     const evId = params?.eventId as string;
     const ev = events.find((e: Event) => e.eventId === evId);
+    console.log("Event Id", evId);
+    console.log("Events", ev);
+    console.log("orig event", events);
 
     const [activeTab, setActiveTab] = useState("Pending");
     const [isEditing, setEdit] = useState(false);
@@ -294,7 +297,7 @@ export default function EventPageAdmin()
                                 {
                                     return(
                                         <div
-                                        key={ev.eventId}
+                                        key={e.eventId}
                                         className="border rounded-lg shadow-sm hover:shadow-md bg-white overflow-hidden flex flex-row"
                                         >
                                             {/* Image Section */}
@@ -302,10 +305,10 @@ export default function EventPageAdmin()
                                             className="cursor-pointer w-1/4 min-w-64 bg-gray-200"
                                             onClick={() => handleViewEventAdmin(events)}
                                             >
-                                            {ev.image ? (
+                                            {e.image ? (
                                                 <img
-                                                src={ev.image}
-                                                alt={ev.title}
+                                                src={e.image}
+                                                alt={e.title}
                                                 className="w-full h-full object-cover"
                                                 />
                                             ) : (
@@ -322,27 +325,27 @@ export default function EventPageAdmin()
                                             >
                                                 <div className="flex items-center justify-between mb-3">
                                                     <h2 className="text-xl font-semibold truncate flex-1">
-                                                        {ev.title}
+                                                        {e.title}
                                                     </h2>
                                                     <span
                                                         className={`ml-4 px-2 py-0.5 text-xs font-medium rounded-full ${
-                                                        ev.status === "Accepted"
+                                                        e.status === "Accepted"
                                                             ? "bg-green-100 text-green-800"
-                                                            : ev.status === "Pending"
+                                                            : e.status === "Pending"
                                                             ? "bg-yellow-100 text-yellow-800"
-                                                            : ev.status === "Rejected"
+                                                            : e.status === "Rejected"
                                                             ? "bg-red-100 text-red-800"
                                                             : "bg-gray-100 text-gray-800"
                                                         }`}
                                                     >
-                                                        {ev.status.charAt(0).toUpperCase() + ev.status.slice(1)}
+                                                        {e.status.charAt(0).toUpperCase() + e.status.slice(1)}
                                                     </span>
                                                 </div>
 
                                                 {/* Description */}
                                                 <div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">
                                                     <p className="text-start">
-                                                        {ev.description}
+                                                        {e.description}
                                                     </p>
                                                 </div>
 
@@ -352,30 +355,30 @@ export default function EventPageAdmin()
                                                         {/* Event Date */}
                                                         <div className="flex gap-1 items-center w-1/3 justify-center">
                                                             <Calendar size={16} />
-                                                            <p className="text-xs">{ev.date}</p>
+                                                            <p className="text-xs">{e.date}</p>
                                                         </div>
                                                         
                                                         {/* Event Time */}
                                                         <div className="flex gap-1 items-center w-1/3 justify-center">
                                                             <Clock size={16} />
-                                                            <p className="text-xs">{ev.time}</p>
+                                                            <p className="text-xs">{e.time}</p>
                                                         </div>
 
                                                         {/* Where */}
                                                         <div className="flex gap-1 items-center w-1/3 justify-center">
                                                             <MapPin size={16} />
-                                                            <p className="text-xs truncate">{ev.location}</p>
+                                                            <p className="text-xs truncate">{e.location}</p>
                                                         </div>
 
                                                         {/* Date of Post */}
                                                         <div className="flex gap-1 items-center w-1/3 justify-center">
-                                                            <p className="text-xs truncate">Posted on {formatDate(ev.datePosted)}</p>
+                                                            <p className="text-xs truncate">Posted on {formatDate(e.datePosted)}</p>
                                                         </div>
                                                         
                                                         {/* Creator */}
                                                         <div className="text-xs text-gray-700 mt-2">
-                                                            <p> Created by: {creatorNames[ev.eventId] ?? "Admin"}</p>
-                                                            <p>Creator Type: {ev.creatorType}</p>
+                                                            <p> Created by: {creatorNames[e.eventId] ?? "Admin"}</p>
+                                                            <p>Creator Type: {e.creatorType}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -392,7 +395,7 @@ export default function EventPageAdmin()
                                                         Delete
                                                     </button>
                                                     <button
-                                                        onClick={() => handleViewEventAdmin(events)}
+                                                        onClick={() => handleViewEventAdmin(events.e)}
                                                         className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         View More
