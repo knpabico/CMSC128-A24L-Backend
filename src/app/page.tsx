@@ -84,20 +84,209 @@ export default function Home() {
   }
   const { myCareer, myEducation } = useAlums();
 
+  const [images, setImages] = useState([
+    // Example images - replace with your own or start with empty array
+    { id: 1, src: "/api/placeholder/800/500", alt: "Image 1" },
+    { id: 2, src: "/api/placeholder/800/500", alt: "Image 2" },
+    { id: 3, src: "/api/placeholder/800/500", alt: "Image 3" },
+    { id: 4, src: "/api/placeholder/800/500", alt: "Image 4" },
+  ]);
+  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Handle next slide
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  // Handle previous slide
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  // Auto-advance slides every 3 seconds for endless slideshow effect
+  useEffect(() => {
+    if (images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  // Calculate positions for each image for endless carousel effect
+  const getImageStyle = (index) => {
+    // Handle wrapping for endless effect
+    const totalImages = images.length;
+    if (totalImages <= 1) {
+      return {
+        transform: "translateX(0) scale(1)",
+        zIndex: 30,
+        opacity: 1
+      };
+    }
+    
+    // Calculate relative position with wrapping
+    let relativePos = (index - currentIndex + totalImages) % totalImages;
+    
+    // Adjust to have values like: -2, -1, 0, 1, 2 instead of 0,1,2,3,4
+    if (relativePos > totalImages / 2) {
+      relativePos = relativePos - totalImages;
+    }
+    
+    // Apply styles based on position
+    const absoluteRelativePos = Math.abs(relativePos);
+    
+    // Center (highlighted) image
+    if (relativePos === 0) {
+      return {
+        transform: "translateX(0) scale(1)",
+        zIndex: 30,
+        opacity: 1
+      };
+    } 
+    
+    // Side images (closer = larger, further = smaller)
+    const offset = relativePos * 20; // -20%, -40%, 20%, 40%, etc.
+    const scale = 1 - (absoluteRelativePos * 0.2); // 0.8, 0.6, etc.
+    const zIndex = 20 - absoluteRelativePos;
+    const opacity = 1 - (absoluteRelativePos * 0.3); // 0.7, 0.4, etc.
+    
+    return {
+      transform: `translateX(${offset}%) scale(${scale})`,
+      zIndex,
+      opacity
+    };
+  };
+
+  // Handle image upload
+  const handleImageUpload = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const newImage = {
+          id: Date.now(),
+          src: e.target.result,
+          alt: `Image ${images.length + 1}`
+        };
+        setImages([...images, newImage]);
+        setCurrentIndex(images.length); // Set focus to the new image
+        setIsUploading(false);
+      };
+      
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle image removal
+  const handleRemoveImage = (id) => {
+    const newImages = images.filter(img => img.id !== id);
+    setImages(newImages);
+    
+    // Adjust current index if needed
+    if (currentIndex >= newImages.length) {
+      setCurrentIndex(Math.max(0, newImages.length - 1));
+    }
+  };
+
+  // Start upload process
+  const startUpload = () => {
+    setIsUploading(true);
+  };
+
+  // Cancel upload
+  const cancelUpload = () => {
+    setIsUploading(false);
+  };
+
+  const announcements = [
+    {
+      id: 1,
+      date: "April 28, 2025",
+      title: "Annual Alumni Gathering 2025 - Special Edition with Distinguished Guest Speakers",
+      description: "Join us for our annual alumni gathering featuring keynote presentations from industry leaders, networking opportunities, and updates on the latest university developments. This year we're celebrating our 50th anniversary with special events and recognition of outstanding alumni contributions.",
+      image: "/api/placeholder/400/200"
+    },
+    {
+      id: 2,
+      date: "April 15, 2025",
+      title: "New Scholarship Program Launched for Alumni Children",
+      description: "We're excited to announce a new scholarship program exclusively for children of our alumni. Applications are now open for the 2025-2026 academic year with multiple funding opportunities available across all departments.",
+      image: "/api/placeholder/400/200"
+    },
+    {
+      id: 3,
+      date: "April 3, 2025",
+      title: "Alumni Mentorship Program Registration Opens Next Week",
+      description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
+      image: "/api/placeholder/400/200"
+    },
+    {
+      id: 4,
+      date: "April 3, 2025",
+      title: "Alumni Mentorship Program Registration Opens Next Week",
+      description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
+      image: "/api/placeholder/400/200"
+    }
+  ];
+
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
-      <div className="flex flex-col min-h-screen justify-center items-center">
-        <h1 className="text-black text-[70px] font-bold">WELCOME, Guest!</h1>
-        <div className="flex gap-3">
-          <Button asChild>
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/sign-up">Sign up</Link>
-          </Button>
+      <div>
+      <div className="flex justify-end p-4">
+        <Button asChild>
+          <Link href="/login">Log in</Link>
+        </Button>
+      </div>
+      
+      {/* Carousel */}
+      <div className="bg-blue-300 relative w-full h-screen overflow-hidden">
+      </div>
+      
+      <div className="flex flex-col gap-8" style={{ padding: "50px 10% 5% 10%" }}>
+        <div className="font-bold text-3xl">
+          News & Announcements
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {announcements.map((item) => (
+            <Link 
+              href={`/announcements/${item.id}`} 
+              key={item.id}
+              className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
+            >
+              <div className="w-full h-40 bg-pink-400 overflow-hidden">
+                <img 
+                  src={item.image} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-4 flex flex-col gap-2 flex-grow">
+                <div className="text-xs text-gray-500">
+                  {item.date}
+                </div>
+                <div className="font-bold text-md line-clamp-2 h-12">
+                  {item.title}
+                </div>
+                <div className="text-xs text-gray-700 line-clamp-3">
+                  {item.description}
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
+    </div>
     );
   } else if (user) {
     if (status === "pending") return <PendingPage />;
