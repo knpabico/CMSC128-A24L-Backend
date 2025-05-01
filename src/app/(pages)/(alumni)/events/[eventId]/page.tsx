@@ -16,19 +16,6 @@ const EventPageAlumni = () => {
       events, 
       setShowForm,
       showForm,
-      handleSave,
-      handleImageChange,
-      date,
-      setEventDate,
-      description,
-      setEventDescription,
-      title,
-      setEventTitle,
-      location,
-      setEventLocation,
-      time,
-      setEventTime,
-      setEventImage,
       handleDelete,
   } = useEvents();
 
@@ -191,33 +178,17 @@ const EventPageAlumni = () => {
                   >
                     Delete
                   </button>
-                  
-                  <ProposeEventForm 
+                </>
+                {/* Propose Event Form */}
+                {showForm && (
+                  <ProposeEventForm
                     isOpen={showForm}
                     onClose={() => setShowForm(false)}
-                    title={event.title}
-                    setEventTitle={setEventTitle}
-                    description={event.description}
-                    setEventDescription={setEventDescription}
-                    date={event.date}
-                    setEventDate={setEventDate}
-                    handleImageChange={handleImageChange}
-                    handleSave={handleSave}
-                    alumInfo={alumInfo}
-                    location={event.location}
-                    setEventLocation={setEventLocation}
-                    image={event.image}
-                    setEventImage={setEventImage}
-                    time={event.time}
-                    setEventTime={setEventTime}
-                    inviteType={event.inviteType}
-                    targetGuests={event.targetGuests}
+                    isEditing={isEditing}
+                    editingEventId={event.eventId}
                     setEdit={setEdit}
-                    isEditing={isEditing} 
-                    editingEventId={event.eventId} 
-                    events={events}
                   />
-                </>
+                )}
             </div>
           )}
 

@@ -26,6 +26,7 @@ export default function EventPageAdmin()
         handleDelete,
         date,
         handleReject,
+        addEvent,
         handleFinalize,
         handleViewEventAdmin, 
         handleImageChange,
@@ -38,6 +39,8 @@ export default function EventPageAdmin()
         setEventTitle,
         location,
         setEventLocation,
+        time,
+        setEventTime,
         fileName,
         setFileName,
         fetchAlumnusById,
@@ -62,6 +65,9 @@ export default function EventPageAdmin()
     const tableRef = useRef<HTMLDivElement | null>(null);
     const [headerWidth, setHeaderWidth] = useState("100%");
     const [isSticky, setIsSticky] = useState(false);
+
+    const [errorMessage, setErrorMessage] = useState("");
+    const [selectedButton, setButton] = useState("");
 
     if(!events) return <div>Loading Events...</div>;
 
@@ -191,6 +197,13 @@ export default function EventPageAdmin()
     
     }, [filteredEvents, creatorNames]);    
 
+    const formComplete =
+    title.trim() !== "" &&
+    description.trim() !== "" &&
+    date.trim() !== "" &&
+    time.trim() !== "" &&
+    location.trim() !== "";
+    
     return (
         <div>        
             <Breadcrumbs
@@ -265,7 +278,7 @@ export default function EventPageAdmin()
                     </div>
 
                 {isLoading && <div className="text-center text-lg">Loading...</div>}
-                {/* Donation Drive List */}
+                {/* Event List */}
                 <div>
                     <h2 className="text-2xl font-bold mb-4">
                         {statusFilter === "all" ? "All Events" :
@@ -274,7 +287,7 @@ export default function EventPageAdmin()
                         "Rejected Events"}
                     </h2>
                     {filteredEvents.length === 0 ? (
-                        <p className="text-gray-500">No donation drives found.</p>
+                        <p className="text-gray-500">No Events found.</p>
                         ) : (
                             <div className="flex flex-col gap-4">
                                 {filteredEvents.map((e: Event) => 
@@ -447,8 +460,7 @@ export default function EventPageAdmin()
             {showForm && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form
-                onSubmit={(e) => 
-                {
+                onSubmit={(e) => {
                   e.preventDefault();
                   
                 // store the selected guests
@@ -457,19 +469,80 @@ export default function EventPageAdmin()
                     ? selectedBatches
                     : visibility === "alumni"
                     ? selectedAlumni
-                    : null;
+                    : [];
 
-                  if (isEditing && editingEventId)
-                  {
-                    handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
-                  } 
+                if (isEditing && editingEventId) {
+                  handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
+                }
                 
-                  else
-                  {
-                    handleSave(e, image, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
+                if (selectedButton === "Create") {
+                  setErrorMessage(""); // Clear errors first
+            
+                  if (!formComplete) {
+                    setErrorMessage("Please fill out all required fields before proposing the event.");
+                    return;
                   }
-                  setShowForm(false);
-                  setEdit(false);
+            
+                  if (visibility === "batch") {
+                    if (selectedBatches.length === 0) {
+                      setErrorMessage("Please add at least one batch.");
+                      return;
+                    }
+                    if (selectedBatches.some(batch => !/^\d+$/.test(batch))) {
+                      setErrorMessage("Batch inputs must contain only numbers.");
+                      return;
+                    }
+                  }
+            
+                  if (visibility === "alumni") {
+                    if (selectedAlumni.length === 0) {
+                      setErrorMessage("Please add at least one alumni email.");
+                      return;
+                    }
+                    if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+                      setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
+                      return;
+                    }
+                  }
+            
+                  const form = document.querySelector("form");
+                  if (!form || !form.checkValidity()) {
+                    form?.reportValidity();
+                    return;
+                  }
+            
+                  const newEvent: Event = {
+                    datePosted: new Date(),
+                    title,
+                    description,
+                    date,
+                    time,
+                    location,
+                    image: "", // will be set inside addEvent after upload
+                    inviteType: visibility,
+                    numofAttendees: 0,
+                    targetGuests,
+                    stillAccepting: true,
+                    needSponsorship: false,
+                    rsvps: [],
+                    eventId: "",
+                    status: "Accepted",
+                    creatorId: "",
+                    creatorName: "",
+                    creatorType: "",
+                    donationDriveId: ""
+                  };
+                
+                  addEvent(newEvent, true, true);
+            
+                } else {
+                  // If button is not "Create", just save
+                  handleSave(e, image, targetGuests, visibility, "Pending");
+                }
+                
+                setShowForm(false);
+                setEdit(false);
+                setButton("");
                 }}
                 className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
               >
@@ -515,22 +588,36 @@ export default function EventPageAdmin()
                   mainTitle={title}
                   subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
                 />
-
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  onKeyDown={(e) => e.preventDefault()} // prevent manual typing
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                  min={
-                    date
-                      ? new Date(date).toISOString().split("T")[0]
-                      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                          .toISOString()
-                          .split("T")[0]
-                  }
-                />
+                <div className="flex gap-4 mb-4">
+                  <div className="w-1/2">
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setEventDate(e.target.value)}
+                      onKeyDown={(e) => e.preventDefault()} // prevent manual typing
+                      className="w-full mb-4 p-2 border rounded"
+                      required
+                      min={
+                        date
+                          ? new Date(date).toISOString().split("T")[0]
+                          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                              .toISOString()
+                              .split("T")[0]
+                      }
+                    />
+                  </div>
+                  <div className="w-1/3">
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setEventTime(e.target.value)}
+                      className="w-full p-2 border rounded text-center"
+                      required
+                      min="08:00"
+                      max="22:00"
+                    />
+                  </div>
+                </div>
 
                 <label
                   htmlFor="image-upload"
@@ -559,8 +646,7 @@ export default function EventPageAdmin()
                       name="visibility"
                       value="all"
                       checked={visibility === "all"}
-                      onChange={() => 
-                      {
+                      onChange={() => {
                         setVisibility("all");
                         // Clear both to properly show the RSVP
                         setSelectedAlumni([]);
@@ -614,8 +700,7 @@ export default function EventPageAdmin()
                             className="text-black mt-2 p-2 rounded-md w-full"
                             placeholder="e.g. 2022"
                             onKeyDown={(e) => {
-                              if (e.key === "Enter") 
-                              {
+                              if (e.key === "Enter") {
                                 e.preventDefault();
                                 const value = e.currentTarget.value.trim();
                                 // Check if the value is not empty and not already in the selectedBatches list
@@ -675,13 +760,11 @@ export default function EventPageAdmin()
                             className="text-black mt-2 p-2 rounded-md w-full"
                             placeholder="e.g. email1@up.edu.ph"
                             onKeyDown={(e) => {
-                              if (e.key === "Enter") 
-                              {
+                              if (e.key === "Enter") {
                                 e.preventDefault();
                                 const value = e.currentTarget.value.trim();
                                 // Check if the value is not empty and not already in the selectedAlumni list
-                                if (value && !selectedAlumni.includes(value)) 
-                                {
+                                if (value && !selectedAlumni.includes(value)) {
                                   // Add the new value to the selectedAlumni list
                                   setSelectedAlumni([...selectedAlumni, value]);
                                   e.currentTarget.value = "";
@@ -695,6 +778,9 @@ export default function EventPageAdmin()
                     </div>
                   </label>
                 </div>
+                {errorMessage && (
+                  <p className="text-red-500 text-sm mt-4">{errorMessage}</p>
+                )}
                 <div className="flex justify-between">
                   <button
                     type="button"
@@ -708,6 +794,13 @@ export default function EventPageAdmin()
                     className="bg-blue-500 text-white p-2 rounded"
                   >
                     {isEditing ? "Update" : "Save"}
+                  </button>
+                  <button 
+                    type="submit"
+                    onClick={() => setButton("Create")}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    Create
                   </button>
                 </div>
               </form>
