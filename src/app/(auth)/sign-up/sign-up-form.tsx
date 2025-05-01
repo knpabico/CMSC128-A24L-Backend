@@ -152,6 +152,7 @@ const formParts = [
       "address",
       "studentNumber",
       "affiliation",
+      "fieldOfInterest",
       "bachelors",
       "masters",
       "doctoral",
@@ -229,6 +230,7 @@ export default function RegistrationForm() {
       //education
       studentNumber: "",
       affiliation: [], //affiliation name, year joined, university
+      fieldOfInterest: [],
       bachelors: [{ university: "", yearGraduated: "", major: "" }], //degree program, year graduated, university
       masters: [], //degree program, year graduated, university
       doctoral: [], //degree program, year graduated, university
@@ -564,6 +566,30 @@ export default function RegistrationForm() {
                                 )}
                               />
                             </div>
+                          </div>
+
+                          {/* field of interest field */}
+                          <div className="">
+                            <FormField
+                              control={form.control}
+                              name="fieldOfInterest"
+                              render={({ field }) => (
+                                <FormItem className="gap-0">
+                                  <p className="text-sm font-semibold">
+                                    Field of Interest
+                                  </p>
+                                  <FormControl>
+                                    <TagsInput
+                                      value={field.value ?? []}
+                                      onValueChange={field.onChange}
+                                      placeholder="Enter your fields of interest"
+                                      className="bg-white border border-gray-500"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
 
                           {/* bachelor's form field */}

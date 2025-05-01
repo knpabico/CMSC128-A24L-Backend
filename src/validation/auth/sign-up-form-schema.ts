@@ -26,6 +26,7 @@ const baseSchema = z.object({
       z.string().min(1, "Input your province/state"), //province/state
     ])
     .refine((input) => input[0] !== "", "Please input your address"),
+  fieldOfInterest: z.array(z.string()).optional(),
   affiliation: z
     .array(
       z
