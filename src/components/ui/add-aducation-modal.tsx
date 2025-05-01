@@ -5,6 +5,7 @@ import { Button, TextField, Typography, Snackbar, Alert } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Education } from "@/models/models";
 import { useEducation } from "@/context/EducationContext";
+import { XIcon } from "lucide-react";
 
 
 const AddEducationModal = ({
@@ -49,14 +50,17 @@ const AddEducationModal = ({
   if (!open) return null;
 
 
-  //Ito yung galawin mo arrianne
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-green bg-opacity-50 z-50">
-      <Card className="w-full max-w-3xl p-4 bg-white">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <Card className="w-full max-w-xl bg-white border-none shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold mb-4">
-            Add {degreeType} Degree
-          </CardTitle>
+          <div className="flex items-center justify-between relative">
+            {degreeType == "Bachelor" && (<p className="text-xl font-bold pb-3">Add bachelor's degree</p>)}
+            {degreeType == "Masters" && (<p className="text-xl font-bold pb-3">Add master's degree</p>)}
+            {degreeType == "Doctoral" && (<p className="text-xl font-bold pb-3">Add doctoral degree</p>)}
+            <button onClick={onClose} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+          </div>
+          
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -64,55 +68,68 @@ const AddEducationModal = ({
                     university,
                     type:degreeType,
                     yearGraduated,
-                    major,
+                    major
                 });
 
             }}
             className="space-y-4"
           >
-            <TextField
-              label="University"
-              value={university}
-              onChange={(e) => setUniversity(e.target.value)}
-              required
-              fullWidth
-            />
-            <TextField
-              label={degreeType}
-              value={type}
-              onChange={(e) => setType(degreeType)}
-              required
-              disabled  
-              fullWidth
-            />
-            <TextField
-              label="Year Graduated"
-              type="number"
-              value={yearGraduated}
-              onChange={(e) => setYearGraduated(e.target.value)}
-              required
-              fullWidth
-            />
-            <TextField
-              label="Major"
-              value={major}
-              onChange={(e) => setMajor(e.target.value)}
-              required
-              fullWidth
-            />
-
-
-            <div className="flex justify-end space-x-2 mt-4">
-              <Button
-                variant="outlined"
-                onClick={onClose}
-                sx={{ mr: 2 }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="contained" color="primary">
+            <div className="grid grid-cols-12 gap-x-4 gap-y-3 pb-3">
+              <div className="col-span-9">
+                <p className="text-xs font-light">Degree Program*</p>
+                {degreeType == "Bachelor" && (<input
+                  placeholder="Bachelor of Science in Computer Science"
+                  value={major}
+                  onChange={(e) => setMajor(e.target.value)}
+                  required
+                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                />)}
+                {degreeType == "Masters" && (<input
+                  placeholder="Master of Science in Computer Science"
+                  value={major}
+                  onChange={(e) => setMajor(e.target.value)}
+                  required
+                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                />)}
+                {degreeType == "Doctoral" && (<input
+                  placeholder="Doctor of Philosophy in Computer Science"
+                  value={major}
+                  onChange={(e) => setMajor(e.target.value)}
+                  required
+                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                />)}
+              </div>
+              <div className="col-span-3">
+                <p className="text-xs font-light">Year Graduated*</p>
+                <input
+                  placeholder="XXXX"
+                  type="number"
+                  value={yearGraduated}
+                  onChange={(e) => setYearGraduated(e.target.value)}
+                  required
+                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                />
+              </div>
+              <div className="col-span-12">
+                <p className="text-xs font-light">University*</p>
+                <input
+                  placeholder="University of the Philippines"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  required
+                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                />
+              </div>
+              
+            </div>
+            
+            <div className="flex justify-end">
+              <button 
+              type="submit"
+              color="primary"
+              className="w-20 bg-[#0856ba] text-white py-2 px-3 rounded-full cursor-pointer hover:bg-[#92b2dc]">
                 Save
-              </Button>
+              </button>
             </div>
           </form>
         </CardHeader>

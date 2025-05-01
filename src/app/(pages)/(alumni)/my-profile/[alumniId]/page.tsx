@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon } from "lucide-react";
+import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "@/components/ui/edit-experience-modal"
@@ -36,6 +36,9 @@ import AddWorkExperience from "@/components/ui/add-experience-modal";
 import AlumniJobOffers from "@/components/ui/job-posting-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { useAlums } from "@/context/AlumContext";
+import { PlusCircleIcon } from "lucide-react";
+
+
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
   const { userWorkExperience, isLoading, deleteWorkExperience } =
@@ -62,6 +65,7 @@ const UserProfile = () => {
   const [addAffiliation, setaddAffiliation] = useState(false);
 
   //for tabs
+  const [seeProfile, setSeeProfile]= useState(true)
   const [seeDonations, setSeeDonations]= useState(false)
   const [seeBookmarks, setSeeBookmarks]= useState(false)
   const [seeJobpostings, setSeeJobPosting]= useState(false)
@@ -104,8 +108,8 @@ const UserProfile = () => {
       setSuffix(alumInfo.suffix || "");
       setEmail(alumInfo.email || "");
       setStudentNumber(alumInfo.studentNumber || "");
-      setCity(alumInfo.address?.[1] || "");
-      setProvince(alumInfo.address?.[2] || "");
+      setCity(alumInfo.address?.[2] || "");
+      setProvince(alumInfo.address?.[1] || "");
       setCountry(alumInfo.address?.[0] || "");
   
       // For birthday (parse and split to day, month, year)
@@ -129,18 +133,27 @@ const UserProfile = () => {
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
 
   const fields = [
-    "Software Development",
+    "Artificial Intelligence (AI)",
+    "Machine Learning (ML)",
+    "Data Science",
     "Cybersecurity",
-    "Artificial Intelligence & Machine Learning",
-    "Data Science & Big Data",
-    "Cloud Computing & DevOps",
-    "Computer Networks & Systems Administration",
-    "Blockchain & Web3 Development",
-    "Computer Graphics & Multimedia",
-    "Embedded Systems & IoT (Internet of Things)",
-    "Bioinformatics & Computational Biology",
-    "Robotics & Automation",
-    "Theoretical Computer Science & Research",
+    "Software Engineering",
+    "Computer Networks",
+    "Computer Graphics and Visualization",
+    "Human-Computer Interaction (HCI)",
+    "Theoretical Computer Science",
+    "Operating Systems",
+    "Databases",
+    "Web Development",
+    "Mobile Development",
+    "Cloud Computing",
+    "Embedded Systems",
+    "Robotics",
+    "Game Development",
+    "Quantum Computing",
+    "DevOps and System Administration",
+    "Information Systems",
+    "Others"
   ];
   
   const handleFieldsSelect = (field: string) => {
@@ -198,7 +211,18 @@ const UserProfile = () => {
   };
 
   //pagpindot sa buttons and tabs
+  const handleProfileClick = () => {
+    setSeeProfile(true);
+    setSeeBookmarks(false);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(true);
+    setCareerView(false);
+    setEducationView(false);
+  };
+
   const handleEducationClick = () => {
+    setSeeProfile(true);
     setSeeBookmarks(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
@@ -208,6 +232,7 @@ const UserProfile = () => {
   };
 
   const handlePersonalClick = () => {
+    setSeeProfile(true);
     setEducationView(false);
     setCareerView(false);
     setSeeBookmarks(false);
@@ -219,6 +244,7 @@ const UserProfile = () => {
 
   
   const handleCareerClick = () => {
+    setSeeProfile(true);
     setEducationView(false);
     setSeeBookmarks(false);
     setSeeDonations(false);
@@ -227,6 +253,7 @@ const UserProfile = () => {
     setCareerView(true);
   };
   const handleDonationsClick =() => {
+    setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(false);
     setSeeDonations(true);
@@ -235,6 +262,7 @@ const UserProfile = () => {
     setCareerView(false);
   }
   const handleBookmarksClick =() => {
+    setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
     setSeeDonations(false);
@@ -243,8 +271,9 @@ const UserProfile = () => {
     setCareerView(false);
   }
   const handleJobpostingClick =() => {
+    setSeeProfile(false);
     setEducationView(false);
-    setSeeBookmarks(true);
+    setSeeBookmarks(false);
     setSeeDonations(false);
     setSeeJobPosting(true);
     setPersonalView(false);
@@ -263,8 +292,11 @@ const UserProfile = () => {
     }
   }
 
+  
+
   //pagdagdag sa education
   const handleAddBachelor = () => {
+    document.body.style.overflow = 'hidden';
     setAddMasters(false);
     setAddDoctoral(false);
     console.log("@ Bachelor");
@@ -273,6 +305,7 @@ const UserProfile = () => {
   }
 
   const handleAddMasters = () => {
+    document.body.style.overflow = 'hidden';
     setAddDoctoral(false);
     setAddBachelor(false);
     setDegreeType("Masters");
@@ -280,6 +313,7 @@ const UserProfile = () => {
   };
   
   const handleAddDoctoral = () => {
+    document.body.style.overflow = 'hidden';
     setAddMasters(false);
     setAddBachelor(false);
     setDegreeType("Doctoral");
@@ -288,10 +322,9 @@ const UserProfile = () => {
 
 
   const handleAddAffiliation = () => {
+    document.body.style.overflow = 'hidden';
     setaddAffiliation(true);
   };
-
-
 
 
   const [isMapOpenArray, setIsMapOpenArray] = useState(
@@ -306,8 +339,7 @@ const UserProfile = () => {
   );
 
   const openEditModal = (index:number) => {
-    console.log("Opem Modal");
-    const newEditModal = Array(isEditModalOpen.length).fill(false);
+    const newEditModal = [...isEditModalOpen];
     newEditModal[index] = true;
     setEditModalOpen(newEditModal);
   };
@@ -357,6 +389,11 @@ const UserProfile = () => {
   }
 
 
+  const currentWorkExperience = userWorkExperience.filter(
+    (item: WorkExperience) => item.endYear === "Present"
+  );
+
+
   // new (from fe)
   function getFullMonthName(monthIndex: number) {
     const monthNames = [
@@ -373,7 +410,7 @@ const UserProfile = () => {
 
   return (
     <div className="">
-      <div style={{backgroundColor: "#3675c5"}} className="pt-20 pb-2 px-60 h-max w-full text-white">
+      <div style={{backgroundColor: "#3675c5"}} className="pt-20 px-60 h-max w-full text-white">
         <div className="flex space-x-10 pb-5">
           <div className="bg-blue-300 w-50 h-50 flex justify-center items-center mb-2 rounded-full" onClick={handleUploadImage}>
           {alumInfo?.image ? (
@@ -391,28 +428,35 @@ const UserProfile = () => {
           </div>
           <div className="flex flex-col justify-end pb-10">
             <p className="font-bold text-5xl pb-3">{alumInfo?.firstName} {alumInfo?.lastName}</p>
-            <p className="font-semibold text-xl">Job Title Here</p>
+            {userWorkExperience.filter((item: WorkExperience) => item.endYear === "Present")
+              .map((item: WorkExperience, index: number) => (
+                <div key={index} className="work-experience-item">
+                  <p className="font-semibold text-xl">{item.jobTitle}</p>
+                </div>
+              ))
+            }
           </div>
         </div>
 
         <div className="flex gap-3">
-          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition">Profile</button>
-          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"  
+          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeProfile ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}
+            onClick={handleProfileClick}>Profile</button>
+          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeDonations ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}  
             onClick={handleDonationsClick}>
               Record of Donations
           </button>
-          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"
+          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeJobpostings ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}
           onClick={handleJobpostingClick}>
             Job Postings</button>
-          <button className="whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition"
+          <button className={`whitespace-nowrap py-3 px-5 w-fit cursor-pointer font-semibold hover:bg-white/20 rounded-sm transition ${seeBookmarks ? "bg-white/20 border-b-5 border-[#EAEAEA] rounded-b-none" : ""}`}
           onClick={handleBookmarksClick}>
             Bookmarked Jobs
             </button>
         </div>
       </div>
 
-      <div className="mx-60 my-10">
-        <p style={{color: "#3675c5"}} className="text-3xl font-bold mb-5">Your Profile</p>
+      {seeProfile && (<div className="mx-60 my-10">
+        {/* <p style={{color: "#3675c5"}} className="text-3xl font-bold mb-5">Your Profile</p> */}
 
         <div className="flex space-x-7">
           <div style={{backgroundColor: "#3675c5"}} className="flex flex-col px-2 py-2.5 rounded-xl max-h-fit space-y-1">
@@ -424,214 +468,244 @@ const UserProfile = () => {
           {/* INFO BOX */}
 
           {/* personal section */}
-          {personalView && (<div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
+          {personalView && (<div>
+            <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
 
-            {/* FULL NAME */}
-            <p className="font-semibold">Full Name</p>
-            <div className="flex space-x-7 mb-5">
-              <div>
-                <p className="text-xs font-light">First Name</p>
+              {/* FULL NAME */}
+              <p className="font-semibold">Full Name</p>
+              <div className="flex space-x-7 mb-7">
+                <div>
+                  <p className="text-xs font-light">First Name</p>
+                    <div className="flex">
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                      disabled
+                    />
+                    </div>
+                </div>
+                <div>
+                  <p className="text-xs font-light">Middle Name</p>
                   <div className="flex">
                   <input
                     type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    value={middleName? middleName: "N/A"}
+                    onChange={(e) => setMiddleName(e.target.value)}
                     className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                    disabled
                   />
                   </div>
-              </div>
-              <div>
-                <p className="text-xs font-light">Middle Name</p>
-                <div className="flex">
-                <input
-                  type="text"
-                  value={middleName? middleName: "N/A"}
-                  onChange={(e) => setMiddleName(e.target.value)}
-                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                />
                 </div>
-              </div>
-              <div>
-                <p className="text-xs font-light">Last Name</p>
-                <div className="flex">
-                <input
-                  type="text"
-                  value={lastName? lastName: "N/A"}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                />
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-light">Suffix</p>
-                <div className="flex">
-                <input
-                  type="text"
-                  value={suffix? suffix: "N/A"}
-                  onChange={(e) => setSuffix(e.target.value)}
-                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                />
-                </div>
-              </div>
-            </div>
-            {/* --------------------- */}
-
-            {/* EMAIL ADDRESS */}
-            <div className="flex space-x-7 mb-5">
-              <div>
-                <p className="font-semibold">Email Address</p>
-                <div className="flex">
-                <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                />
-                </div>
-              </div>
-
-              <div>
-                <p className="font-semibold">Student Number</p>
-                <div className="flex">
-                <input
-                  type="text"
-                  value={studentNumber}
-                  onChange={(e) => setStudentNumber(e.target.value)}
-                  className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                />
-                </div>
-              </div>
-            </div>
-            
-            {/* --------------------- */}
-
-            {/* BIRTHDAY */}
-            <p className="font-semibold mb-1">Birthday*</p>
-            <div className="flex space-x-4 mb-5">
-              <div>
-                <p className="text-xs font-light mb-1">Month</p>
-                <select
-                  value={month}
-                  onChange={(e) => setMonth(e.target.value)}
-                  className="bg-white py-2 px-4 border border-gray-300 rounded-md w-35 text-gray-700"
-                >
-                  <option value="">Month</option>
-                  {months.map((m, i) => (
-                    <option key={i} value={i + 1}>{m}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <p className="text-xs font-light mb-1">Day</p>
-                <select
-                value={day}
-                onChange={(e) => setDay(e.target.value)}
-                className="bg-white py-2 px-4 border border-gray-300 rounded-md w-20 text-gray-700"
-                >
-                  <option value="">Day</option>
-                  {days.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <p className="text-xs font-light mb-1">Year</p>
-                <select
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  className="bg-white py-2 px-4 border border-gray-300 rounded-md w-30 text-gray-700"
-                >
-                  <option value="">Year</option>
-                  {years.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="flex space-x-2 mb-4">
-
-      </div>
-
-      {/* <div className="text-gray-700">
-        Selected Date: <span className="font-medium">{date || "—"}</span>
-      </div> */}
-
-            {/* CURRENT LOCATION */}
-            <p className="font-semibold">Current Location</p>
-            <div className="flex space-x-7">
-              <div>
-                <p className="text-xs font-light">City/Municipality</p>
-                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[0]}</p>*/}
-                <input
-                  type="text"
-                  // placeholder="City/Municipality"
-                  className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                />
-              </div>
-              <div>
-                <p className="text-xs font-light">Province/State</p>
-                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[0]}</p>*/}
-                <input
-                  type="text"
-                  placeholder="Province/State"
-                  className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  value={province}
-                  onChange={(e) => setProvince(e.target.value)}
-                />
-              </div>
-              <div>
-                <p className="text-xs font-light">Country</p>
-                {/*<p className="bg-gray-200 py-2 px-4 border border-gray-500 w-50 text-gray-500 rounded-md">{alumInfo?.address[0].split(', ')[1]}</p>*/}
-                <input
-                  type="text"
-                  // placeholder="Country"
-                  className="py-2 px-4 border border-gray-500 w-50 rounded-md bg-white"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                />
-              </div>
-            </div>
-            {/* --------------------- */}
-
-            {/* field if interest */}
-            {/* sorry di ko na na by row TmT */}
-
-            <div className="flex flex-col space-y-2">
-              <p className="font-semibold">field of interest</p>
-              <div className="flex flex-wrap gap-2">
-                {/* Display fields */}
-                {selectedFields.map((tag) => (
-                  <div
-                    key={tag}
-                    className="bg-blue-200 px-4 py-2 rounded-full flex items-center justify-between"
-                  >
-                    <span>{tag}</span>
-                    <button
-                      className="ml-2 text-red-600"
-                      onClick={() => handleFieldRemove(tag)}
-                    >
-                      x
-                    </button>
+                <div>
+                  <p className="text-xs font-light">Last Name</p>
+                  <div className="flex">
+                  <input
+                    type="text"
+                    value={lastName? lastName: "N/A"}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                    disabled
+                  />
                   </div>
-                ))}
+                </div>
+                <div>
+                  <p className="text-xs font-light">Suffix</p>
+                  <div className="flex">
+                  <input
+                    type="text"
+                    value={suffix? suffix: "N/A"}
+                    onChange={(e) => setSuffix(e.target.value)}
+                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                    disabled
+                  />
+                  </div>
+                </div>
               </div>
 
-              {/* List of all tags */}
-              <div className="flex flex-wrap gap-2">
-                {fields.map((field) => (
-                  <button
-                    key={field}
-                    className="bg-gray-200 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-                    onClick={() => handleFieldsSelect(field)}
-                  >
-                    {field}
-                  </button>
-                ))}
+              {/* EMAIL ADDRESS */}
+              <div className="flex space-x-7 mb-7">
+                <div>
+                  <p className="font-semibold">Email Address</p>
+                  <div className="flex">
+                  <input
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                    disabled
+                  />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="font-semibold">Student Number</p>
+                  <div className="flex">
+                  <input
+                    type="text"
+                    value={studentNumber}
+                    onChange={(e) => setStudentNumber(e.target.value)}
+                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                    disabled
+                  />
+                  </div>
+                </div>
+              </div>
+
+              {/* BIRTHDAY */}
+              <p className="font-semibold">Birthday</p>
+              <div className="flex space-x-7 mb-7">
+                <div className="relative">
+                  <p className="text-xs font-light">Month</p>
+                  <div className="relative">
+                    <select
+                      value={month}
+                      onChange={(e) => setMonth(e.target.value)}
+                      className="appearance-none py-2 px-4 pr-10 border border-gray-500 rounded-md w-full text-gray-700"
+                    >
+                      <option value="">Month</option>
+                      {months.map((m, i) => (
+                        <option key={i} value={i + 1}>{m}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+                <div className="relative">
+                  <p className="text-xs font-light">Day</p>
+                  <div className="relative">
+                    <select
+                    value={day}
+                    onChange={(e) => setDay(e.target.value)}
+                    className="appearance-none py-2 px-4 border pr-10 border-gray-500 rounded-md w-full text-gray-700"
+                    >
+                      <option value="">Day</option>
+                      {days.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+                <div className="relative">
+                  <p className="text-xs font-light">Year</p>
+                  <div className="relative">
+                    <select
+                      value={year}
+                      onChange={(e) => setYear(e.target.value)}
+                      className="appearance-none py-2 px-4 pr-10 border border-gray-500 rounded-md w-full text-gray-700"
+                    >
+                      <option value="">Year</option>
+                      {years.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+
+              {/* CURRENT LOCATION */}
+              <p className="font-semibold">Current Location</p>
+              <div className="flex space-x-7 mb-7">
+                <div>
+                  <p className="text-xs font-light">City/Municipality</p>
+                  <input
+                    type="text"
+                    placeholder="City/Municipality"
+                    className="py-2 px-4 border border-gray-500 rounded-md w-full text-gray-700"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-light">Province/State</p>
+                  <input
+                    type="text"
+                    placeholder="Province/State"
+                    className="py-2 px-4 border border-gray-500 rounded-md w-full text-gray-700"
+                    value={province}
+                    onChange={(e) => setProvince(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-light">Country</p>
+                  <input
+                    type="text"
+                    placeholder="Country"
+                    className="py-2 px-4 border border-gray-500 rounded-md w-full text-gray-700"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* FIELDS OF INTEREST */}
+              <div className="space-y-5">
+                <div>
+                  <p className="font-semibold">Fields of Interest</p>
+                  <p className="font-light text-xs mb-1">Selected: {selectedFields.length}/5 &nbsp;&nbsp; {selectedFields.length >= 5 && (<span className="text-red-500 font-medium">Maximum has been reached: 5</span>)}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {/* Display fields */}
+                    {selectedFields.map((tag) => (
+                      <div
+                        key={tag}
+                        className="bg-[#c2d5ef] px-4 py-2 rounded-md cursor-pointer text-sm flex items-center justify-between space-x-5"
+                      >
+                        <span>{tag}</span>
+                        <XIcon className="text-gray-700 hover:text-red-500 cursor-pointer w-4 h-4" onClick={() => handleFieldRemove(tag)}/>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                
+
+                {/* List of all tags */}
+                {selectedFields.length < 5 && (<div className="flex flex-wrap gap-2">
+                  {fields
+                  .filter(field => !selectedFields.includes(field))
+                  .map((field) => (
+                    <button
+                      key={field}
+                      className="bg-gray-200 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-300 text-sm"
+                      onClick={() => handleFieldsSelect(field)}
+                    >
+                      {field}
+                    </button>
+                  ))}
+                </div>)}
+
+                {selectedFields.length >= 5 && (
+                  <div>
+                    <div className="flex flex-wrap gap-2">
+                    {fields
+                    .filter(field => !selectedFields.includes(field))
+                    .map((field) => (
+                      <button
+                        key={field}
+                        disabled
+                        className="bg-gray-200 px-4 py-2 rounded-md cursor-not-allowed text-gray-500 text-sm"
+                        onClick={() => handleFieldsSelect(field)}
+                      >
+                        {field}
+                      </button>
+                    ))}
+                    </div>
+                  </div>
+                  
+                )}
               </div>
             </div>
-                <Button onClick={handleTheSaveChages}>Save Changes</Button>
+            <button className="my-5 w-50 bg-[#0856ba] text-white p-2 rounded-full cursor-pointer hover:bg-[#92b2dc]" onClick={handleTheSaveChages}>Save Changes</button>
           </div>)}
 
           {/* education section */}
@@ -641,13 +715,13 @@ const UserProfile = () => {
               <div className="space-y-3">
                 <p className="font-semibold">Bachelor's Degree</p>
                 
-                {true && (<div className="space-y-3">
+                <div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Bachelor").map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "Bachelor").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
 
                   <div className="flex items-center space-x-5" key={index}>
-                    <div className="w-6 h-6 rounded-full bg-sky-400"></div>
+                    <div className="w-6 h-6 rounded-full bg-[#b9e5fe]"></div>
                     <div>
                       <p className="font-medium">{edu.major}</p>
                       <p className="text-sm">{edu.university}</p>
@@ -659,11 +733,17 @@ const UserProfile = () => {
                   ))}
                   {/* ---- end of individual bullet ---- */}
 
-                </div>)}
+                </div>
 
-                <button className="flex items-center space-x-3 cursor-pointer" onClick={handleAddBachelor}>
-                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                  <p className="text-[#3675c5] text-sm hover:underline">Add bachelor's degree</p>
+                <button
+                  className="flex items-center space-x-3 cursor-pointer group"
+                  type="button"
+                  onClick={handleAddBachelor}
+                >
+                  <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                  <p className="text-[#3675c5] text-sm group-hover:underline">
+                    Add bachelor's degree
+                  </p>
                 </button>
                 
               </div>
@@ -674,13 +754,13 @@ const UserProfile = () => {
                 <p className="font-semibold">Master's Degree</p>
                 
                 {/* BULLET DIV ; set of all bullets ito */}
-                {true && (<div className="space-y-3">
+                <div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Masters").map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "Masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
-                    <div className="w-6 h-6 rounded-full bg-sky-400"></div>
+                    <div className="w-6 h-6 rounded-full bg-[#00bcfc]"></div>
                     <div>
                       <p className="font-medium">{edu.major}</p>
                       <p className="text-sm">{edu.university}</p>
@@ -692,12 +772,18 @@ const UserProfile = () => {
                   ))}
                   {/* ---- end of individual bullet ---- */}
 
-                </div>)}
+                </div>
                 {/* ---- end of bullet div ---- */}
 
-                <button className="flex items-center space-x-3 cursor-pointer">
-                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                  <p className="text-[#3675c5] text-sm hover:underline" onClick={handleAddMasters}>Add master's degree</p>
+                <button
+                  className="flex items-center space-x-3 cursor-pointer group"
+                  type="button"
+                  onClick={handleAddMasters}
+                >
+                  <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                  <p className="text-[#3675c5] text-sm group-hover:underline">
+                    Add master's degree
+                  </p>
                 </button>
                 
               </div>
@@ -708,30 +794,34 @@ const UserProfile = () => {
                 <p className="font-semibold">Doctoral Degree</p>
 
                 {/* BULLET DIV ; set of all bullets ito */}
-                {true && (<div className="space-y-3">
+                <div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Doctoral").map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "Doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
-                    <div className="w-6 h-6 rounded-full bg-sky-400"></div>
+                    <div className="w-6 h-6 rounded-full bg-[#0282d2]"></div>
                     <div>
                       <p className="font-medium">{edu.major}</p>
                       <p className="text-sm">{edu.university}</p>
                       <p className="text-sm">Year Graduated: {edu.yearGraduated}</p>
                     </div>
                   </div>
-
-
                   ))}
                   {/* ---- end of individual bullet ---- */}
 
-                </div>)}
+                </div>
                 {/* ---- end of bullet div ---- */}
 
-                <button className="flex items-center space-x-3 cursor-pointer" onClick={handleAddDoctoral}>
-                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                  <p className="text-[#3675c5] text-sm hover:underline">Add doctoral degree</p>
+                <button
+                  className="flex items-center space-x-3 cursor-pointer group"
+                  type="button"
+                  onClick={handleAddDoctoral}
+                >
+                  <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                  <p className="text-[#3675c5] text-sm group-hover:underline">
+                    Add doctoral degree
+                  </p>
                 </button>
                 
               </div>
@@ -745,28 +835,34 @@ const UserProfile = () => {
                 <p className="font-semibold">Affiliations</p>
                 
                 {/* BULLET DIV ; all bullets ito */}
-                {true && (<div className="space-y-3">
+                <div className="space-y-3">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userAffiliation.map((affiliation:Affiliation, index:number)=> (
+                  {userAffiliation.sort((a, b) => b.yearJoined - a.yearJoined).map((affiliation:Affiliation, index:number)=> (
                     <div className="flex items-center space-x-5" key={index}>
                       <div className="w-6 h-6 rounded-full bg-gray-500"></div>
                       <div>
                         <p className="font-medium">{affiliation.affiliationName}</p>
-                        <p className="text-sm">University: {affiliation.university}</p>
-                        <p className="text-sm">Year Joined: 2020</p>
+                        <p className="text-sm">{affiliation.university}</p>
+                        <p className="text-sm">Year Joined: {affiliation.yearJoined}</p>
                       </div>
                     </div>
                   )
                   )}
                   {/* ---- end of individual bullet ---- */}
 
-                </div>)}
+                </div>
                 {/* ---- end of bullet div ---- */}
 
-                <button className="flex items-center space-x-3 cursor-pointer" onClick={handleAddAffiliation}>
-                  <p className="text-[#3675c5] border-2 border-[#3675c5] hover:bg-[#3675c5] hover:text-white bg-white px-1.5 py-0 rounded-full">+</p>
-                  <p className="text-[#3675c5] text-sm hover:underline">Add affiliation</p>
+                <button
+                  className="flex items-center space-x-3 cursor-pointer group"
+                  type="button"
+                  onClick={handleAddAffiliation}
+                >
+                  <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                  <p className="text-[#3675c5] text-sm group-hover:underline">
+                    Add affiliation
+                  </p>
                 </button>
                 
               </div>
@@ -775,98 +871,107 @@ const UserProfile = () => {
           </div>)}
 
           {/* career section */}
-          {/* Plain text lang pala ito baka di mapansinn */}
-          {careerView && userWorkExperience.length == 0 && ( 
-            <Typography>No Work Experience Yet!</Typography>
-          )}
-          {careerView && (
+          {careerView && (<div className="space-y-7 w-full">
             <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full">
               <div className="space-y-3">
                 <p className="font-semibold">Work Experience</p>
 
                 {/* BULLET DIV */}
-                {userWorkExperience.length > 0 && (
-                  <div className="space-y-3">
-                    {userWorkExperience.map((item:WorkExperience, index:number) => (
-                      <div key={index} className="flex justify-between items-center">
-                        <div className="flex items-center space-x-5">
-                          <div className="w-6 h-6 rounded-full bg-gray-500"></div>
-                          <div>
-                            <p className="font-medium">{item.company}</p>
-                            <p className="text-sm">
-                              {item.company} &nbsp;•&nbsp; <span className="font-light italic">{item.details}</span>
-                            </p>
-                            <p className="text-sm">{item.startYear}</p>
-                          </div>
-                        </div>
-                        <div className="flex space-x-10">
-                          <button className="flex items-center space-x-2 cursor-pointer" onClick={() => openMap(index)}>
-                            <p className="text-[#3675c5]"><MapPin/></p>
-                            <p className="text-[#3675c5] text-sm hover:underline">View in map</p>
-                          </button>
-                          <button className="flex items-center space-x-2 cursor-pointer" onClick={() => {if (!isEditModalOpen[index]) openEditModal(index); else closeEditModal(index);}}>
-                            <p className="text-[#3675c5]"><PencilIcon/></p>
-                            <p className="text-[#3675c5] text-sm hover:underline">Edit</p>
-                          </button>
-                          
-                          <Divider/>
+                <div className="space-y-3">
 
-                          {/*  */}
-                          <EditWorkExperience
-                            open={isEditModalOpen[index]}
-                            work={item}
-                            onClose={() => closeEditModal(index)}
-                            snackbar
-                            setSnackbar={setSnackbar}
-                            setMessage={setEditMessage}
-                            setSuccess={setEditSuccess}
-                          />
-
-                          {/* Dito yung part nung sa Map */}
-                          <Dialog
-                            open={isMapOpenArray[index]}
-                            onClose={() => closeMap(index)}
-                          >
-                            <DialogContent className="w-[600px]">
-                              <DialogHeader>
-                                <DialogTitle>{item.company} Location</DialogTitle>
-                              </DialogHeader>
-                              <div className="h-[400px] w-full">
-                                {!isLoaded ? (
-                                  <div className="flex items-center justify-center h-full">
-                                    <p className="text-xl text-gray-600">Loading map...</p>
-                                  </div>
-                                ) : (
-                                  <GoogleMap
-                                    mapContainerStyle={{ width: "100%", height: "100%" }}
-                                    center={{ lat: item.latitude, lng: item.longitude }}
-                                    zoom={15}
-                                  >
-                                    <Marker
-                                      position={{ lat: item.latitude, lng: item.longitude }}
-                                      title={item.company}
-                                    />
-                                  </GoogleMap>
-                                )}
-                                </div>
-                                <div className="mt-4 text-center">
-                                  <p>{item.location}</p>
-                                </div>
-                                <Button onClick={() => closeMap(index)}>Close</Button>
-                              </DialogContent>
-                            </Dialog>
+                  {userWorkExperience.map((item:WorkExperience, index:number) => (
+                    <div key={index} className="flex justify-between">
+                      <div className="flex items-center space-x-5">
+                        <div className="w-6 h-6 rounded-full bg-gray-500"></div>
+                        <div>
+                          <p className="font-medium">{item.jobTitle}</p>
+                          <p className="text-sm">{item.company} &nbsp;•&nbsp; <span className="font-light italic">{item.industry}</span></p>
+                          <p className="text-sm">{item.startYear} - {item.endYear}</p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      
+
+                      <div className="flex space-x-10">
+                        <button className="flex items-center space-x-2 cursor-pointer" onClick={() => openMap(index)}>
+                          <p className="text-[#3675c5]"><MapPin/></p>
+                          <p className="text-[#3675c5] text-sm hover:underline">View in map</p>
+                        </button>
+                        <button className="flex items-center space-x-2 cursor-pointer" onClick={() => {openEditModal(index); document.body.style.overflow = 'hidden'}}>
+                          <p className="text-[#3675c5]"><PencilIcon/></p>
+                          <p className="text-[#3675c5] text-sm hover:underline">Edit</p>
+                        </button>
+                      </div>
+
+                      <EditWorkExperience
+                        open={isEditModalOpen[index]}
+                        onClose={() => {closeEditModal(index); document.body.style.overflow = 'auto'}}
+                        numOfPresentJobs={currentWorkExperience.length}
+                        work={item}
+                        snackbar
+                        setSnackbar={setSnackbar}
+                        setMessage={setEditMessage}
+                        setSuccess={setEditSuccess}
+                      />
+
+                      {/* Dito yung part nung sa Map */}
+                      <Dialog
+                        open={isMapOpenArray[index]}
+                        onClose={() => closeMap(index)}
+                      >
+                        <DialogContent className="w-150">
+                          <div className="flex items-center justify-between relative">
+                            <p className="text-xl font-bold pb-3">{item.company} Location</p>
+                            <button onClick={() => closeMap(index)} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+                          </div>
+                          <div className="h-[400px] w-full">
+                            {!isLoaded ? (
+                              <div className="flex items-center justify-center h-full">
+                                <p className="text-xl text-gray-600">Loading map...</p>
+                              </div>
+                            ) : (
+                              <GoogleMap
+                                mapContainerStyle={{ width: "100%", height: "100%" }}
+                                center={{ lat: item.latitude, lng: item.longitude }}
+                                zoom={15}
+                              >
+                                <Marker
+                                  position={{ lat: item.latitude, lng: item.longitude }}
+                                  title={item.company}
+                                />
+                              </GoogleMap>
+                            )}
+                            </div>
+                            <div className="mt-4 text-center">
+                              <p>{item.location}</p>
+                            </div>
+                          </DialogContent>
+                      </Dialog>
+                      
+                    </div>
+                  ))}
+
+                </div>
+
+                <button
+                  className="flex items-center space-x-3 cursor-pointer group"
+                  type="button"
+                  onClick={() => {setOpenAddModal(true); document.body.style.overflow = 'hidden'}}
+                >
+                  <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                  <p className="text-[#3675c5] text-sm group-hover:underline">
+                    Add work experience
+                  </p>
+                </button>
               </div>
-              <Button onClick={() => setOpenAddModal(true)}>Add Experience</Button>
+
+              
+              
               {alumInfo?.alumniId && (
                 <AddWorkExperience
                   open={openAddModal}
                   alumniId={alumInfo.alumniId}
-                  onClose={() => setOpenAddModal(false)}
+                  numOfPresentJobs={currentWorkExperience.length}
+                  onClose={() => {setOpenAddModal(false); document.body.style.overflow = 'auto'}}
                   snackbar={snackbar}
                   setSnackbar={setSnackbar}
                   setSuccess={setSuccess}
@@ -880,19 +985,19 @@ const UserProfile = () => {
                 message={message}
               />
             </div>
-          )}
+          </div>)}
 
 
           {/* ================== end of info box ================== */}
 
         </div>
-      </div>
+      </div>)}
 
       {/* Modal Sectionn */}
       {addBachelor && (
         <AddEducationModal
           open={addBachelor}
-          onClose={() => setAddBachelor(false)}
+          onClose={() => {setAddBachelor(false); document.body.style.overflow = 'auto'}}
           userId={alumInfo?.alumniId}
           setSuccess={setSuccess}
           degreeType={degreeType}
@@ -901,7 +1006,7 @@ const UserProfile = () => {
       {addMasters && (
         <AddEducationModal
           open={addMasters}
-          onClose={() => setAddMasters(false)}
+          onClose={() => {setAddMasters(false); document.body.style.overflow = 'auto'}}
           userId={alumInfo?.alumniId}
           setSuccess={setSuccess}
           degreeType={degreeType}
@@ -910,7 +1015,7 @@ const UserProfile = () => {
       {addDoctoral && (
         <AddEducationModal
           open={addDoctoral}
-          onClose={() => setAddDoctoral(false)}
+          onClose={() => {setAddDoctoral(false); document.body.style.overflow = 'auto'}}
           userId={alumInfo?.alumniId}
           setSuccess={setSuccess}
           degreeType={degreeType}
@@ -920,11 +1025,12 @@ const UserProfile = () => {
       {addAffiliation && (
         <AddAffiliationModal
         open= {addAffiliation}
-        onClose={()=> setaddAffiliation(false)}
+        onClose={()=> {setaddAffiliation(false); document.body.style.overflow = 'auto'}}
         userId={alumInfo?.alumniId}
         setSuccess={setSuccess}
         />
       )}
+
 
       {seeDonations && <RecordOfDonations/>}
       {seeBookmarks && <AlumniBookmarks/>}

@@ -70,7 +70,7 @@ export function WorkExperienceProvider({
     const sortedList = [...experienceList]; // Copy to avoid modifying the original
   
     // Sort by startingDate (oldest to newest)
-    sortedList.sort((a, b) => a.startingDate.seconds - b.startingDate.seconds);  
+    sortedList.sort((a, b) => b.startYear - a.startYear);  
     // Log the sorted list to the console
     console.log("Sorted Work Experience List:", sortedList);
   
