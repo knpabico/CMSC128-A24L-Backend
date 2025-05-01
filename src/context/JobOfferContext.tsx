@@ -32,8 +32,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [position, setPosition] = useState("");
   const [requiredSkill, setRequiredSkill] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState("");
-  const [location, setLocation] = useState("");
-  const [image, setImage] = useState("");
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();

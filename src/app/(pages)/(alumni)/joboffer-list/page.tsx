@@ -277,9 +277,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
         <div className="flex justify-between items-center mb-4">
 
         <button
-            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
-              activeFilters.length > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
+            className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
             onClick={() => {
               setActiveFilters([]);
               setActiveFilterCategory(null);
@@ -849,7 +847,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full bg-white p-1 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
                         {filterCategories["Employment Type"].map((type) => (
                           <Button
                             key={type}
@@ -937,7 +935,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="Company"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -950,7 +948,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="Location"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -969,12 +967,12 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full bg-white p-2 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
                         {filterCategories["Experience Level"].map((level) => (
                           <Button
                             key={level}
                             variant="ghost"
-                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
+                            className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
                             onClick={() => setExperienceLevel(level)}
                           >
                             {level}
@@ -1052,20 +1050,21 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                 </div>
               </div>
 
-              <div className="flex justify-between mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="text-gray-500 p-2 rounded ring-1 ring-[#0856BA]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#0856BA] text-white p-2 rounded"
-                >
-                  Submit
-                </button>
+              <div className="flex justify-end gap-4 mt-6">
+              <button 
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                onClick={handleSubmit}
+                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+              >
+                Submit
+              </button>
               </div>
             </form>
           </div>
