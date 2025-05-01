@@ -69,10 +69,11 @@ const StatusFilter = ({ activeFilter, setActiveFilter }: {
   );
 };
 
-// Sorting
-const SortControl = ({ sortOrder, setSortOrder }: {
-  sortOrder: 'latest' | 'oldest',
-  setSortOrder: (order: 'latest' | 'oldest') => void
+//sortingg
+const SortControl = ({ sortOrder, setSortOrder, activeTab }: {
+  sortOrder: 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors',
+  setSortOrder: (order: 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors') => void,
+  activeTab: string
 }) => {
   return (
     <div className="flex items-center gap-2">
@@ -80,10 +81,17 @@ const SortControl = ({ sortOrder, setSortOrder }: {
       <select 
         className="text-sm border rounded px-2 py-1 bg-white"
         value={sortOrder}
-        onChange={(e) => setSortOrder(e.target.value as 'latest' | 'oldest')}
+        onChange={(e) => setSortOrder(e.target.value as 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors')}
       >
         <option value="latest">Latest first</option>
         <option value="oldest">Oldest first</option>
+        {/* Only show sponsor-related options if the active tab is not "stories" */}
+        {activeTab !== 'stories' && (
+          <>
+            <option value="most-sponsors">Most sponsors</option>
+            <option value="least-sponsors">Least sponsors</option>
+          </>
+        )}
       </select>
     </div>
   );
@@ -95,7 +103,7 @@ const ScholarshipPage: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
-  const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
+  const [sortOrder, setSortOrder] = useState<'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors'>('latest');
   const router = useRouter();
 
   const { featuredItems, isLoading: featuredLoading } = useFeatured();
@@ -194,12 +202,25 @@ const ScholarshipPage: React.FC = () => {
     }
   })();
 
-  // Sort the scholarships based on datePosted
+  // Sort the scholarships based on datePosted or sponsors
   const sortedScholarships = [...filteredScholarships].sort((a, b) => {
-    const dateA = new Date(a.datePosted).getTime();
-    const dateB = new Date(b.datePosted).getTime();
+    // Sort by date
+    if (sortOrder === 'latest' || sortOrder === 'oldest') {
+      const dateA = new Date(a.datePosted).getTime();
+      const dateB = new Date(b.datePosted).getTime();
+      
+      return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+    }
     
-    return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+    // Sort by number of sponsors
+    if (sortOrder === 'most-sponsors' || sortOrder === 'least-sponsors') {
+      const sponsorsA = a.alumList ? a.alumList.length : 0;
+      const sponsorsB = b.alumList ? b.alumList.length : 0;
+      
+      return sortOrder === 'most-sponsors' ? sponsorsB - sponsorsA : sponsorsA - sponsorsB;
+    }
+    
+    return 0;
   });
 
   // Sort the scholarship stories based on datePosted
@@ -271,7 +292,7 @@ const ScholarshipPage: React.FC = () => {
               )}
               
               {/* Simple Sort Control - Show on all tabs */}
-              <SortControl sortOrder={sortOrder} setSortOrder={setSortOrder} />
+              <SortControl sortOrder={sortOrder} setSortOrder={setSortOrder} activeTab={activeTab}  />
             </div>
           </div>
           
