@@ -1,214 +1,102 @@
 "use client";
 
-import { useDonationDrives } from "@/context/DonationDriveContext";
-import { DonationDrive } from "@/models/models";
-import { DonateDialog } from "./DonateDialog";
-import { useState } from "react";
-import BookmarkButton from "@/components/ui/bookmark-button";
+import { useEffect, useState } from 'react';
+import { useDonationDrives } from '@/context/DonationDriveContext';
+import DonationDriveSidebar from './components/Sidebar';
+import DonationDrivesList from './components/DonationDrivesList';
+import { DonationDrive } from '@/models/models';
 
-export default function DonationDrivesPage() {
-  const {
-    donationDrives,
-    isLoading,
-    addDonoForm,
-    setAddDonoForm,
-    suggestDonationDrive,
-    campaignName,
-    setCampaignName,
-    description,
-    setDescription,
-  } = useDonationDrives();
+export default function AllDonationDrivesPage() {
+const { donationDrives, events, isLoading } = useDonationDrives();
+const [sortedDrives, setSortedDrives] = useState<DonationDrive[]>([]);
+const [sortOption, setSortOption] = useState<string>('newest');
 
-  const [sortBy, setSortBy] = useState("latest");
-  const [selectedDrive, setSelectedDrive] = useState<DonationDrive | null>(null);
-  
-  if (!donationDrives) return <div>Loading donation drives...</div>;
-  
-  // Sort donation drives based on selected option
-  const sortedDrives = [...donationDrives].sort((a, b) => {
-    switch (sortBy) {
-      case "ascending":
-        return a.totalAmount - b.totalAmount;
-      case "descending":
-        return b.totalAmount - a.totalAmount;
-      case "oldest":
-        return a.datePosted.toDate().getTime() - b.datePosted.toDate().getTime();
-      case "latest":
-        return b.datePosted.toDate().getTime() - a.datePosted.toDate().getTime();
-      case "alphabetical":
-        return a.campaignName.localeCompare(b.campaignName);
-      default:
-        return 0;
-    }
-  });
+useEffect(() => {
+	if (donationDrives.length > 0) {
 
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Donation Drives</h1>
-      
-      {/* Sorting Dropdown */}
-      <div className="mb-6 flex justify-start items-center">
-        <label htmlFor="sort" className="mr-2 font-medium text-gray-700">Sort by:</label>
-        <select
-          id="sort"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="p-2 border rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          <option value="latest">Latest</option>
-          <option value="oldest">Oldest</option>
-          <option value="ascending">Amount (Low to High)</option>
-          <option value="descending">Amount (High to Low)</option>
-          <option value="alphabetical">Alphabetical</option>
-        </select>
-      </div>
+	const filteredDrives = donationDrives.filter(
+		(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed'));
+	const sorted = [...filteredDrives].sort((a, b) => {
+		switch (sortOption) {
+		case 'newest':
+			const dateA = a.datePosted?.toDate?.() || new Date(0);
+			const dateB = b.datePosted?.toDate?.() || new Date(0);
+			return dateB.getTime() - dateA.getTime();
+		case 'oldest':
+			const dateA2 = a.datePosted?.toDate?.() || new Date(0);
+			const dateB2 = b.datePosted?.toDate?.() || new Date(0);
+			return dateA2.getTime() - dateB2.getTime();
+		case 'amount-high':
+			return b.currentAmount - a.currentAmount;
+		case 'amount-low':
+			return a.currentAmount - b.currentAmount;
+		case 'progress':
+			const progressA = a.currentAmount / a.targetAmount;
+			const progressB = b.currentAmount / b.targetAmount;
+			return progressB - progressA;
+		default:
+			return 0;
+		}
+	});
+	
+	setSortedDrives(sorted);
+	} else {
+	setSortedDrives([]);
+	}
+}, [donationDrives, sortOption]);
 
-      {isLoading && <div className="text-center text-lg">Loading...</div>}
+const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+	setSortOption(e.target.value);
+};
 
-      {/* Donation Drive Cards */}
-      <div className="space-y-8">
-        {/* Active Donation Drives */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Active Donation Drives</h2>
-          {sortedDrives.filter(drive => drive.status === "active").length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedDrives
-                .filter((drive) => drive.status === "active")
-                .map((drive) => (
-                  <div 
-                    key={drive.donationDriveId} 
-                    className="relative bg-white border rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow cursor-pointer w-full h-56 flex flex-col justify-between"
-                    onClick={() => setSelectedDrive(drive)}
-                  >
-                    {/* Bookmark Button */}
-                    <div className="absolute top-3 right-3">
-                      <BookmarkButton 
-                        entryId={drive.donationDriveId}  
-                        type="donation_drive" 
-                        size="lg"
-                      />
-                    </div>
-
-                    <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{drive.campaignName}</h2>
-                    <p className="text-sm text-gray-700 line-clamp-3">{drive.description}</p>
-                    <p className="font-bold text-lg text-blue-600">Total Amount: ${drive.totalAmount}</p>
-                    <p className="text-sm text-gray-500">
-                      Date Posted: {drive.datePosted.toDate().toLocaleString()}
-                    </p>
-
-                    <div className="flex space-x-3"> 
-                      <DonateDialog drive={drive} />
-                    </div>
-                  </div>
-                ))}
-            </div>
-          ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-              <p className="text-gray-500">No active donation drives found.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Pending Donation Drives */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Pending Donation Drives</h2>
-          {sortedDrives.filter(drive => drive.status === "pending").length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedDrives
-                .filter((drive) => drive.status === "pending")
-                .map((drive) => (
-                  <div 
-                    key={drive.donationDriveId} 
-                    className="relative bg-white border rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow cursor-pointer w-full h-56 flex flex-col justify-between"
-                    onClick={() => setSelectedDrive(drive)}
-                  >
-                    <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{drive.campaignName}</h2>
-                    <p className="text-sm text-gray-700 line-clamp-3">{drive.description}</p>
-                    <p className="font-bold text-lg text-blue-600">Total Amount: ${drive.totalAmount}</p>
-                    <p className="text-sm text-gray-500">
-                      Date Posted: {drive.datePosted.toDate().toLocaleString()}
-                    </p>
-
-                    <div className="flex space-x-3"> 
-                      <DonateDialog drive={drive} />
-                    </div>
-                  </div>
-                ))}
-            </div>
-          ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-              <p className="text-gray-500">No pending donation drives found.</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Floating Action Button (FAB) */}
-      <button
-        className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition"
-        onClick={() => setAddDonoForm(!addDonoForm)}
-      >
-        +
-      </button>
-
-      {/* Donation Drive Details Modal */}
-      {selectedDrive && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-        <div className="bg-white p-8 rounded-lg border-2 border-gray-200 shadow-xl w-[90%] max-w-lg relative">
-          {/* Bookmark Button */}
-          <div className="absolute top-3 right-3">
-            <BookmarkButton 
-              entryId={selectedDrive.donationDriveId}  
-              type="donation_drive" 
-              size="lg"
-            />
-          </div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">{selectedDrive.campaignName}</h2>
-            <p className="text-gray-700 mb-4">{selectedDrive.description}</p>
-            <p className="font-bold text-lg text-blue-600 mb-4">Total Amount: ${selectedDrive.totalAmount}</p>
-            <p className="text-sm text-gray-500 mb-6">
-              Posted on: {selectedDrive.datePosted.toDate().toLocaleString()}
-            </p>
-
-            <div className="flex justify-between">
-              <button 
-                onClick={() => setSelectedDrive(null)} 
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Close
-              </button>
-              <DonateDialog drive={selectedDrive} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {addDonoForm && (
-       <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <form onSubmit={suggestDonationDrive} className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w">
-            <h2 className="text-xl mb-4">Suggest Donation Drive</h2>
-            <input
-              type="text"
-              placeholder="Campaign Name"
-              value={campaignName}
-              onChange={(e) => setCampaignName(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
-              required
-            />
-            <div className="flex justify-between">
-              <button type="button" onClick={() => setAddDonoForm(false)} className="text-gray-500">Cancel</button>
-              <button type="submit" className="bg-blue-500 text-white p-2 rounded">Submit</button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
-  );
+return (
+	<div className="bg-[#EAEAEA]">
+		{/*Page Title*/}
+		<div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
+			<div className="absolute inset-0 bg-blue-500/50" />
+				<div className="relative z-10">
+				<h1 className="text-5xl font-bold my-2 text-white">Donation Drives</h1>
+				<p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
+			</div>
+		</div>
+		{/* Body */}
+		<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+			{/* Sidebar */}
+			<div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+				<DonationDriveSidebar />
+			</div>
+			{/* Main content */}
+			<div className='flex flex-col gap-[10px] w-full mb-10'>
+				{/* Filter tabs */}
+				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+					<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
+					<div className="flex items-center">
+						<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+						<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+							<option value="newest">Newest</option>
+							<option value="oldest">Oldest</option>
+							<option value="amount-high">Amount (High to Low)</option>
+							<option value="amount-low">Amount (Low to High)</option>
+							<option value="progress">Progress</option>
+						</select>
+					</div>
+				</div>
+				{sortedDrives.length > 0 ? (
+					// Donation Cards
+					<DonationDrivesList 
+						drives={sortedDrives}
+						events={events}
+						isLoading={isLoading}
+						emptyMessage="No donation drives have been created yet."
+					/>
+				) : (
+					<div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+						<h3 className="text-xl font-medium text-gray-600">No donation drive found</h3>
+						<p className="text-gray-500 mt-2">There are no donation drive with the selected filter.</p>
+					</div>
+				)}
+			</div>
+		</div>
+	</div>
+);
 }

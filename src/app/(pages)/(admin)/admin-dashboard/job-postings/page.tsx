@@ -1,21 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronDown, Trash2 } from "lucide-react";
+import { ChevronRight, Trash2, ThumbsDown, ThumbsUp } from "lucide-react";
 
 export default function Users() {
   const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
   const [activeTab, setActiveTab] = useState("Accepted");
+  const tableRef = useRef(null);
+  const [headerWidth, setHeaderWidth] = useState("100%");
+  const [isSticky, setIsSticky] = useState(false);
 
   console.log("Job Offers:", jobOffers);
 
   const filterJobs = (status: string) => {
     return jobOffers.filter((job: JobOffering) => job.status === status);
   };
+
+  const tabs = ["Accepted", "Pending", "Rejected"];
 
   const stats = {
     pending: jobOffers.filter(job => job.status === "Pending").length,
@@ -24,13 +29,42 @@ export default function Users() {
     total: jobOffers.length
   };
 
-  // limit job description on admin side
-  const truncateDescription = (text) => {
-    // mga 150 characters lang ipapakita sa description
-    const maxLength = 150;
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
+  // // limit job description on admin side
+  // const truncateDescription = (text) => {
+  //   // mga 150 characters lang ipapakita sa description
+  //   const maxLength = 150;
+  //   if (text.length <= maxLength) return text;
+  //   return text.substring(0, maxLength) + "...";
+  // };
+
+  // INCORPORATED FROM SAMPLE PAGE FROM DAPHNE
+   // Track scroll position and update header state
+   useEffect(() => {
+    const handleScroll = () => {
+      if (!tableRef.current) return;
+      
+      const tableRect = tableRef.current.getBoundingClientRect();
+      
+      if (tableRect.top <= 0 && !isSticky) {
+        setIsSticky(true);
+        setHeaderWidth(tableRect.width);
+      } else if (tableRect.top > 0 && isSticky) {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    // Set initial width
+    if (tableRef.current) {
+      setHeaderWidth(tableRef.current.offsetWidth);
+    }
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isSticky]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -42,16 +76,13 @@ export default function Users() {
           <ChevronRight size={15} />
         </div>
         <div>
-          Manage Job Offers
+          Job Offers
         </div>
       </div>
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">
-            Manage Job Offers
-          </div>
-          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
-            + Create Job Offer
+            Manage Job Posting
           </div>
         </div>
       </div>
@@ -59,7 +90,7 @@ export default function Users() {
       <div className="flex flex-col gap-3">
         {/* Tabs */}
         <div className="w-full flex gap-2">
-          {["Accepted", "Pending", "Rejected"].map((tab) => (
+          {tabs.map((tab) => (
             <div
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -67,7 +98,6 @@ export default function Users() {
                 activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-white"
               }`}
             >
-              {/* Blue bar above active tab */}
               <div
                 className={`w-full h-1 transition-colors ${
                   activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-transparent"
@@ -96,10 +126,15 @@ export default function Users() {
         </div>
 
         <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-          <div className="rounded-xl overflow-hidden border border-gray-300 relative">
-            <div className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm">
+          <div className="rounded-xl overflow-hidden border border-gray-300 relative" ref={tableRef}>
+            <div 
+              className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
+                isSticky ? 'fixed top-0' : ''
+              }`}
+              style={{ width: isSticky ? headerWidth : '100%' }}
+            >
               <div className="w-1/2 flex items-center justify-baseline font-semibold">
-                Job Offer Info
+                Job Posting Info
               </div>
               <div className="w-1/2 flex justify-end items-center">
                 <div className="w-1/6 flex items-center justify-center font-semibold">Status</div>
@@ -108,6 +143,10 @@ export default function Users() {
               </div>
             </div>
             
+            {/* Spacer div to prevent content jump when header becomes fixed */}
+            {isSticky && <div style={{ height: '56px' }}></div>}
+
+            {/* Dynamic rows */}
             {filterJobs(activeTab).map((job, index) => (
               <div
                 key={index}
@@ -141,18 +180,14 @@ export default function Users() {
                   </div>
                   <div className="w-1/6 flex items-center justify-center">
                     {activeTab === "Pending" ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleReject(job.jobId)}
-                          className="text-red-500 hover:text-red-700 text-sm"
-                        >
-                          Reject
+                      <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
+                        <button className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
+                          <ThumbsDown size={14} />
+                          <span>Reject</span>
                         </button>
-                        <button
-                          onClick={() => handleAccept(job.jobId)}
-                          className="text-green-500 hover:text-green-700 text-sm"
-                        >
-                          Accept
+                        <button className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1">
+                          <ThumbsUp size={14} />
+                          <span>Accept</span>
                         </button>
                       </div>
                     ) : (
@@ -173,7 +208,7 @@ export default function Users() {
       {/* Job Details Modal */}
       {selectedJob && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <div className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-3/4 max-w-4xl">
+          <div className="bg-white border-0 p-8 rounded-lg border-gray shadow-lg w-3/4 max-w-4xl">
             <h1 className="text-3xl mb-6 font-semibold border-b pb-4">Job Details</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <p><strong>Company:</strong> {selectedJob.company}</p>

@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { Alumnus, Announcement, Career, Education, JobOffering, NewsletterItem, WorkExperience } from "@/models/models";
+import { Alumnus,
+  Announcement,
+  Career,
+  Education, JobOffering,
+  NewsletterItem,
+  WorkExperience,
+} from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
@@ -14,8 +20,14 @@ import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEf
 import { Card } from "@/components/ui/card";
 import PendingPage from "../components/PendingPage";
 import RejectedPage from "../components/RejectedPage";
-import { NewsLetterProvider, useNewsLetters } from "@/context/NewsLetterContext";
-import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementContext";
+import {
+  NewsLetterProvider,
+  useNewsLetters,
+} from "@/context/NewsLetterContext";
+import {
+  AnnouncementProvider,
+  useAnnouncement,
+} from "@/context/AnnouncementContext";
 import { useJobOffer } from "@/context/JobOfferContext";
 import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
@@ -28,7 +40,8 @@ const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Home() {
-  const { user, loading, alumInfo, isAdmin, status } = useAuth();
+  const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
+    useAuth();
   const { newsLetters } = useNewsLetters();
   const { announces } = useAnnouncement();
   const { jobOffers } = useJobOffer();
@@ -143,7 +156,7 @@ export default function Home() {
             </div>
 
             {/* Feed */}
-            <div className="mx-[300px] pr-10 flex flex-col w-full gap-[10px]">
+            <div className="mx-[300px] mt-[70px] pr-10 flex flex-col w-full gap-[10px]">
 
             {/*sorting dropdown*/}
               <div className="flex flex-row w-full justify-end">
