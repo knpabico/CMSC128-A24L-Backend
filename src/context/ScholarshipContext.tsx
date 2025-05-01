@@ -10,13 +10,14 @@ import {
   deleteDoc,
   updateDoc,
   Timestamp,
-  getDoc
+  getDoc,
+  where
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { FirebaseError } from "firebase/app";
 import { Scholarship } from "@/models/models";
-import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
+import { useNewsLetters } from "./NewsLetterContext";
 
 const ScholarshipContext = createContext<any>(null);
 
@@ -29,7 +30,7 @@ export function ScholarshipProvider({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { user, isAdmin } = useAuth();
-	const { addNewsLetter } = useNewsLetters();
+  const { addNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -50,7 +51,11 @@ export function ScholarshipProvider({
     setLoading(true);
     setError(null);
     
-    const q = query(collection(db, "scholarship"));
+    // Only fetch active scholarships by default
+    const q = query(
+      collection(db, "scholarship"),
+      where("status", "in", ["active", "closed"])
+    );
 
     // Listener for any changes
     const unsubscribeScholarships = onSnapshot(
@@ -87,29 +92,31 @@ export function ScholarshipProvider({
     return unsubscribeScholarships;
   };
 
-    const checkUserRole = async (userId: string) => {
-      const adminRef = doc(db, "admin", userId);
-      const alumniRef = doc(db, "alumni", userId);
-  
-      const [adminSnap, alumniSnap] = await Promise.all([
-        getDoc(adminRef),
-        getDoc(alumniRef),
-      ]);
-  
-      if (adminSnap.exists()) {
-        return { role: "Admin", name: null };
-      } else {
-        const alumnusData = alumniSnap.data();
-        return { role: "Alumni", name: alumnusData?.name || "Unknown" };
-      }
-    };
+  const checkUserRole = async (userId: string) => {
+    const adminRef = doc(db, "admin", userId);
+    const alumniRef = doc(db, "alumni", userId);
+
+    const [adminSnap, alumniSnap] = await Promise.all([
+      getDoc(adminRef),
+      getDoc(alumniRef),
+    ]);
+
+    if (adminSnap.exists()) {
+      return { role: "Admin", name: null };
+    } else {
+      const alumnusData = alumniSnap.data();
+      return { role: "Alumni", name: alumnusData?.name || "Unknown" };
+    }
+  };
+
   const addScholarship = async (scholarship: Scholarship) => {
     try {
       const docRef = doc(collection(db, "scholarship"));
       scholarship.scholarshipId = docRef.id;
       scholarship.datePosted = new Date();
+      scholarship.status = "active"; // Set default status to active
       await setDoc(docRef, scholarship);
-	  await addNewsLetter(scholarship.scholarshipId, "scholarship");
+      await addNewsLetter(scholarship.scholarshipId, "scholarship");
       
       return { success: true, message: "Scholarship added successfully" };
     } catch (error) {
@@ -136,13 +143,66 @@ export function ScholarshipProvider({
     }
   };
 
+  // Soft delete - update status to "deleted" instead of removing from database
   const deleteScholarship = async (scholarshipId: string) => {
     try {
-      await deleteDoc(doc(db, "scholarship", scholarshipId));
+      const scholarshipRef = doc(db, "scholarship", scholarshipId);
+      await updateDoc(scholarshipRef, { status: "deleted" });
       return { success: true, message: "Scholarship deleted successfully" };
     } catch (error) {
       console.error("Error deleting scholarship:", error);
       return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
+
+  // Get all scholarships including deleted ones (for admin purposes)
+  const getAllScholarships = async () => {
+    try {
+      setLoading(true);
+      const q = query(collection(db, "scholarship"));
+      
+      return new Promise((resolve, reject) => {
+        const unsubscribe = onSnapshot(
+          q,
+          (querySnapshot) => {
+            try {
+              const scholarshipList = querySnapshot.docs.map((doc) => {
+                const data = doc.data();
+                
+                return {
+                  ...data,
+                  datePosted: data.datePosted instanceof Timestamp 
+                    ? data.datePosted.toDate() 
+                    : new Date(data.datePosted),
+                } as Scholarship;
+              });
+              
+              setLoading(false);
+              resolve(scholarshipList);
+              // Unsubscribe after getting the data once
+              unsubscribe();
+            } catch (err) {
+              console.error("Error processing all scholarships data:", err);
+              setError("Failed to process all scholarships data");
+              setLoading(false);
+              reject(err);
+              unsubscribe();
+            }
+          },
+          (err) => {
+            console.error("Error fetching all scholarships:", err);
+            setError("Failed to fetch all scholarships");
+            setLoading(false);
+            reject(err);
+            unsubscribe();
+          }
+        );
+      });
+    } catch (error) {
+      setLoading(false);
+      console.error("Error in getAllScholarships:", error);
+      throw error;
     }
   };
 
@@ -160,6 +220,7 @@ export function ScholarshipProvider({
           datePosted: data.datePosted.toDate(),
           alumList: data.alumList || [],
           image: data.image,
+          status: data.status || "active", // Default to active if status is not present
         };
       }
       return null;
@@ -168,6 +229,7 @@ export function ScholarshipProvider({
       throw new Error('Failed to load scholarship details');
     }
   };
+
 
   return (
     <ScholarshipContext.Provider
@@ -178,7 +240,8 @@ export function ScholarshipProvider({
         addScholarship,
         updateScholarship,
         deleteScholarship,
-        getScholarshipById
+        getScholarshipById,
+        getAllScholarships
       }}
     >
       {children}

@@ -56,6 +56,17 @@ export default function ManageScholarship(){
 		toastSuccess(`${scholarship.title} has been deleted successfully.`)
 	}
 
+  // Toggle scholarship status (active/closed)
+  const handleStatusToggle = async (scholarship: Scholarship, isActive: boolean) => {
+    if (!scholarship.scholarshipId) {
+      console.error("No scholarship ID provided.");
+      return;
+    }
+    const newStatus = isActive ? "active" : "closed";
+    await updateScholarship(scholarship.scholarshipId, { status: newStatus });
+    toastSuccess(`${scholarship.title} status has been set to ${newStatus}.`);
+  }
+
 	const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 	const [selectedScholarship, setSelectedScholarship] = useState<Scholarship>();
 
@@ -135,6 +146,7 @@ export default function ManageScholarship(){
                 Scholarship Info
               </div>
               <div className="w-1/2 flex justify-end items-center">
+                <div className="w-1/6 flex items-center justify-center font-semibold">Status</div>
                 <div className="w-1/6 flex items-center justify-center font-semibold">Actions</div>
                 <div className="w-1/6 flex items-center justify-center"></div>
               </div>
@@ -157,15 +169,35 @@ export default function ManageScholarship(){
 											index % 2 === 0 ? "bg-white" : "bg-gray-50"
 										} hover:bg-blue-50`}
 									>
-										<div className="w-5/6 flex flex-col p-4 gap-1">
+										<div className="w-1/2 flex flex-col p-4 gap-1">
 											<div className="text-base font-bold">{scholarship.title}</div>
 											<div className="text-sm text-gray-600">Date Posted: {scholarship.datePosted.toLocaleDateString()}</div>
 											<div className="text-sm text-gray-600">Sponsors: {scholarship.alumList.length}</div>
 										</div>
-										<div className="w-1/7 flex items-center justify-center">
+                    <div className="w-1/6 flex items-center justify-center">
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={() => handleStatusToggle(scholarship, scholarship.status === "closed")}
+                          className={`relative inline-flex items-center h-6 rounded-full w-11 focus:outline-none ${
+                            scholarship.status !== "closed" ? "bg-green-500" : "bg-gray-300"
+                          }`}
+                        >
+                          <span className="sr-only">Toggle status</span>
+                          <span
+                            className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                              scholarship.status !== "closed" ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                        <span className="text-xs mt-1">
+                          {scholarship.status !== "closed" ? "Active" : "Closed"}
+                        </span>
+                      </div>
+                    </div>
+										<div className="w-1/6 flex items-center justify-center">
 											<button className="text-[var(--primary-blue)] hover:underline cursor-pointer" onClick={() => navigateToDetail(scholarship.scholarshipId)}>View Details</button>
 										</div>
-										<div className="w-1/7 flex items-center justify-center">
+										<div className="w-1/6 flex items-center justify-center">
 											<button className="text-red-700 hover:cursor-pointer" onClick={() => {
 													setSelectedScholarship(scholarship);
 													setIsConfirmationOpen(true);
