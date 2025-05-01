@@ -7,8 +7,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 
-const EventPageAdmin = () => {
-  const {
+const EventPageAdmin = () =>
+{
+  const
+  {
     events,
     setShowForm,
     showForm,
@@ -39,26 +41,34 @@ const EventPageAdmin = () => {
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
-  useEffect(() => { // Properly show the selected filter when Editing the values
-    if (isEditing && events) {
+  useEffect(() => 
+  { // Properly show the selected filter when Editing the values
+    if (isEditing && events)
+    {
       const eventToEdit = events.find(event => event.eventId === editingEventId);
       setVisibility("default");
       setSelectedAlumni([]);
       setSelectedBatches([]);
 
-      if (eventToEdit) {
+      if (eventToEdit)
+      {
         setEventTitle(eventToEdit.title);
         setEventDescription(eventToEdit.description);
         setEventDate(eventToEdit.date);
         setShowForm(true);
   
         // Properly check targetGuests for alumni and batches
-        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
+        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0)
+        {
           // Check if the first item is a batch (e.g., a string of length 4)
-          if (eventToEdit.targetGuests[0].length === 4) {
+          if (eventToEdit.targetGuests[0].length === 4)
+          {
             setSelectedBatches(eventToEdit.targetGuests); // Set the batches
             setVisibility("batch"); // Set visibility to batches
-          } else {
+          } 
+          
+          else
+          {
             setSelectedAlumni(eventToEdit.targetGuests); // Set the alumni
             setVisibility("alumni"); // Set visibility to alumni
           }
@@ -67,7 +77,8 @@ const EventPageAdmin = () => {
     }
   }, [isEditing, events, editingEventId]);
 
-  if (!eventId || events.length === 0) {
+  if (!eventId || events.length === 0)
+  {
     return <p>Loading...</p>;
   }
 
@@ -82,7 +93,8 @@ const EventPageAdmin = () => {
       {showForm && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
           <form
-            onSubmit={(e) => {
+            onSubmit={(e) =>
+            {
               e.preventDefault();
               
             // store the selected guests
@@ -93,9 +105,13 @@ const EventPageAdmin = () => {
                 ? selectedAlumni
                 : null;
 
-            if (isEditing && editingEventId) {
+              if (isEditing && editingEventId)
+              {
                 handleEdit(editingEventId, { title, description, date, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
-              } else {
+              } 
+              
+              else
+              {
                 handleSave(e, targetGuests, visibility); // Pass the value entered in the current form
               }
               setShowForm(false);
@@ -144,7 +160,8 @@ const EventPageAdmin = () => {
               onChange={(e) => setEventDate(e.target.value)}
               className="w-full mb-4 p-2 border rounded"
               required
-              min={
+              min=
+              {
                 new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                   .toISOString()
                   .split("T")[0]
@@ -160,7 +177,8 @@ const EventPageAdmin = () => {
                   name="visibility"
                   value="all"
                   checked={visibility === "all"}
-                  onChange={() => {
+                  onChange={() => 
+                  {
                     setVisibility("all");
                     // Clear both to properly show the RSVP
                     setSelectedAlumni([]);
@@ -177,7 +195,8 @@ const EventPageAdmin = () => {
                   name="visibility"
                   value="batch"
                   checked={visibility === "batch"}
-                  onChange={() => {
+                  onChange={() =>
+                  {
                     setVisibility("batch");
                     setSelectedAlumni([]); // Clear the Selected Batches List
                   }}
@@ -213,12 +232,15 @@ const EventPageAdmin = () => {
                         type="text"
                         className="text-black mt-2 p-2 rounded-md w-full"
                         placeholder="e.g. 2022"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
+                        onKeyDown={(e) =>
+                        {
+                          if (e.key === "Enter") 
+                          {
                             e.preventDefault();
                             const value = e.currentTarget.value.trim();
                             // Check if the value is not empty and not already in the selectedBatches list
-                            if (value && !selectedBatches.includes(value)) {
+                            if (value && !selectedBatches.includes(value)) 
+                            {
                               // Add the new value to the selectedBatches list
                               setSelectedBatches([...selectedBatches, value]);
                               e.currentTarget.value = "";
@@ -238,7 +260,8 @@ const EventPageAdmin = () => {
                   name="visibility"
                   value="alumni"
                   checked={visibility === "alumni"}
-                  onChange={() => {
+                  onChange={() => 
+                  {
                     setVisibility("alumni");
                     setSelectedBatches([]); // Clear the Selected Alumni List
                   }}
@@ -272,12 +295,15 @@ const EventPageAdmin = () => {
                         type="text"
                         className="text-black mt-2 p-2 rounded-md w-full"
                         placeholder="e.g. email1@up.edu.ph"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
+                        onKeyDown={(e) => 
+                        {
+                          if (e.key === "Enter") 
+                          {
                             e.preventDefault();
                             const value = e.currentTarget.value.trim();
                             // Check if the value is not empty and not already in the selectedAlumni list
-                            if (value && !selectedAlumni.includes(value)) {
+                            if (value && !selectedAlumni.includes(value)) 
+                            {
                               // Add the new value to the selectedAlumni list
                               setSelectedAlumni([...selectedAlumni, value]);
                               e.currentTarget.value = "";
@@ -332,7 +358,8 @@ const EventPageAdmin = () => {
                   Accept Proposal
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={() => 
+                  {
                     setEdit(true);
                     setEditingEventId(event.eventId);
                     setShowForm(true);
@@ -357,7 +384,8 @@ const EventPageAdmin = () => {
                   Finalize
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={() => 
+                  {
                     setEdit(true);
                     setEditingEventId(event.eventId);
                     setShowForm(true);
@@ -367,7 +395,8 @@ const EventPageAdmin = () => {
                   Edit
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={() => 
+                  {
                     handleDelete(event.eventId);  // Deletes the event
                     router.back();  // Navigates back after the delete
                   }}
@@ -380,7 +409,8 @@ const EventPageAdmin = () => {
           ) : event.status === "Accepted" ? (
             <div className="flex flex-col gap-2 mt-4">
               <button
-                onClick={() => {
+                onClick={() => 
+                {
                   handleDelete(event.eventId);  // Deletes the event
                   router.back();  // Navigates back after the delete
                 }}

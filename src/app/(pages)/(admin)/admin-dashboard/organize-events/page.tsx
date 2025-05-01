@@ -8,8 +8,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 
-export default function Events() {
-  const {
+export default function Events()
+{
+  const
+  {
     events,
     isLoading,
     setShowForm,
@@ -34,6 +36,7 @@ export default function Events() {
     fileName,
     setFileName
   } = useEvents();
+
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
   const [activeTab, setActiveTab] = useState("Pending");
   const [isEditing, setEdit] = useState(false);
@@ -51,13 +54,15 @@ export default function Events() {
   const [searchAlumni, setSearchAlumni] = useState<any[]>([]);
 
   useEffect(() => { // Properly show the selected filter when Editing the values
-    if (isEditing && events) {
+    if (isEditing && events)
+    {
       const eventToEdit = events.find(event => event.eventId === editingEventId);
       setVisibility("all");
       setSelectedAlumni([]);
       setSelectedBatches([]);
 
-      if (eventToEdit) {
+      if (eventToEdit)
+      {
         setEventTitle(eventToEdit.title);
         setEventDescription(eventToEdit.description);
         setEventImage(eventToEdit.image);
@@ -66,12 +71,17 @@ export default function Events() {
         setShowForm(true);
   
         // Properly check targetGuests for alumni and batches
-        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
+        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0)
+        {
           // Check if the first item is a batch (e.g., a string of length 4)
-          if (eventToEdit.targetGuests[0].length === 4) {
+          if (eventToEdit.targetGuests[0].length === 4)
+          {
             setSelectedBatches(eventToEdit.targetGuests); // Set the batches
             setVisibility("batch"); // Set visibility to batches
-          } else {
+          } 
+          
+          else
+          {
             setSelectedAlumni(eventToEdit.targetGuests); // Set the alumni
             setVisibility("alumni"); // Set visibility to alumni
           }
@@ -80,16 +90,19 @@ export default function Events() {
     }
   }, [isEditing, events, editingEventId]);
 
-  const filterEvents = (status: string) => {
+  const filterEvents = (status: string) =>
+  {
     console.log(`events length is ${events.length}`);
     return events.filter((event: Event) => event.status === status);
   };
 
   // function to filter RSVPs based on status and sort
-  const filterRsvps = (rsvps: string[] | undefined, event: Event) => {
+  const filterRsvps = (rsvps: string[] | undefined, event: Event) =>
+  {
     if (!rsvps || rsvps.length === 0) return [];
 
-    let filteredRsvps = rsvps.filter((rsvpId) => {
+    let filteredRsvps = rsvps.filter((rsvpId) =>
+    {
       const rsvpStatus = rsvpDetails[rsvpId]?.status;
  
       if (rsvpFilter === "All") return true;
@@ -97,8 +110,10 @@ export default function Events() {
     });
 
     // Alphabetical sorting logic
-    if (sortAlphabetically) {
-      filteredRsvps.sort((a, b) => {
+    if (sortAlphabetically)
+    {
+      filteredRsvps.sort((a, b) =>
+      {
         const alumniA = alumniDetails[rsvpDetails[a].alumniId];
         const alumniB = alumniDetails[rsvpDetails[b].alumniId];
 
@@ -117,7 +132,8 @@ export default function Events() {
   return (
     <>
       <Breadcrumbs
-        items={[
+        items=
+        {[
           { href: "/admin-dashboard", label: "Admin Dashboard" },
           { label: "Events" },
         ]}
@@ -129,12 +145,15 @@ export default function Events() {
 
         {/* will be used for the filter */}
 
-        {(() => {
+        {(() =>
+        {
           // Group alumni by their ID and compile the events they RSVPed to
           const grouped: Record<string, { alum: any; events: string[] }> = {};
 
-          events.forEach(event => {
-            event.rsvps.forEach(rsvpId => {
+          events.forEach(event =>
+          {
+            event.rsvps.forEach(rsvpId =>
+            {
               const rsvp = rsvpDetails[rsvpId]; // RSVP Details
               const alum = alumniDetails[rsvp?.alumniId]; // Alumni Details
 
@@ -153,7 +172,8 @@ export default function Events() {
               if (!matchesFilter) return;
               
               // If this alumni isn't already in the grouped object, add them
-              if (!grouped[alum.alumniId]) {
+              if (!grouped[alum.alumniId])
+              {
                 grouped[alum.alumniId] = { alum, events: [] };
               }
 
@@ -186,7 +206,8 @@ export default function Events() {
               name="filterSearch"
               value="all"
               checked={filterSearch === "all"}
-              onChange={() => {
+              onChange={() =>
+              {
                 setFilterSearch("all");
                 // Clear both to properly show the RSVP
                 setSearchAlumni([]);
@@ -203,7 +224,8 @@ export default function Events() {
               name="filterSearch"
               value="batch"
               checked={filterSearch === "batch"}
-              onChange={() => {
+              onChange={() =>
+              {
                 setFilterSearch("batch");
                 setSearchAlumni([]); // Clear the Selected Batches List
               }}
@@ -240,11 +262,13 @@ export default function Events() {
                     className="text-black mt-2 p-2 rounded-md w-full"
                     placeholder="e.g. 2022"
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === "Enter")
+                      {
                         e.preventDefault();
                         const value = e.currentTarget.value.trim();
                         // Check if the value is not empty and not already in the selectedBatches list
-                        if (value && !searchBatches.includes(value)) {
+                        if (value && !searchBatches.includes(value))
+                        {
                           // Add the new value to the selectedBatches list
                           setSearchBatches([...searchBatches, value]);
                           e.currentTarget.value = "";
@@ -264,7 +288,8 @@ export default function Events() {
               name="filterSearch"
               value="alumni"
               checked={filterSearch === "alumni"}
-              onChange={() => {
+              onChange={() =>
+              {
                 setFilterSearch("alumni");
                 setSearchBatches([]); // Clear the Selected Alumni List
               }}
@@ -299,11 +324,13 @@ export default function Events() {
                     className="text-black mt-2 p-2 rounded-md w-full"
                     placeholder="e.g. email1@up.edu.ph"
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === "Enter")
+                      {
                         e.preventDefault();
                         const value = e.currentTarget.value.trim();
                         // Check if the value is not empty and not already in the selectedAlumni list
-                        if (value && !searchAlumni.includes(value)) {
+                        if (value && !searchAlumni.includes(value))
+                        {
                           // Add the new value to the selectedAlumni list
                           setSearchAlumni([...searchAlumni, value]);
                           e.currentTarget.value = "";
@@ -323,7 +350,8 @@ export default function Events() {
             <button
               key={status}
               onClick={() => setActiveTab(status)}
-              className={`px-4 py-2 rounded-md ${
+              className={`px-4 py-2 rounded-md 
+              ${
                 activeTab === status ? "bg-blue-500 text-white" : "bg-gray-200"
               }`}
             >
@@ -335,7 +363,8 @@ export default function Events() {
         {isLoading && <h1>Loading</h1>}
 
         <div>
-          <button onClick={() => {
+          <button onClick={() =>
+          {
             setEdit(false);
             setShowForm(true);
             setEventTitle(""); 
@@ -353,7 +382,8 @@ export default function Events() {
           {showForm && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form
-                onSubmit={(e) => {
+                onSubmit={(e) =>
+                {
                   e.preventDefault();
                   
                 // store the selected guests
@@ -364,11 +394,15 @@ export default function Events() {
                     ? selectedAlumni
                     : null;
 
-                if (isEditing && editingEventId) {
-                    handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
-                  } else {
-                    handleSave(e, image, targetGuests, visibility); // Pass the value entered in the current form
-                  }
+                if (isEditing && editingEventId) 
+                {
+                  handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
+                } 
+                
+                else
+                {
+                  handleSave(e, image, targetGuests, visibility); // Pass the value entered in the current form
+                }
                   setShowForm(false);
                   setEdit(false);
                 }}
@@ -460,7 +494,8 @@ export default function Events() {
                       name="visibility"
                       value="all"
                       checked={visibility === "all"}
-                      onChange={() => {
+                      onChange={() =>
+                      {
                         setVisibility("all");
                         // Clear both to properly show the RSVP
                         setSelectedAlumni([]);
@@ -477,7 +512,8 @@ export default function Events() {
                       name="visibility"
                       value="batch"
                       checked={visibility === "batch"}
-                      onChange={() => {
+                      onChange={() =>
+                      {
                         setVisibility("batch");
                         setSelectedAlumni([]); // Clear the Selected Batches List
                       }}
@@ -497,7 +533,8 @@ export default function Events() {
                                 <button 
                                   type="button"
                                   className="ml-2 text-red-500 font-bold"
-                                  onClick={() =>
+                                  onClick=
+                                  {() =>
                                     setSelectedBatches((prev) =>
                                       prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedBatches
                                     )
@@ -514,11 +551,13 @@ export default function Events() {
                             className="text-black mt-2 p-2 rounded-md w-full"
                             placeholder="e.g. 2022"
                             onKeyDown={(e) => {
-                              if (e.key === "Enter") {
+                              if (e.key === "Enter")
+                              {
                                 e.preventDefault();
                                 const value = e.currentTarget.value.trim();
                                 // Check if the value is not empty and not already in the selectedBatches list
-                                if (value && !selectedBatches.includes(value)) {
+                                if (value && !selectedBatches.includes(value))
+                                {
                                   // Add the new value to the selectedBatches list
                                   setSelectedBatches([...selectedBatches, value]);
                                   e.currentTarget.value = "";
@@ -538,7 +577,8 @@ export default function Events() {
                       name="visibility"
                       value="alumni"
                       checked={visibility === "alumni"}
-                      onChange={() => {
+                      onChange={() =>
+                      {
                         setVisibility("alumni");
                         setSelectedBatches([]); // Clear the Selected Alumni List
                       }}
@@ -557,7 +597,8 @@ export default function Events() {
                                 <button
                                   type="button"
                                   className="ml-2 text-red-500 font-bold"
-                                  onClick={() =>
+                                  onClick=
+                                  {() =>
                                     setSelectedAlumni((prev) =>
                                       prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedAlumni
                                     )
@@ -572,12 +613,15 @@ export default function Events() {
                             type="text"
                             className="text-black mt-2 p-2 rounded-md w-full"
                             placeholder="e.g. email1@up.edu.ph"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
+                            onKeyDown={(e) =>
+                            {
+                              if (e.key === "Enter")
+                              {
                                 e.preventDefault();
                                 const value = e.currentTarget.value.trim();
                                 // Check if the value is not empty and not already in the selectedAlumni list
-                                if (value && !selectedAlumni.includes(value)) {
+                                if (value && !selectedAlumni.includes(value))
+                                {
                                   // Add the new value to the selectedAlumni list
                                   setSelectedAlumni([...selectedAlumni, value]);
                                   e.currentTarget.value = "";
@@ -650,7 +694,8 @@ export default function Events() {
         {filterEvents(activeTab).map((events: Event, index: number) => (
           <div
             key={index}
-            style={{
+            style=
+            {{
               border: "1px solid #ccc",
               padding: "10px",
               marginBottom: "15px",
@@ -775,7 +820,8 @@ export default function Events() {
                     Finalize
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={() =>
+                    {
                       setEdit(true);
                       setEditingEventId(events.eventId);
                       setShowForm(true);
