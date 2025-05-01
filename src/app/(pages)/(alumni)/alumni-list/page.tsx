@@ -143,7 +143,7 @@ export default function Users() {
                         {alum.degrees.map((degree, idx) => (
                           <tr key={idx} className={idx === 0 ? "pt-5" : "pt-0"}>
                             <td className="text-left py-1 pr-3 pt-2">{degree.name}</td>
-                            <td className="text-center pt-2">{degree.year}</td>
+                            <td className="text-center py-1 pt-2">{degree.year}</td>
                           </tr>
                         ))}
                       </tbody>
