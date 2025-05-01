@@ -12,6 +12,7 @@ import { useParams } from "next/navigation";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@mui/material";
 
+<<<<<<< HEAD
 export default function EventPageAdmin()
 {
     const params = useParams();
@@ -42,13 +43,76 @@ export default function EventPageAdmin()
         setFileName,
         fetchAlumnusById,
     } = useEvents();
+=======
+export default function Events() {
+  const {
+    events,
+    isLoading,
+    setShowForm,
+    showForm,
+    handleSave,
+    handleEdit,
+    handleDelete,
+    date,
+    handleReject,
+    addEvent,
+    handleViewEventAdmin, 
+    handleImageChange,
+    setEventDate,
+    image,
+    setEventImage,
+    description,
+    setEventDescription,
+    title,
+    setEventTitle,
+    location,
+    setEventLocation,
+    time,
+    setEventTime,
+    fileName,
+    setFileName,
+  } = useEvents();
+  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
+  const [activeTab, setActiveTab] = useState("Pending");
+  const [isEditing, setEdit] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [rsvpFilter, setRsvpFilter] = useState("All");
+  const [sortAlphabetically, setSortAlphabetically] = useState(false);
+>>>>>>> refs/remotes/origin/backend-events-admin
 
     const evId = params?.eventId as string;
     const ev = events.find((e: Event) => e.eventId === evId);
 
+<<<<<<< HEAD
     const [activeTab, setActiveTab] = useState("Pending");
     const [isEditing, setEdit] = useState(false);
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
+=======
+  const [filterSearch, setFilterSearch] = useState("all");
+  const [searchBatches, setSearchBatches] = useState<any[]>([]);
+  const [searchAlumni, setSearchAlumni] = useState<any[]>([]);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [selectedButton, setButton] = useState("");
+
+
+
+  useEffect(() => { // Properly show the selected filter when Editing the values
+    if (isEditing && events) {
+      const eventToEdit = events.find(event => event.eventId === editingEventId);
+      setVisibility("all");
+      setSelectedAlumni([]);
+      setSelectedBatches([]);
+
+      if (eventToEdit) {
+        setEventTitle(eventToEdit.title);
+        setEventDescription(eventToEdit.description);
+        setEventImage(eventToEdit.image);
+        setEventDate(eventToEdit.date);
+        setEventTime(eventToEdit.time);
+        setEventLocation(eventToEdit.location);
+        setShowForm(true);
+>>>>>>> refs/remotes/origin/backend-events-admin
   
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [visibility, setVisibility] = useState("default");
@@ -90,6 +154,7 @@ export default function EventPageAdmin()
             default:
                 return 0;
         }
+<<<<<<< HEAD
     });
 
     const filteredEvents = statusFilter === "all"
@@ -190,6 +255,23 @@ export default function EventPageAdmin()
         };
     
     }, [filteredEvents, creatorNames]);    
+=======
+      }
+    }
+  }, [isEditing, events, editingEventId]);
+  
+  const filterEvents = (status: string) => {
+    console.log(`events length is ${events.length}`);
+    return events.filter((event: Event) => event.status === status);
+  };
+
+  const formComplete =
+    title.trim() !== "" &&
+    description.trim() !== "" &&
+    date.trim() !== "" &&
+    time.trim() !== "" &&
+    location.trim() !== "";
+>>>>>>> refs/remotes/origin/backend-events-admin
 
     return (
         <div>        
@@ -443,8 +525,69 @@ export default function EventPageAdmin()
                     )}
                 </div>
 
+<<<<<<< HEAD
             </div>
             {showForm && (
+=======
+              // Add the current event 
+              grouped[alum.alumniId].events.push(`${event.title} - ${rsvp.status}`);
+            });
+          });
+
+          // return (
+          //   <ul>
+          //     {Object.values(grouped).map(({ alum, events }) => (
+          //       <li key={alum.alumniId}>
+          //         <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
+          //         <ul>
+          //           {events.map((event, i) => (
+          //             <li key={`${alum.alumniId}-${i}`}>{event}</li>
+          //           ))}
+          //         </ul>
+          //       </li>
+          //     ))}
+          //   </ul>
+          // );
+        })()}
+
+              
+        {/* Sort Buttons for different status*/}
+        <div className="flex gap-5 mb-5">
+          {["Accepted", "Pending", "Rejected"].map((status) => (
+            <button
+              key={status}
+              onClick={() => setActiveTab(status)}
+              className={`px-4 py-2 rounded-md ${
+                activeTab === status ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+      
+        {isLoading && <h1>Loading</h1>}
+
+        <div>
+          <button onClick={() => {
+            setEdit(false);
+            setShowForm(true);
+            setEventTitle(""); 
+            setEventTime("");
+            setEventDescription("");
+            setEventDate("");
+            setEventLocation("");
+            setFileName("");
+            setEventImage(null);
+            setSelectedAlumni([]);
+            setSelectedBatches([]);
+            setVisibility("all");
+            setButton("");
+          }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
+            Create Event
+          </button>
+          {showForm && (
+>>>>>>> refs/remotes/origin/backend-events-admin
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form
                 onSubmit={(e) => 
@@ -457,8 +600,9 @@ export default function EventPageAdmin()
                     ? selectedBatches
                     : visibility === "alumni"
                     ? selectedAlumni
-                    : null;
+                    : [];
 
+<<<<<<< HEAD
                   if (isEditing && editingEventId)
                   {
                     handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
@@ -467,9 +611,80 @@ export default function EventPageAdmin()
                   else
                   {
                     handleSave(e, image, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
+=======
+                if (isEditing && editingEventId) {
+                  handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
+                }
+                
+                if (selectedButton === "Create") {
+                  setErrorMessage(""); // Clear errors first
+            
+                  if (!formComplete) {
+                    setErrorMessage("Please fill out all required fields before proposing the event.");
+                    return;
+>>>>>>> refs/remotes/origin/backend-events-admin
                   }
-                  setShowForm(false);
-                  setEdit(false);
+            
+                  if (visibility === "batch") {
+                    if (selectedBatches.length === 0) {
+                      setErrorMessage("Please add at least one batch.");
+                      return;
+                    }
+                    if (selectedBatches.some(batch => !/^\d+$/.test(batch))) {
+                      setErrorMessage("Batch inputs must contain only numbers.");
+                      return;
+                    }
+                  }
+            
+                  if (visibility === "alumni") {
+                    if (selectedAlumni.length === 0) {
+                      setErrorMessage("Please add at least one alumni email.");
+                      return;
+                    }
+                    if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+                      setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
+                      return;
+                    }
+                  }
+            
+                  const form = document.querySelector("form");
+                  if (!form || !form.checkValidity()) {
+                    form?.reportValidity();
+                    return;
+                  }
+            
+                  const newEvent: Event = {
+                    datePosted: new Date(),
+                    title,
+                    description,
+                    date,
+                    time,
+                    location,
+                    image: "", // will be set inside addEvent after upload
+                    inviteType: visibility,
+                    numofAttendees: 0,
+                    targetGuests,
+                    stillAccepting: true,
+                    needSponsorship: false,
+                    rsvps: [],
+                    eventId: "",
+                    status: "Accepted",
+                    creatorId: "",
+                    creatorName: "",
+                    creatorType: "",
+                    donationDriveId: ""
+                  };
+                
+                  addEvent(newEvent, true, true);
+            
+                } else {
+                  // If button is not "Create", just save
+                  handleSave(e, image, targetGuests, visibility, "Pending");
+                }
+                
+                setShowForm(false);
+                setEdit(false);
+                setButton("");
                 }}
                 className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
               >
@@ -515,22 +730,36 @@ export default function EventPageAdmin()
                   mainTitle={title}
                   subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
                 />
-
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  onKeyDown={(e) => e.preventDefault()} // prevent manual typing
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                  min={
-                    date
-                      ? new Date(date).toISOString().split("T")[0]
-                      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                          .toISOString()
-                          .split("T")[0]
-                  }
-                />
+                <div className="flex gap-4 mb-4">
+                  <div className="w-1/2">
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setEventDate(e.target.value)}
+                      onKeyDown={(e) => e.preventDefault()} // prevent manual typing
+                      className="w-full mb-4 p-2 border rounded"
+                      required
+                      min={
+                        date
+                          ? new Date(date).toISOString().split("T")[0]
+                          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                              .toISOString()
+                              .split("T")[0]
+                      }
+                    />
+                  </div>
+                  <div className="w-1/3">
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setEventTime(e.target.value)}
+                      className="w-full p-2 border rounded text-center"
+                      required
+                      min="08:00"
+                      max="22:00"
+                    />
+                  </div>
+                </div>
 
                 <label
                   htmlFor="image-upload"
@@ -695,6 +924,9 @@ export default function EventPageAdmin()
                     </div>
                   </label>
                 </div>
+                {errorMessage && (
+                  <p className="text-red-500 text-sm mt-4">{errorMessage}</p>
+                )}
                 <div className="flex justify-between">
                   <button
                     type="button"
@@ -709,10 +941,157 @@ export default function EventPageAdmin()
                   >
                     {isEditing ? "Update" : "Save"}
                   </button>
+                  <button 
+                    type="submit"
+                    onClick={() => setButton("Create")}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    Create
+                  </button>
                 </div>
               </form>
             </div>
           )}
+<<<<<<< HEAD
         </div>  
     );
 }
+=======
+        </div>
+      </div>
+
+      <div>
+
+        {filterEvents(activeTab).map((events: Event, index: number) => (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              marginBottom: "15px",
+            }}
+          >
+            <strong>
+              <h2>{events.title}</h2>
+            </strong>
+            <p>
+            <img src={events.image} alt="Event Poster" className="w-64 h-auto" />
+            </p>
+            <p>
+              {" "}
+              <strong>Date:</strong> {events.date}
+            </p>
+            <p>
+              {" "}
+              <strong>Time:</strong>
+              {events.time}
+            </p>
+            <p>
+              {" "}
+              <strong>Description:</strong>
+              {events.description}
+            </p>
+            <p>
+              {" "}
+              <strong>Location:</strong>
+              {events.location}
+            </p>
+            <p>
+              {" "}
+              <strong>Attendees:</strong>
+              {events.numofAttendees}
+            </p>
+
+            <p     
+              onClick={() => alert(`Placeholder: Create donation drive for event ID ${events.eventId}`)}
+            >
+             Create Donation Drive
+            </p>
+            {events.creatorType === "alumni" && (
+              <p>Proposed by: {events.creatorName}</p>
+            )}
+
+            {/* Status Filter */}
+              {activeTab === "Accepted" && (
+                <>
+                  <button
+                    onClick={() => handleDelete(events.eventId)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </>
+              )}
+    
+              {activeTab === "Pending" && (
+                <div className="flex gap-3 mt-2">
+                  <button
+                    onClick={() => {
+                      addEvent(events, true, false);
+                      setShowForm(false);
+                    }}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    {events.creatorType === "admin" ? "Finalize" : "Accept Proposal"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEdit(true);
+                      setEditingEventId(events.eventId);
+                      setShowForm(true);
+                    }}
+
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                  >
+                    Edit
+                  </button>
+                  {events.creatorType === "admin" ? (
+                    <>                      
+                      <button
+                        onClick={() => handleDelete(events.eventId)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleReject(events.eventId)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md"
+                      >
+                        Reject Proposal
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </div>
+              )}
+              {activeTab === "Rejected" && (
+                <div className="mt-2">
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div> 
+    </>
+  );
+}
+>>>>>>> refs/remotes/origin/backend-events-admin
