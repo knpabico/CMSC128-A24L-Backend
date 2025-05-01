@@ -490,6 +490,12 @@ export default function Events() {
               <strong>Attendees:</strong>
               {events.numofAttendees}
             </p>
+
+            <p     
+              onClick={() => alert(`Placeholder: Create donation drive for event ID ${event.eventId}`)}
+            >
+             Create Donation Drive
+            </p>
             {events.creatorType === "alumni" && (
               <p>Proposed by: {events.creatorName}</p>
             )}
