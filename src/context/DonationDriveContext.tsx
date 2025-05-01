@@ -17,6 +17,7 @@ import { DonationDrive, Event } from "@/models/models";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
 import { uploadImage } from "@/lib/upload";
+import { toastSuccess } from "@/components/ui/sonner";
 
 const DonationDriveContext = createContext<any>(null);
 
@@ -334,6 +335,9 @@ export function DonationDriveProvider({
       setEndDate(new Date());
       setStatus("");
       setImage(null);
+	  setPreview(null);
+	  setPreviewGcash(null);
+	  setPreviewPaymaya(null);
     } else {
       console.error("Error adding donation drive:", response.message);
     }
@@ -428,6 +432,8 @@ export function DonationDriveProvider({
         getDonationDriveById,
         getEventById,
         fetchAlumnusById,
+		previewGcash,
+		previewPaymaya,
       }}
     >
       {children}

@@ -7,10 +7,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Calendar, ChevronRight, Clock, MapPin } from "lucide-react";
+import { Calendar, ChevronRight, CircleX, Clock, MapPin, Trash2 } from "lucide-react";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { Dialog, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
+import { DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 // import { formatDistance } from "date-fns";
 
-export default function DonationDrives() {
+export default function ManageDonationDrive() {
   const router = useRouter();
   const {
     donationDrives,
@@ -35,6 +40,7 @@ export default function DonationDrives() {
     creatorId,
     setCreatorId,
     image,
+		
     setImage,
     fileName,
     setFileName,
@@ -60,7 +66,7 @@ export default function DonationDrives() {
   } = useDonationDrives();
 
   const [editForm, setEditForm] = useState(false);
-  const [donationDriveId, setDonationDriveId] = useState("");
+	const [localDrives, setLocalDrives] = useState<DonationDrive[]>([]);
   const [creatorNames, setCreatorNames] = useState<{ [key: string]: string }>({});
   
   const [sortBy, setSortBy] = useState("latest");
@@ -69,7 +75,8 @@ export default function DonationDrives() {
 	const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
-  
+	const [toggles, setToggles] = useState<{ [key: string]: boolean }>({});
+
   if (!donationDrives) return <div>Loading donation drives...</div>;
 
   // Sort donation drives based on selected option
@@ -102,12 +109,24 @@ export default function DonationDrives() {
     ? sortedDrives 
     : sortedDrives.filter(drive => drive.status === statusFilter);
 
+		useEffect(() => {
+			if (donationDrives) {
+					const toggleStates: { [key: string]: boolean } = {};
+					donationDrives.forEach((drive: DonationDrive) => {
+							toggleStates[drive.donationDriveId] = drive.status === "active";
+					});
+					setToggles(toggleStates);
+			}
+			setLocalDrives(donationDrives);
+	}, [donationDrives]);
+	
+
   const getProgressPercentage = (current: number, target: number) => {
     return Math.min(Math.round((current / target) * 100), 100);
   };
 
   const navigateToDetails = (id: string) => {
-    router.push(`donation-drive/details?id=${id}`);
+    router.push(`manage/details?id=${id}`);
   };
 
   const formatDate = (date: any) => {
@@ -168,6 +187,42 @@ export default function DonationDrives() {
     };
   }, [filteredDrives, creatorNames]);
 
+	async function toggleStatus(driveId: string, currentStatus: string) {
+		try {			
+			// Update in Firestore
+			const donationRef = doc(db, "donation_drive", driveId);
+			let newstatus;
+			if (currentStatus == "active"){
+				newstatus = "completed";
+			} else {
+				newstatus = "active";
+			}
+			await updateDoc(donationRef, {status: newstatus});
+			
+			// Update local state
+			if (donationDrives) {
+				const updatedDrives = localDrives.map((drive: DonationDrive) => drive.donationDriveId === driveId ? { ...drive, status: newstatus } : drive);
+				setLocalDrives(updatedDrives);				
+				toastSuccess(`Donation Drive status updated successfully.`)
+			}
+		} catch (err) {
+			console.error("Error updating anonymity:", err);
+			toastError("Failed to update Donation Drive status.")
+		}
+	}
+
+	//  Scholarship Deletion
+	const handleDeleteClick = (donationDrive : DonationDrive) => {
+		if (!donationDrive.donationDriveId) {
+			console.error("No scholarship ID provided.");
+			return;
+		}
+		handleDelete(donationDrive.donationDriveId);
+		toastSuccess(`${donationDrive.campaignName} has been deleted successfully.`)
+	}
+	const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+	const [selectedDonationDrive, setSelectedDonationDrive] = useState<DonationDrive>();
+
   return (
     <div className="flex flex-col gap-5">
 			{/* Path */}
@@ -184,13 +239,13 @@ export default function DonationDrives() {
       </div>
 			{/* Header */}
 			<div className="w-full">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-start gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="font-bold text-3xl">
             Manage Donation Drive
           </div>
-          {/* <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
+          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
             + Create Donation Drive
-          </div> */}
+          </div>
         </div>
       </div>
       
@@ -209,39 +264,18 @@ export default function DonationDrives() {
 							Active
 						</div>
 					</div>
-          {/* <button 
-            onClick={() => setStatusFilter("pending")}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              statusFilter === "pending" 
-                ? "bg-yellow-600 text-white" 
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-          >
-            Pending
-          </button> */}
           <div onClick={() => setStatusFilter("completed")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
 						<div className={`w-full h-1 transition-colors ${statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
 						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "completed" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
 							Closed
 						</div>
 					</div>
-          {/* <button 
-            onClick={() => setStatusFilter("rejected")}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              statusFilter === "rejected" 
-                ? "bg-red-600 text-white" 
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-          >
-            Rejected
-          </button> */}
         </div>
 
 				{/* Filter Bar */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
           <div className="text-sm font-medium">Filter by:</div>
           <div className="bg-gray-200 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400">
-            <div className="text-xs">Any Date</div>
             <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="text-xs">
 							<option value="latest" className="text-xs">Latest</option>
 							<option value="oldest" className="text-xs">Oldest</option>
@@ -264,450 +298,86 @@ export default function DonationDrives() {
 							Donation Drive Info
 						</div>
 						<div className="w-1/2 flex justify-end items-center">
-							<div className="w-1/6 flex items-center justify-center font-semibold">Active</div>
-							<div className="w-1/6 flex items-center justify-center font-semibold">Actions</div>
-							<div className="w-1/6 flex items-center justify-center"></div>
+							<div className="w-1/3 md:w-1/6 flex items-center justify-center font-semibold">Active</div>
+							<div className="w-1/3 md:w-1/6 flex items-center justify-center font-semibold">Actions</div>
+							<div className="w-1/3 md:w-1/6 flex items-center justify-center"></div>
 						</div>
 					</div>
-					{/* Spacer div to prevent content jump when header becomes fixed */}
 					{isSticky && <div style={{ height: '56px' }}></div>}
 				</div>
       
         {filteredDrives.length === 0 ? (
         	<p className="text-gray-500 mt-4 text-center">No donation drives found.</p>
         ) : (
-        <div className="flex flex-col gap-4">
-          {filteredDrives.map((drive: DonationDrive) => {
-          // grab the event from your context's events map
+        	<>
+          {filteredDrives.map((drive: DonationDrive, index) => {
           const ev = events[drive.eventId];
           return (
-            <div
-              key={drive.donationDriveId}
-              className="border rounded-lg shadow-sm hover:shadow-md bg-white overflow-hidden flex flex-row"
-            >
-              {/* Image Section */}
-              <div
-                className="cursor-pointer w-1/4 min-w-64 bg-gray-200"
-                onClick={() => navigateToDetails(drive.donationDriveId)}
-              >
-                {drive.image ? (
-                  <img
-                    src={drive.image}
-                    alt={drive.campaignName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-gray-400">No image</span>
-                  </div>
-                )}
-              </div>
+            <div key={drive.donationDriveId} className={`w-full flex gap-4 border-t border-gray-300 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-blue-50`}>
+              <div className="w-1/2 flex flex-col p-4 gap-1">
+								<div className="text-base font-bold">{drive.isEvent && ev ? ev.title : drive.campaignName}</div>
+								<div className="text-sm text-gray-600">
+									{/* Donation Type */}
+									{drive.isEvent && ev ? (
+										<div>
+											<p>Donation Type: Event-related Campaign</p>
+										</div>
+									) : (
+										<div>
+											<p>Donation Type: General Campaign</p>
+										</div>
+									)}
+								</div>
+							</div>
 
-              {/* Content Section */}
-              <div
-                className="p-4 flex-grow cursor-pointer"
-                onClick={() => navigateToDetails(drive.donationDriveId)}
-              >
-                {/* Campaign / Event Title with Status */}
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xl font-semibold truncate flex-1">
-                    {drive.isEvent && ev ? ev.title : drive.campaignName}
-                  </h2>
-                  <span
-                    className={`ml-4 px-2 py-0.5 text-xs font-medium rounded-full ${
-                      drive.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        // : drive.status === "pending"
-                        // ? "bg-yellow-100 text-yellow-800"
-                        : drive.status === "completed"
-                        ? "bg-purple-100 text-purple-800"
-                        // : drive.status === "rejected"
-                        // ? "bg-red-100 text-red-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-                  </span>
-                </div>
-
-                {/* Description */}
-                <div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">
-                  <p className="text-start">
-                    {drive.isEvent && ev ? ev.description : drive.description}
-                  </p>
-                </div>
-
-                {/* Event Details */}
-                {drive.isEvent && ev ? (
-                  <div className="mt-5">
-                    <div className="flex justify-between items-center gap-4">
-                      <div className="flex gap-1 items-center w-1/3 justify-center">
-                        <Calendar size={16} />
-                        <p className="text-xs">{formatDate(ev.datePosted)}</p>
-                      </div>
-                      <div className="flex gap-1 items-center w-1/3 justify-center">
-                        <Clock size={16} />
-                        <p className="text-xs">{ev.time}</p>
-                      </div>
-                      <div className="flex gap-1 items-center w-1/3 justify-center">
-                        <MapPin size={16} />
-                        <p className="text-xs truncate">{ev.location}</p>
-                      </div>
-                    </div>
-                    <div className="mt-5 text-xs text-start">
-                      <p>Donation Type: Event-related Campaign</p>
-                    </div>
-                  </div>
-                  ) : (
-                    <div className="mt-5 text-xs text-start">
-                      <p>Donation Type: General Campaign</p>
-                    </div>
-                  )}
-
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                    <div
-                      className={`h-2.5 rounded-full ${
-                        drive.status === "completed" ? "bg-purple-600" : "bg-blue-600"
-                      }`}
-                      style={{
-                        width: `${getProgressPercentage(
-                          drive.currentAmount,
-                          drive.targetAmount
-                        )}%`,
-                      }}
-                    ></div>
-                  </div>
-
-                  {/* Amount & Progress */}
-                  <div className="flex justify-between text-sm mb-3">
-                    <span className="font-bold text-blue-600">
-                      ${drive.currentAmount.toLocaleString()}
-                    </span>
-                    <span className="text-gray-600">
-                      of ${drive.targetAmount.toLocaleString()}
-                    </span>
-                    <span className="text-gray-600">
-                      {getProgressPercentage(drive.currentAmount, drive.targetAmount)}%
-                    </span>
-                  </div>
-
-                  {/* Dates */}
-                  <div className="text-xs text-gray-500">
-                    <p>Date Posted: {formatDate(drive.datePosted)}</p>
-                    <p>Start date: {formatDate(drive.startDate)}</p>
-                    <p>End date: {formatDate(drive.endDate)}</p>
-                  </div>
-
-                  {/* Creator */}
-                  <div className="text-xs text-gray-700 mt-2">
-                    <p>
-                      Created by: {creatorNames[drive.donationDriveId] ?? "Admin"}
-                    </p>
-                    <p>Creator Type: {drive.creatorType}</p>
-                  </div>
-                </div>
-                  
-                  {/* Action Buttons - Right Side */}
-                  <div className="p-4 bg-gray-50 border-l flex flex-col justify-center gap-2 min-w-32">
-                    {/* {drive.status === "pending" && (
-                      <>
-                        <button
-                          onClick={() => handleAccept(drive.donationDriveId)}
-                          className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(drive.donationDriveId)}
-                          className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-600 transition w-full"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )} */}
-
-                    { drive.status !== "rejected" &&
-                      <button
-                      className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-600 transition w-full"
-                      onClick={() => {
-                        setEditForm(true);
-                        setDonationDriveId(drive.donationDriveId);
-                        setCampaignName(drive.campaignName);
-                        setImage(drive.image);
-                        setBeneficiary(drive.beneficiary);
-                        setDescription(drive.description);
-                        setTargetAmount(drive.targetAmount);
-                        setEndDate(drive.endDate);
-                        setShowForm(true);
-                      }}
-                    >
-                      Edit
-                    </button>}
-                    
-                    <button
-                      onClick={() => handleDelete(drive.donationDriveId)}
-                      className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-600 transition w-full"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-        </div>
+							<div className="w-1/2 flex items-center justify-end p-5 gap-2">
+								<div className="w-1/3 md:w-1/6 flex items-center justify-center">
+								{/* <div className="w-1/6 flex items-center justify-center"> */}
+									{/* Toggle for status */}
+									<div
+										onClick={() => {setToggles(prev => ({...prev,[drive.donationDriveId]: !prev[drive.donationDriveId]}));toggleStatus(drive.donationDriveId, drive.status);}}className={`w-10 md:w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${toggles[drive.donationDriveId] ? "bg-[var(--primary-blue)]" : "bg-gray-300"}`}>
+										<div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${toggles[drive.donationDriveId] ? "translate-x-6" : "translate-x-0"}`}/>
+									</div>
+								</div>
+								<div className="w-1/3 md:w-1/6 flex text-center items-center justify-center text-xs">
+									<div className="text-[var(--primary-blue)] hover:underline cursor-pointer" onClick={() => navigateToDetails(drive.donationDriveId)}>View Details</div>
+								</div>
+								<div className="w-1/3 md:w-1/6 flex items-center justify-center">
+									<Trash2 size={20} className="text-gray-500 hover:text-red-500 cursor-pointer" onClick={() =>{
+										setSelectedDonationDrive(drive);
+										setIsConfirmationOpen(true);
+									}} />
+								</div>
+							</div>
+            </div>
+            );
+					})}
+        </>
         )}
       </div>
-
-      {/* <button
-        className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition"
-        onClick={() => {
-          setShowForm(true)
-          setEventId(event.eventId)
-          setDonationDriveId(event.donationDriveId);
-          setCampaignName(event.title);
-          setImage(event.image);
-          setDescription(event.description);
-          setEndDate(event.date);
-          setShowForm(true);
-        }}
-      >
-        +
-      </button> */}
-
-    {/* Edit Donation Drive Modal */}
-    {setShowForm && setEditForm && donationDriveId && (
-            <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-              <form
-                onSubmit={
-                  (e) => {
-                  e.preventDefault();
-                  handleEdit(donationDriveId, { campaignName, description, image, beneficiary, targetAmount, endDate }); // Pass the current value if it will be edited
-                  setShowForm(false);
-                  setEditForm(false);
-                  setDonationDriveId("");
-                  setCreatorId("");
-                  setCampaignName("");
-                  setDescription("");
-                  setOneBeneficiary("");
-                  setBeneficiary([]);
-                  setTargetAmount(0);
-                  setEndDate(new Date());
-                  }
-                }
-                className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
-              >
-                <h2 className="text-xl mb-4">
-                  Edit Donation Drive
-                </h2>
-                <input
-                  type="text"
-                  placeholder="Campaign Name"
-                  value={campaignName}
-                  onChange={(e) => setCampaignName(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                />
-                <textarea
-                  placeholder="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Upload Photo
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  required
-                />                
-                {beneficiary.map( (beneficiaries: string, index: number) => (
-                  <div key = {index} className="flex justify-between my-1">
-                    <input
-                      type="text"
-                      placeholder="Beneficiary"
-                      value={beneficiaries}
-                      onChange={(e) => handleBenefiaryChange(e,index)}
-                      className="w-full mb-4 p-2 border rounded"
-                      required
-                    />
-                    {beneficiary.length > 1 && (
-                      <button 
-                        type="button" 
-                        className='px-4 py-2 bg-red-500 text-white rounded-md'
-                        onClick={() => handleRemoveBeneficiary(index)}>
-                        Remove
-                      </button>
-                              )}
-                          </div>						
-                  ))}
-                  <button 
-                    type="button" 
-                    className='px-4 py-2 bg-green-500 text-white rounded-md'
-                    onClick={handleAddBeneficiary}>
-                    Add Beneficiary
-                  </button>
-                <input
-                  type="number"
-                  placeholder="Target Amount"
-                  value={targetAmount}
-                  onChange={(e) => setTargetAmount(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                />
-                <label htmlFor="">End Date</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                  min={
-                  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0]
-                  }
-                />
-
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => {       
-                      setEditForm(false);
-                      setShowForm(false);
-                      setEditForm(true);
-                      setDonationDriveId("");
-                      setCampaignName("");
-                      setDescription("");
-                      setTargetAmount(0);
-                      setEndDate(new Date());}}
-                    className="text-gray-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white p-2 rounded"
-                  >
-                    Update
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-    {/* Add Donation Drive Modal */}
-    {/* {showForm && !editForm && (
-            <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-              <form
-                onSubmit={handleSave}
-                className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
-              >
-                <h2 className="text-xl mb-4">
-                  Add Donation Drive
-                </h2>
-                <input
-                  type="text"
-                  placeholder="Campaign Name"
-                  value={campaignName}
-                  onChange={(e) => setCampaignName(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                />
-                <textarea
-                  placeholder="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Upload Photo
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  required
-                />                
-                {beneficiary.map( (beneficiaries: string, index: number) => (
-                  <div key = {index} className="flex justify-between my-1">
-                    <input
-                      type="text"
-                      placeholder="Beneficiary"
-                      value={beneficiaries}
-                      onChange={(e) => handleBenefiaryChange(e,index)}
-                      className="w-full mb-4 p-2 border rounded"
-                      required
-                    />
-                    {beneficiary.length > 1 && (
-                      <button 
-                        type="button" 
-                        className='px-4 py-2 bg-red-500 text-white rounded-md'
-                        onClick={() => handleRemoveBeneficiary(index)}>
-                        Remove
-                      </button>
-                    )}
-                  </div>						
-                  ))}
-                  <button 
-                    type="button" 
-                    className='px-4 py-2 bg-green-500 text-white rounded-md'
-                    onClick={handleAddBeneficiary}>
-                    Add Beneficiary
-                  </button>
-                <input
-                  type="number"
-                  placeholder="Target Amount"
-                  value={targetAmount}
-                  onChange={(e) => setTargetAmount(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                />
-                <label htmlFor="">End Date</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                  min={
-                  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0]
-                  }
-                />
-
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="text-gray-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white p-2 rounded"
-                  >
-                    Save
-                  </button>
-                </div>
-              </form>
-            </div>
-          )} */}
+			{/* Confirmation Dialog */}
+			{isConfirmationOpen && (
+			<Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+				<DialogContent className='w-96'>
+					<DialogHeader className='text-red-500 flex items-center gap-5'>
+						<CircleX className='size-15'/>
+						<DialogTitle className="text-md text-center">
+							Are you sure you want to delete <br /> <strong>{selectedDonationDrive?.campaignName}</strong>?
+						</DialogTitle>
+					</DialogHeader>
+					<DialogFooter className='mt-5'>
+						<button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer" 
+							onClick={() => {
+								if(selectedDonationDrive){
+									handleDeleteClick(selectedDonationDrive);
+									setIsConfirmationOpen(false);
+								}
+							}} >Delete</button>
+						<button className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100" onClick={() => setIsConfirmationOpen(false)}>Cancel</button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		  )}
     </div>
   );
 }

@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   } else if (isAdmin) {
     return (
       <div
-        className="ml-64"
+        className="ml-20 md:ml-64"
         style={{ padding: "2%" }}
       >
         {children}

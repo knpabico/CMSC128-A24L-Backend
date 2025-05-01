@@ -409,7 +409,7 @@ export default function Navbar() {
 
       {isAdmin && (
         <nav
-          className="fixed top-0 left-0 w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
+          className="fixed top-0 left-0 w-20 md:w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
           style={{ paddingTop: "2%", paddingBottom: "2%" }}
         >
           <div className="text-xl font-bold px-5">ICS-ARMS</div>
