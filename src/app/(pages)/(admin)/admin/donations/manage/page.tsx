@@ -214,6 +214,8 @@ export default function ManageDonationDrive() {
 			console.error("No scholarship ID provided.");
 			return;
 		}
+    setIsEvent(donationDrive.isEvent);
+    setEventId(donationDrive.eventId);
 		handleDelete(donationDrive.donationDriveId);
 		toastSuccess(`${donationDrive.campaignName} has been deleted successfully.`)
 	}

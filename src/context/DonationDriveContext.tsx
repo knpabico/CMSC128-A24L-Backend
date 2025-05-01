@@ -288,7 +288,7 @@ export function DonationDriveProvider({
       driveData.donationDriveId = docRef.id;
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       await addNewsLetter(driveData.donationDriveId, "donation_drive");
-      if (isEvent) {
+      if (driveData.isEvent) {
         await updateDoc(doc(db, "event", eventId), {donationDriveId: docRef.id});
       }
       return { success: true, message: "Donation drive added successfully." };
@@ -394,6 +394,9 @@ export function DonationDriveProvider({
           (driveData) => driveData.donationDriveId !== donationDriveId
         )
       );
+      if (isEvent) {
+        await updateDoc(doc(db, "event", eventId), {donationDriveId: ""});
+      }
       return { success: true, message: "Donation drive deleted successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
