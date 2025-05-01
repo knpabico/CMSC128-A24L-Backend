@@ -45,6 +45,7 @@ export const Affiliation = ({ index, form }: { index: number; form: any }) => {
               <FormControl>
                 <Input
                   type="number"
+                  min={1980}
                   onKeyDown={handleYearInput}
                   placeholder="2024"
                   {...field}

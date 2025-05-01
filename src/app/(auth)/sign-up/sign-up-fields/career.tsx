@@ -132,6 +132,7 @@ export const Career = ({
                   <FormControl>
                     <Input
                       type="number"
+                      min={1980}
                       onKeyDown={handleYearInput}
                       placeholder="2020"
                       {...field}
@@ -161,6 +162,7 @@ export const Career = ({
                     <FormControl>
                       <Input
                         type="number"
+                        min={1980}
                         onKeyDown={handleYearInput}
                         placeholder={"2025"}
                         {...field}
@@ -184,7 +186,6 @@ export const Career = ({
         </div>
       </div>
 
-      {/*kinopya lang 'yung implementation sa add-work-experience */}
       <div className="col-span-12">
         {selectedLocation.location !== "" && (
           <div>

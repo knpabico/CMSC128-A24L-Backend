@@ -62,6 +62,7 @@ export const Education = ({
                 <Input
                   type="number"
                   onKeyDown={handleYearInput}
+                  min={1980}
                   placeholder="2024"
                   {...field}
                   className="bg-white border border-gray-500"
