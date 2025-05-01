@@ -115,6 +115,7 @@ export default function SavedEventsPage()
                         <EventsList
                             events = {savedEvents}
                             isLoading = {isLoading}
+                            type = {"Saved Events"}
                             emptyMessage = "You have not bookmarked any events have been created yet."
                         />
                     ) : (

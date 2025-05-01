@@ -103,6 +103,7 @@ export default function AllEventsPage()
                         <EventsList
                             events = {sortedEvents}
                             isLoading = {isLoading}
+                            type = {"All Events"}
                             emptyMessage = "No Events have been created yet."
                         />
                     ) : (

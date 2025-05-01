@@ -151,7 +151,7 @@ export default function Invitations()
 
           {/* Event List */}
           {sortedEvents.length > 0 ? (
-            <EventsList events={sortedEvents} isLoading={isLoading} />
+            <EventsList events={sortedEvents} isLoading={isLoading} type = {"Invitations"} />
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
               <h3 className="text-xl font-medium text-gray-600">No current invites</h3>
