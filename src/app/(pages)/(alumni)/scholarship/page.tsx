@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useScholarship } from '@/context/ScholarshipContext';
 import BookmarkButton from "@/components/ui/bookmark-button";
-import { CalendarDays, Bookmark, HandHeart, BookOpen, Clock, User, Filter } from "lucide-react";
+import { CalendarDays, Bookmark, HandHeart, BookOpen, Clock, User, Filter, ChevronDown, Calendar } from "lucide-react";
 import { useBookmarks } from '@/context/BookmarkContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';;
@@ -31,68 +31,170 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 // Status Filter Component
-const StatusFilter = ({ activeFilter, setActiveFilter }: { 
-  activeFilter: 'all' | 'active' | 'closed', 
-  setActiveFilter: (filter: 'all' | 'active' | 'closed') => void 
-}) => {
+type FilterOption = 'all' | 'active' | 'closed';
+
+interface StatusFilterProps {
+  activeFilter: FilterOption;
+  setActiveFilter: (filter: FilterOption) => void;
+}
+
+const StatusFilterDropdown = ({ 
+  activeFilter = 'all', 
+  setActiveFilter 
+}: StatusFilterProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  
+  const selectOption = (option: FilterOption) => {
+    setActiveFilter(option);
+    setIsOpen(false);
+  };
+  
+  const getDisplayText = () => {
+    switch(activeFilter) {
+      case 'all': return 'All';
+      case 'active': return 'Active';
+      case 'closed': return 'Closed';
+      default: return 'All';
+    }
+  };
+  
   return (
-    <div className="flex items-center gap-2 mb-4">
-      <Filter size={16} className="text-gray-600" />
+    <div className="flex items-center gap-2">
       <span className="text-sm font-medium text-gray-700">Status:</span>
-      <div className="flex rounded-full bg-gray-200 p-1">
+      <div className="relative">
         <button 
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            activeFilter === 'all' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
-          }`}
-          onClick={() => setActiveFilter('all')}
+          onClick={toggleDropdown}
+          className="flex items-center justify-between min-w-32 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
         >
-          All
+          <span className="text-gray-900">{getDisplayText()}</span>
+          <ChevronDown size={16} className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
-        <button 
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            activeFilter === 'active' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
-          }`}
-          onClick={() => setActiveFilter('active')}
-        >
-          Active
-        </button>
-        <button 
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            activeFilter === 'closed' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
-          }`}
-          onClick={() => setActiveFilter('closed')}
-        >
-          Closed
-        </button>
+        {isOpen && (
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+            <ul className="py-1" role="listbox">
+              <li role="option" aria-selected={activeFilter === 'all'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${activeFilter === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('all')}
+                >
+                  All
+                </button>
+              </li>
+              <li role="option" aria-selected={activeFilter === 'active'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${activeFilter === 'active' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('active')}
+                >
+                  Active
+                </button>
+              </li>
+              <li role="option" aria-selected={activeFilter === 'closed'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${activeFilter === 'closed' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('closed')}
+                >
+                  Closed
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-//sortingg
-const SortControl = ({ sortOrder, setSortOrder, activeTab }: {
-  sortOrder: 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors',
-  setSortOrder: (order: 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors') => void,
-  activeTab: string
-}) => {
+
+type SortOption = 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors';
+interface SortControlProps {
+  sortOrder: SortOption;
+  setSortOrder: (order: SortOption) => void;
+  activeTab: string;
+}
+const SortControlDropdown = ({ 
+  sortOrder = 'latest',
+  setSortOrder,
+  activeTab
+}: SortControlProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  const selectOption = (option: SortOption) => {
+    setSortOrder(option);
+    setIsOpen(false);
+  };
+  const getDisplayText = () => {
+    switch(sortOrder) {
+      case 'latest': return 'Latest first';
+      case 'oldest': return 'Oldest first';
+      case 'most-sponsors': return 'Most sponsors';
+      case 'least-sponsors': return 'Least sponsors';
+      default: return 'Latest first';
+    }
+  };
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm font-medium text-gray-700">Sort:</span>
-      <select 
-        className="text-sm border rounded px-2 py-1 bg-white"
-        value={sortOrder}
-        onChange={(e) => setSortOrder(e.target.value as 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors')}
-      >
-        <option value="latest">Latest first</option>
-        <option value="oldest">Oldest first</option>
-        {/* Only show sponsor-related options if the active tab is not "stories" */}
-        {activeTab !== 'stories' && (
-          <>
-            <option value="most-sponsors">Most sponsors</option>
-            <option value="least-sponsors">Least sponsors</option>
-          </>
+      
+      <div className="relative">
+        <button 
+          onClick={toggleDropdown}
+          className="flex items-center justify-between min-w-36 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+        >
+          <span className="text-gray-900">{getDisplayText()}</span>
+          <ChevronDown size={16} className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        
+        {isOpen && (
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+            <ul className="py-1" role="listbox">
+              <li role="option" aria-selected={sortOrder === 'latest'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'latest' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('latest')}
+                >
+                  Latest first
+                </button>
+              </li>
+              <li role="option" aria-selected={sortOrder === 'oldest'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'oldest' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('oldest')}
+                >
+                  Oldest first
+                </button>
+              </li>
+              
+              {/* Only show sponsor-related options if the active tab is not "stories" */}
+              {activeTab !== 'stories' && (
+                <>
+                  <li role="option" aria-selected={sortOrder === 'most-sponsors'}>
+                    <button 
+                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'most-sponsors' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                      onClick={() => selectOption('most-sponsors')}
+                    >
+                      Most sponsors
+                    </button>
+                  </li>
+                  <li role="option" aria-selected={sortOrder === 'least-sponsors'}>
+                    <button 
+                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'least-sponsors' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                      onClick={() => selectOption('least-sponsors')}
+                    >
+                      Least sponsors
+                    </button>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
         )}
-      </select>
+      </div>
     </div>
   );
 };
@@ -282,17 +384,25 @@ const ScholarshipPage: React.FC = () => {
 
         <div className='flex flex-col gap-[10px] w-full mb-10'>
           {/* Filter and Sort Controls */}
-          <div className="bg-white p-4 rounded-lg shadow mb-4">
-            <div className="flex justify-between items-center">
-              {/* Status Filter - Only show on non-stories tabs */}
-              {activeTab !== 'stories' ? (
-                <StatusFilter activeFilter={statusFilter} setActiveFilter={setStatusFilter} />
-              ) : (
-                <div></div> /* Empty div as placeholder for layout when filter is not shown */
-              )}
-              
-              {/* Simple Sort Control - Show on all tabs */}
-              <SortControl sortOrder={sortOrder} setSortOrder={setSortOrder} activeTab={activeTab}  />
+          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-2 lg:py-1 flex flex-col items-start lg:flex-row lg:justify-between lg:items-center shadow-md border border-gray-200">
+						<h2 className="text-md lg:text-lg font-semibold">
+							{activeTab === 'all' ? 'All Donation Drives' : 
+							activeTab === 'saved' ? 'Saved Donation Drives' : 
+							activeTab === 'myScholars' ? 'My Scholars' : 
+							'Featured Stories'}
+						</h2>
+						<div className="flex justify-between items-center gap-2">
+							{/* Status Filter - Only show on non-stories tabs */}
+							{activeTab !== 'stories' ? (
+								<div className='flex justify-center items-center'>
+									<StatusFilterDropdown activeFilter={statusFilter} setActiveFilter={setStatusFilter} />
+									<div>|</div>
+								</div>
+							) : (
+								<div></div> /* Empty div as placeholder for layout when filter is not shown */
+							)}
+							{/* Simple Sort Control - Show on all tabs */}
+							<SortControlDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} activeTab={activeTab}  />
             </div>
           </div>
           
@@ -321,7 +431,6 @@ const ScholarshipPage: React.FC = () => {
                         {/* Title */}
                         <div className="flex justify-between items-center mb-2">
                           <h2 className="text-xl font-semibold truncate">{story.title}</h2>
-                          <StatusBadge status={story.status || 'active'} />
                         </div>
                         {/* Description */}
                         <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
@@ -334,12 +443,12 @@ const ScholarshipPage: React.FC = () => {
                         <div className='grid grid-cols-2 w-full items-center'>
                           {/* Date */}
                           <div className='flex items-center gap-1'>
-                            <Clock size={16} />
+                            <Calendar size={16} />
                             <p className="text-sm text-gray-600">
-                              {story.datePosted && typeof story.datePosted.toDate === 'function' 
-                                ? story.datePosted.toDate().toLocaleDateString() 
-                                : new Date(story.datePosted).toLocaleDateString()}
-                            </p>
+															{story.datePosted && typeof story.datePosted.toDate === 'function' 
+																? new Date(story.datePosted.toDate()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+																: new Date(story.datePosted).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+														</p>
                           </div>
                         </div>       
                       </div>
