@@ -81,6 +81,26 @@ const baseSchema = z.object({
     .optional(),
   career: z
     .array(
+      z.object({
+        industry: z.string().min(1, "Input your job's industry"),
+        jobTitle: z.string().min(1, "Input your job title"),
+        company: z.string().min(1, "Input your company's name"),
+        startYear: z.string().refine((input) => {
+          const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+          return regex.test(input);
+        }, "Please input a valid year"),
+        endYear: z.string().refine((input) => {
+          const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+          return regex.test(input);
+        }, "Please input a valid year"),
+        location: z.string().min(1, "Input your job's location using the map"),
+        latitude: z.number(),
+        longitude: z.number(),
+      })
+    )
+    .optional(),
+  currentJob: z
+    .array(
       z
         .object({
           industry: z.string().min(1, "Input your job's industry"),
@@ -96,31 +116,17 @@ const baseSchema = z.object({
             .min(1, "Input your job's location using the map"),
           latitude: z.number(),
           longitude: z.number(),
-          presentJob: z.boolean(),
           hasProof: z.boolean(),
           proof: z.any().optional(),
         })
         .superRefine((data, ctx) => {
-          const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-          if (data.presentJob === false) {
-            if (regex.test(data.endYear) === false) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Please input a valid year",
-                path: ["endYear"],
-              });
-            }
-          }
-
-          //if no proof but a presentJob, send a message
-          if (data.presentJob === true) {
-            if (data.hasProof === false) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Please select a valid document",
-                path: ["hasProof"],
-              });
-            }
+          //if no proof, send a message
+          if (data.hasProof === false) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Please select a valid document",
+              path: ["hasProof"],
+            });
           }
         })
     )

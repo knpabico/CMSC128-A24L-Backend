@@ -16,14 +16,18 @@ import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 import { AlumDocumentUpload } from "./career_proof";
 import { MapPin, PencilIcon } from "lucide-react";
 
-export const Career = ({ index, form }: { index: number; form: any }) => {
+export const Career = ({
+  index,
+  form,
+  type,
+}: {
+  index: number;
+  form: any;
+  type: "career" | "currentJob";
+}) => {
   //dynamic fields for career
 
-  const [endYear, setEndYear] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleEndYear = (value: boolean) => {
-    setEndYear(value);
-  };
 
   const [selectedLocation, setSelectedLocation] = useState({
     location: "",
@@ -38,10 +42,10 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
       longitude: lng,
     });
 
-    //manually update values of location, latitude, presentJob
-    form.setValue(`career.${index}.location`, address);
-    form.setValue(`career.${index}.latitude`, lat);
-    form.setValue(`career.${index}.longitude`, lng);
+    //manually update values of location, latitude, longitude
+    form.setValue(`${type}.${index}.location`, address);
+    form.setValue(`${type}.${index}.latitude`, lat);
+    form.setValue(`${type}.${index}.longitude`, lng);
   };
 
   return (
@@ -53,7 +57,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
         <div className="col-span-6">
           <FormField
             control={form.control}
-            name={`career.${index}.industry`}
+            name={`${type}.${index}.industry`}
             render={({ field }) => (
               <FormItem className="gap-0">
                 <FormLabel className="text-xs font-light">Industry</FormLabel>
@@ -73,7 +77,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
         <div className="col-span-6">
           <FormField
             control={form.control}
-            name={`career.${index}.jobTitle`}
+            name={`${type}.${index}.jobTitle`}
             render={({ field }) => (
               <FormItem className="gap-0">
                 <FormLabel className="text-xs font-light">Job Title</FormLabel>
@@ -94,7 +98,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
           {/* university */}
           <FormField
             control={form.control}
-            name={`career.${index}.company`}
+            name={`${type}.${index}.company`}
             render={({ field }) => (
               <FormItem className="gap-0">
                 <FormLabel className="text-xs font-light">
@@ -118,7 +122,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
             {/* start year */}
             <FormField
               control={form.control}
-              name={`career.${index}.startYear`}
+              name={`${type}.${index}.startYear`}
               render={({ field }) => (
                 <FormItem className="gap-0">
                   <FormLabel className="text-xs font-light">
@@ -142,10 +146,10 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
         <div key={index} className="col-span-6 space-y-1">
           <div>
             {/* end year */}
-            {endYear === false && (
+            {type === "career" && (
               <FormField
                 control={form.control}
-                name={`career.${index}.endYear`}
+                name={`${type}.${index}.endYear`}
                 render={({ field }) => (
                   <FormItem className="gap-0">
                     <FormLabel className="text-xs font-light">
@@ -163,7 +167,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                 )}
               />
             )}
-            {endYear === true && (
+            {type === "currentJob" && (
               <div>
                 <p className="text-xs font-light">End Year</p>
                 <p className="cursor-not-allowed text-sm bg-gray-300 py-[7.2px] px-2.5 border border-gray-500 w-full text-gray-500 rounded-md">
@@ -171,34 +175,6 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
                 </p>
               </div>
             )}
-          </div>
-
-          <div>
-            {/* checkbox field for identifying whether it is up to present or not*/}
-            <FormField
-              control={form.control}
-              name={`career.${index}.presentJob`}
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex gap-2 justify-start items-center">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={(value: boolean) => {
-                          field.onChange(value);
-                          handleEndYear(value);
-                        }}
-                        className="bg-white"
-                      />
-                    </FormControl>
-                    <FormLabel className="text-xs font-light">
-                      Present job?
-                    </FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
         </div>
       </div>
@@ -238,7 +214,7 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
         />
 
         {/*display validation message for location*/}
-        {selectedLocation.location === "" && (
+        {selectedLocation.location === "" && type === "career" && (
           <>
             {form.formState.errors.career?.[index]?.location && (
               <p className="text-red-500 text-sm">
@@ -247,9 +223,19 @@ export const Career = ({ index, form }: { index: number; form: any }) => {
             )}
           </>
         )}
+
+        {selectedLocation.location === "" && type === "currentJob" && (
+          <>
+            {form.formState.errors.currentJob?.[index]?.location && (
+              <p className="text-red-500 text-sm">
+                {form.formState.errors.currentJob[index].location.message}
+              </p>
+            )}
+          </>
+        )}
       </div>
 
-      {endYear === true && (
+      {type === "currentJob" && (
         <div className="col-span-12">
           <p className="text-xs font-light pt-3">Proof of Employment</p>
           <AlumDocumentUpload index={index} form={form}></AlumDocumentUpload>

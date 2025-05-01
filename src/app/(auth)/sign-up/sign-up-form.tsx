@@ -155,6 +155,7 @@ const formParts = [
       "bachelors",
       "masters",
       "doctoral",
+      "currentJob",
       "career",
       "acceptTerms",
       "subscribeToNewsletter",
@@ -184,6 +185,7 @@ export default function RegistrationForm() {
   const [isVerify, setIsVerify] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
+  const [hasCurrentJob, setHasCurrentJob] = useState(false);
 
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
@@ -232,6 +234,7 @@ export default function RegistrationForm() {
       doctoral: [], //degree program, year graduated, university
 
       // //career
+      currentJob: [],
       career: [], //industry, jobTitle, company, startYear, endYear
       acceptTerms: false,
       subscribeToNewsletter: false,
@@ -265,6 +268,13 @@ export default function RegistrationForm() {
     append: addDoctoral,
     remove: removeDoctoral,
   } = useFieldArray({ control: form.control, name: "doctoral" });
+
+  //dynamic fields for currentJob
+  const {
+    fields: currentJob,
+    append: addCurrentJob,
+    remove: removeCurrentJob,
+  } = useFieldArray({ control: form.control, name: "currentJob" });
 
   //dynamic fields for career
   const {
@@ -304,7 +314,6 @@ export default function RegistrationForm() {
     console.log("Testing sign-up:");
     console.log(data);
     console.log(alumImage);
-    console.log(response.workExpIds);
 
     //display error or success toast message
     if (response?.error) {
@@ -318,22 +327,15 @@ export default function RegistrationForm() {
       uploadToFirebase(alumImage, response.alumniId!);
     }
 
-    //uploading multiple documents by batch
-    if (data && data.career) {
-      let index = 0;
-      for (let i = 0; i < data.career?.length!; i++) {
-        if (data.career[i]) {
-          //upload proof of employment document to firebase storage
-          if (data.career[i].hasProof === true && response.workExpIds) {
-            if (response.workExpIds[index]) {
-              uploadDocToFirebase(
-                data.career[i].proof,
-                response.alumniId!,
-                response.workExpIds[index]
-              );
-              index = index + 1;
-            }
-          }
+    //uploading currentJob's proof of employment
+    if (data.currentJob) {
+      if (data.currentJob.length > 0) {
+        if (data.currentJob[0].hasProof === true && response.workExperienceId) {
+          uploadDocToFirebase(
+            data.currentJob[0].proof,
+            response.alumniId!,
+            response.workExperienceId
+          );
         }
       }
     }
@@ -741,6 +743,63 @@ export default function RegistrationForm() {
                             <hr></hr>
                           </div>
 
+                          {/*CURRENT JOB */}
+                          <div className="mt-5">
+                            <p className="text-sm font-semibold pb-2">
+                              Current Job
+                            </p>
+                            {currentJob.map((car, index) => (
+                              <div key={car.id} className="relative pb-5">
+                                {/*remove field button */}
+                                <button
+                                  className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                  type="button"
+                                  onClick={() => {
+                                    removeCurrentJob(index);
+                                    setHasCurrentJob(false);
+                                  }}
+                                >
+                                  <Trash2Icon className="w-4" />
+                                </button>
+
+                                {/* career form field */}
+                                <Career
+                                  index={index}
+                                  form={form}
+                                  type={"currentJob"}
+                                ></Career>
+                              </div>
+                            ))}
+                            {/*add  fields button */}
+                            {hasCurrentJob === false && (
+                              <button
+                                className="flex items-center space-x-3 cursor-pointer group"
+                                type="button"
+                                onClick={() => {
+                                  addCurrentJob({
+                                    industry: "",
+                                    jobTitle: "",
+                                    company: "",
+                                    startYear: "",
+                                    endYear: "present",
+                                    location: "",
+                                    latitude: 14.25,
+                                    longitude: 121.25,
+                                    hasProof: false,
+                                    proof: null,
+                                  });
+                                  setHasCurrentJob(true);
+                                }}
+                              >
+                                <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                                <p className="text-[#3675c5] text-sm group-hover:underline">
+                                  Add current job
+                                </p>
+                              </button>
+                            )}
+                          </div>
+
+                          {/*PAST WORK EXPERIENCE*/}
                           <div className="mt-5">
                             <p className="text-sm font-semibold pb-2">
                               Work Experience
@@ -757,7 +816,11 @@ export default function RegistrationForm() {
                                 </button>
 
                                 {/* career form field */}
-                                <Career index={index} form={form}></Career>
+                                <Career
+                                  index={index}
+                                  form={form}
+                                  type={"career"}
+                                ></Career>
                               </div>
                             ))}
                             {/*add  fields button */}
@@ -771,12 +834,9 @@ export default function RegistrationForm() {
                                   company: "",
                                   startYear: "",
                                   endYear: "",
-                                  presentJob: false,
                                   location: "",
                                   latitude: 14.25,
                                   longitude: 121.25,
-                                  hasProof: false,
-                                  proof: null,
                                 });
                               }}
                             >

@@ -62,7 +62,24 @@ const saveCareer = async (
             company: string;
             startYear: string;
             endYear: string;
-            presentJob: boolean;
+            location: string;
+            latitude: number;
+            longitude: number;
+          }
+        | undefined
+      )[]
+    | undefined,
+  currentJob:
+    | (
+        | {
+            industry: string;
+            jobTitle: string;
+            company: string;
+            startYear: string;
+            endYear: string;
+            location: string;
+            latitude: number;
+            longitude: number;
             hasProof: boolean;
             proof?: any;
           }
@@ -71,7 +88,6 @@ const saveCareer = async (
     | undefined,
   alumniId: string
 ) => {
-  let workExpIds = []; //ids of work experience
   //if career exists
   if (career) {
     //loop for storing each career entry to work_experience
@@ -83,8 +99,33 @@ const saveCareer = async (
         //will contain the id to be used for adding education entry
         let ref = serverFirestoreDB.collection("work_experience").doc();
 
+        await serverFirestoreDB
+          .collection("work_experience")
+          .doc(ref.id)
+          .set({
+            ...career[i],
+            workExperienceId: ref.id,
+            alumniId: alumniId,
+            proofOfEmployment: "",
+          });
+      }
+    }
+  }
+
+  let workExperienceId = null; //id of current job
+  //if currentJob exists
+  if (currentJob) {
+    //loop for storing each currentJob entry to work_experience
+    for (let i = 0; i < currentJob.length; i++) {
+      if (currentJob[i]) {
+        //if currentJob[i] is not undefined
+        //each field shouldn't be empty
+
+        //will contain the id to be used for adding education entry
+        let ref = serverFirestoreDB.collection("work_experience").doc();
+
         //destructure to get presentJob
-        const { presentJob, endYear, hasProof, proof, ...car } = career[i]!;
+        const { hasProof, proof, ...car } = currentJob[i]!;
 
         await serverFirestoreDB
           .collection("work_experience")
@@ -93,20 +134,19 @@ const saveCareer = async (
             ...car,
             workExperienceId: ref.id,
             alumniId: alumniId,
-            endYear: presentJob ? "present" : endYear, //if present job, set as present
             proofOfEmployment: "",
           });
 
-        //push work experience id if has proof
-        if (presentJob && hasProof) {
-          workExpIds.push(ref.id);
+        //store work experience id if has proof
+        if (hasProof) {
+          workExperienceId = ref.id;
         }
       }
     }
   }
 
   //return id of current job
-  return workExpIds;
+  return workExperienceId;
 };
 
 //function for saving bachelors, masters, and doctoral to the education collection
@@ -259,6 +299,7 @@ export const registerUser = async (
     doctoral,
     affiliation,
     career,
+    currentJob,
     passwordConfirm,
     ...alumData
   } = alumnusData;
@@ -308,7 +349,11 @@ export const registerUser = async (
     await saveEducation(bachelors!, masters!, doctoral!, userCredential.uid);
 
     //save career
-    let workExperienceIds = await saveCareer(career, userCredential.uid);
+    let workExperienceId = await saveCareer(
+      career,
+      currentJob,
+      userCredential.uid
+    );
 
     //save affiliation
     await saveAffiliation(affiliation, userCredential.uid);
@@ -316,7 +361,7 @@ export const registerUser = async (
     return {
       error: false,
       alumniId: userCredential.uid,
-      workExpIds: workExperienceIds,
+      workExperienceId: workExperienceId,
     };
   } catch (err: any) {
     return {

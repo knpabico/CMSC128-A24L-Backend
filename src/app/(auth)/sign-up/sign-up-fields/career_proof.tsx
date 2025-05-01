@@ -69,9 +69,9 @@ export const AlumDocumentUpload = ({
       setDocument(file);
       setDocumentType(file.type);
       //update form file
-      form.setValue(`career.${index}.proof`, file);
-      //update hasProof of career[index]
-      form.setValue(`career.${index}.hasProof`, true);
+      form.setValue(`currentJob.${index}.proof`, file);
+      //update hasProof of currentJob[index]
+      form.setValue(`currentJob.${index}.hasProof`, true);
       // Only create preview for image files
       if (file.type.startsWith("image/")) {
         setPreview(URL.createObjectURL(file));
@@ -87,10 +87,10 @@ export const AlumDocumentUpload = ({
     setDocumentType("");
     setPreview(null);
     setFirstClick(false); //reset firstClick
-    //update hasProof of career[index]
-    form.setValue(`career.${index}.hasProof`, false);
+    //update hasProof of currentJob[index]
+    form.setValue(`currentJob.${index}.hasProof`, false);
     //update form file
-    form.setValue(`career.${index}.proof`, null);
+    form.setValue(`currentJob.${index}.proof`, null);
     //reset current value of the file input button before choosing a file
     if (fileInput.current) {
       fileInput.current.value = "";
@@ -198,9 +198,9 @@ export const AlumDocumentUpload = ({
       {/*display validation message for document*/}
       {document === null && (
         <>
-          {form.formState.errors.career?.[index]?.hasProof && (
+          {form.formState.errors.currentJob?.[index]?.hasProof && (
             <p className="text-red-500 text-sm">
-              {form.formState.errors.career[index].hasProof.message}
+              {form.formState.errors.currentJob[index].hasProof.message}
             </p>
           )}
         </>
