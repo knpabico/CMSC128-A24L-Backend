@@ -78,6 +78,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   const router = useRouter();
   
   const {fileName, setFileName, handleEdit } = useEvents();
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (isEditing && events) {
@@ -361,6 +362,10 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             </label>
           </div>
 
+          {errorMessage && (
+                  <p className="text-red-500 text-sm mt-4">{errorMessage}</p>
+                )}
+
           <div className="flex justify-between mt-4">
             <button type="button" onClick={onClose} className="text-gray-500">
               Cancel
@@ -388,16 +393,42 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             </button>
               <button
                 type="button"
-                onClick={() =>
-                  {
+                onClick={() => {
+                  setErrorMessage(""); // Clear previous error messages
+
+                  if (!formComplete) {
+                    setErrorMessage("Please fill out all required fields before proposing the event.");
+                    return;
+                  }
+
+                    // Validate batch inputs (only numbers and not empty)
+                    if (visibility === "batch") {
+                      if (selectedBatches.length === 0) {
+                        setErrorMessage("Please add at least one batch.");
+                        return;
+                      }
+                      if (selectedBatches.some(batch => !/^\d+$/.test(batch))) {
+                        setErrorMessage("Batch inputs must contain only numbers.");
+                        return;
+                      }
+                    }
+
+                    // Validate alumni inputs (valid email format and not empty)
+                    if (visibility === "alumni") {
+                      if (selectedAlumni.length === 0) {
+                        setErrorMessage("Please add at least one alumni email.");
+                        return;
+                      }
+                      if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+                        setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
+                        return;
+                      }
+                    }
+
                     const form = document.querySelector("form");
-                    if (form && form.checkValidity())
-                    {
+                    if (form && form.checkValidity()) {
                       setConfirmForm(true);
-                    } 
-                    
-                    else
-                    {
+                    } else {
                       form?.reportValidity(); // Show browser's validation tooltips
                     }
                   }}
