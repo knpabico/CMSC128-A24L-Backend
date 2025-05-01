@@ -113,38 +113,56 @@ const baseSchema = z.object({
     .optional(),
   career: z
     .array(
-      z.object({
-        industry: z.string().min(1, "Input your job's industry"),
-        jobTitle: z.string().min(1, "Input your job title"),
-        company: z.string().min(1, "Input your company's name"),
-        startYear: z.string().refine((input) => {
-          const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-          const currentYear = new Date().getFullYear(); //get current year for checking
-          const validYearTest = regex.test(input);
-          let maxYearTest = false;
-          //valid if year is <= 2025
-          if (parseInt(input, 10) <= currentYear) {
-            maxYearTest = true;
+      z
+        .object({
+          industry: z.string().min(1, "Input your job's industry"),
+          jobTitle: z.string().min(1, "Input your job title"),
+          company: z.string().min(1, "Input your company's name"),
+          startYear: z.string().refine((input) => {
+            const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+            const currentYear = new Date().getFullYear(); //get current year for checking
+            const validYearTest = regex.test(input);
+            let maxYearTest = false;
+            //valid if year is <= 2025
+            if (parseInt(input, 10) <= currentYear) {
+              maxYearTest = true;
+            }
+            //if true validation passes
+            return validYearTest && maxYearTest;
+          }, "Please input a valid year"),
+          endYear: z.string().refine((input) => {
+            const regex = /^(19[8-9]\d|20\d\d|2100)$/;
+            const currentYear = new Date().getFullYear(); //get current year for checking
+            const validYearTest = regex.test(input);
+            let maxYearTest = false;
+            //valid if year is <= 2025
+            if (parseInt(input, 10) <= currentYear) {
+              maxYearTest = true;
+            }
+            //if true validation passes
+            return validYearTest && maxYearTest;
+          }, "Please input a valid year"),
+          location: z
+            .string()
+            .min(1, "Input your job's location using the map"),
+          latitude: z.number(),
+          longitude: z.number(),
+        })
+        .superRefine((data, ctx) => {
+          //endYear should be >= startYear
+          if (parseInt(data.endYear, 10) < parseInt(data.startYear, 10)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Start year cannot exceed end year",
+              path: ["endYear"],
+            });
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Start year cannot exceed end year",
+              path: ["startYear"],
+            });
           }
-          //if true validation passes
-          return validYearTest && maxYearTest;
-        }, "Please input a valid year"),
-        endYear: z.string().refine((input) => {
-          const regex = /^(19[8-9]\d|20\d\d|2100)$/;
-          const currentYear = new Date().getFullYear(); //get current year for checking
-          const validYearTest = regex.test(input);
-          let maxYearTest = false;
-          //valid if year is <= 2025
-          if (parseInt(input, 10) <= currentYear) {
-            maxYearTest = true;
-          }
-          //if true validation passes
-          return validYearTest && maxYearTest;
-        }, "Please input a valid year"),
-        location: z.string().min(1, "Input your job's location using the map"),
-        latitude: z.number(),
-        longitude: z.number(),
-      })
+        })
     )
     .optional(),
   currentJob: z
@@ -214,9 +232,6 @@ const passwordSchema = z
   });
 
 const ageAndBirthDateSchema = z.object({
-  // age: z.string().refine((age) => !isNaN(parseInt(age)), {
-  //   message: "Please input a valid age",
-  // }),
   birthDate: z
     .string()
     .refine((date) => new Date(date).toString() !== "Invalid Date", {
@@ -237,6 +252,7 @@ const studentNumberAndGraduationYearSchema = z.object({
     }, "Please make sure that your student number is valid"),
 });
 
+//for disabling non-digit keyboard inputs
 export const handleYearInput = (e: any) => {
   if (["e", "E", ".", "-", "+"].includes(e.key)) {
     e.preventDefault();
