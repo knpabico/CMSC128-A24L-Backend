@@ -1,19 +1,225 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useScholarship } from '@/context/ScholarshipContext';
 import BookmarkButton from "@/components/ui/bookmark-button";
-import { CalendarDays, Bookmark, HandHeart, BookOpen } from "lucide-react"
+import { CalendarDays, Bookmark, HandHeart, BookOpen, Clock, User, Filter, ChevronDown, Calendar } from "lucide-react";
 import { useBookmarks } from '@/context/BookmarkContext';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';;
+import { useFeatured } from '@/context/FeaturedStoryContext';
+import { Featured } from '@/models/models';
+
+// Status Badge Component
+const StatusBadge = ({ status }: { status: string }) => {
+  let bgColor = "bg-gray-100";
+  let textColor = "text-gray-800";
+  
+  if (status === "active") {
+    bgColor = "bg-green-100";
+    textColor = "text-green-800";
+  } else if (status === "closed") {
+    bgColor = "bg-gray-100";
+    textColor = "text-gray-800";
+  }
+  
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor} capitalize`}>
+      {status}
+    </span>
+  );
+};
+
+// Status Filter Component
+type FilterOption = 'all' | 'active' | 'closed';
+
+interface StatusFilterProps {
+  activeFilter: FilterOption;
+  setActiveFilter: (filter: FilterOption) => void;
+}
+
+const StatusFilterDropdown = ({ 
+  activeFilter = 'all', 
+  setActiveFilter 
+}: StatusFilterProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  
+  const selectOption = (option: FilterOption) => {
+    setActiveFilter(option);
+    setIsOpen(false);
+  };
+  
+  const getDisplayText = () => {
+    switch(activeFilter) {
+      case 'all': return 'All';
+      case 'active': return 'Active';
+      case 'closed': return 'Closed';
+      default: return 'All';
+    }
+  };
+  
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-medium text-gray-700">Status:</span>
+      <div className="relative">
+        <button 
+          onClick={toggleDropdown}
+          className="flex items-center justify-between min-w-32 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+        >
+          <span className="text-gray-900">{getDisplayText()}</span>
+          <ChevronDown size={16} className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {isOpen && (
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+            <ul className="py-1" role="listbox">
+              <li role="option" aria-selected={activeFilter === 'all'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${activeFilter === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('all')}
+                >
+                  All
+                </button>
+              </li>
+              <li role="option" aria-selected={activeFilter === 'active'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${activeFilter === 'active' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('active')}
+                >
+                  Active
+                </button>
+              </li>
+              <li role="option" aria-selected={activeFilter === 'closed'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${activeFilter === 'closed' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('closed')}
+                >
+                  Closed
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+type SortOption = 'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors';
+interface SortControlProps {
+  sortOrder: SortOption;
+  setSortOrder: (order: SortOption) => void;
+  activeTab: string;
+}
+const SortControlDropdown = ({ 
+  sortOrder = 'latest',
+  setSortOrder,
+  activeTab
+}: SortControlProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  const selectOption = (option: SortOption) => {
+    setSortOrder(option);
+    setIsOpen(false);
+  };
+  const getDisplayText = () => {
+    switch(sortOrder) {
+      case 'latest': return 'Latest first';
+      case 'oldest': return 'Oldest first';
+      case 'most-sponsors': return 'Most sponsors';
+      case 'least-sponsors': return 'Least sponsors';
+      default: return 'Latest first';
+    }
+  };
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-medium text-gray-700">Sort:</span>
+      
+      <div className="relative">
+        <button 
+          onClick={toggleDropdown}
+          className="flex items-center justify-between min-w-36 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+        >
+          <span className="text-gray-900">{getDisplayText()}</span>
+          <ChevronDown size={16} className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        
+        {isOpen && (
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+            <ul className="py-1" role="listbox">
+              <li role="option" aria-selected={sortOrder === 'latest'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'latest' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('latest')}
+                >
+                  Latest first
+                </button>
+              </li>
+              <li role="option" aria-selected={sortOrder === 'oldest'}>
+                <button 
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'oldest' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  onClick={() => selectOption('oldest')}
+                >
+                  Oldest first
+                </button>
+              </li>
+              
+              {/* Only show sponsor-related options if the active tab is not "stories" */}
+              {activeTab !== 'stories' && (
+                <>
+                  <li role="option" aria-selected={sortOrder === 'most-sponsors'}>
+                    <button 
+                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'most-sponsors' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                      onClick={() => selectOption('most-sponsors')}
+                    >
+                      Most sponsors
+                    </button>
+                  </li>
+                  <li role="option" aria-selected={sortOrder === 'least-sponsors'}>
+                    <button 
+                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${sortOrder === 'least-sponsors' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                      onClick={() => selectOption('least-sponsors')}
+                    >
+                      Least sponsors
+                    </button>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ScholarshipPage: React.FC = () => {
   const { scholarships, loading, error } = useScholarship();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
+  const [sortOrder, setSortOrder] = useState<'latest' | 'oldest' | 'most-sponsors' | 'least-sponsors'>('latest');
   const router = useRouter();
+
+  const { featuredItems, isLoading: featuredLoading } = useFeatured();
+  const [scholarshipStories, setScholarshipStories] = useState<Featured[]>([]);
+
+  useEffect(() => {
+    // Filter featured items with type "scholarship"
+    if (featuredItems && featuredItems.length > 0) {
+      const filteredStories = featuredItems.filter(
+        (item: Featured) => item.type === "scholarship" && item.status !== "deleted"
+      );
+      setScholarshipStories(filteredStories);
+    }
+  }, [featuredItems]);
 
   const handleToggleBookmark = async (e: React.MouseEvent, scholarshipId: string) => {
     // Stop event propagation to prevent navigation when clicking the bookmark button
@@ -25,24 +231,112 @@ const ScholarshipPage: React.FC = () => {
     router.push(`/scholarship/${scholarshipId}`);
   };
 
-  if (loading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>;
+  const navigateToFeaturedDetail = (featuredId: string) => {
+    router.push(`/scholarship/featured/${featuredId}`);
+  };
+
+  // Function to determine if scholarship is active based on deadline
+  const isScholarshipActive = (scholarship: any) => {
+    if (scholarship.status === "deleted") return false;
+    
+    if (scholarship.status) {
+      return scholarship.status === "active";
+    }
+    
+    // Default to active if no status or deadline
+    return true;
+  };
+
+  // Get scholarship status
+  const getScholarshipStatus = (scholarship: any) => {
+    if (scholarship.status === "deleted") return "deleted";
+    
+    if (scholarship.status) {
+      return scholarship.status;
+    }
+    
+    // Default
+    return "active";
+  };
+
+  if (loading || featuredLoading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>;
   
   if (error) return <div className="text-red-500 text-center p-8">{error}</div>;
 
-  // Filter scholarships based on active tab
-  const filteredScholarships = (() => {
+  // First filter based on tab
+  const tabFilteredScholarships = (() => {
+    // Remove all scholarships with status "deleted"
+    const nonDeletedScholarships = scholarships.filter(
+      (scholarship: any) => getScholarshipStatus(scholarship) !== "deleted"
+    );
+    
     switch(activeTab) {
       case 'saved':
-        return scholarships.filter(scholarship => isBookmarked(scholarship.scholarshipId));
+        return nonDeletedScholarships.filter((scholarship: any) => 
+          isBookmarked(scholarship.scholarshipId)
+        );
       case 'myScholars':
         // Only show scholarships where the current user is in the alumList
         return user 
-          ? scholarships.filter(scholarship => scholarship.alumList.includes(user.uid)) 
+          ? nonDeletedScholarships.filter((scholarship: any) => 
+              scholarship.alumList.includes(user.uid)
+            ) 
           : [];
+      case 'stories':
+        return [];
       default:
-        return scholarships;
+        return nonDeletedScholarships;
     }
   })();
+
+  // Then filter based on status
+  const filteredScholarships = (() => {
+    if (statusFilter === 'all') {
+      return tabFilteredScholarships;
+    } else if (statusFilter === 'active') {
+      return tabFilteredScholarships.filter((scholarship: any) => 
+        isScholarshipActive(scholarship)
+      );
+    } else { // closed
+      return tabFilteredScholarships.filter((scholarship: any) => 
+        !isScholarshipActive(scholarship)
+      );
+    }
+  })();
+
+  // Sort the scholarships based on datePosted or sponsors
+  const sortedScholarships = [...filteredScholarships].sort((a, b) => {
+    // Sort by date
+    if (sortOrder === 'latest' || sortOrder === 'oldest') {
+      const dateA = new Date(a.datePosted).getTime();
+      const dateB = new Date(b.datePosted).getTime();
+      
+      return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+    }
+    
+    // Sort by number of sponsors
+    if (sortOrder === 'most-sponsors' || sortOrder === 'least-sponsors') {
+      const sponsorsA = a.alumList ? a.alumList.length : 0;
+      const sponsorsB = b.alumList ? b.alumList.length : 0;
+      
+      return sortOrder === 'most-sponsors' ? sponsorsB - sponsorsA : sponsorsA - sponsorsB;
+    }
+    
+    return 0;
+  });
+
+  // Sort the scholarship stories based on datePosted
+  const sortedScholarshipStories = [...scholarshipStories].sort((a, b) => {
+    const dateA = a.datePosted && typeof a.datePosted.toDate === 'function' 
+      ? a.datePosted.toDate().getTime() 
+      : new Date(a.datePosted).getTime();
+    
+    const dateB = b.datePosted && typeof b.datePosted.toDate === 'function'
+      ? b.datePosted.toDate().getTime()
+      : new Date(b.datePosted).getTime();
+    
+    return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+  });
 
   return (
     <div className='bg-[#EAEAEA] h-full'>
@@ -56,108 +350,180 @@ const ScholarshipPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[100px] xl:mx-[200px]'>
-        <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max'>
-          <button 
-            className={`flex gap-5 items-center ${activeTab === 'all' ? 'bg-blue-100' : ''}`}
-            onClick={() => setActiveTab('all')}
-          >
+      <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[100px] xl:mx-[200px] static'>
+        <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7'>
+          <button onClick={() => setActiveTab('all')} className='flex items-center gap-3'>
             <CalendarDays />
-            <p className="group relative w-max">
-              <span>All Scholarship</span>
-              <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${activeTab === 'all' ? 'w-full' : 'w-0'}`}></span>
+            <p className={`group w-max relative py-1 transition-all ${activeTab === 'all' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+              <span>All Scholarships</span>
+              {activeTab !== 'all' && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
             </p>
           </button>
-          <button 
-            className={`flex gap-5 items-center ${activeTab === 'saved' ? 'bg-blue-100' : ''}`}
-            onClick={() => setActiveTab('saved')}
-          >
+          <button onClick={() => setActiveTab('saved')} className='flex items-center gap-3'>
             <Bookmark />
-            <p className="group relative w-max">
+            <p className={`group w-max relative py-1 transition-all ${activeTab === 'saved' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
               <span>Saved Scholarships</span>
-              <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${activeTab === 'saved' ? 'w-full' : 'w-0'}`}></span>
+              {activeTab !== 'saved' && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
             </p>
           </button>
-          <button 
-            className={`flex gap-5 items-center ${activeTab === 'myScholars' ? 'bg-blue-100' : ''}`}
-            onClick={() => setActiveTab('myScholars')}
-          >
+          <button onClick={() => setActiveTab('myScholars')} className='flex items-center gap-3'>
             <HandHeart />
-            <p className="group relative w-max">
+            <p className={`group w-max relative py-1 transition-all ${activeTab === 'myScholars' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
               <span>My Scholars</span>
-              <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${activeTab === 'myScholars' ? 'w-full' : 'w-0'}`}></span>
+              {activeTab !== 'myScholars' && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
             </p>
           </button>
-          <button className='flex gap-5 items-center'>
+          <button onClick={() => setActiveTab('stories')} className='flex items-center gap-3'>
             <BookOpen />
-            <p className="group relative w-max">
+            <p className={`group w-max relative py-1 transition-all ${activeTab === 'stories' ? 'font-semibold border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
               <span>Featured Stories</span>
-              <span className="absolute -bottom-1 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+              {activeTab !== 'stories' && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
             </p>
           </button>
         </div>
 
         <div className='flex flex-col gap-[10px] w-full mb-10'>
-          {/* Scholarships List */}
-          {filteredScholarships.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              {activeTab === 'saved' ? 'No saved scholarships' : 
-               activeTab === 'myScholars' ? 'No scholarships available.' : 
-               'No scholarships available.'}
+          {/* Filter and Sort Controls */}
+          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-2 lg:py-1 flex flex-col items-start lg:flex-row lg:justify-between lg:items-center shadow-md border border-gray-200">
+						<h2 className="text-md lg:text-lg font-semibold">
+							{activeTab === 'all' ? 'All Donation Drives' : 
+							activeTab === 'saved' ? 'Saved Donation Drives' : 
+							activeTab === 'myScholars' ? 'My Scholars' : 
+							'Featured Stories'}
+						</h2>
+						<div className="flex justify-between items-center gap-2">
+							{/* Status Filter - Only show on non-stories tabs */}
+							{activeTab !== 'stories' ? (
+								<div className='flex justify-center items-center'>
+									<StatusFilterDropdown activeFilter={statusFilter} setActiveFilter={setStatusFilter} />
+									<div>|</div>
+								</div>
+							) : (
+								<div></div> /* Empty div as placeholder for layout when filter is not shown */
+							)}
+							{/* Simple Sort Control - Show on all tabs */}
+							<SortControlDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} activeTab={activeTab}  />
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredScholarships.map((scholarship) => (
-                <div 
-                  key={scholarship.scholarshipId} 
-                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigateToDetail(scholarship.scholarshipId)}
-                >
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">{scholarship.title}</h2>
-                      <div onClick={(e) => handleToggleBookmark(e, scholarship.scholarshipId)}>
-                        <BookmarkButton 
-                          entryId={scholarship.scholarshipId}  
-                          type="scholarship" 
-                          size="lg"
-                        //  isBookmarked={isBookmarked(scholarship.scholarshipId)}
-                        />
+          </div>
+          
+          {/* Content based on active tab */}
+          {activeTab === 'stories' ? (
+            <>
+              {scholarshipStories.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
+                  No featured scholarship stories available.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
+                  {sortedScholarshipStories.map((story: Featured) => (
+                    <div 
+                      key={story.featuredId} 
+                      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => navigateToFeaturedDetail(story.featuredId)}
+                    >
+                      {/* Image */}
+                      <div 
+                        className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" 
+                        style={{ backgroundImage: `url("${story.image || '/ICS3.jpg'}")` }} 
+                      />
+                      {/* Body */}
+                      <div className="px-6 pt-3 pb-6">
+                        {/* Title */}
+                        <div className="flex justify-between items-center mb-2">
+                          <h2 className="text-xl font-semibold truncate">{story.title}</h2>
+                        </div>
+                        {/* Description */}
+                        <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
+                          <p className="text-start">
+                            {story.text && story.text.length > 150 
+                              ? story.text.slice(0, 150) + "..." 
+                              : story.text}
+                          </p>
+                        </div>
+                        <div className='grid grid-cols-2 w-full items-center'>
+                          {/* Date */}
+                          <div className='flex items-center gap-1'>
+                            <Calendar size={16} />
+                            <p className="text-sm text-gray-600">
+															{story.datePosted && typeof story.datePosted.toDate === 'function' 
+																? new Date(story.datePosted.toDate()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+																: new Date(story.datePosted).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+														</p>
+                          </div>
+                        </div>       
                       </div>
                     </div>
-                    
-                    <p className="text-sm text-gray-500 mb-4">
-                      Posted on {scholarship.datePosted.toLocaleString()}
-                    </p>
-                    
-                    <p className="text-gray-700 mb-4">
-                      {scholarship.description.length > 150 
-                        ? `${scholarship.description.substring(0, 150)}...` 
-                        : scholarship.description}
-                    </p>
-                    
-                    <div className="flex items-center text-sm text-gray-600 mt-4">
-                      <span className="mr-2">Recipients:</span>
-                      <span className="font-medium">{scholarship.alumList.length}</span>
-                    </div>
-                    
-                    {scholarship.alumList.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">Alumni Recipients</h3>
-                        <div className="flex flex-wrap gap-1">
-                          {scholarship.alumList.map((alumId, index) => (
-                            <span key={alumId} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              Recipient {index + 1}
-                            </span>
-                          ))}
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            // Regular scholarships list display for other tabs
+            <>
+              {sortedScholarships.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
+                  {activeTab === 'saved' ? `No ${statusFilter !== 'all' ? statusFilter : ''} saved scholarships` : 
+                   activeTab === 'myScholars' ? `No ${statusFilter !== 'all' ? statusFilter : ''} scholarships available.` : 
+                   `No ${statusFilter !== 'all' ? statusFilter : ''} scholarships available.`}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
+                  {sortedScholarships.map((scholarship: any) => {
+                    const status = getScholarshipStatus(scholarship);
+                    return (
+                      <div 
+                        key={scholarship.scholarshipId} 
+                        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                        onClick={() => navigateToDetail(scholarship.scholarshipId)}
+                      >
+                        {/* Image */}
+                        <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
+                        {/* Body */}
+                        <div className="px-6 pt-3 pb-6">
+                          {/* Name */}
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex flex-col gap-1">
+                              <h2 className="text-xl font-semibold truncate">{scholarship.title}</h2>
+                              <div className="flex items-center gap-2">
+                                <StatusBadge status={status} />
+                              </div>
+                            </div>
+                            <div onClick={(e) => handleToggleBookmark(e, scholarship.scholarshipId)}>
+                              <BookmarkButton 
+                                entryId={scholarship.scholarshipId}  
+                                type="scholarship" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                          {/* Description */}
+                          <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
+                            <p className="text-start">
+                              {scholarship.description.length > 150 
+                                ? scholarship.description.slice(0, 150) + "..." 
+                                : scholarship.description}
+                            </p>
+                          </div>
+                          <div className='grid grid-cols-2 w-full items-center'>
+                            {/* Date */}
+                            <div className='flex items-center'>
+                              <p className="text-sm text-gray-600">
+                                Posted on {scholarship.datePosted.toLocaleDateString()}
+                              </p>
+                            </div>
+                            {/* Sponsors */}
+                            <div className="flex items-center text-sm text-gray-600">
+                              <span className="mr-2">Sponsors:</span>
+                              <span className="font-medium">{scholarship.alumList.length}</span>
+                            </div>
+                          </div>       
                         </div>
                       </div>
-                    )}
-                  
-                  </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </div>

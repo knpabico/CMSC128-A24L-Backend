@@ -1,6 +1,7 @@
 // this file contains the type of an Alumni document
 import { RegStatus } from "@/types/alumni/regStatus";
 import { Timestamp } from "firebase-admin/firestore";
+import { StringFormat } from "firebase/storage";
 
 export interface Alumnus {
   alumniId: string;
@@ -67,9 +68,11 @@ export interface Scholarship {
   alumList: string[];
   datePosted: Date;
   image: string;
+  status: string;
 }
 
 export interface Event {
+  dateCreated(dateCreated: any): import("react").ReactNode;
   eventId: string;
   datePosted: Date;
   title: string;
@@ -77,6 +80,7 @@ export interface Event {
   date: string;
   rsvps: string[];
   status: string;
+  inviteType: string;
   creatorId: string;
   creatorName: string;
   creatorType: string;
@@ -194,4 +198,13 @@ export interface AIQuestion {
   who: string;
   when: string;
   where: string;
+}
+
+export interface Featured {
+  featuredId: string;
+  text: string;
+  image: string;
+  title: string;
+  type: string;
+  datePosted: Date;
 }

@@ -17,6 +17,9 @@ const adminLinks = [
   { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
   { label: "Site Settings", link: "site-settings" },
   { label: "Statistical Reports", link: "statistical-reports" },
+  { label: "Manage Scholarships", link: "manage-scholarship" },
+  { label: "Add Scholarships", link: "add-scholarship" },
+  { label: "Write story", link: "create-story" },
 ];
 
 export default function AdminDashboard() {
