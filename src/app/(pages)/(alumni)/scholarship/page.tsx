@@ -69,12 +69,33 @@ const StatusFilter = ({ activeFilter, setActiveFilter }: {
   );
 };
 
+// Sorting
+const SortControl = ({ sortOrder, setSortOrder }: {
+  sortOrder: 'latest' | 'oldest',
+  setSortOrder: (order: 'latest' | 'oldest') => void
+}) => {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-medium text-gray-700">Sort:</span>
+      <select 
+        className="text-sm border rounded px-2 py-1 bg-white"
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value as 'latest' | 'oldest')}
+      >
+        <option value="latest">Latest first</option>
+        <option value="oldest">Oldest first</option>
+      </select>
+    </div>
+  );
+};
+
 const ScholarshipPage: React.FC = () => {
   const { scholarships, loading, error } = useScholarship();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
+  const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
   const router = useRouter();
 
   const { featuredItems, isLoading: featuredLoading } = useFeatured();
@@ -173,6 +194,27 @@ const ScholarshipPage: React.FC = () => {
     }
   })();
 
+  // Sort the scholarships based on datePosted
+  const sortedScholarships = [...filteredScholarships].sort((a, b) => {
+    const dateA = new Date(a.datePosted).getTime();
+    const dateB = new Date(b.datePosted).getTime();
+    
+    return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+  });
+
+  // Sort the scholarship stories based on datePosted
+  const sortedScholarshipStories = [...scholarshipStories].sort((a, b) => {
+    const dateA = a.datePosted && typeof a.datePosted.toDate === 'function' 
+      ? a.datePosted.toDate().getTime() 
+      : new Date(a.datePosted).getTime();
+    
+    const dateB = b.datePosted && typeof b.datePosted.toDate === 'function'
+      ? b.datePosted.toDate().getTime()
+      : new Date(b.datePosted).getTime();
+    
+    return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+  });
+
   return (
     <div className='bg-[#EAEAEA] h-full'>
       {/*Page Title*/}
@@ -218,12 +260,20 @@ const ScholarshipPage: React.FC = () => {
         </div>
 
         <div className='flex flex-col gap-[10px] w-full mb-10'>
-          {/* Status Filter - Only show on non-stories tabs */}
-          {activeTab !== 'stories' && (
-            <div className="bg-white p-4 rounded-lg shadow mb-4">
-              <StatusFilter activeFilter={statusFilter} setActiveFilter={setStatusFilter} />
+          {/* Filter and Sort Controls */}
+          <div className="bg-white p-4 rounded-lg shadow mb-4">
+            <div className="flex justify-between items-center">
+              {/* Status Filter - Only show on non-stories tabs */}
+              {activeTab !== 'stories' ? (
+                <StatusFilter activeFilter={statusFilter} setActiveFilter={setStatusFilter} />
+              ) : (
+                <div></div> /* Empty div as placeholder for layout when filter is not shown */
+              )}
+              
+              {/* Simple Sort Control - Show on all tabs */}
+              <SortControl sortOrder={sortOrder} setSortOrder={setSortOrder} />
             </div>
-          )}
+          </div>
           
           {/* Content based on active tab */}
           {activeTab === 'stories' ? (
@@ -234,7 +284,7 @@ const ScholarshipPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-                  {scholarshipStories.map((story: Featured) => (
+                  {sortedScholarshipStories.map((story: Featured) => (
                     <div 
                       key={story.featuredId} 
                       className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
@@ -280,7 +330,7 @@ const ScholarshipPage: React.FC = () => {
           ) : (
             // Regular scholarships list display for other tabs
             <>
-              {filteredScholarships.length === 0 ? (
+              {sortedScholarships.length === 0 ? (
                 <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
                   {activeTab === 'saved' ? `No ${statusFilter !== 'all' ? statusFilter : ''} saved scholarships` : 
                    activeTab === 'myScholars' ? `No ${statusFilter !== 'all' ? statusFilter : ''} scholarships available.` : 
@@ -288,7 +338,7 @@ const ScholarshipPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-                  {filteredScholarships.map((scholarship: any) => {
+                  {sortedScholarships.map((scholarship: any) => {
                     const status = getScholarshipStatus(scholarship);
                     return (
                       <div 
