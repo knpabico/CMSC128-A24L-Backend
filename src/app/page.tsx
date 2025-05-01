@@ -5,13 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import {
-  Announcement,
-  Career,
-  Education,
-  NewsletterItem,
-  WorkExperience,
-} from "@/models/models";
+import { Announcement } from "@/models/models";
+import { useAnnouncement } from "@/context/AnnouncementContext";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -29,10 +24,7 @@ import {
   NewsLetterProvider,
   useNewsLetters,
 } from "@/context/NewsLetterContext";
-import {
-  AnnouncementProvider,
-  useAnnouncement,
-} from "@/context/AnnouncementContext";
+import { format } from "path";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -42,7 +34,7 @@ export default function Home() {
   const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
     useAuth();
   const { newsLetters } = useNewsLetters();
-  const { announces } = useAnnouncement();
+  const { announces, setAnnounce } = useAnnouncement();
   const { userWorkExperience } = useWorkExperience();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
@@ -62,6 +54,16 @@ export default function Home() {
       router.push("/admin-dashboard");
     }
   }, [isAdmin, router, loading, user]);
+
+  useEffect(() => {
+    console.log("Announcements", announces);
+    const filteredAnnouncements = announces.filter(
+      (announcement: Announcement) => announcement.isPublic === true
+    );
+    if (JSON.stringify(filteredAnnouncements) !== JSON.stringify(announces)) {
+      setAnnounce(filteredAnnouncements);
+    }
+  }, [announces]);
 
   //function for handling change on sort type
   function handleSortChange(sortType: string) {
@@ -207,36 +209,36 @@ export default function Home() {
     setIsUploading(false);
   };
 
-  const announcements = [
-    {
-      id: 1,
-      date: "April 28, 2025",
-      title: "Annual Alumni Gathering 2025 - Special Edition with Distinguished Guest Speakers",
-      description: "Join us for our annual alumni gathering featuring keynote presentations from industry leaders, networking opportunities, and updates on the latest university developments. This year we're celebrating our 50th anniversary with special events and recognition of outstanding alumni contributions.",
-      image: "/api/placeholder/400/200"
-    },
-    {
-      id: 2,
-      date: "April 15, 2025",
-      title: "New Scholarship Program Launched for Alumni Children",
-      description: "We're excited to announce a new scholarship program exclusively for children of our alumni. Applications are now open for the 2025-2026 academic year with multiple funding opportunities available across all departments.",
-      image: "/api/placeholder/400/200"
-    },
-    {
-      id: 3,
-      date: "April 3, 2025",
-      title: "Alumni Mentorship Program Registration Opens Next Week",
-      description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
-      image: "/api/placeholder/400/200"
-    },
-    {
-      id: 4,
-      date: "April 3, 2025",
-      title: "Alumni Mentorship Program Registration Opens Next Week",
-      description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
-      image: "/api/placeholder/400/200"
-    }
-  ];
+  // const announcements = [
+  //   {
+  //     id: 1,
+  //     date: "April 28, 2025",
+  //     title: "Annual Alumni Gathering 2025 - Special Edition with Distinguished Guest Speakers",
+  //     description: "Join us for our annual alumni gathering featuring keynote presentations from industry leaders, networking opportunities, and updates on the latest university developments. This year we're celebrating our 50th anniversary with special events and recognition of outstanding alumni contributions.",
+  //     image: "/api/placeholder/400/200"
+  //   },
+  //   {
+  //     id: 2,
+  //     date: "April 15, 2025",
+  //     title: "New Scholarship Program Launched for Alumni Children",
+  //     description: "We're excited to announce a new scholarship program exclusively for children of our alumni. Applications are now open for the 2025-2026 academic year with multiple funding opportunities available across all departments.",
+  //     image: "/api/placeholder/400/200"
+  //   },
+  //   {
+  //     id: 3,
+  //     date: "April 3, 2025",
+  //     title: "Alumni Mentorship Program Registration Opens Next Week",
+  //     description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
+  //     image: "/api/placeholder/400/200"
+  //   },
+  //   {
+  //     id: 4,
+  //     date: "April 3, 2025",
+  //     title: "Alumni Mentorship Program Registration Opens Next Week",
+  //     description: "Our successful mentorship program returns for its third year. Alumni interested in mentoring current students can register starting next Monday. The program has helped hundreds of students navigate their career paths with guidance from experienced professionals.",
+  //     image: "/api/placeholder/400/200"
+  //   }
+  // ];
 
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
@@ -258,10 +260,10 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {announcements.map((item) => (
+          {announces.map((item:Announcement) => (
             <Link 
-              href={`/announcements/${item.id}`} 
-              key={item.id}
+              href={`/announcements/${item.announcementId}`} 
+              key={item.announcementId}
               className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
             >
               <div className="w-full h-40 bg-pink-400 overflow-hidden">
@@ -273,7 +275,7 @@ export default function Home() {
               </div>
               <div className="p-4 flex flex-col gap-2 flex-grow">
                 <div className="text-xs text-gray-500">
-                  {item.date}
+                  {formatDate(item.datePosted)}
                 </div>
                 <div className="font-bold text-md line-clamp-2 h-12">
                   {item.title}
