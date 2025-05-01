@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon } from "lucide-react";
+import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon, CalendarClockIcon, CalendarDaysIcon, HandHeartIcon, LibraryBigIcon, SchoolIcon, Rows3Icon } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "@/components/ui/edit-experience-modal"
@@ -37,7 +37,9 @@ import AlumniJobOffers from "@/components/ui/job-posting-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { useAlums } from "@/context/AlumContext";
 import { PlusCircleIcon, CircleUserRoundIcon, GraduationCapIcon, BriefcaseIcon } from "lucide-react";
-
+import { Bookmark } from "@/models/models";
+import { useBookmarks } from "@/context/BookmarkContext";
+import { number } from "zod";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -70,8 +72,6 @@ const UserProfile = () => {
   const [seeBookmarks, setSeeBookmarks]= useState(false)
   const [seeJobpostings, setSeeJobPosting]= useState(false)
 
-
-
   const [addBachelor,setAddBachelor]= useState(false); 
   const [addMasters,setAddMasters]= useState(false); 
   const [addDoctoral,setAddDoctoral]= useState(false);
@@ -99,6 +99,23 @@ const UserProfile = () => {
     "July", "August", "September", "October", "November", "December"
   ];
   const years = Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i);
+
+
+  //for bookmarks
+  const [allView, setAllView]= useState(false);
+  const [eventsView, setEventsView]= useState(false);
+  const [drivesView, setDrivesView]= useState(false);
+  const [scholarshipsView, setScholarshipsView]= useState(false);
+
+
+  const { bookmarks } = useBookmarks();
+  if (!bookmarks) {
+      return (
+          <div >
+              Loading Bookmarks...
+          </div>
+      );
+  }
 
   useEffect(() => {
     if (alumInfo) {
@@ -221,16 +238,7 @@ const UserProfile = () => {
     setEducationView(false);
   };
 
-  const handleEducationClick = () => {
-    setSeeProfile(true);
-    setSeeBookmarks(false);
-    setSeeDonations(false);
-    setSeeJobPosting(false);
-    setPersonalView(false);
-    setCareerView(false);
-    setEducationView(true);
-  };
-
+  //------- PROFILE -------
   const handlePersonalClick = () => {
     setSeeProfile(true);
     setEducationView(false);
@@ -240,9 +248,15 @@ const UserProfile = () => {
     setSeeJobPosting(false);
     setPersonalView(true);
   };
-
-
-  
+  const handleEducationClick = () => {
+    setSeeProfile(true);
+    setSeeBookmarks(false);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+    setEducationView(true);
+  };
   const handleCareerClick = () => {
     setSeeProfile(true);
     setEducationView(false);
@@ -252,20 +266,13 @@ const UserProfile = () => {
     setPersonalView(false);
     setCareerView(true);
   };
+  //-------------------------
+
   const handleDonationsClick =() => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(false);
     setSeeDonations(true);
-    setSeeJobPosting(false);
-    setPersonalView(false);
-    setCareerView(false);
-  }
-  const handleBookmarksClick =() => {
-    setSeeProfile(false);
-    setEducationView(false);
-    setSeeBookmarks(true);
-    setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
     setCareerView(false);
@@ -279,6 +286,81 @@ const UserProfile = () => {
     setPersonalView(false);
     setCareerView(false);
   }
+  const handleBookmarksClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+
+    setAllView(true);
+    setEventsView(false);
+    setDrivesView(false);
+    setScholarshipsView(false);
+  }
+
+  //------- BOOKMARKS -------
+  const handleAllViewClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+    
+    setAllView(true);
+    setEventsView(false);
+    setDrivesView(false);
+    setScholarshipsView(false);
+  }
+  const handleEventsViewClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+    
+    setAllView(false);
+    setEventsView(true);
+    setDrivesView(false);
+    setScholarshipsView(false);
+  }
+  const handleDrivesViewClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+    
+    setAllView(false);
+    setEventsView(false);
+    setDrivesView(true);
+    setScholarshipsView(false);
+  }
+  const handleScholarshipsViewClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+    
+    setAllView(false);
+    setEventsView(false);
+    setDrivesView(false);
+    setScholarshipsView(true);
+  }
+  //-------------------------
+
+
   //===========================
 
 
@@ -1041,8 +1123,54 @@ const UserProfile = () => {
 
 
       {seeDonations && <RecordOfDonations/>}
-      {seeBookmarks && <AlumniBookmarks/>}
+
+      {seeBookmarks && (<div className="mx-50 my-15">
+        <div className="flex space-x-7">
+
+          <div className='bg-[#3675c5] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${allView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleAllViewClick}>
+              <span><Rows3Icon/></span><span>All</span>
+            </button>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${eventsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleEventsViewClick}>
+              <span><CalendarDaysIcon/></span><span>Events</span>
+            </button>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${drivesView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleDrivesViewClick}>
+              <span><HandHeartIcon/></span><span>Donation Drives</span>
+            </button>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${scholarshipsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleScholarshipsViewClick}>
+              <span><SchoolIcon/></span><span>Scholarships</span>
+            </button>
+          </div>
+
+          {/* INFO BOX */}
+
+          {/* personal section */}
+          {allView && (<div>
+            <div className="bg-white flex flex-col p-7 rounded-xl max-h-fit space-y-1 w-full shadow-md">
+              <div className="w-full">
+                  <h1> Your Bookmarks</h1>
+                  {bookmarks.length > 0 ? (
+                      bookmarks.map((bookmark: Bookmark, index:number) => (
+                          <div key={index} className="bg-gray-100">
+                              <p>Entry Id: {bookmark.entryId}</p>
+                              <p>Type: {bookmark.type.toString()}</p>
+                          </div>
+                      ))
+                  ) : (
+                      <div>No donations found.</div>
+                  )}
+              </div>
+            </div>
+          </div>)}
+
+
+          {/* ================== end of info box ================== */}
+
+        </div>
+      </div>)}
+
       {seeJobpostings && <AlumniJobOffers/>}
+
 
 
       {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => setUploading(false)}/>}
