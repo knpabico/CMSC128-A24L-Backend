@@ -17,8 +17,8 @@ const adminLinks = [
   { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
   { label: "Site Settings", link: "site-settings" },
   { label: "Statistical Reports", link: "statistical-reports" },
-  { label: "Manage Scholarships", link: "manage-scholarship" },
-  { label: "Add Scholarships", link: "add-scholarship" },
+  { label: "Manage Scholarships", link: "scholarships/manage" },
+  { label: "Add Scholarships", link: "scholarships/add" },
   { label: "Write story", link: "create-story" },
 ];
 
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col gap-4 mb-6">
         {adminLinks.map((item, i) => (
           <Button asChild key={i} className="text-lg h-14">
-            <Link href={`/admin-dashboard/${item.link}`}>{item.label}</Link>
+            <Link href={`/admin/${item.link}`}>{item.label}</Link>
           </Button>
         ))}
       </div>
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
           {/* To fix: icenter yung text button (chan gagawa)*/}
           <div className="px-2 pt-.5">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <Link href="/admin-dashboard/organize-events" className="text-black-600 hover:underline text-sm">
+            <Link href="/admin/organize-events" className="text-black-600 hover:underline text-sm">
               View all event proposals
             </Link>
           </div>
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
           </CardContent>
           <div className="px-2 pt-.5">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <Link href="/admin-dashboard/organize-events" className="text-black-600 hover:underline text-sm">
+            <Link href="/admin/organize-events" className="text-black-600 hover:underline text-sm">
               View all events
             </Link>
           </div>
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
           </CardContent>
           <div className="px-2 pt-.5">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <Link href="/admin-dashboard/donation-drive" className="text-black-600 hover:underline text-sm">
+            <Link href="/admin/donation-drive" className="text-black-600 hover:underline text-sm">
               View all donations
             </Link>
           </div>
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
           <div className="px-2 pt-.5">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             {/* Wala pang scholarship management page AAAAAA */}
-            <Link href="/admin-dashboard/????" className="text-black-600 hover:underline text-sm">
+            <Link href="/admin/manage-scholarships" className="text-black-600 hover:underline text-sm">
               View all scholarships
             </Link>
           </div>
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
             </CardContent>
             <div className="px-2 pt-.5">
               <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-              <Link href="/admin-dashboard/job-postings" className="text-black-600 hover:underline text-sm">
+              <Link href="/admin/job-postings" className="text-black-600 hover:underline text-sm">
                 View all pending job postings
               </Link>
             </div>
