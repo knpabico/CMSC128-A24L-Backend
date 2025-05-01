@@ -3,6 +3,8 @@ import { useFeatured } from "@/context/FeaturedStoryContext";
 import { uploadImage } from "@/lib/upload";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, ChevronRight, Trash2, Edit, CirclePlus, Plus, ArrowLeft, Pencil, Asterisk } from "lucide-react";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function FeaturedStoriesPage() {
   const {
@@ -618,6 +620,28 @@ export default function FeaturedStoriesPage() {
                           </div>
                         </div>
                       </div>
+
+                      
+                      <div className="flex items-center">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={item.isPublic}
+                              onChange={async () => {
+                                try {
+                                  await updateDoc(doc(db, "featured", item.featuredId), {
+                                    isPublic: !item.isPublic,
+                                  });
+                                  console.log(`isPublic set to ${!item.isPublic} for ${item.featuredId}`);
+                                } catch (error) {
+                                  console.error("Error updating isPublic:", error);
+                                }
+                              }}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                          </label>
+                        </div>
                       
                       <div className="w-1/3 flex items-center justify-end p-5">
                         <div className="w-1/3 flex items-center justify-center">
