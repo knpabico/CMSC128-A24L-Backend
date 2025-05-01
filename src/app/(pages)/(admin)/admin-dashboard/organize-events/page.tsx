@@ -125,7 +125,6 @@ export default function Events() {
 
 
       <div>
-        <h1>Events</h1>
 
         {/* will be used for the filter */}
 
@@ -178,159 +177,9 @@ export default function Events() {
           );
         })()}
 
-        <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
-          {/* Open to All */}
-          <label className="flex items-center space-x-2">
-            <input
-              type="radio"
-              name="filterSearch"
-              value="all"
-              checked={filterSearch === "all"}
-              onChange={() => {
-                setFilterSearch("all");
-                // Clear both to properly show the RSVP
-                setSearchAlumni([]);
-                setSearchBatches([]);
-              }}
-            />
-            <span>Open to all</span>
-          </label>
-
-          {/* Batch Option */}
-          <label className="flex items-start space-x-2">
-            <input
-              type="radio"
-              name="filterSearch"
-              value="batch"
-              checked={filterSearch === "batch"}
-              onChange={() => {
-                setFilterSearch("batch");
-                setSearchAlumni([]); // Clear the Selected Batches List
-              }}
-            />
-            <div className="flex flex-col w-full">
-              <span>Batch:</span>
-              {filterSearch === "batch" && (
-                <>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {searchBatches.map((batch, index) => (
-                      <span
-                        key={index}
-                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center"
-                      >
-                        {batch}
-                        {/* Remove Button */}
-                        <button 
-                          type="button"
-                          className="ml-2 text-red-500 font-bold"
-                          onClick={() =>
-                            setSearchBatches((prev) =>
-                              prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedBatches
-                            )
-                          }
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  {/* User Input */}
-                  <input
-                    type="text"
-                    className="text-black mt-2 p-2 rounded-md w-full"
-                    placeholder="e.g. 2022"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        const value = e.currentTarget.value.trim();
-                        // Check if the value is not empty and not already in the selectedBatches list
-                        if (value && !searchBatches.includes(value)) {
-                          // Add the new value to the selectedBatches list
-                          setSearchBatches([...searchBatches, value]);
-                          e.currentTarget.value = "";
-                        }
-                      }
-                    }}
-                  />
-                </>
-              )}
-            </div>
-          </label>
-
-          {/* Alumni Option */}
-          <label className="flex items-start space-x-2 mt-4">
-            <input
-              type="radio"
-              name="filterSearch"
-              value="alumni"
-              checked={filterSearch === "alumni"}
-              onChange={() => {
-                setFilterSearch("alumni");
-                setSearchBatches([]); // Clear the Selected Alumni List
-              }}
-            />
-            <div className="flex flex-col w-full">
-              <span>Alumni:</span>
-              {filterSearch === "alumni" && (
-                <>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {searchAlumni.map((email, index) => (
-                      <span
-                        key={index}
-                        className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center"
-                      >
-                        {email}
-                        <button
-                          type="button"
-                          className="ml-2 text-red-500 font-bold"
-                          onClick={() =>
-                            setSearchAlumni((prev) =>
-                              prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedAlumni
-                            )
-                          }
-                        >
-                          x
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <input
-                    type="text"
-                    className="text-black mt-2 p-2 rounded-md w-full"
-                    placeholder="e.g. email1@up.edu.ph"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        const value = e.currentTarget.value.trim();
-                        // Check if the value is not empty and not already in the selectedAlumni list
-                        if (value && !searchAlumni.includes(value)) {
-                          // Add the new value to the selectedAlumni list
-                          setSearchAlumni([...searchAlumni, value]);
-                          e.currentTarget.value = "";
-                        }
-                      }
-                    }}
-                  />
-                </>
-              )}
-            </div>
-          </label>
-        </div>
+      
         
-        {/* Sort Buttons for different status*/}
-        <div className="flex gap-5 mb-5">
-          {["Accepted", "Pending", "Rejected"].map((status) => (
-            <button
-              key={status}
-              onClick={() => setActiveTab(status)}
-              className={`px-4 py-2 rounded-md ${
-                activeTab === status ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              {status}
-            </button>
-          ))}
-        </div>
+
 
         {isLoading && <h1>Loading</h1>}
 
@@ -367,7 +216,7 @@ export default function Events() {
                 if (isEditing && editingEventId) {
                     handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
                   } else {
-                    handleSave(e, image, targetGuests, visibility); // Pass the value entered in the current form
+                    handleSave(e, image, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
                   }
                   setShowForm(false);
                   setEdit(false);
@@ -526,6 +375,7 @@ export default function Events() {
                               }
                             }}
                           />
+                          <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the batch.</p>
                         </>
                       )}
                     </div>
@@ -585,6 +435,7 @@ export default function Events() {
                               }
                             }}
                           />
+                          <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the alumni.</p>
                         </>
                       )}
                     </div>
