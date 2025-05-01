@@ -91,6 +91,8 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       if (eventToEdit) {
         setEventTitle(eventToEdit.title);
         setEventDescription(eventToEdit.description);
+        setEventTime(eventToEdit.time);
+        setEventImage(eventToEdit.image);
         setEventDate(eventToEdit.date);
         setEventLocation(eventToEdit.location);
         // Optional: handle image if you prefill it somehow

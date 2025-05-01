@@ -55,7 +55,6 @@ export default function Events() {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedButton, setButton] = useState("");
 
-  const[selectedEvent, setSelectedEvents] = useState<any[]>([]);
 
 
   useEffect(() => { // Properly show the selected filter when Editing the values
@@ -361,7 +360,7 @@ export default function Events() {
                     />
                   </div>
                 </div>
-                
+
                 <label
                   htmlFor="image-upload"
                   className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -595,7 +594,7 @@ export default function Events() {
             </p>
 
             <p     
-              onClick={() => alert(`Placeholder: Create donation drive for event ID ${event.eventId}`)}
+              onClick={() => alert(`Placeholder: Create donation drive for event ID ${events.eventId}`)}
             >
              Create Donation Drive
             </p>
