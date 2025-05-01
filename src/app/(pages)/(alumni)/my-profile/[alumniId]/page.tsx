@@ -893,7 +893,7 @@ const UserProfile = () => {
                         <div className="w-6 h-6 rounded-full bg-gray-500"></div>
                         <div>
                           <p className="font-medium">{item.jobTitle}</p>
-                          <p className="text-sm">{item.company} &nbsp;•&nbsp; <span className="font-light italic">{item.industry}</span></p>
+                          <p className="text-sm">{item.company} &nbsp;•&nbsp; <span className="font-extralight">{item.industry}</span></p>
                           <p className="text-sm">{item.startYear} - {item.endYear}</p>
                         </div>
                       </div>
