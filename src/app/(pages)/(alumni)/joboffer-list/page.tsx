@@ -292,7 +292,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
           <div className="flex space-x-3">
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -356,7 +356,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
             </div>
   
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -732,9 +732,6 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                   <span className="ml-1 font-semibold text-[#0856BA]">{selectedJob.location}</span>
                 </div>
                 </div>
-          
-                
-  
                   <div className="bg-white border border-[#0856BA] p-3 rounded-lg mb-4 space-y-2">
                       <div className="text-sm flex items-center">
                         <DollarSign className="w-4 h-4 text-[#0856BA] mr-2.5" />
@@ -803,7 +800,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
   
         {/* "Add Job" Button + Form */}
         <Button
-          className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full"
+          className="h-10 px-5 fixed bottom-8 right-8 bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg rounded-full"
           onClick={() => setShowForm(!showForm)}
         >
           Post a Job
@@ -812,11 +809,11 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
               onSubmit={handleSubmit}
-              className="bg-white p-6 rounded-lg border-2 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto border-0"
+              className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
             >
-             <div className="sticky top-0 py-2 bg-white z-30 w-full border-b">
-              <h2 className="text-3xl font-semibold py-3">Post a Job Opportunity</h2>
-              </div>
+             <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
+              <h2 className="text-2xl font-semibold">Post a Job Opportunity</h2>
+             </div>
   
               <div className="grid grid-cols-2 gap-6 mt-5">
                 {/* Left Column ng form */}
@@ -830,7 +827,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="e.g. Software Engineer"
                       value={position}
                       onChange={(e) => setPosition(e.target.value)}
-                      className="w-full p-1 border rounded placeholder:text-sm"
+                      className="w-full p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -854,7 +851,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <Button
                             key={type}
                             variant="ghost"
-                            className="w-full justify-start px-2 py-1.5 text-left hover:bg-gray-100"
+                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
                             onClick={() => setEmploymentType(type)}
                           >
                             {type}
@@ -879,12 +876,12 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
                         {filterCategories["Job Type"].map((type) => (
                           <Button
                             key={type}
                             variant="ghost"
-                            className="w-full justify-start px-2 py-1.5 text-left hover:bg-gray-100"
+                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
                             onClick={() => setJobType(type)}
                           >
                             {type}
@@ -903,7 +900,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
-                      className="w-full p-2 border rounded resize-none placeholder:text-sm"
+                      className="w-full p-1.5 border rounded resize-none text-sm"
                       style={{ height: "110px" }} // Increased height (4x the original)
                       required
                     />
@@ -937,7 +934,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="Company"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full p-1 border rounded placeholder:text-sm"
+                      className="w-full p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -950,7 +947,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       placeholder="Pedro R. Sandoval Ave, Los Baños, 4031 Laguna, Philippines"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="w-full p-1 border rounded placeholder:text-sm"
+                      className="w-full p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -969,12 +966,12 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full bg-white p-1 border rounded shadow-md">
+                      <DropdownMenuContent className="w-full bg-white p-2 border rounded shadow-md">
                         {filterCategories["Experience Level"].map((level) => (
                           <Button
                             key={level}
                             variant="ghost"
-                            className="w-full justify-start px-2 py-1.5 text-left hover:bg-gray-100"
+                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
                             onClick={() => setExperienceLevel(level)}
                           >
                             {level}
@@ -999,7 +996,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       value={salaryRange}
                       onChange={(e) =>
                         setSalaryRange(e.target.value)}
-                      className="w-full pl-8 py-1 border rounded placeholder:text-sm"
+                      className="w-full pl-8 p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -1013,7 +1010,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       type="text"
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="w-full p-1 border rounded placeholder:text-sm"
+                      className="w-full p-1.5 border rounded placeholder:text-sm"
                       required
                     />
                   </div>
@@ -1052,21 +1049,21 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                       </div>
                     )}
                   </div>
-  
-              <div className="flex justify-between mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="text-gray-500 p-2 rounded ring-1 ring-[#0856BA]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#0856BA] text-white p-2 rounded"
-                >
-                  Submit
-                </button>
+              <div className="flex justify-end gap-4 mt-6">
+              <button 
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                onClick={handleSubmit}
+                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+              >
+                Submit
+              </button>
               </div>
             </form>
           </div>
