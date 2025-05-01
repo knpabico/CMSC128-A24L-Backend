@@ -25,10 +25,22 @@ import {
   useNewsLetters,
 } from "@/context/NewsLetterContext";
 import { format } from "path";
+import { Oswald } from "next/font/google";
+
+import Vue from 'vue';
+import { Carousel3d, Slide } from 'vue-carousel-3d';
+
+Vue.use(Carousel3d);
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700"],
+});
+
 
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
@@ -209,55 +221,118 @@ export default function Home() {
     setIsUploading(false);
   };
 
+  const carouselImages = [
+    {
+      src: "/images/alumni-1.jpg", // Update with your actual image paths
+      alt: "Alumni gathering at reunion",
+    },
+    {
+      src: "/images/campus-life.jpg",
+      alt: "Campus life at ICS",
+    },
+    {
+      src: "/images/graduation.jpg",
+      alt: "Graduation ceremony",
+    },
+    {
+      src: "/images/alumni-event.jpg",
+      alt: "Alumni networking event",
+    },
+    {
+      src: "/images/research-lab.jpg",
+      alt: "Research laboratory at ICS",
+    },
+    {
+      src: "/images/alumni-success.jpg",
+      alt: "Alumni success story",
+    },
+  ];
+
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
       <div>
-      <div className="flex justify-end p-4">
-        <Button asChild>
-          <Link href="/login">Log in</Link>
-        </Button>
-      </div>
-      
-      {/* Carousel */}
-      <div className="bg-blue-300 relative w-full h-screen overflow-hidden">
-      </div>
-      
-      <div className="flex flex-col gap-8" style={{ padding: "50px 10% 5% 10%" }}>
-        <div className="font-bold text-3xl">
-          News & Announcements
+        {/* <div className="flex justify-end p-4">
+          <Button asChild>
+            <Link href="/login">Log in</Link>
+          </Button>
+        </div> */}
+        
+        {/* Carousel */}
+        <div className="relative w-full h-screen overflow-hidden">
+
+          {/* Navbar */}
+          <div className="flex items-center justify-between h-20 fixed top-0 w-full" style={{ padding: "0 10% 0 10%" }}>
+            <div>
+              ICS-ARMS
+            </div>
+            <div>
+              <Button asChild>
+                <Link href="/login">Log in</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-10 h-screen justify-center">
+            <div className="flex flex-col items-center justify-center gap-10">
+              <div className={`${oswald.className} text-6xl`}>
+                Extending Our Reach, Embracing Our Legacy
+              </div>
+              <div className="text-lg text-center">
+                ICS-ARMS reaches out to connect, support, and celebrate the journeys<br></br>of our alumni—building a stronger, united ICS community.
+              </div>
+            </div>
+            <div>
+              <div className="flex gap-5" style={{ padding : "0 10% 0 10%" }}>
+                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">
+                  Slide 1
+                </div>
+                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">
+                  Slide 2
+                </div>
+                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">
+                  Slide 3
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {announces.map((item:Announcement) => (
-            <Link 
-              href={`/announcements/${item.announcementId}`} 
-              key={item.announcementId}
-              className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
-            >
-              <div className="w-full h-40 bg-pink-400 overflow-hidden">
-                <img 
-                  src={item.image} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-4 flex flex-col gap-2 flex-grow">
-                <div className="text-xs text-gray-500">
-                  {formatDate(item.datePosted)}
+        <div className="flex flex-col gap-8" style={{ padding: "50px 10% 5% 10%" }}>
+          <div className="font-bold text-3xl">
+            News & Announcements
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {announces.map((item:Announcement) => (
+              <Link 
+                href={`/announcements/${item.announcementId}`} 
+                key={item.announcementId}
+                className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
+              >
+                <div className="w-full h-40 bg-pink-400 overflow-hidden">
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className="font-bold text-md line-clamp-2">
-                  {item.title}
+                <div className="p-4 flex flex-col gap-2 flex-grow">
+                  <div className="text-xs text-gray-500">
+                    {formatDate(item.datePosted)}
+                  </div>
+                  <div className="font-bold text-md line-clamp-2">
+                    {item.title}
+                  </div>
+                  <div className="text-xs text-gray-700 line-clamp-3">
+                    {item.description}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-700 line-clamp-3">
-                  {item.description}
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     );
   } else if (user) {
     if (status === "pending") return <PendingPage />;
