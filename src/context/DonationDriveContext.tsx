@@ -14,6 +14,7 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { DonationDrive, Event } from "@/models/models";
+import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
 import { uploadImage } from "@/lib/upload";
 
@@ -51,6 +52,7 @@ export function DonationDriveProvider({
   const [beneficiary, setBeneficiary] = useState<string[]>([""]);
 
   const { user, isAdmin } = useAuth();
+  const { addNewsLetter } = useNewsLetters(); 
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -288,6 +290,7 @@ export function DonationDriveProvider({
 
       driveData.donationDriveId = docRef.id;
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
+      await addNewsLetter(driveData.donationDriveId, "donation_drive");
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
