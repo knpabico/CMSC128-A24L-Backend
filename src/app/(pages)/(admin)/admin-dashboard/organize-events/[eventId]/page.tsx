@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { useState, useEffect } from "react";
+import { useRsvpDetails } from "@/context/RSVPContext";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 
@@ -19,7 +20,7 @@ const EventPageAdmin = () =>
     handleDelete,
     date,
     handleReject,
-    handleFinalize,
+    addEvent,
     setEventDate,
     description,
     setEventDescription,
@@ -40,6 +41,9 @@ const EventPageAdmin = () =>
   const [visibility, setVisibility] = useState("default");
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
+
+  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
+  const [rsvpFilter, setRsvpFilter] = useState("All");
 
   useEffect(() => 
   { // Properly show the selected filter when Editing the values
@@ -82,6 +86,34 @@ const EventPageAdmin = () =>
     return <p>Loading...</p>;
   }
 
+  const filterRsvps = (rsvps: string[] | undefined, event: Event) => {
+    if (!rsvps || rsvps.length === 0) return [];
+
+    let filteredRsvps = rsvps.filter((rsvpId) => {
+      const rsvpStatus = rsvpDetails[rsvpId]?.status;
+ 
+      if (rsvpFilter === "All") return true;
+      return rsvpFilter === rsvpStatus;
+    });
+
+    // Alphabetical sorting logic
+    if (sortAlphabetically) {
+      filteredRsvps.sort((a, b) => {
+        const alumniA = alumniDetails[rsvpDetails[a].alumniId];
+        const alumniB = alumniDetails[rsvpDetails[b].alumniId];
+
+        if (!alumniA || !alumniB) return 0;
+
+        const nameA = `${alumniA.firstName} ${alumniA.lastName}`.toLowerCase();
+        const nameB = `${alumniB.firstName} ${alumniB.lastName}`.toLowerCase();
+
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    return filteredRsvps;
+  };
+
   return (
     <div className="p-4">
       <button
@@ -103,7 +135,7 @@ const EventPageAdmin = () =>
                 ? selectedBatches
                 : visibility === "alumni"
                 ? selectedAlumni
-                : null;
+                : [];
 
               if (isEditing && editingEventId)
               {
@@ -112,7 +144,7 @@ const EventPageAdmin = () =>
               
               else
               {
-                handleSave(e, targetGuests, visibility); // Pass the value entered in the current form
+                handleSave(e, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
               }
               setShowForm(false);
               setEdit(false);
@@ -347,12 +379,53 @@ const EventPageAdmin = () =>
           {event.needSponsorship && event.status === "Accepted" && (
             <p className="text-gray-700">{event.donationDriveId}</p>
           )}
+          <h3>RSVPs:</h3>
+          {event.rsvps?.length > 0 ? (
+            <div>
+              {event.rsvps.map((rsvpId, index) => {
+                const rsvp = rsvpDetails[rsvpId];
+                const alumni = rsvp?.alumniId ? alumniDetails[rsvp.alumniId] : null;
+
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      border: "1px solid #eee",
+                      padding: "10px",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    {rsvp ? (
+                      rsvp.error ? (
+                        <p>{rsvp.error}</p>
+                      ) : alumni ? (
+                        <>
+                          <p>
+                            <strong>Name:</strong> {alumni.firstName} {alumni.lastName}
+                          </p>
+                          <p>
+                            <strong>Status:</strong> {rsvp.status}
+                          </p>
+                        </>
+                      ) : (
+                        <p>Alumni details not found.</p>
+                      )
+                    ) : (
+                      <p>Loading RSVP details...</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p>No RSVPs yet.</p>
+          )}
           {/* Buttons */}
           {event.status === "Pending" ? (
             event.creatorType === "alumni" ? (
               <div className="flex flex-col gap-2 mt-4">
                 <button
-                  onClick={() => handleFinalize(event.eventId)}
+                  onClick={() => addEvent(event, true, false)}
                   className="px-4 py-2 bg-green-500 text-white rounded-md"
                 >
                   Accept Proposal
@@ -378,7 +451,7 @@ const EventPageAdmin = () =>
             ) : (
               <div className="flex flex-col gap-2 mt-4">
                 <button
-                  onClick={() => handleFinalize(event.eventId)}
+                  onClick={() => addEvent(event, true, false)}
                   className="px-4 py-2 bg-green-500 text-white rounded-md"
                 >
                   Finalize

@@ -19,7 +19,7 @@ export default function Events() {
     handleDelete,
     date,
     handleReject,
-    handleFinalize,
+    addEvent,
     handleViewEventAdmin, 
     handleImageChange,
     setEventDate,
@@ -54,6 +54,8 @@ export default function Events() {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedButton, setButton] = useState("");
 
+  const[selectedEvent, setSelectedEvents] = useState<any[]>([]);
+
 
   useEffect(() => { // Properly show the selected filter when Editing the values
     if (isEditing && events) {
@@ -84,7 +86,7 @@ export default function Events() {
       }
     }
   }, [isEditing, events, editingEventId]);
-
+  
   const filterEvents = (status: string) => {
     console.log(`events length is ${events.length}`);
     return events.filter((event: Event) => event.status === status);
@@ -175,9 +177,7 @@ export default function Events() {
             </button>
           ))}
         </div>
-        
-
-
+      
         {isLoading && <h1>Loading</h1>}
 
         <div>
@@ -251,8 +251,29 @@ export default function Events() {
                     return;
                   }
             
-                  handleSave(e, image, targetGuests, visibility, "Accepted");
-          
+                  const newEvent: Event = {
+                    datePosted: new Date(),
+                    title,
+                    description,
+                    date,
+                    time,
+                    location,
+                    image: "", // will be set inside addEvent after upload
+                    inviteType: visibility,
+                    numofAttendees: 0,
+                    targetGuests,
+                    stillAccepting: true,
+                    needSponsorship: false,
+                    rsvps: [],
+                    eventId: "",
+                    status: "Accepted",
+                    creatorId: "",
+                    creatorName: "",
+                    creatorType: "",
+                    donationDriveId: ""
+                  };
+                
+                  addEvent(newEvent, true, true);
             
                 } else {
                   // If button is not "Create", just save
@@ -585,17 +606,14 @@ export default function Events() {
     
               {activeTab === "Pending" && (
                 <div className="flex gap-3 mt-2">
-                  <button 
+                  <button
                     onClick={() => {
-                      handleFinalize(
-                        events.eventId,
-                      )
-                      setShowForm(false)
-                    }
-                    }
+                      addEvent(events, true, false);
+                      setShowForm(false);
+                    }}
                     className="px-4 py-2 bg-green-500 text-white rounded-md"
                   >
-                    Finalize
+                    {events.creatorType === "admin" ? "Finalize" : "Accept Proposal"}
                   </button>
                   <button
                     onClick={() => {
@@ -623,7 +641,7 @@ export default function Events() {
                         onClick={() => handleReject(events.eventId)}
                         className="px-4 py-2 bg-red-500 text-white rounded-md"
                       >
-                        Reject
+                        Reject Proposal
                       </button>
                     </>
                   )}
