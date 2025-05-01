@@ -11,6 +11,7 @@ import ModalInput from "@/components/ModalInputForm";
 import { useParams } from "next/navigation";;
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@mui/material";
+import { useRsvpDetails } from "@/context/RSVPContext";
 
 export default function EventPageAdmin()
 {
@@ -43,15 +44,12 @@ export default function EventPageAdmin()
         setEventTime,
         fileName,
         setFileName,
-        fetchAlumnusById,
     } = useEvents();
 
     const evId = params?.eventId as string;
     const ev = events.find((e: Event) => e.eventId === evId);
-    console.log("Event Id", evId);
-    console.log("Events", ev);
-    console.log("orig event", events);
 
+    const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
     const [activeTab, setActiveTab] = useState("Pending");
     const [isEditing, setEdit] = useState(false);
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
@@ -61,7 +59,6 @@ export default function EventPageAdmin()
     const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
     const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
-    const [creatorNames, setCreatorNames] = useState<{ [key: string]: string }>({});
     const [sortBy, setSortBy] = useState("latest");
     const [statusFilter, setStatusFilter] = useState("all");
 
@@ -72,6 +69,11 @@ export default function EventPageAdmin()
     const [errorMessage, setErrorMessage] = useState("");
     const [selectedButton, setButton] = useState("");
 
+    const [filterSearch, setFilterSearch] = useState("all");
+    const [searchBatches, setSearchBatches] = useState<any[]>([]);
+    const [searchAlumni, setSearchAlumni] = useState<any[]>([]);
+
+    const [rsvpFilter, setRsvpFilter] = useState("All");
     if(!events) return <div>Loading Events...</div>;
 
     const sortedEvents = [...events].sort((x, y) =>
@@ -122,50 +124,37 @@ export default function EventPageAdmin()
 
     useEffect(() =>
     {
-        let isMounted = true;
-    
-        const fetchCreators = async () =>
+        const eventToEdit = events.find((g : Event) => g.eventId === editingEventId);
+        setVisibility("all");
+        setSelectedAlumni([]);
+        setSelectedBatches([]);
+  
+        if (eventToEdit) 
         {
-            const eventsToFetch = filteredEvents.filter(
-                (event) => event.creatorType === "alumni" && !creatorNames[event.eventId]
-            );
+          setEventTitle(eventToEdit.title);
+          setEventDescription(eventToEdit.description);
+          setEventImage(eventToEdit.image);
+          setEventDate(eventToEdit.date);
+          setEventLocation(eventToEdit.location);
+          setShowForm(true);
     
-            if (eventsToFetch.length === 0) return;
-    
-            const names = { ...creatorNames };
-    
-            await Promise.all(
-                eventsToFetch.map(async (event) =>
-                {
-                    try 
-                    {
-                        const creator = await fetchAlumnusById(event.creatorId);
-                        if (creator && isMounted) 
-                        {
-                            names[event.eventId] = `${creator.firstName} ${creator.lastName}`;
-                        } 
-                        
-                        else if (isMounted)
-                        {
-                            names[event.eventId] = "Unknown";
-                        }
-                    } 
-                    
-                    catch (error) 
-                    {
-                        console.error("Error fetching creator: ", error);
-                        if (isMounted) 
-                        {
-                            names[event.eventId] = "Unknown";
-                        }
-                    }
-                })
-            );
-    
-            if (isMounted) setCreatorNames(names);
-        };
-    
-        fetchCreators();
+          // Properly check targetGuests for alumni and batches
+          if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0)
+          {
+            // Check if the first item is a batch (e.g., a string of length 4)
+            if (eventToEdit.targetGuests[0].length === 4) 
+            {
+              setSelectedBatches(eventToEdit.targetGuests); // Set the batches
+              setVisibility("batch"); // Set visibility to batches
+            } 
+            
+            else
+            {
+              setSelectedAlumni(eventToEdit.targetGuests); // Set the alumni
+              setVisibility("alumni"); // Set visibility to alumni
+            }
+          }
+        }
 
         const handleScroll = () => 
         {
@@ -195,10 +184,9 @@ export default function EventPageAdmin()
         return () =>
         {
             window.removeEventListener("scroll", handleScroll);
-            isMounted = false;
         };
     
-    }, [filteredEvents, creatorNames]);    
+    }, [filteredEvents]);    
 
     const formComplete =
     title.trim() !== "" &&
@@ -208,7 +196,59 @@ export default function EventPageAdmin()
     location.trim() !== "";
     
     return (
-        <div>        
+        <div>
+            {/* will be used for the filter */}
+            {(() => {
+            // Group alumni by their ID and compile the events they RSVPed to
+            const grouped: Record<string, { alum: any; events: string[] }> = {};
+
+            events.forEach((f : Event) => 
+            {
+                f.rsvps.forEach(rsvpId =>
+                {
+                    const rsvp = rsvpDetails[rsvpId]; // RSVP Details
+                    const alum = alumniDetails[rsvp?.alumniId]; // Alumni Details
+
+                    if (!rsvp || !alum) return;
+                    
+                    // Check if alumni is part of the selected batch or selected alumni
+                    const inBatch = searchBatches.includes(alum.studentNumber?.slice(0, 4));
+                    const inAlumni = searchAlumni.includes(alum.email);
+                    
+                    // Decide if this RSVP should be shown based on the current visibility setting
+                    const matchesFilter =
+                        filterSearch === "all" ||
+                        (filterSearch === "batch" && inBatch) ||
+                        (filterSearch === "alumni" && inAlumni);
+
+                    if (!matchesFilter) return;
+                    
+                    // If this alumni isn't already in the grouped object, add them
+                    if (!grouped[alum.alumniId])
+                    {
+                        grouped[alum.alumniId] = { alum, events: [] };
+                    }
+
+                    // Add the current event 
+                    grouped[alum.alumniId].events.push(`${f.title} - ${rsvp.status}`);
+                });
+            });
+
+            // return (
+            //   <ul>
+            //     {Object.values(grouped).map(({ alum, events }) => (
+            //       <li key={alum.alumniId}>
+            //         <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
+            //         <ul>
+            //           {events.map((event, i) => (
+            //             <li key={`${alum.alumniId}-${i}`}>{event}</li>
+            //           ))}
+            //         </ul>
+            //       </li>
+            //     ))}
+            //   </ul>
+            // );
+            })()}        
             <Breadcrumbs
             items=
             {[
@@ -377,8 +417,7 @@ export default function EventPageAdmin()
                                                         
                                                         {/* Creator */}
                                                         <div className="text-xs text-gray-700 mt-2">
-                                                            <p> Created by: {creatorNames[e.eventId] ?? "Admin"}</p>
-                                                            <p>Creator Type: {e.creatorType}</p>
+                                                            <p> Proposed by: {e.creatorName ?? "Admin"}</p>
                                                         </div>
                                                     </div>
                                                 </div>

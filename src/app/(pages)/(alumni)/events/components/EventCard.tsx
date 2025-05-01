@@ -99,7 +99,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) =>
                             <span>{event.location}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            {event.status === "Accepted" ? "Posted on" : "Created at"}
+                            {event.status === "Accepted" ? "Posted on" : "Proposed on"}
                             <span>{formatDate(event.datePosted)}</span>
                         </div>
                     </div>
