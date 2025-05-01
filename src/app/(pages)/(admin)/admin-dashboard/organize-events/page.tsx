@@ -31,9 +31,10 @@ export default function Events() {
     setEventTitle,
     location,
     setEventLocation,
+    time,
+    setEventTime,
     fileName,
     setFileName,
-    time
   } = useEvents();
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
   const [activeTab, setActiveTab] = useState("Pending");
@@ -69,6 +70,7 @@ export default function Events() {
         setEventDescription(eventToEdit.description);
         setEventImage(eventToEdit.image);
         setEventDate(eventToEdit.date);
+        setEventTime(eventToEdit.time);
         setEventLocation(eventToEdit.location);
         setShowForm(true);
   
@@ -96,7 +98,7 @@ export default function Events() {
     title.trim() !== "" &&
     description.trim() !== "" &&
     date.trim() !== "" &&
-    // time.trim() !== "" &&
+    time.trim() !== "" &&
     location.trim() !== "";
 
   return (
@@ -185,6 +187,7 @@ export default function Events() {
             setEdit(false);
             setShowForm(true);
             setEventTitle(""); 
+            setEventTime("");
             setEventDescription("");
             setEventDate("");
             setEventLocation("");
@@ -328,23 +331,37 @@ export default function Events() {
                   mainTitle={title}
                   subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
                 />
-
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  onKeyDown={(e) => e.preventDefault()} // prevent manual typing
-                  className="w-full mb-4 p-2 border rounded"
-                  required
-                  min={
-                    date
-                      ? new Date(date).toISOString().split("T")[0]
-                      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                          .toISOString()
-                          .split("T")[0]
-                  }
-                />
-
+                <div className="flex gap-4 mb-4">
+                  <div className="w-1/2">
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setEventDate(e.target.value)}
+                      onKeyDown={(e) => e.preventDefault()} // prevent manual typing
+                      className="w-full mb-4 p-2 border rounded"
+                      required
+                      min={
+                        date
+                          ? new Date(date).toISOString().split("T")[0]
+                          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                              .toISOString()
+                              .split("T")[0]
+                      }
+                    />
+                  </div>
+                  <div className="w-1/3">
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setEventTime(e.target.value)}
+                      className="w-full p-2 border rounded text-center"
+                      required
+                      min="08:00"
+                      max="22:00"
+                    />
+                  </div>
+                </div>
+                
                 <label
                   htmlFor="image-upload"
                   className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
