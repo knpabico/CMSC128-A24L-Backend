@@ -88,7 +88,7 @@ export default function AddScholarships(){
 					<ChevronRight size={15} />
 				</div>
 				<div>
-					Manage Donation Drives
+					Manage Scholarships
 				</div>
 				<div>
 					<ChevronRight size={15} />
@@ -132,7 +132,7 @@ export default function AddScholarships(){
 								</div>							
 								<label htmlFor="image-upload" className="text-sm font-medium flex items-center gap-2">
 									<Upload className="size-4"/>
-									Upload Gcash QR Code
+									Upload Photo
 								</label>
 								<input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" required/>
 							</div>
