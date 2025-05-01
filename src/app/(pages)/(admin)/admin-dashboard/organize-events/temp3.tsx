@@ -509,12 +509,14 @@ export default function EventPageAdmin()
                   }
             
                   const form = document.querySelector("form");
-                  if (!form || !form.checkValidity()) {
+                  if (!form || !form.checkValidity()) 
+                  {
                     form?.reportValidity();
                     return;
                   }
             
-                  const newEvent: Event = {
+                  const newEvent: Event = 
+                  {
                     datePosted: new Date(),
                     title,
                     description,
