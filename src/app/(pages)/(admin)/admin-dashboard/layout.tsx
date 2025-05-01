@@ -3,6 +3,8 @@ import NotFound from "@/app/not-found";
 import Home from "@/app/og-page";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isAdmin, loading, user, isGoogleSignIn } = useAuth();
