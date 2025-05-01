@@ -19,7 +19,7 @@ import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementCon
 import { useJobOffer } from "@/context/JobOfferContext";
 import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
-import { Progress } from "@material-tailwind/react";
+import { Progress } from "@material-tailwind/react";  
 import React from "react";
 
 
@@ -92,14 +92,6 @@ export default function Home() {
     </>)
   }
  
-
-
- 
-  
-  
-
-
-
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
@@ -128,12 +120,12 @@ export default function Home() {
               src={alumInfo!.image}
                 className="w-50 h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
               ></img>
-              <p className="text-[20px] font-bold">
+              <p className="text-[20px] text-center font-bold justify-self-center">
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
               </p>
               <p className="text-[14px]">{alumInfo!.email}</p>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="text-[14px] justify-items-center wrap-break-word"><i>Currently based on {alumInfo!.address}</i></div>
+              <div className="text-[14px] text-center wrap-break-word"><i>Currently based on {alumInfo!.address}</i></div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <div className="flex flex-col it  ems-center">
                 <p className="text-[14px]">Std. No. {alumInfo!.studentNumber}</p>
@@ -151,7 +143,7 @@ export default function Home() {
             </div>
 
             {/* Feed */}
-            <div className="ml-[300px] flex flex-col w-150 gap-[10px]">
+            <div className="mx-[300px] pr-10 flex flex-col w-full gap-[10px]">
 
             {/*sorting dropdown*/}
               <div className="flex flex-row w-full justify-end">
@@ -182,11 +174,11 @@ export default function Home() {
                   </DropdownMenu>
                 </div>
 
-                <div className="scroll-smooth flex flex-col gap-[5px]">
+                <div className="scroll-smooth flex flex-col w-full gap-[5px]">
                   {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
                     <div
                       key={index}
-                      className="flex flex-col rounded-[10px] mb-[10px] w-150 h-auto  bg-[#FFFFFF] border border-[#DADADA]"
+                      className="flex flex-col rounded-[10px] mb-[10px] w-full h-auto  bg-[#FFFFFF] border border-[#DADADA]"
                     >
 
                       {/* user info */}
@@ -240,7 +232,7 @@ export default function Home() {
                             </div>
                               </div>
                           ) : (
-                            <p className="text-[14px] italic text-gray-500">Announcement not found</p>
+                            <p className="text-[14px] mx-[20px] my-[10px] italic text-gray-500">Announcement not found</p>
                           );
                       })()}
 
@@ -331,7 +323,7 @@ export default function Home() {
                           </div>
                           </div>
                         ) : (
-                          <p className="text-[14px] italic text-gray-500">Job offering not found</p>
+                          <p className="text-[14px] mx-[20px] my-[10px] italic text-gray-500">Job offer not found</p>
                         );
                       })()}
 
@@ -430,12 +422,12 @@ export default function Home() {
               </div>
 
           {/*Sidebar*/}
-          <div className="fixed right-[110px] w-[350px] xs:hidden top-23 flex flex-col items-center gap-5 rounded-[10px] ">
+          <div className="w-[350px] fixed top-23 right-[90px] h-auto flex flex-col items-center px-5 gap-5 rounded-[10px] ">
             
             {/* Donation Sample */}
             <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center ">
               {/* left button */}
-              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 pl-1.5 pr-1 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
+              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
               <svg
                     fill="none"
                     stroke="currentColor"
@@ -444,7 +436,7 @@ export default function Home() {
                     viewBox="0 0 10 10"
                     aria-hidden="true"
                     strokeWidth={1.5}
-                    className="-ml-0.5 size-4 rotate-180"
+                    className="-ml-0.5 rotate-180"
                   >
                     <path
                       className="opacity-0 transition group-hover:opacity-100"
@@ -489,7 +481,7 @@ export default function Home() {
               </div>
               
               {/* right button */}
-              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 pl-1 pr-1.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
+              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
                 <svg
                   fill="none"
                   stroke="currentColor"
@@ -498,7 +490,7 @@ export default function Home() {
                   viewBox="0 0 10 10"
                   aria-hidden="true"
                   strokeWidth={1.5}
-                  className="-mr-0.5 size-4"
+                  className="-mr-0.5"
                 >
                   <path
                     className="opacity-0 transition group-hover:opacity-100"
@@ -514,7 +506,7 @@ export default function Home() {
               {/* End of donation sample */}
                 
             {/* Event Sample */}
-            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] px-[10px] rounded-lg items-center">
+            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center ">
               <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
               <svg
                     fill="none"
@@ -537,9 +529,9 @@ export default function Home() {
                   </svg>
                 </button>
 
-                <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[20px] place-items-center">
+                <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                   <div className="w-full">
-                  {/* <img src="/ICS2.jpg" className="mb-[10px]"></img> */}
+                  <img src="/ICS2.jpg" className="mb-[10px]"></img>
                     <div className="flex flex-col text-[15px]">
                       <p className="font-semibold">Event Name</p>
                       {/* <p>Event description</p> */}
