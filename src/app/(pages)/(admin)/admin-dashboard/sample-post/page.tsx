@@ -1,11 +1,15 @@
 "use client";
 
-import { Asterisk, ChevronRight, Pencil } from "lucide-react";
+import { Asterisk, ChevronRight, Pencil, Plus, Image, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export default function SampleAdminPage() {
   const [isSticky, setIsSticky] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [imageDivs, setImageDivs] = useState([
+    { id: 1, image: null, isPlaceholder: true }
+  ]);
+  const [isImageFormDisabled, setIsImageFormDisabled] = useState(false);
   const buttonsContainerRef = useRef(null);
   const placeholderRef = useRef(null);
 
@@ -14,13 +18,11 @@ export default function SampleAdminPage() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // When the buttons container is visible (intersecting), it's not sticky
-        // When it's not visible (not intersecting), make it sticky
         setIsSticky(!entry.isIntersecting);
       },
       { 
         threshold: 0,
-        rootMargin: "0px" // Adjust if needed
+        rootMargin: "0px"
       }
     );
 
@@ -42,8 +44,36 @@ export default function SampleAdminPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log("Form submitted");
+  };
+
+  const handleAddImage = () => {
+    // Add a new placeholder div for image
+    const newId = Math.max(...imageDivs.map(div => div.id), 0) + 1;
+    setImageDivs([...imageDivs, { id: newId, image: null, isPlaceholder: true }]);
+  };
+
+  const handleImageUpload = (id, event) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        setImageDivs(prevDivs => 
+          prevDivs.map(div => 
+            div.id === id 
+              ? { ...div, image: e.target.result, isPlaceholder: false } 
+              : div
+          )
+        );
+      };
+      
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = (id) => {
+    setImageDivs(prevDivs => prevDivs.filter(div => div.id !== id));
   };
 
   return (
@@ -83,6 +113,79 @@ export default function SampleAdminPage() {
 
       <div className="flex flex-col gap-3">
         <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+          <div className="flex flex-col gap-3">
+            <div className="space-y-2">
+              <input
+                id="name"
+                type="text"
+                className="w-full border-none text-xl font-bold rounded-md focus:outline-none"
+                placeholder="Announcement Title"
+                required
+                disabled={isImageFormDisabled}
+              />
+            </div>
+            <div className="space-y-2">
+              <input
+                id="name"
+                type="text"
+                className="w-full border-none rounded-md focus:outline-none"
+                placeholder="Description"
+                required
+                disabled={isImageFormDisabled}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {imageDivs.map((div) => (
+                <div 
+                  key={div.id} 
+                  className="relative bg-amber-300 h-32 w-32 rounded-md flex items-center justify-center overflow-hidden"
+                >
+                  {div.image ? (
+                    <>
+                      <img 
+                        src={div.image} 
+                        alt="Uploaded" 
+                        className="h-full w-full object-cover"
+                      />
+                      <button 
+                        onClick={() => handleRemoveImage(div.id)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <X size={16} />
+                      </button>
+                    </>
+                  ) : div.isPlaceholder ? (
+                    <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                      <Plus size={24} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload(div.id, e)}
+                      />
+                    </label>
+                  ) : (
+                    <Image size={24} />
+                  )}
+                </div>
+              ))}
+              
+              {/* Always show add button if there's at least one non-placeholder image */}
+              {!imageDivs.some(div => div.isPlaceholder) && (
+                <div 
+                  onClick={handleAddImage}
+                  className="bg-amber-300 h-32 w-32 rounded-md flex items-center justify-center cursor-pointer hover:bg-amber-400"
+                >
+                  <Plus size={24} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
           <div className="flex flex-col gap-5">
             {/* Basic text input with individual state */}
             <div className="space-y-2">
@@ -107,7 +210,6 @@ export default function SampleAdminPage() {
               <textarea
                 id="bio"
                 name="bio"
-                // rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Tell us about yourself"
                 disabled={!isEditing}
@@ -144,7 +246,6 @@ export default function SampleAdminPage() {
                 Checkbox
               </label>
             </div>
-
 
             {/* Radio buttons for subscription plan - horizontal layout */}
             <div className="space-y-2">
