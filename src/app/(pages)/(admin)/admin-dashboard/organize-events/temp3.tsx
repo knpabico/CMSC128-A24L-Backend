@@ -6,7 +6,7 @@ import { Event } from "@/models/models";
 import Link from "next/link";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar, Clock, MapPin, UserCheck } from "lucide-react";
 import ModalInput from "@/components/ModalInputForm";
 import { useParams } from "next/navigation";;
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
@@ -50,7 +50,6 @@ export default function EventPageAdmin()
     const ev = events.find((e: Event) => e.eventId === evId);
 
     const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
-    const [activeTab, setActiveTab] = useState("Pending");
     const [isEditing, setEdit] = useState(false);
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
   
@@ -135,6 +134,7 @@ export default function EventPageAdmin()
           setEventDescription(eventToEdit.description);
           setEventImage(eventToEdit.image);
           setEventDate(eventToEdit.date);
+          setEventTime(eventToEdit.time);
           setEventLocation(eventToEdit.location);
           setShowForm(true);
     
@@ -186,7 +186,7 @@ export default function EventPageAdmin()
             window.removeEventListener("scroll", handleScroll);
         };
     
-    }, [filteredEvents]);    
+    }, [isEditing, events, editingEventId]);    
 
     const formComplete =
     title.trim() !== "" &&
@@ -378,7 +378,7 @@ export default function EventPageAdmin()
                                                             : "bg-gray-100 text-gray-800"
                                                         }`}
                                                     >
-                                                        {e.status.charAt(0).toUpperCase() + e.status.slice(1)}
+                                                        {e.status === "Accepted" ? "Approved" : e.status.charAt(0).toUpperCase() + e.status.slice(1)}
                                                     </span>
                                                 </div>
 
@@ -410,11 +410,24 @@ export default function EventPageAdmin()
                                                             <p className="text-xs truncate">{e.location}</p>
                                                         </div>
 
+                                                        {/* num of attendees */}
+                                                        <div className="flex gap-1 items-center w-1/3 justify-center">
+                                                            <UserCheck size={16} />
+                                                            <p className="text-xs truncate">{e.numofAttendees} Going</p>
+                                                        </div>
+
+                                                        <p     
+                                                          onClick={() => alert(`Placeholder: Create donation drive for event ID ${events.eventId}`)}
+                                                        >
+                                                        Create Donation Drive
+                                                        </p>
+
                                                         {/* Date of Post */}
                                                         <div className="flex gap-1 items-center w-1/3 justify-center">
                                                             <p className="text-xs truncate">Posted on {formatDate(e.datePosted)}</p>
                                                         </div>
                                                         
+
                                                         {/* Creator */}
                                                         <div className="text-xs text-gray-700 mt-2">
                                                             <p> Proposed by: {e.creatorName ?? "Admin"}</p>
@@ -425,41 +438,25 @@ export default function EventPageAdmin()
                                             
                                             {/* Action Buttons - Right Side */}
                                             <div className="p-4 bg-gray-50 border-l flex flex-col justify-center gap-2 min-w-32">
-                                                {activeTab === "Accepted" && (
-                                                    <>
-                                                    <button
-                                                        onClick={() => handleDelete(events.eventId)}
-                                                        className="px-4 py-2 bg-red-500 text-white rounded-md"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleViewEventAdmin(events.e)}
-                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                                                    >
-                                                        View More
-                                                    </button>
-                                                    </>
-                                                )}
                                         
-                                                {activeTab === "Pending" && (
+                                                {e.status === "Pending" && (
                                                     <>
                                                     <button 
-                                                        onClick={() => {
-                                                        handleFinalize(
-                                                            events.eventId,
-                                                        )
-                                                        setShowForm(false)
+                                                        onClick={() => 
+                                                        {
+                                                          addEvent(e, true, false);
+                                                          setShowForm(false);
                                                         }
                                                         }
                                                         className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
-                                                        Finalize
+                                                        Approve
                                                     </button>
                                                     <button
-                                                        onClick={() => {
+                                                        onClick={() => 
+                                                        {
                                                         setEdit(true);
-                                                        setEditingEventId(events.eventId);
+                                                        setEditingEventId(e.eventId);
                                                         setShowForm(true);
                                                         }}
                                                         className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
@@ -467,23 +464,34 @@ export default function EventPageAdmin()
                                                         Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => handleReject(events.eventId)}
+                                                        onClick={() => handleReject(e.eventId)}
                                                         className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
-                                                        Delete
+                                                        Reject
                                                     </button>
                                                     <button
-                                                        onClick={() => handleViewEventAdmin(events)}
+                                                        onClick={() => handleViewEventAdmin(e)}
                                                         className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         View More
                                                     </button>
                                                     </>
                                                 )}
-                                                {activeTab === "Rejected" && (
+                                                {e.status === "Accepted" && (
                                                     <>
                                                     <button
-                                                        onClick={() => handleViewEventAdmin(events)}
+                                                        onClick={() => handleViewEventAdmin(e)}
+                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
+                                                    >
+                                                        View More
+                                                    </button>
+                                                    </>
+                                                )}
+
+                                                {e.status === "Rejected" && (
+                                                    <>
+                                                    <button
+                                                        onClick={() => handleViewEventAdmin(e)}
                                                         className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         View More
@@ -499,10 +507,30 @@ export default function EventPageAdmin()
                 </div>
 
             </div>
+            <div></div>
+              <button onClick={() => 
+              {
+                setEdit(false);
+                setShowForm(true);
+                setEventTitle(""); 
+                setEventTime("");
+                setEventDescription("");
+                setEventDate("");
+                setEventLocation("");
+                setFileName("");
+                setEventImage(null);
+                setSelectedAlumni([]);
+                setSelectedBatches([]);
+                setVisibility("all");
+                setButton("");
+              }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
+              Create Event
+            </button>
             {showForm && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form
-                onSubmit={(e) => {
+                onSubmit={(e) =>
+                {
                   e.preventDefault();
                   
                 // store the selected guests
@@ -513,35 +541,44 @@ export default function EventPageAdmin()
                     ? selectedAlumni
                     : [];
 
-                if (isEditing && editingEventId) {
+                if (isEditing && editingEventId)
+                {
                   handleEdit(editingEventId, { title, description, location, date, image, targetGuests, inviteType: visibility }); // Pass the current value if it will be edited
                 }
                 
-                if (selectedButton === "Create") {
+                if (selectedButton === "Create") 
+                {
                   setErrorMessage(""); // Clear errors first
             
-                  if (!formComplete) {
+                  if (!formComplete) 
+                  {
                     setErrorMessage("Please fill out all required fields before proposing the event.");
                     return;
                   }
             
-                  if (visibility === "batch") {
-                    if (selectedBatches.length === 0) {
+                  if (visibility === "batch")
+                  {
+                    if (selectedBatches.length === 0)
+                    {
                       setErrorMessage("Please add at least one batch.");
                       return;
                     }
-                    if (selectedBatches.some(batch => !/^\d+$/.test(batch))) {
+                    if (selectedBatches.some(batch => !/^\d+$/.test(batch)))
+                    {
                       setErrorMessage("Batch inputs must contain only numbers.");
                       return;
                     }
                   }
             
-                  if (visibility === "alumni") {
-                    if (selectedAlumni.length === 0) {
+                  if (visibility === "alumni")
+                  {
+                    if (selectedAlumni.length === 0)
+                    {
                       setErrorMessage("Please add at least one alumni email.");
                       return;
                     }
-                    if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+                    if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))
+                    {
                       setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
                       return;
                     }
@@ -579,7 +616,10 @@ export default function EventPageAdmin()
                 
                   addEvent(newEvent, true, true);
             
-                } else {
+                } 
+                
+                else
+                {
                   // If button is not "Create", just save
                   handleSave(e, image, targetGuests, visibility, "Pending");
                 }
@@ -744,11 +784,13 @@ export default function EventPageAdmin()
                             className="text-black mt-2 p-2 rounded-md w-full"
                             placeholder="e.g. 2022"
                             onKeyDown={(e) => {
-                              if (e.key === "Enter") {
+                              if (e.key === "Enter")
+                              {
                                 e.preventDefault();
                                 const value = e.currentTarget.value.trim();
                                 // Check if the value is not empty and not already in the selectedBatches list
-                                if (value && !selectedBatches.includes(value)) {
+                                if (value && !selectedBatches.includes(value)) 
+                                {
                                   // Add the new value to the selectedBatches list
                                   setSelectedBatches([...selectedBatches, value]);
                                   e.currentTarget.value = "";
@@ -837,19 +879,12 @@ export default function EventPageAdmin()
                     type="submit"
                     className="bg-blue-500 text-white p-2 rounded"
                   >
-                    {isEditing ? "Update" : "Save"}
-                  </button>
-                  <button 
-                    type="submit"
-                    onClick={() => setButton("Create")}
-                    className="px-4 py-2 bg-green-500 text-white rounded-md"
-                  >
-                    Create
+                    {isEditing ? "Update" : "Create"}
                   </button>
                 </div>
               </form>
             </div>
           )}
-        </div>  
+        </div>
     );
 }
