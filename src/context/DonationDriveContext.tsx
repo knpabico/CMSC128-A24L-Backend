@@ -392,20 +392,18 @@ export function DonationDriveProvider({
     }
   };
 
-  const handleDelete = async (donationDriveId: string) => {
+  const handleDelete = async (donationDrive: DonationDrive) => {
     try {
-      await deleteDoc(doc(db, "donation_drive", donationDriveId));
+      if (donationDrive.isEvent) {
+        await updateDoc(doc(db, "event", donationDrive.eventId), {donationDriveId: ""});
+      }
+
+      await deleteDoc(doc(db, "donation_drive", donationDrive.donationDriveId));
       setDonationDrives((prev) =>
         prev.filter(
-          (driveData) => driveData.donationDriveId !== donationDriveId
+          (driveData) => driveData.donationDriveId !== donationDrive.donationDriveId
         )
       );
-      if (isEvent) {
-        await updateDoc(doc(db, "event", eventId), {donationDriveId: ""});
-      }
-      if (isEvent) {
-        await updateDoc(doc(db, "event", eventId), {donationDriveId: ""});
-      }
       return { success: true, message: "Donation drive deleted successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
