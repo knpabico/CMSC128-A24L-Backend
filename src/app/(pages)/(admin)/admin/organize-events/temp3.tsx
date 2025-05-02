@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +13,6 @@ import { useParams } from "next/navigation";;
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@mui/material";
 import { useRsvpDetails } from "@/context/RSVPContext";
-import { useDonationDrives } from "@/context/DonationDriveContext";
 
 export default function EventPageAdmin()
 {
@@ -49,7 +49,6 @@ export default function EventPageAdmin()
 
     const evId = params?.eventId as string;
     const ev = events.find((e: Event) => e.eventId === evId);
-    const {handleAddEventRelated} = useDonationDrives();
 
     const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
     const [isEditing, setEdit] = useState(false);
@@ -277,7 +276,7 @@ export default function EventPageAdmin()
                         <button 
                             onClick={() => setStatusFilter("Accepted")}
                             className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "Accepted" 
+                            statusFilter === "active" 
                                 ? "bg-green-600 text-white" 
                                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                             }`}
@@ -287,7 +286,7 @@ export default function EventPageAdmin()
                         <button 
                             onClick={() => setStatusFilter("Pending")}
                             className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "Pending" 
+                            statusFilter === "pending" 
                                 ? "bg-yellow-600 text-white" 
                                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                             }`}
@@ -297,7 +296,7 @@ export default function EventPageAdmin()
                         <button 
                             onClick={() => setStatusFilter("Rejected")}
                             className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "Rejected" 
+                            statusFilter === "rejected" 
                                 ? "bg-red-600 text-white" 
                                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                             }`}
@@ -418,12 +417,11 @@ export default function EventPageAdmin()
                                                             <p className="text-xs truncate">{e.numofAttendees} Going</p>
                                                         </div>
 
-                                                        {e.status==="Accepted" && <button
-                                                          onClick={() => handleAddEventRelated(e)}
-                                                          className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                                                        <p     
+                                                          onClick={() => alert(`Placeholder: Create donation drive for event ID ${events.eventId}`)}
                                                         >
-                                                          Create Donation Drive
-                                                        </button>}
+                                                        Create Donation Drive
+                                                        </p>
 
                                                         {/* Date of Post */}
                                                         <div className="flex gap-1 items-center w-1/3 justify-center">

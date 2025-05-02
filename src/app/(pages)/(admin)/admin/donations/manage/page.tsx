@@ -31,8 +31,6 @@ export default function ManageDonationDrive() {
     handleSave,
     handleEdit,
     handleDelete,
-    // handleReject,
-    // handleAccept,
     campaignName,
     setCampaignName,
     description,
@@ -40,7 +38,6 @@ export default function ManageDonationDrive() {
     creatorId,
     setCreatorId,
     image,
-		
     setImage,
     fileName,
     setFileName,
@@ -217,6 +214,8 @@ export default function ManageDonationDrive() {
 			console.error("No scholarship ID provided.");
 			return;
 		}
+    setIsEvent(donationDrive.isEvent);
+    setEventId(donationDrive.eventId);
 		handleDelete(donationDrive.donationDriveId);
 		toastSuccess(`${donationDrive.campaignName} has been deleted successfully.`)
 	}
