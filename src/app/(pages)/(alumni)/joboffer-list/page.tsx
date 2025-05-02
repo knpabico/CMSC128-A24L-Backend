@@ -277,7 +277,9 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
         <div className="flex justify-between items-center mb-4">
 
         <button
-            className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
+              activeFilters.length > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
             onClick={() => {
               setActiveFilters([]);
               setActiveFilterCategory(null);
@@ -450,9 +452,17 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                             >
                               <div className="flex">
                                 <div className="mr-2">
-                                  <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+                                {job.image ? (
+                                  <img 
+                                    src={job.image} 
+                                    alt={`${job.company} logo`} 
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                  />
+                                  ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
                                     {job.company.charAt(0).toUpperCase()}
                                   </div>
+                                  )}
                                 </div>
                                 <div className="flex-1">
                                   <h2 className="font-semibold text-md">
@@ -544,9 +554,17 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                             >
                               <div className="flex">
                                 <div className="mr-3">
-                                  <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+                                {job.image ? (
+                                  <img 
+                                    src={job.image} 
+                                    alt={`${job.company} logo`} 
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                  />
+                                  ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
                                     {job.company.charAt(0).toUpperCase()}
                                   </div>
+                                  )}
                                 </div>
                                 <div className="flex-1">
                                   <h2 className="font-semibold text-md">
@@ -639,9 +657,17 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                               <div className="flex justify-between items-center">
                                 <div className="flex">
                                   <div className="mr-3">
-                                    <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center">
-                                      {job.company.charAt(0).toUpperCase()}
-                                    </div>
+                                  {job.image ? (
+                                  <img 
+                                    src={job.image} 
+                                    alt={`${job.company} logo`} 
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                  />
+                                  ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                    {job.company.charAt(0).toUpperCase()}
+                                  </div>
+                                  )}
                                   </div>
                                   <div className="flex-1">
                                     <h2 className="font-semibold text-md">
@@ -725,12 +751,28 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
             <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
               {selectedJob ? (
                 <div className="w-full space-y-4">
+                  <div className="flex items-start">
+                  {/* Company Logo */}
+                  <div className="mr-4">
+                    {selectedJob.image ? (
+                      <img 
+                        src={selectedJob.image} 
+                        alt={`${selectedJob.company} logo`} 
+                        className="w-20 h-20 object-contain rounded-md border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
+                        {selectedJob.company.charAt(0).toUpperCase()}
+                      </div>
+                      )}
+                  </div>
                 <div>
                   <h2 className="text-2xl font-bold">{selectedJob.position}</h2>
                   <p className="text-gray-600 text-lg">{selectedJob.company}</p>
                   <div className="flex items-center text-sm text-gray-600">
                   <MapPin className="w-4 h-4 text-[#0856BA] mr-1" />
                   <span className="ml-1 font-semibold text-[#0856BA]">{selectedJob.location}</span>
+                </div>
                 </div>
                 </div>
                   <div className="bg-white border border-[#0856BA] p-3 rounded-lg mb-4 space-y-2">
