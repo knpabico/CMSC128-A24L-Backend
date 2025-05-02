@@ -15,7 +15,10 @@ import { useAuth } from "./AuthContext";
 import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
+import { useNewsLetters } from "./NewsLetterContext";
+import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
+import { uploadImage } from "@/lib/upload"; 
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -32,6 +35,12 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
+  const [image, setJobImage] = useState(null);
+  const [location, setLocation] = useState("");
+  const [fileName, setFileName] = useState<string>("");
+  const [preview, setPreview] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     console.log("User from useAuth:", user);
@@ -48,6 +57,15 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       if (unsubscribe) unsubscribe();
     };
   }, [user, isAdmin]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setJobImage(file);
+      setFileName(file.name);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
   const addJobOffer = async (jobOffer: JobOffering, userId: string) => {
     try {
@@ -69,7 +87,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     const newJobOffering: JobOffering = {
       company,
       employmentType,
@@ -80,16 +98,28 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       requiredSkill,
       salaryRange,
       jobId: "",
-      alumniId: "",
+      alumniId: user?.uid || "",
       datePosted: new Date(),
-      status: "",
+      status: "Pending",
+      location: "",
       image: "",
     };
-
+  
+    if (image) {
+      const uploadResult = await uploadImage(image, `job_offers/${Date.now()}`);
+      if (uploadResult.success) {
+        newJobOffering.image = uploadResult.url;
+      } else {
+        setMessage(uploadResult.result || "Failed to upload image.");
+        setIsError(true);
+        return;
+      }
+    }
+  
     const response = await addJobOffer(newJobOffering, user!.uid);
-
     if (response.success) {
-      console.log("Job offer successfully added:", newJobOffering);
+      console.log("Job offer added:", newJobOffering);
+      // Reset form
       setShowForm(false);
       setCompany("");
       setEmploymentType("");
@@ -99,6 +129,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setPosition("");
       setRequiredSkill([]);
       setSalaryRange("");
+      setJobImage(null);
+      setPreview(null);
     } else {
       console.error("Error adding job:", response.message);
     }
@@ -131,6 +163,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       await updateDoc(doc(db, "job_offering", jobId), {
         status: "Accepted",
       });
+      await addNewsLetter(jobId, "job_offering")
+      console.log("Job offer accepted and added to newsletter:", jobId);
     } catch (error) {
       console.error("Error updating job:", error);
     }
@@ -161,6 +195,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setJobOffers((prev) =>
         prev.filter((jobOffers) => jobOffers.jobId !== jobId)
       );
+
+      await deleteNewsLetter(jobId);
+
       console.log("Succesfully deleted job with id of:", jobId);
     } catch (error) {
       console.error("Error deleting job:", error);
@@ -197,7 +234,16 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         handleView,
         closeModal,
         selectedJob,
+        location,
+        setLocation,
         handleDelete,
+        location,
+        setLocation,
+        image,
+        setJobImage,
+        preview,
+        fileName,
+        handleImageChange,
       }}
     >
       {children}

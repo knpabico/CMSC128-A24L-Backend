@@ -35,7 +35,7 @@ export function AnnouncementProvider({
     string | null
   >(null);
 
-  const { addNewsLetter } = useNewsLetters();
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     console.log("Admin", isAdmin);
@@ -75,6 +75,9 @@ export function AnnouncementProvider({
           (announcement) => announcement.announcementId !== announcementId
         )
       );
+
+      await deleteNewsLetter(announcementId);
+    
       console.log(
         "Succesfully deleted announcement with id of:",
         announcementId

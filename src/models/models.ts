@@ -3,6 +3,8 @@ import { RegStatus } from "@/types/alumni/regStatus";
 import { Timestamp } from "firebase-admin/firestore";
 
 export interface Alumnus {
+  graduationYear: ReactNode;
+  jobTitle: ReactNode;
   alumniId: string;
   regStatus: RegStatus; //accepted, pending, or rejected registration
   approvalDate: Date;
@@ -71,6 +73,7 @@ export interface Scholarship {
 }
 
 export interface Event {
+  dateCreated(dateCreated: any): import("react").ReactNode;
   eventId: string;
   datePosted: Date;
   title: string;
@@ -78,6 +81,7 @@ export interface Event {
   date: string;
   rsvps: string[];
   status: string;
+  inviteType: string;
   creatorId: string;
   creatorName: string;
   creatorType: string;
@@ -158,6 +162,7 @@ export interface JobOffering {
   datePosted: Date;
   jobType: string;
   status: string;
+  location: string;
   image: string;
 }
 
@@ -195,4 +200,13 @@ export interface AIQuestion {
   who: string;
   when: string;
   where: string;
+}
+
+export interface Featured {
+  featuredId: string;
+  text: string;
+  image: string;
+  title: string;
+  type: string;
+  datePosted: Date;
 }

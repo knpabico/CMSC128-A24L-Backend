@@ -5,7 +5,8 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Trash2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, Check, X, CircleX } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function Users() {
   const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
@@ -13,6 +14,8 @@ export default function Users() {
   const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState(null);
 
   console.log("Job Offers:", jobOffers);
 
@@ -29,13 +32,6 @@ export default function Users() {
     total: jobOffers.length
   };
 
-  // // limit job description on admin side
-  // const truncateDescription = (text) => {
-  //   // mga 150 characters lang ipapakita sa description
-  //   const maxLength = 150;
-  //   if (text.length <= maxLength) return text;
-  //   return text.substring(0, maxLength) + "...";
-  // };
 
   // INCORPORATED FROM SAMPLE PAGE FROM DAPHNE
    // Track scroll position and update header state
@@ -174,27 +170,34 @@ export default function Users() {
 
                   <div className="w-1/6 flex items-center justify-center">
                     <div 
-                      className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                      className="text-[var(--primary-blue)] hover:underline cursor-pointe pl-6"
                       onClick={() => handleView(job.jobId)}
                     >View Details</div>
                   </div>
                   <div className="w-1/6 flex items-center justify-center">
                     {activeTab === "Pending" ? (
-                      <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
-                        <button className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
-                          <ThumbsDown size={14} />
-                          <span>Reject</span>
-                        </button>
-                        <button className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1">
-                          <ThumbsUp size={14} />
-                          <span>Accept</span>
-                        </button>
-                      </div>
+                      <div className="w-1/3 flex flex-row gap-4 items-center justify-center">
+                      <button className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
+                      onClick={() => handleReject(job.jobId)} 
+                      >
+                        <X size={24} />
+                        {/* <span>Reject</span> */}
+                      </button>
+                      <button className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1"
+                      onClick={() => handleAccept(job.jobId)}
+                      >
+                        <Check size={24} />
+                        {/* <span>Accept</span> */}
+                      </button>
+                    </div>
                     ) : (
                       <Trash2 
                         size={20} 
-                        className="text-gray-500 hover:text-red-500 cursor-pointer"
-                        onClick={() => handleDelete(job.jobId)}
+                        className="text-[#D42020] hover:text-[#6C0505] cursor-pointer"
+                        onClick={() => {
+                          setJobToDelete(job); // Set the job to delete
+                          setIsConfirmationOpen(true); // Open the confirmation dialog
+                        }}
                       />
                     )}
                   </div>
@@ -239,6 +242,30 @@ export default function Users() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {isConfirmationOpen && (
+        <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+          <DialogContent className='w-96'>
+            <DialogHeader className='text-red-500 flex items-center gap-5'>
+              <CircleX className='size-15'/>
+              <DialogTitle className="text-md text-center">
+                Are you sure you want to delete <br /> <strong>{jobToDelete?.position}</strong>?
+              </DialogTitle>
+            </DialogHeader>
+            <DialogFooter className='mt-5'>
+              <button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer" 
+                onClick={() => {
+                  if(jobToDelete){
+                    handleDelete(jobToDelete.jobId);
+                    setIsConfirmationOpen(false);
+                  }
+                }} >Delete</button>
+              <button className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100" onClick={() => setIsConfirmationOpen(false)}>Cancel</button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
