@@ -25,8 +25,8 @@ const BarGraph = ({ data, labels, type }: BarGraphProps) => {
             {
               label: type,
               data,
-              backgroundColor: "blue",
-              borderColor: "black",
+              backgroundColor: "#0856BA",
+              borderColor: "#D1D5DB",
               borderWidth: 1,
             },
           ],
