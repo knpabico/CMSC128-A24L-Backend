@@ -27,10 +27,10 @@ export function TermsDialog() {
         <DialogHeader>
           <DialogTitle>Terms and Conditions</DialogTitle>
           <DialogDescription>
-            <p className="text-base text-gray-700">
+            <span className="text-base text-gray-700">
               By registering for an account on <strong>ICS-ARMS</strong>, you
               agree to the following terms and conditions:
-            </p>
+            </span>
           </DialogDescription>
         </DialogHeader>
 

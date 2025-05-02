@@ -333,9 +333,11 @@ export default function RegistrationForm() {
     setShowDialog(true);
   };
 
+  //will enable the verification modal
   const handleSubmit = async () => {
     setIsLoading(true);
     setIsVerify(true);
+
     // if (isVerified && !isVerify) {
     //   console.log("putangin");
     //   const response = await registerUser(
@@ -386,7 +388,6 @@ export default function RegistrationForm() {
   const goNext = async () => {
     //temporarily disable the go next button to prevent double click
     setDisableGoNext(true);
-    console.log("hey");
     const currentFields = formParts[currentPart].fields;
     const result = await form.trigger(currentFields as fieldName[], {
       shouldFocus: true,
@@ -453,6 +454,7 @@ export default function RegistrationForm() {
                             <Button
                               type="button"
                               onClick={goNext}
+                              disabled={disableGoNext}
                               className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
                             >
                               Sign up
@@ -595,9 +597,7 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <PlusCircleIcon 
-                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
-                              />
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
                               <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add bachelor's degree
                               </p>
@@ -639,9 +639,7 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <PlusCircleIcon 
-                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
-                              />
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
                               <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add master's degree
                               </p>
@@ -683,9 +681,7 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <PlusCircleIcon 
-                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
-                              />
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
                               <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add doctoral degree
                               </p>
@@ -726,9 +722,7 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <PlusCircleIcon 
-                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
-                              />
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
                               <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add affiliation
                               </p>
@@ -784,9 +778,7 @@ export default function RegistrationForm() {
                                 });
                               }}
                             >
-                              <PlusCircleIcon 
-                                className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white"
-                              />
+                              <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
                               <p className="text-[#3675c5] text-sm group-hover:underline">
                                 Add work experience
                               </p>
