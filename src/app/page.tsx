@@ -32,7 +32,6 @@ import {
 import { useJobOffer } from "@/context/JobOfferContext";
 import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
-import { Progress } from "@material-tailwind/react";  
 import React from "react";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
@@ -139,22 +138,38 @@ export default function Home() {
   }
 
  // Calculate days remaining until the donation drive ends
-  function getDaysRemaining(endDate: Date): number {
-    const now = new Date();
+  function getDaysRemaining(endDate: any) {
+    try {
+      const now = new Date();
     
-    // Clear time portions to calculate full days
-    const endDateOnly = new Date(endDate);
-    endDateOnly.setHours(0, 0, 0, 0);
-    
-    const todayOnly = new Date(now);
-    todayOnly.setHours(0, 0, 0, 0);
-    
-    // Calculate difference in days
-    const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
-    const differenceInDays = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24));
-    
-    // Return 0 if ended or negative
-    return Math.max(0, differenceInDays);
+      // Clear time portions to calculate full days
+      // const endDateOnly = new Date(endDate);
+      // endDateOnly.setHours(0, 0, 0, 0);
+      
+      // const todayOnly = new Date(now);
+      // todayOnly.setHours(0, 0, 0, 0);
+
+      const todayOnly = new Date(); // Current date
+      const endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
+      
+      // Calculate difference in days
+      const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
+      const differenceInDays = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24));
+      if (differenceInDays <= 0) return "Expired";
+      else if (differenceInDays === 1) return "1 day left";
+      else return `${differenceInDays} days left`;
+      // Return 0 if ended or negative
+    } catch (err) {
+      return 'Not Available';
+    }
+  }
+
+  function getImage(image: any){
+    try {
+      return image;
+    } catch (err){
+      return 'Error';
+    }
   }
 
 
@@ -202,7 +217,7 @@ export default function Home() {
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
-                className="w-full h-[30px] rounded-full text-[#FFFFFF] bg-[#0856BA] hover:bg-[#357BD6]"
+                className="w-full h-[30px] cursor-pointer rounded-full text-[#FFFFFF] bg-[#0856BA] hover:bg-[#357BD6]"
               >
                 View Profile
               </Button>
@@ -228,7 +243,7 @@ export default function Home() {
                             setLatestFirst(sortType === "Latest"); // Optionally used elsewhere
                             handleSortChange(sortValues[index]); // Update URL param
                           }}
-                          className={`flex w-full items-center rounded-md py-1.5 px-3 ${
+                          className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 ${
                             selectedSort === sortType ? "bg-[#FFFFFF] text-[#0856BA] font-semibold" : ""
                           }`}
                         >
@@ -294,7 +309,7 @@ export default function Home() {
                                   <p className="text-[24px] font-semibold">{announcement.title}</p>
                                   <CollapseText text={announcement.description + " "} maxChars={300} />
                                 </div>
-                              <img src="/ICS3.jpg" className="w-full"></img>
+                              <img src="/ICS3.jpg" className="w-full rounded-b-[10px]"></img>
                             </div>
                               </div>
                           ) : (
@@ -378,7 +393,7 @@ export default function Home() {
                             </div> 
                               <button
                                 onClick={() => router.push(`/joboffer-list`)}
-                                className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                                className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
 
                               >View More Job Offers</button>
                             </div>
@@ -401,14 +416,18 @@ export default function Home() {
                         });
                         
                         return donationDrive ? (
-                          <div className="flex flex-col gap-[20px]">
-                            <div className="flex flex-col">
-                              <div className="flex flex-col gap-[10px] px-[20px] mb-[20px]">
+                          <div className="flex flex-col">
+                            <div className="flex flex-col gap-[20px]">
+                              <div className="flex flex-col gap-[10px] px-[20px]">
                                 <p className="text-[24px] font-semibold">{donationDrive.campaignName}</p>
                                 <p className="text-[24px] font-semibold">{donationDrive.title}</p>
                                 <CollapseText text={donationDrive.description + " "} maxChars={300} />
                               </div>
                             <img src="/ICS3.jpg" className="w-full"></img>
+                            <button
+                              onClick={() => router.push(`/donationdrive-list`)}
+                              className="cursor-pointer h-[30px] mx-[20px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                            >View More Donation Drives</button>
                           </div>
                             </div>
                         ) : (
@@ -423,10 +442,10 @@ export default function Home() {
                           <div className="flex flex-col gap-[20px] px-[20px] mb-[20px]">                         
                             <p className="text-[24px] font-semibold">Scholarship</p>
                             <p className="text-[15px] mt-2">Details about the scholarship will go here.</p>
-                            {/* <button
-                              onClick={() => router.push(`/sponsorship`)}
-                              className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-                            >View More Sponsorships</button> */}
+                            <button
+                              onClick={() => router.push(`/scholarship`)}
+                              className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                            >View More Scholarships</button>
                           </div>
                         );
                       })()}
@@ -456,34 +475,52 @@ export default function Home() {
                               {event.needSponsorship === true && (
                               <>
                               <div className="flex flex-col px-[20px]">
-                                <div className="flex flex-row text-[15px] gap-1">
-                                  <span className="font-semibold">₱{partial}</span> raised from <span className="font-semibold">₱{total}</span> total
+                              <div className="w-full">
+                              <p className="font-semibold mb-2">{donationDrives[currentDonationIndex].campaignName}</p>
+                              <div className="flex justify-between mb-1">
+                                <div className='flex gap-2 items-center'>
+                                  <Users className='size-4 text-[#616161]'/>
+                                  <span className="text-[15px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
                                 </div>
-
-                                {/* progress bar */}
-                                <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
-                                  <div className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
-                                </div>
-
-
-                                <div className="flex flex-row text-[15px] gap-[20px]">
-                                  <div className="flex flex-row items-center gap-1">
-                                  <Users className="size-5"/>
-                                    <div className="flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
-                                  </div>
-                                  <div className="flex flex-row items-center gap-1">
-                                    <Clock className="size-4"/>
-                                    <div className="flex flex-row gap-1"><p className="font-semibold">10</p> days left</div>
-                                </div>
-                                  </div>
+                                {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                                  <div className='flex gap-2 items-center'>
+                                  <Clock className='size-4 text-[#616161]'/>
+                                  <span className="text-[15px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                                </div>)}
                               </div>
-                              </>)}</>
+
+                              {/* progress bar */}
+                              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
+                                {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                                  <div 
+                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
+                                  style={{
+                                    width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  }}
+                                >
+                                </div>) : <div 
+                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                                  style={{
+                                    width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  }}
+                                >
+                                </div>}
+                              </div>
+
+                              <div className="flex justify-between my-1 text-[15px]">
+                                <span className="font-medium">₱ {donationDrives[currentDonationIndex].currentAmount}</span>
+                                <span className="text-gray-500">of ₱ {donationDrives[currentDonationIndex].targetAmount || 0}</span>
+                              </div>
+                            </div>
+                              </div>
+                              </>)}
+                              </>
 
                               
                               <div className="px-[20px]">
                                 <button
                                     onClick={() => router.push(`/events`)}
-                                    className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
                                   >View More Events</button>
                               </div>
                             </div>
@@ -524,40 +561,44 @@ export default function Home() {
 
                 {/* donation contents */}
                 <div className="w-full flex flex-col py-[10px] place-items-center">
-                  <img src={donationDrives[currentDonationIndex].image} className="mb-[10px]" alt="Donation drive" />
+                  {getImage(donationDrives[currentDonationIndex].image) === 'Error' ? 'Error loading image' : 
+                  (<img src={getImage(donationDrives[currentDonationIndex].image)} className="mb-[10px] h-[150px] object-cover w-full" alt="Donation drive" />)
+                  }
                   <div className="w-full">
                     <p className="font-semibold mb-2">{donationDrives[currentDonationIndex].campaignName}</p>
-                    <div className="flex flex-row text-[13px] gap-1">
-                      <p className="font-semibold">₱{donationDrives[currentDonationIndex].currentAmount || 0}</p> raised from <p className="font-semibold">₱{donationDrives[currentDonationIndex].targetAmount}</p> total
+                    <div className="flex justify-between mb-1">
+                      <div className='flex gap-2 items-center'>
+                        <Users className='size-4 text-[#616161]'/>
+                        <span className="text-[13px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
+                      </div>
+                      {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                        <div className='flex gap-2 items-center'>
+                        <Clock className='size-4 text-[#616161]'/>
+                        <span className="text-[13px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                      </div>)}
                     </div>
 
                     {/* progress bar */}
-                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
-                      <div 
-                        className="bg-blue-600 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
+                      {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                        <div 
+                        className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
                         style={{
                           width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
                         }}
                       >
-                        {Math.round((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100)}%
-                      </div>
+                      </div>) : <div 
+                        className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                        style={{
+                          width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                        }}
+                      >
+                      </div>}
                     </div>
 
-                    <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
-                      <div className="flex flex-row items-center gap-1">
-                        <Users className="size-4"/>
-                        <div className="text-[13px] flex flex-row gap-1 items-center">
-                          <p className="font-semibold">{donationDrives[currentDonationIndex].donorList?.length || 0}</p>patrons
-                        </div>
-                      </div>
-                      <div className="flex flex-row items-center gap-1">
-                        <Clock className="size-4"/>
-                        <div className="flex flex-row text-[13px] gap-1">
-                          <p className="font-semibold">          
-                            {getDaysRemaining(donationDrives[currentDonationIndex].endDate)}
-                          </p> days left
-                        </div>
-                      </div>
+                    <div className="flex justify-between my-1 text-sm">
+                      <span className="font-medium">₱ {donationDrives[currentDonationIndex].currentAmount}</span>
+                      <span className="text-gray-500">of ₱ {donationDrives[currentDonationIndex].targetAmount || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -610,31 +651,31 @@ export default function Home() {
                 {/* event contents */}
                 <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                   <div className="w-full">
-                    <img src="/ICS2.jpg" className="mb-[10px]" alt="Event" />
+                    <img src="/ICS2.jpg" className="mb-[10px] h-[150px] w-full object-cover" alt="Event" />
                     <div className="flex flex-col text-[15px]">
                       <p className="font-semibold">{events[currentEventIndex].title}</p>
                     </div>
-                    <div className="flex flex-col gap-[5px] place-self-center">
-                      <div className="flex flex-row text-[13px] gap-[30px] mt-[10px]">
-                        <div className="flex flex-row items-center gap-1">
-                          <Calendar className="size-4"/>
-                          <p className="text-[13px] flex flex-row gap-1 items-center">
-                            {new Date(events[currentEventIndex].date).toLocaleDateString()}
-                          </p>
+                    
+                    <div className="flex flex-col gap-[10px] content-stretch">
+                      <div className="flex justify-between text-[13px] gap-[30px] mt-[10px]">
+                        <div className='flex gap-2 items-center'>
+                          <Calendar className="size-4 text-[#616161]"/>
+                          <span className="text-[13px] text-gray-500">{new Date(events[currentEventIndex].date).toLocaleDateString()}</span>
                         </div>
-                        <div className="flex flex-row items-center gap-1">
-                          <Clock className="size-4"/>
-                          <p className="flex flex-row text-[13px] gap-1">
-                            {new Date(events[currentEventIndex].date).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </p>
-                        </div>
+                        
+                        {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                        <div className='flex gap-2  items-center'>
+                          <Clock className='size-4 text-[#616161]'/>
+                          <span className="text-[13px] text-gray-500">{new Date(events[currentEventIndex].date).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}</span>
+                        </div>)}
                       </div>
-                      <div className="flex flex-row text-[13px] gap-[3px] place-self-start my-[2px]">
-                        <MapPin className="size-4"/>
-                        <p className="text-[13px]">{events[currentEventIndex].location}</p>
+
+                      <div className="flex flex-row text-[13px] gap-[3px] items-center place-self-start">
+                        <MapPin className="size-4 text-[#616161] "/>
+                        <span className="text-[13px] text-gray-500">{events[currentEventIndex].location}</span>
                       </div>
                     </div>
                   </div>
