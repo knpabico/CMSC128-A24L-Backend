@@ -9,6 +9,8 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  getDocs,
+  where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -18,7 +20,7 @@ import { useBookmarks } from "./BookmarkContext";
 import { useNewsLetters } from "./NewsLetterContext";
 import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
-import { uploadImage } from "@/lib/upload"; 
+import { uploadImage } from "@/lib/upload";
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -85,9 +87,45 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     setRequiredSkill(e.target.value.split(",").map((skill) => skill.trim()));
   };
 
+  //get the Job Offer by Alumni
+  const getJobOfferByAlumni = async (
+    alumniId: string
+  ): Promise<JobOffering[]> => {
+    if (!alumniId) {
+      console.error("No alumni ID provided");
+      return Promise.reject("No alumni ID provided");
+    }
+
+    setLoading(true);
+
+    try {
+      const jobOffersQuery = query(
+        collection(db, "job_offering"),
+        where("alumniId", "==", alumniId)
+      );
+
+      const snapshot = await getDocs(jobOffersQuery);
+
+      const jobOffers = snapshot.docs.map(
+        (doc) =>
+          ({
+            jobId: doc.id,
+            ...doc.data(),
+          } as JobOffering)
+      );
+
+      setLoading(false);
+      return jobOffers;
+    } catch (error) {
+      console.error("Error fetching donations by alumni:", error);
+      setLoading(false);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     const newJobOffering: JobOffering = {
       company,
       employmentType,
@@ -104,7 +142,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       location: "",
       image: "",
     };
-  
+
     if (image) {
       const uploadResult = await uploadImage(image, `job_offers/${Date.now()}`);
       if (uploadResult.success) {
@@ -115,7 +153,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         return;
       }
     }
-  
+
     const response = await addJobOffer(newJobOffering, user!.uid);
     if (response.success) {
       console.log("Job offer added:", newJobOffering);
@@ -163,7 +201,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       await updateDoc(doc(db, "job_offering", jobId), {
         status: "Accepted",
       });
-      await addNewsLetter(jobId, "job_offering")
+      await addNewsLetter(jobId, "job_offering");
       console.log("Job offer accepted and added to newsletter:", jobId);
     } catch (error) {
       console.error("Error updating job:", error);
@@ -208,7 +246,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     <JobOfferContext.Provider
       value={{
         jobOffers,
-        bookmarks,
         isLoading,
         addJobOffer,
         setShowForm,
@@ -222,6 +259,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         setExperienceLevel,
         jobDescription,
         setJobDescription,
+        getJobOfferByAlumni,
         jobType,
         setJobType,
         position,
