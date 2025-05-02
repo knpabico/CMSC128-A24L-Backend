@@ -17,11 +17,11 @@ export default function EventRelatedDrivesPage() {
       // Filter for event-related drives
       const eventRelated = donationDrives.filter((drive: { isEvent: boolean; }) => drive.isEvent);
 	//   Filter active and completed 
-	//   const filteredDrives = eventRelated.filter(
-	// 	(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed'));
+	  const filteredDrives = eventRelated.filter(
+		(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed' || drive.status === 'Accepted'));
       
       // Apply sorting
-      const sorted = [...eventRelated].sort((a, b) => {
+      const sorted = [...filteredDrives].sort((a, b) => {
         switch (sortOption) {
           case 'newest':
             const dateA = a.datePosted?.toDate?.() || new Date(0);

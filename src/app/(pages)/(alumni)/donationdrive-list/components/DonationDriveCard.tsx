@@ -119,7 +119,7 @@ return (
 			{/* Image */}
 			<div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }}>
 				<span className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
-					drive.status === 'active'
+					(drive.status === 'active'|| drive.status === 'Accepted')
 						? 'bg-green-100 text-green-800 px-2 py-1 font-bold'
 						: drive.status === 'completed'
 						? 'bg-blue-100 text-blue-800 px-2 py-1 font-bold'
@@ -198,12 +198,12 @@ return (
 							</div>
 						</div>
 						<div className='mt-5 text-xs text-start'>
-							<p>Donation Type: {drive.isEvent && event ? 'Event-related Campaign' : 'General Campaign'}</p>
+							<p>Donation Type: {drive.isEvent ? 'Event-related Campaign' : 'General Campaign'}</p>
 						</div>
 					</div>
 				) : (
 					<div className='mt-5 text-xs text-start'>
-						<p>Donation Type: {drive.isEvent && event ? ' Event-related Campaign' : ' General Campaign'} </p>
+						<p>Donation Type: {drive.isEvent ? ' Event-related Campaign' : ' General Campaign'} </p>
 					</div>
 				)}
 				{/* Progress Bar */}

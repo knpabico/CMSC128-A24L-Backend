@@ -292,6 +292,9 @@ export function DonationDriveProvider({
       if (driveData.isEvent) {
         await updateDoc(doc(db, "event", eventId), {donationDriveId: docRef.id});
       }
+      if (driveData.isEvent) {
+        await updateDoc(doc(db, "event", eventId), {donationDriveId: docRef.id});
+      }
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -333,6 +336,7 @@ export function DonationDriveProvider({
       setTargetAmount(0);
       setEventId("");
       setEndDate(new Date());
+      setStatus("active");
       setStatus("active");
       setImage(null);
       setPreview(null);
@@ -399,6 +403,9 @@ export function DonationDriveProvider({
       if (isEvent) {
         await updateDoc(doc(db, "event", eventId), {donationDriveId: ""});
       }
+      if (isEvent) {
+        await updateDoc(doc(db, "event", eventId), {donationDriveId: ""});
+      }
       return { success: true, message: "Donation drive deleted successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -442,6 +449,7 @@ export function DonationDriveProvider({
         setFilePaymayaName, 
         previewPaymaya, 
         setPreviewPaymaya,
+
         image,
         setImage,
         fileName,
