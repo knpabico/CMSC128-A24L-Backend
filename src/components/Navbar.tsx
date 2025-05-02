@@ -81,6 +81,15 @@ export default function Navbar() {
         { id: 'add-announcements', label: 'Add Posts', path: '/admin/announcements/add' },
       ]
     },
+    {
+      id: 'featuredStory',
+      label: 'featuredStory',
+      initiallyCollapsed: true,
+      subItems: [
+        { id: 'manage-featuredStory', label: 'Write A Story', path: '/admin/create-story' },
+        // { id: 'add-featuredStory', label: 'Add Feat', path: '/admin/announcements/add' },
+      ]
+    },
   ];
 
   // Generate initial collapsed state from config
@@ -110,6 +119,7 @@ export default function Navbar() {
     { label: "Scholarships", path: "/scholarship" },
     { label: "Jobs", path: "/joboffer-list" },
     { label: "Alumni", path: "/alumni-list" },
+    { label: "Story", path: "/create-story" },
   ];
 
   const handleNavClick = (path) => {
