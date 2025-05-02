@@ -1,466 +1,205 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useEvents } from "@/context/EventContext";
-import { Event } from "@/models/models";
-import Link from "next/link";
-import React from "react";
-import { useAuth } from "@/context/AuthContext";
-import { Calendar, Clock, MapPin } from "lucide-react";
-import ModalInput from "@/components/ModalInputForm";
-import { useParams } from "next/navigation";;
+import { Event, Alumnus } from "@/models/models";
+import { useRsvpDetails } from "@/context/RSVPContext";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
+import { useState, useEffect } from "react";
 import { Button } from "@mui/material";
+import ModalInput from "@/components/ModalInputForm";
 
-export default function EventPageAdmin()
-{
-    const params = useParams();
-    const
-    {
-        events,
-        isLoading,
-        setShowForm,
-        showForm,
-        handleSave,
-        handleEdit,
-        handleDelete,
-        date,
-        handleReject,
-        addEvent,
-        handleFinalize,
-        handleViewEventAdmin, 
-        handleImageChange,
-        setEventDate,
-        image,
-        setEventImage,
-        description,
-        setEventDescription,
-        title,
-        setEventTitle,
-        location,
-        setEventLocation,
-        time,
-        setEventTime,
-        fileName,
-        setFileName,
-        fetchAlumnusById,
-    } = useEvents();
+export default function Events() {
+  const {
+    events,
+    isLoading,
+    setShowForm,
+    showForm,
+    handleSave,
+    handleEdit,
+    handleDelete,
+    date,
+    handleReject,
+    addEvent,
+    handleViewEventAdmin, 
+    handleImageChange,
+    setEventDate,
+    image,
+    setEventImage,
+    description,
+    setEventDescription,
+    title,
+    setEventTitle,
+    location,
+    setEventLocation,
+    time,
+    setEventTime,
+    fileName,
+    setFileName,
+  } = useEvents();
+  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
+  const [activeTab, setActiveTab] = useState("Pending");
+  const [isEditing, setEdit] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [rsvpFilter, setRsvpFilter] = useState("All");
+  const [sortAlphabetically, setSortAlphabetically] = useState(false);
 
-    const evId = params?.eventId as string;
-    const ev = events.find((e: Event) => e.eventId === evId);
-    console.log("Event Id", evId);
-    console.log("Events", ev);
-    console.log("orig event", events);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [visibility, setVisibility] = useState("all");
+  const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
+  const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
-    const [activeTab, setActiveTab] = useState("Pending");
-    const [isEditing, setEdit] = useState(false);
-    const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [filterSearch, setFilterSearch] = useState("all");
+  const [searchBatches, setSearchBatches] = useState<any[]>([]);
+  const [searchAlumni, setSearchAlumni] = useState<any[]>([]);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [selectedButton, setButton] = useState("");
+
+
+
+  useEffect(() => { // Properly show the selected filter when Editing the values
+    if (isEditing && events) {
+      const eventToEdit = events.find(event => event.eventId === editingEventId);
+      setVisibility("all");
+      setSelectedAlumni([]);
+      setSelectedBatches([]);
+
+      if (eventToEdit) {
+        setEventTitle(eventToEdit.title);
+        setEventDescription(eventToEdit.description);
+        setEventImage(eventToEdit.image);
+        setEventDate(eventToEdit.date);
+        setEventTime(eventToEdit.time);
+        setEventLocation(eventToEdit.location);
+        setShowForm(true);
   
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [visibility, setVisibility] = useState("default");
-    const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
-    const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
-
-    const [creatorNames, setCreatorNames] = useState<{ [key: string]: string }>({});
-    const [sortBy, setSortBy] = useState("latest");
-    const [statusFilter, setStatusFilter] = useState("all");
-
-    const tableRef = useRef<HTMLDivElement | null>(null);
-    const [headerWidth, setHeaderWidth] = useState("100%");
-    const [isSticky, setIsSticky] = useState(false);
-
-    const [errorMessage, setErrorMessage] = useState("");
-    const [selectedButton, setButton] = useState("");
-
-    if(!events) return <div>Loading Events...</div>;
-
-    const sortedEvents = [...events].sort((x, y) =>
-    {
-        switch(sortBy)
-        {
-            case 'posted-newest':
-                const dateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
-                const dateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
-                return dateY.getTime() - dateX.getTime();
-
-            case 'posted-oldest':
-                const oldDateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
-                const oldDateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
-                return oldDateX.getTime() - oldDateY.getTime();
-            
-            case 'alphabetical':
-            {
-                const xName = events[x.eventId]!.title;
-                const yName = events[y.eventId]!.title;
-
-                return xName.toLowerCase().localeCompare(yName.toLowerCase());
-            }
-
-            default:
-                return 0;
+        // Properly check targetGuests for alumni and batches
+        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
+          // Check if the first item is a batch (e.g., a string of length 4)
+          if (eventToEdit.targetGuests[0].length === 4) {
+            setSelectedBatches(eventToEdit.targetGuests); // Set the batches
+            setVisibility("batch"); // Set visibility to batches
+          } else {
+            setSelectedAlumni(eventToEdit.targetGuests); // Set the alumni
+            setVisibility("alumni"); // Set visibility to alumni
+          }
         }
-    });
+      }
+    }
+  }, [isEditing, events, editingEventId]);
+  
+  const filterEvents = (status: string) => {
+    console.log(`events length is ${events.length}`);
+    return events.filter((event: Event) => event.status === status);
+  };
 
-    const filteredEvents = statusFilter === "all"
-        ? sortedEvents
-        : sortedEvents.filter(event => event.status === statusFilter);
-    
-    const formatDate = (date: any) =>
-    {
-        if (!date) return "N/A";
-        const dateObj = typeof date === 'object' && date.toDate 
-            ? date.toDate() 
-            : new Date(date);
-            
-        return dateObj.toLocaleDateString("en-US", 
-        {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    };
-
-    useEffect(() =>
-    {
-        let isMounted = true;
-    
-        const fetchCreators = async () =>
-        {
-            const eventsToFetch = filteredEvents.filter(
-                (event) => event.creatorType === "alumni" && !creatorNames[event.eventId]
-            );
-    
-            if (eventsToFetch.length === 0) return;
-    
-            const names = { ...creatorNames };
-    
-            await Promise.all(
-                eventsToFetch.map(async (event) =>
-                {
-                    try 
-                    {
-                        const creator = await fetchAlumnusById(event.creatorId);
-                        if (creator && isMounted) 
-                        {
-                            names[event.eventId] = `${creator.firstName} ${creator.lastName}`;
-                        } 
-                        
-                        else if (isMounted)
-                        {
-                            names[event.eventId] = "Unknown";
-                        }
-                    } 
-                    
-                    catch (error) 
-                    {
-                        console.error("Error fetching creator: ", error);
-                        if (isMounted) 
-                        {
-                            names[event.eventId] = "Unknown";
-                        }
-                    }
-                })
-            );
-    
-            if (isMounted) setCreatorNames(names);
-        };
-    
-        fetchCreators();
-
-        const handleScroll = () => 
-        {
-            if (!tableRef.current) return;
-    
-            const tableRect = tableRef.current.getBoundingClientRect();
-    
-            if (tableRect.top <= 0 && !isSticky)
-            {
-                setIsSticky(true);
-                setHeaderWidth(tableRect.width.toString());
-            } 
-            
-            else if (tableRect.top > 0 && isSticky)
-            {
-                setIsSticky(false);
-            }
-        };
-    
-        window.addEventListener("scroll", handleScroll);
-    
-        if (tableRef.current)
-        {
-            setHeaderWidth(tableRef.current.offsetWidth.toString());
-        }
-    
-        return () =>
-        {
-            window.removeEventListener("scroll", handleScroll);
-            isMounted = false;
-        };
-    
-    }, [filteredEvents, creatorNames]);    
-
-    const formComplete =
+  const formComplete =
     title.trim() !== "" &&
     description.trim() !== "" &&
     date.trim() !== "" &&
     time.trim() !== "" &&
     location.trim() !== "";
-    
-    return (
-        <div>        
-            <Breadcrumbs
-            items=
-            {[
-            { href: "/admin-dashboard", label: "Admin Dashboard" },
-            { label: "Events" },
-            ]}
-            />
-            {/* Head & Body */}
-            <div className="container mx-auto p-6">
-                <h1 className="text-3xl font-bold mb-6 text-gray-800">Manage Events</h1>
-                    {/* Filter Buttons */}
-                    <div className="mb-6">
-                        <div className="flex flex-wrap gap-2 mb-4">
-                        <button 
-                            onClick={() => setStatusFilter("all")}
-                            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "all" 
-                                ? "bg-blue-600 text-white" 
-                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                            }`}
-                        >
-                            All Upcoming Events
-                        </button>
-                        <button 
-                            onClick={() => setStatusFilter("Accepted")}
-                            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "active" 
-                                ? "bg-green-600 text-white" 
-                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                            }`}
-                        >
-                            Approved
-                        </button>
-                        <button 
-                            onClick={() => setStatusFilter("Pending")}
-                            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "pending" 
-                                ? "bg-yellow-600 text-white" 
-                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                            }`}
-                        >
-                            Pending
-                        </button>
-                        <button 
-                            onClick={() => setStatusFilter("Rejected")}
-                            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "rejected" 
-                                ? "bg-red-600 text-white" 
-                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                            }`}
-                        >
-                            Rejected
-                        </button>
-                        </div> 
-                    </div>
 
-                    {/* Sorting Dropdown */}
-                    <div className="flex justify-start items-center">
-                        <label htmlFor="sort" className="mr-2 font-medium text-gray-700">Sort by:</label>
-                        <select
-                            id="sort"
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="p-2 border rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        >
-                            <option value="posted-newest">Newest</option>
-                            <option value="posted-oldest">Earliest</option>
-                            <option value="alphabetical">Alphabetical</option>
-                        </select>
-                    </div>
+  return (
+    <>
+      <Breadcrumbs
+        items={[
+          { href: "/admin-dashboard", label: "Admin Dashboard" },
+          { label: "Events" },
+        ]}
+      />
 
-                {isLoading && <div className="text-center text-lg">Loading...</div>}
-                {/* Event List */}
-                <div>
-                    <h2 className="text-2xl font-bold mb-4">
-                        {statusFilter === "all" ? "All Events" :
-                        statusFilter === "Accepted" ? "Approved Events" :
-                        statusFilter === "Pending" ? "Pending Events" :
-                        "Rejected Events"}
-                    </h2>
-                    {filteredEvents.length === 0 ? (
-                        <p className="text-gray-500">No Events found.</p>
-                        ) : (
-                            <div className="flex flex-col gap-4">
-                                {filteredEvents.map((e: Event) => 
-                                {
-                                    return(
-                                        <div
-                                        key={e.eventId}
-                                        className="border rounded-lg shadow-sm hover:shadow-md bg-white overflow-hidden flex flex-row"
-                                        >
-                                            {/* Image Section */}
-                                            <div
-                                            className="cursor-pointer w-1/4 min-w-64 bg-gray-200"
-                                            onClick={() => handleViewEventAdmin(events)}
-                                            >
-                                            {e.image ? (
-                                                <img
-                                                src={ev.image}
-                                                alt={ev.title}
-                                                className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center">
-                                                <span className="text-gray-400">No image</span>
-                                                </div>
-                                            )}
-                                            </div>
 
-                                            {/* Content Section */}
-                                            <div
-                                                className="p-4 flex-grow cursor-pointer"
-                                                onClick={() => handleViewEventAdmin(events)}
-                                            >
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <h2 className="text-xl font-semibold truncate flex-1">
-                                                        {ev.title}
-                                                    </h2>
-                                                    <span
-                                                        className={`ml-4 px-2 py-0.5 text-xs font-medium rounded-full ${
-                                                        ev.status === "Accepted"
-                                                            ? "bg-green-100 text-green-800"
-                                                            : ev.status === "Pending"
-                                                            ? "bg-yellow-100 text-yellow-800"
-                                                            : ev.status === "Rejected"
-                                                            ? "bg-red-100 text-red-800"
-                                                            : "bg-gray-100 text-gray-800"
-                                                        }`}
-                                                    >
-                                                        {ev.status.charAt(0).toUpperCase() + ev.status.slice(1)}
-                                                    </span>
-                                                </div>
+      <div>
 
-                                                {/* Description */}
-                                                <div className="mb-5 text-sm max-h-[40px] overflow-hidden text-clip">
-                                                    <p className="text-start">
-                                                        {ev.description}
-                                                    </p>
-                                                </div>
+        {/* will be used for the filter */}
 
-                                                {/* Event Details */}
-                                                <div className="mt-5">
-                                                    <div className="flex justify-between items-center gap-4">
-                                                        {/* Event Date */}
-                                                        <div className="flex gap-1 items-center w-1/3 justify-center">
-                                                            <Calendar size={16} />
-                                                            <p className="text-xs">{ev.date}</p>
-                                                        </div>
-                                                        
-                                                        {/* Event Time */}
-                                                        <div className="flex gap-1 items-center w-1/3 justify-center">
-                                                            <Clock size={16} />
-                                                            <p className="text-xs">{ev.time}</p>
-                                                        </div>
+        {(() => {
+          // Group alumni by their ID and compile the events they RSVPed to
+          const grouped: Record<string, { alum: any; events: string[] }> = {};
 
-                                                        {/* Where */}
-                                                        <div className="flex gap-1 items-center w-1/3 justify-center">
-                                                            <MapPin size={16} />
-                                                            <p className="text-xs truncate">{ev.location}</p>
-                                                        </div>
+          events.forEach(event => {
+            event.rsvps.forEach(rsvpId => {
+              const rsvp = rsvpDetails[rsvpId]; // RSVP Details
+              const alum = alumniDetails[rsvp?.alumniId]; // Alumni Details
 
-                                                        {/* Date of Post */}
-                                                        <div className="flex gap-1 items-center w-1/3 justify-center">
-                                                            <p className="text-xs truncate">Posted on {formatDate(ev.datePosted)}</p>
-                                                        </div>
-                                                        
-                                                        {/* Creator */}
-                                                        <div className="text-xs text-gray-700 mt-2">
-                                                            <p> Created by: {creatorNames[ev.eventId] ?? "Admin"}</p>
-                                                            <p>Creator Type: {ev.creatorType}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            {/* Action Buttons - Right Side */}
-                                            <div className="p-4 bg-gray-50 border-l flex flex-col justify-center gap-2 min-w-32">
-                                                {activeTab === "Accepted" && (
-                                                    <>
-                                                    <button
-                                                        onClick={() => handleDelete(events.eventId)}
-                                                        className="px-4 py-2 bg-red-500 text-white rounded-md"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleViewEventAdmin(events)}
-                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                                                    >
-                                                        View More
-                                                    </button>
-                                                    </>
-                                                )}
-                                        
-                                                {activeTab === "Pending" && (
-                                                    <>
-                                                    <button 
-                                                        onClick={() => {
-                                                        handleFinalize(
-                                                            events.eventId,
-                                                        )
-                                                        setShowForm(false)
-                                                        }
-                                                        }
-                                                        className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                                                    >
-                                                        Finalize
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                        setEdit(true);
-                                                        setEditingEventId(events.eventId);
-                                                        setShowForm(true);
-                                                        }}
-                                                        className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleReject(events.eventId)}
-                                                        className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleViewEventAdmin(events)}
-                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                                                    >
-                                                        View More
-                                                    </button>
-                                                    </>
-                                                )}
-                                                {activeTab === "Rejected" && (
-                                                    <>
-                                                    <button
-                                                        onClick={() => handleViewEventAdmin(events)}
-                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
-                                                    >
-                                                        View More
-                                                    </button>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                    )}
-                </div>
+              if (!rsvp || !alum) return;
+              
+              // Check if alumni is part of the selected batch or selected alumni
+              const inBatch = searchBatches.includes(alum.studentNumber?.slice(0, 4));
+              const inAlumni = searchAlumni.includes(alum.email);
+              
+              // Decide if this RSVP should be shown based on the current visibility setting
+              const matchesFilter =
+                filterSearch === "all" ||
+                (filterSearch === "batch" && inBatch) ||
+                (filterSearch === "alumni" && inAlumni);
 
-            </div>
-            {showForm && (
+              if (!matchesFilter) return;
+              
+              // If this alumni isn't already in the grouped object, add them
+              if (!grouped[alum.alumniId]) {
+                grouped[alum.alumniId] = { alum, events: [] };
+              }
+
+              // Add the current event 
+              grouped[alum.alumniId].events.push(`${event.title} - ${rsvp.status}`);
+            });
+          });
+
+          // return (
+          //   <ul>
+          //     {Object.values(grouped).map(({ alum, events }) => (
+          //       <li key={alum.alumniId}>
+          //         <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
+          //         <ul>
+          //           {events.map((event, i) => (
+          //             <li key={`${alum.alumniId}-${i}`}>{event}</li>
+          //           ))}
+          //         </ul>
+          //       </li>
+          //     ))}
+          //   </ul>
+          // );
+        })()}
+
+              
+        {/* Sort Buttons for different status*/}
+        <div className="flex gap-5 mb-5">
+          {["Accepted", "Pending", "Rejected"].map((status) => (
+            <button
+              key={status}
+              onClick={() => setActiveTab(status)}
+              className={`px-4 py-2 rounded-md ${
+                activeTab === status ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+      
+        {isLoading && <h1>Loading</h1>}
+
+        <div>
+          <button onClick={() => {
+            setEdit(false);
+            setShowForm(true);
+            setEventTitle(""); 
+            setEventTime("");
+            setEventDescription("");
+            setEventDate("");
+            setEventLocation("");
+            setFileName("");
+            setEventImage(null);
+            setSelectedAlumni([]);
+            setSelectedBatches([]);
+            setVisibility("all");
+            setButton("");
+          }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
+            Create Event
+          </button>
+          {showForm && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form
                 onSubmit={(e) => {
@@ -809,6 +548,140 @@ export default function EventPageAdmin()
               </form>
             </div>
           )}
-        </div>  
-    );
+        </div>
+      </div>
+
+      <div>
+
+        {filterEvents(activeTab).map((events: Event, index: number) => (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              marginBottom: "15px",
+            }}
+          >
+            <strong>
+              <h2>{events.title}</h2>
+            </strong>
+            <p>
+            <img src={events.image} alt="Event Poster" className="w-64 h-auto" />
+            </p>
+            <p>
+              {" "}
+              <strong>Date:</strong> {events.date}
+            </p>
+            <p>
+              {" "}
+              <strong>Time:</strong>
+              {events.time}
+            </p>
+            <p>
+              {" "}
+              <strong>Description:</strong>
+              {events.description}
+            </p>
+            <p>
+              {" "}
+              <strong>Location:</strong>
+              {events.location}
+            </p>
+            <p>
+              {" "}
+              <strong>Attendees:</strong>
+              {events.numofAttendees}
+            </p>
+
+            <p     
+              onClick={() => alert(`Placeholder: Create donation drive for event ID ${events.eventId}`)}
+            >
+             Create Donation Drive
+            </p>
+            {events.creatorType === "alumni" && (
+              <p>Proposed by: {events.creatorName}</p>
+            )}
+
+            {/* Status Filter */}
+              {activeTab === "Accepted" && (
+                <>
+                  <button
+                    onClick={() => handleDelete(events.eventId)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </>
+              )}
+    
+              {activeTab === "Pending" && (
+                <div className="flex gap-3 mt-2">
+                  <button
+                    onClick={() => {
+                      addEvent(events, true, false);
+                      setShowForm(false);
+                    }}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    {events.creatorType === "admin" ? "Finalize" : "Accept Proposal"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEdit(true);
+                      setEditingEventId(events.eventId);
+                      setShowForm(true);
+                    }}
+
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                  >
+                    Edit
+                  </button>
+                  {events.creatorType === "admin" ? (
+                    <>                      
+                      <button
+                        onClick={() => handleDelete(events.eventId)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleReject(events.eventId)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md"
+                      >
+                        Reject Proposal
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </div>
+              )}
+              {activeTab === "Rejected" && (
+                <div className="mt-2">
+                  <button
+                    onClick={() => handleViewEventAdmin(events)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    View More
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div> 
+    </>
+  );
 }
