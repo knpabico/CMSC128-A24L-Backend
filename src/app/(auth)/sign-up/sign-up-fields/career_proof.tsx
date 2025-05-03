@@ -1,8 +1,8 @@
 "use client";
 import { uploadDocument } from "@/lib/upload";
 import { Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { UploadIcon } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Trash2Icon, UploadIcon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -49,11 +49,9 @@ export const uploadDocToFirebase = async (
 export const AlumDocumentUpload = ({
   index,
   form,
-  proofSetter,
 }: {
   index: number;
   form: any;
-  proofSetter: (file: File) => void;
 }) => {
   const [document, setDocument] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -62,19 +60,40 @@ export const AlumDocumentUpload = ({
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
 
+  //ref for resetting current value of the file input button
+  const fileInput = useRef(null);
+
   const handleDocumentChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setDocument(file);
       setDocumentType(file.type);
-      proofSetter(file);
-
+      //update form file
+      form.setValue(`currentJob.${index}.proof`, file);
+      //update hasProof of currentJob[index]
+      form.setValue(`currentJob.${index}.hasProof`, true);
       // Only create preview for image files
       if (file.type.startsWith("image/")) {
         setPreview(URL.createObjectURL(file));
       } else {
         setPreview(null);
       }
+    }
+  };
+
+  //handle removal of file
+  const handleRemoval = () => {
+    setDocument(null);
+    setDocumentType("");
+    setPreview(null);
+    setFirstClick(false); //reset firstClick
+    //update hasProof of currentJob[index]
+    form.setValue(`currentJob.${index}.hasProof`, false);
+    //update form file
+    form.setValue(`currentJob.${index}.proof`, null);
+    //reset current value of the file input button before choosing a file
+    if (fileInput.current) {
+      fileInput.current.value = "";
     }
   };
 
@@ -128,12 +147,28 @@ export const AlumDocumentUpload = ({
           Upload document
         </p>
         <input
+          ref={fileInput}
           type="file"
           accept=".pdf,.doc,.docx,image/*"
           onChange={handleDocumentChange}
           className="hidden"
         />
       </label>
+
+      {/*for clearing file upload */}
+      {document && (
+        <label
+          className="flex items-center space-x-2 cursor-pointer pt-2"
+          onClick={handleRemoval}
+        >
+          <p className="text-red-500">
+            <Trash2Icon className="w-4" />
+          </p>
+          <p className="text-red-500 text-sm hover:underline">
+            Remove document
+          </p>
+        </label>
+      )}
 
       <p className="text-xs font-extralight pt-2">
         Accepted formats: PDF, DOC, DOCX, and images
@@ -150,7 +185,7 @@ export const AlumDocumentUpload = ({
         </div>
       )}
 
-      {message && (
+      {/* {message && (
         <p
           className={`mt-2 text-sm ${
             isError ? "text-red-600" : "text-green-600"
@@ -158,6 +193,17 @@ export const AlumDocumentUpload = ({
         >
           {message}
         </p>
+      )} */}
+
+      {/*display validation message for document*/}
+      {document === null && (
+        <>
+          {form.formState.errors.currentJob?.[index]?.hasProof && (
+            <p className="text-red-500 text-sm">
+              {form.formState.errors.currentJob[index].hasProof.message}
+            </p>
+          )}
+        </>
       )}
     </div>
   );

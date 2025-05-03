@@ -448,7 +448,7 @@ export default function Home() {
                 src={
                   alumInfo!.image === ""
                     ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
-                    : alumInfo1.image
+                    : alumInfo.image
                 }
                 className="w-20 h-20 md:w-40 md:h-40 lg:w-50 lg:h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
               ></img>

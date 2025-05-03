@@ -160,7 +160,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           (error as Error).message
         }`
       );
+      return false;
     }
+    return false;
   };
 
   const signIn = async (email: string, password: string) => {

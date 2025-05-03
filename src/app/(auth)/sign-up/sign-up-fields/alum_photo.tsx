@@ -3,9 +3,9 @@
 "use client";
 import { uploadImage } from "@/lib/upload";
 import { Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { set } from "zod";
-import { CameraIcon } from "lucide-react";
+import { CameraIcon, Trash2Icon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
@@ -51,7 +51,7 @@ export const uploadToFirebase = async (image: any, alumniId: string) => {
 export const AlumPhotoUpload = ({
   imageSetter,
 }: {
-  imageSetter: (file: File) => void;
+  imageSetter: (file: File | null) => void;
 }) => {
   const { user } = useAuth();
 
@@ -61,12 +61,27 @@ export const AlumPhotoUpload = ({
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
 
+  //ref for resetting current value of the image input button
+  const imageInput = useRef(null);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
       setPreview(URL.createObjectURL(file)); //preview
       imageSetter(file);
+    }
+  };
+
+  //handle removal of file
+  const handleRemoval = () => {
+    setImage(null);
+    setPreview(null);
+    imageSetter(null);
+    setFirstClick(false); //reset firstClick
+    //reset current value of the image input button before choosing an image
+    if (imageInput.current) {
+      imageInput.current.value = "";
     }
   };
 
@@ -89,13 +104,24 @@ export const AlumPhotoUpload = ({
   return (
     <div>
       <div>
+        {preview && (
+          <button
+            className="absolute text-gray-500 cursor-pointer text-red-500"
+            onClick={handleRemoval}
+            type="button"
+          >
+            <Trash2Icon className="w-4" />
+          </button>
+        )}
         <div className="relative w-55 h-55 flex items-center justify-center">
           {preview ? (
-            <img
-              src={preview}
-              alt="Uploaded Preview"
-              className="w-full h-full object-cover"
-            />
+            <>
+              <img
+                src={preview}
+                alt="Uploaded Preview"
+                className="w-full h-full object-cover"
+              />
+            </>
           ) : (
             <p
               className={`text-center mt-20 ${
@@ -107,12 +133,13 @@ export const AlumPhotoUpload = ({
           )}
 
           <label
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute w-12 h-12 flex items-center justify-center"
             onClick={handleUpload}
           >
             <CameraIcon className="w-12 h-12 text-white cursor-pointer" />
 
             <input
+              ref={imageInput}
               type="file"
               accept="image/*"
               onChange={handleImageChange}
