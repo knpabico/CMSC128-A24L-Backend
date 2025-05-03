@@ -244,7 +244,7 @@ export function EventProvider({ children }: { children: React.ReactNode })
       }
 
       await deleteDoc(doc(db, "event", eventId));
-      deleteNewsLetter(eventId);
+      await deleteNewsLetter(eventId);
       setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
       return { success: true, message: "Event successfully deleted" };
     } 

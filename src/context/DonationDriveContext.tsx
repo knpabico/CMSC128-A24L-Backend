@@ -206,7 +206,7 @@ export function DonationDriveProvider({
       driveData.creatorType = role;
       driveData.status = role === "admin" ? "active" : "pending";
       driveData.creatorId = role === "admin" ? "" : user!.uid;
-      addNewsLetter(driveData.donationDriveId, "donation_drive");
+      await addNewsLetter(driveData.donationDriveId, "donation_drive");
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
@@ -281,7 +281,7 @@ export function DonationDriveProvider({
           (driveData) => driveData.donationDriveId !== donationDriveId
         )
       );
-      deleteNewsLetter(donationDriveId);
+      await deleteNewsLetter(donationDriveId);
       return { success: true, message: "Donation drive deleted successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
