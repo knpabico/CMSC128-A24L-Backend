@@ -28,7 +28,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
   const [image, setImage] = useState("");
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
-
+  
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
