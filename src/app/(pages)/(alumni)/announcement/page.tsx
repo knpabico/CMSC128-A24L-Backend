@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { ChevronDownIcon } from "lucide-react"
 import { CheckboxItem, DropdownMenuCheckboxItem } from "@radix-ui/react-dropdown-menu";
 import { useRadioGroup } from "@mui/material";
+import { useFeatured } from "@/context/FeaturedStoryContext";
 
 
 
@@ -28,6 +29,7 @@ export default function Announcements() {
   const [latestFirst, setLatestFirst] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [selectedSort, setSelectedSort] = useState("Latest");
+  const { featuredItems } = useFeatured();
 
   const itemsPerPage = 6;
 
@@ -183,23 +185,24 @@ export default function Announcements() {
             ))
           )}
 
-          <div className="flex flex-col gap-[30px] mb-[50px]">
-            <p className="place-self-center text-[24px] font-semibold"> See more announcements </p>
-            <div className="flex flex-row gap-[20px] place-self-center rounded-[10px] ">
-              <div className="flex flex-col rounded-[5px] h-full bg-[#FFFFFF] gap-[10px]">
-                <img src="/ICS2.jpg" className="w-[300px] h-[150px] object-cover mb-[10px]"></img>
-                <p className="text-[20px] font-semibold text-justify mx-[20px]">Announcement Title</p>
-                <a href="./redirect" className="text-[14px] mx-[20px] mb-[20px] hover:font-semibold">Read more &#8594;</a>
+            <div className="flex flex-col gap-[30px] mb-[50px]">
+            <p className="place-self-center text-[24px] font-semibold">See More Announcements</p>
+            <div className="flex flex-row gap-[20px] place-self-center rounded-[10px]">
+              {featuredItems.map((item, index) => (
+              <div key={index} className="flex flex-col rounded-[5px] h-full bg-[#FFFFFF] gap-[10px]">
+                <img 
+                src={item.image || "/ICS2.jpg"} 
+                className="w-[300px] h-[150px] object-cover mb-[10px]"
+                alt={item.title}
+                />
+                <p className="text-[20px] font-semibold text-justify mx-[20px]">{item.title}</p>
+                <a href="./redirect" className="text-[14px] mx-[20px] mb-[20px] hover:font-semibold">
+                Read more &#8594;
+                </a>
               </div>
-
-
-              <div className="flex flex-col rounded-[5px] h-full bg-[#FFFFFF] gap-[10px]">
-                <img src="/ICS2.jpg" className="w-[300px] h-[150px] object-cover mb-[10px]"></img>
-                <p className="text-[20px] font-semibold text-justify mx-[20px]">Announcement Title</p>
-                <a href="./redirect" className="text-[14px] mx-[20px] mb-[20px] hover:font-semibold">Read more &#8594;</a>
-              </div>          
+              ))}
             </div>
-          </div>
+            </div>
           
 
           {/* Pagination Controls */}
