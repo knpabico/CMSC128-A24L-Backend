@@ -1,6 +1,7 @@
 import { useState, useEffect, FC, ChangeEvent } from "react";
 import { Loader2, X } from "lucide-react";
 import { sendVerificationCode } from "@/lib/emailTemplate";
+import { toastError } from "@/components/ui/sonner";
 
 interface VerificationCodeModalProps {
   isOpen: boolean;
@@ -8,6 +9,8 @@ interface VerificationCodeModalProps {
   email: string;
   onVerify: () => void;
   isLoadingModal: boolean;
+  isCodeSent: boolean;
+  onCodeSent: () => void; // Callback to update parent component state
 }
 
 export const VerificationCodeModal: FC<VerificationCodeModalProps> = ({
@@ -16,39 +19,57 @@ export const VerificationCodeModal: FC<VerificationCodeModalProps> = ({
   email,
   onVerify,
   isLoadingModal,
+  isCodeSent,
+  onCodeSent,
 }) => {
   const [verificationCode, setVerificationCode] = useState<string>("");
   const [userInput, setUserInput] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [remainingTime, setRemainingTime] = useState<number>(300); // 5 minutes in seconds
   const [isResending, setIsResending] = useState<boolean>(false);
+  const [expiryTimestamp, setExpiryTimestamp] = useState<number | null>(null);
 
-  // Generate random verification code when modal opens
+  // Generate random verification code only when needed
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isCodeSent) {
       generateVerificationCode();
       setUserInput("");
       setErrorMessage("");
-      setRemainingTime(300);
+      // Set expiry timestamp 5 minutes from now
+      const expiry = Date.now() + 300 * 1000;
+      setExpiryTimestamp(expiry);
+      onCodeSent(); // Let parent know code was sent
+    } else if (isOpen) {
+      // Just reset UI state on reopen
+      setUserInput("");
+      setErrorMessage("");
     }
-  }, [isOpen]);
+  }, [isOpen, isCodeSent]);
 
-  // Countdown timer
+  // Persistent countdown timer that works even when modal is closed
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | undefined;
+    // Don't set up timer if no expiry timestamp
+    if (!expiryTimestamp) return;
 
-    if (isOpen && remainingTime > 0) {
-      timer = setInterval(() => {
-        setRemainingTime((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (remainingTime === 0) {
-      setErrorMessage("Code has expired. Please request a new code.");
-    }
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const secondsLeft = Math.floor((expiryTimestamp - now) / 1000);
+
+      if (secondsLeft <= 0) {
+        setRemainingTime(0);
+        clearInterval(timer);
+        if (isOpen) {
+          setErrorMessage("Code has expired. Please request a new code.");
+        }
+      } else {
+        setRemainingTime(secondsLeft);
+      }
+    }, 1000);
 
     return () => {
-      if (timer) clearInterval(timer);
+      clearInterval(timer);
     };
-  }, [isOpen, remainingTime]);
+  }, [expiryTimestamp, isOpen]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -65,14 +86,15 @@ export const VerificationCodeModal: FC<VerificationCodeModalProps> = ({
     setVerificationCode(code);
     console.log("Generated verification code (hidden from user):", code);
     sendVerificationCode(code, email);
-    // In a real application, you would send this code to the user's email
-    // sendEmailWithCode(email, code);
   };
 
   const handleResendCode = (): void => {
     setIsResending(true);
     generateVerificationCode();
-    setRemainingTime(300);
+
+    // Reset expiry time 5 minutes from now
+    const expiry = Date.now() + 300 * 1000;
+    setExpiryTimestamp(expiry);
     setErrorMessage("");
 
     // Simulate email sending delay
@@ -83,20 +105,17 @@ export const VerificationCodeModal: FC<VerificationCodeModalProps> = ({
 
   const handleVerify = (): void => {
     if (!userInput) {
-      setErrorMessage("Please enter the verification code");
+      toastError("Please enter the verification code");
       return;
     }
-
     if (remainingTime === 0) {
-      setErrorMessage("Code has expired. Please request a new code.");
+      toastError("Code has expired. Please request a new code.");
       return;
     }
-
     if (userInput === verificationCode) {
       onVerify();
-      // onClose();
     } else {
-      setErrorMessage("Invalid verification code. Please try again.");
+      toastError("Invalid verification code. Please try again.");
     }
   };
 
@@ -158,22 +177,20 @@ export const VerificationCodeModal: FC<VerificationCodeModalProps> = ({
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <button
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="flex justify-center items-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             onClick={handleVerify}
           >
             {isLoadingModal ? (
-              <>
-                <Loader2 className="animate-spin" />
-                Verifying...
-              </>
+              <Loader2 className="animate-spin w-5 h-5" />
             ) : (
               "Verify"
             )}
           </button>
+
           <button
             className="flex-1 text-blue-600 py-2 px-4 border border-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             onClick={handleResendCode}
-            disabled={isResending || remainingTime > 270} // Prevent spam resending (allow resend after 30 seconds)
+            disabled={isResending || remainingTime > 240} // Prevent spam resending (allow resend after 1 min)
           >
             {isResending ? "Sending..." : "Resend Code"}
           </button>

@@ -165,6 +165,8 @@ const formParts = [
 ];
 
 export default function RegistrationForm() {
+  const [isCodeSent, setIsCodeSent] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   //for identifying whether the user is at the credentials part or profile part of the form
@@ -357,6 +359,7 @@ export default function RegistrationForm() {
   //will enable the verification modal
   const handleSubmit = async () => {
     setIsLoading(true);
+
     setIsVerify(true);
 
     // if (isVerified && !isVerify) {
@@ -451,7 +454,7 @@ export default function RegistrationForm() {
             onSubmit={(e) => {
               e.preventDefault(); // prevent full-page reload
               if (currentPart === 0) {
-                if (!disableGoNext) goNext();
+                goNext();
               } else {
                 form.handleSubmit(handleSubmit)(); // only submit when on final part
               }
@@ -1011,6 +1014,7 @@ export default function RegistrationForm() {
 
       <VerificationCodeModal
         isOpen={isVerify}
+        isCodeSent={isCodeSent}
         onClose={() => {
           setIsVerify(false);
           setIsLoading(false);
@@ -1020,9 +1024,11 @@ export default function RegistrationForm() {
         onVerify={() => {
           setIsVerified(true);
           setIsLoading(true);
+
           completeRegistration(form.getValues());
         }}
         isLoadingModal={isLoadingModal}
+        onCodeSent={() => setIsCodeSent(true)}
       />
     </>
   );

@@ -95,6 +95,12 @@ export default function Home() {
     );
   };
 
+  useEffect(() => {
+    if (isGoogleSignIn) {
+      router.push("/sign-up");
+    }
+  }, [router, isGoogleSignIn]);
+
   const previousDonation = () => {
     setCurrentDonationIndex((prev) =>
       prev === 0 ? donationDrives.length - 1 : prev - 1
