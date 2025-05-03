@@ -41,6 +41,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     console.log("User from useAuth:", user);
@@ -71,12 +72,12 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     try {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
-      jobOffer.alumniId = user!.uid;
-      jobOffer.status = "Pending";
+      jobOffer.alumniId = user?.uid || "Admin";
+      jobOffer.status = isAdmin ? "Accepted": "Pending";
       console.log(jobOffer);
-      await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
+      await setDoc(doc(db, "job_offering", docRef.id), jobOffer)  ;
       return { success: true, message: "success" };
-    } catch (error) {
+    } catch (error) { 
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -98,11 +99,11 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       requiredSkill,
       salaryRange,
       jobId: "",
-      alumniId: user?.uid || "",
+      alumniId: isAdmin ? "Admin" : user?.uid || "",
       datePosted: new Date(),
-      status: "Pending",
-      location: "",
-      image: "",
+      status,
+      location, // Use the location state directly
+      image: "", // Keep empty string as initial value for image
     };
   
     if (image) {
@@ -116,7 +117,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       }
     }
   
-    const response = await addJobOffer(newJobOffering, user!.uid);
+    const response = await addJobOffer(newJobOffering, user?.uid || "Admin");
+
     if (response.success) {
       console.log("Job offer added:", newJobOffering);
       // Reset form
