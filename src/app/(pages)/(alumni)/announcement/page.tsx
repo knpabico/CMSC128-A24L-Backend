@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal} from "@/components/ui/dropdown-menu";
 import { ChevronDownIcon } from "lucide-react"
 import { CheckboxItem, DropdownMenuCheckboxItem } from "@radix-ui/react-dropdown-menu";
+import { useRadioGroup } from "@mui/material";
+import { useFeatured } from "@/context/FeaturedStoryContext";
+
 
 
 function formatDate(timestamp: any) {
@@ -16,7 +19,7 @@ function formatDate(timestamp: any) {
   return date.toISOString().split("T")[0];
 }
 
-const FILTER_TAGS = ["Donation Update", "Achievements", "Upcoming Event"];
+const FILTER_TAGS = ["Update", "Announcement", "Upcoming Event"];
 const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Announcements() {
@@ -26,6 +29,7 @@ export default function Announcements() {
   const [latestFirst, setLatestFirst] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [selectedSort, setSelectedSort] = useState("Latest");
+  const { featuredItems } = useFeatured();
 
   const itemsPerPage = 6;
 
@@ -146,7 +150,9 @@ export default function Announcements() {
                 className="h-full relative m-20 mt-0 bg-[#FFFFFF] rounded-lg shadow-sm"
               >
                 <div>
-                <img src="/ICS3.jpg" className="w-full max-h-[500px] object-cover"/>
+                {user.image === "" ? "" : 
+                  <img src={user.image} className="w-full object-cover"/>
+                  }
                   <div className="p-10">
                     <div className="flex flex-row justify-between w-full">
                       <p className="text-4xl font-bold uppercase">{user.title}</p>
@@ -179,23 +185,24 @@ export default function Announcements() {
             ))
           )}
 
-          <div className="flex flex-col gap-[30px] mb-[50px]">
-            <p className="place-self-center text-[24px] font-semibold"> See more announcements </p>
-            <div className="flex flex-row gap-[20px] place-self-center rounded-[10px] ">
-              <div className="flex flex-col rounded-[5px] h-full bg-[#FFFFFF] gap-[10px]">
-                <img src="/ICS2.jpg" className="w-[300px] h-[150px] object-cover mb-[10px]"></img>
-                <p className="text-[20px] font-semibold text-justify mx-[20px]">Announcement Title</p>
-                <a href="./redirect" className="text-[14px] mx-[20px] mb-[20px] hover:font-semibold">Read more &#8594;</a>
+            <div className="flex flex-col gap-[30px] mb-[50px]">
+            <p className="place-self-center text-[24px] font-semibold">See More Announcements</p>
+            <div className="flex flex-row gap-[20px] place-self-center rounded-[10px]">
+              {featuredItems.map((item, index) => (
+              <div key={index} className="flex flex-col rounded-[5px] h-full bg-[#FFFFFF] gap-[10px]">
+                <img 
+                src={item.image || "/ICS2.jpg"} 
+                className="w-[300px] h-[150px] object-cover mb-[10px]"
+                alt={item.title}
+                />
+                <p className="text-[20px] font-semibold text-justify mx-[20px]">{item.title}</p>
+                <a href="./redirect" className="text-[14px] mx-[20px] mb-[20px] hover:font-semibold">
+                Read more &#8594;
+                </a>
               </div>
-
-
-              <div className="flex flex-col rounded-[5px] h-full bg-[#FFFFFF] gap-[10px]">
-                <img src="/ICS2.jpg" className="w-[300px] h-[150px] object-cover mb-[10px]"></img>
-                <p className="text-[20px] font-semibold text-justify mx-[20px]">Announcement Title</p>
-                <a href="./redirect" className="text-[14px] mx-[20px] mb-[20px] hover:font-semibold">Read more &#8594;</a>
-              </div>          
+              ))}
             </div>
-          </div>
+            </div>
           
 
           {/* Pagination Controls */}

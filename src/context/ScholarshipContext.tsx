@@ -11,7 +11,7 @@ import {
   updateDoc,
   Timestamp,
   getDoc,
-  where
+  where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -50,7 +50,7 @@ export function ScholarshipProvider({
   const subscribeToScholarships = () => {
     setLoading(true);
     setError(null);
-    
+
     // Only fetch active scholarships by default
     const q = query(
       collection(db, "scholarship"),
@@ -64,16 +64,17 @@ export function ScholarshipProvider({
         try {
           const scholarshipList = querySnapshot.docs.map((doc) => {
             const data = doc.data();
-            
+
             // Convert Firestore Timestamp to JavaScript Date
             return {
               ...data,
-              datePosted: data.datePosted instanceof Timestamp 
-                ? data.datePosted.toDate() 
-                : new Date(data.datePosted),
+              datePosted:
+                data.datePosted instanceof Timestamp
+                  ? data.datePosted.toDate()
+                  : new Date(data.datePosted),
             } as Scholarship;
           });
-          
+
           setScholarships(scholarshipList);
           setLoading(false);
         } catch (err) {
@@ -88,7 +89,7 @@ export function ScholarshipProvider({
         setLoading(false);
       }
     );
-    
+
     return unsubscribeScholarships;
   };
 
@@ -117,7 +118,7 @@ export function ScholarshipProvider({
       scholarship.status = "active"; // Set default status to active
       await setDoc(docRef, scholarship);
       await addNewsLetter(scholarship.scholarshipId, "scholarship");
-      
+
       return { success: true, message: "Scholarship added successfully" };
     } catch (error) {
       console.error("Error adding scholarship:", error);
@@ -125,16 +126,19 @@ export function ScholarshipProvider({
     }
   };
 
-  const updateScholarship = async (scholarshipId: string, updates: Partial<Scholarship>) => {
+  const updateScholarship = async (
+    scholarshipId: string,
+    updates: Partial<Scholarship>
+  ) => {
     try {
       const scholarshipRef = doc(db, "scholarship", scholarshipId);
-      
+
       // Convert Date to Timestamp if datePosted is provided in updates
       const firestoreUpdates = { ...updates };
       if (updates.datePosted) {
         firestoreUpdates.datePosted = Timestamp.fromDate(updates.datePosted);
       }
-      
+
       await updateDoc(scholarshipRef, firestoreUpdates);
       return { success: true, message: "Scholarship updated successfully" };
     } catch (error) {
@@ -155,14 +159,12 @@ export function ScholarshipProvider({
     }
   };
 
-
-
   // Get all scholarships including deleted ones (for admin purposes)
   const getAllScholarships = async () => {
     try {
       setLoading(true);
       const q = query(collection(db, "scholarship"));
-      
+
       return new Promise((resolve, reject) => {
         const unsubscribe = onSnapshot(
           q,
@@ -170,15 +172,16 @@ export function ScholarshipProvider({
             try {
               const scholarshipList = querySnapshot.docs.map((doc) => {
                 const data = doc.data();
-                
+
                 return {
                   ...data,
-                  datePosted: data.datePosted instanceof Timestamp 
-                    ? data.datePosted.toDate() 
-                    : new Date(data.datePosted),
+                  datePosted:
+                    data.datePosted instanceof Timestamp
+                      ? data.datePosted.toDate()
+                      : new Date(data.datePosted),
                 } as Scholarship;
               });
-              
+
               setLoading(false);
               resolve(scholarshipList);
               // Unsubscribe after getting the data once
@@ -207,11 +210,13 @@ export function ScholarshipProvider({
     }
   };
 
-  const getScholarshipById = async (id: string): Promise<Scholarship | null> => {
+  const getScholarshipById = async (
+    id: string
+  ): Promise<Scholarship | null> => {
     try {
-      const scholarshipDoc = doc(db, 'scholarship', id);
+      const scholarshipDoc = doc(db, "scholarship", id);
       const scholarshipSnapshot = await getDoc(scholarshipDoc);
-      
+
       if (scholarshipSnapshot.exists()) {
         const data = scholarshipSnapshot.data();
         return {
@@ -226,11 +231,10 @@ export function ScholarshipProvider({
       }
       return null;
     } catch (err) {
-      console.error('Error fetching scholarship by ID:', err);
-      throw new Error('Failed to load scholarship details');
+      console.error("Error fetching scholarship by ID:", err);
+      throw new Error("Failed to load scholarship details");
     }
   };
-
 
   return (
     <ScholarshipContext.Provider
@@ -242,7 +246,7 @@ export function ScholarshipProvider({
         updateScholarship,
         deleteScholarship,
         getScholarshipById,
-        getAllScholarships
+        getAllScholarships,
       }}
     >
       {children}
