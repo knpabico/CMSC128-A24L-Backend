@@ -18,6 +18,7 @@ import { useBookmarks } from "./BookmarkContext";
 import { useNewsLetters } from "./NewsLetterContext";
 import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
+import { uploadImage } from "@/lib/upload"; 
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -31,11 +32,15 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [position, setPosition] = useState("");
   const [requiredSkill, setRequiredSkill] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState("");
-  const [location, setLocation] = useState("");
-  const [image, setImage] = useState("");
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
+  const [image, setJobImage] = useState(null);
+  const [location, setLocation] = useState("");
+  const [fileName, setFileName] = useState<string>("");
+  const [preview, setPreview] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
   const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
@@ -54,16 +59,25 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user, isAdmin]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setJobImage(file);
+      setFileName(file.name);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
   const addJobOffer = async (jobOffer: JobOffering, userId: string) => {
     try {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
-      jobOffer.alumniId = user!.uid;
-      jobOffer.status = "Pending";
+      jobOffer.alumniId = user?.uid || "Admin";
+      jobOffer.status = isAdmin ? "Accepted": "Pending";
       console.log(jobOffer);
-      await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
+      await setDoc(doc(db, "job_offering", docRef.id), jobOffer)  ;
       return { success: true, message: "success" };
-    } catch (error) {
+    } catch (error) { 
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -74,7 +88,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     const newJobOffering: JobOffering = {
       company,
       employmentType,
@@ -85,17 +99,29 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       requiredSkill,
       salaryRange,
       jobId: "",
-      alumniId: "",
+      alumniId: isAdmin ? "Admin" : user?.uid || "",
       datePosted: new Date(),
-      status: "",
-      location,
-      image,
+      status,
+      location, // Use the location state directly
+      image: "", // Keep empty string as initial value for image
     };
-
-    const response = await addJobOffer(newJobOffering, user!.uid);
+  
+    if (image) {
+      const uploadResult = await uploadImage(image, `job_offers/${Date.now()}`);
+      if (uploadResult.success) {
+        newJobOffering.image = uploadResult.url;
+      } else {
+        setMessage(uploadResult.result || "Failed to upload image.");
+        setIsError(true);
+        return;
+      }
+    }
+  
+    const response = await addJobOffer(newJobOffering, user?.uid || "Admin");
 
     if (response.success) {
-      console.log("Job offer successfully added:", newJobOffering);
+      console.log("Job offer added:", newJobOffering);
+      // Reset form
       setShowForm(false);
       setCompany("");
       setEmploymentType("");
@@ -105,8 +131,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setPosition("");
       setRequiredSkill([]);
       setSalaryRange("");
-      setLocation("");
-      setImage("");
+      setJobImage(null);
+      setPreview(null);
     } else {
       console.error("Error adding job:", response.message);
     }
@@ -213,6 +239,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         location,
         setLocation,
         handleDelete,
+        location,
+        setLocation,
+        image,
+        setJobImage,
+        preview,
+        fileName,
+        handleImageChange,
       }}
     >
       {children}

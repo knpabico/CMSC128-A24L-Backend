@@ -72,6 +72,7 @@ export interface Scholarship {
 }
 
 export interface Event {
+  dateCreated(dateCreated: any): import("react").ReactNode;
   eventId: string;
   datePosted: Date;
   title: string;
@@ -198,4 +199,13 @@ export interface AIQuestion {
   who: string;
   when: string;
   where: string;
+}
+
+export interface Featured {
+  featuredId: string;
+  text: string;
+  image: string;
+  title: string;
+  type: string;
+  datePosted: Date;
 }

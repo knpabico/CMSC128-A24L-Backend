@@ -91,136 +91,122 @@ const ModalInput: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50 border-s-0"
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-            type="button"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-3xl">{title}</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700" type="button">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div>
-          <h3>{subtitle}</h3>
-        </div>
-        <br></br>
+
+        <p className="text-gray-600 mb-6">{subtitle}</p>
 
         {loading ? (
-          <h1>Loading...</h1>
+          <div className="flex justify-center items-center py-10">
+            <h1 className="text-xl">Loading...</h1>
+          </div>
         ) : (
-          <div>
-            <div className="mb-4">
-              <label
-                htmlFor="what"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {`Title of ${type[0].toUpperCase()}${type.slice(1)}`}
-              </label>
-              <input
-                type="text"
-                id="what"
-                name="what"
-                value={formData.what}
-                onChange={(e) => {
-                  setFormData({ ...formData, what: e.target.value });
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+          <div className="flex flex-col gap-3">
+            <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4 border border-gray-200">
+              <div className="flex flex-col gap-5">
+                <div className="space-y-2">
+                  <label htmlFor="what" className="block text-sm font-medium flex items-center">
+                    <span className="text-red-600" />{" "}
+                    {`Title of ${type[0].toUpperCase()}${type.slice(1)}`}
+                  </label>
+                  <input
+                    type="text"
+                    id="what"
+                    name="what"
+                    value={formData.what}
+                    onChange={(e) => {
+                      setFormData({ ...formData, what: e.target.value })
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder={`Enter ${type} title`}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="who" className="block text-sm font-medium flex items-center">
+                    Who is it for?
+                  </label>
+                  <input
+                    type="text"
+                    id="who"
+                    name="who"
+                    value={formData.who}
+                    onChange={(e) => {
+                      setFormData({ ...formData, who: e.target.value })
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Enter target audience"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="when" className="block text-sm font-medium flex items-center">
+                    When
+                  </label>
+                  <input
+                    id="when"
+                    name="when"
+                    value={formData.when}
+                    onChange={(e) => {
+                      setFormData({ ...formData, when: e.target.value })
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Enter time or date information"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="where" className="block text-sm font-medium flex items-center">
+                    Where
+                  </label>
+                  <input
+                    id="where"
+                    name="where"
+                    value={formData.where}
+                    onChange={(e) => {
+                      setFormData({ ...formData, where: e.target.value })
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Enter location information"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="who"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Who is it for?
-              </label>
-              <input
-                type="who"
-                id="who"
-                name="who"
-                value={formData.who}
-                onChange={(e) => {
-                  setFormData({ ...formData, who: e.target.value });
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
-            <div className="mb-4">
-              <label
-                htmlFor="when"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                When
-              </label>
-              <input
-                id="when"
-                name="when"
-                value={formData.when}
-                onChange={(e) => {
-                  setFormData({ ...formData, when: e.target.value });
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="where"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Where
-              </label>
-              <input
-                id="where"
-                name="where"
-                value={formData.where}
-                onChange={(e) => {
-                  setFormData({ ...formData, where: e.target.value });
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-4 mt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                className="flex items-center justify-center gap-2 text-[#0856BA] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleModalSubmit}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="flex items-center justify-center gap-2 bg-[#0856BA] text-white border-2 border-[#0856BA] px-4 py-2 rounded-full cursor-pointer hover:bg-[#0645a5]"
               >
                 Apply
               </button>
-            </div>
+          </div>
           </div>
         )}
       </div>
     </div>
-  );
+  )
 };
 
 export default ModalInput;

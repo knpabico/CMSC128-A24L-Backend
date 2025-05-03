@@ -16,6 +16,7 @@ import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { ScholarshipProvider } from "@/context/ScholarshipContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
+import { FeaturedProvider } from "@/context/FeaturedStoryContext";
 
 import { Inter } from "next/font/google";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-[#EAEAEA]">
       <AuthProvider>
+      <FeaturedProvider>
         <NewsLetterProvider>
           <DonationDriveProvider>
             <ScholarshipProvider>
@@ -63,6 +65,7 @@ export default function RootLayout({
             </ScholarshipProvider>
           </DonationDriveProvider>
         </NewsLetterProvider>
+        </FeaturedProvider>
       </AuthProvider>
     </html>
   );

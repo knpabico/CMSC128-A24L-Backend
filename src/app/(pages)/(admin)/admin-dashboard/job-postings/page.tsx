@@ -5,19 +5,75 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Trash2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, ChevronDown, Check } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import ModalInput from "@/components/ModalInputForm";
 
 export default function Users() {
-  const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete} = useJobOffer();
+  const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete,
+    setShowForm,
+    showForm,
+    handleSubmit,
+    company,
+    setCompany,
+    employmentType,
+    setEmploymentType,
+    experienceLevel,
+    setExperienceLevel,
+    jobDescription,
+    setJobDescription,
+    jobType,
+    setJobType,
+    position,
+    setPosition,
+    handleSkillChange,
+    salaryRange,
+    setSalaryRange,
+    location,
+    setLocation,
+    image,
+    setJobImage,
+    preview,
+    fileName,
+    handleImageChange,
+  } = useJobOffer();
+
+
+  const filterCategories = {
+    "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
+    "Job Type": [
+      "Cybersecurity",
+      "Software Development",
+      "Data Science",
+      "UX/UI Design",
+      "Project Management",
+      "Others"
+    ],
+    "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
+    Skills: [
+      "JavaScript",
+      "Python",
+      "Java",
+      "C++",
+      "React",
+      "Node.js",
+      "SQL",
+      "Figma",
+      "Canva",
+    ],
+  };
+
   const [activeTab, setActiveTab] = useState("Accepted");
   const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
-
-  console.log("Job Offers:", jobOffers);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filterJobs = (status: string) => {
-    return jobOffers.filter((job: JobOffering) => job.status === status);
+    console.log("Filtering jobs with status:", status);
+    const filtered = jobOffers.filter((job: JobOffering) => job.status === status);
+    console.log("Filtered jobs:", filtered);
+    return filtered;
   };
 
   const tabs = ["Accepted", "Pending", "Rejected"];
@@ -180,16 +236,20 @@ export default function Users() {
                   </div>
                   <div className="w-1/6 flex items-center justify-center">
                     {activeTab === "Pending" ? (
-                      <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
-                        <button className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
+                        <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
+                        <button 
+                          onClick={() => handleReject(job.jobId)}
+                          className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
                           <ThumbsDown size={14} />
                           <span>Reject</span>
                         </button>
-                        <button className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1">
+                        <button 
+                          onClick={() => handleAccept(job.jobId)}
+                          className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1">
                           <ThumbsUp size={14} />
                           <span>Accept</span>
                         </button>
-                      </div>
+                        </div>
                     ) : (
                       <Trash2 
                         size={20} 
@@ -240,6 +300,279 @@ export default function Users() {
           </div>
         </div>
       )}
+
+       {/* "Add Job" Button + Form */}
+       <Button
+          className="h-10 px-5 fixed bottom-8 right-8 bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg rounded-full"
+          onClick={() => setShowForm(!showForm)}
+        >
+          Post a Job
+        </Button>
+        {showForm && (
+          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
+            >
+             <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
+              <h2 className="text-2xl font-semibold">Post a Job Opportunity</h2>
+             </div>
+  
+              <div className="grid grid-cols-2 gap-6 mt-5">
+                {/* Left Column ng form */}
+                <div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Job Position<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Software Engineer"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      className="w-full p-1.5 border rounded text-sm"
+                      required
+                    />
+                  </div>
+  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Employment Type<span className="text-red-500">*</span>
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {employmentType || "Select Employment Type"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
+                        {filterCategories["Employment Type"].map((type) => (
+                          <Button
+                            key={type}
+                            variant="ghost"
+                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
+                            onClick={() => setEmploymentType(type)}
+                          >
+                            {type}
+                            {employmentType === type && <Check className="ml-auto h-4 w-4" />}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Job Type<span className="text-red-500">*</span>
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {jobType || "Select Job Type"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                        {filterCategories["Job Type"].map((type) => (
+                          <Button
+                            key={type}
+                            variant="ghost"
+                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
+                            onClick={() => setJobType(type)}
+                          >
+                            {type}
+                            {jobType === type && <Check className="ml-auto h-4 w-4" />}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Job Description<span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
+                      className="w-full p-1.5 border rounded resize-none text-sm"
+                      style={{ height: "110px" }} // Increased height (4x the original)
+                      required
+                    />
+                    <Button 
+                      onClick={() => setIsModalOpen(true)} 
+                      variant="ghost" 
+                      className="pl-2 text-[#0856BA] hover:text-blue-700 text-sm bg-transparent hover:bg-transparent"
+                    >
+                      Need AI help for description?
+                    </Button>
+                    <ModalInput
+                      isOpen={isModalOpen}
+                      mainTitle={position}
+                      onClose={() => setIsModalOpen(false)}
+                      onSubmit={(response) => setJobDescription(response)}
+                      title="AI Assistance for Job Description"
+                      type="job offer"
+                      subtitle="Get AI-generated description for your job offer. Only fill in the applicable fields."
+                    />
+                  </div>
+                </div>
+  
+                {/* Right Column ng form */}
+                <div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Company Name<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Company"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      className="w-full p-1.5 border rounded text-sm"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Location<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full p-1.5 border rounded text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Experience Level<span className="text-red-500">*</span>
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {experienceLevel || "Select Experience Level"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                        {filterCategories["Experience Level"].map((level) => (
+                          <Button
+                            key={level}
+                            variant="ghost"
+                            className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
+                            onClick={() => setExperienceLevel(level)}
+                          >
+                            {level}
+                            {experienceLevel === level && <Check className="ml-auto h-4 w-4" />}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Salary Range<span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500">₱</span>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="e.g. 10000 - 30000"
+                      value={salaryRange}
+                      onChange={(e) =>
+                        setSalaryRange(e.target.value)}
+                      className="w-full pl-8 p-1.5 border rounded text-sm"
+                      required
+                    />
+                  </div>
+                  </div>
+  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Required Skills<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Required Skills (comma-separated)"
+                      onChange={handleSkillChange}
+                      className="w-full p-1.5 border rounded placeholder:text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Company Logo<span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <label className="cursor-pointer">
+                        <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                          Choose File
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-sm text-gray-500">
+                        {fileName || "No file chosen"}
+                      </span>
+                    </div>
+
+                    {preview && (
+                      <div className="mt-3">
+                        <img
+                          src={preview}
+                          alt="Preview"
+                          className="h-20 object-contain"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 mt-6">
+              <button 
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                onClick={handleSubmit}
+                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+              >
+                Submit
+              </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+      
     </div>
   );
 }
