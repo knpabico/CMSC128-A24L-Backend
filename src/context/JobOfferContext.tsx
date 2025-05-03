@@ -15,8 +15,6 @@ import { useAuth } from "./AuthContext";
 import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
-import { useNewsLetters } from "./NewsLetterContext";
-import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
 import { uploadImage } from "@/lib/upload"; 
 
@@ -41,7 +39,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
     console.log("User from useAuth:", user);
@@ -72,12 +69,12 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     try {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
-      jobOffer.alumniId = user?.uid || "Admin";
-      jobOffer.status = isAdmin ? "Accepted": "Pending";
+      jobOffer.alumniId = user!.uid;
+      jobOffer.status = "Pending";
       console.log(jobOffer);
-      await setDoc(doc(db, "job_offering", docRef.id), jobOffer)  ;
+      await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
       return { success: true, message: "success" };
-    } catch (error) { 
+    } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -99,11 +96,11 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       requiredSkill,
       salaryRange,
       jobId: "",
-      alumniId: isAdmin ? "Admin" : user?.uid || "",
+      alumniId: user?.uid || "",
       datePosted: new Date(),
-      status,
-      location, // Use the location state directly
-      image: "", // Keep empty string as initial value for image
+      status: "Pending",
+      location: "",
+      image: "",
     };
   
     if (image) {
@@ -117,8 +114,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       }
     }
   
-    const response = await addJobOffer(newJobOffering, user?.uid || "Admin");
-
+    const response = await addJobOffer(newJobOffering, user!.uid);
     if (response.success) {
       console.log("Job offer added:", newJobOffering);
       // Reset form
@@ -165,8 +161,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       await updateDoc(doc(db, "job_offering", jobId), {
         status: "Accepted",
       });
-      await addNewsLetter(jobId, "job_offering")
-      console.log("Job offer accepted and added to newsletter:", jobId);
     } catch (error) {
       console.error("Error updating job:", error);
     }
@@ -197,9 +191,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setJobOffers((prev) =>
         prev.filter((jobOffers) => jobOffers.jobId !== jobId)
       );
-
-      await deleteNewsLetter(jobId);
-
       console.log("Succesfully deleted job with id of:", jobId);
     } catch (error) {
       console.error("Error deleting job:", error);
@@ -236,8 +227,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         handleView,
         closeModal,
         selectedJob,
-        location,
-        setLocation,
         handleDelete,
         location,
         setLocation,
