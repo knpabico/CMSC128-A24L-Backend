@@ -70,6 +70,9 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
+  const [employmentTypeOpen, setEmploymentTypeOpen] = useState(false);
+  const [jobTypeOpen, setJobTypeOpen] = useState(false);
+  const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
 
   const acceptedJobs = jobOffers.filter(
     (job: { status: string }) => job.status === "Accepted"
@@ -879,7 +882,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                     <label className="block text-sm font-medium mb-1">
                       Employment Type<span className="text-red-500">*</span>
                     </label>
-                    <DropdownMenu>
+                    <DropdownMenu open={employmentTypeOpen} onOpenChange={setEmploymentTypeOpen}>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
@@ -889,13 +892,17 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md"
+                      >
                         {filterCategories["Employment Type"].map((type) => (
                           <Button
                             key={type}
                             variant="ghost"
                             className="w-full justify-start p-2 text-left hover:bg-gray-100"
-                            onClick={() => setEmploymentType(type)}
+                            onClick={() => {
+                              setEmploymentType(type);
+                              setEmploymentTypeOpen(false);
+                            }}
                           >
                             {type}
                             {employmentType === type && <Check className="ml-auto h-4 w-4" />}
@@ -909,7 +916,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                     <label className="block text-sm font-medium mb-1">
                       Job Type<span className="text-red-500">*</span>
                     </label>
-                    <DropdownMenu>
+                    <DropdownMenu open={jobTypeOpen} onOpenChange={setJobTypeOpen}>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
@@ -919,13 +926,18 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md"
+                      onCloseAutoFocus={() => setShowFilterDropdown(false)}
+                      >
                         {filterCategories["Job Type"].map((type) => (
                           <Button
                             key={type}
                             variant="ghost"
                             className="w-full justify-start p-2 text-left hover:bg-gray-100"
-                            onClick={() => setJobType(type)}
+                            onClick={() => {
+                              setJobType(type);
+                              setJobTypeOpen(false);
+                            }}
                           >
                             {type}
                             {jobType === type && <Check className="ml-auto h-4 w-4" />}
@@ -999,7 +1011,7 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                     <label className="block text-sm font-medium mb-1">
                       Experience Level<span className="text-red-500">*</span>
                     </label>
-                    <DropdownMenu>
+                    <DropdownMenu open={experienceLevelOpen} onOpenChange={setExperienceLevelOpen}>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
@@ -1009,13 +1021,18 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md"
+                      onCloseAutoFocus={() => setShowFilterDropdown(false)}
+                      >
                         {filterCategories["Experience Level"].map((level) => (
                           <Button
                             key={level}
                             variant="ghost"
                             className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
-                            onClick={() => setExperienceLevel(level)}
+                            onClick={() => {
+                              setExperienceLevel(level);
+                              setExperienceLevelOpen(false);
+                            }}
                           >
                             {level}
                             {experienceLevel === level && <Check className="ml-auto h-4 w-4" />}
