@@ -6,7 +6,7 @@ import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, ChevronDown, Check } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ModalInput from "@/components/ModalInputForm";
 
 export default function Users() {
@@ -68,6 +68,9 @@ export default function Users() {
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [employmentTypeOpen, setEmploymentTypeOpen] = useState(false);
+  const [jobTypeOpen, setJobTypeOpen] = useState(false);
+  const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
 
   const filterJobs = (status: string) => {
     console.log("Filtering jobs with status:", status);
@@ -84,14 +87,6 @@ export default function Users() {
     rejected: jobOffers.filter(job => job.status === "Rejected").length,
     total: jobOffers.length
   };
-
-  // // limit job description on admin side
-  // const truncateDescription = (text) => {
-  //   // mga 150 characters lang ipapakita sa description
-  //   const maxLength = 150;
-  //   if (text.length <= maxLength) return text;
-  //   return text.substring(0, maxLength) + "...";
-  // };
 
   // INCORPORATED FROM SAMPLE PAGE FROM DAPHNE
    // Track scroll position and update header state
@@ -339,7 +334,7 @@ export default function Users() {
                     <label className="block text-sm font-medium mb-1">
                       Employment Type<span className="text-red-500">*</span>
                     </label>
-                    <DropdownMenu>
+                    <DropdownMenu open={employmentTypeOpen} onOpenChange={setEmploymentTypeOpen}>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
@@ -349,13 +344,17 @@ export default function Users() {
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md"
+                      >
                         {filterCategories["Employment Type"].map((type) => (
                           <Button
                             key={type}
                             variant="ghost"
                             className="w-full justify-start p-2 text-left hover:bg-gray-100"
-                            onClick={() => setEmploymentType(type)}
+                            onClick={() => {
+                              setEmploymentType(type);
+                              setEmploymentTypeOpen(false);
+                            }}
                           >
                             {type}
                             {employmentType === type && <Check className="ml-auto h-4 w-4" />}
@@ -369,7 +368,7 @@ export default function Users() {
                     <label className="block text-sm font-medium mb-1">
                       Job Type<span className="text-red-500">*</span>
                     </label>
-                    <DropdownMenu>
+                    <DropdownMenu open={jobTypeOpen} onOpenChange={setJobTypeOpen}>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
@@ -379,13 +378,17 @@ export default function Users() {
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md"
+                      >
                         {filterCategories["Job Type"].map((type) => (
                           <Button
                             key={type}
                             variant="ghost"
                             className="w-full justify-start p-2 text-left hover:bg-gray-100"
-                            onClick={() => setJobType(type)}
+                            onClick={() => {
+                              setJobType(type);
+                              setJobTypeOpen(false);
+                            }}
                           >
                             {type}
                             {jobType === type && <Check className="ml-auto h-4 w-4" />}
@@ -459,7 +462,7 @@ export default function Users() {
                     <label className="block text-sm font-medium mb-1">
                       Experience Level<span className="text-red-500">*</span>
                     </label>
-                    <DropdownMenu>
+                    <DropdownMenu open={experienceLevelOpen} onOpenChange={setExperienceLevelOpen}>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
@@ -475,7 +478,10 @@ export default function Users() {
                             key={level}
                             variant="ghost"
                             className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
-                            onClick={() => setExperienceLevel(level)}
+                            onClick={() => {
+                                setExperienceLevel(level);
+                                setExperienceLevelOpen(false);
+                            }}
                           >
                             {level}
                             {experienceLevel === level && <Check className="ml-auto h-4 w-4" />}

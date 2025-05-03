@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
 import { Briefcase, Bookmark, FilePlus, MapPin, ChevronDown, DollarSign, Award, FileText, Check } from 'lucide-react';
+import { set } from "zod";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -927,7 +928,6 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md"
-                      onCloseAutoFocus={() => setShowFilterDropdown(false)}
                       >
                         {filterCategories["Job Type"].map((type) => (
                           <Button
@@ -1021,17 +1021,15 @@ const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md"
-                      onCloseAutoFocus={() => setShowFilterDropdown(false)}
-                      >
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
                         {filterCategories["Experience Level"].map((level) => (
                           <Button
                             key={level}
                             variant="ghost"
                             className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
                             onClick={() => {
-                              setExperienceLevel(level);
-                              setExperienceLevelOpen(false);
+                                setExperienceLevel(level);
+                                setExperienceLevelOpen(false);
                             }}
                           >
                             {level}
