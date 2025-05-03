@@ -386,8 +386,8 @@ const ScholarshipPage: React.FC = () => {
           {/* Filter and Sort Controls */}
           <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-2 lg:py-1 flex flex-col items-start lg:flex-row lg:justify-between lg:items-center shadow-md border border-gray-200">
 						<h2 className="text-md lg:text-lg font-semibold">
-							{activeTab === 'all' ? 'All Donation Drives' : 
-							activeTab === 'saved' ? 'Saved Donation Drives' : 
+							{activeTab === 'all' ? 'All Scholarships' : 
+							activeTab === 'saved' ? 'Saved Scholarships' : 
 							activeTab === 'myScholars' ? 'My Scholars' : 
 							'Featured Stories'}
 						</h2>
@@ -477,7 +477,7 @@ const ScholarshipPage: React.FC = () => {
                         onClick={() => navigateToDetail(scholarship.scholarshipId)}
                       >
                         {/* Image */}
-                        <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
+                        <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: `url("${scholarship.image || '/ICS3.jpg'}")` }} />
                         {/* Body */}
                         <div className="px-6 pt-3 pb-6">
                           {/* Name */}

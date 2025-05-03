@@ -165,7 +165,7 @@ const ScholarshipDetailPage: React.FC = () => {
             )}
           </div>
           {/* Image */}
-          <div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
+          <div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]" style={{ backgroundImage: `url("${scholarship?.image || '/ICS3.jpg'}")` }} />
           {/* Event description */}
           <p className="mt-5">{scholarship?.description}</p>
           {/* Event Details */}
