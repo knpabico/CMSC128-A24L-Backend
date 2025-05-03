@@ -222,7 +222,7 @@ export default function Home() {
         </div>
 
         {/* Feed  */}
-        <div className="w-full mt-20 lg:mx-5 lg:flex-1 flex flex-col ">
+        <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
           {/*sorting dropdown*/}
           <div className="flex flex-row w-full justify-end mb-3">
             <DropdownMenu>
