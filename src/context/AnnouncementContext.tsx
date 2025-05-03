@@ -16,6 +16,8 @@ import { useAuth } from "./AuthContext";
 import { Announcement } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
+import { auth } from "@/lib/firebase";
+
 const AnnouncementContext = createContext<any>(null);
 
 export function AnnouncementProvider({
@@ -30,6 +32,7 @@ export function AnnouncementProvider({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<string[]>([]);
+  const [isPublic, setIsPublic] = useState(false);
   const { user, isAdmin } = useAuth();
   const [currentAnnouncementId, setCurrentAnnouncementId] = useState<
     string | null
@@ -38,20 +41,28 @@ export function AnnouncementProvider({
   const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
-    console.log("Admin", isAdmin);
-    let unsubscribe: (() => void) | null;
+    setLoading(true);
 
-    if (user || isAdmin) {
-      unsubscribe = subscribeToUsers(); // listen to firestore
-    } else {
-      setAnnounce([]); // reset once logged out
-      setLoading(false);
-    }
+    const q = query(collection(db, "Announcement"));
 
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [user, isAdmin]); // added admin role
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const announcements = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          announcementId: doc.id,
+        }));
+        setAnnounce(announcements);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching announcements:", error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []); // Remove dependencies to ensure single subscription
 
   const addAnnouncement = async (announce: Announcement) => {
     try {
@@ -77,7 +88,7 @@ export function AnnouncementProvider({
       );
 
       await deleteNewsLetter(announcementId);
-    
+
       console.log(
         "Succesfully deleted announcement with id of:",
         announcementId
@@ -97,7 +108,7 @@ export function AnnouncementProvider({
       type,
       announcementId: currentAnnouncementId!,
       image: "",
-      isPublic: false
+      isPublic,
     };
 
     try {
@@ -158,7 +169,7 @@ export function AnnouncementProvider({
       type,
       announcementId: "",
       image: "",
-      isPublic: false,
+      isPublic,
     };
 
     const response = await addAnnouncement(newAnnouncement);
@@ -187,12 +198,15 @@ export function AnnouncementProvider({
         description,
         showForm,
         type,
+        isPublic,
+        setAnnounce,
         setTitle,
         setDescription,
         setShowForm,
         setType,
         setIsEdit,
         setCurrentAnnouncementId,
+        setIsPublic,
       }}
     >
       {children}

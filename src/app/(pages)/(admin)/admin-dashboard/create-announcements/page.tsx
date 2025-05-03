@@ -19,12 +19,14 @@ export default function Users() {
     description,
     showForm,
     type,
+    isPublic,
     setTitle,
     setDescription,
     setShowForm,
     setType,
     setIsEdit,
     setCurrentAnnouncementId,
+    setIsPublic,
   } = useAnnouncement();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +42,7 @@ export default function Users() {
         >
           <div>
             <h1>{user.title}</h1>
-            <h2>{user.datePosted.toDate().toLocaleString()}</h2>
+            <h2>{user.datePosted.toLocaleString()}</h2>
             <h2>{user.description}</h2>
             <h2>Announcement Type: {user.type.join(", ")}</h2>
           </div>
@@ -134,6 +136,15 @@ export default function Users() {
                   onChange={() => handleCheckbox("Announcement")}
                 />
                 Announcement
+              </label>
+              <label className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  value="isPublic"
+                  checked={isPublic}
+                  onChange={() => setIsPublic(!isPublic)}
+                />
+                Make this announcement public?
               </label>
             </div>
             <div className="flex justify-between">

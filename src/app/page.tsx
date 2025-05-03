@@ -5,33 +5,69 @@ import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { Alumnus, Announcement, Career, Education, JobOffering, NewsletterItem, WorkExperience } from "@/models/models";
+import {
+  Announcement,
+  Career,
+  Education,
+  JobOffering,
+  NewsletterItem,
+  WorkExperience,
+} from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
-import { Calendar, ChevronDownIcon, Clock, Map, MapPin, Users } from "lucide-react";
-import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
+  Calendar,
+  ChevronDownIcon,
+  Clock,
+  Map,
+  MapPin,
+  Users,
+} from "lucide-react";
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
 import { Card } from "@/components/ui/card";
 import PendingPage from "../components/PendingPage";
 import RejectedPage from "../components/RejectedPage";
-import { NewsLetterProvider, useNewsLetters } from "@/context/NewsLetterContext";
-import { AnnouncementProvider, useAnnouncement } from "@/context/AnnouncementContext";
+import {
+  NewsLetterProvider,
+  useNewsLetters,
+} from "@/context/NewsLetterContext";
+import {
+  AnnouncementProvider,
+  useAnnouncement,
+} from "@/context/AnnouncementContext";
 import { useJobOffer } from "@/context/JobOfferContext";
-import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
-import { Progress } from "@material-tailwind/react";
-import React from "react";
-
+import { Oswald } from "next/font/google";
+import CollapseText from "@/components/CollapseText";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
 
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700"],
+});
+
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
     useAuth();
   const { newsLetters } = useNewsLetters();
-  const { announces } = useAnnouncement();
+  const { announces, setAnnounce } = useAnnouncement();
   const { jobOffers } = useJobOffer();
   const { events } = useEvents();
   const { alums } = useAlums();
@@ -55,6 +91,16 @@ export default function Home() {
     }
   }, [isAdmin, router, loading, user]);
 
+  useEffect(() => {
+    console.log("Announcements", announces);
+    const filteredAnnouncements = announces.filter(
+      (announcement: Announcement) => announcement.isPublic === true
+    );
+    if (JSON.stringify(filteredAnnouncements) !== JSON.stringify(announces)) {
+      setAnnounce(filteredAnnouncements);
+    }
+  }, [announces]);
+
   //function for handling change on sort type
   function handleSortChange(sortType: string) {
     let sorting = sortType ? `?sort=${sortType}` : "";
@@ -75,44 +121,258 @@ export default function Home() {
     return defaultSort;
   }
   const { myCareer, myEducation } = useAlums();
-  let total = 30000
-  let partial = 3000
-  let progress = Math.ceil((partial/total)*100) + "%";
+
+  const [images, setImages] = useState([
+    // Example images - replace with your own or start with empty array
+    { id: 1, src: "/api/placeholder/800/500", alt: "Image 1" },
+    { id: 2, src: "/api/placeholder/800/500", alt: "Image 2" },
+    { id: 3, src: "/api/placeholder/800/500", alt: "Image 3" },
+    { id: 4, src: "/api/placeholder/800/500", alt: "Image 4" },
+  ]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Handle next slide
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  // Handle previous slide
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  // Auto-advance slides every 3 seconds for endless slideshow effect
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  // Calculate positions for each image for endless carousel effect
+  const getImageStyle = (index) => {
+    // Handle wrapping for endless effect
+    const totalImages = images.length;
+    if (totalImages <= 1) {
+      return {
+        transform: "translateX(0) scale(1)",
+        zIndex: 30,
+        opacity: 1,
+      };
+    }
+
+    // Calculate relative position with wrapping
+    let relativePos = (index - currentIndex + totalImages) % totalImages;
+
+    // Adjust to have values like: -2, -1, 0, 1, 2 instead of 0,1,2,3,4
+    if (relativePos > totalImages / 2) {
+      relativePos = relativePos - totalImages;
+    }
+
+    // Apply styles based on position
+    const absoluteRelativePos = Math.abs(relativePos);
+
+    // Center (highlighted) image
+    if (relativePos === 0) {
+      return {
+        transform: "translateX(0) scale(1)",
+        zIndex: 30,
+        opacity: 1,
+      };
+    }
+
+    // Side images (closer = larger, further = smaller)
+    const offset = relativePos * 20; // -20%, -40%, 20%, 40%, etc.
+    const scale = 1 - absoluteRelativePos * 0.2; // 0.8, 0.6, etc.
+    const zIndex = 20 - absoluteRelativePos;
+    const opacity = 1 - absoluteRelativePos * 0.3; // 0.7, 0.4, etc.
+
+    return {
+      transform: `translateX(${offset}%) scale(${scale})`,
+      zIndex,
+      opacity,
+    };
+  };
+
+  // Handle image upload
+  const handleImageUpload = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const newImage = {
+          id: Date.now(),
+          src: e.target.result,
+          alt: `Image ${images.length + 1}`,
+        };
+        setImages([...images, newImage]);
+        setCurrentIndex(images.length); // Set focus to the new image
+        setIsUploading(false);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle image removal
+  const handleRemoveImage = (id) => {
+    const newImages = images.filter((img) => img.id !== id);
+    setImages(newImages);
+
+    // Adjust current index if needed
+    if (currentIndex >= newImages.length) {
+      setCurrentIndex(Math.max(0, newImages.length - 1));
+    }
+  };
+
+  // Start upload process
+  const startUpload = () => {
+    setIsUploading(true);
+  };
+
+  // Cancel upload
+  const cancelUpload = () => {
+    setIsUploading(false);
+  };
+
+  const carouselImages = [
+    {
+      src: "/images/alumni-1.jpg", // Update with your actual image paths
+      alt: "Alumni gathering at reunion",
+    },
+    {
+      src: "/images/campus-life.jpg",
+      alt: "Campus life at ICS",
+    },
+    {
+      src: "/images/graduation.jpg",
+      alt: "Graduation ceremony",
+    },
+    {
+      src: "/images/alumni-event.jpg",
+      alt: "Alumni networking event",
+    },
+    {
+      src: "/images/research-lab.jpg",
+      alt: "Research laboratory at ICS",
+    },
+    {
+      src: "/images/alumni-success.jpg",
+      alt: "Alumni success story",
+    },
+  ];
+  let total = 30000;
+  let partial = 3000;
+  let progress = Math.ceil((partial / total) * 100) + "%";
 
   function adminHeader() {
-    const adminPic = '/ics-logo.jpg';
+    const adminPic = "/ics-logo.jpg";
     const adminName = "Institute of Computer Science";
-    return (<>
-      <img
-        src={adminPic}
-        className="w-10 h-10 object-cover object-top rounded-full border border-[#DADADA]"
-      />
-      <p className="text-[16px]">
-        {adminName}
-      </p>
-    </>)
+    return (
+      <>
+        <img
+          src={adminPic}
+          className="w-10 h-10 object-cover object-top rounded-full border border-[#DADADA]"
+        />
+        <p className="text-[16px]">{adminName}</p>
+      </>
+    );
   }
- 
-
-
- 
-  
-  
-
-
 
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
-      <div className="flex flex-col min-h-screen justify-center items-center">
-        <p className="text-black text-[70px] font-bold">WELCOME, Guest!</p>
-        <div className="flex gap-3">
+      <div>
+        {/* <div className="flex justify-end p-4">
           <Button asChild>
             <Link href="/login">Log in</Link>
           </Button>
-          <Button asChild>
-            <Link href="/sign-up">Sign up</Link>
-          </Button>
+        </div> */}
+
+        {/* Carousel */}
+        <div className="relative w-full h-screen overflow-hidden">
+          {/* Navbar */}
+          <div
+            className="flex items-center justify-between h-20 fixed top-0 w-full"
+            style={{ padding: "0 10% 0 10%" }}
+          >
+            <div>ICS-ARMS</div>
+            <div>
+              <Button asChild>
+                <Link href="/login">Log in</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-10 h-screen justify-center">
+            <div className="flex flex-col items-center justify-center gap-10">
+              <div className={`${oswald.className} text-6xl`}>
+                Extending Our Reach, Embracing Our Legacy
+              </div>
+              <div className="text-lg text-center">
+                ICS-ARMS reaches out to connect, support, and celebrate the
+                journeys<br></br>of our alumni—building a stronger, united ICS
+                community.
+              </div>
+            </div>
+            <div>
+              <div className="flex gap-5" style={{ padding: "0 10% 0 10%" }}>
+                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 1</div>
+                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 2</div>
+                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="flex flex-col gap-8"
+          style={{ padding: "50px 10% 5% 10%" }}
+        >
+          <div className="font-bold text-3xl">News & Announcements</div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {announces.map((item: Announcement) => (
+              <Link
+                href={`/announcements/${item.announcementId}`}
+                key={item.announcementId}
+                className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
+              >
+                <div className="w-full h-40 bg-pink-400 overflow-hidden">
+                  <img
+                    src={
+                      item.image === ""
+                        ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
+                        : item.image
+                    }
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4 flex flex-col gap-2 flex-grow">
+                  <div className="text-xs text-gray-500">
+                    {formatDate(item.datePosted)}
+                  </div>
+                  <div className="font-bold text-md line-clamp-2">
+                    {item.title}
+                  </div>
+                  <div className="text-xs text-gray-700 line-clamp-3">
+                    {item.description}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -126,7 +386,11 @@ export default function Home() {
             {/* Profile Panel */}
             <div className="w-70 fixed top-23 left-[100px] h-auto flex flex-col items-center bg-[#FFFFFF] p-5 rounded-[10px] border border-[#DADADA]">
               <img
-              src={alumInfo!.image}
+                src={
+                  alumInfo!.image === ""
+                    ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
+                    : alumInfo!.image
+                }
                 className="w-50 h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
               ></img>
               <p className="text-[20px] font-bold">
@@ -134,14 +398,22 @@ export default function Home() {
               </p>
               <p className="text-[14px]">{alumInfo!.email}</p>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="text-[14px] justify-items-center wrap-break-word"><i>Currently based on {alumInfo!.address}</i></div>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col it  ems-center">
-                <p className="text-[14px]">Std. No. {alumInfo!.studentNumber}</p>
-                <p className="text-[14px]">Graduated: {alumInfo!.graduationYear}</p>
+              <div className="text-[14px] justify-items-center wrap-break-word">
+                <i>Currently based on {alumInfo!.address}</i>
               </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="text-[14px] border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px] flex flex-wrap">{alumInfo!.jobTitle}</div>
+              <div className="flex flex-col it  ems-center">
+                <p className="text-[14px]">
+                  Std. No. {alumInfo!.studentNumber}
+                </p>
+                <p className="text-[14px]">
+                  Graduated: {alumInfo!.graduationYear}
+                </p>
+              </div>
+              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
+              <div className="text-[14px] border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px] flex flex-wrap">
+                {alumInfo!.jobTitle}
+              </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
@@ -153,17 +425,16 @@ export default function Home() {
 
             {/* Feed */}
             <div className="ml-[300px] flex flex-col w-150 gap-[10px]">
-
-            {/*sorting dropdown*/}
+              {/*sorting dropdown*/}
               <div className="flex flex-row w-full justify-end">
                 <DropdownMenu>
-                <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10">
-                  {selectedSort}
-                  <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
-                </DropdownMenuTrigger>
-                
-                <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-[#FFFFFF] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">                    
-                  {sortTypes.map((sortType, index) => (
+                  <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10">
+                    {selectedSort}
+                    <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-[#FFFFFF] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">
+                    {sortTypes.map((sortType, index) => (
                       <DropdownMenuItem key={sortType} asChild>
                         <button
                           onClick={() => {
@@ -172,190 +443,287 @@ export default function Home() {
                             handleSortChange(sortValues[index]); // Update URL param
                           }}
                           className={`flex w-full items-center rounded-md py-1.5 px-3 ${
-                            selectedSort === sortType ? "bg-[#FFFFFF] text-[#0856BA] font-semibold" : ""
+                            selectedSort === sortType
+                              ? "bg-[#FFFFFF] text-[#0856BA] font-semibold"
+                              : ""
                           }`}
                         >
                           {sortType}
                         </button>
                       </DropdownMenuItem>
                     ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-                <div className="scroll-smooth flex flex-col gap-[5px]">
-                  {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
-                    <div
-                      key={index}
-                      className="flex flex-col rounded-[10px] mb-[10px] w-150 h-auto  bg-[#FFFFFF] border border-[#DADADA]"
-                    >
-
-                      {/* user info */}
-                      <div className="flex flex-row mb-[20px] px-[20px] mt-[20px] gap-2 items-center">
-                        <img
-                          src={newsLetter.category === "announcement" || newsLetter.category === "event" || newsLetter.category === "scholarship" || newsLetter.category === "donation_drive"
+              <div className="scroll-smooth flex flex-col gap-[5px]">
+                {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
+                  <div
+                    key={index}
+                    className="flex flex-col rounded-[10px] mb-[10px] w-150 h-auto  bg-[#FFFFFF] border border-[#DADADA]"
+                  >
+                    {/* user info */}
+                    <div className="flex flex-row mb-[20px] px-[20px] mt-[20px] gap-2 items-center">
+                      <img
+                        src={
+                          newsLetter.category === "announcement" ||
+                          newsLetter.category === "event" ||
+                          newsLetter.category === "scholarship" ||
+                          newsLetter.category === "donation_drive"
                             ? "/ics-logo.jpg"
                             : newsLetter.category === "job_offering"
                             ? "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
                             : ""
-                            }
-                          className="w-[40px] h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
-                        />
-                        <p className="text-[16px]">
-                          {newsLetter.category === "announcement" || newsLetter.category === "event" || newsLetter.category === "scholarship" || newsLetter.category === "donation_drive"
-                            ? "Institute of Computer Science"
-                            : newsLetter.category === "job_offering"
-                            ? (() => {
-                                const jobOffering = jobOffers.find(
-                                  (jobOffer: JobOffering) =>
-                                    jobOffer.jobId === newsLetter.referenceId
-                                );
-                                return jobOffering
-                                  ? alums.find(
-                                      (alum: Alumnus) => alum.alumniId === jobOffering.alumniId
-                                    )?.firstName + " " + alums.find(
-                                      (alum: Alumnus) => alum.alumniId === jobOffering.alumniId
+                        }
+                        className="w-[40px] h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
+                      />
+                      <p className="text-[16px]">
+                        {newsLetter.category === "announcement" ||
+                        newsLetter.category === "event" ||
+                        newsLetter.category === "scholarship" ||
+                        newsLetter.category === "donation_drive"
+                          ? "Institute of Computer Science"
+                          : newsLetter.category === "job_offering"
+                          ? (() => {
+                              const jobOffering = jobOffers.find(
+                                (jobOffer: JobOffering) =>
+                                  jobOffer.jobId === newsLetter.referenceId
+                              );
+                              return jobOffering
+                                ? alums.find(
+                                    (alum: Alumnus) =>
+                                      alum.alumniId === jobOffering.alumniId
+                                  )?.firstName +
+                                    " " +
+                                    alums.find(
+                                      (alum: Alumnus) =>
+                                        alum.alumniId === jobOffering.alumniId
                                     )?.lastName || "Unknown Alumni"
-                                  : "Job Offering Not Found";
-                              })()
-                            : ""
-                            }
-                        </p>
-                        <p className="text-[24px]"> &#xb7;</p>
-                        <p className="text-[12px]">{formatDate(newsLetter.timestamp)}</p>
-                      </div>                    
-                    
-                      {/* if newsletter is announcement */}
-                        {newsLetter.category === "announcement" && (() => {
-                          const announcement = announces.find(
-                            (announce: Announcement) => announce.announcementId === newsLetter.referenceId
-                          );
-                          return announcement ? (
-                            <div className="flex flex-col gap-[20px]">
-                              <div className="flex flex-col">
-                                <div className="flex flex-col gap-[10px] px-[20px] mb-[20px]">
-                                  <p className="text-[24px] font-semibold">{announcement.title}</p>
-                                  <CollapseText text={announcement.description + " "} maxChars={300} />
-                                </div>
+                                : "Job Offering Not Found";
+                            })()
+                          : ""}
+                      </p>
+                      <p className="text-[24px]"> &#xb7;</p>
+                      <p className="text-[12px]">
+                        {formatDate(newsLetter.timestamp)}
+                      </p>
+                    </div>
+
+                    {/* if newsletter is announcement */}
+                    {newsLetter.category === "announcement" &&
+                      (() => {
+                        const announcement = announces.find(
+                          (announce: Announcement) =>
+                            announce.announcementId === newsLetter.referenceId
+                        );
+                        return announcement ? (
+                          <div className="flex flex-col gap-[20px]">
+                            <div className="flex flex-col">
+                              <div className="flex flex-col gap-[10px] px-[20px] mb-[20px]">
+                                <p className="text-[24px] font-semibold">
+                                  {announcement.title}
+                                </p>
+                                <CollapseText
+                                  text={announcement.description + " "}
+                                  maxChars={300}
+                                />
+                              </div>
                               <img src="/ICS3.jpg" className="w-full"></img>
                             </div>
-                              </div>
-                          ) : (
-                            <p className="text-[14px] italic text-gray-500">Announcement not found</p>
-                          );
+                          </div>
+                        ) : (
+                          <p className="text-[14px] italic text-gray-500">
+                            Announcement not found
+                          </p>
+                        );
                       })()}
 
-                      {/* if newsletter is a job post */}
-                      {newsLetter.category === "job_offering" && (() => {
+                    {/* if newsletter is a job post */}
+                    {newsLetter.category === "job_offering" &&
+                      (() => {
                         const jobOffering = jobOffers.find(
-                          (jobOffer: JobOffering) => jobOffer.jobId === newsLetter.referenceId
+                          (jobOffer: JobOffering) =>
+                            jobOffer.jobId === newsLetter.referenceId
                         );
                         return jobOffering ? (
                           <div className=" px-[20px]">
                             <div className="flex flex-col gap-[30px]">
                               <div className="flex flex-col gap-[1px]">
                                 <p className="text-[24px] font-semibold">
-                                  {jobOffering.position} 
+                                  {jobOffering.position}
                                 </p>
                                 <p className="text-[18px]">
-                                  {jobOffering.company} 
+                                  {jobOffering.company}
                                 </p>
                               </div>
                               <div className="flex flex-col gap-[30px]">
                                 <div className="flex flex-col gap-[10px]">
                                   <div className="flex flex-row gap-[5px]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth="1.5"
+                                      stroke="currentColor"
+                                      className="h-[20px] w-auto"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z"
+                                      />
                                     </svg>
                                     <p className="text-[15px]">
                                       {jobOffering.employmentType}
                                     </p>
                                     <p>&#xb7;</p>
                                     <p className="text-[15px]">
-                                    {jobOffering.experienceLevel}</p>
+                                      {jobOffering.experienceLevel}
+                                    </p>
                                   </div>
 
                                   <div className="flex flex-row gap-[5px]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth="1.5"
+                                      stroke="currentColor"
+                                      className="h-[20px] w-auto"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
+                                      />
                                     </svg>
                                     <p className="text-[15px]">
                                       {jobOffering.salaryRange}
                                     </p>
                                   </div>
-                                
-                                  <div className="text-[15px]"> 
+
+                                  <div className="text-[15px]">
                                     <div className="flex flex-row gap-[3px]">
-                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="1.5"
+                                        stroke="currentColor"
+                                        className="h-[20px] w-auto"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"
+                                        />
                                       </svg>
-                                        Required skill(s):
+                                      Required skill(s):
                                     </div>
 
                                     <div className="pl-[25px]">
-                                      {jobOffering.requiredSkill.map((skill: string) => (
-                                      <ul className="max-w-md space-y-1 text-gray-500 list-inside dark:text-gray-500" key={skill}> 
-                                        <li key={skill} className="flex items-center" >
-                                        <svg className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-                                        </svg>
-                                        {skill}
-                                        </li>
-                                      </ul>))}
+                                      {jobOffering.requiredSkill.map(
+                                        (skill: string) => (
+                                          <ul
+                                            className="max-w-md space-y-1 text-gray-500 list-inside dark:text-gray-500"
+                                            key={skill}
+                                          >
+                                            <li
+                                              key={skill}
+                                              className="flex items-center"
+                                            >
+                                              <svg
+                                                className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 shrink-0"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                              >
+                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                              </svg>
+                                              {skill}
+                                            </li>
+                                          </ul>
+                                        )
+                                      )}
                                     </div>
                                   </div>
-                                </div> 
-                            
-                            {/* job desc */}
-                            <div>
-                              <div className="flex flex-row items-center gap-[5px]">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[20px] w-auto">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                                </svg>
-                                <p className="text-[20px] font-semibold">About the job</p>
+                                </div>
+
+                                {/* job desc */}
+                                <div>
+                                  <div className="flex flex-row items-center gap-[5px]">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth="1.5"
+                                      stroke="currentColor"
+                                      className="h-[20px] w-auto"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                                      />
+                                    </svg>
+                                    <p className="text-[20px] font-semibold">
+                                      About the job
+                                    </p>
+                                  </div>
+
+                                  <p className="text-[15px] ml-[25px] text-justify">
+                                    {jobOffering.jobDescription}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => router.push(`/joboffer-list`)}
+                                  className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                                >
+                                  View More Job Offers
+                                </button>
                               </div>
-                            
-                              <p className="text-[15px] ml-[25px] text-justify">
-                                {jobOffering.jobDescription}
-                              </p>
-                            </div> 
-                              <button
-                                onClick={() => router.push(`/joboffer-list`)}
-                                className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-
-                              >View More Job Offers</button>
                             </div>
-
-                            
-                            
-
-                          </div>
                           </div>
                         ) : (
-                          <p className="text-[14px] italic text-gray-500">Job offering not found</p>
+                          <p className="text-[14px] italic text-gray-500">
+                            Job offering not found
+                          </p>
                         );
                       })()}
 
-                      {/* if newsletter is a donation */}
-                      {newsLetter.category === "donation_drive" && (() => {
+                    {/* if newsletter is a donation */}
+                    {newsLetter.category === "donation_drive" &&
+                      (() => {
                         return (
-                          <div className="flex flex-col gap-[20px] px-[20px]">                          
-                            <p className="text-[24px] font-semibold">Donation Drive</p>
-                            <p className="text-[15px] mt-2">Details about the Donation Drive will go here.</p>
+                          <div className="flex flex-col gap-[20px] px-[20px]">
+                            <p className="text-[24px] font-semibold">
+                              Donation Drive
+                            </p>
+                            <p className="text-[15px] mt-2">
+                              Details about the Donation Drive will go here.
+                            </p>
                             <button
                               onClick={() => router.push(`/donationdrive-list`)}
                               className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-                            >View More Sponsorships</button>
+                            >
+                              View More Sponsorships
+                            </button>
                           </div>
                         );
                       })()}
 
-                      {/* if newsletter is a scholarship */}
-                      {newsLetter.category === "scholarship" && (() => {
+                    {/* if newsletter is a scholarship */}
+                    {newsLetter.category === "scholarship" &&
+                      (() => {
                         return (
-                          <div className="flex flex-col gap-[20px] px-[20px] mb-[20px]">                         
-                            <p className="text-[24px] font-semibold">Scholarship</p>
-                            <p className="text-[15px] mt-2">Details about the scholarship will go here.</p>
+                          <div className="flex flex-col gap-[20px] px-[20px] mb-[20px]">
+                            <p className="text-[24px] font-semibold">
+                              Scholarship
+                            </p>
+                            <p className="text-[15px] mt-2">
+                              Details about the scholarship will go here.
+                            </p>
                             {/* <button
                               onClick={() => router.push(`/sponsorship`)}
                               className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
@@ -364,10 +732,12 @@ export default function Home() {
                         );
                       })()}
 
-                      {/* if newsletter is an event */}
-                      {newsLetter.category === "event" && (() => {
+                    {/* if newsletter is an event */}
+                    {newsLetter.category === "event" &&
+                      (() => {
                         const event_array = events.filter(
-                          (event: Event) => event.eventId === newsLetter.referenceId
+                          (event: Event) =>
+                            event.eventId === newsLetter.referenceId
                         ); // Using filter to get all matching events
 
                         return (
@@ -375,69 +745,102 @@ export default function Home() {
                             {/* Map over the event_array */}
                             <div>
                               {event_array.map((event: Event) => (
-                              <div className="flex flex-col gap-[20px]" key={event.eventId}>
-                                <div className="flex flex-col gap-[20px] px-[20px]">
-                                  <div>
-                                    <p className="text-[24px] font-semibold">{event.title}</p>
-                                    <p className="text-[15px] mt-2">{event.description}</p>
+                                <div
+                                  className="flex flex-col gap-[20px]"
+                                  key={event.eventId}
+                                >
+                                  <div className="flex flex-col gap-[20px] px-[20px]">
+                                    <div>
+                                      <p className="text-[24px] font-semibold">
+                                        {event.title}
+                                      </p>
+                                      <p className="text-[15px] mt-2">
+                                        {event.description}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <img src="/ICS3.jpg"></img>
+                                  <>
+                                    {event.needSponsorship === true && (
+                                      <>
+                                        <div className="flex flex-col px-[20px]">
+                                          <div className="flex flex-row text-[15px] gap-1">
+                                            <span className="font-semibold">
+                                              ₱{partial}
+                                            </span>{" "}
+                                            raised from{" "}
+                                            <span className="font-semibold">
+                                              ₱{total}
+                                            </span>{" "}
+                                            total
+                                          </div>
+
+                                          {/* progress bar */}
+                                          <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
+                                            <div
+                                              className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                              style={{ width: `${progress}` }}
+                                            >
+                                              {" "}
+                                              {progress}
+                                            </div>
+                                          </div>
+
+                                          <div className="flex flex-row text-[15px] gap-[20px]">
+                                            <div className="flex flex-row items-center gap-1">
+                                              <Users className="size-5" />
+                                              <div className="flex flex-row gap-1 items-center">
+                                                <p className="font-semibold">
+                                                  250
+                                                </p>
+                                                patrons
+                                              </div>
+                                            </div>
+                                            <div className="flex flex-row items-center gap-1">
+                                              <Clock className="size-4" />
+                                              <div className="flex flex-row gap-1">
+                                                <p className="font-semibold">
+                                                  10
+                                                </p>{" "}
+                                                days left
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                  </>
+
+                                  <div className="px-[20px]">
+                                    <button
+                                      onClick={() => router.push(`/events`)}
+                                      className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
+                                    >
+                                      View More Events
+                                    </button>
                                   </div>
                                 </div>
-                              
-                              <img src="/ICS3.jpg"></img>
-                              <>
-                              
-                              {event.needSponsorship === true && (
-                              <>
-                              <div className="flex flex-col px-[20px]">
-                                <div className="flex flex-row text-[15px] gap-1">
-                                  <span className="font-semibold">₱{partial}</span> raised from <span className="font-semibold">₱{total}</span> total
-                                </div>
-
-                                {/* progress bar */}
-                                <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
-                                  <div className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
-                                </div>
-
-
-                                <div className="flex flex-row text-[15px] gap-[20px]">
-                                  <div className="flex flex-row items-center gap-1">
-                                  <Users className="size-5"/>
-                                    <div className="flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
-                                  </div>
-                                  <div className="flex flex-row items-center gap-1">
-                                    <Clock className="size-4"/>
-                                    <div className="flex flex-row gap-1"><p className="font-semibold">10</p> days left</div>
-                                </div>
-                                  </div>
-                              </div>
-                              </>)}</>
-
-                              
-                              <div className="px-[20px]">
-                                <button
-                                    onClick={() => router.push(`/events`)}
-                                    className="w-full h-[30px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
-                                  >View More Events</button>
-                              </div>
-                            </div>
                               ))}
                             </div>
-                          </>                        
-                          );
+                          </>
+                        );
                       })()}
-                    </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
+            </div>
 
-          {/*Sidebar*/}
-          <div className="fixed right-[110px] w-[350px] xs:hidden top-23 flex flex-col items-center gap-5 rounded-[10px] ">
-            
-            {/* Donation Sample */}
-            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center ">
-              {/* left button */}
-              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 pl-1.5 pr-1 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-              <svg
+            {/*Sidebar*/}
+            <div className="fixed right-[110px] w-[350px] xs:hidden top-23 flex flex-col items-center gap-5 rounded-[10px] ">
+              {/* Donation Sample */}
+              <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center ">
+                {/* left button */}
+                <button
+                  onClick={() => router.push(`/donationdrive-list`)}
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 pl-1.5 pr-1 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
+                >
+                  <svg
                     fill="none"
                     stroke="currentColor"
                     width="11"
@@ -458,66 +861,83 @@ export default function Home() {
                   </svg>
                 </button>
 
-              {/* donation contents */}
-              <div className="w-full flex flex-col py-[10px] place-items-center ">
-                <img src="/ICS2.jpg" className="mb-[10px]"></img>
-                <div className="w-full">
-                  <div className="flex flex-row text-[13px] gap-1">
-                    <p className="font-semibold">₱{partial}</p> raised from <p className="font-semibold">₱{total}</p> total
-                  </div>
-                  {/* progress bar */}
-                  <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
-                    <div className="bg-blue-600 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${progress}`}}> {progress}</div>
-                  </div>                  
-                  <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
-                    <div className="flex flex-row items-center gap-1">
-                    <Users className="size-4"/>
-                      <div className="text-[13px] flex flex-row gap-1 items-center"><p className="font-semibold">250</p>patrons</div>
-                      <Clock className="size-4"/>
+                {/* donation contents */}
+                <div className="w-full flex flex-col py-[10px] place-items-center ">
+                  <img src="/ICS2.jpg" className="mb-[10px]"></img>
+                  <div className="w-full">
+                    <div className="flex flex-row text-[13px] gap-1">
+                      <p className="font-semibold">₱{partial}</p> raised from{" "}
+                      <p className="font-semibold">₱{total}</p> total
                     </div>
-                    <div className="flex flex-row items-center gap-1">
-                      <div className="flex flex-row text-[13px] gap-1"><p className="font-semibold">10</p> days left</div>
+                    {/* progress bar */}
+                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 my-[10px]">
+                      <div
+                        className="bg-blue-600 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                        style={{ width: `${progress}` }}
+                      >
+                        {" "}
+                        {progress}
+                      </div>
                     </div>
-                  </div>
-                  {/* <div className="flex flex-col w-full gap-[3px] mt-3">
+                    <div className="flex flex-row text-[13px] gap-[10px] place-content-between">
+                      <div className="flex flex-row items-center gap-1">
+                        <Users className="size-4" />
+                        <div className="text-[13px] flex flex-row gap-1 items-center">
+                          <p className="font-semibold">250</p>patrons
+                        </div>
+                        <Clock className="size-4" />
+                      </div>
+                      <div className="flex flex-row items-center gap-1">
+                        <div className="flex flex-row text-[13px] gap-1">
+                          <p className="font-semibold">10</p> days left
+                        </div>
+                      </div>
+                    </div>
+                    {/* <div className="flex flex-col w-full gap-[3px] mt-3">
                       <button
                           onClick={() => router.push(`/sponsorship`)}
                           className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
 
                       >View More</button>                          
                   </div>  */}
+                  </div>
                 </div>
-              </div>
-              
-              {/* right button */}
-              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 pl-1 pr-1.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  width="11"
-                  height="11"
-                  viewBox="0 0 10 10"
-                  aria-hidden="true"
-                  strokeWidth={1.5}
-                  className="-mr-0.5 size-4"
+
+                {/* right button */}
+                <button
+                  onClick={() => router.push(`/donationdrive-list`)}
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 pl-1 pr-1.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                 >
-                  <path
-                    className="opacity-0 transition group-hover:opacity-100"
-                    d="M0 5h7"
-                  />
-                  <path
-                    className="transition group-hover:translate-x-[3px]"
-                    d="M1 1l4 4-4 4"
-                  />
-                </svg>
-              </button>            
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 10 10"
+                    aria-hidden="true"
+                    strokeWidth={1.5}
+                    className="-mr-0.5 size-4"
+                  >
+                    <path
+                      className="opacity-0 transition group-hover:opacity-100"
+                      d="M0 5h7"
+                    />
+                    <path
+                      className="transition group-hover:translate-x-[3px]"
+                      d="M1 1l4 4-4 4"
+                    />
+                  </svg>
+                </button>
               </div>
               {/* End of donation sample */}
-                
-            {/* Event Sample */}
-            <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] px-[10px] rounded-lg items-center">
-              <button onClick={() => router.push(`/donationdrive-list`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-              <svg
+
+              {/* Event Sample */}
+              <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] px-[10px] rounded-lg items-center">
+                <button
+                  onClick={() => router.push(`/donationdrive-list`)}
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
+                >
+                  <svg
                     fill="none"
                     stroke="currentColor"
                     width="11"
@@ -540,7 +960,7 @@ export default function Home() {
 
                 <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[20px] place-items-center">
                   <div className="w-full">
-                  {/* <img src="/ICS2.jpg" className="mb-[10px]"></img> */}
+                    {/* <img src="/ICS2.jpg" className="mb-[10px]"></img> */}
                     <div className="flex flex-col text-[15px]">
                       <p className="font-semibold">Event Name</p>
                       {/* <p>Event description</p> */}
@@ -548,53 +968,59 @@ export default function Home() {
                     <div className="flex flex-col gap-[5px] place-self-center">
                       <div className="flex flex-row text-[13px] gap-[30px] mt-[10px]">
                         <div className="flex flex-row items-center gap-1">
-                          <Calendar className="size-4"/>
-                        <p className="text-[13px] flex flex-row gap-1 items-center">January 1, 2025</p>
+                          <Calendar className="size-4" />
+                          <p className="text-[13px] flex flex-row gap-1 items-center">
+                            January 1, 2025
+                          </p>
                         </div>
-                          <div className="flex flex-row items-center gap-1">
-                            <Clock className="size-4"/>
-                              <p className="flex flex-row text-[13px] gap-1">3:00 PM</p>
+                        <div className="flex flex-row items-center gap-1">
+                          <Clock className="size-4" />
+                          <p className="flex flex-row text-[13px] gap-1">
+                            3:00 PM
+                          </p>
                         </div>
                       </div>
                       <div className="flex flex-row text-[13px] gap-[3px] place-self-start my-[2px]">
-                        <MapPin className="size-4"/>
+                        <MapPin className="size-4" />
                         <p className="text-[13px]">ICS Mega Hall</p>
                       </div>
                     </div>
-                    
-                {/* <div className="flex flex-col w-full gap-[3px] mt-3">
+
+                    {/* <div className="flex flex-col w-full gap-[3px] mt-3">
                     <button
                       onClick={() => router.push(`/sponsorship`)}
                       className="w-full h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-[#FFFFFF] text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-[#FFFFFF]"
                     >View More</button>                           
                   </div>  */}
+                  </div>
                 </div>
-              </div>
 
-              <button onClick={() => router.push(`/sponsorship`)} className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  width="11"
-                  height="11"
-                  viewBox="0 0 10 10"
-                  aria-hidden="true"
-                  strokeWidth={1.5}
-                  className="-mr-0.5"
+                <button
+                  onClick={() => router.push(`/sponsorship`)}
+                  className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md  from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                 >
-                  <path
-                    className="opacity-0 transition group-hover:opacity-100"
-                    d="M0 5h7"
-                  />
-                  <path
-                    className="transition group-hover:translate-x-[3px]"
-                    d="M1 1l4 4-4 4"
-                  />
-                </svg>
-              </button>               
-            </div>
-            {/* End of event sample */}
-
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 10 10"
+                    aria-hidden="true"
+                    strokeWidth={1.5}
+                    className="-mr-0.5"
+                  >
+                    <path
+                      className="opacity-0 transition group-hover:opacity-100"
+                      d="M0 5h7"
+                    />
+                    <path
+                      className="transition group-hover:translate-x-[3px]"
+                      d="M1 1l4 4-4 4"
+                    />
+                  </svg>
+                </button>
+              </div>
+              {/* End of event sample */}
             </div>
           </div>
         </div>

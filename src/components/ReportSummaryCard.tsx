@@ -67,7 +67,7 @@ const ReportSummaryCard = ({ data }: ReportSummaryCardProps) => {
                   <h2 className="text-xl font-semibold mb-3 mt-4" {...props} />
                 ),
                 strong: ({ ...props }) => (
-                  <strong className="font-bold text-blue-700" {...props} />
+                  <strong className="font-bold text-[#0856BA] " {...props} />
                 ),
                 p: ({ ...props }) => <p className="my-3" {...props} />,
                 ul: ({ ...props }) => (
