@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal} from "@/components/ui/dropdown-menu";
 import { ChevronDownIcon } from "lucide-react"
 import { CheckboxItem, DropdownMenuCheckboxItem } from "@radix-ui/react-dropdown-menu";
+import { useRadioGroup } from "@mui/material";
 
 
 
@@ -17,7 +18,7 @@ function formatDate(timestamp: any) {
   return date.toISOString().split("T")[0];
 }
 
-const FILTER_TAGS = ["Donation Update", "Achievements", "Upcoming Event"];
+const FILTER_TAGS = ["Update", "Announcement", "Upcoming Event"];
 const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Announcements() {
@@ -147,7 +148,9 @@ export default function Announcements() {
                 className="h-full relative m-20 mt-0 bg-[#FFFFFF] rounded-lg shadow-sm"
               >
                 <div>
-                <img src="/ICS3.jpg" className="w-full max-h-[500px] object-cover"/>
+                {user.image === "" ? "" : 
+                  <img src={user.image} className="w-full object-cover"/>
+                  }
                   <div className="p-10">
                     <div className="flex flex-row justify-between w-full">
                       <p className="text-4xl font-bold uppercase">{user.title}</p>
