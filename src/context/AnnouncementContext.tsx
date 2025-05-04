@@ -17,6 +17,7 @@ import { Announcement } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { auth } from "@/lib/firebase";
+import { uploadImage } from "@/lib/upload";
 
 const AnnouncementContext = createContext<any>(null);
 
@@ -34,6 +35,11 @@ export function AnnouncementProvider({
   const [type, setType] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const { user, isAdmin } = useAuth();
+  const [image, setAnnounceImage] = useState(null);
+  const [fileName, setFileName] = useState<string>("");
+  const [preview, setPreview] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false)
   const [currentAnnouncementId, setCurrentAnnouncementId] = useState<
     string | null
   >(null);
@@ -63,6 +69,15 @@ export function AnnouncementProvider({
 
     return () => unsubscribe();
   }, []); // Remove dependencies to ensure single subscription
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAnnounceImage(file);
+      setFileName(file.name);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
   const addAnnouncement = async (announce: Announcement) => {
     try {
@@ -172,12 +187,25 @@ export function AnnouncementProvider({
       isPublic,
     };
 
-    const response = await addAnnouncement(newAnnouncement);
+    if (image) {
+      const uploadResult = await uploadImage(image, `announcement/${Date.now()}`);
+      if (uploadResult.success) {
+        newAnnouncement.image = uploadResult.url;
+      } else {
+        setMessage(uploadResult.result || "Failed to upload image.");
+        setIsError(true);
+        return;
+      }
+    }
+    
 
+    const response = await addAnnouncement(newAnnouncement);
+    
     if (response.success) {
       setShowForm(false);
       setTitle("");
       setDescription("");
+      setAnnounceImage(null);
     } else {
       console.error("Error adding announcement:", response.message);
     }
@@ -205,6 +233,11 @@ export function AnnouncementProvider({
         setShowForm,
         setType,
         setIsEdit,
+        handleImageChange,
+        image,
+        setAnnounceImage,
+        preview,
+        fileName,
         setCurrentAnnouncementId,
         setIsPublic,
       }}

@@ -21,7 +21,8 @@ export default function Users() {
     setShowForm,
     setIsEdit,
     setCurrentAnnouncementId,
-    setimage,
+    setAnnounceImage,
+    handleImageChange
   } = useAnnouncement();
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -32,9 +33,9 @@ export default function Users() {
     e.preventDefault();
     if (imageFile) {
       const localUrl = URL.createObjectURL(imageFile);
-      setimage(localUrl);
+      setAnnounceImage(localUrl);
     } else {
-      setimage(null);
+      setAnnounceImage(null);
     }
     isEdit ? handleEdit(e) : handleSubmit(e);
     setImageFile(null);
@@ -219,13 +220,7 @@ export default function Users() {
                   type="file"
                   id="image-upload"
                   accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setImageFile(file);
-                      setImagePreview(URL.createObjectURL(file));
-                    }
-                  }}
+                  onChange={handleImageChange}
                   className="hidden"
                 />
               </div>
