@@ -193,7 +193,7 @@ export default function Home() {
           </p>
           <p className="text-xs md:text-[14px]">{alumInfo!.email}</p>
           <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-          <div className="text-xs md:text-[14px] text-center wrap-break-word px-2"><i>Currently based on {alumInfo!.address[1]}, {alumInfo!.address[2]}, {alumInfo!.address[0]}</i></div>
+          <div className="text-xs md:text-[14px] text-center wrap-break-word px-2"><i>Currently based on {alumInfo!.address[2]}</i></div>
           <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
           <div className="flex flex-col items-center">
             <p className="text-xs md:text-[14px]">Std. No. {alumInfo!.studentNumber}</p>

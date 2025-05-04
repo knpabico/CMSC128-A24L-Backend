@@ -222,7 +222,7 @@ export default function Users() {
                   if (file) {
                     setImageFile(file);
                     setImagePreview(URL.createObjectURL(file));
-                  }
+                  } 
                 }}
                 className="hidden"
               />
