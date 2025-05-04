@@ -210,8 +210,8 @@ export default function AdminDashboard() {
 
             </CardHeader>
             <CardContent>
-              {/* Lagay map na may pin ng lahat ng current company ng mga alumni*/}'
-              <MapComponent workExperienceList={presentWorkExperiences} />'
+              {/* Lagay map na may pin ng lahat ng current company ng mga alumni*/}
+              <MapComponent workExperienceList={presentWorkExperiences}/>
             </CardContent>
           </Card>
         </div>
