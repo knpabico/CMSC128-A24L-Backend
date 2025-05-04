@@ -224,7 +224,7 @@ export default function JobOffers() {
   const currentJobs = filteredAndSortedJobs.slice(startIndex, endIndex);
 
   // Saved Jobs pagination
-  const filteredSavedJobs = (bookmarks ?? [])
+  const filteredSavedJobs = bookmarks
     .filter((bookmark) => bookmark.type === "job_offering")
     .map((bookmark) => jobOffers.find((job) => job.jobId === bookmark.entryId))
     .filter(Boolean)
@@ -578,7 +578,7 @@ export default function JobOffers() {
                 )
               ) : sidebarFilter === "Saved Jobs" ? (
                 <div className="space-y-2">
-                  {(bookmarks ?? []).filter(
+                  {bookmarks.filter(
                     (bookmark: Bookmark) => bookmark.type === "job_offering"
                   ).length === 0 ? (
                     <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
