@@ -140,7 +140,6 @@ export function EventProvider({ children }: { children: React.ReactNode })
           
           await setDoc(docRef, newEvent);
           // Optional: also store under photoURL
-          await updateDoc(docRef, { photoURL: uploadResult.url });
         } else {
           setMessage(uploadResult.result || "Failed to upload image.");
           setIsError(true);
