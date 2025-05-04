@@ -94,11 +94,8 @@ export default function EventPageAdmin() {
         return oldDateX.getTime() - oldDateY.getTime();
 
       case "alphabetical": {
-        const xName = events[x.eventId]!.title;
-        const yName = events[y.eventId]!.title;
-
-        return xName.toLowerCase().localeCompare(yName.toLowerCase());
-      }
+          return x.title.toLowerCase().localeCompare(y.title.toLowerCase());
+        }
 
       default:
         return 0;
