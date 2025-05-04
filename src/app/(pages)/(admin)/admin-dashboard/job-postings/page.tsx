@@ -577,8 +577,12 @@ export default function Users() {
                       required
                     />
                   </div>
+                  </div>
+                  </div>
 
-                  <div className="mb-4">
+                  <hr className="my-2 border-t border-gray-300" />
+
+                  <div className="mb-4 pt-2 pl-1">
                     <label className="block text-sm font-medium mb-1">
                       Company Logo<span className="text-red-500">*</span>
                     </label>
@@ -598,8 +602,6 @@ export default function Users() {
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
 
               <div className="flex justify-end gap-4 mt-6">
                 <button
