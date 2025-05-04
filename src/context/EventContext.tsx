@@ -331,6 +331,26 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     router.push(`/events/${event.eventId}`);
   };
 
+  const getEventProposals = (events:Event[]) => {
+    if (!events){
+      return null;
+    }else{
+      const proposals = events.filter((event) => event.status != "Accepted");
+      console.log(proposals, "this is proposing events");
+      return proposals;
+    }
+  }
+  
+  const getUpcomingEvents = (events:Event[]) => {
+    if (!events){
+      return null;
+    }else{
+      const Upevents = events.filter((event) => event.status == "Accepted");
+      console.log(Upevents, "this is upcoming events");
+      return Upevents;
+    }
+  }
+
   return (
     <EventContext.Provider
       value={{
@@ -368,6 +388,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setNeedSponsorship,
         fileName,
         setFileName,
+        getUpcomingEvents,
+        getEventProposals
       }}
     >
       {children}

@@ -9,7 +9,8 @@ import Link from "next/link";
 import MapComponent from "./google-maps/map";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useAlums } from "@/context/AlumContext";
-import { Alumnus, WorkExperience } from "@/models/models";
+import { Alumnus, WorkExperience,Event } from "@/models/models";
+import { useEvents } from "@/context/EventContext";
 
 
 const adminLinks = [
@@ -31,6 +32,7 @@ export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
   const {totalAlums,alums, getActiveAlums, getInactiveAlums} = useAlums();
+  const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
   const fields = [
     "Artificial Intelligence (AI)",
     "Machine Learning (ML)",
@@ -121,8 +123,8 @@ export default function AdminDashboard() {
                 - Pending alumni count pati data na pwede iroute dun sa pag accept/reject
             */}
             <p>Total Alums:{totalAlums}</p> {/*total alumni*/}
-            <p>Actve Alums: {getActiveAlums(alums)}</p> {/*active alumni*/}
-            <p>Pending Alums: {getInactiveAlums(alums)}</p> {/*inactive alumni*/}
+            <p>Actve Alums: {getActiveAlums(alums).length}</p> {/*active alumni*/}
+            <p>Pending Alums: {getInactiveAlums(alums).length}</p> {/*inactive alumni*/}
             {alums.map((alum:Alumnus, index:number)=>{
               return (
                 <div key={alum.alumniId}>
@@ -141,7 +143,8 @@ export default function AdminDashboard() {
           <CardContent>
             {/* Pie chart !
               Count ng alumni per industry */}
-            {Object.entries(fieldCounts).map(([field, count]) => (
+              {/* field count  check mo heree getFieldInterestCount*/}
+            {Object.entries(fieldCounts).map(([field, count]) => ( 
               <p key={field}>{field}: {count}</p>
             ))}
           </CardContent>
@@ -166,6 +169,16 @@ export default function AdminDashboard() {
                 - Date
                 - Event venue
               */}
+            {getEventProposals(events).map((event:Event, index:number)=>{
+              return (
+                <div key={event.eventId}>
+                <div>
+                  <span>Event: {event.title}</span>
+                </div>
+                <span>Status: {event.status}</span>
+                </div>
+              )
+            })}
             </div>
           </CardContent>
 
@@ -199,6 +212,16 @@ export default function AdminDashboard() {
                 - Date
                 - Event venue
               */}
+             {getUpcomingEvents(events).map((event:Event, index:number)=>{
+              return (
+                <div key={event.eventId}>
+                <div>
+                  <span>Event: {event.title}</span>
+                </div>
+                <span>Status: {event.status}</span>
+                </div>
+              )
+            })}             
             </div>
           </CardContent>
           <div className="px-2 pt-0">

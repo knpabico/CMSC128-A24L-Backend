@@ -344,7 +344,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       }else{
         const activeAlums = alums.filter((alum) => alum.activeStatus === true);
         console.log(activeAlums, "this is activeAlums");
-        return activeAlums.length;
+        return activeAlums;
       }
   }
   const getInactiveAlums = (alums:Alumnus[]) =>{
@@ -353,7 +353,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }else{
       const inactiveAlums = alums.filter((alum) => alum.activeStatus === false);
       console.log(activeAlums, "this is activeAlums");
-      return inactiveAlums.length;
+      return inactiveAlums;
     }
 }
 
