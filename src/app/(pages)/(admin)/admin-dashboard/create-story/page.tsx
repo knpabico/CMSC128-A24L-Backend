@@ -11,6 +11,7 @@ import {
   Plus,
   Asterisk,
   Upload,
+  ArrowUpDown,
 } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -24,6 +25,7 @@ export default function FeaturedStoriesPage() {
   } = useFeatured();
 
   const [activeTab, setActiveTab] = useState("All Stories");
+  const [sortOption, setSortOption] = useState("newest");
   const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
@@ -70,6 +72,18 @@ export default function FeaturedStoriesPage() {
           return item.type === tabTypeMap[activeTab];
         });
 
+  // Sort filtered items based on date
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    const dateA = a.datePosted?.toDate?.() || new Date(a.datePosted);
+    const dateB = b.datePosted?.toDate?.() || new Date(b.datePosted);
+    
+    if (sortOption === "newest") {
+      return dateB.getTime() - dateA.getTime();
+    } else {
+      return dateA.getTime() - dateB.getTime();
+    }
+  });
+
   // Count items for each category
   const getCategoryCount = (category) => {
     if (category === "All Stories") return featuredItems.length;
@@ -93,6 +107,10 @@ export default function FeaturedStoriesPage() {
 
   const navigateToCreate = () => {
     router.push(`/admin-dashboard/create-story/add`); // Navigate to create page
+  };
+
+  const toggleSortOption = () => {
+    setSortOption(prev => prev === "newest" ? "oldest" : "newest");
   };
 
   return (
@@ -119,6 +137,18 @@ export default function FeaturedStoriesPage() {
       </div>
 
       <div className="flex flex-col gap-3">
+        {/* Sorting Filter */}
+        <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
+          <div className="text-sm font-medium">Sort by:</div>
+          <div 
+            className="pl-2 pr-3 py-1 rounded-md flex gap-2 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-200"
+            onClick={toggleSortOption}
+          >
+            <div>{sortOption === "newest" ? "Newest" : "Oldest"}</div>
+            <ArrowUpDown size={14} />
+          </div>
+        </div>
+
         {/* Tabs */}
         <div className="w-full flex gap-2">
           {tabs.map((tab) => (
@@ -192,8 +222,8 @@ export default function FeaturedStoriesPage() {
               {isSticky && <div style={{ height: "56px" }}></div>}
 
               {/* Featured Stories Rows */}
-              {filteredItems.length > 0 ? (
-                filteredItems.map((item, index) => (
+              {sortedItems.length > 0 ? (
+                sortedItems.map((item, index) => (
                   <div
                     key={index}
                     className={`w-full flex gap-4 border-t border-gray-300 ${
