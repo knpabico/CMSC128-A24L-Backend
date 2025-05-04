@@ -1139,23 +1139,30 @@ export default function JobOffers() {
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Salary Range<span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500">₱</span>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="e.g. 10000 - 30000"
-                        value={salaryRange}
-                        onChange={(e) => setSalaryRange(e.target.value)}
-                        className="w-full pl-8 p-1.5 border rounded text-sm"
-                        required
-                      />
+                  <label className="block text-sm font-medium mb-1">
+                    Salary Range<span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500">₱</span>
                     </div>
+                    <input
+                      type="text"
+                      placeholder="e.g. 10000-30000"
+                      value={salaryRange}
+                      onChange={(e) => setSalaryRange(e.target.value)}
+                      onInput={(e) => {
+                        const value = e.target.value;
+                        if (!/^[0-9-]*$/.test(value)) {
+                          e.target.value = value.replace(/[^0-9-]/g, "");
+                        }
+                      }}
+                      pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
+                      className="w-full pl-8 p-1.5 border rounded text-sm"
+                      required
+                    />
                   </div>
+                </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
