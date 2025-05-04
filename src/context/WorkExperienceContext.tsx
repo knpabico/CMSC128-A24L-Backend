@@ -41,27 +41,27 @@ export function WorkExperienceProvider({
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
-    let unsubscribe: (() => void) | null;
-    let unsubscribeUser: (() => void) | null;
+    console.log("useEffect - user:", user, "isAdmin:", isAdmin);
 
-    if (isAdmin) unsubscribe = subscribeToWorkExperience();
-    //for work experience of all users
-    else if (user) {
-      unsubscribeUser = subscribeToUserWorkExperience(); //for work experience of current user
+    if (user === null && isAdmin === null) return; // wait for auth to initialize
+
+    let unsubscribe: (() => void) | null = null;
+
+    if (isAdmin) {
+      console.log("Admin detected - subscribing to all work experience");
+      unsubscribe = subscribeToWorkExperience(); // Admin sees all
+    } else if (user) {
+      console.log("Regular user detected - subscribing to own work experience");
+      unsubscribe = subscribeToUserWorkExperience(); // Regular user sees own
     } else {
-      setUserWorkExperience([]); //reset current user's work experience
-      setAllWorkExperience([]); //reset all work experience
+      console.log("No user logged in - resetting work experience state");
+      setUserWorkExperience([]);
+      setAllWorkExperience([]);
       setLoading(false);
     }
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-
-      if (unsubscribeUser) {
-        unsubscribeUser();
-      }
+      if (unsubscribe) unsubscribe();
     };
   }, [user, isAdmin]);
 

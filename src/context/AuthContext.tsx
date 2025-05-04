@@ -113,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         } else if (userRole === "admin") {
           setIsAdmin(true);
+          setUser(user);
         } else if (userRole === "user") {
           const regStat = await getRegStatus(user.uid);
           setStatus(regStat);

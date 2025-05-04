@@ -1,11 +1,15 @@
 /* Card components for formatting muna, comments on where to put the data is in each part of the card n rin.
 Di ko muna inalis yung buttons to each button since di pa okay routing ng navbar
 */
-
+"use client"
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import MapComponent from "./google-maps/map";
+import { useWorkExperience } from "@/context/WorkExperienceContext";
+import { WorkExperience } from "@/models/models";
+
 
 const adminLinks = [
   { label: "Manage Users", link: "manage-users" },
@@ -23,6 +27,13 @@ const adminLinks = [
 ];
 
 export default function AdminDashboard() {
+  // Get work experience list from context
+  const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
+  console.log(allWorkExperience, "workexperience");
+
+  const presentWorkExperiences = allWorkExperience.filter(
+    (exp:WorkExperience) => exp.endYear === "present"
+  );
   return (
     <div className="p-6 w-full">
       <Breadcrumbs
@@ -208,9 +219,11 @@ export default function AdminDashboard() {
           <Card className="border-0 shadow-md h-full">
             <CardHeader>
               <CardTitle>Map of Current Companies</CardTitle>
+
             </CardHeader>
             <CardContent>
               {/* Lagay map na may pin ng lahat ng current company ng mga alumni*/}
+              <MapComponent workExperienceList={presentWorkExperiences}/>
             </CardContent>
           </Card>
         </div>
