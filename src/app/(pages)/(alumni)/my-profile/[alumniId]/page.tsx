@@ -658,7 +658,7 @@ const UserProfile = () => {
           </div>
           <div className={`${seeJobpostings ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeJobpostings ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
-              onClick={handleJobpostingClick}>Job Postings</button>
+              onClick={handleJobpostingClick}>Job Posts</button>
           </div>
           <div className={`${seeBookmarks ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeBookmarks ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
@@ -1267,7 +1267,7 @@ const UserProfile = () => {
               <span><SchoolIcon/></span><span>Scholarships</span>
             </button>
             <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${jobsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleJobsViewClick}>
-              <span><BriefcaseIcon/></span><span>Jobs</span>
+              <span><BriefcaseIcon/></span><span>Job Posts</span>
             </button>
 
             {/* <div className="flex space-x-2 mb-4">
@@ -1300,7 +1300,7 @@ const UserProfile = () => {
               {bookmarks.length > 0 ? (
                 bookmarks.map((bookmark: Bookmark, index:number) => (
                     <button key={index} 
-                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer"
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {bookmark.type.toString() === "announcement" ? (
@@ -1324,7 +1324,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{ann.title}</p>
+                                  <p className="font-bold pt-2 text-left">{ann.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
                                 </div>
                               </div>
@@ -1359,7 +1359,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{eve.title}</p>
+                                  <p className="font-bold pt-2 text-left">{eve.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
                                 </div>
                               </div>
@@ -1394,7 +1394,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{don.campaignName}</p>
+                                  <p className="font-bold pt-2 text-left">{don.campaignName}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
                                 </div>
                               </div>
@@ -1429,7 +1429,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{scho.title}</p>
+                                  <p className="font-bold pt-2 text-left">{scho.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
                                 </div>
                               </div>
@@ -1464,14 +1464,14 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{job.jobDescription}</p>
+                                  <p className="font-bold pt-2 text-left">{job.position}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
                                 </div>
                               </div>
                             </div>
                             <div className="p-0 top-5">
                               <BookmarkButton 
-                                entryId={job.jobDescription}  
+                                entryId={job.jobId}  
                                 type="job_offering" 
                                 size="lg"
                               />
@@ -1482,8 +1482,8 @@ const UserProfile = () => {
                     </button>
                 ))
               ) : (
-                  <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full shadow-md justify-center items-center">
-                    <p className="text-gray-400 text-xl">No bookmarks found.</p>
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No bookmarks found.</p>
                   </div>
               )}
             </div>
@@ -1496,7 +1496,7 @@ const UserProfile = () => {
                 .filter(bookmark => bookmark.type.toString() === "announcement")
                 .map((bookmark: Bookmark, index:number) => (
                     <button key={index} 
-                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer"
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {([...announces]
@@ -1519,7 +1519,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{ann.title}</p>
+                                  <p className="font-bold pt-2 text-left">{ann.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
                                 </div>
                               </div>
@@ -1537,8 +1537,8 @@ const UserProfile = () => {
                     </button>
                 ))
               ) : (
-                  <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full shadow-md justify-center items-center">
-                    <p className="text-gray-400 text-xl">No announcement bookmarks found.</p>
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No announcement bookmarks found.</p>
                   </div>
               )}
             </div>
@@ -1551,7 +1551,7 @@ const UserProfile = () => {
                 .filter(bookmark => bookmark.type.toString() === "event")
                 .map((bookmark: Bookmark, index:number) => (
                     <button key={index} 
-                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer"
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {([...events]
@@ -1574,7 +1574,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{eve.title}</p>
+                                  <p className="font-bold pt-2 text-left">{eve.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
                                 </div>
                               </div>
@@ -1592,9 +1592,9 @@ const UserProfile = () => {
                     </button>
                 ))
               ) : (
-                  <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full shadow-md justify-center items-center">
-                    <p className="text-gray-400 text-xl">No event bookmarks found.</p>
-                  </div>
+                <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                  <p className="text-gray-700">No event bookmarks found.</p>
+                </div>
               )}
             </div>
           </div>)}
@@ -1606,7 +1606,7 @@ const UserProfile = () => {
                 .filter(bookmark => bookmark.type.toString() === "donation_drive")
                 .map((bookmark: Bookmark, index:number) => (
                     <button key={index} 
-                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer"
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {(donationDrives
@@ -1629,7 +1629,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{don.campaignName}</p>
+                                  <p className="font-bold pt-2 text-left">{don.campaignName}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
                                 </div>
                               </div>
@@ -1647,8 +1647,8 @@ const UserProfile = () => {
                     </button>
                 ))
               ) : (
-                  <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full shadow-md justify-center items-center">
-                    <p className="text-gray-400 text-xl">No donation drive bookmarks found.</p>
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No donation drive bookmarks found.</p>
                   </div>
               )}
             </div>
@@ -1661,7 +1661,7 @@ const UserProfile = () => {
                 .filter(bookmark => bookmark.type.toString() === "scholarship")
                 .map((bookmark: Bookmark, index:number) => (
                     <button key={index} 
-                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer"
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {([...scholarships]
@@ -1684,7 +1684,7 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{scho.title}</p>
+                                  <p className="font-bold pt-2 text-left">{scho.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
                                 </div>
                               </div>
@@ -1702,8 +1702,8 @@ const UserProfile = () => {
                     </button>
                 ))
               ) : (
-                  <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full shadow-md justify-center items-center">
-                    <p className="text-gray-400 text-xl">No scholarship bookmarks found.</p>
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No scholarship bookmarks found.</p>
                   </div>
               )}
             </div>
@@ -1716,7 +1716,7 @@ const UserProfile = () => {
                 .filter(bookmark => bookmark.type.toString() === "job_offering")
                 .map((bookmark: Bookmark, index:number) => (
                     <button key={index} 
-                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer"
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {([...jobOffers]
@@ -1739,14 +1739,14 @@ const UserProfile = () => {
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <p className="font-bold uppercase pt-2 text-left">{job.jobDescription}</p>
+                                  <p className="font-bold pt-2 text-left">{job.position}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
                                 </div>
                               </div>
                             </div>
                             <div className="p-0 top-5">
                               <BookmarkButton 
-                                entryId={job.jobDescription}  
+                                entryId={job.jobId}  
                                 type="job_offering" 
                                 size="lg"
                               />
@@ -1757,8 +1757,8 @@ const UserProfile = () => {
                     </button>
                 ))
               ) : (
-                  <div className="bg-white flex flex-col p-5 rounded-xl max-h-fit space-y-1 w-full shadow-md justify-center items-center">
-                    <p className="text-gray-400 text-xl">No job bookmarks found.</p>
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No job post bookmarks found.</p>
                   </div>
               )}
             </div>
