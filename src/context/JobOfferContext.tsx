@@ -277,8 +277,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         location,
         setLocation,
         handleDelete,
-        location,
-        setLocation,
         image,
         setJobImage,
         preview,
