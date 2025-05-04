@@ -39,33 +39,33 @@ export function WorkExperienceProvider({
     []
   );
   const [isLoading, setLoading] = useState<boolean>(false);
-  const { user } = useAuth();
+  const { user , isAdmin } = useAuth();
 
   useEffect(() => {
-    let unsubscribe: (() => void) | null;
-    let unsubscribeUser: (() => void) | null;
-
-    if (user) {
-      unsubscribe = subscribeToWorkExperience(); //for work experience of all users
-      unsubscribeUser = subscribeToUserWorkExperience(); //for work experience of current user
+    console.log("useEffect - user:", user, "isAdmin:", isAdmin);
+  
+    if (user === null && isAdmin === null) return; // wait for auth to initialize
+  
+    let unsubscribe: (() => void) | null = null;
+  
+    if (isAdmin) {
+      console.log("Admin detected - subscribing to all work experience");
+      unsubscribe = subscribeToWorkExperience(); // Admin sees all
+    } else if (user) {
+      console.log("Regular user detected - subscribing to own work experience");
+      unsubscribe = subscribeToUserWorkExperience(); // Regular user sees own
     } else {
-      setUserWorkExperience([]); //reset current user's work experience
-      setAllWorkExperience([]); //reset all work experience
+      console.log("No user logged in - resetting work experience state");
+      setUserWorkExperience([]);
+      setAllWorkExperience([]);
       setLoading(false);
     }
-
+  
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-
-      if (unsubscribeUser) {
-        unsubscribeUser();
-      }
+      if (unsubscribe) unsubscribe();
     };
-  }, [user]);
-
-
+  }, [user, isAdmin]);
+  
   const sortExperienceList = (experienceList: WorkExperience[]): WorkExperience[] => {
     const sortedList = [...experienceList]; // Copy to avoid modifying the original
   
