@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import MapComponent from "./google-maps/map";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { WorkExperience } from "@/models/models";
+import { useAlums } from "@/context/AlumContext";
+import { Alumnus, WorkExperience } from "@/models/models";
 
 
 const adminLinks = [
@@ -29,7 +30,56 @@ const adminLinks = [
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
-  console.log(allWorkExperience, "workexperience");
+  const {totalAlums,alums, getActiveAlums, getInactiveAlums} = useAlums();
+  const fields = [
+    "Artificial Intelligence (AI)",
+    "Machine Learning (ML)",
+    "Data Science",
+    "Cybersecurity",
+    "Software Engineering",
+    "Computer Networks",
+    "Computer Graphics and Visualization",
+    "Human-Computer Interaction (HCI)",
+    "Theoretical Computer Science",
+    "Operating Systems",
+    "Databases",
+    "Web Development",
+    "Mobile Development",
+    "Cloud Computing",
+    "Embedded Systems",
+    "Robotics",
+    "Game Development",
+    "Quantum Computing",
+    "DevOps and System Administration",
+    "Information Systems",
+    "Others"
+  ];
+  
+  const getFieldInterestCounts = (alums: Alumnus[]) => {
+    const counts: Record<string, number> = {}; //rereturn ito like this 
+                                              // [<field> count]
+    
+    
+    fields.forEach(field => {
+      counts[field] = 0;
+    });
+  
+    // Count occurrences
+    alums.forEach(alum => {
+      alum.fieldOfInterest?.forEach(field => {
+        if (counts.hasOwnProperty(field)) {
+          counts[field]++;
+        } else {
+          counts["Others"]++; 
+        }
+      });
+    });
+    
+    return counts;
+  };
+  
+  const fieldCounts = getFieldInterestCounts(alums);
+  console.log(alums, "alumnis", getActiveAlums(alums));
 
   const presentWorkExperiences = allWorkExperience.filter(
     (exp:WorkExperience) => exp.endYear === "present"
@@ -70,6 +120,16 @@ export default function AdminDashboard() {
                 - Active alumni count
                 - Pending alumni count pati data na pwede iroute dun sa pag accept/reject
             */}
+            <p>Total Alums:{totalAlums}</p> {/*total alumni*/}
+            <p>Actve Alums: {getActiveAlums(alums)}</p> {/*active alumni*/}
+            <p>Pending Alums: {getInactiveAlums(alums)}</p> {/*inactive alumni*/}
+            {alums.map((alum:Alumnus, index:number)=>{
+              return (
+                <div key={alum.alumniId}>
+                  Name: {alum.lastName}, {alum.firstName} {alum.middleName}
+                </div>
+              )
+            })}
           </CardContent>
         </Card>
 
@@ -81,6 +141,9 @@ export default function AdminDashboard() {
           <CardContent>
             {/* Pie chart !
               Count ng alumni per industry */}
+            {Object.entries(fieldCounts).map(([field, count]) => (
+              <p key={field}>{field}: {count}</p>
+            ))}
           </CardContent>
         </Card>
       </div>
