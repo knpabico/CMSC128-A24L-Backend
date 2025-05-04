@@ -24,14 +24,13 @@ export default function CreateFeaturedStoryPage() {
   const [preview, setPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
+  const handleImageChange = (e:any) => {
+    const file = e.target.files[0];
     if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setPreview(previewUrl);
-      setImage(previewUrl); // Automatically set the image URL
+        setImage(file);
+        setPreview(URL.createObjectURL(file)); //preview
     }
-  };
+};
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
