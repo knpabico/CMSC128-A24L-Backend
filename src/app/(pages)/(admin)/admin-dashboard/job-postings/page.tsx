@@ -5,13 +5,41 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, ChevronDown, Check, CirclePlus, Pencil, CircleX } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  ChevronRight,
+  Trash2,
+  ThumbsDown,
+  ThumbsUp,
+  ChevronDown,
+  Check,
+  CirclePlus,
+  Pencil,
+  CircleX,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ModalInput from "@/components/ModalInputForm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function Users() {
-  const { jobOffers, isLoading, handleAccept, handleReject, handleView, selectedJob, closeModal, handleDelete,
+  const {
+    jobOffers,
+    isLoading,
+    handleAccept,
+    handleReject,
+    handleView,
+    selectedJob,
+    closeModal,
+    handleDelete,
     setShowForm,
     showForm,
     handleSubmit,
@@ -39,7 +67,6 @@ export default function Users() {
     handleImageChange,
   } = useJobOffer();
 
-
   const filterCategories = {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
     "Job Type": [
@@ -48,7 +75,7 @@ export default function Users() {
       "Data Science",
       "UX/UI Design",
       "Project Management",
-      "Others"
+      "Others",
     ],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
     Skills: [
@@ -64,9 +91,8 @@ export default function Users() {
     ],
   };
 
-
-  const [viewingJob, setViewingJob] = useState(null)
-  const [currentPage, setCurrentPage] = useState("list")
+  const [viewingJob, setViewingJob] = useState(null);
+  const [currentPage, setCurrentPage] = useState("list");
   const [activeTab, setActiveTab] = useState("Accepted");
   const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
@@ -80,7 +106,9 @@ export default function Users() {
 
   const filterJobs = (status: string) => {
     console.log("Filtering jobs with status:", status);
-    const filtered = jobOffers.filter((job: JobOffering) => job.status === status);
+    const filtered = jobOffers.filter(
+      (job: JobOffering) => job.status === status
+    );
     console.log("Filtered jobs:", filtered);
     return filtered;
   };
@@ -88,20 +116,20 @@ export default function Users() {
   const tabs = ["Accepted", "Pending", "Rejected"];
 
   const stats = {
-    pending: jobOffers.filter(job => job.status === "Pending").length,
-    accepted: jobOffers.filter(job => job.status === "Accepted").length,
-    rejected: jobOffers.filter(job => job.status === "Rejected").length,
-    total: jobOffers.length
+    pending: jobOffers.filter((job) => job.status === "Pending").length,
+    accepted: jobOffers.filter((job) => job.status === "Accepted").length,
+    rejected: jobOffers.filter((job) => job.status === "Rejected").length,
+    total: jobOffers.length,
   };
 
   // INCORPORATED FROM SAMPLE PAGE FROM DAPHNE
-   // Track scroll position and update header state
-   useEffect(() => {
+  // Track scroll position and update header state
+  useEffect(() => {
     const handleScroll = () => {
       if (!tableRef.current) return;
-      
+
       const tableRect = tableRef.current.getBoundingClientRect();
-      
+
       if (tableRect.top <= 0 && !isSticky) {
         setIsSticky(true);
         setHeaderWidth(tableRect.width);
@@ -110,36 +138,36 @@ export default function Users() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    
+    window.addEventListener("scroll", handleScroll);
+
     // Set initial width
     if (tableRef.current) {
       setHeaderWidth(tableRef.current.offsetWidth);
     }
-    
+
     // Clean up
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [isSticky]);
 
   // New function to handle viewing job details
   const handleViewJob = (jobId) => {
-    const job = jobOffers.find((job) => job.jobId === jobId)
+    const job = jobOffers.find((job) => job.jobId === jobId);
     if (job) {
-      setViewingJob(job)
-      setCurrentPage("view")
+      setViewingJob(job);
+      setCurrentPage("view");
     }
-  }
+  };
 
   const goBackToList = () => {
-    setCurrentPage("list")
-    setViewingJob(null)
-  }
+    setCurrentPage("list");
+    setViewingJob(null);
+  };
 
   // Render view page for a job posting
   const renderViewPage = () => {
-    if (!viewingJob) return null
+    if (!viewingJob) return null;
 
     return (
       <div className="flex flex-col gap-5">
@@ -148,13 +176,18 @@ export default function Users() {
           <div>
             <ChevronRight size={15} />
           </div>
-          <div className="cursor-pointer hover:text-blue-600" onClick={goBackToList}>
+          <div
+            className="cursor-pointer hover:text-blue-600"
+            onClick={goBackToList}
+          >
             Manage Job Posting
           </div>
           <div>
             <ChevronRight size={15} />
           </div>
-          <div className="font-bold text-[var(--primary-blue)]">View Job Posting</div>
+          <div className="font-bold text-[var(--primary-blue)]">
+            View Job Posting
+          </div>
         </div>
 
         <div className="w-full">
@@ -171,25 +204,37 @@ export default function Users() {
             <div className="flex flex-col gap-5">
               {/* Job Position */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Job Position</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.position}</div>
+                <label className="block text-sm font-medium">
+                  Job Position
+                </label>
+                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                  {viewingJob.position}
+                </div>
               </div>
 
               {/* Company */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Company Name</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.company}</div>
+                <label className="block text-sm font-medium">
+                  Company Name
+                </label>
+                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                  {viewingJob.company}
+                </div>
               </div>
 
               {/* Location */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium">Location</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.location}</div>
+                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                  {viewingJob.location}
+                </div>
               </div>
 
               {/* Employment Type */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Employment Type</label>
+                <label className="block text-sm font-medium">
+                  Employment Type
+                </label>
                 <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
                   {viewingJob.employmentType}
                 </div>
@@ -198,12 +243,16 @@ export default function Users() {
               {/* Job Type */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium">Job Type</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.jobType}</div>
+                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                  {viewingJob.jobType}
+                </div>
               </div>
 
               {/* Experience Level */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Experience Level</label>
+                <label className="block text-sm font-medium">
+                  Experience Level
+                </label>
                 <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
                   {viewingJob.experienceLevel}
                 </div>
@@ -211,13 +260,19 @@ export default function Users() {
 
               {/* Salary Range */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Salary Range</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.salaryRange}</div>
+                <label className="block text-sm font-medium">
+                  Salary Range
+                </label>
+                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                  {viewingJob.salaryRange}
+                </div>
               </div>
 
               {/* Required Skills */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Required Skills</label>
+                <label className="block text-sm font-medium">
+                  Required Skills
+                </label>
                 <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
                   {viewingJob.requiredSkill?.join(", ")}
                 </div>
@@ -225,7 +280,9 @@ export default function Users() {
 
               {/* Job Description */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Job Description</label>
+                <label className="block text-sm font-medium">
+                  Job Description
+                </label>
                 <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[110px]">
                   {viewingJob.jobDescription}
                 </div>
@@ -235,7 +292,8 @@ export default function Users() {
               <div className="space-y-2">
                 <label className="block text-sm font-medium">Date Posted</label>
                 <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.datePosted?.toLocaleString?.() || new Date(viewingJob.datePosted).toLocaleString()}
+                  {viewingJob.datePosted?.toLocaleString?.() ||
+                    new Date(viewingJob.datePosted).toLocaleString()}
                 </div>
               </div>
 
@@ -247,8 +305,8 @@ export default function Users() {
                     viewingJob.status === "Accepted"
                       ? "bg-green-100 text-green-800"
                       : viewingJob.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
                   }`}
                 >
                   {viewingJob.status}
@@ -258,8 +316,8 @@ export default function Users() {
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -299,12 +357,16 @@ export default function Users() {
                 >
                   <div
                     className={`w-full h-1 transition-colors ${
-                      activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-transparent"
+                      activeTab === tab
+                        ? "bg-[var(--primary-blue)]"
+                        : "bg-transparent"
                     }`}
                   ></div>
                   <div
                     className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
-                      activeTab === tab ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"
+                      activeTab === tab
+                        ? "text-[var(--primary-blue)] bg-white"
+                        : "text-blue-200 bg-white"
                     }`}
                   >
                     {tab}
@@ -313,7 +375,11 @@ export default function Users() {
                         activeTab === tab ? "bg-amber-400" : "bg-blue-200"
                       }`}
                     >
-                      {tab === "Pending" ? stats.pending : tab === "Accepted" ? stats.accepted : stats.rejected}
+                      {tab === "Pending"
+                        ? stats.pending
+                        : tab === "Accepted"
+                        ? stats.accepted
+                        : stats.rejected}
                     </div>
                   </div>
                 </div>
@@ -321,14 +387,21 @@ export default function Users() {
             </div>
 
             <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-              <div className="rounded-xl overflow-hidden border border-gray-300 relative" ref={tableRef}>
-                <div
-                  className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm"
-                >
-                  <div className="w-1/2 flex items-center justify-baseline font-semibold">Job Posting Info</div>
+              <div
+                className="rounded-xl overflow-hidden border border-gray-300 relative"
+                ref={tableRef}
+              >
+                <div className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm">
+                  <div className="w-1/2 flex items-center justify-baseline font-semibold">
+                    Job Posting Info
+                  </div>
                   <div className="w-1/2 flex justify-end items-center">
-                    <div className="w-1/6 flex items-center justify-center font-semibold">Status</div>
-                    <div className="w-1/6 flex items-center justify-center font-semibold">Actions</div>
+                    <div className="w-1/6 flex items-center justify-center font-semibold">
+                      Status
+                    </div>
+                    <div className="w-1/6 flex items-center justify-center font-semibold">
+                      Actions
+                    </div>
                     <div className="w-1/6 flex items-center justify-center"></div>
                   </div>
                 </div>
@@ -348,7 +421,8 @@ export default function Users() {
                       <div className="text-base font-bold">{job.position}</div>
                       <div className="text-sm text-gray-600">{job.company}</div>
                       <div className="text-sm text-gray-500">
-                        {job.employmentType} • {job.experienceLevel} • {job.salaryRange}
+                        {job.employmentType} • {job.experienceLevel} •{" "}
+                        {job.salaryRange}
                       </div>
                     </div>
                     <div className="w-1/2 flex items-center justify-end p-5">
@@ -358,8 +432,8 @@ export default function Users() {
                             job.status === "Accepted"
                               ? "bg-green-100 text-green-800"
                               : job.status === "Pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                           }`}
                         >
                           {job.status}
@@ -398,7 +472,7 @@ export default function Users() {
                             className="text-gray-500 hover:text-red-500 cursor-pointer"
                             onClick={() => {
                               setJobToDelete(job); // Set the job to delete
-                            setIsConfirmationOpen(true); // Open the confirmation dialog}
+                              setIsConfirmationOpen(true); // Open the confirmation dialog}
                             }}
                           />
                         )}
@@ -446,7 +520,10 @@ export default function Users() {
                   <label className="block text-sm font-medium mb-1">
                     Employment Type<span className="text-red-500">*</span>
                   </label>
-                  <DropdownMenu open={employmentTypeOpen} onOpenChange={setEmploymentTypeOpen}>
+                  <DropdownMenu
+                    open={employmentTypeOpen}
+                    onOpenChange={setEmploymentTypeOpen}
+                  >
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
@@ -463,12 +540,14 @@ export default function Users() {
                           variant="ghost"
                           className="w-full justify-start p-2 text-left hover:bg-gray-100"
                           onClick={() => {
-                            setEmploymentType(type)
-                            setEmploymentTypeOpen(false)
+                            setEmploymentType(type);
+                            setEmploymentTypeOpen(false);
                           }}
                         >
                           {type}
-                          {employmentType === type && <Check className="ml-auto h-4 w-4" />}
+                          {employmentType === type && (
+                            <Check className="ml-auto h-4 w-4" />
+                          )}
                         </Button>
                       ))}
                     </DropdownMenuContent>
@@ -479,7 +558,10 @@ export default function Users() {
                   <label className="block text-sm font-medium mb-1">
                     Job Type<span className="text-red-500">*</span>
                   </label>
-                  <DropdownMenu open={jobTypeOpen} onOpenChange={setJobTypeOpen}>
+                  <DropdownMenu
+                    open={jobTypeOpen}
+                    onOpenChange={setJobTypeOpen}
+                  >
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
@@ -496,12 +578,14 @@ export default function Users() {
                           variant="ghost"
                           className="w-full justify-start p-2 text-left hover:bg-gray-100"
                           onClick={() => {
-                            setJobType(type)
-                            setJobTypeOpen(false)
+                            setJobType(type);
+                            setJobTypeOpen(false);
                           }}
                         >
                           {type}
-                          {jobType === type && <Check className="ml-auto h-4 w-4" />}
+                          {jobType === type && (
+                            <Check className="ml-auto h-4 w-4" />
+                          )}
                         </Button>
                       ))}
                     </DropdownMenuContent>
@@ -572,7 +656,10 @@ export default function Users() {
                   <label className="block text-sm font-medium mb-1">
                     Experience Level<span className="text-red-500">*</span>
                   </label>
-                  <DropdownMenu open={experienceLevelOpen} onOpenChange={setExperienceLevelOpen}>
+                  <DropdownMenu
+                    open={experienceLevelOpen}
+                    onOpenChange={setExperienceLevelOpen}
+                  >
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
@@ -589,12 +676,14 @@ export default function Users() {
                           variant="ghost"
                           className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
                           onClick={() => {
-                            setExperienceLevel(level)
-                            setExperienceLevelOpen(false)
+                            setExperienceLevel(level);
+                            setExperienceLevelOpen(false);
                           }}
                         >
                           {level}
-                          {experienceLevel === level && <Check className="ml-auto h-4 w-4" />}
+                          {experienceLevel === level && (
+                            <Check className="ml-auto h-4 w-4" />
+                          )}
                         </Button>
                       ))}
                     </DropdownMenuContent>
@@ -642,14 +731,25 @@ export default function Users() {
                       <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                         Choose File
                       </div>
-                      <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
                     </label>
-                    <span className="text-sm text-gray-500">{fileName || "No file chosen"}</span>
+                    <span className="text-sm text-gray-500">
+                      {fileName || "No file chosen"}
+                    </span>
                   </div>
 
                   {preview && (
                     <div className="mt-3">
-                      <img src={preview || "/placeholder.svg"} alt="Preview" className="h-20 object-contain" />
+                      <img
+                        src={preview || "/placeholder.svg"}
+                        alt="Preview"
+                        className="h-20 object-contain"
+                      />
                     </div>
                   )}
                 </div>
@@ -677,27 +777,37 @@ export default function Users() {
       )}
       {/* Confirmation Dialog */}
       {isConfirmationOpen && (
-            <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
-              <DialogContent className='w-96'>
-                <DialogHeader className='text-red-500 flex items-center gap-5'>
-                  <CircleX className='size-15'/>
-                  <DialogTitle className="text-md text-center">
-                    Are you sure you want to delete <br /> <strong>{jobToDelete?.position}</strong>?
-                  </DialogTitle>
-                </DialogHeader>
-                <DialogFooter className='mt-5'>
-                  <button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer" 
-                    onClick={() => {
-                      if(jobToDelete){
-                        handleDelete(jobToDelete.jobId);
-                        setIsConfirmationOpen(false);
-                      }
-                    }} >Delete</button>
-                  <button className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100" onClick={() => setIsConfirmationOpen(false)}>Cancel</button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+        <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+          <DialogContent className="w-96">
+            <DialogHeader className="text-red-500 flex items-center gap-5">
+              <CircleX className="size-15" />
+              <DialogTitle className="text-md text-center">
+                Are you sure you want to delete <br />{" "}
+                <strong>{jobToDelete?.position}</strong>?
+              </DialogTitle>
+            </DialogHeader>
+            <DialogFooter className="mt-5">
+              <button
+                className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer"
+                onClick={() => {
+                  if (jobToDelete) {
+                    handleDelete(jobToDelete.jobId);
+                    setIsConfirmationOpen(false);
+                  }
+                }}
+              >
+                Delete
+              </button>
+              <button
+                className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100"
+                onClick={() => setIsConfirmationOpen(false)}
+              >
+                Cancel
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </>
-  )
+  );
 }

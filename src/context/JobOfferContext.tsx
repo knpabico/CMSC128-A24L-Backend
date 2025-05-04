@@ -9,8 +9,6 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  getDocs,
-  where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -86,42 +84,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
 
   const handleSkillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRequiredSkill(e.target.value.split(",").map((skill) => skill.trim()));
-  };
-
-  //get the Job Offer by Alumni
-  const getJobOfferByAlumni = async (
-    alumniId: string
-  ): Promise<JobOffering[]> => {
-    if (!alumniId) {
-      console.error("No alumni ID provided");
-      return Promise.reject("No alumni ID provided");
-    }
-
-    setLoading(true);
-
-    try {
-      const jobOffersQuery = query(
-        collection(db, "job_offering"),
-        where("alumniId", "==", alumniId)
-      );
-
-      const snapshot = await getDocs(jobOffersQuery);
-
-      const jobOffers = snapshot.docs.map(
-        (doc) =>
-          ({
-            jobId: doc.id,
-            ...doc.data(),
-          } as JobOffering)
-      );
-
-      setLoading(false);
-      return jobOffers;
-    } catch (error) {
-      console.error("Error fetching donations by alumni:", error);
-      setLoading(false);
-      throw error;
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -248,6 +210,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     <JobOfferContext.Provider
       value={{
         jobOffers,
+        bookmarks,
         isLoading,
         addJobOffer,
         setShowForm,
@@ -261,7 +224,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         setExperienceLevel,
         jobDescription,
         setJobDescription,
-        getJobOfferByAlumni,
         jobType,
         setJobType,
         position,

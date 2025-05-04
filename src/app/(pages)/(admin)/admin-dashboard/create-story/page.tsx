@@ -1,7 +1,18 @@
 "use client";
 import { useFeatured } from "@/context/FeaturedStoryContext";
 import { uploadImage } from "@/lib/upload";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Trash2,
+  Edit,
+  CirclePlus,
+  Plus,
+} from "lucide-react";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 export default function FeaturedStoriesPage() {
   const {
@@ -30,8 +41,15 @@ export default function FeaturedStoriesPage() {
   const [uploadStatus, setUploadStatus] = useState({
     message: "",
     isError: false,
-    isUploaded: false
+    isUploaded: false,
   });
+
+  const [activeTab, setActiveTab] = useState("All Stories");
+  const tableRef = useRef(null);
+  const [headerWidth, setHeaderWidth] = useState("100%");
+  const [isSticky, setIsSticky] = useState(false);
+
+  const tabs = ["All Stories", "Events", "Donations", "Scholarships"];
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -41,17 +59,44 @@ export default function FeaturedStoriesPage() {
       setUploadStatus({
         message: "Image selected, please click Upload Photo",
         isError: false,
-        isUploaded: false
+        isUploaded: false,
       });
     }
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!tableRef.current) return;
+
+      const tableRect = tableRef.current.getBoundingClientRect();
+
+      if (tableRect.top <= 0 && !isSticky) {
+        setIsSticky(true);
+        setHeaderWidth(tableRect.width);
+      } else if (tableRect.top > 0 && isSticky) {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Set initial width
+    if (tableRef.current) {
+      setHeaderWidth(tableRef.current.offsetWidth);
+    }
+
+    // Clean up
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isSticky]);
 
   const handleUpload = async () => {
     if (!imageFile) {
       setUploadStatus({
         message: "No image selected",
         isError: true,
-        isUploaded: false
+        isUploaded: false,
       });
       return;
     }
@@ -62,24 +107,24 @@ export default function FeaturedStoriesPage() {
       setUploadStatus({
         message: "Uploading...",
         isError: false,
-        isUploaded: false
+        isUploaded: false,
       });
-      
+
       const data = await uploadImage(imageFile, uploadPath);
-      
+
       if (data.success) {
         // Set the uploaded image URL to the context
         setImage(data.url);
         setUploadStatus({
           message: "Image uploaded successfully!",
           isError: false,
-          isUploaded: true
+          isUploaded: true,
         });
       } else {
         setUploadStatus({
           message: data.result || "Upload failed",
           isError: true,
-          isUploaded: false
+          isUploaded: false,
         });
       }
     } catch (error) {
@@ -87,24 +132,33 @@ export default function FeaturedStoriesPage() {
       setUploadStatus({
         message: "Unexpected error occurred during upload.",
         isError: true,
-        isUploaded: false
+        isUploaded: false,
       });
     }
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    
-    // Make sure an image is uploaded before submitting
-    if (!uploadStatus.isUploaded && !image) {
+
+    if (!uploadStatus.isUploaded && !image && !isEdit) {
       setUploadStatus({
         message: "Please upload an image before submitting",
         isError: true,
-        isUploaded: false
+        isUploaded: false,
       });
       return;
     }
-    
+
+    // For edit mode, make sure we have either a newly uploaded image or the existing one
+    if (!uploadStatus.isUploaded && !image && isEdit) {
+      setUploadStatus({
+        message: "Please upload an image before submitting",
+        isError: true,
+        isUploaded: false,
+      });
+      return;
+    }
+
     if (isEdit) {
       handleEdit(e);
     } else {
@@ -115,14 +169,14 @@ export default function FeaturedStoriesPage() {
   const openForm = (isEditMode, item = null) => {
     if (isEditMode && item) {
       setText(item.text);
-      setTitle(item.title); // now a string
-      setImage(item.image); // now a string
+      setTitle(item.title);
+      setImage(item.image);
       setType(item.type);
       setCurrentFeaturedId(item.featuredId);
     } else {
       setText("");
-      setTitle(""); // empty string
-      setImage(""); // empty string
+      setTitle("");
+      setImage("");
       setType("");
       setCurrentFeaturedId(null);
     }
@@ -130,119 +184,345 @@ export default function FeaturedStoriesPage() {
     setShowForm(true);
   };
 
-  return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">FEATURED STORIES</h1>
-      {isLoading && <h1>Loading...</h1>}
+  // Filter items based on active tab
+  const filteredItems =
+    activeTab === "All Stories"
+      ? featuredItems
+      : featuredItems.filter((item) => {
+          const tabTypeMap = {
+            Events: "event",
+            Donations: "donation",
+            Scholarships: "scholarship",
+          };
+          return item.type === tabTypeMap[activeTab];
+        });
 
-      {featuredItems.map((item, index) => (
-        <div key={index} className="p-1 flex justify-between items-center border-b pb-2">
-          <div>
-            <h1 className="font-semibold">{item.text}</h1>
-            <h2>{item.datePosted?.toDate?.().toLocaleString?.() || new Date(item.datePosted).toLocaleString()}</h2>
-            <h2>Title: {item.title}</h2>
-            <h2>Type: {item.type}</h2>
-            {item.image > 0 && (
-              <img src={item.image} alt="Featured" className="w-20 h-20 object-cover mt-1" />
-            )}
-          </div>
-          <div className="flex gap-4">
-            <button
-              className="text-blue-500 hover:underline"
-              onClick={() => openForm(true, item)}
-            >
-              Edit
-            </button>
-            <button
-              className="text-red-500 hover:underline"
-              onClick={() => handleDelete(item.featuredId)}
-            >
-              Delete
-            </button>
+  // Count items for each category
+  const getCategoryCount = (category) => {
+    if (category === "All Stories") return featuredItems.length;
+
+    const categoryTypeMap = {
+      Events: "event",
+      Donations: "donation",
+      Scholarships: "scholarship",
+    };
+
+    return featuredItems.filter(
+      (item) => item.type === categoryTypeMap[category]
+    ).length;
+  };
+
+  const router = useRouter(); // Initialize the router
+
+  const navigateToDetail = (featuredId) => {
+    router.push(`/admin/create-story/${featuredId}`); // Navigate to the detail page
+  };
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-2">
+        <div>Home</div>
+        <div>
+          <ChevronRight size={15} />
+        </div>
+        <div>Manage Featured Stories</div>
+      </div>
+
+      <div className="w-full">
+        <div className="flex items-center justify-between">
+          <div className="font-bold text-3xl">Manage Featured Stories</div>
+          <div
+            className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
+            onClick={() => openForm()}
+          >
+            <CirclePlus size={18} />
+            Write featured story
           </div>
         </div>
-      ))}
+      </div>
 
-      <button
-        className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full"
-        onClick={() => openForm(false)}
-      >
-        +
-      </button>
+      <div className="flex flex-col gap-3">
+        {/* Tabs */}
+        <div className="w-full flex gap-2">
+          {tabs.map((tab) => (
+            <div
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
+                activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-white"
+              }`}
+            >
+              {/* Blue bar above active tab */}
+              <div
+                className={`w-full h-1 transition-colors ${
+                  activeTab === tab
+                    ? "bg-[var(--primary-blue)]"
+                    : "bg-transparent"
+                }`}
+              ></div>
+              <div
+                className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
+                  activeTab === tab
+                    ? "text-[var(--primary-blue)] bg-white"
+                    : "text-blue-200 bg-white"
+                }`}
+              >
+                {tab}
+                <div
+                  className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                    activeTab === tab ? "bg-amber-400" : "bg-blue-200"
+                  }`}
+                >
+                  {getCategoryCount(tab)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
+        {/* Table Container with Fixed Height for Scrolling */}
+        <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+          {isLoading ? (
+            <div className="flex justify-center items-center p-8">
+              <div className="text-xl">Loading...</div>
+            </div>
+          ) : (
+            <div
+              className="rounded-xl overflow-hidden border border-gray-300 relative"
+              ref={tableRef}
+            >
+              {/* Sticky header */}
+              <div
+                className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
+                  isSticky ? "fixed top-0" : ""
+                }`}
+                style={{ width: isSticky ? headerWidth : "100%" }}
+              >
+                <div className="w-2/3 flex items-center justify-baseline font-semibold">
+                  Featured Story Info
+                </div>
+                <div className="w-1/3 flex justify-end items-center">
+                  <div className="w-1/3 flex items-center justify-center font-semibold">
+                    Type
+                  </div>
+                  <div className="w-1/3 flex items-center justify-center font-semibold">
+                    Actions
+                  </div>
+                </div>
+              </div>
+
+              {/* Spacer div to prevent content jump when header becomes fixed */}
+              {isSticky && <div style={{ height: "56px" }}></div>}
+
+              {/* Featured Stories Rows */}
+              {filteredItems.length > 0 ? (
+                filteredItems.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`w-full flex gap-4 border-t border-gray-300 ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50 cursor-pointer`}
+                    onClick={() => navigateToDetail(item.featuredId)}
+                  >
+                    <div className="w-2/3 flex p-4 gap-4">
+                      {item.image && (
+                        <div className="flex-shrink-0">
+                          <img
+                            src={item.image}
+                            alt="Featured"
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-1">
+                        <div className="text-base font-bold">{item.title}</div>
+                        <div className="text-sm text-gray-600 line-clamp-2">
+                          {item.text}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {item.datePosted?.toDate?.().toLocaleString?.() ||
+                            new Date(item.datePosted).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Toggle Switch */}
+                    <div
+                      className="flex items-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={item.isPublic}
+                          onChange={async (e) => {
+                            try {
+                              await updateDoc(
+                                doc(db, "featured", item.featuredId),
+                                {
+                                  isPublic: !item.isPublic,
+                                }
+                              );
+                              console.log(
+                                `isPublic set to ${!item.isPublic} for ${
+                                  item.featuredId
+                                }`
+                              );
+                            } catch (error) {
+                              console.error("Error updating isPublic:", error);
+                            }
+                          }}
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                      </label>
+                    </div>
+
+                    {/* Tags and Action Icons */}
+                    <div className="w-1/3 flex items-center justify-end p-5">
+                      <div className="w-1/3 flex items-center justify-center">
+                        <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                          {item.type}
+                        </div>
+                      </div>
+
+                      <div
+                        className="w-1/3 flex items-center justify-center gap-4"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Trash2
+                          size={18}
+                          className="text-gray-500 hover:text-red-500 cursor-pointer"
+                          onClick={() => handleDelete(item.featuredId)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-gray-500">
+                  No featured stories found in this category.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
           <form
             onSubmit={handleFormSubmit}
-            className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-full max-w-md"
+            className="bg-white p-4 rounded-lg shadow-md w-full max-w-md mx-auto"
           >
-            <h2 className="text-xl mb-4">{isEdit ? "Edit" : "Add"} Featured Story</h2>
+            {/* Modal Header */}
+            <div className="flex justify-between items-center border-b pb-3">
+              <h2 className="text-lg font-semibold">
+                {isEdit ? "Edit featured story" : "Write Featured Story"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setPreview(null); // Clear preview
+                  setImageFile(null); // Clear selected file
+                  setImage(""); // Optional: reset image if needed
+                  setUploadStatus({
+                    // Reset upload status
+                    isUploaded: false,
+                    isError: false,
+                    message: "",
+                  });
+                }}
+                className="text-gray-600 text-xl font-bold hover:text-black"
+              >
+                ×
+              </button>
+            </div>
 
+            {/* Title Input (Styled like placeholder) */}
             <input
               type="text"
-              placeholder="TITLE"
+              placeholder="Title here"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mt-6 mb-2 pl-1 text-lg font-medium placeholder-gray-400 focus:outline-none"
               required
             />
 
-            <input
-              type="text"
-              placeholder="Main Story"
+            {/* Description Input */}
+            <textarea
+              placeholder="Description here"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mb-4 text-sm pl-1 placeholder-gray-400 resize-none focus:outline-none"
+              rows={5}
               required
             />
 
-
-            {/* Type Dropdown - Select before uploading image */}
+            {/* Type Dropdown */}
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mb-4 text-sm placeholder-gray-400 resize-none focus:outline-none"
               required
             >
-              <option value="">Select Type</option>
+              <option value="" disabled hidden>
+                Select Type
+              </option>
               <option value="event">Event</option>
               <option value="donation">Donation</option>
               <option value="scholarship">Scholarship</option>
             </select>
 
-            {/* Upload Photo */}
+            <hr className="border-t border-gray-200 my-1.5" />
+
+            {/* Image Upload Block */}
             <div className="mb-4">
-              <label className="block mb-2 text-sm font-medium">
+              <label className="block mb-2 text-sm font-medium py-2">
                 Featured Image {uploadStatus.isUploaded && "✓"}
               </label>
-              
-              {/* Show current image if editing */}
-              {isEdit && image  && !preview && (
-                <div className="mb-2">
-                  <img src={image} alt="Current" className="w-full h-auto max-h-40 object-contain rounded border" />
-                  <p className="text-xs text-gray-500 mt-1">Current image</p>
+
+              {/* Stylized Upload Box */}
+              <label
+                htmlFor="image-upload"
+                className="flex items-center justify-center w-24 h-24 bg-blue-50 text-blue-600 rounded-md border border-dashed border-blue-300 cursor-pointer hover:bg-blue-100"
+              >
+                <Plus size={24} />
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+
+              {/* Preview or Current Image */}
+              {(preview || (isEdit && image && !preview)) && (
+                <div className="mt-4 p-3 rounded-md border bg-gray-50 shadow-sm">
+                  <div className="w-full aspect-video overflow-hidden rounded-md border border-gray-300">
+                    <img
+                      src={preview || image}
+                      alt="Preview"
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2 text-center">
+                    {preview
+                      ? "Preview of uploaded image"
+                      : "Currently saved image"}
+                  </p>
                 </div>
               )}
-              
-              {preview && (
-                <div className="mb-2">
-                  <img src={preview} alt="Preview" className="w-full h-auto max-h-40 object-contain rounded border" />
-                  <p className="text-xs text-gray-500 mt-1">New image preview</p>
-                </div>
-              )}
-              
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleImageChange} 
-                className="mb-2 block w-full text-sm border border-gray-300 rounded-lg cursor-pointer"
-              />
-              
+
+              {/* Upload button and messages */}
               <button
                 type="button"
                 onClick={handleUpload}
                 disabled={!imageFile || !type}
-                className={`px-4 py-1 rounded text-sm ${
+                className={`px-4 py-1 rounded text-sm mt-2 ${
                   !imageFile || !type
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-green-500 text-white hover:bg-green-600"
@@ -250,39 +530,33 @@ export default function FeaturedStoriesPage() {
               >
                 Upload Photo
               </button>
-              
               {!type && imageFile && (
                 <p className="text-sm mt-1 text-yellow-600">
                   Select a type before uploading
                 </p>
               )}
-              
               {uploadStatus.message && (
-                <p className={`text-sm mt-1 ${uploadStatus.isError ? "text-red-500" : "text-green-600"}`}>
+                <p
+                  className={`text-sm mt-1 ${
+                    uploadStatus.isError ? "text-red-500" : "text-green-600"
+                  }`}
+                >
                   {uploadStatus.message}
                 </p>
               )}
             </div>
 
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="text-gray-500 hover:underline"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className={`px-4 py-2 rounded ${
-                  (!uploadStatus.isUploaded && !image) 
-                    ? "bg-gray-300 text-gray-500"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-              >
-                {isEdit ? "Update" : "Submit"}
-              </button>
-            </div>
+            {/* Styled Post Button */}
+            <button
+              type="submit"
+              className={`w-full py-3 rounded-full mt-4 text-white text-sm font-semibold ${
+                !image && !preview
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#0856BA] hover:bg-blue-600"
+              }`}
+            >
+              {isEdit ? "Update" : "Post"}
+            </button>
           </form>
         </div>
       )}

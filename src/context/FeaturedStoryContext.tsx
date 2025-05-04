@@ -10,11 +10,13 @@ import {
   deleteDoc,
   updateDoc,
   getDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Featured } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { set } from "zod";
 
 const FeaturedStoryContext = createContext<any>(null);
 
@@ -28,7 +30,8 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
   const [image, setImage] = useState("");
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
-  
+  const [isPublic, setIsPublic] = useState(true); 
+
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
@@ -51,6 +54,11 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       const docRef = doc(collection(db, "featured"));
       item.featuredId = docRef.id;
       item.datePosted = new Date();
+      item.image = image; // Use the image state
+      item.text = text; // Use the text state
+      item.title = title; // Use the title state
+      item.type = type; // Use the type state
+      item.isPublic = true; // Default to public
       await setDoc(docRef, item);
       return { success: true, message: "success" };
     } catch (error) {
@@ -67,6 +75,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       image,
       title,
       type,
+      isPublic,
       datePosted: new Date(),
     };
 
@@ -78,6 +87,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       setImage("");
       setTitle("");
       setType("");
+      setIsPublic(true);
     } else {
       console.error("Error adding featured item:", response.message);
     }
@@ -92,32 +102,52 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleEdit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    const updatedItem: Featured = {
-      featuredId: currentFeaturedId!,
-      text,
-      image,
-      title,
-      type,
-      datePosted: new Date(),
-    };
+  //   const updatedItem: Featured = {
+  //     featuredId: currentFeaturedId!,
+  //     text,
+  //     image,
+  //     title,
+  //     type,
+  //     isPublic,
+  //     datePosted: new Date(),
+  //   };
 
+  //   try {
+  //     if (currentFeaturedId) {
+  //       await updateDoc(doc(db, "featured", currentFeaturedId), updatedItem);
+  //       setShowForm(false);
+  //       setText("");
+  //       setImage("");
+  //       setTitle("");
+  //       setType("");
+  //       setIsPublic(true);
+  //       setIsEdit(false);
+  //     } else {
+  //       console.error("Error: featuredId is null");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating featured item:", error);
+  //   }
+  // };
+
+  const updateFeatured = async (featuredId: string, updates: Partial<Featured>) => {
     try {
-      if (currentFeaturedId) {
-        await updateDoc(doc(db, "featured", currentFeaturedId), updatedItem);
-        setShowForm(false);
-        setText("");
-        setImage("");
-        setTitle("");
-        setType("");
-        setIsEdit(false);
-      } else {
-        console.error("Error: featuredId is null");
+      const featuredRef = doc(db, "featured", featuredId);
+      
+      // Convert Date to Timestamp if datePosted is provided in updates
+      const firestoreUpdates = { ...updates };
+      if (updates.datePosted) {
+        firestoreUpdates.datePosted = Timestamp.fromDate(updates.datePosted);
       }
+      
+      await updateDoc(featuredRef, firestoreUpdates);
+      return { success: true, message: "Featured story updated successfully" };
     } catch (error) {
-      console.error("Error updating featured item:", error);
+      console.error("Error updating featured story:", error);
+      return { success: false, message: (error as FirebaseError).message };
     }
   };
 
@@ -167,6 +197,7 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
         image,
         title,
         type,
+        isPublic,
         showForm,
         setText,
         setImage,
@@ -174,11 +205,12 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
         setType,
         setShowForm,
         setIsEdit,
+        setIsPublic,
         setCurrentFeaturedId,
         addFeatured,
         handleSubmit,
         handleDelete,
-        handleEdit,
+        updateFeatured,
         getFeaturedById,
       }}
     >

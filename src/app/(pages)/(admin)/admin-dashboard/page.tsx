@@ -99,7 +99,10 @@ export default function AdminDashboard() {
           <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             <div className="text-center">
-              <Link href="/admin-dashboard/organize-events" className="text-black-600 hover:underline text-sm">
+              <Link
+                href="/admin-dashboard/organize-events"
+                className="text-black-600 hover:underline text-sm"
+              >
                 View all event proposals
               </Link>
             </div>
@@ -127,7 +130,10 @@ export default function AdminDashboard() {
           <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             <div className="text-center">
-              <Link href="/admin-dashboard/organize-events" className="text-black-600 hover:underline text-sm">
+              <Link
+                href="/admin-dashboard/organize-events"
+                className="text-black-600 hover:underline text-sm"
+              >
                 View all events
               </Link>
             </div>
@@ -155,7 +161,10 @@ export default function AdminDashboard() {
           <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             <div className="text-center">
-              <Link href="/admin-dashboard/donation-drive" className="text-black-600 hover:underline text-sm">
+              <Link
+                href="/admin-dashboard/donation-drive"
+                className="text-black-600 hover:underline text-sm"
+              >
                 View all donations
               </Link>
             </div>
@@ -182,7 +191,10 @@ export default function AdminDashboard() {
           <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             <div className="text-center">
-              <Link href="/admin-dashboard/manage-scholarships" className="text-black-600 hover:underline text-sm">
+              <Link
+                href="/admin-dashboard/manage-scholarships"
+                className="text-black-600 hover:underline text-sm"
+              >
                 View all scholarships
               </Link>
             </div>
@@ -202,7 +214,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Job Posting */}
         <div className="md:col-span-3">
           <Card className="border-0 shadow-md h-full">
@@ -224,7 +236,10 @@ export default function AdminDashboard() {
             <div className="px-2 pt-0">
               <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
               <div className="text-center">
-                <Link href="/admin-dashboard/job-postings" className="text-black hover:underline text-sm">
+                <Link
+                  href="/admin-dashboard/job-postings"
+                  className="text-black hover:underline text-sm"
+                >
                   View all pending job postings
                 </Link>
               </div>
