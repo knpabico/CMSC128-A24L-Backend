@@ -202,23 +202,34 @@ export default function Users() {
         <div className="flex flex-col gap-3">
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
             <div className="flex flex-col gap-5">
-              {/* Job Position */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Job Position
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.position}
+              {/* Company Logo and Job Details */}
+              <div className="flex items-start gap-4">
+                {/* Company Logo */}
+                <div className="mr-2">
+                  {viewingJob.image ? (
+                    <img
+                      src={viewingJob.image || "/placeholder.svg"}
+                      alt={`${viewingJob.company} logo`}
+                      className="w-35 h-35 object-contain rounded-md border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-35 h-35 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
+                      {viewingJob.company.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Company */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Company Name
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.company}
+                {/* Job Position and Company Name */}
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium">Job Position</label>
+                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.position}</div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium">Company Name</label>
+                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.company}</div>
+                  </div>
                 </div>
               </div>
 
