@@ -72,7 +72,7 @@ export async function sendVerificationCode(code: string, alumniEmail: string) {
     await addDoc(collection(db, "mail"), {
       to: alumniEmail,
       message: {
-        subject: "ICS-ARMS - New Account Registration",
+        subject: "ICS-ARMS - Verification Code",
         text: "Dear user, your verification code is ...",
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
