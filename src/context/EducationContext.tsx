@@ -20,24 +20,15 @@ import { FirebaseError } from "firebase/app";
 
 const EducationContext = createContext<any>(null);
 
+export function EducationProvider({ children }: { children: React.ReactNode }) {
+  const [userEducation, setUserEducation] = useState<Education[]>([]);
 
-
-
-export function EducationProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [userEducation, setUserEducation] = useState<
+  const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null);
+  const [selectedAlumEducation, setSelectedAlumEducation] = useState<
     Education[]
   >([]);
 
-  const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null);
-  const [selectedAlumEducation, setSelectedAlumEducation] = useState<Education[]>([]);
-
-  const [allEducation, setAllEducation] = useState<Education[]>(
-    []
-  );
+  const [allEducation, setAllEducation] = useState<Education[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
 
@@ -65,28 +56,24 @@ export function EducationProvider({
     };
   }, [user]);
 
-
   //sort by year graduated
-//   const sortEducationList = (experienceList: Education[]): Education[] => {
-//     const sortedList = [...experienceList]; // Copy to avoid modifying the original
-  
-//     // Sort by startingDate (oldest to newest)
-//     sortedList.sort((a, b) => a.yearGraduated.seconds - b.startingDate.seconds);  
-//     // Log the sorted list to the console
-//     console.log("Sorted Work Experience List:", sortedList);
-  
-//     return sortedList;
-//   };
-//   alumniId: string;
-//   university: string;
-//   type: string;
-//   yearGraduated: string;
-//   major: string;
+  //   const sortEducationList = (experienceList: Education[]): Education[] => {
+  //     const sortedList = [...experienceList]; // Copy to avoid modifying the original
+
+  //     // Sort by startingDate (oldest to newest)
+  //     sortedList.sort((a, b) => a.yearGraduated.seconds - b.startingDate.seconds);
+  //     // Log the sorted list to the console
+  //     console.log("Sorted Work Experience List:", sortedList);
+
+  //     return sortedList;
+  //   };
+  //   alumniId: string;
+  //   university: string;
+  //   type: string;
+  //   yearGraduated: string;
+  //   major: string;
   //function for adding work experience
-  const addEducation = async (
-    EducationEntry: Education,
-    userId: string
-  ) => {
+  const addEducation = async (EducationEntry: Education, userId: string) => {
     try {
       const newDocRef = doc(collection(db, "education"));
       EducationEntry.educationId = newDocRef.id;
@@ -98,24 +85,31 @@ export function EducationProvider({
     }
   };
 
-
   //function to fetch the working experience of the clicked alumni
   const fetchEducation = async (alumniId: string): Promise<Education[]> => {
     setLoading(true);
     setSelectedAlumniId(alumniId);
-  
+
     try {
-      const q = query(collection(db, "education"), where("alumniId", "==", alumniId));
-        
+      const q = query(
+        collection(db, "education"),
+        where("alumniId", "==", alumniId)
+      );
+
       const querySnapshot = await getDocs(q);
-      
-      console.log("firestore Data:", querySnapshot.docs.map(doc => doc.data()));
-  
-      const EducationList: Education[] = querySnapshot.docs.map((doc) => doc.data() as Education);
-      
+
+      console.log(
+        "firestore Data:",
+        querySnapshot.docs.map((doc) => doc.data())
+      );
+
+      const EducationList: Education[] = querySnapshot.docs.map(
+        (doc) => doc.data() as Education
+      );
+
       console.log("Fetched Work Experience:", EducationList);
       // sortExperienceList(EducationList);
-      setSelectedAlumEducation(EducationList);  
+      setSelectedAlumEducation(EducationList);
       return EducationList;
     } catch (error) {
       console.error("Error fetching work experience:", error);
@@ -125,17 +119,11 @@ export function EducationProvider({
       setLoading(false);
     }
   };
-  
-  
 
-  const editEducation = async (EducationEntry: { EducationId: string; }) => {
+  const editEducation = async (EducationEntry: { EducationId: string }) => {
     try {
       console.log(EducationEntry);
-      const workExpRef = doc(
-        db,
-        "education",
-        EducationEntry.EducationId
-      );
+      const workExpRef = doc(db, "education", EducationEntry.EducationId);
       await updateDoc(workExpRef, EducationEntry);
       return { success: true, message: "Edited Successfully" };
     } catch (error) {
@@ -215,7 +203,7 @@ export function EducationProvider({
         addEducation,
         deleteEducation,
         editEducation,
-        fetchEducation
+        fetchEducation,
       }}
     >
       {children}

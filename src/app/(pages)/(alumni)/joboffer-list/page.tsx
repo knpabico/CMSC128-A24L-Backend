@@ -7,15 +7,29 @@ import { Bookmark } from "@/models/models";
 import { useBookmarks } from "@/context/BookmarkContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+//import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
 import {
   DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
+import {
+  Briefcase,
+  Bookmark,
+  FilePlus,
+  MapPin,
+  ChevronDown,
+  DollarSign,
+  Award,
+  FileText,
+  Check,
+} from "lucide-react";
+import { set } from "zod";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -24,10 +38,9 @@ function formatDate(timestamp: any) {
 }
 
 export default function JobOffers() {
-  const { bookmarks, sortedBookmarks } = useBookmarks();
   const {
     jobOffers,
-    // bookmarks,
+    bookmarks,
     isLoading,
     setShowForm,
     showForm,
@@ -49,9 +62,16 @@ export default function JobOffers() {
     setSalaryRange,
     location,
     setLocation,
+    image,
+    setJobImage,
+    preview,
+    fileName,
+    handleImageChange,
   } = useJobOffer();
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
+  const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [activeFilterCategory, setActiveFilterCategory] = useState<
@@ -63,9 +83,11 @@ export default function JobOffers() {
   const [sidebarFilter, setSidebarFilter] = useState<string>("Job Postings");
   const filterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const filterContainerRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuth();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuth();
+  const [employmentTypeOpen, setEmploymentTypeOpen] = useState(false);
+  const [jobTypeOpen, setJobTypeOpen] = useState(false);
+  const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
 
   const acceptedJobs = jobOffers.filter(
     (job: { status: string }) => job.status === "Accepted"
@@ -82,6 +104,7 @@ export default function JobOffers() {
       "Data Science",
       "UX/UI Design",
       "Project Management",
+      "Others",
     ],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
     Skills: [
@@ -200,9 +223,70 @@ export default function JobOffers() {
   const endIndex = startIndex + jobsPerPage;
   const currentJobs = filteredAndSortedJobs.slice(startIndex, endIndex);
 
+  // Saved Jobs pagination
+  const filteredSavedJobs = bookmarks
+    .filter((bookmark) => bookmark.type === "job_offering")
+    .map((bookmark) => jobOffers.find((job) => job.jobId === bookmark.entryId))
+    .filter(Boolean)
+    .filter(
+      (job) =>
+        activeFilters.length === 0 ||
+        activeFilters.some(
+          (filter) =>
+            job.experienceLevel === filter ||
+            job.jobType === filter ||
+            job.employmentType === filter ||
+            job.requiredSkill.includes(filter)
+        )
+    )
+    .sort((a, b) => {
+      const dateA = a.timestamp ? a.timestamp.seconds : a.datePosted.seconds;
+      const dateB = b.timestamp ? b.timestamp.seconds : b.datePosted.seconds;
+      return latestFirst ? dateB - dateA : dateA - dateB;
+    });
+
+  const savedJobsTotalPages = Math.ceil(filteredSavedJobs.length / jobsPerPage);
+  const savedJobsStartIndex = (savedJobsCurrentPage - 1) * jobsPerPage;
+  const savedJobsEndIndex = savedJobsStartIndex + jobsPerPage;
+  const currentSavedJobs = filteredSavedJobs.slice(
+    savedJobsStartIndex,
+    savedJobsEndIndex
+  );
+
+  // Created Jobs pagination
+  const filteredCreatedJobs = jobOffers
+    .filter((job) => job.alumniId === user?.uid)
+    .filter((job) => {
+      if (activeFilters.length === 0) return true;
+      return activeFilters.some(
+        (filter) =>
+          [
+            job.experienceLevel,
+            job.jobType,
+            job.employmentType,
+            job.status,
+          ].includes(filter) || job.requiredSkill.includes(filter)
+      );
+    })
+    .sort((a, b) => {
+      const dateA = a.datePosted.seconds;
+      const dateB = b.datePosted.seconds;
+      return latestFirst ? dateB - dateA : dateA - dateB;
+    });
+
+  const createdJobsTotalPages = Math.ceil(
+    filteredCreatedJobs.length / jobsPerPage
+  );
+  const createdJobsStartIndex = (createdJobsCurrentPage - 1) * jobsPerPage;
+  const createdJobsEndIndex = createdJobsStartIndex + jobsPerPage;
+  const currentCreatedJobs = filteredCreatedJobs.slice(
+    createdJobsStartIndex,
+    createdJobsEndIndex
+  );
+
   return (
     <>
-      {/* Temporary Header Banner to fit the prototype, pwede naman tanggalin */}
+      {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
       <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
         <div className="left-[200px] top-[109px] absolute text-[#FFFFFF] text-6xl font-semibold">
           Job Opportunities
@@ -216,14 +300,30 @@ export default function JobOffers() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="flex justify-between mb-4">
-          <h1 className="text-2xl font-bold">Job Offers</h1>
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex justify-between items-center mb-4">
+          <button
+            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
+              activeFilters.length > 0
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none"
+            }`}
+            onClick={() => {
+              setActiveFilters([]);
+              setActiveFilterCategory(null);
+              setShowFilterOptions(false);
+              setCurrentPage(1);
+              setSavedJobsCurrentPage(1);
+              setCreatedJobsCurrentPage(1);
+            }}
+          >
+            Clear Filters
+          </button>
 
-          <div className="flex space-x-2">
+          <div className="flex space-x-3">
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="px-3 py-1 bg-white rounded shadow hover:bg-gray-50 text-sm flex items-center"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -236,7 +336,8 @@ export default function JobOffers() {
                   }, 5000);
                 }}
               >
-                Filter
+                Filter by
+                <ChevronDown className="size-4 fill-white/60 ml-5" />
               </button>
 
               {showFilterDropdown && (
@@ -286,7 +387,7 @@ export default function JobOffers() {
             </div>
 
             <button
-              className="px-3 py-1 bg-white rounded shadow hover:bg-gray-50 text-sm flex items-center"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -294,62 +395,85 @@ export default function JobOffers() {
           </div>
         </div>
 
-        {activeFilters.length > 0 && (
-          <button
-            className="px-3 py-1 bg-red-50 text-red-700 rounded text-sm mb-4"
-            onClick={() => {
-              setActiveFilters([]);
-              setActiveFilterCategory(null);
-              setShowFilterOptions(false);
-              setCurrentPage(1);
-            }}
-          >
-            Clear Filters
-          </button>
-        )}
-
-        <div className="flex flex-col md:flex-row">
+        <div className="flex">
           {/* Sidebar */}
-          <div className="hidden md:block md:w-1/4 bg-white border-r border-gray-200 p-4">
-            <h2 className="text-lg font-semibold mb-4">Sidebar</h2>
+          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max">
             <ul className="space-y-2">
               <li>
                 <button
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                  className="flex gap-3 items-center w-full px-3 py-2"
                   onClick={() => {
                     setSidebarFilter("Job Postings");
                   }}
                 >
-                  Job Postings
+                  <Briefcase className="w-5 h-5" />
+                  <p
+                    className={`group w-max relative py-1 transition-all ${
+                      sidebarFilter === "Job Postings"
+                        ? "font-semibold border-b-3 border-blue-500"
+                        : "text-gray-700 group"
+                    }`}
+                  >
+                    <span>All Job Posts</span>
+                    {sidebarFilter !== "Job Postings" && (
+                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    )}
+                  </p>
                 </button>
               </li>
               <li>
                 <button
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                  className="flex gap-3 items-center w-full px-3 py-2"
                   onClick={() => {
                     setSidebarFilter("Saved Jobs");
                   }}
                 >
-                  Saved Jobs
+                  <Bookmark className="w-5 h-5" />
+                  <p
+                    className={`group w-max relative py-1 transition-all ${
+                      sidebarFilter === "Saved Jobs"
+                        ? "font-semibold border-b-3 border-blue-500"
+                        : "text-gray-700 group"
+                    }`}
+                  >
+                    <span>Saved Jobs</span>
+                    {sidebarFilter !== "Saved Jobs" && (
+                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    )}
+                  </p>
                 </button>
               </li>
               <li>
                 <button
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+                  className="flex gap-3 items-center w-full px-3 py-2"
                   onClick={() => setSidebarFilter("Create Jobs")}
                 >
-                  Create Jobs
+                  <FilePlus className="w-5 h-5" />
+                  <p
+                    className={`group w-max relative py-1 transition-all ${
+                      sidebarFilter === "Create Jobs"
+                        ? "font-semibold border-b-3 border-blue-500"
+                        : "text-gray-700 group"
+                    }`}
+                  >
+                    <span>Created Jobs</span>
+                    {sidebarFilter !== "Create Jobs" && (
+                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    )}
+                  </p>
                 </button>
               </li>
             </ul>
           </div>
 
-          <div className="md:w-3/4 bg-gray-100 rounded-lg p-4">
+          {/* Main content revised yass */}
+          <div className="flex-1 flex-col grid grid-cols-2 gap-4 pl-4 min-h-[600px]">
+            {/* Left Column - Job Listings */}
             {/* Job Postings Filter */}
             <div>
               {sidebarFilter === "Job Postings" ? (
                 isLoading ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2 flex-grow">
                     {[...Array(6)].map((_, i) => (
                       <Skeleton key={i} className="h-20 w-full rounded-lg" />
                     ))}
@@ -357,7 +481,7 @@ export default function JobOffers() {
                 ) : (
                   <>
                     {filteredAndSortedJobs.length === 0 ? (
-                      <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                      <div className="text-center text-gray-500 py-8 h-[480px] flex items-center justify-center">
                         <p className="text-lg">No job offers found.</p>
                       </div>
                     ) : (
@@ -373,11 +497,18 @@ export default function JobOffers() {
                             onClick={() => setSelectedJob(job)}
                           >
                             <div className="flex">
-                              <div className="mr-3">
-                                <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
-                                  {/* Company logo or placeholder */}
-                                  {job.company.charAt(0).toUpperCase()}
-                                </div>
+                              <div className="mr-2">
+                                {job.image ? (
+                                  <img
+                                    src={job.image}
+                                    alt={`${job.company} logo`}
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                    {job.company.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
                               </div>
                               <div className="flex-1">
                                 <h2 className="font-semibold text-md">
@@ -386,9 +517,9 @@ export default function JobOffers() {
                                 <p className="text-sm text-gray-600">
                                   {job.company}
                                 </p>
-                                <p className="text-xs text-gray-400 flex items-center">
-                                  {/* Placeholder location detail */}
-                                  {/* Location */}
+                                <p className="text-xs text-[#0856BA] flex items-center">
+                                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                                  {job.location}
                                 </p>
                               </div>
                               <div className="ml-2">
@@ -407,9 +538,7 @@ export default function JobOffers() {
                               <div
                                 key={`empty-${i}`}
                                 className="h-[72px] invisible"
-                              >
-                                {/* Maintain column height */}
-                              </div>
+                              ></div>
                             )
                           )}
                       </div>
@@ -419,7 +548,7 @@ export default function JobOffers() {
                     {filteredAndSortedJobs.length > 0 && (
                       <div className="flex justify-center mt-4 space-x-2">
                         <button
-                          className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                          className="px-3 py-1 bg-white rounded text-sm"
                           onClick={() =>
                             setCurrentPage((prev) => Math.max(prev - 1, 1))
                           }
@@ -433,7 +562,7 @@ export default function JobOffers() {
                         </span>
 
                         <button
-                          className="px-3 py-1 bg-white rounded disabled:opacity-50 text-sm"
+                          className="px-3 py-1 bg-white rounded text-sm"
                           onClick={() =>
                             setCurrentPage((prev) =>
                               Math.min(prev + 1, totalPages)
@@ -452,32 +581,13 @@ export default function JobOffers() {
                   {bookmarks.filter(
                     (bookmark: Bookmark) => bookmark.type === "job_offering"
                   ).length === 0 ? (
-                    <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                    <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
                       <p className="text-lg">No saved jobs found.</p>
                     </div>
                   ) : (
-                    bookmarks
-                      .filter(
-                        (bookmark: Bookmark) => bookmark.type === "job_offering"
-                      )
-                      .sort((a, b) => {
-                        const dateA = a.timestamp.seconds;
-                        const dateB = b.timestamp.seconds;
-                        return latestFirst ? dateB - dateA : dateA - dateB;
-                      })
-                      .map((bookmark: Bookmark, index: number) => {
-                        const job = jobOffers.find(
-                          (job: { jobId: string }) =>
-                            job.jobId === bookmark.entryId
-                        );
-                        return job &&
-                          activeFilters.every(
-                            (filter) =>
-                              job.experienceLevel === filter ||
-                              job.jobType === filter ||
-                              job.employmentType === filter ||
-                              job.requiredSkill.includes(filter)
-                          ) ? (
+                    <>
+                      <div className="space-y-2">
+                        {currentSavedJobs.map((job, index) => (
                           <div
                             key={index}
                             className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
@@ -489,9 +599,17 @@ export default function JobOffers() {
                           >
                             <div className="flex">
                               <div className="mr-3">
-                                <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
-                                  {job.company.charAt(0).toUpperCase()}
-                                </div>
+                                {job.image ? (
+                                  <img
+                                    src={job.image}
+                                    alt={`${job.company} logo`}
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                    {job.company.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
                               </div>
                               <div className="flex-1">
                                 <h2 className="font-semibold text-md">
@@ -499,6 +617,10 @@ export default function JobOffers() {
                                 </h2>
                                 <p className="text-sm text-gray-600">
                                   {job.company}
+                                </p>
+                                <p className="text-xs text-[#0856BA] flex items-center">
+                                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                                  {job.location}
                                 </p>
                               </div>
                               <div className="ml-2">
@@ -510,161 +632,305 @@ export default function JobOffers() {
                               </div>
                             </div>
                           </div>
-                        ) : null;
-                      })
+                        ))}
+                        {currentSavedJobs.length < jobsPerPage &&
+                          [...Array(jobsPerPage - currentSavedJobs.length)].map(
+                            (_, i) => (
+                              <div
+                                key={`empty-saved-${i}`}
+                                className="h-[72px] invisible"
+                              ></div>
+                            )
+                          )}
+                      </div>
+
+                      {/* Pagination Controls for Saved Jobs */}
+                      {filteredSavedJobs.length > 0 && (
+                        <div className="flex justify-center mt-4 space-x-2">
+                          <button
+                            className="px-3 py-1 bg-white rounded text-sm"
+                            onClick={() =>
+                              setSavedJobsCurrentPage((prev) =>
+                                Math.max(prev - 1, 1)
+                              )
+                            }
+                            disabled={savedJobsCurrentPage === 1}
+                          >
+                            Prev
+                          </button>
+
+                          <span className="text-sm font-medium px-3 py-1">
+                            {savedJobsCurrentPage} of {savedJobsTotalPages || 1}
+                          </span>
+
+                          <button
+                            className="px-3 py-1 bg-white rounded text-sm"
+                            onClick={() =>
+                              setSavedJobsCurrentPage((prev) =>
+                                Math.min(prev + 1, savedJobsTotalPages || 1)
+                              )
+                            }
+                            disabled={
+                              savedJobsCurrentPage === savedJobsTotalPages ||
+                              filteredSavedJobs.length <= jobsPerPage
+                            }
+                          >
+                            Next
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               ) : sidebarFilter === "Create Jobs" ? (
-                <div>
+                <div className="space-y-2">
                   {jobOffers.filter(
                     (job: JobOffering) => job.alumniId === user?.uid
                   ).length === 0 ? (
-                    <div className="text-center py-8 h-[480px] flex items-center justify-center">
+                    <div className="rounded-lg text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
                       <p className="text-lg">No created jobs found.</p>
                     </div>
                   ) : (
-                    [...jobOffers]
-                      .filter((job: JobOffering) => {
-                        if (job.alumniId !== user?.uid) return false;
-
-                        if (activeFilters.length === 0) return true;
-
-                        return activeFilters.some(
-                          (filter) =>
-                            [
-                              job.experienceLevel,
-                              job.jobType,
-                              job.employmentType,
-                              job.status,
-                            ].includes(filter) ||
-                            job.requiredSkill.includes(filter)
-                        );
-                      })
-                      .sort((a, b) => {
-                        const dateA = a.datePosted.seconds;
-                        const dateB = b.datePosted.seconds;
-                        return latestFirst ? dateB - dateA : dateA - dateB;
-                      })
-                      .map((job: JobOffering, index: number) => (
-                        <div
-                          key={index}
-                          className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 mb-4 ${
-                            selectedJob?.jobId === job.jobId
-                              ? "border-blue-500"
-                              : "border-gray-200"
-                          }`}
-                          onClick={() => setSelectedJob(job)}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div className="flex">
-                              <div className="mr-3">
-                                <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
-                                  {job.company.charAt(0).toUpperCase()}
+                    <>
+                      <div className="space-y-2">
+                        {currentCreatedJobs.map((job, index) => (
+                          <div
+                            key={index}
+                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                              selectedJob?.jobId === job.jobId
+                                ? "border-blue-500"
+                                : "border-gray-200"
+                            }`}
+                            onClick={() => setSelectedJob(job)}
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex">
+                                <div className="mr-3">
+                                  {job.image ? (
+                                    <img
+                                      src={job.image}
+                                      alt={`${job.company} logo`}
+                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                    />
+                                  ) : (
+                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                      {job.company.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <h2 className="font-semibold text-md">
+                                    {job.position}
+                                  </h2>
+                                  <p className="text-sm text-gray-600">
+                                    {job.company}
+                                  </p>
+                                  <p className="text-xs text-[#0856BA] flex items-center">
+                                    <MapPin className="w-3.5 h-3.5 mr-1" />
+                                    {job.location}
+                                  </p>
                                 </div>
                               </div>
-                              <div className="flex-1">
-                                <h2 className="font-semibold text-md">
-                                  {job.position}
-                                </h2>
-                                <p className="text-sm text-gray-600">
-                                  {job.company}
-                                </p>
+                              <div>
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                                    job.status === "Accepted"
+                                      ? "bg-green-100 text-green-700"
+                                      : job.status === "Rejected"
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-yellow-100 text-yellow-700"
+                                  }`}
+                                >
+                                  {job.status.charAt(0).toUpperCase() +
+                                    job.status.slice(1)}
+                                </span>
                               </div>
                             </div>
-                            <div>
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-medium ${
-                                  job.status === "Accepted"
-                                    ? "bg-green-100 text-green-700"
-                                    : job.status === "Rejected"
-                                    ? "bg-red-100 text-red-700"
-                                    : "bg-yellow-100 text-yellow-700"
-                                }`}
-                              >
-                                {job.status.charAt(0).toUpperCase() +
-                                  job.status.slice(1)}
-                              </span>
-                            </div>
                           </div>
+                        ))}
+                        {currentCreatedJobs.length < jobsPerPage &&
+                          [
+                            ...Array(jobsPerPage - currentCreatedJobs.length),
+                          ].map((_, i) => (
+                            <div
+                              key={`empty-created-${i}`}
+                              className="h-[72px] invisible"
+                            ></div>
+                          ))}
+                      </div>
+
+                      {/* Pagination Controls for Created Jobs */}
+                      {filteredCreatedJobs.length > 0 && (
+                        <div className="flex justify-center mt-4 space-x-2">
+                          <button
+                            className="px-3 py-1 bg-white rounded text-sm"
+                            onClick={() =>
+                              setCreatedJobsCurrentPage((prev) =>
+                                Math.max(prev - 1, 1)
+                              )
+                            }
+                            disabled={createdJobsCurrentPage === 1}
+                          >
+                            Prev
+                          </button>
+
+                          <span className="text-sm font-medium px-3 py-1">
+                            {createdJobsCurrentPage} of{" "}
+                            {createdJobsTotalPages || 1}
+                          </span>
+
+                          <button
+                            className="px-3 py-1 bg-white rounded text-sm"
+                            onClick={() =>
+                              setCreatedJobsCurrentPage((prev) =>
+                                Math.min(prev + 1, createdJobsTotalPages || 1)
+                              )
+                            }
+                            disabled={
+                              createdJobsCurrentPage ===
+                                createdJobsTotalPages ||
+                              filteredCreatedJobs.length <= jobsPerPage
+                            }
+                          >
+                            Next
+                          </button>
                         </div>
-                      ))
+                      )}
+                    </>
                   )}
                 </div>
               ) : null}
             </div>
-          </div>
 
-          {/* Details Column */}
-          <div className="md:w-1/2 md:ml-4 bg-gray-100 rounded-lg p-4 mt-4 md:mt-0 flex items-start justify-center">
-            {selectedJob ? (
-              <div className="w-full">
-                <h2 className="text-2xl font-bold mb-2">
-                  {selectedJob.position}
-                </h2>
-                <p className="text-gray-600 text-lg mb-4">
-                  {selectedJob.company}
-                </p>
+            {/* Right Column - Job Details */}
+            <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
+              {selectedJob ? (
+                <div className="w-full space-y-4">
+                  <div className="flex items-start">
+                    {/* Company Logo */}
+                    <div className="mr-4">
+                      {selectedJob.image ? (
+                        <img
+                          src={selectedJob.image}
+                          alt={`${selectedJob.company} logo`}
+                          className="w-20 h-20 object-contain rounded-md border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
+                          {selectedJob.company.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">
+                        {selectedJob.position}
+                      </h2>
+                      <p className="text-gray-600 text-lg">
+                        {selectedJob.company}
+                      </p>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin className="w-4 h-4 text-[#0856BA] mr-1" />
+                        <span className="ml-1 font-semibold text-[#0856BA]">
+                          {selectedJob.location}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white border border-[#0856BA] p-3 rounded-lg mb-4 space-y-2">
+                    <div className="text-sm flex items-center">
+                      <DollarSign className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                      <span className="text-[#0856BA] font-semibold">
+                        Salary Range:
+                      </span>
+                      <span className="ml-1 font-medium">
+                        {selectedJob.salaryRange}
+                      </span>
+                    </div>
 
-                <div className="bg-white p-3 rounded-lg mb-4">
-                  <div className="flex space-x-4 mb-2">
-                    <div className="text-sm">
-                      <span className="text-gray-500">Type:</span>
+                    <div className="text-sm flex items-center">
+                      <Briefcase className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                      <span className="text-[#0856BA] font-semibold">
+                        Employment Type:
+                      </span>
                       <span className="ml-1 font-medium">
                         {selectedJob.employmentType}
                       </span>
                     </div>
-                    <div className="text-sm">
-                      <span className="text-gray-500">Level:</span>
+
+                    <div className="text-sm flex items-center">
+                      <Award className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                      <span className="text-[#0856BA] font-semibold">
+                        Experience Level:
+                      </span>
                       <span className="ml-1 font-medium">
                         {selectedJob.experienceLevel}
                       </span>
                     </div>
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-gray-500">Salary:</span>
-                    <span className="ml-1 font-medium">
-                      {selectedJob.salaryRange}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="mb-4">
-                  <h3 className="font-semibold mb-2">Job Description</h3>
-                  <p className="text-sm text-gray-700">
-                    {selectedJob.jobDescription}
+                    {selectedJob.jobType && (
+                      <div className="flex flex-wrap gap-4">
+                        <div className="text-sm flex items-center">
+                          <FileText className="w-4 h-4 text-[#0856BA] mr-2.5" />
+                          <span className="text-[#0856BA] font-semibold">
+                            Job Type:
+                          </span>
+                          <span className="ml-1 font-medium">
+                            {selectedJob.jobType}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <h3 className="font-semibold mb-2">Job Description</h3>
+                    <p className="text-sm text-gray-700">
+                      {selectedJob.jobDescription}
+                    </p>
+                  </div>
+
+                  <div className="mb-4">
+                    <h3 className="font-semibold mb-2">Required Skills</h3>
+                    <div className="pl-[25px]">
+                      {selectedJob.requiredSkill &&
+                        selectedJob.requiredSkill.map((skill) => (
+                          <ul
+                            key={skill}
+                            className="max-w-md space-y-1 text-gray-500 list-inside dark:text-gray-500"
+                          >
+                            <li className="flex items-center">
+                              <svg
+                                className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 shrink-0"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                              </svg>
+                              {skill}
+                            </li>
+                          </ul>
+                        ))}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-400 mt-4">
+                    Posted on {formatDate(selectedJob.datePosted)}
                   </p>
                 </div>
-
-                <div className="mb-4">
-                  <h3 className="font-semibold mb-2">Required Skills</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedJob.requiredSkill &&
-                      selectedJob.requiredSkill.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                  </div>
+              ) : (
+                <div className="text-center text-gray-500 h-full flex items-center justify-center w-full">
+                  <p className="text-xl">Select a job to view details.</p>
                 </div>
-
-                <p className="text-xs text-gray-400 mt-4">
-                  Posted on {formatDate(selectedJob.datePosted)}
-                </p>
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 h-full flex items-center justify-center w-full">
-                <p className="text-xl">Select a job to view details.</p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
         {/* "Add Job" Button + Form */}
         <Button
-          className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full"
+          className="h-10 px-5 fixed bottom-8 right-8 bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg rounded-full"
           onClick={() => setShowForm(!showForm)}
         >
           Post a Job
@@ -673,13 +939,15 @@ export default function JobOffers() {
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
               onSubmit={handleSubmit}
-              className="bg-white p-8 rounded-lg border-2 border-gray shadow-lg w-3/4 max-w-4xl"
+              className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
             >
-              <h2 className="text-3xl mb-6 font-semibold border-b pb-4">
-                Post a Job Opportunity
-              </h2>
+              <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
+                <h2 className="text-2xl font-semibold">
+                  Post a Job Opportunity
+                </h2>
+              </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-6 mt-5">
                 {/* Left Column ng form */}
                 <div>
                   <div className="mb-4">
@@ -691,7 +959,7 @@ export default function JobOffers() {
                       placeholder="e.g. Software Engineer"
                       value={position}
                       onChange={(e) => setPosition(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -700,42 +968,76 @@ export default function JobOffers() {
                     <label className="block text-sm font-medium mb-1">
                       Employment Type<span className="text-red-500">*</span>
                     </label>
-                    <select
-                      value={employmentType}
-                      onChange={(e) => setEmploymentType(e.target.value)}
-                      className={`w-full p-2 border rounded ${
-                        !employmentType ? "text-gray-500" : ""
-                      }`}
-                      required
+                    <DropdownMenu
+                      open={employmentTypeOpen}
+                      onOpenChange={setEmploymentTypeOpen}
                     >
-                      <option value="">Select Employment Type</option>
-                      {filterCategories["Employment Type"].map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {employmentType || "Select Employment Type"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
+                        {filterCategories["Employment Type"].map((type) => (
+                          <Button
+                            key={type}
+                            variant="ghost"
+                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
+                            onClick={() => {
+                              setEmploymentType(type);
+                              setEmploymentTypeOpen(false);
+                            }}
+                          >
+                            {type}
+                            {employmentType === type && (
+                              <Check className="ml-auto h-4 w-4" />
+                            )}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Job Type<span className="text-red-500">*</span>
                     </label>
-                    <select
-                      value={jobType}
-                      onChange={(e) => setJobType(e.target.value)}
-                      className={`w-full p-2 border rounded ${
-                        !jobType ? "text-gray-500" : ""
-                      }`}
-                      required
+                    <DropdownMenu
+                      open={jobTypeOpen}
+                      onOpenChange={setJobTypeOpen}
                     >
-                      <option value="">Select Job Type</option>
-                      {filterCategories["Job Type"].map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {jobType || "Select Job Type"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                        {filterCategories["Job Type"].map((type) => (
+                          <Button
+                            key={type}
+                            variant="ghost"
+                            className="w-full justify-start p-2 text-left hover:bg-gray-100"
+                            onClick={() => {
+                              setJobType(type);
+                              setJobTypeOpen(false);
+                            }}
+                          >
+                            {type}
+                            {jobType === type && (
+                              <Check className="ml-auto h-4 w-4" />
+                            )}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
                   <div className="mb-4">
@@ -746,11 +1048,16 @@ export default function JobOffers() {
                       placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
-                      className="w-full p-2 border rounded h-20"
+                      className="w-full p-1.5 border rounded resize-none text-sm"
+                      style={{ height: "110px" }} // Increased height (4x the original)
                       required
                     />
-                    <Button onClick={() => setIsModalOpen(true)}>
-                      Need AI help? for description?
+                    <Button
+                      onClick={() => setIsModalOpen(true)}
+                      variant="ghost"
+                      className="pl-2 text-[#0856BA] hover:text-blue-700 text-sm bg-transparent hover:bg-transparent"
+                    >
+                      Need AI help for description?
                     </Button>
                     <ModalInput
                       isOpen={isModalOpen}
@@ -775,7 +1082,20 @@ export default function JobOffers() {
                       placeholder="Company"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1.5 border rounded text-sm"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Location<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full p-1.5 border rounded text-sm"
                       required
                     />
                   </div>
@@ -784,35 +1104,57 @@ export default function JobOffers() {
                     <label className="block text-sm font-medium mb-1">
                       Experience Level<span className="text-red-500">*</span>
                     </label>
-                    <select
-                      value={experienceLevel}
-                      onChange={(e) => setExperienceLevel(e.target.value)}
-                      className={`w-full p-2 border rounded ${
-                        !experienceLevel ? "text-gray-500" : ""
-                      }`}
-                      required
+                    <DropdownMenu
+                      open={experienceLevelOpen}
+                      onOpenChange={setExperienceLevelOpen}
                     >
-                      <option value="">Select Experience Level</option>
-                      {filterCategories["Experience Level"].map((level) => (
-                        <option key={level} value={level}>
-                          {level}
-                        </option>
-                      ))}
-                    </select>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                        >
+                          {experienceLevel || "Select Experience Level"}
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                        {filterCategories["Experience Level"].map((level) => (
+                          <Button
+                            key={level}
+                            variant="ghost"
+                            className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
+                            onClick={() => {
+                              setExperienceLevel(level);
+                              setExperienceLevelOpen(false);
+                            }}
+                          >
+                            {level}
+                            {experienceLevel === level && (
+                              <Check className="ml-auto h-4 w-4" />
+                            )}
+                          </Button>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Salary Range<span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Salary Range"
-                      value={salaryRange}
-                      onChange={(e) => setSalaryRange(e.target.value)}
-                      className="w-full p-2 border rounded"
-                      required
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500">₱</span>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="e.g. 10000 - 30000"
+                        value={salaryRange}
+                        onChange={(e) => setSalaryRange(e.target.value)}
+                        className="w-full pl-8 p-1.5 border rounded text-sm"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-4">
@@ -823,24 +1165,57 @@ export default function JobOffers() {
                       type="text"
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-1.5 border rounded placeholder:text-sm"
                       required
                     />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Company Logo<span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <label className="cursor-pointer">
+                        <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                          Choose File
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-sm text-gray-500">
+                        {fileName || "No file chosen"}
+                      </span>
+                    </div>
+
+                    {preview && (
+                      <div className="mt-3">
+                        <img
+                          src={preview}
+                          alt="Preview"
+                          className="h-20 object-contain"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between mt-6">
+              <div className="flex justify-end gap-4 mt-6">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="text-gray-500 p-2 rounded ring-1 ring-[#0856BA]"
+                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#0856BA] text-white p-2 rounded"
+                  onClick={handleSubmit}
+                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                 >
                   Submit
                 </button>

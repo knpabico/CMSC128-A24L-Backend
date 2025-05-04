@@ -113,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         } else if (userRole === "admin") {
           setIsAdmin(true);
+          setUser(user);
         } else if (userRole === "user") {
           const regStat = await getRegStatus(user.uid);
           setStatus(regStat);
@@ -160,7 +161,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           (error as Error).message
         }`
       );
+      return false;
     }
+    return false;
   };
 
   const signIn = async (email: string, password: string) => {
@@ -219,6 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await deleteUser(user);
       }
       await signOut(auth);
+      router.push("/");
       setUser(null);
       setIsAdmin(false);
       setIsGoogleSignIn(false);

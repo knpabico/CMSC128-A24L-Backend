@@ -44,11 +44,11 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
 
     if (user) {
       unsubscribe = subscribeToUsers(); //maglilisten sa firestore
-      unsubscribeActive = subscribeToActiveUsers();
       unsubscribeCareer = subscribeToMyCareer();
       unsubscribeEducation = subscribeToMyEducation();
     } else if (isAdmin) {
       unsubscribe = subscribeToUsers();
+      unsubscribeActive = subscribeToActiveUsers();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);

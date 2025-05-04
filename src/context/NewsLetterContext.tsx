@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, doc, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { useSearchParams } from "next/navigation";
@@ -85,8 +85,29 @@ export function NewsLetterProvider({
     }
   };
 
+  const deleteNewsLetter = async (referenceId: string) => {
+    try {
+      const q = query(
+        collection(db, "newsletter"),
+        orderBy("timestamp", "desc")
+      );
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach(async (doc) => {
+          if (doc.data().referenceId === referenceId) {
+        await deleteDoc(doc.ref);
+          }
+        });
+      });
+
+      return { success: true, message: "Newsletter deleted successfully" };
+    } catch (error) {
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
   return (
-    <NewsLetterContext.Provider value={{ newsLetters, isLoading, addNewsLetter}}>
+    <NewsLetterContext.Provider value={{ newsLetters, isLoading, addNewsLetter, deleteNewsLetter}}>
       {children}
     </NewsLetterContext.Provider>
   );

@@ -1,7 +1,19 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, query, addDoc, where, doc, getDoc, deleteDoc, getDocs, serverTimestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  addDoc,
+  where,
+  doc,
+  getDoc,
+  deleteDoc,
+  getDocs,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Bookmark } from "@/models/models";
@@ -12,9 +24,17 @@ type BookmarkContextType = {
   bookmarks: Bookmark[];
   entries: { [key: string]: any };
   isLoading: boolean;
-  addBookmark: (entryId: string, type: string) => Promise<{ success: boolean; message: string }>;
-  removeBookmark: (bookmarkId: string) => Promise<{ success: boolean; message: string }>;
-  toggleBookmark: (entryId: string, type: string) => Promise<{ success: boolean; message: string }>;
+  addBookmark: (
+    entryId: string,
+    type: string
+  ) => Promise<{ success: boolean; message: string }>;
+  removeBookmark: (
+    bookmarkId: string
+  ) => Promise<{ success: boolean; message: string }>;
+  toggleBookmark: (
+    entryId: string,
+    type: string
+  ) => Promise<{ success: boolean; message: string }>;
   isBookmarked: (entryId: string) => boolean;
   getBookmarkId: (entryId: string) => string | null;
   filteredBookmarks: (filterType: string) => Bookmark[];
@@ -54,7 +74,10 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   // Subscribe to user's bookmarks in Firestore
   const subscribeToBookmarks = () => {
     setLoading(true);
-    const q = query(collection(db, "bookmark"), where("alumniId", "==", user?.uid));
+    const q = query(
+      collection(db, "bookmark"),
+      where("alumniId", "==", user?.uid)
+    );
 
     const unsubscribeBookmarks = onSnapshot(
       q,
@@ -78,13 +101,13 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   // Fetch all referenced entries from their respective collections
   const fetchEntries = async () => {
     const newEntries: { [key: string]: any } = {};
-  
+
     for (const bookmark of bookmarks) {
       if (!bookmark.entryId) continue;
-  
+
       try {
         let collectionName: string;
-  
+
         // Determine the Firestore collection based on the bookmark type
         switch (bookmark.type) {
           case "donation_drive":
@@ -105,29 +128,37 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
             console.warn(`Unsupported bookmark type: ${bookmark.type}`);
             continue;
         }
-  
+
         const docRef = doc(db, collectionName, bookmark.entryId);
         const docSnap = await getDoc(docRef);
-  
+
         if (docSnap.exists()) {
           newEntries[bookmark.entryId] = docSnap.data();
         } else {
-          console.warn(`Entry not found: ${bookmark.entryId} (Type: ${bookmark.type})`);
+          console.warn(
+            `Entry not found: ${bookmark.entryId} (Type: ${bookmark.type})`
+          );
         }
       } catch (error) {
         console.error(`Error fetching ${bookmark.entryId}:`, error);
       }
     }
-  
+
     setEntries(newEntries);
   };
 
   // Check if a bookmark already exists to avoid duplicates
   const getBookmarkId = (entryId: string): string | null => {
-    const bookmark = bookmarks.find(b => {
+    const bookmark = bookmarks.find((b) => {
       console.log("b.entryId:", b.entryId, "entryId:", entryId);
-      console.log("b.entryId length:", b.entryId.length, "entryId length:", entryId.length);
-      console.log("b.entryId === entryId:", b.entryId === entryId);      return b.entryId === entryId;
+      console.log(
+        "b.entryId length:",
+        b.entryId.length,
+        "entryId length:",
+        entryId.length
+      );
+      console.log("b.entryId === entryId:", b.entryId === entryId);
+      return b.entryId === entryId;
     });
     console.log("getBookmarkId result:", bookmark);
     return bookmark ? bookmark.bookmarkId : null;
@@ -135,7 +166,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
 
   // Check if an entry is bookmarked
   const isBookmarked = (entryId: string): boolean => {
-    return bookmarks.some(b => b.entryId === entryId);
+    return bookmarks.some((b) => b.entryId === entryId);
   };
 
   // Add a new bookmark (with duplication check)
@@ -151,15 +182,15 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
 
     try {
       // Add bookmark to Firestore with its attributes
-    const docRef = await addDoc(collection(db, "bookmark"), {
-      alumniId: user.uid,
-      type,
-      entryId,
-      timestamp: serverTimestamp(),
-    });
+      const docRef = await addDoc(collection(db, "bookmark"), {
+        alumniId: user.uid,
+        type,
+        entryId,
+        timestamp: serverTimestamp(),
+      });
 
-    // Update the document with its ID as bookmarkId
-    await updateDoc(docRef, { bookmarkId: docRef.id });
+      // Update the document with its ID as bookmarkId
+      await updateDoc(docRef, { bookmarkId: docRef.id });
 
       return { success: true, message: "Bookmark added successfully" };
     } catch (error) {
@@ -185,7 +216,7 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   const toggleBookmark = async (entryId: string, type: string) => {
     const bookmarkId = getBookmarkId(entryId);
     console.log("Bookmark ID:", bookmarkId);
-    
+
     if (bookmarkId) {
       // Item is already bookmarked, remove it
       return await removeBookmark(bookmarkId);
@@ -198,12 +229,15 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   // Filter bookmarks by type
   const filteredBookmarks = (filterType: string) => {
     if (filterType === "all") return bookmarks;
-    
+
     return bookmarks.filter((bookmark) => {
       if (filterType === "events" && bookmark.type === "event") return true;
-      if (filterType === "donation_drive" && bookmark.type === "donation_drive") return true;
-      if (filterType === "announcements" && bookmark.type === "announcement") return true;
-      if (filterType === "job_offer" && bookmark.type === "job_offering") return true;
+      if (filterType === "donation_drive" && bookmark.type === "donation_drive")
+        return true;
+      if (filterType === "announcements" && bookmark.type === "announcement")
+        return true;
+      if (filterType === "job_offer" && bookmark.type === "job_offering")
+        return true;
       return false;
     });
   };
@@ -218,13 +252,23 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
 
       switch (sortOption) {
         case "oldest":
-          return entryA.datePosted?.toDate().getTime() - entryB.datePosted?.toDate().getTime();
+          return (
+            entryA.datePosted?.toDate().getTime() -
+            entryB.datePosted?.toDate().getTime()
+          );
         case "latest":
-          return entryB.datePosted?.toDate().getTime() - entryA.datePosted?.toDate().getTime();
+          return (
+            entryB.datePosted?.toDate().getTime() -
+            entryA.datePosted?.toDate().getTime()
+          );
         case "bookmark_oldest":
-          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+          return (
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          );
         case "bookmark_latest":
-          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          return (
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
         case "alphabetical":
           const getTitle = (entry: any) => {
             return entry.campaignName || entry.title || entry.position || ""; // Ensures correct field selection
@@ -239,41 +283,41 @@ export function BookmarkProvider({ children }: { children: React.ReactNode }) {
   };
 
   //get the alumni bookmarks
-    const getBookmarksByAlumni = async (
-      alumniId: string
-    ): Promise<Bookmark[]> => {
-      if (!alumniId) {
-        console.error("No alumni ID provided");
-        return Promise.reject("No alumni ID provided");
-      }
-  
-      setLoading(true);
-  
-      try {
-        const bookmarksQuery = query(
-          collection(db, "bookmark"),
-          where("alumniId", "==", alumniId)
-        );
-  
-        const snapshot = await getDocs(bookmarksQuery);
-  
-        const bookmarks = snapshot.docs.map(
-          (doc) =>
-            ({
-              bookmarkId: doc.id,
-              ...doc.data(),
-            } as Bookmark)
-        );
-  
-        setLoading(false);
-        return bookmarks;
-      } catch (error) {
-        console.error("Error fetching donations by alumni:", error);
-        setError("Failed to fetch donations for this alumni.");
-        setLoading(false);
-        throw error;
-      }
-    };
+  const getBookmarksByAlumni = async (
+    alumniId: string
+  ): Promise<Bookmark[]> => {
+    if (!alumniId) {
+      console.error("No alumni ID provided");
+      return Promise.reject("No alumni ID provided");
+    }
+
+    setLoading(true);
+
+    try {
+      const bookmarksQuery = query(
+        collection(db, "bookmark"),
+        where("alumniId", "==", alumniId)
+      );
+
+      const snapshot = await getDocs(bookmarksQuery);
+
+      const bookmarks = snapshot.docs.map(
+        (doc) =>
+          ({
+            bookmarkId: doc.id,
+            ...doc.data(),
+          } as Bookmark)
+      );
+
+      setLoading(false);
+      return bookmarks;
+    } catch (error) {
+      console.error("Error fetching donations by alumni:", error);
+      setError("Failed to fetch donations for this alumni.");
+      setLoading(false);
+      throw error;
+    }
+  };
 
   // Context value
   const contextValue = {

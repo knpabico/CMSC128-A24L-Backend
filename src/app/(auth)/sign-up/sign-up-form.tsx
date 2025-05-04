@@ -152,9 +152,11 @@ const formParts = [
       "address",
       "studentNumber",
       "affiliation",
+      "fieldOfInterest",
       "bachelors",
       "masters",
       "doctoral",
+      "currentJob",
       "career",
       "acceptTerms",
       "subscribeToNewsletter",
@@ -163,6 +165,8 @@ const formParts = [
 ];
 
 export default function RegistrationForm() {
+  const [isCodeSent, setIsCodeSent] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   //for identifying whether the user is at the credentials part or profile part of the form
@@ -173,7 +177,6 @@ export default function RegistrationForm() {
   const [disableGoNext, setDisableGoNext] = useState(false);
   const [disableGoBack, setDisableGoBack] = useState(false);
   const [alumImage, setImage] = useState<File | null>(null); // for alum photo
-  const [proofOfEmployment, setProof] = useState<File | null>(null);
 
   const router = useRouter();
   const { user, isGoogleSignIn, logOut } = useAuth();
@@ -185,6 +188,7 @@ export default function RegistrationForm() {
   const [isVerify, setIsVerify] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
+  const [hasCurrentJob, setHasCurrentJob] = useState(false);
 
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
@@ -205,8 +209,8 @@ export default function RegistrationForm() {
     defaultValues: {
       //email and password
       email: isGoogleSignIn ? user?.email ?? "" : "",
-      password: "",
-      passwordConfirm: "",
+      password: isGoogleSignIn ? "googlesign" : "",
+      passwordConfirm: isGoogleSignIn ? "googlesign" : "",
 
       //name
       firstName: isGoogleSignIn
@@ -228,11 +232,13 @@ export default function RegistrationForm() {
       //education
       studentNumber: "",
       affiliation: [], //affiliation name, year joined, university
+      fieldOfInterest: [],
       bachelors: [{ university: "", yearGraduated: "", major: "" }], //degree program, year graduated, university
       masters: [], //degree program, year graduated, university
       doctoral: [], //degree program, year graduated, university
 
       // //career
+      currentJob: [],
       career: [], //industry, jobTitle, company, startYear, endYear
       acceptTerms: false,
       subscribeToNewsletter: false,
@@ -267,6 +273,13 @@ export default function RegistrationForm() {
     remove: removeDoctoral,
   } = useFieldArray({ control: form.control, name: "doctoral" });
 
+  //dynamic fields for currentJob
+  const {
+    fields: currentJob,
+    append: addCurrentJob,
+    remove: removeCurrentJob,
+  } = useFieldArray({ control: form.control, name: "currentJob" });
+
   //dynamic fields for career
   const {
     fields: career,
@@ -278,6 +291,13 @@ export default function RegistrationForm() {
     if (isVerified && !isVerify) {
     }
   }, [isVerified, isVerify]);
+
+  useEffect(() => {
+    if (isGoogleSignIn) {
+      setCurrentPart(currentPart + 1);
+      console.log(form);
+    }
+  }, []);
 
   // const handleInitiateSignUp = async () => {
   //   setIsLoading(true);
@@ -291,8 +311,6 @@ export default function RegistrationForm() {
     setIsLoadingModal(true);
     const response = await registerUser(
       data,
-      alumImage,
-      proofOfEmployment,
       {
         displayName: user?.displayName ?? "",
         email: user?.email ?? "",
@@ -307,7 +325,6 @@ export default function RegistrationForm() {
     console.log("Testing sign-up:");
     console.log(data);
     console.log(alumImage);
-    console.log(proofOfEmployment);
 
     //display error or success toast message
     if (response?.error) {
@@ -316,16 +333,22 @@ export default function RegistrationForm() {
       return;
     }
 
+    //upload alum photo to firebase storage
     if (alumImage) {
       uploadToFirebase(alumImage, response.alumniId!);
     }
 
-    if (proofOfEmployment) {
-      uploadDocToFirebase(
-        proofOfEmployment,
-        response.alumniId!,
-        response.workExperienceId!
-      );
+    //uploading currentJob's proof of employment
+    if (data.currentJob) {
+      if (data.currentJob.length > 0) {
+        if (data.currentJob[0].hasProof === true && response.workExperienceId) {
+          uploadDocToFirebase(
+            data.currentJob[0].proof,
+            response.alumniId!,
+            response.workExperienceId
+          );
+        }
+      }
     }
 
     // if successful, show a dialog that says
@@ -336,6 +359,7 @@ export default function RegistrationForm() {
   //will enable the verification modal
   const handleSubmit = async () => {
     setIsLoading(true);
+
     setIsVerify(true);
 
     // if (isVerified && !isVerify) {
@@ -373,15 +397,9 @@ export default function RegistrationForm() {
   type fieldName = keyof z.infer<typeof signUpFormSchema>;
 
   //callback for image upload
-  const handleImageUpload = (image: File): void => {
+  const handleImageUpload = (image: File | null): void => {
     setImage(image);
     console.log("Uploaded image:", image);
-  };
-
-  //callback for document upload
-  const handleDocUpload = (doc: File): void => {
-    setProof(doc);
-    console.log("Uploaded document:", doc);
   };
 
   //for proceeding to the "Your Profile" part after validating the user credentials
@@ -432,7 +450,16 @@ export default function RegistrationForm() {
     <>
       <div className="">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault(); // prevent full-page reload
+              if (currentPart === 0) {
+                goNext();
+              } else {
+                form.handleSubmit(handleSubmit)(); // only submit when on final part
+              }
+            }}
+          >
             <fieldset
               disabled={form.formState.isSubmitting || isLoading}
               className=""
@@ -491,13 +518,17 @@ export default function RegistrationForm() {
 
               {currentPart === 1 && (
                 <div className="my-20">
-                  <button
-                    onClick={goBack}
-                    className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
-                  >
-                    <ChevronLeft />
-                    <p>Back</p>
-                  </button>
+                  {!isGoogleSignIn && (
+                    <button
+                      onClick={() => {
+                        goBack();
+                      }}
+                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
+                    >
+                      <ChevronLeft />
+                      <p>Back</p>
+                    </button>
+                  )}
 
                   <div className="flex flex-col items-center mx-110">
                     <div className="space-y-10">
@@ -532,7 +563,10 @@ export default function RegistrationForm() {
                               Educational Background
                             </p>
                             <hr></hr>
-                            <p className="text-xs">Kindly ensure that you include the degree you obtained from UPLB ICS.</p>
+                            <p className="text-xs">
+                              Kindly ensure that you include the degree you
+                              obtained from UPLB ICS.
+                            </p>
                           </div>
 
                           {/* studentNumber form field */}
@@ -559,6 +593,30 @@ export default function RegistrationForm() {
                                 )}
                               />
                             </div>
+                          </div>
+
+                          {/* field of interest field */}
+                          <div className="">
+                            <FormField
+                              control={form.control}
+                              name="fieldOfInterest"
+                              render={({ field }) => (
+                                <FormItem className="gap-0">
+                                  <p className="text-sm font-semibold">
+                                    Field of Interest
+                                  </p>
+                                  <FormControl>
+                                    <TagsInput
+                                      value={field.value ?? []}
+                                      onValueChange={field.onChange}
+                                      placeholder="Enter your fields of interest"
+                                      className="bg-white border border-gray-500"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
 
                           {/* bachelor's form field */}
@@ -738,6 +796,63 @@ export default function RegistrationForm() {
                             <hr></hr>
                           </div>
 
+                          {/*CURRENT JOB */}
+                          <div className="mt-5">
+                            <p className="text-sm font-semibold pb-2">
+                              Current Job
+                            </p>
+                            {currentJob.map((car, index) => (
+                              <div key={car.id} className="relative pb-5">
+                                {/*remove field button */}
+                                <button
+                                  className="absolute top-1 right-2 text-gray-500 cursor-pointer hover:text-red-500"
+                                  type="button"
+                                  onClick={() => {
+                                    removeCurrentJob(index);
+                                    setHasCurrentJob(false);
+                                  }}
+                                >
+                                  <Trash2Icon className="w-4" />
+                                </button>
+
+                                {/* career form field */}
+                                <Career
+                                  index={index}
+                                  form={form}
+                                  type={"currentJob"}
+                                ></Career>
+                              </div>
+                            ))}
+                            {/*add  fields button */}
+                            {hasCurrentJob === false && (
+                              <button
+                                className="flex items-center space-x-3 cursor-pointer group"
+                                type="button"
+                                onClick={() => {
+                                  addCurrentJob({
+                                    industry: "",
+                                    jobTitle: "",
+                                    company: "",
+                                    startYear: "",
+                                    endYear: "present",
+                                    location: "",
+                                    latitude: 14.25,
+                                    longitude: 121.25,
+                                    hasProof: false,
+                                    proof: null,
+                                  });
+                                  setHasCurrentJob(true);
+                                }}
+                              >
+                                <PlusCircleIcon className="text-[#3675c5] rounded-full group-hover:bg-[#3675c5] group-hover:text-white" />
+                                <p className="text-[#3675c5] text-sm group-hover:underline">
+                                  Add current job
+                                </p>
+                              </button>
+                            )}
+                          </div>
+
+                          {/*PAST WORK EXPERIENCE*/}
                           <div className="mt-5">
                             <p className="text-sm font-semibold pb-2">
                               Work Experience
@@ -757,7 +872,7 @@ export default function RegistrationForm() {
                                 <Career
                                   index={index}
                                   form={form}
-                                  proofSetter={handleDocUpload}
+                                  type={"career"}
                                 ></Career>
                               </div>
                             ))}
@@ -772,7 +887,6 @@ export default function RegistrationForm() {
                                   company: "",
                                   startYear: "",
                                   endYear: "",
-                                  presentJob: false,
                                   location: "",
                                   latitude: 14.25,
                                   longitude: 121.25,
@@ -886,7 +1000,11 @@ export default function RegistrationForm() {
           </p>
           <DialogFooter className="sm:justify-start">
             <DialogClose asChild>
-              <Button type="button" variant="secondary" className="cursor-pointer">
+              <Button
+                type="button"
+                variant="secondary"
+                className="cursor-pointer"
+              >
                 Close
               </Button>
             </DialogClose>
@@ -896,6 +1014,7 @@ export default function RegistrationForm() {
 
       <VerificationCodeModal
         isOpen={isVerify}
+        isCodeSent={isCodeSent}
         onClose={() => {
           setIsVerify(false);
           setIsLoading(false);
@@ -905,9 +1024,11 @@ export default function RegistrationForm() {
         onVerify={() => {
           setIsVerified(true);
           setIsLoading(true);
+
           completeRegistration(form.getValues());
         }}
         isLoadingModal={isLoadingModal}
+        onCodeSent={() => setIsCodeSent(true)}
       />
     </>
   );

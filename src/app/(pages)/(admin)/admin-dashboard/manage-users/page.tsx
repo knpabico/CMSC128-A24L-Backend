@@ -207,7 +207,6 @@ const Page = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Student Number</TableHead>
-                  <TableHead>Graduation Year</TableHead>
                   <TableHead>Active Status</TableHead>
                   <TableHead>Registration Status</TableHead>
                   <TableHead>Date Created</TableHead>
@@ -222,7 +221,6 @@ const Page = () => {
                     </TableCell>
                     <TableCell>{alumni.email}</TableCell>
                     <TableCell>{alumni.studentNumber}</TableCell>
-                    <TableCell>{alumni.graduationYear}</TableCell>
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${

@@ -41,9 +41,11 @@ const calculateAge = (birthDate: Date) => {
   const month = birthDate.getMonth();
   const year = birthDate.getFullYear();
 
+  //student number
+
   let age = current_year - year;
   //if current day < day or current month < month
-  if (current_day < day || current_month < month) {
+  if ((current_month === month && current_day < day) || current_month < month) {
     age = age - 1; //subtract 1 from age
   }
 
@@ -60,15 +62,32 @@ const saveCareer = async (
             company: string;
             startYear: string;
             endYear: string;
-            presentJob: boolean;
+            location: string;
+            latitude: number;
+            longitude: number;
           }
         | undefined
       )[]
     | undefined,
-  alumniId: string,
-  proofOfEmployment: any
+  currentJob:
+    | (
+        | {
+            industry: string;
+            jobTitle: string;
+            company: string;
+            startYear: string;
+            endYear: string;
+            location: string;
+            latitude: number;
+            longitude: number;
+            hasProof: boolean;
+            proof?: any;
+          }
+        | undefined
+      )[]
+    | undefined,
+  alumniId: string
 ) => {
-  let workExperienceId = null;
   //if career exists
   if (career) {
     //loop for storing each career entry to work_experience
@@ -80,8 +99,33 @@ const saveCareer = async (
         //will contain the id to be used for adding education entry
         let ref = serverFirestoreDB.collection("work_experience").doc();
 
+        await serverFirestoreDB
+          .collection("work_experience")
+          .doc(ref.id)
+          .set({
+            ...career[i],
+            workExperienceId: ref.id,
+            alumniId: alumniId,
+            proofOfEmployment: "",
+          });
+      }
+    }
+  }
+
+  let workExperienceId = null; //id of current job
+  //if currentJob exists
+  if (currentJob) {
+    //loop for storing each currentJob entry to work_experience
+    for (let i = 0; i < currentJob.length; i++) {
+      if (currentJob[i]) {
+        //if currentJob[i] is not undefined
+        //each field shouldn't be empty
+
+        //will contain the id to be used for adding education entry
+        let ref = serverFirestoreDB.collection("work_experience").doc();
+
         //destructure to get presentJob
-        const { presentJob, endYear, ...car } = career[i]!;
+        const { hasProof, proof, ...car } = currentJob[i]!;
 
         await serverFirestoreDB
           .collection("work_experience")
@@ -90,11 +134,11 @@ const saveCareer = async (
             ...car,
             workExperienceId: ref.id,
             alumniId: alumniId,
-            endYear: presentJob ? "present" : endYear, //if present job, set as present
             proofOfEmployment: "",
           });
 
-        if (presentJob) {
+        //store work experience id if has proof
+        if (hasProof) {
           workExperienceId = ref.id;
         }
       }
@@ -224,8 +268,6 @@ const saveAffiliation = async (
 
 export const registerUser = async (
   data: z.infer<typeof signUpFormSchema>,
-  alumImage: any,
-  proofOfEmployment: any,
   userInfo: {
     displayName: string;
     email: string;
@@ -257,9 +299,11 @@ export const registerUser = async (
     doctoral,
     affiliation,
     career,
+    currentJob,
     passwordConfirm,
     ...alumData
   } = alumnusData;
+
   try {
     // create a user in firebase auth
     let userCredential = userInfo;
@@ -299,6 +343,7 @@ export const registerUser = async (
         birthDate: new Date(alumnusData.birthDate),
         contactPrivacy: true, //if true, contact (email) should be private
         image: alumData.image ?? "",
+        fieldOfInterest: alumData.fieldOfInterest ?? [],
       });
 
     //save education
@@ -307,8 +352,8 @@ export const registerUser = async (
     //save career
     let workExperienceId = await saveCareer(
       career,
-      userCredential.uid,
-      proofOfEmployment
+      currentJob,
+      userCredential.uid
     );
 
     //save affiliation

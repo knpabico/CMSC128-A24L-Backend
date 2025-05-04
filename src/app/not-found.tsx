@@ -11,7 +11,7 @@ export default function NotFound() {
     if (isGoogleSignIn) {
       router.push("/sign-up");
     } else if (status !== "approved" && !isAdmin && !loading) {
-      router.push("/");
+      router.push("/login");
     }
   }, [status, isAdmin, router, loading, isGoogleSignIn]);
   if (status === "approved" || isAdmin) {
