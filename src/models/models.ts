@@ -75,7 +75,6 @@ export interface Scholarship {
 }
 
 export interface Event {
-  dateCreated(dateCreated: any): import("react").ReactNode;
   eventId: string;
   datePosted: Date;
   title: string;

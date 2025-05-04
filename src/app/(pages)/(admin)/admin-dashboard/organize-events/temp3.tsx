@@ -6,7 +6,7 @@ import { Event } from "@/models/models";
 import Link from "next/link";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Calendar, Clock, FilePlus2, MapPin, UserCheck } from "lucide-react";
+import { Calendar, Clock, MapPin, UserCheck } from "lucide-react";
 import ModalInput from "@/components/ModalInputForm";
 import { useParams } from "next/navigation";;
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
@@ -275,7 +275,7 @@ export default function EventPageAdmin()
                         <button 
                             onClick={() => setStatusFilter("Accepted")}
                             className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "Accepted" 
+                            statusFilter === "active" 
                                 ? "bg-green-600 text-white" 
                                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                             }`}
@@ -285,7 +285,7 @@ export default function EventPageAdmin()
                         <button 
                             onClick={() => setStatusFilter("Pending")}
                             className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "Pending" 
+                            statusFilter === "pending" 
                                 ? "bg-yellow-600 text-white" 
                                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                             }`}
@@ -295,7 +295,7 @@ export default function EventPageAdmin()
                         <button 
                             onClick={() => setStatusFilter("Rejected")}
                             className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                            statusFilter === "Rejected" 
+                            statusFilter === "rejected" 
                                 ? "bg-red-600 text-white" 
                                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                             }`}
@@ -316,27 +316,8 @@ export default function EventPageAdmin()
                         >
                             <option value="posted-newest">Newest</option>
                             <option value="posted-oldest">Earliest</option>
-                            <option value="alphabetical">A-Z</option>
+                            <option value="alphabetical">Alphabetical</option>
                         </select>
-                        <button onClick={() => 
-                          {
-                            setEdit(false);
-                            setShowForm(true);
-                            setEventTitle(""); 
-                            setEventTime("");
-                            setEventDescription("");
-                            setEventDate("");
-                            setEventLocation("");
-                            setFileName("");
-                            setEventImage(null);
-                            setSelectedAlumni([]);
-                            setSelectedBatches([]);
-                            setVisibility("all");
-                            setButton("");
-                          }} 
-                          className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4">
-                          <FilePlus2 className="w-5 h-5" />  Create Event
-                        </button>
                     </div>
 
                 {isLoading && <div className="text-center text-lg">Loading...</div>}
@@ -467,7 +448,7 @@ export default function EventPageAdmin()
                                                           setShowForm(false);
                                                         }
                                                         }
-                                                        className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-300 hover:text-black transition w-full"
+                                                        className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         Approve
                                                     </button>
@@ -478,19 +459,19 @@ export default function EventPageAdmin()
                                                         setEditingEventId(e.eventId);
                                                         setShowForm(true);
                                                         }}
-                                                        className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-300 hover:text-black transition w-full"
+                                                        className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         Edit
                                                     </button>
                                                     <button
                                                         onClick={() => handleReject(e.eventId)}
-                                                        className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-300 hover:text-black transition w-full"
+                                                        className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         Reject
                                                     </button>
                                                     <button
                                                         onClick={() => handleViewEventAdmin(e)}
-                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         View More
                                                     </button>
@@ -500,7 +481,7 @@ export default function EventPageAdmin()
                                                     <>
                                                     <button
                                                         onClick={() => handleViewEventAdmin(e)}
-                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         View More
                                                     </button>
@@ -511,7 +492,7 @@ export default function EventPageAdmin()
                                                     <>
                                                     <button
                                                         onClick={() => handleViewEventAdmin(e)}
-                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                                                        className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-green-600 transition w-full"
                                                     >
                                                         View More
                                                     </button>
@@ -526,6 +507,25 @@ export default function EventPageAdmin()
                 </div>
 
             </div>
+            <div></div>
+              <button onClick={() => 
+              {
+                setEdit(false);
+                setShowForm(true);
+                setEventTitle(""); 
+                setEventTime("");
+                setEventDescription("");
+                setEventDate("");
+                setEventLocation("");
+                setFileName("");
+                setEventImage(null);
+                setSelectedAlumni([]);
+                setSelectedBatches([]);
+                setVisibility("all");
+                setButton("");
+              }}  className="px-4 py-2 bg-blue-500 text-white rounded-md">
+              Create Event
+            </button>
             {showForm && (
             <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
               <form

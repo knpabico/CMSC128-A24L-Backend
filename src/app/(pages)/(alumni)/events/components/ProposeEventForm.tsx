@@ -7,82 +7,64 @@ import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 import { useEvents } from "@/context/EventContext";
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/context/AuthContext";
 
 interface ProposeEventFormProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
-  setEventTitle: (title: string) => void;
-  description: string;
-  setEventDescription: (description: string) => void;
-  date: string;
-  setEventDate: (date: string) => void;
-  time: string;
-  setEventTime: (time: string) => void;
-  location: string;
-  setEventLocation: (location: string) => void;
-  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSave: (
-    e: React.FormEvent,
-    image: string,
-    targetGuests: any[] | null,
-    visibility: string,
-    status: string
-  ) => void;
-  image: string;
-  setEventImage: (image: string) => void;
-  inviteType: string;
-  targetGuests: any[] | null;
-  alumInfo: any;
   isEditing: boolean;
+  isDetails: boolean;
   editingEventId: string | null;
-  events: any[];
   setEdit: (isEditing: boolean) => void;
+  setDetailsPage: (isDetails: boolean) => void;
 }
 
 const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   isOpen,
   onClose,
-  title,
-  setEventTitle,
-  description,
-  setEventDescription,
-  date,
-  setEventDate,
-  time,
-  setEventTime,
-  location,
-  setEventLocation,
-  handleImageChange,
-  handleSave,
-  inviteType,
-  targetGuests,
   isEditing,
   editingEventId,
   setEdit,
-  events,
-  image,
-  setEventImage,
-  alumInfo,
+  isDetails,
+  setDetailsPage
 }) => {
+  const { 
+      events, 
+      handleSave,
+      handleImageChange,
+      date,
+      setEventDate,
+      description,
+      setEventDescription,
+      title,
+      setEventTitle,
+      location,
+      setEventLocation,
+      time,
+      setEventTime,
+      image,
+      setEventImage,
+      fileName, 
+      setFileName, 
+      handleEdit
+      } = useEvents();
+
+  const { user, alumInfo } = useAuth();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmForm, setConfirmForm] = useState(false);
   const [userInput, setUserInput] = useState("");
-  const [visibility, setVisibility] = useState(inviteType || "all");
-  const [selectedBatches, setSelectedBatches] = useState<any[]>(
-    inviteType === "batch" && targetGuests ? targetGuests : []
-  );
-  const [selectedAlumni, setSelectedAlumni] = useState<any[]>(
-    inviteType === "alumni" && targetGuests ? targetGuests : []
-  );
+  const [visibility, setVisibility] = useState("all");
+  const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
+  const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
   const router = useRouter();
-  
-  const {fileName, setFileName, handleEdit } = useEvents();
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (isEditing && events) {
       const eventToEdit = events.find(event => event.eventId === editingEventId);
-  
+      
       setVisibility("all");
       setSelectedAlumni([]);
       setSelectedBatches([]);
@@ -90,6 +72,8 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       if (eventToEdit) {
         setEventTitle(eventToEdit.title);
         setEventDescription(eventToEdit.description);
+        setEventTime(eventToEdit.time);
+        setEventImage(eventToEdit.image);
         setEventDate(eventToEdit.date);
         setEventLocation(eventToEdit.location);
         // Optional: handle image if you prefill it somehow
@@ -108,11 +92,18 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
     }
   }, [isEditing, events, editingEventId]);
 
+  useEffect(() => {
+    if (isOpen && !isEditing) {
+      resetFormState();
+    }
+  }, [isOpen, isEditing]);
+
   const resetFormState = () => {
     setEdit(false);
     setEventTitle(""); 
     setEventDescription("");
     setEventDate("");
+    setEventTime("");
     setEventLocation("");
     setEventImage("");
     setVisibility("all");
@@ -361,6 +352,10 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             </label>
           </div>
 
+          {errorMessage && (
+                  <p className="text-red-500 text-sm mt-4">{errorMessage}</p>
+                )}
+
           <div className="flex justify-between mt-4">
             <button type="button" onClick={onClose} className="text-gray-500">
               Cancel
@@ -368,15 +363,21 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             <div className="flex gap-2 my-5">
             <button
               type="button"
-              onClick={(e) => {
+              onClick={async (e) => {
+                e.preventDefault();
+
                 const targetGuests =
                   visibility === "batch"
                     ? selectedBatches
                     : visibility === "alumni"
                     ? selectedAlumni
-                    : null;
-
-                handleSave(e, image, targetGuests, visibility, "Draft");
+                    : [];
+                
+                if(isEditing && editingEventId){
+                  await handleEdit(editingEventId, {title, description, location, date, image, time, targetGuests, inviteType: visibility });
+                } else {
+                  await handleSave(e, image, targetGuests, visibility, "Draft");
+                } 
 
                 resetFormState();
 
@@ -388,16 +389,42 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             </button>
               <button
                 type="button"
-                onClick={() =>
-                  {
+                onClick={() => {
+                  setErrorMessage(""); // Clear previous error messages
+
+                  if (!formComplete) {
+                    setErrorMessage("Please fill out all required fields before proposing the event.");
+                    return;
+                  }
+
+                    // Validate batch inputs (only numbers and not empty)
+                    if (visibility === "batch") {
+                      if (selectedBatches.length === 0) {
+                        setErrorMessage("Please add at least one batch.");
+                        return;
+                      }
+                      if (selectedBatches.some(batch => !/^\d+$/.test(batch))) {
+                        setErrorMessage("Batch inputs must contain only numbers.");
+                        return;
+                      }
+                    }
+
+                    // Validate alumni inputs (valid email format and not empty)
+                    if (visibility === "alumni") {
+                      if (selectedAlumni.length === 0) {
+                        setErrorMessage("Please add at least one alumni email.");
+                        return;
+                      }
+                      if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+                        setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
+                        return;
+                      }
+                    }
+
                     const form = document.querySelector("form");
-                    if (form && form.checkValidity())
-                    {
+                    if (form && form.checkValidity()) {
                       setConfirmForm(true);
-                    } 
-                    
-                    else
-                    {
+                    } else {
                       form?.reportValidity(); // Show browser's validation tooltips
                     }
                   }}
@@ -414,39 +441,31 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       {confirmForm && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-30">
           <form
-            onSubmit={(e) => {
-              resetFormState();
-
+            onSubmit={async (e) => {
               e.preventDefault();
+
               if (userInput !== requiredSentence) {
                 alert("Please type the sentence exactly to confirm.");
                 return;
               }
+
               const targetGuests =
                 visibility === "batch" ? selectedBatches :
                 visibility === "alumni" ? selectedAlumni :
-                null;
+                [];
 
-              if (isEditing && editingEventId) {
-                handleEdit(editingEventId, {
-                  title,
-                  description,
-                  location,
-                  date,
-                  image,
-                  targetGuests,
-                  status: "Pending",
-                  inviteType: visibility,
-                });
+              if(isDetails){
+                await handleEdit(editingEventId, {title, description, location, date, image, time, targetGuests, status: "Pending", inviteType: visibility });
               } else {
-                handleSave(e, image, targetGuests, visibility, "Pending");
+                await handleSave(e, image, targetGuests, visibility, "Pending");
               }
+              
               
               router.push(`/events/proposed`)
 
               resetFormState();
               onClose();
-              setEdit(false);
+              setDetailsPage(false);
               setConfirmForm(false);
             }}
               className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
@@ -477,7 +496,10 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             <div className="flex justify-between">
               <button
                 type="button"
-                onClick={() => setConfirmForm(false)}
+                onClick={() => {
+                  setConfirmForm(false);
+                  setUserInput("");
+                }}
                 className="text-gray-500"
               >
                 Cancel

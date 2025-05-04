@@ -45,7 +45,8 @@ const EventPageAlumni = () => {
   const params = useParams();
   const router = useRouter();
   const { featuredItems, isLoading } = useFeatured();
-  const [isEditing, setEdit] = useState(false);
+  const [isEditing, setEdit] = useState<boolean>(false);
+  const [isDetails, setDetailsPage] = useState<boolean>(false);
 
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
@@ -184,7 +185,6 @@ const EventPageAlumni = () => {
             </div>
           )}
 
-          {/* RSVP Buttons */}
           {event.status === "Draft" && (
             <div className="bg-white py-4 px-6 rounded-[10px] shadow-md border border-gray-200 flex gap-4">
               <>
@@ -206,33 +206,17 @@ const EventPageAlumni = () => {
                 >
                   Delete
                 </button>
-
-                <ProposeEventForm
-                  isOpen={showForm}
-                  onClose={() => setShowForm(false)}
-                  title={event.title}
-                  setEventTitle={setEventTitle}
-                  description={event.description}
-                  setEventDescription={setEventDescription}
-                  date={event.date}
-                  setEventDate={setEventDate}
-                  handleImageChange={handleImageChange}
-                  handleSave={handleSave}
-                  alumInfo={alumInfo}
-                  location={event.location}
-                  setEventLocation={setEventLocation}
-                  image={event.image}
-                  setEventImage={setEventImage}
-                  time={event.time}
-                  setEventTime={setEventTime}
-                  inviteType={event.inviteType}
-                  targetGuests={event.targetGuests}
-                  setEdit={setEdit}
-                  isEditing={isEditing}
-                  editingEventId={event.eventId}
-                  events={events}
-                />
               </>
+              {/* Propose Event Form */}
+              <ProposeEventForm
+                isOpen={showForm}
+                onClose={() => setShowForm(false)}
+                isEditing={isEditing}
+                isDetails={true}
+                setDetailsPage={setDetailsPage}
+                editingEventId={event.eventId}
+                setEdit={setEdit}
+              />
             </div>
           )}
 

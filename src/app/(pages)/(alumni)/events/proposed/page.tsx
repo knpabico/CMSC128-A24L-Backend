@@ -32,18 +32,13 @@ export default function ProposedEventsPage()
         image,
         setEventImage
     } = useEvents();
-
-
     const { user, alumInfo } = useAuth();
 
     const [proposedEvents, setProposedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
     const [statusFilter, setStatusFilter] = useState<string>('all');
-
-    const [inviteType, setInviteType] = useState<string>('all');
-    const [targetGuests, setTargetGuests] = useState<string[]>([]);
-    const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [editingEventId, setEditingEventId] = useState<string | null>(null);
+    const [isEditing, setEdit] = useState<boolean>(false);
+    const [isDetails, setDetailsPage] = useState<boolean>(false);
     
     useEffect(() =>
     {
@@ -173,27 +168,11 @@ export default function ProposedEventsPage()
                     <ProposeEventForm 
                         isOpen={showForm}
                         onClose={() => setShowForm(false)}
-                        title={title}
-                        setEventTitle={setEventTitle}
-                        description={description}
-                        setEventDescription={setEventDescription}
-                        date={date}
-                        setEventDate={setEventDate}
-                        handleImageChange={handleImageChange}
-                        handleSave={handleSave}
-                        alumInfo={alumInfo}
-                        location={location}
-                        setEventLocation={setEventLocation}
-                        image={image}
-                        setEventImage={setEventImage}
-                        time={time}
-                        setEventTime={setEventTime}
-                        inviteType={inviteType}
-                        targetGuests={targetGuests}
                         isEditing={isEditing}
-                        editingEventId={editingEventId}
-                        events={events}
-                        setEdit={(value) => setIsEditing(false)}
+                        isDetails={false}
+                        setDetailsPage={setDetailsPage}
+                        editingEventId={""}
+                        setEdit={setEdit}
                     />
 
                     {proposedEvents.length > 0 ? (
