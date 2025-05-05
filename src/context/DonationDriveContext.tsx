@@ -404,6 +404,7 @@ export function DonationDriveProvider({
           (driveData) => driveData.donationDriveId !== donationDrive.donationDriveId
         )
       );
+      await deleteNewsLetter(donationDriveId);
       return { success: true, message: "Donation drive deleted successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };

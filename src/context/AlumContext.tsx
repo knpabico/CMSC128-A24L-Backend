@@ -8,7 +8,7 @@ import {
   setDoc,
   doc,
   where,
-  getDocs,
+  getDoc,
   orderBy,
   addDoc,
   updateDoc,
@@ -22,6 +22,10 @@ import { FirebaseError } from "firebase-admin/app";
 import { sendEmailTemplateForNewsletter } from "@/lib/emailTemplate";
 import { sendEmailTemplate } from "@/lib/emailTemplate";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { uploadImage } from "@/lib/upload";
+import { messaging } from "firebase-admin";
+
+
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -40,11 +44,11 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
 
     if (user) {
       unsubscribe = subscribeToUsers(); //maglilisten sa firestore
-      unsubscribeActive = subscribeToActiveUsers();
       unsubscribeCareer = subscribeToMyCareer();
       unsubscribeEducation = subscribeToMyEducation();
     } else if (isAdmin) {
       unsubscribe = subscribeToUsers();
+      unsubscribeActive = subscribeToActiveUsers();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);
@@ -69,6 +73,73 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       }
     };
   }, [user, isAdmin]);
+
+  //for updateing changes of alumni
+
+  const updateAlumniDetails = async (
+    alum: Alumnus,
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    suffix: string,
+    email: string,
+    studentNumber: string,
+    address: string[],
+    birthDate: Date,
+    fieldOfInterest: string[]
+  ) => {
+    try {
+      const alumniRef = doc(db, "alumni", alum.alumniId);
+      const docSnap = await getDoc(alumniRef);  // Fetch current data to check for existing fields
+  
+      const updatedData: any = {};  // Will hold fields to update
+  
+      if (docSnap.exists()) {
+        const currentData = docSnap.data();
+        
+        // Only update fields that have changed
+        if (firstName !== currentData.firstName) updatedData.firstName = firstName ?? "";
+        if (middleName !== currentData.middleName) updatedData.middleName = middleName ?? "";
+        if (lastName !== currentData.lastName) updatedData.lastName = lastName ?? "";
+        if (suffix !== currentData.suffix) updatedData.suffix = suffix ?? "";
+        if (email !== currentData.email) updatedData.email = email ?? "";
+        if (studentNumber !== currentData.studentNumber) updatedData.studentNumber = studentNumber ?? "";
+        if (address !== currentData.address) updatedData.address = address ?? [];
+        if (birthDate !== currentData.birthDate) updatedData.birthDate = birthDate ?? new Date();
+        if (fieldOfInterest !== currentData.fieldOfInterest) updatedData.fieldOfInterest = fieldOfInterest ?? [];
+  
+        // If there's any updated data, update the document
+        if (Object.keys(updatedData).length > 0) {
+          await updateDoc(alumniRef, updatedData);
+        }
+      }
+  
+      return { success: true, message: "Your changes are successfully saved" };
+    } catch (error) {
+      console.error("Error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  //for fetching the photo of alumni
+  const uploadAlumniPhoto = async (alum:Alumnus, imageFile:any) => {
+    try {
+      //uploading
+      const data = await uploadImage(imageFile, `alumni/${user?.uid}`);
+      if (!data.success) {
+        throw new Error(data.result);
+      }
+
+      // Update the Firestore document with the image URL
+      const alumniRef = doc(db, "alumni", alum.alumniId);
+      await updateDoc(alumniRef, { image: data.url });
+
+      return { success: true, url: data.url };
+    } catch (error) {
+      console.error("Error uploading alumni photo:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
   //for fetching career of current user
   const subscribeToMyCareer = () => {
@@ -198,6 +269,18 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  //birthdayy
+  const handleUpdateBirthday = async (alumniId: string, birthDate: Date) => {
+    try {
+      const alumniRef = doc(db, "alumni", alumniId);
+      await updateDoc(alumniRef, { birthDate });
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update birthday:", error);
+      return { success: false, message: (error as Error).message };
+    }
+  };
+
   const subscribeToUsers = () => {
     setLoading(true);
     const q = query(collection(db, "alumni"));
@@ -252,6 +335,9 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         alums,
         isLoading,
         addAlumnus,
+        uploadAlumniPhoto,
+        handleUpdateBirthday,
+        updateAlumniDetails,
         activeAlums,
         myCareer,
         myEducation,

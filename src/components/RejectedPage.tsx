@@ -10,7 +10,7 @@ export default function LogoutPage() {
 
   const handleLogout = () => {
     logOut();
-    toastSuccess("User logged out without deleting account");
+    toastSuccess("User logged out");
   };
 
   const handleDelete = () => {
@@ -32,7 +32,15 @@ export default function LogoutPage() {
             </h2>
             <p className="mt-1 text-sm text-gray-500">
               We are sorry but we have to reject your account. You can send an
-              appeal to <strong>cmsc128a24l@gmail.com</strong>
+              appeal to <strong>cmsc128a24l@gmail.com</strong>{" "}
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=cmsc128a24l@gmail.com&su=Registration%20Appeal%20Request"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 underline"
+              >
+                Send an appeal here
+              </a>
             </p>
           </div>
 

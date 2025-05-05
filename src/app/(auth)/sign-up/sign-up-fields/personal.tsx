@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/form";
 
 export const Personal = ({ form }: { form: any }) => {
+  //for max allowed birthDate
+  const currentYear = new Date().getFullYear() - 18;
+  const max = `${currentYear}-01-01`;
   return (
     <div className="space-y-7">
-
       <div className="grid grid-cols-12 gap-x-4 gap-y-3">
         {/* birthDate form field */}
         <div className="col-span-6">
@@ -26,6 +28,7 @@ export const Personal = ({ form }: { form: any }) => {
                 <FormControl>
                   <Input
                     type="date"
+                    max={max}
                     {...field}
                     // we will not provide a default value to this input field
                     // that requires a number value when we create the react hook form (the form variable above)
@@ -55,7 +58,11 @@ export const Personal = ({ form }: { form: any }) => {
                 <FormItem className="gap-0">
                   <FormLabel className="text-xs font-light">Country*</FormLabel>
                   <FormControl>
-                    <Input placeholder="Philippines" {...field} className="bg-white border border-gray-500"/>
+                    <Input
+                      placeholder="Philippines"
+                      {...field}
+                      className="bg-white border border-gray-500"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -69,9 +76,15 @@ export const Personal = ({ form }: { form: any }) => {
               name="address.1"
               render={({ field }) => (
                 <FormItem className="gap-0">
-                  <FormLabel className="text-xs font-light">City/Municipality*</FormLabel>
+                  <FormLabel className="text-xs font-light">
+                    City/Municipality*
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Los Baños" {...field} className="bg-white border border-gray-500"/>
+                    <Input
+                      placeholder="Los Baños"
+                      {...field}
+                      className="bg-white border border-gray-500"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -85,18 +98,46 @@ export const Personal = ({ form }: { form: any }) => {
               name="address.2"
               render={({ field }) => (
                 <FormItem className="gap-0">
-                  <FormLabel className="text-xs font-light">Province/State*</FormLabel>
+                  <FormLabel className="text-xs font-light">
+                    Province/State*
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Laguna" {...field} className="bg-white border border-gray-500"/>
+                    <Input
+                      placeholder="Laguna"
+                      {...field}
+                      className="bg-white border border-gray-500"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
+          {/* city/municipality */}
+          {/* <div className="col-span-6">
+            <FormField
+              control={form.control}
+              name="address.1"
+              render={({ field }) => (
+                <FormItem className="gap-0">
+                  <FormLabel className="text-xs font-light">
+                    City/Municipality*
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Los Baños"
+                      {...field}
+                      className="bg-white border border-gray-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div> */}
         </div>
-      </div>  
-      
+      </div>
     </div>
   );
 };

@@ -93,7 +93,8 @@ export default function ProposedDrivesPage() {
           <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-2 ">
             <h2 className="text-lg font-semibold">{getStatusDisplayTitle()}</h2>
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-              {/* Status filter */}
+        
+        {/* Status filter */}
 				<div className="flex items-center">
 					<label htmlFor="status" className="mr-2 text-sm">Status:</label>
 					<select id="status" value={statusFilter} onChange={handleStatusFilterChange} className="flex items-center text-sm">
@@ -103,10 +104,10 @@ export default function ProposedDrivesPage() {
 						<option value="completed">Completed</option>
 						<option value="rejected">Rejected</option>
 					</select>
-				</div>
-				<div> | </div>              
-              	{/* Sort by */}
-              	<div className="flex items-center">
+				</div>   
+        
+        {/* Sort by */}
+        <div className="flex items-center">
 					<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
 					<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
 						<option value="newest">Newest</option>

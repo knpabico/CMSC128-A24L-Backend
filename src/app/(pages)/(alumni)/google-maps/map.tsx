@@ -6,7 +6,7 @@ import {
   StandaloneSearchBox,
 } from "@react-google-maps/api";
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
-import { Search, MapPin, X } from "lucide-react";
+import { Search, MapPin, XIcon } from "lucide-react";
 
 interface GoogleMapsModalProps {
   isOpen: boolean;
@@ -119,18 +119,17 @@ const GoogleMapsModal: React.FC<GoogleMapsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] max-h-[800px] relative flex flex-col overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full h-[600px] max-w-3xl max-h-[800px] relative flex flex-col overflow-hidden">
         <div className=" p-6 text-black flex justify-between items-center">
-          <h2 className="text-3xl font-bold flex items-center">
-            <MapPin className="mr-3" size={32} />
-            Choose Location
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-white hover:bg-white/20 p-2 rounded-full transition"
-          >
-            <X size={28} />
-          </button>
+          <div>
+            <div>
+              <h2 className="text-2xl font-bold flex items-center">
+              <MapPin className="mr-3" size={28} />
+                Choose location
+              </h2>
+            </div>
+            <button onClick={onClose} className="absolute top-5 right-5"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+          </div>
         </div>
 
         <div className="flex flex-1 overflow-hidden">
@@ -143,7 +142,7 @@ const GoogleMapsModal: React.FC<GoogleMapsModalProps> = ({
                 <div className="relative">
                   <input
                     type="text"
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-[#0856ba] focus:outline-none"
                     value={searchInput}
                     placeholder="Search Location"
                     onChange={(e) => setSearchInput(e.target.value)}
@@ -162,23 +161,23 @@ const GoogleMapsModal: React.FC<GoogleMapsModalProps> = ({
               </StandaloneSearchBox>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-4 space-y-2">
+            <div className="bg-white rounded-lg shadow-md p-4 space-y-5">
               <div>
                 <p className="text-sm text-gray-600 font-medium">
                   Selected Address
                 </p>
-                <p className="text-lg font-semibold">
+                <p className="text-sm font-semibold">
                   {address || "No address selected"}
                 </p>
               </div>
               <div className="flex justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Latitude</p>
-                  <p className="font-medium">{latitude.toFixed(6)}</p>
+                  <p className="text-sm font-medium">{latitude.toFixed(6)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Longitude</p>
-                  <p className="font-medium">{longitude.toFixed(6)}</p>
+                  <p className="text-sm font-medium">{longitude.toFixed(6)}</p>
                 </div>
               </div>
             </div>
@@ -210,18 +209,11 @@ const GoogleMapsModal: React.FC<GoogleMapsModalProps> = ({
           </div>
         </div>
 
-        <div className="bg-gray-100 p-6 flex justify-end space-x-4">
-          <button
-            onClick={onClose}
-            className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-300"
-          >
-            Cancel
-          </button>
-          <button
+        <div className="bg-white p-6 flex justify-end space-x-4">
+          <button 
             onClick={handleSave}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition duration-300"
-          >
-            Confirm Location
+            className="w-50 bg-[#0856ba] text-white py-2 px-3 rounded-full cursor-pointer hover:bg-[#92b2dc]">
+              Confirm Location
           </button>
         </div>
       </div>

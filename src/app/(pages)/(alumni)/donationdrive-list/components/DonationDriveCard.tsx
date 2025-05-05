@@ -1,116 +1,106 @@
 "use client";
 
 // import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { DonationDrive, Event } from '@/models/models';
+import { useRouter } from "next/navigation";
+import { DonationDrive, Event } from "@/models/models";
 // import { DonateDialog } from '../DonateDialog';
-import BookmarkButton from '@/components/ui/bookmark-button';
-import { useDonationDrives } from '@/context/DonationDriveContext';
-import { useAuth } from '@/context/AuthContext';
-import { Users, Clock, MapPin, Calendar, ImageOff } from "lucide-react"
-import { useEffect } from 'react';
-import { Timestamp } from 'firebase-admin/firestore';
+import BookmarkButton from "@/components/ui/bookmark-button";
+import { useDonationDrives } from "@/context/DonationDriveContext";
+import { useAuth } from "@/context/AuthContext";
+import { Users, Clock, MapPin, Calendar, ImageOff } from "lucide-react";
+import { useEffect } from "react";
+import { Timestamp } from "firebase-admin/firestore";
 
 interface DonationDriveCardProps {
-drive: DonationDrive;
-event?: Event;
-showBookmark?: boolean; 
+  drive: DonationDrive;
+  event?: Event;
+  showBookmark?: boolean;
 }
 
-const DonationDriveCard = ({ drive, event, showBookmark = false }: DonationDriveCardProps) => {
-const router = useRouter();
-const {user, alumInfo } = useAuth();
-const {
-	showForm, 
-	setShowForm, 
-	handleBenefiaryChange,
-	handleAddBeneficiary,
-	handleRemoveBeneficiary,
-	handleSave,
-	handleEdit,
-	campaignName, 
-	setCampaignName,
-	description, 
-	setDescription,
-	oneBeneficiary, 
-	setOneBeneficiary,
-	beneficiary,
-	setBeneficiary,
-	targetAmount, 
-	setTargetAmount,
-	endDate, 
-	setEndDate, 
-} = useDonationDrives();
+const DonationDriveCard = ({
+  drive,
+  event,
+  showBookmark = false,
+}: DonationDriveCardProps) => {
+  const router = useRouter();
+  const { user, alumInfo } = useAuth();
+  const {
+    showForm,
+    setShowForm,
+    handleBenefiaryChange,
+    handleAddBeneficiary,
+    handleRemoveBeneficiary,
+    handleSave,
+    handleEdit,
+    campaignName,
+    setCampaignName,
+    description,
+    setDescription,
+    oneBeneficiary,
+    setOneBeneficiary,
+    beneficiary,
+    setBeneficiary,
+    targetAmount,
+    setTargetAmount,
+    endDate,
+    setEndDate,
+  } = useDonationDrives();
 
-// Format timestamp to readable date
-const formatDate = (timestamp: any) => {
-	try {
-	if (!timestamp) return 'N/A';
-	const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-	return date.toLocaleDateString('en-US', {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-	});
-	} catch (err) {
-	return 'Invalid Date';
-	}
-};
+  // Format timestamp to readable date
+  const formatDate = (timestamp: any) => {
+    try {
+      if (!timestamp) return "N/A";
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (err) {
+      return "Invalid Date";
+    }
+  };
 
   //Calculate Days Remaining
   const getRemainingDays = (endDate: any) => {
     try {
-        const today = new Date(); // Current date
-        const end = endDate.toDate(); // Firestore Timestamp to JS Date
-        const diffTime = end.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const today = new Date(); // Current date
+      const end = endDate.toDate(); // Firestore Timestamp to JS Date
+      const diffTime = end.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays <= 0) return "Expired";
-        else if (diffDays === 1) return "1 day left";
-        else return `${diffDays} days left`;
+      if (diffDays <= 0) return "Expired";
+      else if (diffDays === 1) return "1 day left";
+      else return `${diffDays} days left`;
     } catch (err) {
-        return 'Invalid Date';
+      return "Invalid Date";
     }
-};
+  };
 
-useEffect(() => {
-	const checkAndUpdateExpiredDrive = async () => {
-	  try {
-		if (!drive) return;
-  
-		const today = new Date();
-		const endDate = drive.endDate as Date | Timestamp;
-  
-		const end = endDate instanceof Date
-		  ? endDate
-		  : (endDate as Timestamp).toDate(); // Safely convert
-  
-		const isExpired = end.getTime() < today.getTime();
-  
-		if (isExpired && drive.status !== 'completed') {
-		  await handleEdit(drive.donationDriveId, { status: 'completed' });
-		  console.log(`Drive ${drive.campaignName} marked as completed due to expiration`);
-		}
-	  } catch (err) {
-		console.error("Error checking drive expiration:", err);
-	  }
-	};
-  
-	checkAndUpdateExpiredDrive();
- }, [drive]);
+  function getDaysRemaining(endDate: any) {
+    try {
+      const now = new Date();
 
+      const todayOnly = new Date(); // Current date
+      const endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
 
-// Calculate progress percentage
-const calculateProgress = (current: number, target: number) => {
-	if (target <= 0) return 0;
-	const percentage = (current / target) * 100;
-	return Math.min(percentage, 100).toFixed(0);
-};
+      // Calculate difference in days
+      const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
+      const differenceInDays = Math.ceil(
+        differenceInTime / (1000 * 60 * 60 * 24)
+      );
+      return differenceInDays;
+      // Return 0 if ended or negative
+    } catch (err) {
+      return "Not Available";
+    }
+  }
+  useEffect(() => {
+    const checkAndUpdateExpiredDrive = async () => {
+      try {
+        if (!drive) return;
 
-// Handle view details click
-const handleViewDetails = (donationDriveId: string) => {
-	router.push(`/donationdrive-list/details?id=${donationDriveId}`);
-};
+        const endDate = drive.endDate as Date;
 
 // Donation Card 
 return (
@@ -235,8 +225,8 @@ return (
 			{/* <button className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition" onClick={() => setShowForm(true)}>
 				+
 			</button> */}
-			{/* Suggest Donation Drive Modal */}
-			{/* {showForm && (
+      {/* Suggest Donation Drive Modal */}
+      {/* {showForm && (
 				<div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
 					<form
 					onSubmit={handleSave}
@@ -325,8 +315,8 @@ return (
 					</form>
 				</div>
 				)} */}
-	</div>
-);
+    </div>
+  );
 };
 
 export default DonationDriveCard;

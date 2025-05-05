@@ -20,9 +20,6 @@ import { FirebaseError } from "firebase/app";
 
 const WorkExperienceContext = createContext<any>(null);
 
-
-
-
 export function WorkExperienceProvider({
   children,
 }: {
@@ -33,47 +30,60 @@ export function WorkExperienceProvider({
   >([]);
 
   const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null);
-  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
+  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<
+    WorkExperience[]
+  >([]);
 
   const [allWorkExperience, setAllWorkExperience] = useState<WorkExperience[]>(
     []
   );
   const [isLoading, setLoading] = useState<boolean>(false);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
-    let unsubscribe: (() => void) | null;
-    let unsubscribeUser: (() => void) | null;
+    console.log("useEffect - user:", user, "isAdmin:", isAdmin);
 
-    if (user) {
-      unsubscribe = subscribeToWorkExperience(); //for work experience of all users
-      unsubscribeUser = subscribeToUserWorkExperience(); //for work experience of current user
+    if (user === null && isAdmin === null) return; // wait for auth to initialize
+
+    let unsubscribe: (() => void) | null = null;
+
+    if (isAdmin) {
+      console.log("Admin detected - subscribing to all work experience");
+      unsubscribe = subscribeToWorkExperience(); // Admin sees all
+    } else if (user) {
+      console.log("Regular user detected - subscribing to own work experience");
+      unsubscribe = subscribeToUserWorkExperience(); // Regular user sees own
     } else {
-      setUserWorkExperience([]); //reset current user's work experience
-      setAllWorkExperience([]); //reset all work experience
+      console.log("No user logged in - resetting work experience state");
+      setUserWorkExperience([]);
+      setAllWorkExperience([]);
       setLoading(false);
     }
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-
-      if (unsubscribeUser) {
-        unsubscribeUser();
-      }
+      if (unsubscribe) unsubscribe();
     };
-  }, [user]);
+  }, [user, isAdmin]);
 
-
-  const sortExperienceList = (experienceList: WorkExperience[]): WorkExperience[] => {
+  const sortExperienceList = (
+    experienceList: WorkExperience[]
+  ): WorkExperience[] => {
     const sortedList = [...experienceList]; // Copy to avoid modifying the original
-  
+
     // Sort by startingDate (oldest to newest)
-    sortedList.sort((a, b) => a.startingDate.seconds - b.startingDate.seconds);  
+    sortedList.sort((a, b) => {
+      const currentYear = new Date().getFullYear();
+
+      const startA =
+        a.startYear === "present" ? currentYear : parseInt(a.startYear);
+      const startB =
+        b.startYear === "present" ? currentYear : parseInt(b.startYear);
+
+      return startA - startB;
+    });
     // Log the sorted list to the console
     console.log("Sorted Work Experience List:", sortedList);
-  
+
     return sortedList;
   };
 
@@ -93,23 +103,32 @@ export function WorkExperienceProvider({
     }
   };
 
-
   //function to fetch the working experience of the clicked alumni
-  const fetchWorkExperience = async (alumniId: string): Promise<WorkExperience[]> => {
+  const fetchWorkExperience = async (
+    alumniId: string
+  ): Promise<WorkExperience[]> => {
     setLoading(true);
     setSelectedAlumniId(alumniId);
-  
+
     try {
-      const q = query(collection(db, "work_experience"), where("alumniId", "==", alumniId));
+      const q = query(
+        collection(db, "work_experience"),
+        where("alumniId", "==", alumniId)
+      );
       const querySnapshot = await getDocs(q);
-      
-      console.log("firestore Data:", querySnapshot.docs.map(doc => doc.data()));
-  
-      const workExperienceList: WorkExperience[] = querySnapshot.docs.map((doc) => doc.data() as WorkExperience);
-      
+
+      console.log(
+        "firestore Data:",
+        querySnapshot.docs.map((doc) => doc.data())
+      );
+
+      const workExperienceList: WorkExperience[] = querySnapshot.docs.map(
+        (doc) => doc.data() as WorkExperience
+      );
+
       console.log("Fetched Work Experience:", workExperienceList);
       // sortExperienceList(workExperienceList);
-      setSelectedAlumWorkExperience(sortExperienceList(workExperienceList));  
+      setSelectedAlumWorkExperience(sortExperienceList(workExperienceList));
       return sortExperienceList(workExperienceList);
     } catch (error) {
       console.error("Error fetching work experience:", error);
@@ -119,8 +138,6 @@ export function WorkExperienceProvider({
       setLoading(false);
     }
   };
-  
-  
 
   const editWorkExperience = async (workExperienceEntry) => {
     try {
@@ -133,11 +150,11 @@ export function WorkExperienceProvider({
       await updateDoc(workExpRef, workExperienceEntry);
       return { success: true, message: "Edited Successfully" };
     } catch (error) {
-      return { success: false, message: error.message };
+      return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const deleteWorkExperience = async (id) => {
+  const deleteWorkExperience = async (id: string) => {
     try {
       await deleteDoc(doc(db, "work_experience", id));
       return { success: true, message: `Successfully Deleted!` };
@@ -209,7 +226,7 @@ export function WorkExperienceProvider({
         addWorkExperience,
         deleteWorkExperience,
         editWorkExperience,
-        fetchWorkExperience
+        fetchWorkExperience,
       }}
     >
       {children}

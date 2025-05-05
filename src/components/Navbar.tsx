@@ -39,7 +39,7 @@ export default function Navbar() {
         {
           id: "manage-alumni",
           label: "Manage Alumni",
-          path: "/admin/alumni/manage",
+          path: "/admin-dashboard/manage-users",
         },
         {
           id: "pending-alumni",
@@ -49,7 +49,7 @@ export default function Navbar() {
         {
           id: "stats-alumni",
           label: "Statistical Report",
-          path: "/admin/alumni/stats",
+          path: "/admin-dashboard/alum-statistical-reports",
         },
       ],
     },
@@ -61,13 +61,18 @@ export default function Navbar() {
         {
           id: "manage-events",
           label: "Manage Events",
-          path: "/admin/events/manage",
+          path: "/admin-dashboard/organize-events",
         },
         { id: "add-events", label: "Add Events", path: "/admin/events/add" },
         {
           id: "pending-events",
           label: "View Pending Events",
           path: "/admin/events/pending",
+        },
+        {
+          id: "stats-events",
+          label: "Statistical Report",
+          path: "/admin-dashboard/events-statistical-reports",
         },
       ],
     },
@@ -85,6 +90,11 @@ export default function Navbar() {
           id: "add-donations",
           label: "Add Donations",
           path: "/admin/donations/add",
+        },
+        {
+          id: "stats-donation",
+          label: "Statistical Report",
+          path: "/admin-dashboard/donations-statistical-reports",
         },
       ],
     },
@@ -140,6 +150,15 @@ export default function Navbar() {
         },
       ],
     },
+    {
+      id: 'featuredStory',
+      label: 'featuredStory',
+      initiallyCollapsed: true,
+      subItems: [
+        { id: 'manage-featuredStory', label: 'Write A Story', path: '/admin/create-story' },
+        // { id: 'add-featuredStory', label: 'Add Feat', path: '/admin/announcements/add' },
+      ]
+    },
   ];
 
   // Generate initial collapsed state from config
@@ -171,6 +190,7 @@ export default function Navbar() {
     { label: "Scholarships", path: "/scholarship" },
     { label: "Jobs", path: "/joboffer-list" },
     { label: "Alumni", path: "/alumni-list" },
+    { label: "Story", path: "/create-story" },
   ];
 
   const handleNavClick = (path) => {

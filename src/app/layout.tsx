@@ -16,6 +16,13 @@ import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { ScholarshipProvider } from "@/context/ScholarshipContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
+import { Affiliation } from "./(auth)/sign-up/sign-up-fields/affiliation";
+import { AffiliationProvider } from "@/context/AffiliationContext";
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
+import { FeaturedProvider } from "@/context/FeaturedStoryContext";
 
 import { Inter } from "next/font/google";
 
@@ -32,37 +39,41 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-[#EAEAEA]">
       <AuthProvider>
-        <NewsLetterProvider>
-          <DonationDriveProvider>
-            <ScholarshipProvider>
-              <BookmarkProvider>
-                <JobOfferProvider>
-                  <AnnouncementProvider>
-                    <AlumProvider>
-                      <WorkExperienceProvider>
-                        <EventProvider>
-                          <DonationContextProvider>
-                            <GoogleMapsProvider>
-                              <MapProvider>
-                                <EducationProvider>
-                                  <body className={inter.className}>
-                                    <Navbar />
-                                    <div className="">{children}</div>
-                                    <Toaster />
-                                  </body>
-                                </EducationProvider>
-                              </MapProvider>
-                            </GoogleMapsProvider>
-                          </DonationContextProvider>
-                        </EventProvider>
-                      </WorkExperienceProvider>
-                    </AlumProvider>
-                  </AnnouncementProvider>
-                </JobOfferProvider>
-              </BookmarkProvider>
-            </ScholarshipProvider>
-          </DonationDriveProvider>
-        </NewsLetterProvider>
+        <FeaturedProvider>
+          <NewsLetterProvider>
+            <DonationDriveProvider>
+              <ScholarshipProvider>
+                <BookmarkProvider>
+                  <JobOfferProvider>
+                    <AnnouncementProvider>
+                      <AlumProvider>
+                        <WorkExperienceProvider>
+                          <EventProvider>
+                            <DonationContextProvider>
+                              <GoogleMapsProvider>
+                                <MapProvider>
+                                  <EducationProvider>
+                                    <AffiliationProvider>
+                                      <body className={inter.className}>
+                                        <Navbar />
+                                        <div className="">{children}</div>
+                                        <Toaster />
+                                      </body>
+                                    </AffiliationProvider>
+                                  </EducationProvider>
+                                </MapProvider>
+                              </GoogleMapsProvider>
+                            </DonationContextProvider>
+                          </EventProvider>
+                        </WorkExperienceProvider>
+                      </AlumProvider>
+                    </AnnouncementProvider>
+                  </JobOfferProvider>
+                </BookmarkProvider>
+              </ScholarshipProvider>
+            </DonationDriveProvider>
+          </NewsLetterProvider>
+        </FeaturedProvider>
       </AuthProvider>
     </html>
   );
