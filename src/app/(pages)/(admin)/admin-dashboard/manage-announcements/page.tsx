@@ -135,7 +135,7 @@ export default function ManageAnnouncements() {
         <div className="w-full">
             <div className="flex items-center justify-between">
                 <div className="font-bold text-3xl">
-                    Donation Drive Name
+                    Manage Announcements
                 </div>
                 <button 
                     type="button"

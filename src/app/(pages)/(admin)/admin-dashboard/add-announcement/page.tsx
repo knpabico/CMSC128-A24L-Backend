@@ -91,14 +91,14 @@ export default function AddAnnouncement() {
           <ChevronRight size={15} />
         </div>
         <div className="font-bold text-[var(--primary-blue)]">
-          Add Announcement
+          Add Announcements
         </div>
       </div>
 
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">
-            Donation Drive Name
+            Add an Announcement
         </div>              
         </div>
       </div>
