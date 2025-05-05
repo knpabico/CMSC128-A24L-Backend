@@ -138,27 +138,7 @@ const DonationDriveCard = ({
         onClick={() => handleViewDetails(drive.donationDriveId)}
       >
         {/* Image */}
-        <div
-          className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
-          style={{ backgroundImage: 'url("/ICS3.jpg")' }}
-        >
-          <span
-            className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
-              drive.status === "active"
-                ? "bg-green-100 text-green-800 px-2 py-1 font-bold"
-                : drive.status === "completed"
-                ? "bg-blue-100 text-blue-800 px-2 py-1 font-bold"
-                : drive.status === "pending"
-                ? "bg-yellow-100 text-yellow-800 px-2 py-1 font-bold"
-                : "bg-gray-100 text-gray-800"
-            }`}
-          >
-            {drive.status === "completed"
-              ? "Closed"
-              : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-          </span>
-        </div>
-        {/* {event?.image || drive.image ? (
+        {event?.image || drive.image ? (
 				<div className="relative">
 					{drive.isEvent && event ? (
 						<img src={event.image} alt={event.title} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
@@ -175,6 +155,21 @@ const DonationDriveCard = ({
 							{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
 						</span>
 					)}
+					 <span
+            className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
+              drive.status === "active"
+                ? "bg-green-100 text-green-800 px-2 py-1 font-bold"
+                : drive.status === "completed"
+                ? "bg-blue-100 text-blue-800 px-2 py-1 font-bold"
+                : drive.status === "pending"
+                ? "bg-yellow-100 text-yellow-800 px-2 py-1 font-bold"
+                : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {drive.status === "completed"
+              ? "Closed"
+              : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+          </span>
 				</div>
 			) : (
 				<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
@@ -192,8 +187,7 @@ const DonationDriveCard = ({
 						<ImageOff className="size-[50px]" />
 					</span>
 				</div>
-			)} */}
-
+			)}
         {/* Content */}
         <div className="px-6 pt-3 pb-6">
           {/* Campaign Name */}
@@ -208,17 +202,25 @@ const DonationDriveCard = ({
             />
           </div>
           {/* Description */}
-          <div className="mb-5 text-sm h-10 overflow-hidden text-clip">
-            <p className="text-start">
-              {drive.isEvent && event
-                ? event.description.length > 100
-                  ? event.description.slice(0, 100) + "..."
-                  : event.description
-                : drive.description.length > 100
-                ? drive.description.slice(0, 100) + "..."
-                : drive.description}
-            </p>
-          </div>
+					{drive.isEvent && event ? (
+							<div className="mb-5 text-sm h-10 overflow-hidden text-clip">
+								<p className="text-start">
+									{event.description.length > 100
+											? event.description.slice(0, 100) + "..."
+											: event.description
+									}
+								</p>
+							</div>
+						) : (
+							<div className="mb-5 text-sm h-19 overflow-hidden text-clip">
+								<p className="text-start">
+									{drive.description.length > 200
+											? drive.description.slice(0, 200) + "..."
+											: drive.description
+									}
+								</p>
+							</div>
+						)}
           {/* Details */}
           {drive.isEvent && event ? (
             <div className="mt-5">

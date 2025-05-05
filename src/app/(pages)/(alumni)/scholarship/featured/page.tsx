@@ -7,7 +7,7 @@ export default function FeaturedStoryPage() {
   const { featuredItems, isLoading } = useFeatured();
   const router = useRouter();
 
-  const eventStories = featuredItems.filter(story => story.type === "event");
+  const eventStories = featuredItems.filter(story => story.type === "donation");
 
   const sortedStories = [...eventStories].sort((a, b) => {
     const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
