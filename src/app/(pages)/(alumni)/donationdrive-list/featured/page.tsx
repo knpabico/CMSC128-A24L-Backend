@@ -138,6 +138,7 @@ export default function DonationFeaturedDonationPage() {
 	
 			return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
 		});
+		
 		return (
 			<div className="bg-[#EAEAEA]">
 				{/*Page Title*/}
