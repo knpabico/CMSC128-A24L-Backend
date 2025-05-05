@@ -102,12 +102,12 @@ export default function CreateFeaturedStoryPage() {
 
             <div className="space-y-2">
               <label htmlFor="description" className="text-sm font-medium flex items-center">
-                <Asterisk size={16} className="text-red-600" /> Description
+                <Asterisk size={16} className="text-red-600" /> Story
               </label>
               <textarea
                 id="description"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Description here"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                placeholder="Story here"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 rows={5}
@@ -136,29 +136,24 @@ export default function CreateFeaturedStoryPage() {
             </div>
 
             <div className="space-y-2 text-start">
-              <div className="flex gap-3">
-                <div className="text-sm font-medium flex items-center">
-                  <Asterisk size={16} className="text-red-600" /> Featured Image:
-                </div>
+              <div className="text-sm font-medium flex items-center">
+                <Asterisk size={16} className="text-red-600" /> Featured Image:
+              </div>
+              
+              <div className="mt-3">
+                <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                 <label
                   htmlFor="image-upload"
-                  className="text-sm font-medium flex items-center gap-2 cursor-pointer text-[var(--primary-blue)]"
+                  className="inline-flex items-center justify-center gap-2 bg-[#0856BA] text-white px-4 py-2 rounded-md cursor-pointer transition-colors hover:bg-[#0645a0]"
                 >
                   <Upload className="size-4" />
                   Attach Photo
                 </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
               </div>
 
               {(preview || image) && (
-                <div className="mt-2 pl-5">
-                  <p className="text-sm font-medium flex items-center">Preview:</p>
+                <div className="mt-2">
+                  <p className="text-sm font-medium">Preview:</p>
                   <img
                     src={preview || image}
                     alt="Preview"
@@ -167,6 +162,7 @@ export default function CreateFeaturedStoryPage() {
                   />
                 </div>
               )}
+
             </div>
           </div>
 

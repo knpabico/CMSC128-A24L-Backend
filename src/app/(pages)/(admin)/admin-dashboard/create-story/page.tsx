@@ -12,10 +12,18 @@ import {
   Asterisk,
   Upload,
   ArrowUpDown,
+  CircleX,
 } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function FeaturedStoriesPage() {
   const {
@@ -29,6 +37,8 @@ export default function FeaturedStoriesPage() {
   const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
+  const [storyToDelete, setStoryToDelete] = useState(null)
 
   const tabs = ["All Stories", "Events", "Donations", "Scholarships"];
 
@@ -114,7 +124,7 @@ export default function FeaturedStoriesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <div>Home</div>
         <div>
@@ -136,18 +146,6 @@ export default function FeaturedStoriesPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {/* Sorting Filter */}
-        <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-          <div className="text-sm font-medium">Sort by:</div>
-          <div 
-            className="pl-2 pr-3 py-1 rounded-md flex gap-2 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-200"
-            onClick={toggleSortOption}
-          >
-            <div>{sortOption === "newest" ? "Newest" : "Oldest"}</div>
-            <ArrowUpDown size={14} />
-          </div>
-        </div>
 
         {/* Tabs */}
         <div className="w-full flex gap-2">
@@ -185,6 +183,19 @@ export default function FeaturedStoriesPage() {
               </div>
             </div>
           ))}
+        </div>
+
+      <div className="flex flex-col gap-2">
+        {/* Sorting Filter */}
+        <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
+          <div className="text-sm font-medium">Sort by:</div>
+          <div 
+            className="pl-2 pr-3 py-1 rounded-md flex gap-2 items-center justify-between text-sm font-medium cursor-pointer bg-gray-300 hover:bg-gray-400"
+            onClick={toggleSortOption}
+          >
+            <div>{sortOption === "newest" ? "Newest" : "Oldest"}</div>
+            <ArrowUpDown size={14} />
+          </div>
         </div>
 
         {/* Table Container with Fixed Height for Scrolling */}
@@ -295,12 +306,15 @@ export default function FeaturedStoriesPage() {
 
                       <div
                         className="w-1/3 flex items-center justify-center gap-4"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setStoryToDelete(item)
+                          setIsConfirmationOpen(true)}}
                       >
                         <Trash2
                           size={18}
                           className="text-gray-500 hover:text-red-500 cursor-pointer"
-                          onClick={() => handleDelete(item.featuredId)}
+                          //onClick={() => handleDelete(item.featuredId)}
                         />
                       </div>
                     </div>
@@ -315,6 +329,40 @@ export default function FeaturedStoriesPage() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {isConfirmationOpen && (
+        <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+          <DialogContent className="w-96">
+            <DialogHeader className="text-red-500 flex items-center gap-5">
+              <CircleX className="size-15" />
+              <DialogTitle className="text-md text-center">
+                Are you sure you want to delete <br />{" "}
+                <strong>{storyToDelete?.title}</strong>?
+              </DialogTitle>
+            </DialogHeader>
+            <DialogFooter className="mt-5">
+              <button
+                className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer"
+                onClick={() => {
+                  if (storyToDelete) {
+                    handleDelete(storyToDelete.title);
+                    setIsConfirmationOpen(false);
+                  }
+                }}
+              >
+                Delete
+              </button>
+              <button
+                className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100"
+                onClick={() => setIsConfirmationOpen(false)}
+              >
+                Cancel
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
