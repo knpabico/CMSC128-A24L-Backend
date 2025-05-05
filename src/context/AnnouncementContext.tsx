@@ -26,7 +26,7 @@ export function AnnouncementProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [announces, setAnnounce] = useState<any[]>([]);
+  const [announces, setAnnounce] = useState<Announcement[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -54,10 +54,14 @@ export function AnnouncementProvider({
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const announcements = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          announcementId: doc.id,
-        }));
+        const announcements = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            ...data,
+            announcementId: doc.id,
+            datePosted: data.datePosted.toDate(), // Convert Firestore Timestamp to Date
+          } as Announcement;
+        });
         setAnnounce(announcements);
         setLoading(false);
       },
