@@ -53,9 +53,9 @@ export function DonationDriveProvider({
   const [status, setStatus] = useState("");
   const [oneBeneficiary, setOneBeneficiary] = useState("");
   const [beneficiary, setBeneficiary] = useState<string[]>([""]);
+  const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   const { user, isAdmin } = useAuth();
-  const { addNewsLetter } = useNewsLetters(); 
   const router = useRouter();
   useEffect(() => {
     let unsubscribe: (() => void) | null;

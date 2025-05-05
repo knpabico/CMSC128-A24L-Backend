@@ -111,13 +111,15 @@ const EventPageAdmin = () => {
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-10">
           <form
             onSubmit={(e) => {
-              e.preventDefault();              
+              e.preventDefault();
+
               // store the selected guests
               const targetGuests =
                 visibility === "batch"
-                ? selectedBatches
-                : visibility === "alumni"
-                ? selectedAlumni
+                  ? selectedBatches
+                  : visibility === "alumni"
+                  ? selectedAlumni
+                  : [];
 
               if (isEditing && editingEventId) {
                 handleEdit(editingEventId, {
@@ -181,6 +183,7 @@ const EventPageAdmin = () => {
               {isEditing ? "Edit Event" : "Create Event"}
             </h2>
 
+            <input
               type="text"
               placeholder="Event Title"
               value={title}
