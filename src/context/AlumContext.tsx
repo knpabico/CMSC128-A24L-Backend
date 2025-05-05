@@ -25,7 +25,6 @@ import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { uploadImage } from "@/lib/upload";
 import { messaging } from "firebase-admin";
 
-
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -42,13 +41,13 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     let unsubscribeCareer: (() => void) | null;
     let unsubscribeEducation: (() => void) | null;
 
-    if (user) {
+    if (isAdmin) {
+      unsubscribe = subscribeToUsers();
+      unsubscribeActive = subscribeToActiveUsers();
+    } else if (user) {
       unsubscribe = subscribeToUsers(); //maglilisten sa firestore
       unsubscribeCareer = subscribeToMyCareer();
       unsubscribeEducation = subscribeToMyEducation();
-    } else if (isAdmin) {
-      unsubscribe = subscribeToUsers();
-      unsubscribeActive = subscribeToActiveUsers();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);
@@ -90,30 +89,37 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   ) => {
     try {
       const alumniRef = doc(db, "alumni", alum.alumniId);
-      const docSnap = await getDoc(alumniRef);  // Fetch current data to check for existing fields
-  
-      const updatedData: any = {};  // Will hold fields to update
-  
+      const docSnap = await getDoc(alumniRef); // Fetch current data to check for existing fields
+
+      const updatedData: any = {}; // Will hold fields to update
+
       if (docSnap.exists()) {
         const currentData = docSnap.data();
-        
+
         // Only update fields that have changed
-        if (firstName !== currentData.firstName) updatedData.firstName = firstName ?? "";
-        if (middleName !== currentData.middleName) updatedData.middleName = middleName ?? "";
-        if (lastName !== currentData.lastName) updatedData.lastName = lastName ?? "";
+        if (firstName !== currentData.firstName)
+          updatedData.firstName = firstName ?? "";
+        if (middleName !== currentData.middleName)
+          updatedData.middleName = middleName ?? "";
+        if (lastName !== currentData.lastName)
+          updatedData.lastName = lastName ?? "";
         if (suffix !== currentData.suffix) updatedData.suffix = suffix ?? "";
         if (email !== currentData.email) updatedData.email = email ?? "";
-        if (studentNumber !== currentData.studentNumber) updatedData.studentNumber = studentNumber ?? "";
-        if (address !== currentData.address) updatedData.address = address ?? [];
-        if (birthDate !== currentData.birthDate) updatedData.birthDate = birthDate ?? new Date();
-        if (fieldOfInterest !== currentData.fieldOfInterest) updatedData.fieldOfInterest = fieldOfInterest ?? [];
-  
+        if (studentNumber !== currentData.studentNumber)
+          updatedData.studentNumber = studentNumber ?? "";
+        if (address !== currentData.address)
+          updatedData.address = address ?? [];
+        if (birthDate !== currentData.birthDate)
+          updatedData.birthDate = birthDate ?? new Date();
+        if (fieldOfInterest !== currentData.fieldOfInterest)
+          updatedData.fieldOfInterest = fieldOfInterest ?? [];
+
         // If there's any updated data, update the document
         if (Object.keys(updatedData).length > 0) {
           await updateDoc(alumniRef, updatedData);
         }
       }
-  
+
       return { success: true, message: "Your changes are successfully saved" };
     } catch (error) {
       console.error("Error:", error);
@@ -122,7 +128,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   };
 
   //for fetching the photo of alumni
-  const uploadAlumniPhoto = async (alum:Alumnus, imageFile:any) => {
+  const uploadAlumniPhoto = async (alum: Alumnus, imageFile: any) => {
     try {
       //uploading
       const data = await uploadImage(imageFile, `alumni/${user?.uid}`);
