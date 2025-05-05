@@ -17,9 +17,9 @@ const AnnouncementsSidebar = ({ activeFilter = "", setActiveFilter }: Announceme
   // Filter categories with their respective icons
   const sidebarItems = [
     { id: 'all', label: 'Announcements', filterValue: '', icon: Megaphone },
-    { id: 'general', label: 'General', filterValue: 'Announcement', icon: Bell },
-    { id: 'donations', label: 'Donation Update', filterValue: 'Update', icon: Heart },
-    { id: 'event', label: 'Event Update', filterValue: 'Update', icon: CalendarDays },
+    { id: 'general', label: 'General', filterValue: 'General Announcement', icon: Bell },
+    { id: 'donations', label: 'Donation Update', filterValue: 'Donation Update', icon: Heart },
+    { id: 'event', label: 'Event Update', filterValue: 'Event Update', icon: CalendarDays },
     { id: 'saved', label: 'Saved Announcements', filterValue: 'Saved', icon: Bookmark },
   ];
 
@@ -48,7 +48,7 @@ const AnnouncementsSidebar = ({ activeFilter = "", setActiveFilter }: Announceme
                 className={`flex items-center gap-3 p-2 w-full text-left rounded-md transition-all ${
                   isActive 
                     ? 'font-medium' 
-                    : 'text-gray-700 group hover:bg-gray-50'
+                    : 'text-gray-700'
                 }`}
               >
                 <Icon className={`size-6 ${isActive ? 'font-semibold' : 'text-gray-500'}`} />
