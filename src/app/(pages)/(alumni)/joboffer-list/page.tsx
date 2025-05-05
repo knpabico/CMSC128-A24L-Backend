@@ -28,6 +28,7 @@ import {
   Award,
   FileText,
   Check,
+  Pencil,
 } from "lucide-react";
 import { set } from "zod";
 
@@ -396,76 +397,89 @@ export default function JobOffers() {
         </div>
 
         <div className="flex">
-          {/* Sidebar */}
-          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max">
-            <ul className="space-y-2">
-              <li>
-                <button
-                  className="flex gap-3 items-center w-full px-3 py-2"
-                  onClick={() => {
-                    setSidebarFilter("Job Postings");
-                  }}
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <p
-                    className={`group w-max relative py-1 transition-all ${
-                      sidebarFilter === "Job Postings"
-                        ? "font-semibold border-b-3 border-blue-500"
-                        : "text-gray-700 group"
-                    }`}
+          <div>
+            {/* Sidebar */}
+            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[5px] rounded-[10px] w-content h-max">
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    className="flex gap-3 items-center w-full px-3 py-2"
+                    onClick={() => {
+                      setSidebarFilter("Job Postings")
+                    }}
                   >
-                    <span>All Job Posts</span>
-                    {sidebarFilter !== "Job Postings" && (
-                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                    )}
-                  </p>
-                </button>
-              </li>
-              <li>
-                <button
-                  className="flex gap-3 items-center w-full px-3 py-2"
-                  onClick={() => {
-                    setSidebarFilter("Saved Jobs");
-                  }}
-                >
-                  <Bookmark className="w-5 h-5" />
-                  <p
-                    className={`group w-max relative py-1 transition-all ${
-                      sidebarFilter === "Saved Jobs"
-                        ? "font-semibold border-b-3 border-blue-500"
-                        : "text-gray-700 group"
-                    }`}
+                    <Briefcase className="w-5 h-5" />
+                    <p
+                      className={`group w-max relative py-1 transition-all ${
+                        sidebarFilter === "Job Postings"
+                          ? "font-semibold border-b-3 border-blue-500"
+                          : "text-gray-700 group"
+                      }`}
+                    >
+                      <span>All Job Posts</span>
+                      {sidebarFilter !== "Job Postings" && (
+                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                      )}
+                    </p>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="flex gap-3 items-center w-full px-3 py-2"
+                    onClick={() => {
+                      setSidebarFilter("Saved Jobs")
+                    }}
                   >
-                    <span>Saved Jobs</span>
-                    {sidebarFilter !== "Saved Jobs" && (
-                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                    )}
-                  </p>
-                </button>
-              </li>
-              <li>
-                <button
-                  className="flex gap-3 items-center w-full px-3 py-2"
-                  onClick={() => setSidebarFilter("Create Jobs")}
-                >
-                  <FilePlus className="w-5 h-5" />
-                  <p
-                    className={`group w-max relative py-1 transition-all ${
-                      sidebarFilter === "Create Jobs"
-                        ? "font-semibold border-b-3 border-blue-500"
-                        : "text-gray-700 group"
-                    }`}
+                    <Bookmark className="w-5 h-5" />
+                    <p
+                      className={`group w-max relative py-1 transition-all ${
+                        sidebarFilter === "Saved Jobs"
+                          ? "font-semibold border-b-3 border-blue-500"
+                          : "text-gray-700 group"
+                      }`}
+                    >
+                      <span>Saved Jobs</span>
+                      {sidebarFilter !== "Saved Jobs" && (
+                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                      )}
+                    </p>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="flex gap-3 items-center w-full px-3 py-2"
+                    onClick={() => setSidebarFilter("Create Jobs")}
                   >
-                    <span>Created Jobs</span>
-                    {sidebarFilter !== "Create Jobs" && (
-                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                    )}
-                  </p>
-                </button>
-              </li>
-            </ul>
+                    <FilePlus className="w-5 h-5" />
+                    <p
+                      className={`group w-max relative py-1 transition-all ${
+                        sidebarFilter === "Create Jobs"
+                          ? "font-semibold border-b-3 border-blue-500"
+                          : "text-gray-700 group"
+                      }`}
+                    >
+                      <span>Created Jobs</span>
+                      {sidebarFilter !== "Create Jobs" && (
+                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                      )}
+                    </p>
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Post a Job Button */}
+            <Button
+              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-[10px] hover:bg-[#063d8c] transition-all"
+              onClick={() => setShowForm(!showForm)}
+            >
+              <Pencil className="w-5 h-5" />
+              <p className="group w-max relative py-1 transition-all font-semibold">
+                Post a Job</p>
+            </Button>
           </div>
 
+          
           {/* Main content revised yass */}
           <div className="flex-1 flex-col grid grid-cols-2 gap-4 pl-4 min-h-[600px]">
             {/* Left Column - Job Listings */}
@@ -929,12 +943,12 @@ export default function JobOffers() {
         </div>
 
         {/* "Add Job" Button + Form */}
-        <Button
+        {/* <Button
           className="h-10 px-5 fixed bottom-8 right-8 bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg rounded-full"
           onClick={() => setShowForm(!showForm)}
         >
           Post a Job
-        </Button>
+        </Button> */}
         {showForm && (
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
