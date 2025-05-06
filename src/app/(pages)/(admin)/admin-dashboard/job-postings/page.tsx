@@ -362,7 +362,7 @@ export default function Users() {
                 e.preventDefault();
                 try {
                   await handleSubmit(e);
-                  toastSuccess("Job submitted successfully");
+                  toastSuccess("Job submitted successfully. Please wait for admin approval.");
                   goBackToList();
                 } catch (error) {
                   toastError("There was an error submitting the job. Please try again.");
