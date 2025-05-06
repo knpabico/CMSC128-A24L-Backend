@@ -58,11 +58,11 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
   // grab the details about the current user
   const { user, alumInfo } = useAuth();
 
-  	//Calculate Days Remaining
+	//Calculate Days Remaining
 	const getRemainingDays = (endDate: any) => {
 		try {
 			const today = new Date(); // Current date
-			const end = endDate.toDate(); // Firestore Timestamp to JS Date
+			const end = new Date(endDate); // Firestore Timestamp to JS Date
 			const diffTime = end.getTime() - today.getTime();
 			const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 			return diffDays;

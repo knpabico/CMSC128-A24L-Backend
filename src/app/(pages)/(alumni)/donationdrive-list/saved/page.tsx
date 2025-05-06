@@ -104,7 +104,7 @@ export default function SavedDrivesPage() {
 						emptyMessage="You haven't saved any donation drives yet."
 					/>
 				) : (
-					<div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+					<div className="text-center py-12 bg-gray-50 rounded-lg w-full shadow-md border border-gray-200">
 						<h3 className="text-xl font-medium text-gray-600">No donation drive found</h3>
 						<p className="text-gray-500 mt-2">There are no donation drive with the selected filter.</p>
 					</div>

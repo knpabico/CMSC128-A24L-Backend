@@ -84,12 +84,12 @@ export default function Navbar() {
         {
           id: "manage-donations",
           label: "Manage Donations",
-          path: "/admin-dashboard/donation-drive",
+          path: "/admin-dashboard/donation-drive/manage",
         },
         {
           id: "add-donations",
           label: "Add Donations",
-          path: "/admin-dashboard/donation-drive",
+          path: "/admin-dashboard/donation-drive/add",
         },
         {
           id: "stats-donation",
@@ -125,10 +125,7 @@ export default function Navbar() {
           label: "Manage Job Posting",
           path: "/admin-dashboard/job-postings",
         },
-        { id: "add-jobs", 
-          label: "Add Job Posting", 
-          path: "/admin/jobs/add" 
-        },
+        { id: "add-jobs", label: "Add Job Posting", path: "/admin/jobs/add" },
       ],
     },
     {
@@ -149,13 +146,17 @@ export default function Navbar() {
       ],
     },
     {
-      id: 'featuredStory',
-      label: 'featuredStory',
+      id: "featuredStory",
+      label: "featuredStory",
       initiallyCollapsed: true,
       subItems: [
-        { id: 'manage-featuredStory', label: 'Write A Story', path: '/admin-dashboard/create-story' },
+        {
+          id: "manage-featuredStory",
+          label: "Write A Story",
+          path: "/admin-dashboard/create-story",
+        },
         // { id: 'add-featuredStory', label: 'Add Feat', path: '/admin/announcements/add' },
-      ]
+      ],
     },
   ];
 
@@ -427,7 +428,7 @@ export default function Navbar() {
 
       {isAdmin && (
         <nav
-          className="fixed top-0 left-0 w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
+          className="fixed top-0 left-0 w-20 md:w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
           style={{ paddingTop: "2%", paddingBottom: "2%" }}
         >
           <div className="text-xl font-bold px-5">ICS-ARMS</div>
