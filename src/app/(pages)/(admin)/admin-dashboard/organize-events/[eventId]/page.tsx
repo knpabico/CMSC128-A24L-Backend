@@ -221,7 +221,6 @@ const EventPageAdmin = () => {
               mainTitle={title}
               subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
             />
-
             <div className="flex gap-4 mb-4">
               <div className="w-1/2">
                 <input

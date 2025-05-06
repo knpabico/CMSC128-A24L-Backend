@@ -265,12 +265,7 @@ const getRemainingDays = (endDate: any) => {
   }
 
   return (
-    <div className="bg-[#EAEAEA] mx-auto px-10 py-8">
-		<Link href="/donationdrive-list" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
-			<MoveLeft className='size-[17px]'/>
-			Back to Donation Drives
-		</Link>
-
+    <div className="bg-[#EAEAEA] mx-auto px-10 py-10">
 		<div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[85px] h-screen">
 			{/* Title */}
 			<div className="flex justify-between items-center">

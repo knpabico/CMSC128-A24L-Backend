@@ -320,7 +320,7 @@ export function DonationDriveProvider({
       isEvent,
       eventId,
       startDate: new Date(),
-      endDate,
+      endDate: new Date(endDate),
       donorList: [],
       image: "",
     };
@@ -374,7 +374,7 @@ export function DonationDriveProvider({
       setDonationDrives((prev) =>
         prev.map((donationDrive) =>
           donationDrive.donationDriveId === donationDriveId
-            ? { ...donationDrive, ...updatedData }
+            ? { ...donationDrive,endDate: new Date(endDate), ...updatedData }
             : donationDrive
         )
       );

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -278,8 +277,6 @@ export default function ManageDonationDrive() {
             <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="text-xs">
 							<option value="latest" className="text-xs">Latest</option>
 							<option value="oldest" className="text-xs">Oldest</option>
-							<option value="ascending" className="text-xs">Amount (Low to High)</option>
-							<option value="descending" className="text-xs">Amount (High to Low)</option>
 							<option value="alphabetical" className="text-xs">Alphabetical</option>
 						</select>
           </div>
