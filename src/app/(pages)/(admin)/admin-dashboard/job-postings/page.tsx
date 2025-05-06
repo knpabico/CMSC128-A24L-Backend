@@ -30,6 +30,19 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+function formatDate(timestamp: any) {
+  if (!timestamp || !timestamp.seconds) return "Invalid Date";
+  const date = new Date(timestamp.seconds * 1000);
+  return date.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export default function Users() {
   const {
     jobOffers,
@@ -114,6 +127,7 @@ export default function Users() {
   };
 
   const tabs = ["Accepted", "Pending", "Rejected"];
+
 
   const stats = {
     pending: jobOffers.filter((job) => job.status === "Pending").length,
@@ -292,8 +306,7 @@ export default function Users() {
               <div className="space-y-2">
                 <label className="block text-sm font-medium">Date Posted</label>
                 <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.datePosted?.toLocaleString?.() ||
-                    new Date(viewingJob.datePosted).toLocaleString()}
+                  {formatDate(viewingJob.datePosted)}
                 </div>
               </div>
 
