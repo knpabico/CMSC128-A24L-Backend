@@ -405,6 +405,7 @@ export default function JobOffers() {
                     className="flex gap-3 items-center w-full px-3 py-2"
                     onClick={() => {
                       setSidebarFilter("Job Postings")
+                      setSelectedJob(null)
                     }}
                   >
                     <Briefcase className="w-5 h-5" />
@@ -427,6 +428,7 @@ export default function JobOffers() {
                     className="flex gap-3 items-center w-full px-3 py-2"
                     onClick={() => {
                       setSidebarFilter("Saved Jobs")
+                      setSelectedJob(null)
                     }}
                   >
                     <Bookmark className="w-5 h-5" />
@@ -447,7 +449,10 @@ export default function JobOffers() {
                 <li>
                   <button
                     className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => setSidebarFilter("Create Jobs")}
+                    onClick={() => {
+                      setSidebarFilter("Create Jobs")
+                      setSelectedJob(null)
+                    }}
                   >
                     <FilePlus className="w-5 h-5" />
                     <p
