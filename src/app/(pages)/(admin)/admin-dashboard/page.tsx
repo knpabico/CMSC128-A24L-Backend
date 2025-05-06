@@ -13,22 +13,6 @@ import { Alumnus, WorkExperience,Event, Donation } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import { useDonationContext } from "@/context/DonationContext";
 
-
-const adminLinks = [
-  { label: "Manage Users", link: "manage-users" },
-  { label: "Organize Events", link: "organize-events" },
-  { label: "Create Announcement", link: "create-announcements" },
-  { label: "Job Postings", link: "job-postings" },
-  { label: "Send Newsletters", link: "send-newsletters" },
-  { label: "Create Donation Drive", link: "donation-drive" },
-  { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
-  { label: "Site Settings", link: "site-settings" },
-  { label: "Statistical Reports", link: "alum-statistical-reports" },
-  { label: "Manage Scholarships", link: "scholarships/manage" },
-  { label: "Add Scholarships", link: "scholarships/add" },
-  { label: "Write story", link: "create-story" },
-];
-
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
@@ -101,15 +85,6 @@ export default function AdminDashboard() {
 
       {/* Page title */}
       <h1 className="text-3xl font-bold my-6">Admin Dashboard</h1>
-
-      {/* Admin control buttons */}
-      <div className="flex flex-col gap-4 mb-6">
-        {adminLinks.map((item, i) => (
-          <Button asChild key={i} className="text-lg h-14">
-            <Link href={`/admin-dashboard/${item.link}`}>{item.label}</Link>
-          </Button>
-        ))}
-      </div>
 
       {/* Information Cards*/}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -256,7 +231,7 @@ export default function AdminDashboard() {
                 - Name of donator
                 - name of donation drive? basta kung san siya nagdonate lmao
               */}
-             {allDonations.map((donation:Donation, index:number)=>{
+             {/* {allDonations.map((donation:Donation, index:number)=>{
               return (
                 <div key={donation.donationId}>
                 <div>
@@ -265,7 +240,7 @@ export default function AdminDashboard() {
                 <span>Status: {event.status}</span>
                 </div>
               )
-            })}               
+            })}                */}
             </div>
           </CardContent>
           <div className="px-2 pt-0">
