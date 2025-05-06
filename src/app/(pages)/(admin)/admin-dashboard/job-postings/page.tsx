@@ -65,6 +65,7 @@ export default function Users() {
     preview,
     fileName,
     handleImageChange,
+    handleEdit,
   } = useJobOffer();
 
   const filterCategories = {
@@ -103,6 +104,8 @@ export default function Users() {
   const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedJob, setEditedJob] = useState(null);
 
   const filterJobs = (status: string) => {
     console.log("Filtering jobs with status:", status);
@@ -157,6 +160,7 @@ export default function Users() {
     if (job) {
       setViewingJob(job);
       setCurrentPage("view");
+      setEditedJob(job);
     }
   };
 
@@ -164,6 +168,7 @@ export default function Users() {
     setCurrentPage("list");
     setViewingJob(null);
   };
+
 
   // Render view page for a job posting
   const renderViewPage = () => {
@@ -191,141 +196,142 @@ export default function Users() {
         </div>
 
         <div className="w-full">
+          {/* Header Section */}
           <div className="flex items-center justify-between">
             <div className="font-bold text-3xl">View Job Posting</div>
-            <div className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300">
-              <Pencil size={18} /> Edit Job Posting
+            <div
+              className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              <Pencil size={18} />
+              {isEditing ? "Cancel Edit" : "Edit Job Posting"}
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-            <div className="flex flex-col gap-5">
-              {/* Company Logo and Job Details */}
-              <div className="flex items-start gap-4">
-                {/* Company Logo */}
-                <div className="mr-2">
-                  {viewingJob.image ? (
-                    <img
-                      src={viewingJob.image || "/placeholder.svg"}
-                      alt={`${viewingJob.company} logo`}
-                      className="w-35 h-35 object-contain rounded-md border border-gray-200"
+          {/* Save Button */}
+          {isEditing && (
+            <button
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg float-right"
+              onClick={() => {
+                setIsEditing(false);
+                handleEdit(editedJob); 
+              }}
+            >
+              Save Changes
+            </button>
+          )}
+
+          {/* Job Info Section */}
+          <div className="flex flex-col gap-3 mt-6">
+            <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+              <div className="flex flex-col gap-5">
+                {/* Logo and top fields */}
+                <div className="flex items-start gap-4">
+                  <div className="mr-2">
+                    {editedJob.image ? (
+                      <img
+                        src={editedJob.image}
+                        alt={`${editedJob.company} logo`}
+                        className="w-35 h-35 object-contain rounded-md border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-35 h-35 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
+                        {editedJob.company?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-3">
+                    {/* Job Position */}
+                    <div>
+                      <label className="block text-sm font-medium">Job Position</label>
+                      {isEditing ? (
+                        <input
+                          value={editedJob.position}
+                          onChange={(e) =>
+                            setEditedJob({ ...editedJob, position: e.target.value })
+                          }
+                          className="px-3 py-2 border border-gray-300 rounded-md w-full"
+                        />
+                      ) : (
+                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{editedJob.position}</div>
+                      )}
+                    </div>
+
+                    {/* Company Name */}
+                    <div>
+                      <label className="block text-sm font-medium">Company Name</label>
+                      {isEditing ? (
+                        <input
+                          value={editedJob.company}
+                          onChange={(e) =>
+                            setEditedJob({ ...editedJob, company: e.target.value })
+                          }
+                          className="px-3 py-2 border border-gray-300 rounded-md w-full"
+                        />
+                      ) : (
+                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                          {editedJob.company}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Other Fields */}
+                {[
+                  ["Location", editedJob.location],
+                  ["Employment Type", editedJob.employmentType],
+                  ["Job Type", editedJob.jobType],
+                  ["Experience Level", editedJob.experienceLevel],
+                  ["Salary Range", editedJob.salaryRange],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <label className="block text-sm font-medium">{label}</label>
+                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                      {value}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Required Skills */}
+                <div>
+                  <label className="block text-sm font-medium">Required Skills</label>
+                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                    {editedJob.requiredSkill?.join(", ")}
+                  </div>
+                </div>
+
+                {/* Job Description */}
+                <div>
+                  <label className="block text-sm font-medium">Job Description</label>
+                  {isEditing ? (
+                    <textarea
+                      value={editedJob.jobDescription}
+                      onChange={(e) =>
+                        setEditedJob({ ...editedJob, jobDescription: e.target.value })
+                      }
+                      className="px-3 py-2 border border-gray-300 rounded-md w-full min-h-[100px]"
                     />
                   ) : (
-                    <div className="w-35 h-35 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
-                      {viewingJob.company.charAt(0).toUpperCase()}
+                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[100px]">
+                      {editedJob.jobDescription}
                     </div>
                   )}
                 </div>
 
-                {/* Job Position and Company Name */}
-                <div className="flex-1 space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium">Job Position</label>
-                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.position}</div>
+                {/* Date Posted */}
+                <div>
+                  <label className="block text-sm font-medium">Date Posted</label>
+                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                    {new Date(editedJob.datePosted).toLocaleString()}
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium">Company Name</label>
-                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{viewingJob.company}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Location */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Location</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.location}
-                </div>
-              </div>
-
-              {/* Employment Type */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Employment Type
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.employmentType}
-                </div>
-              </div>
-
-              {/* Job Type */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Job Type</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.jobType}
-                </div>
-              </div>
-
-              {/* Experience Level */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Experience Level
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.experienceLevel}
-                </div>
-              </div>
-
-              {/* Salary Range */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Salary Range
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.salaryRange}
-                </div>
-              </div>
-
-              {/* Required Skills */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Required Skills
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.requiredSkill?.join(", ")}
-                </div>
-              </div>
-
-              {/* Job Description */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Job Description
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[110px]">
-                  {viewingJob.jobDescription}
-                </div>
-              </div>
-
-              {/* Date Posted */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Date Posted</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.datePosted?.toLocaleString?.() ||
-                    new Date(viewingJob.datePosted).toLocaleString()}
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Status</label>
-                <div
-                  className={`px-3 py-2 border border-gray-300 rounded-md ${
-                    viewingJob.status === "Accepted"
-                      ? "bg-green-100 text-green-800"
-                      : viewingJob.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {viewingJob.status}
                 </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     );
   };
