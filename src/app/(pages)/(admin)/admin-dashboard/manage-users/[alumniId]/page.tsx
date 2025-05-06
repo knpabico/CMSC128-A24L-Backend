@@ -46,6 +46,33 @@ export default function AlumPage() {
 
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
 
+  const [alumAge, setAge] = useState<number | null>(null);
+
+
+  //function for calculating age (year only) based from birthdate
+  const calculateAge = (birthDate: Date) => {
+    //current date
+    const current_date = new Date();
+    const current_day = current_date.getDate();
+    const current_month = current_date.getMonth();
+    const current_year = current_date.getFullYear();
+
+    //birthDate
+    const day = birthDate.getDate();
+    const month = birthDate.getMonth();
+    const year = birthDate.getFullYear();
+
+    //student number
+
+    let age = current_year - year;
+    //if current day < day or current month < month
+    if ((current_month === month && current_day < day) || current_month < month) {
+      age = age - 1; //subtract 1 from age
+    }
+
+    return age;
+  };
+
 
   useEffect(() => {
     if (alumniId) {
@@ -66,6 +93,29 @@ export default function AlumPage() {
       const foundWork =
         allWorkExperience.filter((work: WorkExperience) => String(work.alumniId) === String(alumniId));
       setWork(foundWork);
+
+      if (foundAlum) {
+        setAlum(foundAlum);
+
+        if (foundAlum.birthDate) {
+          let birthDateObj;
+          
+          if (foundAlum.birthDate.toDate && typeof foundAlum.birthDate.toDate === 'function') {
+            birthDateObj = foundAlum.birthDate.toDate();
+          } 
+          else if (typeof foundAlum.birthDate === 'string') {
+            birthDateObj = new Date(foundAlum.birthDate);
+          }
+          else if (foundAlum.birthDate instanceof Date) {
+            birthDateObj = foundAlum.birthDate;
+          }
+
+          if (birthDateObj && birthDateObj instanceof Date) {
+            const age = calculateAge(birthDateObj);
+            setAge(age);
+          }
+        }
+      }
 
       fetchWorkExperience(alumniId).then((data) => {
         console.log("Fetched Work Experience inside AlumPage:", data);
@@ -96,7 +146,6 @@ export default function AlumPage() {
       setShowWorkExperience(true);
     }
   };
-
 
   const openMap = (index:number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
@@ -199,7 +248,7 @@ export default function AlumPage() {
                   <p className="font-semibold">Current Age</p>
                 </div>
                 <p className="pl-9 pt-3">
-                  {alum.age}
+                  {alumAge}
                 </p>
               </div>
               <div className="col-span-5">

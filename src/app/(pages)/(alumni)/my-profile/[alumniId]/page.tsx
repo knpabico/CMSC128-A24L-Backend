@@ -216,6 +216,31 @@ const UserProfile = () => {
     };
 
 
+  //function for calculating age (year only) based from birthdate
+  const calculateAge = (birthDate: Date) => {
+    //current date
+    const current_date = new Date();
+    const current_day = current_date.getDate();
+    const current_month = current_date.getMonth();
+    const current_year = current_date.getFullYear();
+
+    //birthDate
+    const day = birthDate.getDate();
+    const month = birthDate.getMonth();
+    const year = birthDate.getFullYear();
+
+    //student number
+
+    let age = current_year - year;
+    //if current day < day or current month < month
+    if ((current_month === month && current_day < day) || current_month < month) {
+      age = age - 1; //subtract 1 from age
+    }
+
+    return age;
+  };
+  const age = calculateAge(new Date(alumInfo.birthDate));
+
   //function when save changes was clicked
   const handleTheSaveChages = () => {
     // let updatedAlumnus = {
@@ -619,6 +644,7 @@ const UserProfile = () => {
   //---------------------------
 
 
+
   return (
     <div>
       <div style={{backgroundColor: "#3675c5"}} className="relative bg-cover bg-center pt-15 px-50 text-white shadow-md">
@@ -773,20 +799,6 @@ const UserProfile = () => {
                     </label>
                   </div>
                 </div>
-                
-
-                <div>
-                  <p className="font-semibold">Student Number</p>
-                  <div className="flex">
-                  <input
-                    type="text"
-                    value={studentNumber}
-                    onChange={(e) => setStudentNumber(e.target.value)}
-                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                    disabled
-                  />
-                  </div>
-                </div>
 
                 <div>
                   <p className="font-semibold">Birthday <span className="font-light">(YYYY/MM/DD)</span></p>
@@ -799,58 +811,33 @@ const UserProfile = () => {
                     />
                   </div>
                 </div>
+
+                <div>
+                  <p className="font-semibold">Current Age</p>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      value={age}
+                      className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                      disabled
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* BIRTHDAY */}
-              {/* <p className="font-semibold">Birthday</p>
-              <div className="flex space-x-7 mb-7">
-                <div className="relative">
-                  <p className="text-xs font-light">Month</p>
-                  <div className="relative">
-                    <select
-                      value={month}
-                      className="appearance-none bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                      disabled
-                    >
-                      <option value="">Month</option>
-                      {months.map((m, i) => (
-                        <option key={i} value={i + 1}>{m}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="relative">
-                  <p className="text-xs font-light">Day</p>
-                  <div className="relative">
-                    <select
-                    value={day}
-                    className="appearance-none bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+              {/* STUDENT NUMBER */}
+              <div className="space-x-7 mb-7">
+                <p className="font-semibold">Student Number</p>
+                <div className="flex">
+                  <input
+                    type="text"
+                    value={studentNumber}
+                    onChange={(e) => setStudentNumber(e.target.value)}
+                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-57 text-gray-500 rounded-md"
                     disabled
-                    >
-                      <option value="">Day</option>
-                      {days.map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
-                    </select>
-                  </div>
+                  />
                 </div>
-                <div className="relative">
-                  <p className="text-xs font-light">Year</p>
-                  <div className="relative">
-                    <select
-                      value={year}
-                      className="appearance-none bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                      disabled
-                    >
-                      <option value="">Year</option>
-                      {years.map((y) => (
-                        <option key={y} value={y}>{y}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                </div>
-              </div> */}
+              </div>
 
               {/* CURRENT LOCATION */}
               <p className="font-semibold">Current Location</p>
