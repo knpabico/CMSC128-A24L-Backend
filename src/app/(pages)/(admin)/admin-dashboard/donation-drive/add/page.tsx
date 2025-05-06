@@ -8,70 +8,68 @@ import { useEffect, useRef, useState } from "react";
 
 export default function AddDonationDrive() {
 	// const router = useRouter();
-		const {
-			donationDrives,
-			events,
-			isLoading,
-			addDonationDrive,
-			showForm,
-			setShowForm,
-			handleGcashChange,
-			handlePaymayaChange,
-			handleImageChange,
-			handleBenefiaryChange,
-			handleAddBeneficiary,
-			handleRemoveBeneficiary,
-			handleSave,
-			handleEdit,
-			handleDelete,
-			campaignName,
-			setCampaignName,
-			description,
-			setDescription,
-			creatorId,
-			setCreatorId,
-			image,
-			setImage,
-			fileName,
-			setFileName,
-			preview,
-			setPreview,
-			previewGcash,
-			previewPaymaya,
-			targetAmount,
-			setTargetAmount,
-			isEvent,
-			setIsEvent,
-			eventId,
-			setEventId,
-			endDate,
-			setEndDate,
-			status,
-			setStatus,
-			oneBeneficiary, 
-			setOneBeneficiary,
-			beneficiary,
-			setBeneficiary,
-			getDonationDriveById,
-			getEventById,
-			fetchAlumnusById,
-		} = useDonationDrives();
-  const [isSticky, setIsSticky] = useState(false);
-  const buttonsContainerRef = useRef(null);
-  const placeholderRef = useRef(null);
+  	const {
+		donationDrives,
+		events,
+		isLoading,
+		addDonationDrive,
+		showForm,
+		setShowForm,
+		handleGcashChange,
+		handlePaymayaChange,
+		handleImageChange,
+		handleBenefiaryChange,
+		handleAddBeneficiary,
+		handleRemoveBeneficiary,
+		handleSave,
+		handleEdit,
+		handleDelete,
+		campaignName,
+		setCampaignName,
+		description,
+		setDescription,
+		creatorId,
+		setCreatorId,
+		image,
+		setImage,
+		fileName,
+		setFileName,
+		preview,
+		setPreview,
+		previewGcash,
+		previewPaymaya,
+		targetAmount,
+		setTargetAmount,
+		isEvent,
+		setIsEvent,
+		eventId,
+		setEventId,
+		endDate,
+		setEndDate,
+		status,
+		setStatus,
+		oneBeneficiary, 
+		setOneBeneficiary,
+		beneficiary,
+		setBeneficiary,
+		getDonationDriveById,
+		getEventById,
+		fetchAlumnusById,
+	} = useDonationDrives();
+	const [isSticky, setIsSticky] = useState(false);
+	const buttonsContainerRef = useRef(null);
+	const placeholderRef = useRef(null);
 	const [message, setMessage] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-	
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();	
 		if (!preview || !previewGcash || !previewPaymaya) {
 			if (!preview) toastError("No image selected for backgorund phot")
 			if (!previewGcash) toastError("No image selected for GCASH QR")
 			if (!previewPaymaya) toastError("No image selected for PayMaya QR")
 			return;
 		}
-	
+
 		try {
 			setIsSubmitting(true);
 			await handleSave(e);
@@ -80,10 +78,20 @@ export default function AddDonationDrive() {
 			console.error("Error saving donation drive:", error);
 			toastError("Failed to create donation drive.");
 		} finally {
-      setIsSubmitting(false);
-    }
+		setIsSubmitting(false);
+		}
 	};
+	useEffect(() => {
+		const setReset = () => {
+			setCampaignName("");
+			setDescription("");
+			setBeneficiary([]);
+			setTargetAmount(0);
+			setStatus("active");
+		}
 	
+		setReset();
+	}, []);
 
   return (
     <div className="flex flex-col gap-5">
