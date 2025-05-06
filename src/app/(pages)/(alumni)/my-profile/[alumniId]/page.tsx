@@ -87,17 +87,19 @@ const UserProfile = () => {
   const [showUploader, setShowUploader] = useState(false);
 
   //Edit the personal field information
+  const [privacy, setPrivacy] = useState(alumInfo?.contactPrivacy);
   const [email, setEmail] = useState(alumInfo?.email || "");
   const [firstName, setFirstName] = useState(alumInfo?.firstName || "");
   const [lastName, setLastName] = useState(alumInfo?.lastName || "");
   const [middleName, setMiddleName] = useState(alumInfo?.middleName || "");
   const [suffix,setSuffix] = useState(alumInfo?.suffix || "");
   const [studentNumber,setStudentNumber] = useState(alumInfo?.studentNumber || "");
-  const [city,setCity] = useState(alumInfo?.address[2] || "");
-  const [province,setProvince] = useState(alumInfo?.address[1] || "");
+  const [city,setCity] = useState(alumInfo?.address[1] || "");
+  const [province,setProvince] = useState(alumInfo?.address[2] || "");
   const [country,setCountry] = useState(alumInfo?.address[0] || "");
 
   //for birthday
+  const [birthday, setBirthday] = useState(alumInfo?.birthDate.toString() || "");
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -150,10 +152,12 @@ const UserProfile = () => {
       setLastName(alumInfo.lastName || "");
       setSuffix(alumInfo.suffix || "");
       setEmail(alumInfo.email || "");
+      setPrivacy(alumInfo.contactPrivacy);
       setStudentNumber(alumInfo.studentNumber || "");
       setCity(alumInfo.address?.[1] || "");
       setProvince(alumInfo.address?.[2] || "");
       setCountry(alumInfo.address?.[0] || "");
+      setBirthday(alumInfo.birthDate.toString());
   
       // For birthday (parse and split to day, month, year)
       if (alumInfo.birthDate) {
@@ -233,9 +237,9 @@ const UserProfile = () => {
       suffix,
       email,
       studentNumber,
-      [country, province, city],
-      new Date(`${month} ${day}, ${year}`),
-      selectedFields
+      [country, city, province],
+      selectedFields,
+      privacy
     );
     // console.log(updatedAlumnus);
   }
@@ -614,6 +618,7 @@ const UserProfile = () => {
   const selectedYear = selectedDate.getFullYear();
   //---------------------------
 
+
   return (
     <div>
       <div style={{backgroundColor: "#3675c5"}} className="relative bg-cover bg-center pt-15 px-50 text-white shadow-md">
@@ -629,7 +634,7 @@ const UserProfile = () => {
                 className="object-cover w-full h-full rounded-full"
               />
             ) : (
-              <span className="text-white">pic</span>
+              <span className="text-white"></span>
             )}
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-50 transition-opacity duration-300 rounded-full flex items-center justify-center">
               <PencilIcon/>
@@ -744,17 +749,31 @@ const UserProfile = () => {
               {/* EMAIL ADDRESS */}
               <div className="flex space-x-7 mb-7">
                 <div>
-                  <p className="font-semibold">Email Address</p>
-                  <div className="flex">
-                  <input
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                    disabled
-                  />
+                  <div>
+                    <p className="font-semibold">Email Address</p>
+                    <div className="flex">
+                    <input
+                      type="text"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                      disabled
+                    />
+                    </div>
+                  </div>
+                  <div className="flex items-center pt-1">
+                    <input
+                      type="checkbox"
+                      id="privacy"
+                      checked={privacy}
+                      onChange={(e) => setPrivacy(!privacy)}
+                    />
+                    <label htmlFor="privacy" className="ml-2 text-gray-700 text-xs">
+                      Make visible to other alumni
+                    </label>
                   </div>
                 </div>
+                
 
                 <div>
                   <p className="font-semibold">Student Number</p>
@@ -768,17 +787,28 @@ const UserProfile = () => {
                   />
                   </div>
                 </div>
+
+                <div>
+                  <p className="font-semibold">Birthday <span className="font-light">(YYYY/MM/DD)</span></p>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      value={birthday}
+                      className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                      disabled
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* BIRTHDAY */}
-              <p className="font-semibold">Birthday</p>
+              {/* <p className="font-semibold">Birthday</p>
               <div className="flex space-x-7 mb-7">
                 <div className="relative">
                   <p className="text-xs font-light">Month</p>
                   <div className="relative">
                     <select
                       value={month}
-                      onChange={(e) => setMonth(e.target.value)}
                       className="appearance-none bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
                       disabled
                     >
@@ -794,7 +824,6 @@ const UserProfile = () => {
                   <div className="relative">
                     <select
                     value={day}
-                    onChange={(e) => setDay(e.target.value)}
                     className="appearance-none bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
                     disabled
                     >
@@ -810,7 +839,6 @@ const UserProfile = () => {
                   <div className="relative">
                     <select
                       value={year}
-                      onChange={(e) => setYear(e.target.value)}
                       className="appearance-none bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
                       disabled
                     >
@@ -822,7 +850,7 @@ const UserProfile = () => {
                   </div>
                   
                 </div>
-              </div>
+              </div> */}
 
               {/* CURRENT LOCATION */}
               <p className="font-semibold">Current Location</p>

@@ -161,6 +161,7 @@ const formParts = [
       "career",
       "acceptTerms",
       "subscribeToNewsletter",
+      "contactPrivacy"
     ],
   },
 ];
@@ -243,6 +244,7 @@ export default function RegistrationForm() {
       career: [], //industry, jobTitle, company, startYear, endYear
       acceptTerms: false,
       subscribeToNewsletter: false,
+      contactPrivacy: false,
     },
   });
 
@@ -1009,6 +1011,31 @@ export default function RegistrationForm() {
                           )}
                         />
 
+                        {/* contactPrivacy form field */}
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name="contactPrivacy"
+                            render={({ field }) => (
+                              <FormItem>
+                                <div className="flex gap-2 justify-start items-center">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                  <FormLabel>
+                                    <p>I consent to making my email address visible to other alumni.</p>
+                                  </FormLabel>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <p className="font-light text-xs pl-6 pt-1">(You can change this preference later.)</p>
+                        </div>
+
                         {/* subscribeToNewsletter form field */}
                         <FormField
                           control={form.control}
@@ -1030,6 +1057,7 @@ export default function RegistrationForm() {
                             </FormItem>
                           )}
                         />
+                        
                       </div>
 
                       <div className="flex flex-col items-start px-5">

@@ -85,8 +85,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     email: string,
     studentNumber: string,
     address: string[],
-    birthDate: Date,
-    fieldOfInterest: string[]
+    fieldOfInterest: string[],
+    contactPrivacy: boolean
   ) => {
     try {
       const alumniRef = doc(db, "alumni", alum.alumniId);
@@ -105,8 +105,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         if (email !== currentData.email) updatedData.email = email ?? "";
         if (studentNumber !== currentData.studentNumber) updatedData.studentNumber = studentNumber ?? "";
         if (address !== currentData.address) updatedData.address = address ?? [];
-        if (birthDate !== currentData.birthDate) updatedData.birthDate = birthDate ?? new Date();
         if (fieldOfInterest !== currentData.fieldOfInterest) updatedData.fieldOfInterest = fieldOfInterest ?? [];
+        if (contactPrivacy !== currentData.contactPrivacy) updatedData.contactPrivacy = contactPrivacy ?? false;
   
         // If there's any updated data, update the document
         if (Object.keys(updatedData).length > 0) {

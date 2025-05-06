@@ -214,6 +214,7 @@ const baseSchema = z.object({
       "You must accept the terms and conditions"
     ),
   subscribeToNewsletter: z.boolean(),
+  contactPrivacy: z.boolean(),
 });
 
 const passwordSchema = z
