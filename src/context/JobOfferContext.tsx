@@ -159,6 +159,22 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+
+  const updateStatus = async (status: string, jobId: string) => {
+    if (!status || !jobId) {
+      console.error("Status or Job ID is missing");
+      return;
+    }
+  
+    try {
+      const jobRef = doc(db, "job_offering", jobId);
+      await updateDoc(jobRef, { status });
+      console.log("Job updated successfully!");
+    } catch (error) {
+      console.error("Error updating job:", error);
+    }
+  };
+
   const subscribeToJobOffers = () => {
     setLoading(true);
     const q = query(collection(db, "job_offering"));
@@ -265,7 +281,8 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         preview,
         fileName,
         handleImageChange,
-        handleEdit
+        handleEdit,
+        updateStatus
       }}
     >
       {children}

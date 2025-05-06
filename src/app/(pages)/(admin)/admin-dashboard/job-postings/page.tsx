@@ -66,6 +66,7 @@ export default function Users() {
     fileName,
     handleImageChange,
     handleEdit,
+    updateStatus
   } = useJobOffer();
 
   const filterCategories = {
@@ -107,14 +108,17 @@ export default function Users() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState(null);
 
-  const filterJobs = (status: string) => {
-    console.log("Filtering jobs with status:", status);
-    const filtered = jobOffers.filter(
-      (job: JobOffering) => job.status === status
-    );
-    console.log("Filtered jobs:", filtered);
-    return filtered;
-  };
+const filterJobs = (status: string) => {
+  console.log("Filtering jobs with status:", status);
+  const filtered = jobOffers.filter((job: JobOffering) => {
+    if (status === "Accepted") {
+      return job.status === "Accepted" || job.status === "Closed";
+    }
+    return job.status === status;
+  });
+  console.log("Filtered jobs:", filtered);
+  return filtered;
+};
 
   const tabs = ["Accepted", "Pending", "Rejected"];
 
@@ -758,8 +762,13 @@ export default function Users() {
                           <input
                             type="checkbox"
                             className="sr-only peer"
+                            checked={ job.status === "Accepted"}
                             onChange={() => {
-                              // No functionality added here
+                              if (job.status === "Accepted"){
+                                updateStatus("Closed", job.jobId);
+                              } else{
+                                updateStatus("Accepted", job.jobId);
+                              }
                             }}
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
