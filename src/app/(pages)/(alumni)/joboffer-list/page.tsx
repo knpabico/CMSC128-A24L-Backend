@@ -30,6 +30,7 @@ import {
   Check,
 } from "lucide-react";
 import { set } from "zod";
+import Image from "next/image";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -499,7 +500,11 @@ export default function JobOffers() {
                             <div className="flex">
                               <div className="mr-2">
                                 {job.image ? (
-                                  <img
+                                  <Image
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    priority
                                     src={job.image}
                                     alt={`${job.company} logo`}
                                     className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -600,7 +605,11 @@ export default function JobOffers() {
                             <div className="flex">
                               <div className="mr-3">
                                 {job.image ? (
-                                  <img
+                                  <Image
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    priority
                                     src={job.image}
                                     alt={`${job.company} logo`}
                                     className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -707,7 +716,11 @@ export default function JobOffers() {
                               <div className="flex">
                                 <div className="mr-3">
                                   {job.image ? (
-                                    <img
+                                    <Image
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
                                       src={job.image}
                                       alt={`${job.company} logo`}
                                       className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -810,7 +823,11 @@ export default function JobOffers() {
                     {/* Company Logo */}
                     <div className="mr-4">
                       {selectedJob.image ? (
-                        <img
+                        <Image
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          priority
                           src={selectedJob.image}
                           alt={`${selectedJob.company} logo`}
                           className="w-20 h-20 object-contain rounded-md border border-gray-200"

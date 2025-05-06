@@ -14,6 +14,7 @@ import {
   NewsletterItem,
   WorkExperience,
   Event,
+  DonationDrive,
 } from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -59,6 +60,7 @@ import { useDonationDrives } from "@/context/DonationDriveContext";
 import { log } from "console";
 import { Oswald } from "next/font/google";
 import CollapseText from "@/components/CollapseText";
+import Image from "next/image";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -414,7 +416,11 @@ export default function Home() {
                 className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
               >
                 <div className="w-full h-40 bg-pink-400 overflow-hidden">
-                  <img
+                  <Image
+                    width={0}
+                    height={0}
+                    sizes="100vw"
+                    priority
                     src={
                       item.image === ""
                         ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
@@ -450,14 +456,19 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
             <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA]">
-              <img
+              <Image
+                sizes="100vw"
+                width={0}
+                height={0}
+                priority
+                alt={alumInfo!.lastName}
                 src={
                   alumInfo!.image === ""
                     ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
-                    : alumInfo.image
+                    : alumInfo!.image
                 }
                 className="w-20 h-20 md:w-40 md:h-40 lg:w-50 lg:h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
-              ></img>
+              />
               <p className="text-lg md:text-[20px] text-center font-bold justify-self-center">
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
               </p>
@@ -540,7 +551,12 @@ export default function Home() {
                   >
                     {/* user info */}
                     <div className="flex flex-row mb-[20px] px-4 md:px-[20px] mt-[20px] gap-2 items-center">
-                      <img
+                      <Image
+                        alt="pic"
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        priority
                         src={
                           newsLetter.category === "announcement" ||
                           newsLetter.category === "event" ||
@@ -588,7 +604,7 @@ export default function Home() {
                     {/* if newsletter is announcement */}
                     {newsLetter.category === "announcement" &&
                       (() => {
-                        const announcement = announces.find(
+                        const announcement: Announcement = announces.find(
                           (announce: Announcement) =>
                             announce.announcementId === newsLetter.referenceId
                         );
@@ -607,10 +623,15 @@ export default function Home() {
                               {announcement.image === "" ? (
                                 ""
                               ) : (
-                                <img
+                                <Image
+                                  alt={announcement.title}
+                                  width={0}
+                                  height={0}
+                                  sizes="100vw"
+                                  priority
                                   src={announcement.image}
                                   className="w-full rounded-b-[10px]"
-                                ></img>
+                                />
                               )}
                             </div>
                           </div>
@@ -624,7 +645,7 @@ export default function Home() {
                     {/* if newsletter is a job post */}
                     {newsLetter.category === "job_offering" &&
                       (() => {
-                        const jobOffering = jobOffers.find(
+                        const jobOffering: JobOffering = jobOffers.find(
                           (jobOffer: JobOffering) =>
                             jobOffer.jobId === newsLetter.referenceId
                         );
@@ -764,11 +785,18 @@ export default function Home() {
                                 {jobOffering.image === "" ? (
                                   ""
                                 ) : (
-                                  <img src={jobOffering.image}></img>
+                                  <Image
+                                    width={0}
+                                    height={0}
+                                    alt={jobOffering.company}
+                                    src={jobOffering.image}
+                                    sizes="100vw"
+                                    priority
+                                  />
                                 )}
                                 <button
                                   onClick={() => router.push(`/joboffer-list`)}
-                                  className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
+                                  className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
                                 >
                                   View More Job Offers
                                 </button>
@@ -786,7 +814,7 @@ export default function Home() {
                     {newsLetter.category === "donation_drive" &&
                       (() => {
                         const donationDrive = donationDrives.find(
-                          (donation: Donation) => {
+                          (donation: DonationDrive) => {
                             return (
                               donation.donationDriveId ===
                               newsLetter.referenceId
@@ -813,7 +841,11 @@ export default function Home() {
                               {donationDrive.image === "" ? (
                                 ""
                               ) : (
-                                <img
+                                <Image
+                                  priority
+                                  width={0}
+                                  height={0}
+                                  sizes="100vw"
                                   src={donationDrive.image}
                                   className="w-full"
                                   alt="Donation drive"
@@ -907,7 +939,7 @@ export default function Home() {
                                 onClick={() =>
                                   router.push(`/donationdrive-list`)
                                 }
-                                className="cursor-pointer h-[30px] mx-4 md:mx-[20px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
+                                className="cursor-pointer h-[30px] mx-4 md:mx-[20px] mb-[20px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
                               >
                                 View More Donation Drives
                               </button>
@@ -934,7 +966,7 @@ export default function Home() {
                             />
                             <button
                               onClick={() => router.push(`/scholarship`)}
-                              className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
+                              className="w-full cursor-pointer h-[30px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
                             >
                               View More Scholarships
                             </button>
@@ -973,7 +1005,15 @@ export default function Home() {
                                   {event.image === "" ? (
                                     ""
                                   ) : (
-                                    <img src={event.image}></img>
+                                    <Image
+                                      priority
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="w-full"
+                                      src={event.image}
+                                      alt={event.title}
+                                    />
                                   )}
                                   <>
                                     {event.needSponsorship === true && (
@@ -1075,7 +1115,7 @@ export default function Home() {
                                   <div className="px-4 md:px-[20px]">
                                     <button
                                       onClick={() => router.push(`/events`)}
-                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
+                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
                                     >
                                       View More Events
                                     </button>
@@ -1127,7 +1167,11 @@ export default function Home() {
                     {donationDrives[currentDonationIndex].image === "" ? (
                       ""
                     ) : (
-                      <img
+                      <Image
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        priority
                         src={donationDrives[currentDonationIndex].image}
                         className="mb-[10px] h-[150px] object-cover w-full"
                         alt="Donation drive"
@@ -1269,8 +1313,16 @@ export default function Home() {
                   {/* event contents */}
                   <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                     <div className="w-full">
-                      <img
-                        src="/ICS2.jpg"
+                      <Image
+                        width={0}
+                        height={0}
+                        priority
+                        sizes="100vw"
+                        src={
+                          events[currentEventIndex].image === ""
+                            ? "/ICS2.jpg"
+                            : events[currentEventIndex].image
+                        }
                         className="mb-[10px] h-[150px] w-full object-cover"
                         alt="Event"
                       />
