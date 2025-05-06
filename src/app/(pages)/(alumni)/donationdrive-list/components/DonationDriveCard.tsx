@@ -65,7 +65,7 @@ const DonationDriveCard = ({
   const getRemainingDays = (endDate: any) => {
     try {
       const today = new Date(); // Current date
-      const end = endDate.toDate(); // Firestore Timestamp to JS Date
+      const end = new Date(endDate); // Firestore Timestamp to JS Date
       const diffTime = end.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -82,7 +82,7 @@ const DonationDriveCard = ({
       const now = new Date();
 
       const todayOnly = new Date(); // Current date
-      const endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
+      const endDateOnly = new Date(endDate); // Firestore Timestamp to JS Date
 
       // Calculate difference in days
       const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
@@ -92,7 +92,8 @@ const DonationDriveCard = ({
       return differenceInDays;
       // Return 0 if ended or negative
     } catch (err) {
-      return "Not Available";
+      console.error( "Not Available");
+      return 0;
     }
   }
   useEffect(() => {
@@ -104,7 +105,7 @@ const DonationDriveCard = ({
 
         const isExpired = getDaysRemaining(endDate);
 
-        if (isExpired && drive.status !== "completed") {
+        if (isExpired <= 0 && drive.status !== "completed") {
           await handleEdit(drive.donationDriveId, { status: "completed" });
           console.log(
             `Drive ${drive.campaignName} marked as completed due to expiration`
@@ -116,6 +117,29 @@ const DonationDriveCard = ({
     };
 
     checkAndUpdateExpiredDrive();
+  }, [drive]);
+
+  useEffect(() => {
+    const checkAndUpdateCompletedDrive = async () => {
+      try {
+        if (!drive) return;
+
+        const target = drive.targetAmount;
+
+        const current = drive.currentAmount;
+
+        if (target <= current && drive.status !== "completed") {
+          await handleEdit(drive.donationDriveId, { status: "completed" });
+          console.log(
+            `Drive ${drive.campaignName} marked as completed due to target amount acquired`
+          );
+        }
+      } catch (err) {
+        console.error("Error checking drive completion:", err);
+      }
+    };
+
+    checkAndUpdateCompletedDrive();
   }, [drive]);
 
   // Calculate progress percentage

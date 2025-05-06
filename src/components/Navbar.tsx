@@ -84,12 +84,12 @@ export default function Navbar() {
         {
           id: "manage-donations",
           label: "Manage Donations",
-          path: "/admin/donations/manage",
+          path: "/admin-dashboard/donation-drive/manage",
         },
         {
           id: "add-donations",
           label: "Add Donations",
-          path: "/admin/donations/add",
+          path: "/admin-dashboard/donation-drive/add",
         },
         {
           id: "stats-donation",
