@@ -83,6 +83,7 @@ export default function Home() {
     useAuth();
   const { newsLetters } = useNewsLetters();
   const { announces, setAnnounce } = useAnnouncement();
+  const [publicAnnouncement, setPublicAnnouncement]  = useState(announces)
   const { jobOffers } = useJobOffer();
   const { events } = useEvents();
   const { alums } = useAlums();
@@ -150,12 +151,11 @@ export default function Home() {
   }, [isAdmin, router, loading, user]);
 
   useEffect(() => {
-    console.log("Announcements", announces);
     const filteredAnnouncements = announces.filter(
       (announcement: Announcement) => announcement.isPublic === true
     );
     if (JSON.stringify(filteredAnnouncements) !== JSON.stringify(announces)) {
-      setAnnounce(filteredAnnouncements);
+      setPublicAnnouncement(filteredAnnouncements);
     }
   }, [announces]);
 
@@ -429,7 +429,7 @@ export default function Home() {
           <div className="font-bold text-3xl">News & Announcements</div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {announces.map((item: Announcement) => (
+            {publicAnnouncement.map((item: Announcement) => (
               <Link
                 href={`/announcements/${item.announcementId}`}
                 key={item.announcementId}
@@ -611,13 +611,19 @@ export default function Home() {
                       </p>
                     </div>
 
+                   
+
                     {/* if newsletter is announcement */}
                     {newsLetter.category === "announcement" &&
                       (() => {
+                        
                         const announcement = announces.find(
                           (announce: Announcement) =>
                             announce.announcementId === newsLetter.referenceId
                         );
+
+                        // console.log("Found announcement:", announcement); // Add this to check the result
+
                         return announcement ? (
                           <div className="flex flex-col gap-[20px]">
                             <div className="flex flex-col">
@@ -642,7 +648,7 @@ export default function Home() {
                           </div>
                         ) : (
                           <p className="text-[12px] md:text-[14px] mx-4 md:mx-[20px] my-[10px] italic text-gray-500">
-                            Announcement not found
+                            Announcemsfent not found
                           </p>
                         );
                       })()}
