@@ -67,6 +67,7 @@ import { log } from "console";
 import { Oswald } from "next/font/google";
 import CollapseText from "@/components/CollapseText";
 import { ListItem } from "@mui/material";
+import { useEducation } from "@/context/EducationContext";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -97,6 +98,19 @@ export default function Home() {
   const [currentDonationIndex, setCurrentDonationIndex] = useState(0);
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
 
+  const { userEducation } = useEducation();
+  const [filteredEducation, setFilteredEducation] = useState<Education[]>([]);
+  
+  useEffect(() => {
+    if (user?.uid) {
+      const filtered = userEducation.filter(
+        (edu: Education) => edu.alumniId === user.uid
+      );
+      setFilteredEducation(filtered);
+    }
+    console.log("User Education", userEducation);
+  }, [user?.uid, userEducation]); 
+  
   const nextDonation = () => {
     setCurrentDonationIndex((prev) =>
       prev === donationDrives.length - 1 ? 0 : prev + 1
@@ -482,7 +496,12 @@ export default function Home() {
                   Std. No. {alumInfo!.studentNumber}
                 </p>
                 <p className="text-xs md:text-[14px]">
-                  Graduated: {alumInfo!.graduationYear}
+                  Graduated: 
+                  {filteredEducation.map(edu => (
+                    <div key={edu.educationId} className="text-xs md:text-[14px]">
+                      {edu.major} - {edu.yearGraduated} @ {edu.university}
+                    </div>
+                  ))}
                 </p>
               </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
