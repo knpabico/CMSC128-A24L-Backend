@@ -63,9 +63,9 @@ export default function AddDonationDrive() {
 		} = useDonationDrives();
   const buttonsContainerRef = useRef(null);
   const placeholderRef = useRef(null);
-	const [message, setMessage] = useState("");
-	const [isError, setIsError] = useState(false);
-	const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const searchParams = useSearchParams();
   const donationDriveId = searchParams.get('id');
   const { getDonationsByDonationDrive } = useDonationContext();
@@ -77,12 +77,12 @@ export default function AddDonationDrive() {
   const [donationsLoading, setDonationsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false)
-	const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedDonationId, setSelectedDonationId] = useState<string | null>(null); 
-	const [isInformationOpen, setIsInformationOpen] = useState(true);
-	const [mainPhoto, setMainPhoto] = useState("");
-	const [qrGcash, setQrGcash] = useState("");
-	const [qrPaymaya, setQrPaymaya] = useState("");
+  const [isInformationOpen, setIsInformationOpen] = useState(true);
+  const [mainPhoto, setMainPhoto] = useState("");
+  const [qrGcash, setQrGcash] = useState("");
+  const [qrPaymaya, setQrPaymaya] = useState("");
   
   // Format date function with improved type safety
   const formatDate = (timestamp: any): string => {
@@ -572,13 +572,10 @@ export default function AddDonationDrive() {
 								value={
 									endDate instanceof Date && !isNaN(endDate.getTime())
 										? endDate.toISOString().split("T")[0]
-										: ""
+										: endDate
 								} 
 								onChange={(e) => {
-									const dateValue = e.target.value;
-									// Create a new Date object from the input value
-									const newDate = dateValue ? new Date(dateValue) : null;
-									setEndDate(newDate);
+									setEndDate(e.target.value)
 								}} 
 								className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" 
 								required 
