@@ -16,6 +16,7 @@ import {
   Event,
   Donation,
   DonationDrive,
+  Scholarship
 } from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -33,6 +34,7 @@ import {
   ChevronDownIcon,
   ClipboardList,
   Clock,
+  GraduationCap,
   Map,
   MapPin,
   PhilippinePeso,
@@ -63,11 +65,13 @@ import { useEvents } from "@/context/EventContext";
 import React from "react";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
+import { useScholarship } from "@/context/ScholarshipContext";
 import { log } from "console";
 import { Oswald } from "next/font/google";
 import CollapseText from "@/components/CollapseText";
 import { ListItem } from "@mui/material";
 import { useEducation } from "@/context/EducationContext";
+import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -89,6 +93,7 @@ export default function Home() {
   const { alums } = useAlums();
   const { donationDrives } = useDonationDrives();
   const { userWorkExperience } = useWorkExperience();
+  const { scholarships } = useScholarship();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
   const [latestFirst, setLatestFirst] = useState(true);
@@ -329,20 +334,26 @@ export default function Home() {
       alt: "Alumni success story",
     },
   ];
-  let total = 30000;
-  let partial = 3000;
-  let progress = Math.ceil((partial / total) * 100) + "%";
 
-  function adminHeader() {
-    const adminPic = "/ics-logo.jpg";
-    const adminName = "Institute of Computer Science";
+  function adminHeader(announcement) {
+    // Use announcement author's image if available, fallback to ICS logo
+    const authorPic = announcement.authorImage && announcement.authorImage !== "" 
+      ? announcement.authorImage 
+      : "/ics-logo.jpg";
+    
+    // Use announcement author's name if available, fallback to ICS
+    const authorName = announcement.authorName && announcement.authorName !== "" 
+      ? announcement.authorName 
+      : "Institute of Computer Science";
+      
     return (
       <>
         <img
-          src={adminPic}
+          src={authorPic}
           className="w-10 h-10 object-cover object-top rounded-full border border-[#DADADA]"
+          alt={authorName}
         />
-        <p className="text-[16px]">{adminName}</p>
+        <p className="text-[16px]">{authorName}</p>
       </>
     );
   }
@@ -470,55 +481,60 @@ export default function Home() {
       return (
         <div className="w-full px-4 md:px-6 lg:px-[50px]">
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
+
             {/* Profile Panel */}
             <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA]">
               <img
                 src={
                   alumInfo!.image === ""
                     ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
-                    : alumInfo.image
+                    : alumInfo!.image
                 }
                 className="w-20 h-20 md:w-40 md:h-40 lg:w-50 lg:h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
               ></img>
               <p className="text-lg md:text-[20px] text-center font-bold justify-self-center">
-                {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
+                {alumInfo!.lastName}, {alumInfo!.firstName} {alumInfo!.suffix ? alumInfo!.suffix : ""}
               </p>
               <p className="text-xs md:text-[14px]">{alumInfo!.email}</p>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <div className="text-xs md:text-[14px] text-center wrap-break-word px-2">
                 <i>
-                  Currently based on {alumInfo!.address[2]}
+                  Currently based on {alumInfo!.address[1]}, {alumInfo!.address[2]}
                 </i>
               </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center">
-                <p className="text-xs md:text-[14px]">
+              <div className="flex flex-col items-center gap-4">
+                {/* <p className="text-xs md:text-[14px]">
                   Std. No. {alumInfo!.studentNumber}
-                </p>
-                <p className="text-xs md:text-[14px]">
-                  Graduated: 
+                </p> */}
                   {filteredEducation.map(edu => (
-                    <div key={edu.educationId} className="text-xs md:text-[14px]">
-                      {edu.major} - {edu.yearGraduated} @ {edu.university}
+                    <div key={edu.educationId} className="text-xs md:text-sm items-center justify-items-center">
+                      <div className="flex flex-row items-center gap-3"><GraduationCap className="size-4"/><span>{edu.major}</span></div>
+                      {/* <p>Graduated: {edu.yearGraduated}</p> */}
+                      <p  className="text-xs md:text-[13px]">{edu.university}</p>
                     </div>
                   ))}
-                </p>
+                
               </div>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-wrap justify-center gap-2 px-2">
-                {alumInfo!.fieldOfInterest.map((interest) => (
-                  <div
-                    key={interest}
-                    className="text-xs md:text-[14px] border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px]"
-                  >
-                    {interest}
-                  </div>
-                ))}
-              </div>
+              {alumInfo!.fieldOfInterest[0] &&    
+                <>           
+                <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
+                  <div className="flex flex-wrap justify-center gap-2 px-2">
+                  {alumInfo!.fieldOfInterest.map((interest) => (
+                    <div
+                      key={interest}
+                      className="text-xs md:text-[14px] text-center wrap-normal border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px]"
+                    >
+                      {interest}
+                    </div>
+                  ))}
+                </div>
+                </>
+              }
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
-                className="w-full h-[30px] cursor-pointer rounded-full text-white bg-[#0856BA] hover:bg-[#357BD6]"
+                className="w-full h-[30px] cursor-pointer rounded-full text-white bg-[#0856BA] hover:bg-blue-600"
               >
                 View Profile
               </Button>
@@ -574,9 +590,14 @@ export default function Home() {
                           newsLetter.category === "donation_drive"
                             ? "/ics-logo.jpg"
                             : newsLetter.category === "job_offering"
-                            ? "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
-                            : "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
-                        }
+                            ? (() => {
+                              const jobOffering = jobOffers.find(
+                                (jobOffer: JobOffering) =>
+                                  jobOffer.jobId === newsLetter.referenceId
+                              );
+                              return jobOffering?.image
+                            })()
+                          : ""}
                         className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
                       />
                       <p className="text-sm md:text-[16px]">
@@ -592,7 +613,7 @@ export default function Home() {
                                   jobOffer.jobId === newsLetter.referenceId
                               );
                               return jobOffering
-                                ? alums.find(
+                                && alums.find(
                                     (alum: Alumnus) =>
                                       alum.alumniId === jobOffering.alumniId
                                   )?.firstName +
@@ -601,7 +622,6 @@ export default function Home() {
                                       (alum: Alumnus) =>
                                         alum.alumniId === jobOffering.alumniId
                                     )?.lastName || "Unknown Alumni"
-                                : "Job Offering Not Found";
                             })()
                           : ""}
                       </p>
@@ -633,7 +653,8 @@ export default function Home() {
                                 </p>
                                 <CollapseText
                                   text={announcement.description + " "}
-                                  maxChars={300}
+                                  maxChars={500}
+                                  className='text-justify'
                                 />
                               </div>
                               {announcement.image === "" ? (
@@ -644,11 +665,26 @@ export default function Home() {
                                   className="w-full rounded-b-[10px]"
                                 ></img>
                               )}
+                              
                             </div>
+                            {/* <div className="flex gap-1 mx-[20px]">
+                              <button
+                                onClick={() => router.push(`/scholarship`)}
+                                className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                >
+                                View more announcement
+                              </button>
+                              <button
+                                onClick={() => router.push(`/scholarship/${scholarship.scholarshipId}`)}
+                                className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                              >
+                                Read more
+                              </button>
+                            </div> */}
                           </div>
                         ) : (
                           <p className="text-[12px] md:text-[14px] mx-4 md:mx-[20px] my-[10px] italic text-gray-500">
-                            Announcemsfent not found
+                            Announcement not found
                           </p>
                         );
                       })()}
@@ -664,12 +700,19 @@ export default function Home() {
                           <div className="px-4 md:px-[20px]">
                             <div className="flex flex-col gap-4 md:gap-[30px]">
                               <div className="flex flex-col gap-[1px]">
+                                {/* <p className="text-xl md:text-[24px] font-semibold mb-3">[HIRING]</p>  */}
                                 <p className="text-xl md:text-[24px] font-semibold">
-                                  {jobOffering.position}
+                                 {jobOffering.position}
                                 </p>
-                                <p className="text-base md:text-[18px]">
-                                  {jobOffering.company}
-                                </p>
+                                <div className="flex gap-1 items-center">
+                                  <p className="text-base md:text-[18px]">
+                                    {jobOffering.company}
+                                  </p>
+                                  <MapPin className="ml-1 size-4 text-[#0856BA]"/>
+                                  <p className="text-base md:text-[13px] text-[#0856BA]">
+                                    {jobOffering.location}
+                                  </p>
+                                </div>
                               </div>
                               <div className="flex flex-col gap-4 md:gap-[30px]">
                                 <div className="flex flex-col gap-[10px]">
@@ -711,7 +754,7 @@ export default function Home() {
                                               key={skill}
                                               className="flex items-center gap-[5px]"
                                             >
-                                              <CheckCircle  style={{ color: "green" }} className="size-4"/>
+                                              <CheckCircle className="size-4 text-green-500"/>
                                               {skill}
                                             </li>
                                           </ul>
@@ -745,21 +788,30 @@ export default function Home() {
                                   <div className="text-[13px] md:text-[15px] ml-[25px] mr-[25px] text-justify">
                                     <CollapseText
                                       text={jobOffering.jobDescription + " "}
-                                      maxChars={300}
+                                      maxChars={500}
+                                      className='text-justify'
                                     />
                                   </div>
                                 </div>
-                                {jobOffering.image === "" ? (
+                                {/* {jobOffering.image === "" ? (
                                   ""
                                 ) : (
                                   <img src={jobOffering.image}></img>
-                                )}
-                                <button
-                                  onClick={() => router.push(`/joboffer-list`)}
-                                  className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
-                                >
-                                  View More Job Offers
-                                </button>
+                                )} */}
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => router.push(`/joboffer-list`)}
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                  >
+                                    View more job offers
+                                  </button>
+                                  <button
+                                    onClick={() => router.push(`/joboffer-list/`)}
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                  >
+                                    Apply
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -785,7 +837,7 @@ export default function Home() {
                         return donationDrive ? (
                           <div className="flex flex-col gap-[20px]">
                             <div className="flex flex-col gap-[20px]">
-                              <div className="flex flex-col gap-[10px] px-4 md:px-[20px] mb-[20px]">
+                              <div className="flex flex-col gap-[5px] px-4 md:px-[20px] mb-[20px]">
                                 <p className="text-xl md:text-[24px] font-semibold">
                                   {donationDrive.campaignName}
                                 </p>
@@ -794,7 +846,8 @@ export default function Home() {
                                 </p>
                                 <CollapseText
                                   text={donationDrive.description + " "}
-                                  maxChars={300}
+                                  maxChars={500}
+                                  className='text-justify'
                                 />
                               </div>
 
@@ -877,14 +930,23 @@ export default function Home() {
                                   </div>
                                 </div>
                               </div>
+                              
+                              <div className="flex gap-1 w-full px-[20px]">
                               <button
                                 onClick={() =>
                                   router.push(`/donationdrive-list`)
                                 }
-                                className="cursor-pointer h-[30px] mx-4 md:mx-[20px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
-                              >
-                                View More Donation Drives
+                                className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                >
+                                View more donation drives
                               </button>
+                              <button
+                                onClick={() => router.push(`/donationdrive-list/details?id=${donationDrive.donationDriveId}`)}
+                                className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                              >
+                              Donate
+                            </button>
+                            </div>
                             </div>
                           </div>
                         ) : (
@@ -897,22 +959,56 @@ export default function Home() {
                     {/* if newsletter is a scholarship */}
                     {newsLetter.category === "scholarship" &&
                       (() => {
-                        return (
+                        const scholarship = scholarships.find(
+                          (scholarship: Scholarship) => {
+                            return (
+                              scholarship.scholarshipId ===
+                              newsLetter.referenceId
+                            );
+                          }
+                        );
+
+                        return scholarship ? (
                           <div className="flex flex-col gap-[20px] px-4 md:px-[20px] mb-[20px]">
                             <p className="text-xl md:text-[24px] font-semibold">
-                              Scholarship
+                              {scholarship.title}
                             </p>
                             <CollapseText
-                              text="Details about the scholarship will go here."
-                              maxChars={300}
+                              text={scholarship.description}
+                              maxChars={500}
+                              className='text-justify'
                             />
+
+                              {scholarship.image === "" ? (
+                                ""
+                              ) : (
+                                <img
+                                  src={scholarship.image}
+                                  className="w-full"
+                                  alt="Donation drive"
+                                />
+                              )}
+
+
+                            <div className="flex gap-1">
                             <button
                               onClick={() => router.push(`/scholarship`)}
-                              className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
-                            >
-                              View More Scholarships
+                              className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                              >
+                              View more sponsorships
                             </button>
+                            <button
+                              onClick={() => router.push(`/scholarship/${scholarship.scholarshipId}`)}
+                              className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                            >
+                              Sponsor
+                            </button>
+                            </div>
                           </div>
+                        ) : (
+                          <p className="text-[12px] md:text-[14px] mx-4 md:mx-[20px] my-[10px] italic text-gray-500">
+                            Announcement not found
+                          </p>
                         );
                       })()}
 
@@ -1046,12 +1142,18 @@ export default function Home() {
                                     )}
                                   </>
 
-                                  <div className="px-4 md:px-[20px]">
+                                  <div className="px-4 md:px-[20px] flex gap-1">
                                     <button
                                       onClick={() => router.push(`/events`)}
-                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
+                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                      >
+                                      View more events
+                                    </button>
+                                    <button
+                                      onClick={() => router.push(`/events/${event.eventId}`)}
+                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
                                     >
-                                      View More Events
+                                      Accept Invite
                                     </button>
                                   </div>
                                 </div>
@@ -1244,9 +1346,8 @@ export default function Home() {
                   <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                     <div className="w-full">
                       <img
-                        src="/ICS2.jpg"
+                        src={events[currentEventIndex].image}
                         className="mb-[10px] h-[150px] w-full object-cover"
-                        alt="Event"
                       />
                       <div className="flex flex-col text-[15px]">
                         <p className="font-semibold">

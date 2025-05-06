@@ -5,6 +5,7 @@ import { Button } from "@mui/material";
 import { ArrowLeft, ChevronRight, Pencil, Plus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 
 export default function AddAnnouncement() {
   const {
@@ -24,6 +25,13 @@ export default function AddAnnouncement() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
+
+  // Set General Announcement as default if type is empty
+  useEffect(() => {
+    if (!type || type.length === 0) {
+      handleCheckbox("General Announcement");
+    }
+  }, []);
 
   useEffect(() => {
     const syncImagePreview = async () => {
@@ -56,16 +64,17 @@ export default function AddAnnouncement() {
     if (imageFile) {
       const localUrl = URL.createObjectURL(imageFile);
       setAnnounceImage(localUrl);
+    } else {
+      toastError(`Error uploading image`)
     }
     
     try {
       await handleSubmit(e);
       setImageFile(null);
       setImagePreview(null);
-      
       router.push("/admin-dashboard/manage-announcements");
     } catch (error) {
-      console.error("Error submitting announcement:", error);
+      toastError(`Error creating announcement.`);
     }
   };
 
@@ -95,7 +104,7 @@ export default function AddAnnouncement() {
         </div>
       </div>
 
-      <div className="w-full">
+      <div className="w-full py-1">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">
             Add an Announcement
@@ -123,13 +132,13 @@ export default function AddAnnouncement() {
               </div>
               
               {/* Description */}
-              <div className="space-y-2">
-                <input
+              <div className="space-y-10">
+                <textarea
                   id="description"
                   placeholder="Description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full border-none rounded-md focus:outline-none"
+                  className="w-full resize-y border-none rounded-md focus:outline-none"
                   required
                 />
               </div>
@@ -250,7 +259,7 @@ export default function AddAnnouncement() {
             </div>
 
             {/* Post and Cancel */}
-            <div className="bg-white rounded-2xl p-4 flex justify-end gap-2">
+            <div className=" fixed right-0 left-64 bottom-0 border-t border-x border-blue-700 bg-white rounded-t-2xl p-4 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => router.push("/admin-dashboard/manage-announcements")}
@@ -261,7 +270,7 @@ export default function AddAnnouncement() {
               <button
                 type="submit"
                 onClick={() => {
-                  alert("Announcement posted!");
+                  toastSuccess(`You have successfully created announcement.`);
                 }}
                 className="bg-blue-600 text-white px-8 py-2 rounded-full hover:bg-blue-700 transition"
               >

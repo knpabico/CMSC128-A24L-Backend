@@ -36,7 +36,7 @@ export default function ManageAnnouncements() {
     setAnnounceImage(null);
     setType([]);
     setIsEdit(false);
-    router.push("/admin-dashboard/add-announcement");
+    router.push("/admin-dashboard/announcements/add");
   };
 
   const handleEditClick = (announcement) => {
@@ -49,7 +49,7 @@ export default function ManageAnnouncements() {
     setShowDropdown(null);
     
     // Navigate to edit announcement page
-    router.push("/admin-dashboard/manage-announcements/edit-announcement");
+    router.push("/admin-dashboard/announcements/manage/edit");
   };
 
   const [showFullTitle, setShowFullTitle] = useState(false);
@@ -150,7 +150,7 @@ export default function ManageAnnouncements() {
                 <button 
                     type="button"
                     onClick={() => 
-                        {router.push("/admin-dashboard/add-announcement"); 
+                        {router.push("/admin-dashboard/announcements/add"); 
                         handleAddClick();}
                     }
                     className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
