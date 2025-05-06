@@ -14,6 +14,7 @@ import {
   updateDoc,
   QueryDocumentSnapshot,
   DocumentData,
+  getDocs
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -34,6 +35,9 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   const [myEducation, setEducation] = useState<Education[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user, isAdmin } = useAuth();
+  const [totalAlums, setTotalAlums] = useState<number>(0);
+  const [activeAlumsTotal, setActiveAlumsTotal] = useState<number>(0);
+
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -53,6 +57,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       setActiveAlums([]);
       setCareer([]);
       setLoading(false);
+      setTotalAlums(0);
     }
 
     return () => {
@@ -299,6 +304,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setAlums(userList);
+        console.log(userList.length, "total");
+        setTotalAlums(userList.length);
         setLoading(false);
       },
       (error) => {
@@ -325,6 +332,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setActiveAlums(activeUserList);
+        setActiveAlumsTotal(activeUserList.length);
         setLoading(false);
       },
       (error) => {
@@ -335,6 +343,28 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
 
     return unsubscribeActiveUsers;
   };
+
+  const getActiveAlums = (alums:Alumnus[]) =>{
+      if (!alums){
+        return 0;
+      }else{
+        const activeAlums = alums.filter((alum) => alum.activeStatus === true);
+        console.log(activeAlums, "this is activeAlums");
+        return activeAlums;
+      }
+  }
+  const getInactiveAlums = (alums:Alumnus[]) =>{
+    if (!alums){
+      return 0;
+    }else{
+      const inactiveAlums = alums.filter((alum) => alum.activeStatus === false);
+      console.log(activeAlums, "this is activeAlums");
+      return inactiveAlums;
+    }
+}
+
+
+
   return (
     <AlumContext.Provider
       value={{
@@ -349,6 +379,9 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         myEducation,
         updateAlumnus,
         emailNewsLettertoAlums,
+        totalAlums,
+        getActiveAlums,
+        getInactiveAlums
       }}
     >
       {children}

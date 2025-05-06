@@ -19,6 +19,7 @@ type DonationContextType = {
   userDonations: Donation[] | null;
   isLoading: boolean;
   error: string | null;
+  allDonations: Donation[] | null;
   getAllDonations: () => Promise<Donation[]>;
   getDonationsByAlumni: (alumniId: string) => Promise<Donation[]>;
   getDonationsByDonationDrive: (donationDriveId: string) => Promise<Donation[]>;
@@ -44,6 +45,9 @@ export const DonationContextProvider = ({
   >({});
 
   const { alumInfo, user, isAdmin } = useAuth();
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [allDonations, setAllDonations] = useState<Donation[] | null>(null);
+
 
   const alumniId = user?.uid;
 
@@ -53,6 +57,7 @@ export const DonationContextProvider = ({
     if (user || isAdmin) {
       unsubscribe = subscribeToDonations(); //maglilisten sa firestore
     } else {
+      
       setUserDonations([]);
       setIsLoading(false);
     }
@@ -63,6 +68,21 @@ export const DonationContextProvider = ({
       }
     };
   }, [user]);
+
+  useEffect(() => {
+    const fetchAllDonations = async () => {
+      if (!isAdmin) return;
+  
+      try {
+        const donations = await getAllDonations();
+        setAllDonations(donations);
+      } catch (err) {
+        console.error("Failed to load all donations:", err);
+      }
+    };
+  
+    fetchAllDonations();
+  }, [isAdmin]);
 
   const subscribeToDonations = () => {
     if (!alumniId) {
@@ -285,6 +305,7 @@ export const DonationContextProvider = ({
         getDonationsByDonationDrive,
         getCampaignName,
         updateDonationAnonymity,
+        allDonations
       }}
     >
       {children}
