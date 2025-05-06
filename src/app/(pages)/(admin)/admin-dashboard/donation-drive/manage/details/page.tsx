@@ -135,18 +135,18 @@ export default function AddDonationDrive() {
   };
 
 //Calculate Days Remaining
-const getRemainingDays = (endDate: any) => {
+  const getRemainingDays = (endDate: any) => {
     try {
-        const today = new Date(); // Current date
-        const end = endDate.toDate(); // Firestore Timestamp to JS Date
-        const diffTime = end.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const today = new Date(); // Current date
+      const end = new Date(endDate); // Firestore Timestamp to JS Date
+      const diffTime = end.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays <= 0) return "Expired";
-        else if (diffDays === 1) return "1 day left";
-        else return `${diffDays} days left`;
+      if (diffDays <= 0) return "Expired";
+      else if (diffDays === 1) return "1 day left";
+      else return `${diffDays} days left`;
     } catch (err) {
-        return 'Invalid Date';
+      return "Invalid Date";
     }
   };
 

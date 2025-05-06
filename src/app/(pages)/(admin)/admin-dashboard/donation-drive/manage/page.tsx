@@ -127,17 +127,18 @@ export default function ManageDonationDrive() {
     router.push(`manage/details?id=${id}`);
   };
 
-  const formatDate = (date: any) => {
-    if (!date) return "N/A";
-    const dateObj = typeof date === 'object' && date.toDate 
-      ? date.toDate() 
-      : new Date(date);
-      
-    return dateObj.toLocaleDateString("en-US", {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const formatDate = (timestamp: any) => {
+    try {
+      if (!timestamp) return "N/A";
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (err) {
+      return "Invalid Date";
+    }
   };
 
   // Fixed useEffect to prevent hanging when changing filters
