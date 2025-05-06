@@ -9,8 +9,9 @@ import Link from "next/link";
 import MapComponent from "./google-maps/map";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useAlums } from "@/context/AlumContext";
-import { Alumnus, WorkExperience,Event } from "@/models/models";
+import { Alumnus, WorkExperience,Event, Donation } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
+import { useDonationContext } from "@/context/DonationContext";
 
 
 const adminLinks = [
@@ -33,6 +34,8 @@ export default function AdminDashboard() {
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
   const {totalAlums,alums, getActiveAlums, getInactiveAlums} = useAlums();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
+  const { allDonations } = useDonationContext();
+
   const fields = [
     "Artificial Intelligence (AI)",
     "Machine Learning (ML)",
@@ -253,6 +256,16 @@ export default function AdminDashboard() {
                 - Name of donator
                 - name of donation drive? basta kung san siya nagdonate lmao
               */}
+             {allDonations.map((donation:Donation, index:number)=>{
+              return (
+                <div key={donation.donationId}>
+                <div>
+                  <span>Event: {donation.amount}</span>
+                </div>
+                <span>Status: {event.status}</span>
+                </div>
+              )
+            })}               
             </div>
           </CardContent>
           <div className="px-2 pt-0">
