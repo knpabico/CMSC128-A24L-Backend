@@ -10,6 +10,7 @@ import { useFeatured } from "@/context/FeaturedStoryContext";
 import CollapseText from "@/components/CollapseText";
 import { useRouter } from "next/navigation";
 import AnnouncementsSidebar from "./sidebar";
+import { useBookmarks } from "@/context/BookmarkContext";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -22,7 +23,7 @@ const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Announcements() {
   const { announces, isLoading } = useAnnouncement();
-
+  const { bookmarks } = useBookmarks();
   const [currentPage, setCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string>("");
@@ -49,9 +50,8 @@ export default function Announcements() {
   if (activeFilter === "Saved") {
     // For "Saved" filter - implementation depends on how you track saved items
     // This is a placeholder - modify based on your saved items tracking system
-    const savedIds = localStorage.getItem("savedAnnouncements")?.split(",") || [];
-    filteredAnnounces = filteredAnnounces.filter(announcement => 
-      savedIds.includes(announcement.announcementId)
+    filteredAnnounces = announces.filter((announce: Announcement) =>
+      bookmarks.some((bookmark) => bookmark.entryId === announce.announcementId)
     );
   } else if (activeFilter) {
     filteredAnnounces = filteredAnnounces.filter((announcement) =>
@@ -141,7 +141,7 @@ export default function Announcements() {
                           </div>
                         </div>
                         
-                        <p className="text-gray-400 text-sm mb-[20px]">{formatDate(user.datePosted)}</p>
+                        <p className="text-gray-400 text-sm mb-[20px]">{user.datePosted.toDateString()}</p>
                         <p>{user.description.slice(0, 500)} </p>
                         <div className="flex gap-2 my-6 mt-10 place-self-center items-center">
                           <span className="text-sm font-medium">Tags:</span>

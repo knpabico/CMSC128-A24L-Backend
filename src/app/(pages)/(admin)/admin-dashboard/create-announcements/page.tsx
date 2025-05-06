@@ -43,6 +43,12 @@ export default function Users() {
     setShowForm(false);
   };
 
+  function formatDate(timestamp: any) {
+    if (!timestamp || !timestamp.seconds) return "Invalid Date";
+    const date = new Date(timestamp.seconds * 1000);
+    return date.toISOString().split("T")[0];
+  }
+
   return (
     <div className="p-8">
       {/* Top Header Row */}
@@ -87,7 +93,7 @@ export default function Users() {
         >
           <div className="flex-1 pr-4">
             <p className="text-sm text-gray-500 mb-1">
-              Date Posted: {announcement.datePosted.toDate().toLocaleString()}
+              Date Posted: {announcement.datePosted.toDateString()}
             </p>
             <h2 className="text-lg font-semibold mb-2">{announcement.title}</h2>
             <CollapseText
