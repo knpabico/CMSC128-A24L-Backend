@@ -79,7 +79,7 @@ export function WorkExperienceProvider({
       const startB =
         b.startYear === "present" ? currentYear : parseInt(b.startYear);
 
-      return startA - startB;
+      return startB - startA;
     });
     // Log the sorted list to the console
     console.log("Sorted Work Experience List:", sortedList);

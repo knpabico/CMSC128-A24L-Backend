@@ -7,7 +7,7 @@ import { useEducation } from "@/context/EducationContext";
 import AlumnusUploadPic from "./upload-profile/page";
 import Image from "next/image";
 import { Alumnus } from "@/models/models";
-
+import BookmarkButton from "@/components/ui/bookmark-button";
 
 import {
   Button,
@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon, CalendarClockIcon, CalendarDaysIcon, HandHeartIcon, LibraryBigIcon, SchoolIcon, Rows3Icon } from "lucide-react";
+import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon, CalendarDaysIcon, HandHeartIcon, LibraryBigIcon, SchoolIcon, Rows3Icon, ArrowRightToLineIcon, ArrowRightIcon, FileUserIcon } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "@/components/ui/edit-experience-modal"
@@ -36,10 +36,19 @@ import AddWorkExperience from "@/components/ui/add-experience-modal";
 import AlumniJobOffers from "@/components/ui/job-posting-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { useAlums } from "@/context/AlumContext";
-import { PlusCircleIcon, CircleUserRoundIcon, GraduationCapIcon, BriefcaseIcon } from "lucide-react";
+import { PlusCircleIcon, CircleUserRoundIcon, GraduationCapIcon, BriefcaseIcon, MegaphoneIcon } from "lucide-react";
 import { Bookmark } from "@/models/models";
 import { useBookmarks } from "@/context/BookmarkContext";
-import { number } from "zod";
+import { Announcement } from "@/models/models";
+import { useAnnouncement } from "@/context/AnnouncementContext";
+import { DonationDrive } from '@/models/models';
+import { useDonationDrives } from '@/context/DonationDriveContext';
+import { Event } from "@/models/models";
+import { useEvents } from "@/context/EventContext";
+import { Scholarship } from "@/models/models";
+import { useScholarship } from "@/context/ScholarshipContext";
+import { JobOffering } from "@/models/models";
+import { useJobOffer } from "@/context/JobOfferContext";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -78,17 +87,19 @@ const UserProfile = () => {
   const [showUploader, setShowUploader] = useState(false);
 
   //Edit the personal field information
+  const [privacy, setPrivacy] = useState(alumInfo?.contactPrivacy);
   const [email, setEmail] = useState(alumInfo?.email || "");
   const [firstName, setFirstName] = useState(alumInfo?.firstName || "");
   const [lastName, setLastName] = useState(alumInfo?.lastName || "");
   const [middleName, setMiddleName] = useState(alumInfo?.middleName || "");
   const [suffix,setSuffix] = useState(alumInfo?.suffix || "");
   const [studentNumber,setStudentNumber] = useState(alumInfo?.studentNumber || "");
-  const [city,setCity] = useState(alumInfo?.address[2] || "");
-  const [province,setProvince] = useState(alumInfo?.address[1] || "");
+  const [city,setCity] = useState(alumInfo?.address[1] || "");
+  const [province,setProvince] = useState(alumInfo?.address[2] || "");
   const [country,setCountry] = useState(alumInfo?.address[0] || "");
 
   //for birthday
+  const [birthday, setBirthday] = useState(alumInfo?.birthDate.toString() || "");
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -103,11 +114,11 @@ const UserProfile = () => {
 
   //for bookmarks
   const [allView, setAllView]= useState(false);
+  const [announcementsView, setAnnouncementsView]= useState(false);
   const [eventsView, setEventsView]= useState(false);
   const [drivesView, setDrivesView]= useState(false);
   const [scholarshipsView, setScholarshipsView]= useState(false);
-
-
+  const [jobsView, setJobsView]= useState(false);
   const { bookmarks } = useBookmarks();
   if (!bookmarks) {
       return (
@@ -116,6 +127,23 @@ const UserProfile = () => {
           </div>
       );
   }
+  const { announces } = useAnnouncement();
+  const { donationDrives } = useDonationDrives();
+  const { events } = useEvents();
+  const { scholarships } = useScholarship();
+  const { jobOffers } = useJobOffer();
+
+  // const SORT_TAGS = ["Earliest", "Latest"];
+  // const [latestFirst, setLatestFirst] = useState(true);
+  // const [selectedSort, setSelectedSort] = useState("Latest");
+  // // Sort announcements by date
+  // let filteredAnnounces = [...announces].sort((Button, b) => {
+  //   const dateA = Button.datePosted.seconds;
+  //   const dateB = b.datePosted.seconds;
+  //   return latestFirst ? dateB - dateA : dateA - dateB;
+  // });
+
+
 
   useEffect(() => {
     if (alumInfo) {
@@ -124,10 +152,12 @@ const UserProfile = () => {
       setLastName(alumInfo.lastName || "");
       setSuffix(alumInfo.suffix || "");
       setEmail(alumInfo.email || "");
+      setPrivacy(alumInfo.contactPrivacy);
       setStudentNumber(alumInfo.studentNumber || "");
-      setCity(alumInfo.address?.[2] || "");
-      setProvince(alumInfo.address?.[1] || "");
+      setCity(alumInfo.address?.[1] || "");
+      setProvince(alumInfo.address?.[2] || "");
       setCountry(alumInfo.address?.[0] || "");
+      setBirthday(alumInfo.birthDate.toString());
   
       // For birthday (parse and split to day, month, year)
       if (alumInfo.birthDate) {
@@ -186,6 +216,31 @@ const UserProfile = () => {
     };
 
 
+  //function for calculating age (year only) based from birthdate
+  const calculateAge = (birthDate: Date) => {
+    //current date
+    const current_date = new Date();
+    const current_day = current_date.getDate();
+    const current_month = current_date.getMonth();
+    const current_year = current_date.getFullYear();
+
+    //birthDate
+    const day = birthDate.getDate();
+    const month = birthDate.getMonth();
+    const year = birthDate.getFullYear();
+
+    //student number
+
+    let age = current_year - year;
+    //if current day < day or current month < month
+    if ((current_month === month && current_day < day) || current_month < month) {
+      age = age - 1; //subtract 1 from age
+    }
+
+    return age;
+  };
+  const age = calculateAge(new Date(alumInfo.birthDate));
+
   //function when save changes was clicked
   const handleTheSaveChages = () => {
     // let updatedAlumnus = {
@@ -207,9 +262,9 @@ const UserProfile = () => {
       suffix,
       email,
       studentNumber,
-      [country, province, city],
-      new Date(`${month} ${day}, ${year}`),
-      selectedFields
+      [country, city, province],
+      selectedFields,
+      privacy
     );
     // console.log(updatedAlumnus);
   }
@@ -296,9 +351,11 @@ const UserProfile = () => {
     setCareerView(false);
 
     setAllView(true);
+    setAnnouncementsView(false);
     setEventsView(false);
     setDrivesView(false);
     setScholarshipsView(false);
+    setJobsView(false);
   }
 
   //------- BOOKMARKS -------
@@ -312,9 +369,27 @@ const UserProfile = () => {
     setCareerView(false);
     
     setAllView(true);
+    setAnnouncementsView(false);
     setEventsView(false);
     setDrivesView(false);
     setScholarshipsView(false);
+    setJobsView(false);
+  }
+  const handleAnnouncementsViewClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+    
+    setAllView(false);
+    setAnnouncementsView(true);
+    setEventsView(false);
+    setDrivesView(false);
+    setScholarshipsView(false);
+    setJobsView(false);
   }
   const handleEventsViewClick =() => {
     setSeeProfile(false);
@@ -326,9 +401,11 @@ const UserProfile = () => {
     setCareerView(false);
     
     setAllView(false);
+    setAnnouncementsView(false);
     setEventsView(true);
     setDrivesView(false);
     setScholarshipsView(false);
+    setJobsView(false);
   }
   const handleDrivesViewClick =() => {
     setSeeProfile(false);
@@ -340,9 +417,11 @@ const UserProfile = () => {
     setCareerView(false);
     
     setAllView(false);
+    setAnnouncementsView(false);
     setEventsView(false);
     setDrivesView(true);
     setScholarshipsView(false);
+    setJobsView(false);
   }
   const handleScholarshipsViewClick =() => {
     setSeeProfile(false);
@@ -354,18 +433,92 @@ const UserProfile = () => {
     setCareerView(false);
     
     setAllView(false);
+    setAnnouncementsView(false);
     setEventsView(false);
     setDrivesView(false);
     setScholarshipsView(true);
+    setJobsView(false);
+  }
+  const handleJobsViewClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+    
+    setAllView(false);
+    setAnnouncementsView(false);
+    setEventsView(false);
+    setDrivesView(false);
+    setScholarshipsView(false);
+    setJobsView(true);
   }
   //-------------------------
 
+  // function formatDate(timestamp: any) {
+  //   if (!timestamp || !timestamp.seconds) return "Invalid Date";
+  //   const date = new Date(timestamp.seconds * 1000);
+  //   return date.toISOString().split("T")[0];
+  // }
+  function formatDate(timestamp: any): string {
+    if (!timestamp) return "Invalid Date";
+  
+    let date: Date;
+  
+    if (timestamp instanceof Date) {
+      date = timestamp;
+    } else if (timestamp.seconds) {
+      date = new Date(timestamp.seconds * 1000);
+    } else if (typeof timestamp.toDate === "function") {
+      date = timestamp.toDate();
+    } else {
+      return "Invalid Date";
+    }
+  
+    return date.toISOString().split("T")[0];
+  }
 
+  const [sortOrder, setSortOrder] = useState("latest");
+  const getBookmarkDetails = (bookmark:Bookmark) => {
+    if (bookmark.type.toString() === "announcement") {
+      return announces.find((a:Announcement) => a.announcementId === bookmark.entryId);
+    }
+    if (bookmark.type.toString() === "event") {
+      return events.find((e:Event) => e.eventId === bookmark.entryId);
+    }
+    if (bookmark.type.toString() === "donation_drive") {
+      return donationDrives.find((d:DonationDrive) => d.donationDriveId === bookmark.entryId);
+    }
+    if (bookmark.type.toString() === "scholarship") {
+      return scholarships.find((s:Scholarship) => s.scholarshipId === bookmark.entryId);
+    }
+    return null;
+  };
+  const sortedBookmarks = [...bookmarks].sort((a, b) => {
+    const aDetails = getBookmarkDetails(a);
+    const bDetails = getBookmarkDetails(b);
+    const aDate = new Date(aDetails?.datePosted || 0).getTime();
+    const bDate = new Date(bDetails?.datePosted || 0).getTime();
+    return sortOrder === "latest" ? bDate - aDate : aDate - bDate;
+  });
+  console.log(sortedBookmarks)
+
+  function formatEventDate(dateString: string) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
   //===========================
 
 
   //upload Image
   const handleUploadImage =() => {
+    document.body.style.overflow = 'hidden';
     console.log("Hello");
     if (uploading){
       setUploading(false);
@@ -382,7 +535,7 @@ const UserProfile = () => {
     setAddMasters(false);
     setAddDoctoral(false);
     console.log("@ Bachelor");
-    setDegreeType("Bachelor");
+    setDegreeType("bachelors");
     setAddBachelor(true);
   }
 
@@ -390,7 +543,7 @@ const UserProfile = () => {
     document.body.style.overflow = 'hidden';
     setAddDoctoral(false);
     setAddBachelor(false);
-    setDegreeType("Masters");
+    setDegreeType("masters");
     setAddMasters(true);
   };
   
@@ -398,7 +551,7 @@ const UserProfile = () => {
     document.body.style.overflow = 'hidden';
     setAddMasters(false);
     setAddBachelor(false);
-    setDegreeType("Doctoral");
+    setDegreeType("doctoral");
     setAddDoctoral(true);
   };
 
@@ -472,7 +625,7 @@ const UserProfile = () => {
 
 
   const currentWorkExperience = userWorkExperience.filter(
-    (item: WorkExperience) => item.endYear === "Present"
+    (item: WorkExperience) => item.endYear === "present"
   );
 
 
@@ -490,27 +643,32 @@ const UserProfile = () => {
   const selectedYear = selectedDate.getFullYear();
   //---------------------------
 
+
+
   return (
     <div>
       <div style={{backgroundColor: "#3675c5"}} className="relative bg-cover bg-center pt-15 px-50 text-white shadow-md">
         <div className="flex space-x-10 pb-5">
-          <div className="bg-blue-300 w-50 h-50 flex justify-center items-center mb-2 rounded-full" onClick={handleUploadImage}>
+          <div className="relative group bg-gray-200 w-50 h-50 flex justify-center items-center mb-2 rounded-full cursor-pointer border-5 border-white" onClick={handleUploadImage}>
             {alumInfo?.image ? (
-            <Image
-              src={alumInfo.image}
-              alt="Alumnus Image"
-              width={0}
-              height={0}
-              sizes="100vw"
-              className="object-cover w-full h-full rounded-full"
-            />
-          ) : (
-            <span className="text-white">pic</span>
-          )}
+              <Image
+                src={alumInfo.image}
+                alt="Alumnus Image"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="object-cover w-full h-full rounded-full"
+              />
+            ) : (
+              <span className="text-white"></span>
+            )}
+            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-50 transition-opacity duration-300 rounded-full flex items-center justify-center">
+              <PencilIcon/>
+            </div>
           </div>
           <div className="flex flex-col justify-end pb-10">
             <p className="font-bold text-5xl pb-3">{alumInfo?.firstName} {alumInfo?.lastName}</p>
-            {userWorkExperience.filter((item: WorkExperience) => item.endYear === "Present")
+            {userWorkExperience.filter((item: WorkExperience) => item.endYear === "present")
               .map((item: WorkExperience, index: number) => (
                 <div key={index} className="work-experience-item">
                   <p className="font-semibold text-xl">{item.jobTitle}</p>
@@ -531,7 +689,7 @@ const UserProfile = () => {
           </div>
           <div className={`${seeJobpostings ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeJobpostings ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
-              onClick={handleJobpostingClick}>Job Postings</button>
+              onClick={handleJobpostingClick}>Job Posts</button>
           </div>
           <div className={`${seeBookmarks ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeBookmarks ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
@@ -617,89 +775,67 @@ const UserProfile = () => {
               {/* EMAIL ADDRESS */}
               <div className="flex space-x-7 mb-7">
                 <div>
-                  <p className="font-semibold">Email Address</p>
-                  <div className="flex">
-                  <input
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                    disabled
-                  />
+                  <div>
+                    <p className="font-semibold">Email Address</p>
+                    <div className="flex">
+                    <input
+                      type="text"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                      disabled
+                    />
+                    </div>
+                  </div>
+                  <div className="flex items-center pt-1">
+                    <input
+                      type="checkbox"
+                      id="privacy"
+                      checked={privacy}
+                      onChange={(e) => setPrivacy(!privacy)}
+                    />
+                    <label htmlFor="privacy" className="ml-2 text-gray-700 text-xs">
+                      Make visible to other alumni
+                    </label>
                   </div>
                 </div>
 
                 <div>
-                  <p className="font-semibold">Student Number</p>
+                  <p className="font-semibold">Birthday <span className="font-light">(YYYY/MM/DD)</span></p>
                   <div className="flex">
-                  <input
-                    type="text"
-                    value={studentNumber}
-                    onChange={(e) => setStudentNumber(e.target.value)}
-                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
-                    disabled
-                  />
+                    <input
+                      type="text"
+                      value={birthday}
+                      className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="font-semibold">Current Age</p>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      value={age}
+                      className="bg-gray-200 py-2 px-4 border border-gray-500 w-full text-gray-500 rounded-md"
+                      disabled
+                    />
                   </div>
                 </div>
               </div>
 
-              {/* BIRTHDAY */}
-              <p className="font-semibold">Birthday</p>
-              <div className="flex space-x-7 mb-7">
-                <div className="relative">
-                  <p className="text-xs font-light">Month</p>
-                  <div className="relative">
-                    <select
-                      value={month}
-                      onChange={(e) => setMonth(e.target.value)}
-                      className="appearance-none py-2 px-4 pr-10 border border-gray-500 rounded-md w-full text-gray-700"
-                    >
-                      <option value="">Month</option>
-                      {months.map((m, i) => (
-                        <option key={i} value={i + 1}>{m}</option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <ChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-                <div className="relative">
-                  <p className="text-xs font-light">Day</p>
-                  <div className="relative">
-                    <select
-                    value={day}
-                    onChange={(e) => setDay(e.target.value)}
-                    className="appearance-none py-2 px-4 border pr-10 border-gray-500 rounded-md w-full text-gray-700"
-                    >
-                      <option value="">Day</option>
-                      {days.map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <ChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-                <div className="relative">
-                  <p className="text-xs font-light">Year</p>
-                  <div className="relative">
-                    <select
-                      value={year}
-                      onChange={(e) => setYear(e.target.value)}
-                      className="appearance-none py-2 px-4 pr-10 border border-gray-500 rounded-md w-full text-gray-700"
-                    >
-                      <option value="">Year</option>
-                      {years.map((y) => (
-                        <option key={y} value={y}>{y}</option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <ChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                  
+              {/* STUDENT NUMBER */}
+              <div className="space-x-7 mb-7">
+                <p className="font-semibold">Student Number</p>
+                <div className="flex">
+                  <input
+                    type="text"
+                    value={studentNumber}
+                    onChange={(e) => setStudentNumber(e.target.value)}
+                    className="bg-gray-200 py-2 px-4 border border-gray-500 w-57 text-gray-500 rounded-md"
+                    disabled
+                  />
                 </div>
               </div>
 
@@ -808,7 +944,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Bachelor").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "bachelors").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#b9e5fe]"></div>
@@ -847,7 +983,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#00bcfc]"></div>
@@ -887,7 +1023,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#0282d2]"></div>
@@ -1124,12 +1260,17 @@ const UserProfile = () => {
 
       {seeDonations && <RecordOfDonations/>}
 
+      {seeJobpostings && <AlumniJobOffers/>}
+
       {seeBookmarks && (<div className="mx-50 my-15">
         <div className="flex space-x-7">
 
           <div className='bg-[#3675c5] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
             <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${allView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleAllViewClick}>
               <span><Rows3Icon/></span><span>All</span>
+            </button>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${announcementsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleAnnouncementsViewClick}>
+              <span><MegaphoneIcon/></span><span>Announcements</span>
             </button>
             <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${eventsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleEventsViewClick}>
               <span><CalendarDaysIcon/></span><span>Events</span>
@@ -1140,26 +1281,501 @@ const UserProfile = () => {
             <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${scholarshipsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleScholarshipsViewClick}>
               <span><SchoolIcon/></span><span>Scholarships</span>
             </button>
+            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${jobsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleJobsViewClick}>
+              <span><BriefcaseIcon/></span><span>Job Posts</span>
+            </button>
+
+            {/* <div className="flex space-x-2 mb-4">
+              <button
+                onClick={() => setSortOrder("latest")}
+                className={`px-3 py-1 rounded text-sm ${
+                  sortOrder === "latest" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                Latest
+              </button>
+              <button
+                onClick={() => setSortOrder("earliest")}
+                className={`px-3 py-1 rounded text-sm ${
+                  sortOrder === "earliest" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                Earliest
+              </button>
+            </div> */}
           </div>
+
+          
 
           {/* INFO BOX */}
 
-          {/* personal section */}
-          {allView && (<div>
-            <div className="bg-white flex flex-col p-7 rounded-xl max-h-fit space-y-1 w-full shadow-md">
-              <div className="w-full">
-                  <h1> Your Bookmarks</h1>
-                  {bookmarks.length > 0 ? (
-                      bookmarks.map((bookmark: Bookmark, index:number) => (
-                          <div key={index} className="bg-gray-100">
-                              <p>Entry Id: {bookmark.entryId}</p>
-                              <p>Type: {bookmark.type.toString()}</p>
+          {/* all section */}
+          {allView && (<div className="w-full">
+            <div className="flex flex-col gap-5 w-full">
+              {bookmarks.length > 0 ? (
+                bookmarks.map((bookmark: Bookmark, index:number) => (
+                    <button key={index} 
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
+                    // onClick={}
+                    >
+                      {bookmark.type.toString() === "announcement" ? (
+                        [...announces]
+                        .filter((ann: Announcement) => ann.announcementId === bookmark.entryId)
+                        .map((ann: Announcement, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><MegaphoneIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {ann.image && (
+                                    <Image
+                                      src={ann.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{ann.title}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={ann.announcementId}  
+                                type="announcement" 
+                                size="lg"
+                              />
+                            </div>
                           </div>
-                      ))
-                  ) : (
-                      <div>No donations found.</div>
-                  )}
-              </div>
+                        ))
+                      ) : bookmark.type.toString() === "event" ? (
+                        [...events]
+                        .filter((eve : Event) => eve.eventId === bookmark.entryId)
+                        .map((eve : Event, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><CalendarDaysIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {eve.image && (
+                                    <Image
+                                      src={eve.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{eve.title}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={eve.eventId}  
+                                type="event" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      ) : bookmark.type.toString() === "donation_drive" ? (
+                        donationDrives
+                        .filter((don : DonationDrive) => don.donationDriveId === bookmark.entryId)
+                        .map((don : DonationDrive, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><HandHeartIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {don.image && (
+                                    <Image
+                                      src={don.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{don.campaignName}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={don.donationDriveId}  
+                                type="donation_drive" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      ) : bookmark.type.toString() === "scholarship" ? (
+                        [...scholarships]
+                        .filter((scho: Scholarship) => scho.scholarshipId === bookmark.entryId)
+                        .map((scho: Scholarship, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><SchoolIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {scho.image && (
+                                    <Image
+                                      src={scho.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{scho.title}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={scho.scholarshipId}  
+                                type="scholarship" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      ) : bookmark.type.toString() === "job_offering" ? (
+                        [...jobOffers]
+                        .filter((job: JobOffering) => job.jobId === bookmark.entryId)
+                        .map((job: JobOffering, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><BriefcaseIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {job.image && (
+                                    <Image
+                                      src={job.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{job.position}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={job.jobId}  
+                                type="job_offering" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      ) : (<div></div>)}
+                    </button>
+                ))
+              ) : (
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No bookmarks found.</p>
+                  </div>
+              )}
+            </div>
+          </div>)}
+
+          {announcementsView && (<div className="w-full">
+            <div className="flex flex-col gap-5 w-full">
+              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "announcement").length > 0 ? (
+                bookmarks
+                .filter(bookmark => bookmark.type.toString() === "announcement")
+                .map((bookmark: Bookmark, index:number) => (
+                    <button key={index} 
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
+                    // onClick={}
+                    >
+                      {([...announces]
+                        .filter((ann: Announcement) => ann.announcementId === bookmark.entryId)
+                        .map((ann: Announcement, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><MegaphoneIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {ann.image && (
+                                    <Image
+                                      src={ann.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{ann.title}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={ann.announcementId}  
+                                type="announcement" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </button>
+                ))
+              ) : (
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No announcement bookmarks found.</p>
+                  </div>
+              )}
+            </div>
+          </div>)}
+
+          {eventsView && (<div className="w-full">
+            <div className="flex flex-col gap-5 w-full">
+              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "event").length > 0 ? (
+                bookmarks
+                .filter(bookmark => bookmark.type.toString() === "event")
+                .map((bookmark: Bookmark, index:number) => (
+                    <button key={index} 
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
+                    // onClick={}
+                    >
+                      {([...events]
+                        .filter((eve : Event) => eve.eventId === bookmark.entryId)
+                        .map((eve : Event, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><CalendarDaysIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {eve.image && (
+                                    <Image
+                                      src={eve.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{eve.title}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={eve.eventId}  
+                                type="event" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </button>
+                ))
+              ) : (
+                <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                  <p className="text-gray-700">No event bookmarks found.</p>
+                </div>
+              )}
+            </div>
+          </div>)}
+
+          {drivesView && (<div className="w-full">
+            <div className="flex flex-col gap-5 w-full">
+              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "donation_drive").length > 0 ? (
+                bookmarks
+                .filter(bookmark => bookmark.type.toString() === "donation_drive")
+                .map((bookmark: Bookmark, index:number) => (
+                    <button key={index} 
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
+                    // onClick={}
+                    >
+                      {(donationDrives
+                        .filter((don : DonationDrive) => don.donationDriveId === bookmark.entryId)
+                        .map((don : DonationDrive, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><HandHeartIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {don.image && (
+                                    <Image
+                                      src={don.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{don.campaignName}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={don.donationDriveId}  
+                                type="donation_drive" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </button>
+                ))
+              ) : (
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No donation drive bookmarks found.</p>
+                  </div>
+              )}
+            </div>
+          </div>)}
+
+          {scholarshipsView && (<div className="w-full">
+            <div className="flex flex-col gap-5 w-full">
+              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "scholarship").length > 0 ? (
+                bookmarks
+                .filter(bookmark => bookmark.type.toString() === "scholarship")
+                .map((bookmark: Bookmark, index:number) => (
+                    <button key={index} 
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
+                    // onClick={}
+                    >
+                      {([...scholarships]
+                        .filter((scho: Scholarship) => scho.scholarshipId === bookmark.entryId)
+                        .map((scho: Scholarship, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><SchoolIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {scho.image && (
+                                    <Image
+                                      src={scho.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{scho.title}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={scho.scholarshipId}  
+                                type="scholarship" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </button>
+                ))
+              ) : (
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No scholarship bookmarks found.</p>
+                  </div>
+              )}
+            </div>
+          </div>)}
+
+          {jobsView && (<div className="w-full">
+            <div className="flex flex-col gap-5 w-full">
+              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "job_offering").length > 0 ? (
+                bookmarks
+                .filter(bookmark => bookmark.type.toString() === "job_offering")
+                .map((bookmark: Bookmark, index:number) => (
+                    <button key={index} 
+                    className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
+                    // onClick={}
+                    >
+                      {([...jobOffers]
+                        .filter((job: JobOffering) => job.jobId === bookmark.entryId)
+                        .map((job: JobOffering, i:number) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex space-x-8 items-center">
+                              <p className="flex font-bold"><BriefcaseIcon/></p>
+                              <div className="flex space-x-3 items-center">
+                                <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {job.image && (
+                                    <Image
+                                      src={job.image}
+                                      alt="Alumnus Image"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-start">
+                                  <p className="font-bold pt-2 text-left">{job.position}</p>
+                                  <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-0 top-5">
+                              <BookmarkButton 
+                                entryId={job.jobId}  
+                                type="job_offering" 
+                                size="lg"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </button>
+                ))
+              ) : (
+                  <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                    <p className="text-gray-700">No job post bookmarks found.</p>
+                  </div>
+              )}
             </div>
           </div>)}
 
@@ -1169,11 +1785,9 @@ const UserProfile = () => {
         </div>
       </div>)}
 
-      {seeJobpostings && <AlumniJobOffers/>}
 
 
-
-      {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => setUploading(false)}/>}
+      {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => {setUploading(false); document.body.style.overflow = 'auto';}}/>}
 
     </div>
   );

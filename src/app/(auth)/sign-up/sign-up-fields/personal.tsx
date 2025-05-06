@@ -49,26 +49,6 @@ export const Personal = ({ form }: { form: any }) => {
       <div className="space-y-2">
         <p className="text-sm font-semibold">Current Home Address</p>
         <div className="grid grid-cols-12 gap-x-4 gap-y-3">
-          {/* country */}
-          <div className="col-span-6">
-            <FormField
-              control={form.control}
-              name="address.0"
-              render={({ field }) => (
-                <FormItem className="gap-0">
-                  <FormLabel className="text-xs font-light">Country*</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Philippines"
-                      {...field}
-                      className="bg-white border border-gray-500"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
           {/* city/municipality */}
           <div className="col-span-6">
             <FormField
@@ -104,6 +84,26 @@ export const Personal = ({ form }: { form: any }) => {
                   <FormControl>
                     <Input
                       placeholder="Laguna"
+                      {...field}
+                      className="bg-white border border-gray-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          {/* country */}
+          <div className="col-span-6">
+            <FormField
+              control={form.control}
+              name="address.0"
+              render={({ field }) => (
+                <FormItem className="gap-0">
+                  <FormLabel className="text-xs font-light">Country*</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Philippines"
                       {...field}
                       className="bg-white border border-gray-500"
                     />
