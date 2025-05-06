@@ -14,6 +14,8 @@ import {
   NewsletterItem,
   WorkExperience,
   Event,
+  Donation,
+  DonationDrive,
 } from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -747,7 +749,7 @@ export default function Home() {
                     {newsLetter.category === "donation_drive" &&
                       (() => {
                         const donationDrive = donationDrives.find(
-                          (donation: Donation) => {
+                          (donation: DonationDrive) => {
                             return (
                               donation.donationDriveId ===
                               newsLetter.referenceId
@@ -787,14 +789,12 @@ export default function Home() {
                                     <div className="flex gap-2 items-center">
                                       <Users className="size-4 text-[#616161]" />
                                       <span className="text-[13px] md:text-[15px] text-gray-500">
-                                        {donationDrives[currentDonationIndex]
-                                          .donorList?.length || 0}{" "}
+                                        {donationDrive.donorList?.length || 0}{" "}
                                         Patrons
                                       </span>
                                     </div>
                                     {getDaysRemaining(
-                                      donationDrives[currentDonationIndex]
-                                        .endDate
+                                      donationDrive.endDate
                                     ) === "Not Available" ? (
                                       ""
                                     ) : (
@@ -802,8 +802,7 @@ export default function Home() {
                                         <Clock className="size-4 text-[#616161]" />
                                         <span className="text-[13px] md:text-[15px] text-gray-500">
                                           {getDaysRemaining(
-                                            donationDrives[currentDonationIndex]
-                                              .endDate
+                                            donationDrive.endDate
                                           )}
                                         </span>
                                       </div>
@@ -812,18 +811,13 @@ export default function Home() {
 
                                   {/* progress bar */}
                                   <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                                    {donationDrives[currentDonationIndex]
-                                      .currentAmount === 0 ? (
+                                    {donationDrive.currentAmount === 0 ? (
                                       <div
                                         className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full"
                                         style={{
                                           width: `${Math.min(
-                                            ((donationDrives[
-                                              currentDonationIndex
-                                            ].currentAmount || 0) /
-                                              donationDrives[
-                                                currentDonationIndex
-                                              ].targetAmount) *
+                                            ((donationDrive.currentAmount || 0) /
+                                            donationDrive.targetAmount) *
                                               100,
                                             100
                                           )}%`,
@@ -834,12 +828,8 @@ export default function Home() {
                                         className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
                                         style={{
                                           width: `${Math.min(
-                                            ((donationDrives[
-                                              currentDonationIndex
-                                            ].currentAmount || 0) /
-                                              donationDrives[
-                                                currentDonationIndex
-                                              ].targetAmount) *
+                                            ((donationDrive.currentAmount || 0) /
+                                            donationDrive.targetAmount) *
                                               100,
                                             100
                                           )}%`,
@@ -852,14 +842,12 @@ export default function Home() {
                                     <span className="font-medium">
                                       ₱{" "}
                                       {
-                                        donationDrives[currentDonationIndex]
-                                          .currentAmount
+                                        donationDrive.currentAmount
                                       }
                                     </span>
                                     <span className="text-gray-500">
                                       of ₱{" "}
-                                      {donationDrives[currentDonationIndex]
-                                        .targetAmount || 0}
+                                      {donationDrive.targetAmount || 0}
                                     </span>
                                   </div>
                                 </div>
