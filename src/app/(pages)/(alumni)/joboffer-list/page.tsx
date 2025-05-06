@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Bookmark } from "@/models/models";
-import { useBookmarks } from "@/context/BookmarkContext";
-import { Card, CardContent } from "@/components/ui/card";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
 import {
@@ -1237,7 +1236,15 @@ export default function JobOffers() {
                 </button>
                 <button
                   type="submit"
-                  onClick={handleSubmit}
+                  onClick={async (e) => {
+                  try {
+                    await handleSubmit(e);
+                    toastSuccess("Job submitted successfully");
+                    setShowForm(false);
+                  } catch (error) {
+                    toastError("There was an error submitting the job. Please try again.");
+                  }
+                  }}
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                 >
                   Submit

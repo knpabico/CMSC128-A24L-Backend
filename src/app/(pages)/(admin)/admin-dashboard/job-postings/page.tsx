@@ -5,6 +5,7 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import {
   ChevronRight,
   Trash2,
@@ -357,11 +358,16 @@ export default function Users() {
         <div className="flex flex-col gap-3">
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
             <form
-              onSubmit={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                handleSubmit(e);
-                goBackToList(); // navigates back to the manage job postings page
-              }}
+                try {
+                  await handleSubmit(e);
+                  toastSuccess("Job submitted successfully");
+                  goBackToList();
+                } catch (error) {
+                  toastError("There was an error submitting the job. Please try again.");
+                }
+                }}
             >
               <div className="grid grid-cols-2 gap-6 mt-1">
                 {/* Left Column ng form */}
