@@ -221,6 +221,10 @@ export default function ManageDonationDrive() {
 	const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 	const [selectedDonationDrive, setSelectedDonationDrive] = useState<DonationDrive>();
 
+	const create = () => {
+    router.push("/admin-dashboard/donation-drive/add");
+  };
+
   return (
     <div className="flex flex-col gap-5">
 			{/* Path */}
@@ -241,7 +245,7 @@ export default function ManageDonationDrive() {
           <div className="font-bold text-3xl">
             Manage Donation Drive
           </div>
-          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
+          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600" onClick={create}>
             + Create Donation Drive
           </div>
         </div>
