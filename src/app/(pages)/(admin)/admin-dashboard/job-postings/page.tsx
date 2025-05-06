@@ -807,22 +807,25 @@ const filterJobs = (status: string) => {
                     </div>
                     </div>
                     <div className="w-1/6 flex items-center justify-center">
+                        {/* Accept/Reject Buttons or Delete Icon */}
                         {activeTab === "Pending" ? (
-                          <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
-                            <button
-                              onClick={() => handleReject(job.jobId)}
-                              className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
-                            >
-                              <ThumbsDown size={14} />
-                              <span>Reject</span>
-                            </button>
-                            <button
-                              onClick={() => handleAccept(job.jobId)}
-                              className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1"
-                            >
-                              <ThumbsUp size={14} />
-                              <span>Accept</span>
-                            </button>
+                          <div className="w-1/6 flex items-center justify-center">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleReject(job.jobId)}
+                                className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1"
+                              >
+                                <ThumbsDown size={12} />
+                                <span>Reject</span>
+                              </button>
+                              <button
+                                onClick={() => handleAccept(job.jobId)}
+                                className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1"
+                              >
+                                <ThumbsUp size={12} />
+                                <span>Accept</span>
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <Trash2
