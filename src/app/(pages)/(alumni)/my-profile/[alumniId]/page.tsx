@@ -151,8 +151,8 @@ const UserProfile = () => {
       setSuffix(alumInfo.suffix || "");
       setEmail(alumInfo.email || "");
       setStudentNumber(alumInfo.studentNumber || "");
-      setCity(alumInfo.address?.[2] || "");
-      setProvince(alumInfo.address?.[1] || "");
+      setCity(alumInfo.address?.[1] || "");
+      setProvince(alumInfo.address?.[2] || "");
       setCountry(alumInfo.address?.[0] || "");
   
       // For birthday (parse and split to day, month, year)
@@ -506,7 +506,7 @@ const UserProfile = () => {
     setAddMasters(false);
     setAddDoctoral(false);
     console.log("@ Bachelor");
-    setDegreeType("Bachelor");
+    setDegreeType("bachelors");
     setAddBachelor(true);
   }
 
@@ -514,7 +514,7 @@ const UserProfile = () => {
     document.body.style.overflow = 'hidden';
     setAddDoctoral(false);
     setAddBachelor(false);
-    setDegreeType("Masters");
+    setDegreeType("masters");
     setAddMasters(true);
   };
   
@@ -522,7 +522,7 @@ const UserProfile = () => {
     document.body.style.overflow = 'hidden';
     setAddMasters(false);
     setAddBachelor(false);
-    setDegreeType("Doctoral");
+    setDegreeType("doctoral");
     setAddDoctoral(true);
   };
 
@@ -618,7 +618,7 @@ const UserProfile = () => {
     <div>
       <div style={{backgroundColor: "#3675c5"}} className="relative bg-cover bg-center pt-15 px-50 text-white shadow-md">
         <div className="flex space-x-10 pb-5">
-          <div className="relative group bg-blue-300 w-50 h-50 flex justify-center items-center mb-2 rounded-full cursor-pointer" onClick={handleUploadImage}>
+          <div className="relative group bg-gray-200 w-50 h-50 flex justify-center items-center mb-2 rounded-full cursor-pointer border-5 border-white" onClick={handleUploadImage}>
             {alumInfo?.image ? (
               <Image
                 src={alumInfo.image}
@@ -929,7 +929,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Bachelor").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "bachelors").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#b9e5fe]"></div>
@@ -968,7 +968,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#00bcfc]"></div>
@@ -1008,7 +1008,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "Doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#0282d2]"></div>

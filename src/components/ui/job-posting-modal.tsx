@@ -42,7 +42,7 @@ const AlumniJobOffers = () => {
       >
         {jobOffers.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).length > 0 ? (
           jobOffers.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).map((jobOffer:JobOffering) => (
-            <div key={jobOffer.jobId} onClick={() => setSelectedJob(jobOffer)} className=" bg-white shadow-md p-4 mb-4 cursor-pointer rounded-lg hover:bg-gray-50 transition-all duration-300 ease-in-out">
+            <div key={jobOffer.jobId} onClick={() => setSelectedJob(jobOffer)} className=" bg-white shadow-md p-4 mb-4 cursor-pointer rounded-lg hover:bg-gray-50 transition-all duration-300 ease-in-out flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div>
                   {jobOffer.image ? (
@@ -58,20 +58,32 @@ const AlumniJobOffers = () => {
                   )}
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">
+                  <p className="font-bold">
                     {jobOffer.position}
-                  </h2>
-                  <p className="text-gray-600">
+                  </p>
+                  <p className="text-sm text-gray-500">
                     {jobOffer.company}
                   </p>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 text-[#0856BA]" />
-                    <span className="ml-1 font-semibold text-[#0856BA]">
+                  <div className="flex items-center text-sm pt-1">
+                    <MapPin className="w-4 h-4 text-[#0856BA]" /> &nbsp;
+                    <span className="ml-1 text-[#0856BA]">
                       {jobOffer.location}
                     </span>
                   </div>
                 </div>
               </div>
+              <span
+                className={`h-fit px-2 py-1 rounded text-xs font-medium ${
+                  jobOffer.status === "Accepted"
+                    ? "bg-green-100 text-green-700"
+                    : jobOffer.status === "Rejected"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {jobOffer.status.charAt(0).toUpperCase() +
+                  jobOffer.status.slice(1)}
+              </span>
             </div>
           ))
         ) : (
