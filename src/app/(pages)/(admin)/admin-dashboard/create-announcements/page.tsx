@@ -21,7 +21,8 @@ export default function Users() {
     setShowForm,
     setIsEdit,
     setCurrentAnnouncementId,
-    setimage,
+    setAnnounceImage,
+    handleImageChange
   } = useAnnouncement();
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -32,15 +33,21 @@ export default function Users() {
     e.preventDefault();
     if (imageFile) {
       const localUrl = URL.createObjectURL(imageFile);
-      setimage(localUrl);
+      setAnnounceImage(localUrl);
     } else {
-      setimage(null);
+      setAnnounceImage(null);
     }
     isEdit ? handleEdit(e) : handleSubmit(e);
     setImageFile(null);
     setImagePreview(null);
     setShowForm(false);
   };
+
+  function formatDate(timestamp: any) {
+    if (!timestamp || !timestamp.seconds) return "Invalid Date";
+    const date = new Date(timestamp.seconds * 1000);
+    return date.toISOString().split("T")[0];
+  }
 
   return (
     <div className="p-8">
@@ -86,7 +93,7 @@ export default function Users() {
         >
           <div className="flex-1 pr-4">
             <p className="text-sm text-gray-500 mb-1">
-              Date Posted: {announcement.datePosted.toDate().toLocaleString()}
+              Date Posted: {announcement.datePosted.toDateString()}
             </p>
             <h2 className="text-lg font-semibold mb-2">{announcement.title}</h2>
             <CollapseText
@@ -219,13 +226,7 @@ export default function Users() {
                   type="file"
                   id="image-upload"
                   accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setImageFile(file);
-                      setImagePreview(URL.createObjectURL(file));
-                    }
-                  }}
+                  onChange={handleImageChange}
                   className="hidden"
                 />
               </div>
