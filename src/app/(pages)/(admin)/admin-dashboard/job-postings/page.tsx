@@ -721,60 +721,77 @@ export default function Users() {
                 {/* Dynamic rows */}
                 {filterJobs(activeTab).map((job, index) => (
                   <div
-                    key={index}
-                    className={`w-full flex gap-4 border-t border-gray-300 ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    } hover:bg-blue-50`}
+                  key={index}
+                  className={`w-full flex gap-4 border-t border-gray-300 ${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  } hover:bg-blue-50`}
                   >
+                  {/* Company Logo */}
+                  <div className="flex-shrink-0 p-4">
+                    {job.image ? (
+                    <img
+                      src={job.image}
+                      alt={`${job.company} logo`}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                    ) : (
+                    <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                      {job.company.charAt(0).toUpperCase()}
+                    </div>
+                    )}
+                  </div>
+
+                  {/* Job Details */}
+                  <div
+                    className="w-1/2 flex flex-col p-4 gap-1 cursor-pointer"
+                    onClick={() => handleViewJob(job.jobId)}
+                  >
+                    <div className="text-base font-bold">{job.position}</div>
+                    <div className="text-sm text-gray-600">{job.company}</div>
+                    <div className="text-sm text-gray-500">
+                    {job.employmentType} • {job.experienceLevel} •{" "}
+                    {job.salaryRange}
+                    </div>
+                  </div>
+
+                  <div className="w-1/2 flex items-center justify-end p-5">
+                    <div className="w-1/6 flex items-center justify-center">
                     <div
-                      className="w-1/2 flex flex-col p-4 gap-1 cursor-pointer"
+                      className={`px-2 py-1 text-xs rounded ${
+                      job.status === "Accepted"
+                        ? "bg-green-100 text-green-800"
+                        : job.status === "Pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {job.status}
+                    </div>
+                    </div>
+
+                    {/* Toggle Switch */}
+                    <div className="w-1/6 flex items-center justify-center">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      onChange={() => {
+                        // No functionality added here
+                      }}
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                    </div>
+
+                    <div className="w-1/6 flex items-center justify-center">
+                    <div
+                      className="text-[var(--primary-blue)] hover:underline cursor-pointer"
                       onClick={() => handleViewJob(job.jobId)}
                     >
-                      <div className="text-base font-bold">{job.position}</div>
-                      <div className="text-sm text-gray-600">{job.company}</div>
-                      <div className="text-sm text-gray-500">
-                        {job.employmentType} • {job.experienceLevel} •{" "}
-                        {job.salaryRange}
-                      </div>
+                      View Details
                     </div>
-                    <div className="w-1/2 flex items-center justify-end p-5">
-                      <div className="w-1/6 flex items-center justify-center">
-                        <div
-                          className={`px-2 py-1 text-xs rounded ${
-                            job.status === "Accepted"
-                              ? "bg-green-100 text-green-800"
-                              : job.status === "Pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {job.status}
-                        </div>
-                      </div>
-
-                      {/* Toggle Switch */}
-                      <div className="w-1/6 flex items-center justify-center">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            onChange={() => {
-                              // No functionality added here
-                            }}
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                        </label>
-                      </div>
-
-                      <div className="w-1/6 flex items-center justify-center">
-                        <div
-                          className="text-[var(--primary-blue)] hover:underline cursor-pointer"
-                          onClick={() => handleViewJob(job.jobId)}
-                        >
-                          View Details
-                        </div>
-                      </div>
-                      <div className="w-1/6 flex items-center justify-center">
+                    </div>
+                    <div className="w-1/6 flex items-center justify-center">
                         {activeTab === "Pending" ? (
                           <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
                             <button
@@ -802,15 +819,15 @@ export default function Users() {
                             }}
                           />
                         )}
-                      </div>
-                    </div>
+                        </div>
+                  </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
         </div>
-      ) : currentPage == "view" ? (
+      ) : currentPage === "view" ? (
         renderViewPage()
       ) : (
         renderPostJobPage()
