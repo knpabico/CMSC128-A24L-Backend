@@ -69,7 +69,8 @@ export default function JobOffers() {
     fileName,
     handleImageChange,
     handleSaveDraft,
-    handleEditDraft
+    handleEditDraft,
+    handleDelete
   } = useJobOffer();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -945,8 +946,7 @@ export default function JobOffers() {
                           <button
                             className="text-gray-500 hover:text-red-500 transition-colors"
                             onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Add delete functionality
+                              handleDelete(job.jobId);
                             }}
                           >
                             <Trash2 className="w-5 h-5" />
