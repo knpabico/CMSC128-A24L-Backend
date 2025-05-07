@@ -31,18 +31,22 @@ export default function Users() {
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+  
+    let finalImage: string | null = null;
     if (imageFile) {
-      const localUrl = URL.createObjectURL(imageFile);
-      setAnnounceImage(localUrl);
-    } else {
-      setAnnounceImage(null);
+      finalImage = URL.createObjectURL(imageFile); // still needs cloud upload ideally
     }
-    isEdit ? handleEdit(e) : handleSubmit(e);
-    setImageFile(null);
-    setImagePreview(null);
-    setShowForm(false);
+    await setAnnounceImage(finalImage); // might be better to refactor this as a param
+  
+    if (isEdit) {
+      handleEdit({ title, description, image: finalImage });
+    } else {
+      handleSubmit({ title, description, image: finalImage });
+    }
+  
+    resetForm();
   };
-
+  
   return (
     <div className="p-8">
       {/* Top Header Row */}

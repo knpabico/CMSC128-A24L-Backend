@@ -80,6 +80,8 @@ export default function Users() {
     handleImageChange,
   } = useJobOffer();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  
   const filterCategories = {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
     "Job Type": [
@@ -118,12 +120,13 @@ export default function Users() {
   const [jobToDelete, setJobToDelete] = useState(null);
 
   const filterJobs = (status: string) => {
-    console.log("Filtering jobs with status:", status);
-    const filtered = jobOffers.filter(
-      (job: JobOffering) => job.status === status
-    );
-    console.log("Filtered jobs:", filtered);
-    return filtered;
+    return jobOffers.filter((job: JobOffering) => {
+      const matchesStatus = job.status === status;
+      const matchesSearch = job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            job.location?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
   };
 
   const tabs = ["Accepted", "Pending", "Rejected"];
@@ -203,7 +206,6 @@ export default function Users() {
             View Job Posting
           </div>
         </div>
-
         <div className="w-full">
           <div className="flex items-center justify-between">
             <div className="font-bold text-3xl">View Job Posting</div>
@@ -347,6 +349,15 @@ export default function Users() {
           <div className="w-full">
             <div className="flex items-center justify-between">
               <div className="font-bold text-3xl">Manage Job Posting</div>
+              <div className="my-4">
+              <input
+                type="text"
+                placeholder="Search jobs..."
+                className="border px-3 py-2 rounded-md w-full max-w-md"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              </div>
               <div
                 className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
                 onClick={() => setShowForm(!showForm)}

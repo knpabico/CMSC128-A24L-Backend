@@ -139,6 +139,7 @@ export function AnnouncementProvider({
       setShowForm(false);
       setTitle("");
       setDescription("");
+      setAnnounceImage(null);
       setIsEdit(false); // Reset the edit mode
     } catch (error) {
       console.error("Error updating announcement:", error);
