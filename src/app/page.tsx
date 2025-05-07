@@ -99,7 +99,15 @@ export default function Home() {
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
   const { userEducation } = useEducation();
   const [filteredEducation, setFilteredEducation] = useState<Education[]>([]);
-  
+  const [acceptedJobs, setAcceptedJobs] = useState<JobOffering[]>([]);
+
+  useEffect(() => {
+    const filtered = jobOffers.filter(
+      (job: {status: string}) => job.status === "Accepted" || job.status === "Closed"
+    );
+    setAcceptedJobs(filtered);
+  }, [jobOffers]);
+
   useEffect(() => {
     if (user?.uid) {
       const filtered = userEducation.filter(
@@ -504,7 +512,7 @@ export default function Home() {
                                 (jobOffer: JobOffering) =>
                                   jobOffer.jobId === newsLetter.referenceId
                               );
-                             if (jobOffering.alumniId === "Admin") {
+                             if (!jobOffering || jobOffering.alumniId === "Admin") {
                                 return "/ics-logo.jpg";
                               }
                             })()
@@ -523,7 +531,7 @@ export default function Home() {
                                 (jobOffer: JobOffering) =>
                                   jobOffer.jobId === newsLetter.referenceId
                               );
-                              if (jobOffering.alumniId === "Admin") {
+                              if (!jobOffering || jobOffering.alumniId === "Admin") {
                                 return "Institute of Computer Science";
                               } else{
                                 return jobOffering
