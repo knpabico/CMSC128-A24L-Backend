@@ -70,7 +70,6 @@ export default function JobOffers() {
     handleImageChange,
   } = useJobOffer();
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
   const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
@@ -92,16 +91,11 @@ export default function JobOffers() {
   const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
 
   const acceptedJobs = jobOffers.filter(
-    (job: JobOffering) =>
-      job.status === "Accepted" &&
-      (job.position.toLowerCase().includes(searchQuery) ||
-       job.company.toLowerCase().includes(searchQuery))
+    (job: { status: string }) => job.status === "Accepted"
   );
 
   const jobsPerPage = 8;
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearchQuery(e.target.value.toLowerCase());
-  }
+
   // Define filter categories and their respective filter options
   const filterCategories = {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
@@ -328,15 +322,6 @@ export default function JobOffers() {
           </button>
 
           <div className="flex space-x-3">
-            <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Search jobs..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
             <div className="relative" ref={filterContainerRef}>
               <button
                 className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
