@@ -10,7 +10,6 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import { formatDate } from '@/lib/utils'; // Assuming you have a formatDate utility
 
 interface AlumniDetailsModalProps {
   alumnus: Alumnus | null;

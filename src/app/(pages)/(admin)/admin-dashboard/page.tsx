@@ -64,6 +64,18 @@ export default function AdminDashboard() {
     "Others"
   ];
   
+  //Colors 
+  const colorPalette = [
+    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
+    "#FF9F40", "#B4FF9F", "#D4A5A5", "#6D9DC5", "#E57F84",
+    "#7C83FD", "#00C49F", "#FFBB28", "#FF8042", "#8DD1E1",
+    "#8884D8", "#A28CFF", "#FF7F50", "#87CEEB", "#FFA07A", "#B0E0E6"
+  ];
+
+  const getColorForField = (field: string, index: number): string => {
+    return colorPalette[index % colorPalette.length];
+  };
+
   const getFieldInterestCounts = (alums: Alumnus[]) => {
     const counts: Record<string, number> = {}; //rereturn ito like this 
                                               // [<field> count]
@@ -206,20 +218,63 @@ export default function AdminDashboard() {
           
         </CardContent>
       </Card>
-        {/* Industries Card */}
-        <Card className="border-0 shadow-md">
-          <CardHeader>
-            <CardTitle>Industries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Pie chart !
-              Count ng alumni per industry */}
-              {/* field count  check mo heree getFieldInterestCount*/}
-            {Object.entries(fieldCounts).map(([field, count]) => ( 
-              <p key={field}>{field}: {count}</p>
-            ))}
-          </CardContent>
-        </Card>
+ {/* Industries Card */}
+<Card className="border-0 shadow-md">
+  <CardHeader>
+    <CardTitle>Industries</CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* summary stats, just like Alumni */}
+    <p>Total Fields: {Object.keys(fieldCounts).length}</p>
+    <p>Total Alumni Counted: {Object.entries(fieldCounts).reduce((sum, [, c]) => sum + c, 0)}</p>
+    <p>Distinct Industries: {Object.keys(fieldCounts).filter(f => fieldCounts[f] > 0).length}</p>
+
+    {/* inner chart card */}
+    <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all my-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-center text-lg font-semibold text-gray-700">
+          Distribution by Industry
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex justify-center pt-0">
+        <DonutChart
+          labels={Object.entries(fieldCounts).map(([field]) => field)}
+          data={Object.entries(fieldCounts).map(([_, count]) => count)}
+          backgroundColor={Object.entries(fieldCounts).map(
+            ([field], i) => getColorForField(field, i)
+          )}
+        />
+      </CardContent>
+    </Card>
+
+    {/* list of industries like Alumni List */}
+    <div className="mt-6">
+      <h3 className="font-semibold mb-2">Industry Breakdown</h3>
+      <div className="space-y-2 max-h-96 overflow-y-auto">
+        {Object.entries(fieldCounts).map(([field, count], idx) => (
+          <div
+            key={field}
+            className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
+          >
+            <div className="flex items-center">
+              <span
+                className="inline-block w-3 h-3 rounded-full mr-2"
+                style={{ backgroundColor: getColorForField(field, idx) }}
+              />
+              <span className="font-medium">{field}</span>
+            </div>
+            <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
+              {count}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
+
+
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
