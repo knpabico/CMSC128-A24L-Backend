@@ -177,7 +177,7 @@ const filterJobs = (status: string) => {
 
   // Render view page for a job posting
   const renderViewPage = () => {
-    if (!viewingJob) return null;
+    if (!viewingJob) return null
 
     return (
       <div className="flex flex-col gap-5">
@@ -186,18 +186,13 @@ const filterJobs = (status: string) => {
           <div>
             <ChevronRight size={15} />
           </div>
-          <div
-            className="cursor-pointer hover:text-blue-600"
-            onClick={goBackToList}
-          >
+          <div className="cursor-pointer hover:text-blue-600" onClick={goBackToList}>
             Manage Job Posting
           </div>
           <div>
             <ChevronRight size={15} />
           </div>
-          <div className="font-bold text-[var(--primary-blue)]">
-            View Job Posting
-          </div>
+          <div className="font-bold text-[var(--primary-blue)]">View Job Posting</div>
         </div>
 
         <div className="w-full">
@@ -213,29 +208,15 @@ const filterJobs = (status: string) => {
             </div>
           </div>
 
-          {/* Save Button */}
-          {isEditing && (
-            <button
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg float-right"
-              onClick={() => {
-                setIsEditing(false);
-                handleEdit(editedJob); 
-              }}
-            >
-              Save Changes
-            </button>
-          )}
-
           {/* Job Info Section */}
           <div className="flex flex-col gap-3 mt-6">
-            <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+          <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
               <div className="flex flex-col gap-5">
-                {/* Logo and top fields */}
                 <div className="flex items-start gap-4">
                   <div className="mr-2">
                     {editedJob.image ? (
                       <img
-                        src={editedJob.image}
+                        src={editedJob.image || "/placeholder.svg"}
                         alt={`${editedJob.company} logo`}
                         className="w-35 h-35 object-contain rounded-md border border-gray-200"
                       />
@@ -247,31 +228,27 @@ const filterJobs = (status: string) => {
                   </div>
 
                   <div className="flex-1 space-y-3">
-                    {/* Job Position */}
                     <div>
                       <label className="block text-sm font-medium">Job Position</label>
                       {isEditing ? (
                         <input
                           value={editedJob.position}
-                          onChange={(e) =>
-                            setEditedJob({ ...editedJob, position: e.target.value })
-                          }
+                          onChange={(e) => setEditedJob({ ...editedJob, position: e.target.value })}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
-                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{editedJob.position}</div>
+                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                          {editedJob.position}
+                        </div>
                       )}
                     </div>
 
-                    {/* Company Name */}
                     <div>
                       <label className="block text-sm font-medium">Company Name</label>
                       {isEditing ? (
                         <input
                           value={editedJob.company}
-                          onChange={(e) =>
-                            setEditedJob({ ...editedJob, company: e.target.value })
-                          }
+                          onChange={(e) => setEditedJob({ ...editedJob, company: e.target.value })}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
@@ -313,9 +290,7 @@ const filterJobs = (status: string) => {
                   {isEditing ? (
                     <textarea
                       value={editedJob.jobDescription}
-                      onChange={(e) =>
-                        setEditedJob({ ...editedJob, jobDescription: e.target.value })
-                      }
+                      onChange={(e) => setEditedJob({ ...editedJob, jobDescription: e.target.value })}
                       className="px-3 py-2 border border-gray-300 rounded-md w-full min-h-[100px]"
                     />
                   ) : (
@@ -325,7 +300,6 @@ const filterJobs = (status: string) => {
                   )}
                 </div>
 
-                {/* Date Posted */}
                 <div>
                   <label className="block text-sm font-medium">Date Posted</label>
                   <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
@@ -333,13 +307,35 @@ const filterJobs = (status: string) => {
                   </div>
                 </div>
               </div>
+
+              {/* Revised buttons */}
+              {isEditing && (
+                <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+                    onClick={() => {
+                      setIsEditing(false);
+                      handleEdit(editedJob); 
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
       </div>
-    );
-  };
+    )
+  }
 
   // ibang page na si post a job
   const renderPostJobPage = () => {
@@ -867,7 +863,7 @@ const filterJobs = (status: string) => {
                             />
                           </div>
                         )}
-                                    </div>
+                        </div>
                     </div>
                   </div>
                 ))
