@@ -10,6 +10,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import type { Timestamp } from 'firebase/firestore'; 
 
 interface AlumniDetailsModalProps {
   alumnus: Alumnus | null;
@@ -43,6 +44,20 @@ const AlumniDetailsModal = ({
     }
   };
 
+  // Helper function to format dates safely
+  const formatDateWithDay = (raw?: Timestamp): string => {
+    if (!raw) return 'N/A';
+
+    const dt = raw.toDate();
+    if (isNaN(dt.getTime())) return 'Invalid Date';
+  
+    const m = dt.getMonth() + 1;   // months are 0–11
+    const d = dt.getDate();        // day of month 1–31
+    const y = dt.getFullYear();    
+  
+    return `${m}/${d}/${y}`;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
@@ -74,7 +89,7 @@ const AlumniDetailsModal = ({
               </div>
               <div className="flex flex-col">
                 <span className="text-gray-500">Birth Date</span>
-                <span className="font-medium">{formatDateSafe(alumnus.birthDate)}</span>
+                <span className="font-medium">{formatDateWithDay(alumnus.birthDate)}</span>
               </div>
             </div>
           </div>

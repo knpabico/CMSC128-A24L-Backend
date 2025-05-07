@@ -9,12 +9,14 @@ import Link from "next/link";
 import MapComponent from "./google-maps/map";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useAlums } from "@/context/AlumContext";
-import { Alumnus, WorkExperience,Event, Donation } from "@/models/models";
+import { Alumnus, WorkExperience,Event, DonationDrive } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import { useDonationContext } from "@/context/DonationContext";
 import DonutChart from "@/components/charts/DonutChart";
 import React, {useState} from "react";
 import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
+import { useDonationDrives } from "@/context/DonationDriveContext";
+import { useScholarship } from "@/context/ScholarshipContext";
 
 
 const adminLinks = [
@@ -36,7 +38,9 @@ export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
   const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus} = useAlums();
+  const {donationDrives} = useDonationDrives();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
+  const {scholarships} = useScholarship();
   // const { allDonations } = useDonationContext();
 
 
@@ -110,11 +114,24 @@ export default function AdminDashboard() {
     // Add these new states for the modal
     const [selectedAlumnus, setSelectedAlumnus] = useState<Alumnus | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEventProposal, setSelectedEventProposal] = useState<Event | null>(null);
+    const [isModalEventProOpen, setIsModalEventProOpen] = useState(false);
+
+
   
     // Function to handle opening the modal
     const handleOpenModal = (alumnus: Alumnus) => {
       setSelectedAlumnus(alumnus);
       setIsModalOpen(true);
+    };
+
+    const handleOpenModalEventProposal = (event: Event) => {
+      setSelectedEventProposal(event);
+      setIsModalEventProOpen(true);
+    };
+        // Function to handle closing the modal
+    const handleCloseEventProposalModal = () => {
+      setIsModalEventProOpen(false);
     };
   
     // Function to handle closing the modal
@@ -295,16 +312,28 @@ export default function AdminDashboard() {
                 - Date
                 - Event venue
               */}
-            {getEventProposals(events).map((event:Event, index:number)=>{
-              return (
-                <div key={event.eventId}>
-                <div>
-                  <span>Event: {event.title}</span>
-                </div>
-                <span>Status: {event.status}</span>
-                </div>
-              )
-            })}
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {getEventProposals(events).map((event:Event, index:number)=>{
+                  return (
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                    
+                      <div 
+                        key={event.eventId}
+                        onClick={() => handleOpenModalEventProposal(event)}
+                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                      >
+                        <div>
+                          <span className="font-medium">Event: {event.title}</span>
+                          <p className="text-sm text-black-500">Date: {event.date}</p>
+                          <p className="text-sm text-black-500">Place: {event.location}</p>
+                          
+                        </div>
+                      </div>
+                  </div>
+                  )
+                })}
+
+              </div>
             </div>
           </CardContent>
 
@@ -340,11 +369,19 @@ export default function AdminDashboard() {
               */}
              {getUpcomingEvents(events).map((event:Event, index:number)=>{
               return (
-                <div key={event.eventId}>
-                <div>
-                  <span>Event: {event.title}</span>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                    
+                <div 
+                  key={event.eventId}
+                  onClick={() => handleOpenModalEventProposal(event)}
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-medium">Event: {event.title}</span>
+                    <p className="text-sm text-black-500">Date: {event.status}</p>
+                    
+                  </div>
                 </div>
-                <span>Status: {event.status}</span>
                 </div>
               )
             })}             
@@ -379,16 +416,24 @@ export default function AdminDashboard() {
                 - Name of donator
                 - name of donation drive? basta kung san siya nagdonate lmao
               */}
-             {/* {allDonations.map((donation:Donation, index:number)=>{
+             {donationDrives.map((donationDrive:DonationDrive, index:number)=>{
               return (
-                <div key={donation.donationId}>
-                <div>
-                  <span>Event: {donation.amount}</span>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                    
+                <div 
+                  key={donationDrive.eventId}
+
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-medium">Donation Drive: {donationDrive.campaignName}</span>
+                    <p className="text-sm text-black-500">Beneficiary: {donationDrive.beneficiary}</p>
+                    
+                  </div>
                 </div>
-                <span>Status: {event.status}</span>
                 </div>
               )
-            })}                */}
+            })}               
             </div>
           </CardContent>
           <div className="px-2 pt-0">
