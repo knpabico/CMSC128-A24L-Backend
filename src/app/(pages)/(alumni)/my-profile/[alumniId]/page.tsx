@@ -1382,20 +1382,25 @@ const UserProfile = () => {
                         [...events]
                         .filter((eve : Event) => eve.eventId === bookmark.entryId)
                         .map((eve : Event, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"                           
+                          onClick={() => {
+                            if (eve.eventId) router.push(`../events/${eve.eventId}`);
+                          }}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><CalendarDaysIcon/></p>
                               <div className="flex space-x-3 items-center">
                                 <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
                                   {eve.image && (
-                                    <Image
-                                      src={eve.image}
-                                      alt="Alumnus Image"
-                                      width={0}
-                                      height={0}
-                                      sizes="100vw"
-                                      className="object-cover w-full h-full"
-                                    />
+
+                                      <Image
+                                        src={eve.image}
+                                        alt="Alumnus Image"
+                                        width={0}
+                                        height={0}
+                                        sizes="100vw"
+                                        className="object-cover w-full h-full"
+                                      />
+                                    
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
@@ -1417,7 +1422,9 @@ const UserProfile = () => {
                         donationDrives
                         .filter((don : DonationDrive) => don.donationDriveId === bookmark.entryId)
                         .map((don : DonationDrive, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                          onClick={()=>{router.push(`/donationdrive-list/details?id=${don.donationDriveId}`)}}
+                          >
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><HandHeartIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1452,7 +1459,9 @@ const UserProfile = () => {
                         [...scholarships]
                         .filter((scho: Scholarship) => scho.scholarshipId === bookmark.entryId)
                         .map((scho: Scholarship, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                          onClick={()=> {router.push(`/scholarship/${scho.scholarshipId}`);}}
+                          >
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><SchoolIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1597,7 +1606,8 @@ const UserProfile = () => {
                       {([...events]
                         .filter((eve : Event) => eve.eventId === bookmark.entryId)
                         .map((eve : Event, i:number) => (
-                          <div key={i} className="flex items-center justify-between" onClick={() => {
+                          <div key={i} className="flex items-center justify-between" 
+                          onClick={() => {
                             if (eve.eventId) router.push(`../events/${eve.eventId}`);
                           }}
                           >
@@ -1609,10 +1619,6 @@ const UserProfile = () => {
                                   {/* Try mo to click */}
                                   {eve.image && (
                                     <>
-                                    <Link //will redirected to the page, hindi nagwowork yung sa click
-                                      href={`/alumni/events/${eve.eventId}`} 
-                                      className="flex items-center p-3 hover:bg-gray-50 rounded-md"
-                                    ></Link>
                                     <Image
                                       src={eve.image}
                                       alt="Alumnus Image"
@@ -1663,7 +1669,8 @@ const UserProfile = () => {
                       {(donationDrives
                         .filter((don : DonationDrive) => don.donationDriveId === bookmark.entryId)
                         .map((don : DonationDrive, i:number) => (
-                          <div key={i} className="flex items-center justify-between" onClick={()=> {router.push(`/donationdrive-list/details?id=${don.donationDriveId}`);}}>
+                          <div key={i} className="flex items-center justify-between" 
+                          onClick={()=> {router.push(`/donationdrive-list/details?id=${don.donationDriveId}`);}}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><HandHeartIcon/></p>
                               <div className="flex space-x-3 items-center">
