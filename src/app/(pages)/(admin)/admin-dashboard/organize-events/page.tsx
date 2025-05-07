@@ -62,7 +62,7 @@ export default function EventPageAdmin() {
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
   const [sortBy, setSortBy] = useState("latest");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("Accepted");
 
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
@@ -251,16 +251,6 @@ export default function EventPageAdmin() {
         <div className="mb-6">
           <div className="flex flex-wrap gap-2 mb-4">
             <button
-              onClick={() => setStatusFilter("all")}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                statusFilter === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-            >
-              All Upcoming Events
-            </button>
-            <button
               onClick={() => setStatusFilter("Accepted")}
               className={`px-4 py-2 rounded-md font-medium transition-colors ${
                 statusFilter === "Accepted"
@@ -335,9 +325,7 @@ export default function EventPageAdmin() {
         {/* Event List */}
         <div>
           <h2 className="text-2xl font-bold mb-4">
-            {statusFilter === "all"
-              ? "All Events"
-              : statusFilter === "Accepted"
+            {statusFilter === "Accepted"
               ? "Approved Events"
               : statusFilter === "Pending"
               ? "Pending Events"
