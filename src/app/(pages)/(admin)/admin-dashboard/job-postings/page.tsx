@@ -731,133 +731,147 @@ const filterJobs = (status: string) => {
                 ref={tableRef}
               >
                 <div className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm">
-                  <div className="w-1/2 flex items-center justify-baseline font-semibold">
+                  <div className="w-2/3 flex items-center justify-baseline font-semibold">
                     Job Posting Info
                   </div>
-                  <div className="w-1/2 flex justify-end items-center">
-                    <div className="w-1/6 flex items-center justify-center font-semibold">
+                    <div className="w-2/3 flex justify-end items-center pl-12">
+                    <div className="w-1/3 flex items-center justify-center font-semibold">
                       Status
                     </div>
-                    <div className="w-1/6 flex items-center justify-center font-semibold">
+                    <div className="w-1/3 flex items-center justify-end font-semibold pl-12">
                       Actions
                     </div>
-                    <div className="w-1/6 flex items-center justify-center"></div>
-                  </div>
+                    <div className="w-1/3 flex items-center justify-center"></div>
+                    </div>
                 </div>
 
                 {/* Dynamic rows */}
                 {filterJobs(activeTab).map((job, index) => (
                   <div
-                  key={index}
-                  className={`w-full flex gap-4 border-t border-gray-300 ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-blue-50`}
+                    key={index}
+                    className={`w-full flex items-center border-t border-gray-300 ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50`}
                   >
-                  {/* Company Logo */}
-                  <div className="flex-shrink-0 p-4">
-                    {job.image ? (
-                    <img
-                      src={job.image}
-                      alt={`${job.company} logo`}
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                    ) : (
-                    <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
-                      {job.company.charAt(0).toUpperCase()}
-                    </div>
-                    )}
-                  </div>
-
-                  {/* Job Details */}
-                  <div
-                    className="w-1/2 flex flex-col p-4 gap-1 cursor-pointer"
-                    onClick={() => handleViewJob(job.jobId)}
-                  >
-                    <div className="text-base font-bold">{job.position}</div>
-                    <div className="text-sm text-gray-600">{job.company}</div>
-                    <div className="text-sm text-gray-500">
-                    {job.employmentType} • {job.experienceLevel} •{" "}
-                    {job.salaryRange}
-                    </div>
-                  </div>
-
-                  <div className="w-1/2 flex items-center justify-end p-5">
-                    <div className="w-1/6 flex items-center justify-center">
-                    <div
-                      className={`px-2 py-1 text-xs rounded ${
-                      job.status === "Accepted"
-                        ? "bg-green-100 text-green-800"
-                        : job.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {job.status}
-                    </div>
+                    {/* Company Logo */}
+                    <div className="flex-shrink-0 p-4">
+                      {job.image ? (
+                        <img
+                          src={job.image || "/placeholder.svg"}
+                          alt={`${job.company} logo`}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                          {job.company.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
 
-                      {/* Toggle Switch */}
-                      <div className="w-1/6 flex items-center justify-center">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={ job.status === "Accepted"}
-                            onChange={() => {
-                              if (job.status === "Accepted"){
-                                updateStatus("Closed", job.jobId);
-                              } else{
-                                updateStatus("Accepted", job.jobId);
-                              }
-                            }}
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                        </label>
+                    {/* Job Details */}
+                    <div className="flex-grow flex flex-col p-4 gap-1 cursor-pointer" onClick={() => handleViewJob(job.jobId)}>
+                      <div className="text-base font-bold">{job.position}</div>
+                      <div className="text-sm text-gray-600">{job.company}</div>
+                      <div className="text-sm text-gray-500">
+                        {job.employmentType} • {job.experienceLevel} • {job.salaryRange}
+                      </div>
+                    </div>
+
+                    {/* Actions Section - Using fixed widths for consistent layout */}
+                    <div className="flex items-center gap-4 p-4">
+                      {/* Toggle and Status - Fixed width container */}
+                      <div className="flex items-center w-[220px]">
+                        {/* Toggle Switch - Fixed width */}
+                        <div className="w-16 flex items-center justify-center">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={job.status === "Accepted"}
+                              onChange={() => {
+                                if (job.status === "Accepted") {
+                                  updateStatus("Closed", job.jobId)
+                                } else {
+                                  updateStatus("Accepted", job.jobId)
+                                }
+                              }}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                          </label>
+                        </div>
+
+                        {/* Status Badge - Fixed width */}
+                        <div className="w-24 flex items-center justify-center">
+                          <div
+                            className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
+                              job.status === "Accepted"
+                                ? "bg-green-100 text-green-800"
+                                : job.status === "Pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {job.status}
+                          </div>
+                        </div>
                       </div>
 
-                    <div className="w-1/6 flex items-center justify-center">
-                    <div
-                      className="text-[var(--primary-blue)] hover:underline cursor-pointer"
-                      onClick={() => handleViewJob(job.jobId)}
-                    >
-                      View Details
-                    </div>
-                    </div>
-                    <div className="w-1/6 flex items-center justify-center">
-                        {/* Accept/Reject Buttons or Delete Icon */}
+                      {/* View Details Button */}
+                      <div className="w-28 flex items-center justify-center">
+                        <button
+                          className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleViewJob(job.jobId)
+                          }}
+                        >
+                          View Details
+                        </button>
+                      </div>
+
+                      {/* Action Buttons Container - Fixed width for both Trash and Accept/Reject */}
+                      <div className="w-[140px] flex items-center justify-center">
                         {activeTab === "Pending" ? (
-                          <div className="w-1/6 flex items-center justify-center">
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleReject(job.jobId)}
-                                className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1"
-                              >
-                                <ThumbsDown size={12} />
-                                <span>Reject</span>
-                              </button>
-                              <button
-                                onClick={() => handleAccept(job.jobId)}
-                                className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1"
-                              >
-                                <ThumbsUp size={12} />
-                                <span>Accept</span>
-                              </button>
-                            </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleReject(job.jobId)
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <ThumbsDown size={18} />
+                              <span>Reject</span>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleAccept(job.jobId)
+                              }}
+                              className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <ThumbsUp size={18} />
+                              <span>Accept</span>
+                            </button>
                           </div>
                         ) : (
-                          <Trash2
-                            size={20}
-                            className="text-gray-500 hover:text-red-500 cursor-pointer"
-                            onClick={() => {
-                              setJobToDelete(job); // Set the job to delete
-                              setIsConfirmationOpen(true); // Open the confirmation dialog}
-                            }}
-                          />
+                          <div className="flex items-center justify-center w-full">
+                            <Trash2
+                              size={18}
+                              className="text-gray-500 hover:text-red-500 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setJobToDelete(job)
+                                setIsConfirmationOpen(true)
+                              }}
+                            />
+                          </div>
                         )}
-                        </div>
+                                    </div>
+                    </div>
                   </div>
-                  </div>
-                ))}
+                ))
+              }
               </div>
             </div>
           </div>
