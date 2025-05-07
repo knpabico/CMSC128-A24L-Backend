@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
-import { Event } from "@/models/models";
-import { toastSuccess } from "@/components/ui/sonner";
-import { Asterisk, Upload } from "lucide-react";
+import { Asterisk, Upload } from 'lucide-react';
 import { useRouter } from "next/navigation";
+import { Button } from "@mui/material";
+import ModalInput from "@/components/ModalInputForm";
+import { Breadcrumbs } from "@/components/ui/breadcrumb";
 
-export default function CreateEvent() {
-    const router = useRouter();
+export default function CreateEventPage() {
+  const router = useRouter();
   const {
     addEvent,
     image,
@@ -18,63 +19,55 @@ export default function CreateEvent() {
     setEventLocation,
     setEventDate,
     setEventTime,
+    handleSave,
+    title,
+    description,
+    date,
+    time,
+    location,
+    fileName,
+    setFileName,
+    handleImageChange,
+    preview,
+    setPreview
   } = useEvents();
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    location: "",
-    date: "",
-    time: "",
-    image: null,
-  });
-  const [preview, setPreview] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [visibility, setVisibility] = useState("all");
   const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<string[]>([]);
-  const [formComplete, setFormComplete] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [selectedButton, setButton] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Handle image change with preview
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      
-      // Update form data with the image file
-      setFormData({ ...formData, image: selectedFile });
-      
-      // Create preview URL
-      const objectUrl = URL.createObjectURL(selectedFile);
-      setPreview(objectUrl);
-      
-      setEventImage(selectedFile); // Set image in context
-    }
-  };
 
   // Check if form is complete
-  useEffect(() => {
-    const isComplete =
-      formData.title.trim() !== "" &&
-      formData.description.trim() !== "" &&
-      formData.location.trim() !== "" &&
-      formData.date !== "" &&
-      formData.time !== "" &&
-      formData.image !== null &&
-      (visibility !== "batch" || selectedBatches.length > 0) &&
-      (visibility !== "alumni" || selectedAlumni.length > 0);
+  const formComplete =
+    title.trim() !== "" &&
+    description.trim() !== "" &&
+    location.trim() !== "" &&
+    date.trim() !== "" &&
+    time.trim() !== "" &&
+    image !== "" &&
+    (visibility !== "batch" || selectedBatches.length > 0) &&
+    (visibility !== "alumni" || selectedAlumni.length > 0);
 
-    setFormComplete(isComplete);
-  }, [formData, visibility, selectedBatches, selectedAlumni]);
+  const resetFormState = () => {
+    setEventTitle("");
+    setEventDescription("");
+    setEventDate("");
+    setEventTime("");
+    setEventLocation("");
+    setEventImage("");
+    setVisibility("all");
+    setSelectedBatches([]);
+    setSelectedAlumni([]);
+    setFileName("");
+    setErrorMessage("");
+    setButton("");
+    setPreview(null);
+  };
 
-  // Clean up preview URL when component unmounts or when preview changes
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-    };
-  }, [preview]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,10 +76,18 @@ export default function CreateEvent() {
 
     // Check form completion first
     if (!formComplete) {
-      setErrorMessage("Please fill out all required fields before creating the event.");
+      setErrorMessage("Please fill out all required fields before proposing the event.");
       setIsSubmitting(false);
-      return;
+      return; // Stop further processing
     }
+
+    // store the selected guests
+    const targetGuests =
+      visibility === "batch"
+        ? selectedBatches
+        : visibility === "alumni"
+        ? selectedAlumni
+        : [];
 
     // Validate batch inputs if batch visibility is selected
     if (visibility === "batch") {
@@ -95,7 +96,7 @@ export default function CreateEvent() {
         setIsSubmitting(false);
         return;
       }
-      if (selectedBatches.some((batch) => !/^\d+$/.test(batch))) {
+      if (selectedBatches.some(batch => !/^\d+$/.test(batch))) {
         setErrorMessage("Batch inputs must contain only numbers.");
         setIsSubmitting(false);
         return;
@@ -109,82 +110,70 @@ export default function CreateEvent() {
         setIsSubmitting(false);
         return;
       }
-      if (selectedAlumni.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      if (selectedAlumni.some(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
         setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
         setIsSubmitting(false);
         return;
       }
     }
 
-    // Store the selected guests
-    const targetGuests =
-      visibility === "batch"
-        ? selectedBatches
-        : visibility === "alumni"
-        ? selectedAlumni
-        : [];
+    // Handle creation based on selected button
+    if (selectedButton === "Create") {
+      const form = document.querySelector("form");
+      if (!form || !form.checkValidity()) {
+        form?.reportValidity();
+        setIsSubmitting(false);
+        return;
+      }
 
-    // Set context values before adding event
-    setEventTitle(formData.title);
-    setEventDescription(formData.description);
-    setEventLocation(formData.location);
-    setEventDate(formData.date);
-    setEventTime(formData.time);
-    setEventImage(formData.image);
+      const newEvent = {
+        datePosted: new Date(),
+        title,
+        description,
+        date,
+        time,
+        location,
+        image,
+        inviteType: visibility,
+        numofAttendees: 0,
+        targetGuests,
+        stillAccepting: true,
+        needSponsorship: false,
+        rsvps: [],
+        eventId: "",
+        status: "Accepted",
+        creatorId: "",
+        creatorName: "",
+        creatorType: "",
+        donationDriveId: ""
+      };
 
-    const newEvent: Event = {
-      datePosted: new Date(),
-      title: formData.title,
-      description: formData.description,
-      date: formData.date,
-      time: formData.time,
-      location: formData.location,
-      image: "", // Will be set inside addEvent after upload
-      inviteType: visibility,
-      numofAttendees: 0,
-      targetGuests,
-      stillAccepting: true,
-      needSponsorship: false,
-      rsvps: [],
-      eventId: "",
-      status: "Accepted",
-      creatorId: "",
-      creatorName: "",
-      creatorType: "",
-      donationDriveId: "",
-    };
-
-    try {
-      // Add event - passing the image file through the context
-      await addEvent(newEvent, true, true);
-      
-      // Reset form
-      setFormData({
-        title: "",
-        description: "",
-        location: "",
-        date: "",
-        time: "",
-        image: null,
-      });
-      setPreview(null);
-      setSelectedBatches([]);
-      setSelectedAlumni([]);
-      setVisibility("all");
-    } catch (error) {
-      setErrorMessage("Failed to create event. Please try again.");
-      console.error("Error creating event:", error);
-    } finally {
-      router.push("/admin-dashboard/organize-events");
-      setIsSubmitting(false);
+      addEvent(newEvent, true, true);
+    } else {
+      // If button is not "Create", save as draft
+      handleSave(e, image, targetGuests, visibility, "Draft");
     }
+
+ 
+    resetFormState();
+    setIsSubmitting(false);
+    router.push("/admin-dashboard/organize-events");
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 p-6">
+      <Breadcrumbs
+        items={[
+          { href: "/admin-dashboard", label: "Admin Dashboard" },
+          { href: "/admin-dashboard/organize-events", label: "Events" },
+          { label: "Create Event" },
+        ]}
+      />
+      
       <div className="text-3xl font-bold">Create Event</div>
+      
       <form
-        className="bg-white p-6 rounded-lg shadow-md"
+        className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto"
         onSubmit={handleSubmit}
       >
         {/* Event Title */}
@@ -195,12 +184,10 @@ export default function CreateEvent() {
           </label>
           <input
             type="text"
+            placeholder="Event Title"
+            value={title}
+            onChange={(e) => setEventTitle(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter event title"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
             required
           />
         </div>
@@ -212,13 +199,24 @@ export default function CreateEvent() {
             Description
           </label>
           <textarea
+            rows={6}
+            placeholder="Event Description (Format: online / F2F & Venue/Platform)"
+            value={description}
+            onChange={(e) => setEventDescription(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter event description"
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
             required
+          />
+          <Button onClick={() => setIsModalOpen(true)} className="mt-2">
+            Need AI help for description?
+          </Button>
+          <ModalInput
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSubmit={(response) => setEventDescription(response)}
+            title="AI Assistance for Events"
+            type="event"
+            mainTitle={title}
+            subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
           />
         </div>
 
@@ -228,14 +226,11 @@ export default function CreateEvent() {
             <Asterisk size={16} className="text-red-600 inline-block mr-1" />
             Location
           </label>
-          <input
-            type="text"
+          <textarea
+            placeholder="Event Location"
+            value={location}
+            onChange={(e) => setEventLocation(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter event location"
-            value={formData.location}
-            onChange={(e) =>
-              setFormData({ ...formData, location: e.target.value })
-            }
             required
           />
         </div>
@@ -249,13 +244,14 @@ export default function CreateEvent() {
             </label>
             <input
               type="date"
+              value={date}
+              onChange={(e) => setEventDate(e.target.value)}
+              onKeyDown={(e) => e.preventDefault()} // prevent manual typing
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               required
               min={
-                formData.date
-                  ? new Date(formData.date).toISOString().split("T")[0]
+                date
+                  ? new Date(date).toISOString().split("T")[0]
                   : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                       .toISOString()
                       .split("T")[0]
@@ -269,9 +265,9 @@ export default function CreateEvent() {
             </label>
             <input
               type="time"
+              value={time}
+              onChange={(e) => setEventTime(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={formData.time}
-              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
               required
               min="08:00"
               max="22:00"
@@ -290,7 +286,7 @@ export default function CreateEvent() {
             className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center w-fit"
           >
             <Upload className="inline-block mr-2" size={18} />
-            Upload Image
+            Upload Photo
           </label>
           <input
             id="image-upload"
@@ -300,6 +296,9 @@ export default function CreateEvent() {
             className="hidden"
             required
           />
+          {fileName && (
+            <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>
+          )}
           {preview && (
             <div className="mt-2">
               <img
@@ -308,9 +307,6 @@ export default function CreateEvent() {
                 className="w-32 h-32 object-cover rounded-md"
               />
             </div>
-          )}
-          {!preview && (
-            <p className="text-sm text-gray-500 mt-2">No image selected</p>
           )}
         </div>
 
@@ -467,31 +463,35 @@ export default function CreateEvent() {
 
         {/* Submit Button */}
         <div className="flex justify-between mt-4">
-        <button
+          <button
             type="button"
-            onClick={() => router.push("/admin-dashboard/organize-events")}
+            onClick={() => {
+              resetFormState(); // Reset the form state
+              router.push("/admin-dashboard/organize-events"); // Navigate back to the events page
+            }}
             className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-        >
+          >
             Cancel
-        </button>
+          </button>
 
-        {/* TO BE IMPLEMENTED */}
-        <div className="flex gap-2">
+          <div className="flex gap-2">
             <button
-            type="button"
-            className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
+              type="submit"
+              onClick={() => setButton("Draft")}
+              className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
             >
-            Save as Draft
+              Save as Draft
             </button>
 
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={isSubmitting || !formComplete}
-          >
-            {isSubmitting ? "Creating..." : "Create Event"}
-          </button>
-        </div>
+            <button
+              type="submit"
+              onClick={() => setButton("Create")}
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={isSubmitting || !formComplete}
+            >
+              {isSubmitting ? "Creating..." : "Create Event"}
+            </button>
+          </div>
         </div>
       </form>
     </div>

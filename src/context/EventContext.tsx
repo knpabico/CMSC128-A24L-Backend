@@ -223,7 +223,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e:any) => {
     const file = e.target.files[0];
     if (file) {
       setEventImage(file);
@@ -385,6 +385,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setNeedSponsorship,
         fileName,
         setFileName,
+        preview,
+        setPreview
       }}
     >
       {children}
