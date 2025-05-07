@@ -258,11 +258,15 @@ export default function ManageDonationDrive() {
     router.push("/admin-dashboard/donation-drive/add");
   };
 
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   return (
     <div className="flex flex-col gap-5">
 			{/* Path */}
 		 <div className="flex items-center gap-2">
-        <div>
+        <div className="hover:text-blue-600" onClick={home}>
           Home
         </div>
         <div>

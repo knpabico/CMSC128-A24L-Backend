@@ -9,7 +9,7 @@ import { Donation, DonationDrive } from "@/models/models";
 import { doc, getDoc } from "firebase/firestore";
 import { Asterisk, Calendar, ChevronRight, CirclePlus, Clock, MapPin, Pencil, Trash2, Upload, Users2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AddDonationDrive() {
@@ -338,19 +338,27 @@ export default function AddDonationDrive() {
       setIsSubmitting(false);
     }
 	};
+	const router = useRouter();
+	const manage = () => {
+    router.push("/admin-dashboard/donation-drive/manage");
+  };
+
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
 	
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div>
+        <div className="hover:text-blue-600" onClick={home}>
           Home
         </div>
         <div>
           <ChevronRight size={15} />
         </div>
-        <div>
-          Add Donation Drive
+        <div className="hover:text-blue-600" onClick={manage}>
+          Manage Donation Drive
         </div>
         <div>
           <ChevronRight size={15} />
