@@ -305,6 +305,16 @@ export default function EventPageAdmin() {
             >
               Rejected
             </button>
+            <button
+              onClick={() => setStatusFilter("Draft")}
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                statusFilter === "Draft"
+                  ? "bg-gray-600 text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+            >
+              Draft
+            </button>
           </div>
         </div>
 
@@ -342,7 +352,9 @@ export default function EventPageAdmin() {
               ? "Approved Events"
               : statusFilter === "Pending"
               ? "Pending Events"
-              : "Rejected Events"}
+              : statusFilter === "Rejected"
+              ? "Rejected Events"
+              : "Events Draft"}
           </h2>
           {filteredEvents.length === 0 ? (
             <p className="text-gray-500">No Events found.</p>
@@ -516,6 +528,44 @@ export default function EventPageAdmin() {
                           </button>
                         </>
                       )}
+
+                      {e.status === "Draft" && e.creatorType === "alumni" && (
+                        <>
+                          <button
+                            onClick={() => handleViewEventAdmin(e)}
+                            className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                          >
+                            View More
+                          </button>
+                        </>
+                      )}
+                      {e.status === "Draft" && e.creatorType === "admin" && (
+                        <>
+                          <button
+                            onClick={() => handleViewEventAdmin(e)}
+                            className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                          >
+                            View More
+                          </button>
+                          <button
+                            onClick={() => 
+                            {
+                              setEdit(true);
+                              setEditingEventId(e.eventId);
+                              setShowForm(true);
+                            }}
+                            className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-300 hover:text-black transition w-full"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(e.eventId)}
+                            className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-300 hover:text-black transition w-full"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
@@ -625,7 +675,7 @@ export default function EventPageAdmin() {
                     addEvent(newEvent, true, true);
                   } else {
                     // If button is not "Create", just save
-                    handleSave(e, image, targetGuests, visibility, "Pending");
+                    handleSave(e, image, targetGuests, visibility, "Draft");
                   }
                   
                   // Only close the form if we've reached this point without errors
@@ -890,7 +940,7 @@ export default function EventPageAdmin() {
                     type="submit"
                     className="bg-blue-500 text-white p-2 rounded"
                   >
-                    {isEditing ? "Update" : "Save"}
+                    {isEditing ? "Update Event" : "Save As Draft" }
                   </button>
                   <button 
                     type="submit"
