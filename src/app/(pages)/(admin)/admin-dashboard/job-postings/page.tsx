@@ -623,20 +623,42 @@ const filterJobs = (status: string) => {
                       </div>
                     )}
                   </div>
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  type="button"
-                  onClick={goBackToList}
-                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-                >
-                  Submit
-                </button>
+                  <div className="flex justify-between items-center mt-6">
+                {/* Left side - Cancel button */}
+                <div>
+                  <button
+                    type="button"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
+                    onClick={() => setShowForm(false)}
+                    >
+                    Cancel
+                  </button>
+                </div>
+
+                {/* Right side - Save as Draft and Submit buttons */}
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                  >
+                    Save as Draft
+                  </button>
+                  <button
+                    type="submit"
+                    onClick={async (e) => {
+                      try {
+                        await handleSubmit(e)
+                        toastSuccess("Job submitted successfully. Please wait for admin approval.")
+                        setShowForm(false)
+                      } catch (error) {
+                        toastError("There was an error submitting the job. Please try again.")
+                      }
+                    }}
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
             </form>
           </div>
