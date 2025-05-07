@@ -5,6 +5,7 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import {
   ChevronRight,
   Trash2,
@@ -29,6 +30,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { set } from "zod";
 
 export default function Users() {
   const {
@@ -55,6 +57,7 @@ export default function Users() {
     setJobType,
     position,
     setPosition,
+    requiredSkill,
     handleSkillChange,
     salaryRange,
     setSalaryRange,
@@ -66,7 +69,9 @@ export default function Users() {
     fileName,
     handleImageChange,
     handleEdit,
-    updateStatus
+    updateStatus,
+    handleSaveDraft,
+    handleEditDraft,
   } = useJobOffer();
 
   const filterCategories = {
@@ -108,24 +113,28 @@ export default function Users() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState(null);
 
-const filterJobs = (status: string) => {
-  console.log("Filtering jobs with status:", status);
-  const filtered = jobOffers.filter((job: JobOffering) => {
-    if (status === "Accepted") {
-      return job.status === "Accepted" || job.status === "Closed";
-    }
-    return job.status === status;
-  });
-  console.log("Filtered jobs:", filtered);
-  return filtered;
-};
+  const filterJobs = (status: string) => {
+    console.log("Filtering jobs with status:", status);
+    const filtered = jobOffers.filter((job: JobOffering) => {
+      if (status === "Accepted") {
+        return job.status === "Accepted" || job.status === "Closed";
+      }
+      if (status === "Drafts") {
+        return job.status === "Draft";
+      }
+      return job.status === status;
+    });
+    console.log("Filtered jobs:", filtered);
+    return filtered;
+  };
 
-  const tabs = ["Accepted", "Pending", "Rejected"];
+  const tabs = ["Accepted", "Pending", "Rejected", "Draft"];
 
   const stats = {
     pending: jobOffers.filter((job) => job.status === "Pending").length,
     accepted: jobOffers.filter((job) => job.status === "Accepted").length,
     rejected: jobOffers.filter((job) => job.status === "Rejected").length,
+    drafts: jobOffers.filter((job) => job.status === "Draft").length,
     total: jobOffers.length,
   };
 
@@ -176,7 +185,7 @@ const filterJobs = (status: string) => {
 
   // Render view page for a job posting
   const renderViewPage = () => {
-    if (!viewingJob) return null;
+    if (!viewingJob) return null
 
     return (
       <div className="flex flex-col gap-5">
@@ -185,18 +194,13 @@ const filterJobs = (status: string) => {
           <div>
             <ChevronRight size={15} />
           </div>
-          <div
-            className="cursor-pointer hover:text-blue-600"
-            onClick={goBackToList}
-          >
+          <div className="cursor-pointer hover:text-blue-600" onClick={goBackToList}>
             Manage Job Posting
           </div>
           <div>
             <ChevronRight size={15} />
           </div>
-          <div className="font-bold text-[var(--primary-blue)]">
-            View Job Posting
-          </div>
+          <div className="font-bold text-[var(--primary-blue)]">View Job Posting</div>
         </div>
 
         <div className="w-full">
@@ -212,29 +216,15 @@ const filterJobs = (status: string) => {
             </div>
           </div>
 
-          {/* Save Button */}
-          {isEditing && (
-            <button
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg float-right"
-              onClick={() => {
-                setIsEditing(false);
-                handleEdit(editedJob); 
-              }}
-            >
-              Save Changes
-            </button>
-          )}
-
           {/* Job Info Section */}
           <div className="flex flex-col gap-3 mt-6">
-            <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+          <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
               <div className="flex flex-col gap-5">
-                {/* Logo and top fields */}
                 <div className="flex items-start gap-4">
                   <div className="mr-2">
                     {editedJob.image ? (
                       <img
-                        src={editedJob.image}
+                        src={editedJob.image || "/placeholder.svg"}
                         alt={`${editedJob.company} logo`}
                         className="w-35 h-35 object-contain rounded-md border border-gray-200"
                       />
@@ -246,31 +236,27 @@ const filterJobs = (status: string) => {
                   </div>
 
                   <div className="flex-1 space-y-3">
-                    {/* Job Position */}
                     <div>
                       <label className="block text-sm font-medium">Job Position</label>
                       {isEditing ? (
                         <input
                           value={editedJob.position}
-                          onChange={(e) =>
-                            setEditedJob({ ...editedJob, position: e.target.value })
-                          }
+                          onChange={(e) => setEditedJob({ ...editedJob, position: e.target.value })}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
-                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{editedJob.position}</div>
+                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                          {editedJob.position}
+                        </div>
                       )}
                     </div>
 
-                    {/* Company Name */}
                     <div>
                       <label className="block text-sm font-medium">Company Name</label>
                       {isEditing ? (
                         <input
                           value={editedJob.company}
-                          onChange={(e) =>
-                            setEditedJob({ ...editedJob, company: e.target.value })
-                          }
+                          onChange={(e) => setEditedJob({ ...editedJob, company: e.target.value })}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
@@ -312,9 +298,7 @@ const filterJobs = (status: string) => {
                   {isEditing ? (
                     <textarea
                       value={editedJob.jobDescription}
-                      onChange={(e) =>
-                        setEditedJob({ ...editedJob, jobDescription: e.target.value })
-                      }
+                      onChange={(e) => setEditedJob({ ...editedJob, jobDescription: e.target.value })}
                       className="px-3 py-2 border border-gray-300 rounded-md w-full min-h-[100px]"
                     />
                   ) : (
@@ -324,7 +308,6 @@ const filterJobs = (status: string) => {
                   )}
                 </div>
 
-                {/* Date Posted */}
                 <div>
                   <label className="block text-sm font-medium">Date Posted</label>
                   <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
@@ -332,13 +315,35 @@ const filterJobs = (status: string) => {
                   </div>
                 </div>
               </div>
+
+              {/* Revised buttons */}
+              {isEditing && (
+                <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+                    onClick={() => {
+                      setIsEditing(false);
+                      handleEdit(editedJob); 
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
       </div>
-    );
-  };
+    )
+  }
 
   // ibang page na si post a job
   const renderPostJobPage = () => {
@@ -365,27 +370,34 @@ const filterJobs = (status: string) => {
         <div className="flex flex-col gap-3">
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                // Check all required fields
-                if (
-                  !position || 
-                  !employmentType || 
-                  !jobType || 
-                  !jobDescription || 
-                  !company || 
-                  !location || 
-                  !experienceLevel || 
-                  !salaryRange || 
-                  !image
-                ) {
-                  alert("Please fill in all required fields");
-                  return;
-                }
-                handleSubmit(e);
-                goBackToList(); // navigates back to the manage job postings page only after validation passes
+              onSubmit={async (e) => {
+              e.preventDefault();
+              // Check all required fields
+              if (
+                !position || 
+                !employmentType || 
+                !jobType || 
+                !jobDescription || 
+                !company || 
+                !location || 
+                !experienceLevel || 
+                !salaryRange || 
+                !image
+              ) {
+                toastError("Please fill in all required fields");
+                return;
+              }
+              try {
+                await handleSubmit(e);
+                toastSuccess("Job submitted successfully.");
+                goBackToList();
+              } catch (error) {
+                toastError("There was an error submitting the job. Please try again.");
+              }
               }}
             >
+                {/* // handleSubmit(e);
+                // goBackToList(); // navigates back to the manage job postings page only after validation passes */}
               <div className="grid grid-cols-2 gap-6 mt-1">
                 {/* Left Column ng form */}
                 <div>
@@ -587,6 +599,7 @@ const filterJobs = (status: string) => {
                     </label>
                     <input
                       type="text"
+                      value={requiredSkill.join(", ")}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
                       className="w-full p-1.5 border rounded placeholder:text-sm"
@@ -603,6 +616,7 @@ const filterJobs = (status: string) => {
                     <div className="flex items-center gap-4">
                       <label className="cursor-pointer">
                         <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                          
                           Choose File
                         </div>
                         <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
@@ -615,20 +629,44 @@ const filterJobs = (status: string) => {
                       </div>
                     )}
                   </div>
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  type="button"
-                  onClick={goBackToList}
-                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-                >
-                  Submit
-                </button>
+                  <div className="flex justify-between items-center mt-6">
+                {/* Left side - Cancel button */}
+                <div>
+                  <button
+                    type="button"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
+                    onClick={() => setCurrentPage("list")}
+                    >
+                    Cancel
+                  </button>
+                </div>
+
+                {/* Right side - Save as Draft and Submit buttons */}
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                    onClick={async (e) => {
+                      try {
+                        // Save draft - this function needs to be implemented in JobOfferContext
+                        await handleSaveDraft(e);
+                        toastSuccess("Draft saved successfully");
+                        setCurrentPage("list")
+                      } catch (error) {
+                        toastError("Failed to save draft. Please try again.");
+                        console.error("Error saving draft:", error);
+                      }
+                    }}
+                  >
+                    Save as Draft
+                  </button>
+                  <button
+                    type="submit"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -697,7 +735,9 @@ const filterJobs = (status: string) => {
                         ? stats.pending
                         : tab === "Accepted"
                         ? stats.accepted
-                        : stats.rejected}
+                        : tab === "Rejected"
+                        ? stats.rejected
+                        : stats.drafts}
                     </div>
                   </div>
                 </div>
@@ -710,118 +750,196 @@ const filterJobs = (status: string) => {
                 ref={tableRef}
               >
                 <div className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm">
-                  <div className="w-1/2 flex items-center justify-baseline font-semibold">
+                  <div className="w-2/3 flex items-center justify-baseline font-semibold">
                     Job Posting Info
                   </div>
-                  <div className="w-1/2 flex justify-end items-center">
-                    <div className="w-1/6 flex items-center justify-center font-semibold">
+                    <div className="w-2/3 flex justify-end items-center pl-12">
+                    <div className="w-1/3 flex items-center justify-center font-semibold">
                       Status
                     </div>
-                    <div className="w-1/6 flex items-center justify-center font-semibold">
+                    <div className="w-1/3 flex items-center justify-end font-semibold pl-12">
                       Actions
                     </div>
-                    <div className="w-1/6 flex items-center justify-center"></div>
-                  </div>
+                    <div className="w-1/3 flex items-center justify-center"></div>
+                    </div>
                 </div>
 
                 {/* Dynamic rows */}
                 {filterJobs(activeTab).map((job, index) => (
                   <div
                     key={index}
-                    className={`w-full flex gap-4 border-t border-gray-300 ${
+                    className={`w-full flex items-center border-t border-gray-300 ${
                       index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:bg-blue-50`}
                   >
-                    <div
-                      className="w-1/2 flex flex-col p-4 gap-1 cursor-pointer"
-                      onClick={() => handleViewJob(job.jobId)}
-                    >
+                    {/* Company Logo */}
+                    <div className="flex-shrink-0 p-4">
+                      {job.image ? (
+                        <img
+                          src={job.image || "/placeholder.svg"}
+                          alt={`${job.company} logo`}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                          {job.company.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Job Details */}
+                    <div className="flex-grow flex flex-col p-4 gap-1 cursor-pointer" onClick={() => handleViewJob(job.jobId)}>
                       <div className="text-base font-bold">{job.position}</div>
                       <div className="text-sm text-gray-600">{job.company}</div>
                       <div className="text-sm text-gray-500">
-                        {job.employmentType} • {job.experienceLevel} •{" "}
-                        {job.salaryRange}
+                        {job.employmentType} • {job.experienceLevel} • {job.salaryRange}
                       </div>
                     </div>
-                    <div className="w-1/2 flex items-center justify-end p-5">
-                      <div className="w-1/6 flex items-center justify-center">
-                        <div
-                          className={`px-2 py-1 text-xs rounded ${
-                            job.status === "Accepted"
-                              ? "bg-green-100 text-green-800"
-                              : job.status === "Pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {job.status}
-                        </div>
-                      </div>
 
-                      {/* Toggle Switch */}
-                      <div className="w-1/6 flex items-center justify-center">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
+                    {/* Actions Section - Using fixed widths for consistent layout */}
+                    <div className="flex items-center gap-4 p-4">
+                      {/* Toggle and Status - Fixed width container */}
+                      <div className="flex items-center w-[220px]">
+                        {/* Toggle Switch - Fixed width */}
+                        <div className="w-16 flex items-center justify-center">
+                          {activeTab === "Accepted" && (
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             className="sr-only peer"
-                            checked={ job.status === "Accepted"}
-                            onChange={() => {
-                              if (job.status === "Accepted"){
-                                updateStatus("Closed", job.jobId);
-                              } else{
-                                updateStatus("Accepted", job.jobId);
+                            checked={job.status === "Accepted"}
+                            onChange={async () => {
+                              try {
+                                if (job.status === "Accepted") {
+                                  await updateStatus("Closed", job.jobId);
+                                } else {
+                                  await updateStatus("Accepted", job.jobId);
+                                }
+                              } catch (error) {
+                                toastError("Failed to update job status");
                               }
                             }}
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                        </label>
-                      </div>
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                          </label>
+                          )}
+                        </div>
 
-                      <div className="w-1/6 flex items-center justify-center">
-                        <div
-                          className="text-[var(--primary-blue)] hover:underline cursor-pointer"
-                          onClick={() => handleViewJob(job.jobId)}
-                        >
-                          View Details
+                        {/* Status Badge - Fixed width */}
+                        <div className="w-24 flex items-center justify-center">
+                          <div
+                            className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
+                              job.status === "Accepted"
+                                ? "bg-green-100 text-green-800"
+                                : job.status === "Pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {job.status}
+                          </div>
                         </div>
                       </div>
-                      <div className="w-1/6 flex items-center justify-center">
+
+                        {/* View/Edit Details Button */}
+                        <div className="w-28 flex items-center justify-center">
+                        {activeTab === "Draft" ? (
+                          <button
+                          className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditDraft(job);
+                            setCurrentPage("post");
+                          }}
+                          >
+                          Edit Draft
+                          </button>
+                        ) : (
+                          <button
+                          className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleViewJob(job.jobId)
+                          }}
+                          >
+                          View Details
+                          </button>
+                        )}
+                        </div>
+
+                      {/* Action Buttons Container - Fixed width for both Trash and Accept/Reject */}
+                      <div className="w-[140px] flex items-center justify-center">
                         {activeTab === "Pending" ? (
-                          <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
+                          <div className="flex gap-2">
                             <button
-                              onClick={() => handleReject(job.jobId)}
-                              className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleReject(job.jobId)
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
                             >
-                              <ThumbsDown size={14} />
+                              <ThumbsDown size={18} />
                               <span>Reject</span>
                             </button>
                             <button
-                              onClick={() => handleAccept(job.jobId)}
-                              className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleAccept(job.jobId)
+                              }}
+                              className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
                             >
-                              <ThumbsUp size={14} />
+                              <ThumbsUp size={18} />
                               <span>Accept</span>
                             </button>
                           </div>
+                        ) : activeTab === "Drafts" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditDraft(job);
+                                setCurrentPage("post");
+                              }}
+                              className="text-white bg-blue-500 hover:bg-blue-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Pencil size={18} />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setJobToDelete(job);
+                                setIsConfirmationOpen(true);
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Trash2 size={18} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         ) : (
-                          <Trash2
-                            size={20}
-                            className="text-gray-500 hover:text-red-500 cursor-pointer"
-                            onClick={() => {
-                              setJobToDelete(job); // Set the job to delete
-                              setIsConfirmationOpen(true); // Open the confirmation dialog}
-                            }}
-                          />
+                          <div className="flex items-center justify-center w-full">
+                            <Trash2
+                              size={18}
+                              className="text-gray-500 hover:text-red-500 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setJobToDelete(job)
+                                setIsConfirmationOpen(true)
+                              }}
+                            />
+                          </div>
                         )}
-                      </div>
+                        </div>
                     </div>
                   </div>
-                ))}
+                ))
+              }
               </div>
             </div>
           </div>
         </div>
-      ) : currentPage == "view" ? (
+      ) : currentPage === "view" ? (
         renderViewPage()
       ) : (
         renderPostJobPage()

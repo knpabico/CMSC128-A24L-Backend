@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
 import { Bookmark } from "@/models/models";
-import { useBookmarks } from "@/context/BookmarkContext";
-import { Card, CardContent } from "@/components/ui/card";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
 import {
@@ -29,6 +28,7 @@ import {
   FileText,
   Check,
   Pencil,
+  Trash2,
 } from "lucide-react";
 import { set } from "zod";
 
@@ -58,6 +58,7 @@ export default function JobOffers() {
     setJobType,
     position,
     setPosition,
+    requiredSkill,
     handleSkillChange,
     salaryRange,
     setSalaryRange,
@@ -68,11 +69,16 @@ export default function JobOffers() {
     preview,
     fileName,
     handleImageChange,
+    handleSaveDraft,
+    handleEditDraft,
+    handleDelete,
+    updateStatus
   } = useJobOffer();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
   const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
+  const [draftJobsCurrentPage, setDraftJobsCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [activeFilterCategory, setActiveFilterCategory] = useState<
@@ -256,7 +262,7 @@ export default function JobOffers() {
 
   // Created Jobs pagination
   const filteredCreatedJobs = jobOffers
-    .filter((job) => job.alumniId === user?.uid)
+    .filter((job) => job.alumniId === user?.uid && job.status !== "Draft") 
     .filter((job) => {
       if (activeFilters.length === 0) return true;
       return activeFilters.some(
@@ -285,19 +291,50 @@ export default function JobOffers() {
     createdJobsEndIndex
   );
 
+  // Draft Jobs pagination
+  const filteredDraftJobs = jobOffers
+    .filter((job) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
+    .filter(
+      (job) =>
+        activeFilters.length === 0 ||
+        activeFilters.some(
+          (filter) =>
+            job.experienceLevel === filter ||
+            job.jobType === filter ||
+            job.employmentType === filter ||
+            job.requiredSkill.includes(filter)
+        )
+    )
+    .sort((a, b) => {
+      const dateA = a.datePosted.seconds;
+      const dateB = b.datePosted.seconds;
+      return latestFirst ? dateB - dateA : dateA - dateB;
+    });
+
+  const draftJobsTotalPages = Math.ceil(filteredDraftJobs.length / jobsPerPage);
+  const draftJobsStartIndex = (draftJobsCurrentPage - 1) * jobsPerPage;
+  const draftJobsEndIndex = draftJobsStartIndex + jobsPerPage;
+  const currentDraftJobs = filteredDraftJobs.slice(
+    draftJobsStartIndex, 
+    draftJobsEndIndex
+  );
+
   return (
     <>
       {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
-      <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
-        <div className="left-[200px] top-[109px] absolute text-[#FFFFFF] text-6xl font-semibold">
-          Job Opportunities
-        </div>
-        <div className="w-[971px] left-[200px] top-[200px] absolute text-[#FFFFFF] text-base font-normal">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta,
-          ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor
-          nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis
-          maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis
-          tempus nulla, sed ullamcorper quam hendrerit eget.
+      <div
+        className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50"
+        style={{ backgroundImage: 'url("/ICS2.jpg")' }}
+      >
+        <div className="absolute inset-0 bg-blue-500/50" />
+        <div className="relative z-10">
+          <h1 className="text-5xl font-bold my-2 text-white">Job Opportunities</h1>
+          <p className="text-white text-sm md:text-base">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat
+            aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus
+            quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit
+            eget.
+          </p>
         </div>
       </div>
 
@@ -399,73 +436,85 @@ export default function JobOffers() {
         <div className="flex">
           <div>
             {/* Sidebar */}
-            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[5px] rounded-[10px] w-content h-max">
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => {
-                      setSidebarFilter("Job Postings")
-                    }}
-                  >
-                    <Briefcase className="w-5 h-5" />
-                    <p
-                      className={`group w-max relative py-1 transition-all ${
-                        sidebarFilter === "Job Postings"
-                          ? "font-semibold border-b-3 border-blue-500"
-                          : "text-gray-700 group"
-                      }`}
-                    >
-                      <span>All Job Posts</span>
-                      {sidebarFilter !== "Job Postings" && (
-                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                      )}
-                    </p>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => {
-                      setSidebarFilter("Saved Jobs")
-                    }}
-                  >
-                    <Bookmark className="w-5 h-5" />
-                    <p
-                      className={`group w-max relative py-1 transition-all ${
-                        sidebarFilter === "Saved Jobs"
-                          ? "font-semibold border-b-3 border-blue-500"
-                          : "text-gray-700 group"
-                      }`}
-                    >
-                      <span>Saved Jobs</span>
-                      {sidebarFilter !== "Saved Jobs" && (
-                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                      )}
-                    </p>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => setSidebarFilter("Create Jobs")}
-                  >
-                    <FilePlus className="w-5 h-5" />
-                    <p
-                      className={`group w-max relative py-1 transition-all ${
-                        sidebarFilter === "Create Jobs"
-                          ? "font-semibold border-b-3 border-blue-500"
-                          : "text-gray-700 group"
-                      }`}
-                    >
-                      <span>Created Jobs</span>
-                      {sidebarFilter !== "Create Jobs" && (
-                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                      )}
-                    </p>
-                  </button>
-                </li>
-              </ul>
+            <div className="bg-[#FFFFFF] flex flex-col px-10 py-8 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
+              <button
+                onClick={() => {
+                  setSidebarFilter("Job Postings")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <Briefcase className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Job Postings"
+                      ? "font-semibold border-b-3 border-blue-500"
+                      : "text-gray-700 group"
+                  }`}
+                >
+                  <span>All Job Posts</span>
+                  {sidebarFilter !== "Job Postings" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarFilter("Saved Jobs")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <Bookmark className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Saved Jobs" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Saved Jobs</span>
+                  {sidebarFilter !== "Saved Jobs" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarFilter("Create Jobs")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <FilePlus className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Create Jobs" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Created Jobs</span>
+                  {sidebarFilter !== "Create Jobs" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarFilter("Drafts")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <FileText className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Drafts" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Drafts</span>
+                  {sidebarFilter !== "Drafts" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
             </div>
 
             {/* Post a Job Button */}
@@ -503,7 +552,7 @@ export default function JobOffers() {
                         {currentJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                            className={`bg-white p-3 border-2 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -718,11 +767,12 @@ export default function JobOffers() {
                             onClick={() => setSelectedJob(job)}
                           >
                             <div className="flex justify-between items-center">
-                              <div className="flex">
+                              {/* Left side - Job details */}
+                              <div className="flex items-center">
                                 <div className="mr-3">
                                   {job.image ? (
                                     <img
-                                      src={job.image}
+                                      src={job.image || "/placeholder.svg"}
                                       alt={`${job.company} logo`}
                                       className="w-15 h-15 object-contain rounded-md border border-gray-200"
                                     />
@@ -732,44 +782,70 @@ export default function JobOffers() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="flex-1">
-                                  <h2 className="font-semibold text-md">
-                                    {job.position}
-                                  </h2>
-                                  <p className="text-sm text-gray-600">
-                                    {job.company}
-                                  </p>
+                                <div>
+                                  <h2 className="font-semibold text-md">{job.position}</h2>
+                                  <p className="text-sm text-gray-600">{job.company}</p>
                                   <p className="text-xs text-[#0856BA] flex items-center">
                                     <MapPin className="w-3.5 h-3.5 mr-1" />
                                     {job.location}
                                   </p>
                                 </div>
                               </div>
-                              <div>
+
+                              {/* Middle - Toggle switch */}
+                              <div className="w-[100px] flex justify-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={job.status === "Accepted"}
+                                      onChange={async () => {
+                                        try {
+                                          if (job.status === "Accepted") {
+                                            await updateStatus("Closed", job.jobId);
+                                          } else {
+                                            await updateStatus("Accepted", job.jobId);
+                                          }
+                                        } catch (error) {
+                                          toastError("Failed to update job status");
+                                        }
+                                      }}
+                                  />
+                                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                </label>
+                              </div>
+
+                              {/* Right side - Status and trash icon */}
+                              <div className="flex items-center space-x-3">
                                 <span
                                   className={`px-2 py-1 rounded text-xs font-medium ${
                                     job.status === "Accepted"
                                       ? "bg-green-100 text-green-700"
                                       : job.status === "Rejected"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-yellow-100 text-yellow-700"
+                                        ? "bg-red-100 text-red-700"
+                                        : "bg-yellow-100 text-yellow-700"
                                   }`}
                                 >
-                                  {job.status.charAt(0).toUpperCase() +
-                                    job.status.slice(1)}
+                                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                                 </span>
+
+                                {/* Trash button */}
+                                <button
+                                  className="text-gray-500 hover:text-red-500 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    // No functionality yet
+                                  }}
+                                >
+                                  <Trash2 className="w-5 h-5" />
+                                </button>
                               </div>
                             </div>
                           </div>
                         ))}
                         {currentCreatedJobs.length < jobsPerPage &&
-                          [
-                            ...Array(jobsPerPage - currentCreatedJobs.length),
-                          ].map((_, i) => (
-                            <div
-                              key={`empty-created-${i}`}
-                              className="h-[72px] invisible"
-                            ></div>
+                          [...Array(jobsPerPage - currentCreatedJobs.length)].map((_, i) => (
+                            <div key={`empty-created-${i}`} className="h-[72px] invisible"></div>
                           ))}
                       </div>
 
@@ -813,8 +889,129 @@ export default function JobOffers() {
                     </>
                   )}
                 </div>
-              ) : null}
-            </div>
+                ) : sidebarFilter === "Drafts" ? (
+                <div className="space-y-2">
+                  {filteredDraftJobs.length === 0 ? (
+                  <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
+                  <p className="text-lg">No draft jobs found.</p>
+                  </div>
+                  ) : (
+                  <>
+                  <div className="space-y-2">
+                  {filteredDraftJobs.map((job, index) => (
+                    <div
+                      key={index}
+                      className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                      selectedJob?.jobId === job.jobId
+                      ? "border-blue-500"
+                      : "border-gray-200"
+                      }`}
+                      onClick={() => setSelectedJob(job)}
+                      >
+                      <div className="flex justify-between items-center">
+                        {/* Left side - Job details */}
+                        <div className="flex items-center">
+                          <div className="mr-3">
+                            {job.image ? (
+                            <img
+                            src={job.image || "/placeholder.svg"}
+                            alt={`${job.company} logo`}
+                            className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                            />
+                            ) : (
+                            <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                            {job.company.charAt(0).toUpperCase()}
+                            </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <h2 className="font-semibold text-md">{job.position}</h2>
+                            <p className="text-sm text-gray-600">{job.company}</p>
+                            <p className="text-xs text-[#0856BA] flex items-center">
+                            <MapPin className="w-3.5 h-3.5 mr-1" />
+                            {job.location}
+                            </p>
+                          </div>
+                          </div>
+
+                          {/* Right side */}
+                          <div className="flex items-center space-x-3">
+                          {/* Draft label */}
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                            Draft
+                          </span>
+
+                          {/* Edit button */}
+                          <button
+                            className="text-gray-500 hover:text-blue-500 transition-colors"
+                            onClick={(e) => {
+                              handleEditDraft(job);
+                              setShowForm(true);
+                            }}
+                          >
+                            <Pencil className="w-5 h-5" />
+                          </button>
+
+                          {/* Delete button */}
+                          <button
+                            className="text-gray-500 hover:text-red-500 transition-colors"
+                            onClick={(e) => {
+                              handleDelete(job.jobId);
+                            }}
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {filteredDraftJobs.length < jobsPerPage &&
+                    [...Array(jobsPerPage - filteredDraftJobs.length)].map((_, i) => (
+                    <div key={`empty-draft-${i}`} className="h-[72px] invisible"></div>
+                    ))}
+                  </div>
+
+                  {/* Pagination Controls for Draft Jobs */}
+                  {filteredDraftJobs.length > 0 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    <button
+                    className="px-3 py-1 bg-white rounded text-sm"
+                    onClick={() =>
+                    setDraftJobsCurrentPage((prev) =>
+                    Math.max(prev - 1, 1)
+                    )
+                    }
+                    disabled={draftJobsCurrentPage === 1}
+                    >
+                    Prev
+                    </button>
+
+                    <span className="text-sm font-medium px-3 py-1">
+                    {draftJobsCurrentPage} of {draftJobsTotalPages || 1}
+                    </span>
+
+                    <button
+                    className="px-3 py-1 bg-white rounded text-sm"
+                    onClick={() =>
+                    setDraftJobsCurrentPage((prev) =>
+                    Math.min(prev + 1, draftJobsTotalPages || 1)
+                    )
+                    }
+                    disabled={
+                    draftJobsCurrentPage === draftJobsTotalPages ||
+                    filteredDraftJobs.length <= jobsPerPage
+                    }
+                    >
+                    Next
+                    </button>
+                  </div>
+                  )}
+                  </>
+                  )}
+                </div>
+                ) : null}
+              </div>
 
             {/* Right Column - Job Details */}
             <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
@@ -952,25 +1149,7 @@ export default function JobOffers() {
         {showForm && (
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                // Check all required fields
-                if (
-                  !position || 
-                  !employmentType || 
-                  !jobType || 
-                  !jobDescription || 
-                  !company || 
-                  !location || 
-                  !experienceLevel || 
-                  !salaryRange || 
-                  !image
-                ) {
-                  alert("Please fill in all required fields");
-                  return;
-                }
-                handleSubmit(e);
-              }}
+              onSubmit={handleSubmit}
               className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
             >
               <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
@@ -1202,6 +1381,7 @@ export default function JobOffers() {
                     </label>
                     <input
                       type="text"
+                      value={requiredSkill.join(', ')}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
                       className="w-full p-1.5 border rounded placeholder:text-sm"
@@ -1245,21 +1425,80 @@ export default function JobOffers() {
                     )}
                   </div>
 
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
+                  <div className="flex justify-between items-center mt-6">
+                {/* Left side - Cancel button */}
+                <div>
+                    <button
+                    type="button"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
+                    onClick={() => {
+                      setShowForm(false);
+                      setPosition('');
+                      setEmploymentType('');
+                      setJobType('');
+                      setJobDescription('');
+                      setCompany('');
+                      setLocation('');
+                      setExperienceLevel('');
+                      setSalaryRange('');
+                      setJobImage(null);
+                    }}
+                    >
+                    Cancel
+                    </button>
+                </div>
+
+                {/* Right side - Save as Draft and Submit buttons */}
+                <div className="flex gap-4">
+                    <button
+                    type="button"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                    onClick={async (e) => {
+                      try {
+                        // Save draft - this function needs to be implemented in JobOfferContext
+                        await handleSaveDraft(e);
+                        toastSuccess("Draft saved successfully");
+                        setShowForm(false);
+                      } catch (error) {
+                        toastError("Failed to save draft. Please try again.");
+                        console.error("Error saving draft:", error);
+                      }
+                    }}
+                    >
+                    Save as Draft
+                    </button>
+
+                    <button
+                    type="submit"
+                    onClick={async (e) => {
+                    if (
+                      !position ||
+                      !employmentType ||
+                      !jobType ||
+                      !jobDescription ||
+                      !company ||
+                      !location ||
+                      !experienceLevel ||
+                      !salaryRange ||
+                      !image
+                    ) {
+                      alert("Please fill in all required fields")
+                      return
+                    }
+                    try {
+                      await handleSubmit(e);
+                      toastSuccess("Job submitted successfully");
+                      setShowForm(false);
+                    } catch (error) {
+                      toastError("There was an error submitting the job. Please try again.");
+                    }
+                    }}
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                 >
                   Submit
                 </button>
-              </div>
+                </div>
+                </div>
             </form>
           </div>
         )}
