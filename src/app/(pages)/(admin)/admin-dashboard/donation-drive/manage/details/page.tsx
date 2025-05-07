@@ -324,16 +324,15 @@ export default function AddDonationDrive() {
 			await handleEdit(donationDriveId, {
 				campaignName,
 				description,
-				image,
 				beneficiary,
 				targetAmount,
 				endDate,
 		});
-			toastSuccess("Donation drive successfully created");
+			toastSuccess("Donation drive successfully edited");
 			setIsEditing(false);
 		} catch (error) {
 			console.error("Error saving donation drive:", error);
-			setMessage("Failed to create donation drive.");
+			setMessage("Failed to edit donation drive.");
 			setIsError(true);
 		} finally {
       setIsSubmitting(false);

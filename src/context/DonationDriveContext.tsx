@@ -285,7 +285,6 @@ export function DonationDriveProvider({
         return { success: false, message: "No image provided" };
       }
 
-      console.log(driveData);
       driveData.donationDriveId = docRef.id;
       await setDoc(doc(db, "donation_drive", docRef.id), driveData);
       await addNewsLetter(driveData.donationDriveId, "donation_drive");
@@ -320,7 +319,7 @@ export function DonationDriveProvider({
       isEvent,
       eventId,
       startDate: new Date(),
-      endDate: new Date(endDate),
+      endDate,
       donorList: [],
       image: "",
     };
@@ -374,10 +373,43 @@ export function DonationDriveProvider({
       setDonationDrives((prev) =>
         prev.map((donationDrive) =>
           donationDrive.donationDriveId === donationDriveId
-            ? { ...donationDrive,endDate: new Date(endDate), ...updatedData }
+            ? { ...donationDrive, ...updatedData }
             : donationDrive
         )
       );
+      // if (qrGcash) {
+      //   const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash/${donationDriveId}`);
+      //   if (uploadResult.success) {
+
+      //     await updateDoc(doc(db, "donation_drive", donationDriveId), {qrGcash: uploadResult.url});
+      //   } else {
+      //     return { success: false, message: "Gcash QR Code upload failed" };
+      //   }
+      // } else {
+      //   return { success: false, message: "No Gcash QR Code provided" };
+      // }
+      // if (qrPaymaya) {
+      //   const uploadResult = await uploadImage(qrPaymaya, `donation-drive/qr_paymaya/${donationDriveId}`);
+      //   if (uploadResult.success) {
+
+      //     await updateDoc(doc(db, "donation_drive", donationDriveId), {qrPaymaya: uploadResult.url});
+      //   } else {
+      //     return { success: false, message: "Paymaya QR Code upload failed" };
+      //   }
+      // } else {
+      //   return { success: false, message: "No Paymaya QR Code provided" };
+      // }
+      // if (image) {
+      //   const uploadResult = await uploadImage(image, `donation-drive/${donationDriveId}`);
+      //   if (uploadResult.success) {
+
+      //     await updateDoc(doc(db, "donation_drive", donationDriveId), {image: uploadResult.url});
+      //   } else {
+      //     return { success: false, message: "Image upload failed" };
+      //   }
+      // } else {
+      //   return { success: false, message: "No image provided" };
+      // }
       setCreatorId("");
       setCampaignName("");
       setDescription("");
