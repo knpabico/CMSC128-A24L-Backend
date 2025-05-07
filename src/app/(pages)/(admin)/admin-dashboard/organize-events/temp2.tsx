@@ -465,7 +465,7 @@ export default function EventPageAdmin() {
                     {e.status === "Pending" && e.creatorType === "alumni" ? (
                       <div className="flex flex-col gap-2 mt-4">
                         <button
-                          onClick={() => addEvent(e, true, false)}
+                          onClick={() => addEvent(e, true)}
                           className="px-4 py-2 bg-green-500 text-white rounded-md"
                         >
                           Accept Proposal
@@ -497,7 +497,7 @@ export default function EventPageAdmin() {
                     ) : e.status === "Pending" && e.creatorType === "admin" ? (
                       <div className="flex flex-col gap-2 mt-4">
                         <button
-                          onClick={() => addEvent(e, true, false)}
+                          onClick={() => addEvent(e, true)}
                           className="px-4 py-2 bg-green-500 text-white rounded-md"
                         >
                           Finalize
@@ -668,7 +668,7 @@ export default function EventPageAdmin() {
 
                     //console.log("Image being used:", image || defaultImageUrl);
                     
-                    addEvent(newEvent, true, true);
+                    addEvent(newEvent, true);
                   } else {
                     // If button is not "Create", just save
                     handleSave(e, image, targetGuests, visibility, "Draft");

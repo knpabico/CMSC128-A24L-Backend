@@ -148,7 +148,7 @@ export default function CreateEventPage() {
         donationDriveId: ""
       };
 
-      addEvent(newEvent, true, true);
+      addEvent(newEvent, true);
     } else {
       // If button is not "Create", save as draft
       handleSave(e, image, targetGuests, visibility, "Draft");
