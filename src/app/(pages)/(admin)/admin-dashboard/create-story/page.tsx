@@ -216,17 +216,18 @@ export default function FeaturedStoriesPage() {
                 }`}
                 style={{ width: isSticky ? headerWidth : "100%" }}
               >
-                <div className="w-2/3 flex items-center justify-baseline font-semibold">
+                <div className="flex-grow items-center justify-baseline font-semibold">
                   Featured Story Info
                 </div>
-                <div className="w-1/3 flex justify-end items-center">
-                  <div className="w-1/3 flex items-center justify-center font-semibold">
+                <div className="w-1/3 flex items-center justify-center font-semibold mr-7">
+                  Public
+                </div>
+                  <div className="w-[90px] flex items-center justify-center font-semibold">
                     Type
                   </div>
-                  <div className="w-1/3 flex items-center justify-center font-semibold">
+                  <div className="w-[150px] flex items-center justify-center font-semibold">
                     Actions
                   </div>
-                </div>
               </div>
 
               {/* Spacer div to prevent content jump when header becomes fixed */}
