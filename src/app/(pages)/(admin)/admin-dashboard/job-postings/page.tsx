@@ -802,11 +802,11 @@ export default function Users() {
                       </div>
                     </div>
 
-                    {/* Actions Section - Using fixed widths for consistent layout */}
+                    {/* Actions Section */}
                     <div className="flex items-center gap-4 p-4">
-                      {/* Toggle and Status - Fixed width container */}
+                      {/* Toggle and Status*/}
                       <div className="flex items-center w-[220px]">
-                        {/* Toggle Switch - Fixed width */}
+                        {/* Toggle Switch */}
                         <div className="w-16 flex items-center justify-center">
                           {activeTab === "Accepted" && (
                           <label className="relative inline-flex items-center cursor-pointer">
@@ -831,7 +831,7 @@ export default function Users() {
                           )}
                         </div>
 
-                        {/* Status Badge - Fixed width */}
+                        {/* Status Badge */}
                         <div className="w-24 flex items-center justify-center">
                           <div
                             className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
@@ -892,7 +892,7 @@ export default function Users() {
                                 e.stopPropagation()
                                 handleAccept(job.jobId)
                               }}
-                              className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                              className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
                             >
                               <ThumbsUp size={18} />
                               <span>Accept</span>

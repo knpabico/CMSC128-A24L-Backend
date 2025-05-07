@@ -784,60 +784,66 @@ export default function JobOffers() {
                             onClick={() => setSelectedJob(job)}
                           >
                             <div className="flex justify-between items-center">
-                              {/* Left side - Job details */}
-                              <div className="flex items-center">
-                                <div className="mr-3">
-                                  {job.image ? (
-                                    <img
-                                      src={job.image || "/placeholder.svg"}
-                                      alt={`${job.company} logo`}
-                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
-                                    />
-                                  ) : (
-                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                      {job.company.charAt(0).toUpperCase()}
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <h2 className="font-semibold text-md">{job.position}</h2>
-                                  <p className="text-sm text-gray-600">{job.company}</p>
-                                  <p className="text-xs text-[#0856BA] flex items-center">
-                                    <MapPin className="w-3.5 h-3.5 mr-1" />
-                                    {job.location}
-                                  </p>
-                                </div>
-                              </div>
-
-                                {/* Middle - Toggle switch */}
-                                {job.status !== "Pending" && (
-                                <div className="w-[100px] flex justify-center">
-                                  <label className="relative inline-flex items-center cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    className="sr-only peer"
-                                    checked={job.status === "Accepted"}
-                                    onChange={async () => {
-                                      try {
-                                      if (job.status === "Accepted") {
-                                        await updateStatus("Closed", job.jobId);
-                                      } else {
-                                        await updateStatus("Accepted", job.jobId);
-                                      }
-                                      } catch (error) {
-                                      toastError("Failed to update job status");
-                                      }
-                                    }}
+                            {/* Left side - Job details */}
+                            <div className="flex items-center">
+                              <div className="mr-3">
+                                {job.image ? (
+                                  <img
+                                    src={job.image || "/placeholder.svg"}
+                                    alt={`${job.company} logo`}
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
                                   />
-                                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                  </label>
-                                </div>
+                                ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                    {job.company.charAt(0).toUpperCase()}
+                                  </div>
                                 )}
+                              </div>
+                              <div>
+                                <h2 className="font-semibold text-md">{job.position}</h2>
+                                <p className="text-sm text-gray-600">{job.company}</p>
+                                <p className="text-xs text-[#0856BA] flex items-center">
+                                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                                  {job.location}
+                                </p>
+                              </div>
+                            </div>
 
-                                {/* Right side - Status and trash icon */}
-                                <div className="flex items-center space-x-3">
-                                <span
-                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                            {/* Right side - Status and trash icon with toggle moved here */}
+                            <div className="flex items-center space-x-3">
+                              {/* Toggle switch */}
+                              {job.status !== "Pending" && (
+                              <div className="w-12 flex justify-center">
+                                  <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      className="sr-only peer"
+                                      checked={job.status === "Accepted"}
+                                      onChange={async () => {
+                                        try {
+                                          if (job.status === "Accepted") {
+                                            await updateStatus("Closed", job.jobId);
+                                          } else {
+                                            await updateStatus("Accepted", job.jobId);
+                                          }
+                                        } catch (error) {
+                                          toastError("Failed to update job status");
+                                        }
+                                      }}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                  </label>
+                              </div>
+                              )}
+                              {job.status === "Pending" && (
+                                <div className="w-11 h-6 opacity-0">
+                                  {/* Placeholder to prevent layout shift */}
+                                </div>
+                              )}
+                              <div className="w-24 flex items-center justify-center">
+                              {/* Status label */}
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${
                                   job.status === "Accepted"
                                     ? "bg-green-100 text-green-700"
                                     : job.status === "Rejected"
@@ -845,21 +851,22 @@ export default function JobOffers() {
                                     : job.status === "Closed"
                                     ? "bg-red-100 text-red-700"
                                     : "bg-yellow-100 text-yellow-700"
-                                  }`}
-                                >
-                                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                                </span>
+                                }`}
+                              >
+                                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                              </span>
+                              </div>
 
-                                {/* Trash button */}
-                                <button
-                                  className="text-gray-500 hover:text-red-500 transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    // No functionality yet
-                                  }}
-                                >
-                                  <Trash2 className="w-5 h-5" />
-                                </button>
+                              {/* Trash button */}
+                              <button
+                                className="text-gray-500 hover:text-red-500 transition-colors mr-3"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDelete(job.jobId);
+                                }}
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
                               </div>
                             </div>
                           </div>
@@ -976,8 +983,9 @@ export default function JobOffers() {
 
                           {/* Delete button */}
                           <button
-                            className="text-gray-500 hover:text-red-500 transition-colors"
+                            className="text-gray-500 hover:text-red-500 transition-colors mr-3"
                             onClick={(e) => {
+                              e.stopPropagation()
                               handleDelete(job.jobId);
                             }}
                           >
