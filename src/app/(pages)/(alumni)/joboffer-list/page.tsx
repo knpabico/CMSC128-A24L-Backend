@@ -28,6 +28,7 @@ import {
   Award,
   FileText,
   Check,
+  Pencil,
 } from "lucide-react";
 import { set } from "zod";
 
@@ -411,76 +412,89 @@ export default function JobOffers() {
         </div>
 
         <div className="flex">
-          {/* Sidebar */}
-          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max">
-            <ul className="space-y-2">
-              <li>
-                <button
-                  className="flex gap-3 items-center w-full px-3 py-2"
-                  onClick={() => {
-                    setSidebarFilter("Job Postings");
-                  }}
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <p
-                    className={`group w-max relative py-1 transition-all ${
-                      sidebarFilter === "Job Postings"
-                        ? "font-semibold border-b-3 border-blue-500"
-                        : "text-gray-700 group"
-                    }`}
+          <div>
+            {/* Sidebar */}
+            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[5px] rounded-[10px] w-content h-max">
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    className="flex gap-3 items-center w-full px-3 py-2"
+                    onClick={() => {
+                      setSidebarFilter("Job Postings")
+                    }}
                   >
-                    <span>All Job Posts</span>
-                    {sidebarFilter !== "Job Postings" && (
-                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                    )}
-                  </p>
-                </button>
-              </li>
-              <li>
-                <button
-                  className="flex gap-3 items-center w-full px-3 py-2"
-                  onClick={() => {
-                    setSidebarFilter("Saved Jobs");
-                  }}
-                >
-                  <Bookmark className="w-5 h-5" />
-                  <p
-                    className={`group w-max relative py-1 transition-all ${
-                      sidebarFilter === "Saved Jobs"
-                        ? "font-semibold border-b-3 border-blue-500"
-                        : "text-gray-700 group"
-                    }`}
+                    <Briefcase className="w-5 h-5" />
+                    <p
+                      className={`group w-max relative py-1 transition-all ${
+                        sidebarFilter === "Job Postings"
+                          ? "font-semibold border-b-3 border-blue-500"
+                          : "text-gray-700 group"
+                      }`}
+                    >
+                      <span>All Job Posts</span>
+                      {sidebarFilter !== "Job Postings" && (
+                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                      )}
+                    </p>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="flex gap-3 items-center w-full px-3 py-2"
+                    onClick={() => {
+                      setSidebarFilter("Saved Jobs")
+                    }}
                   >
-                    <span>Saved Jobs</span>
-                    {sidebarFilter !== "Saved Jobs" && (
-                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                    )}
-                  </p>
-                </button>
-              </li>
-              <li>
-                <button
-                  className="flex gap-3 items-center w-full px-3 py-2"
-                  onClick={() => setSidebarFilter("Create Jobs")}
-                >
-                  <FilePlus className="w-5 h-5" />
-                  <p
-                    className={`group w-max relative py-1 transition-all ${
-                      sidebarFilter === "Create Jobs"
-                        ? "font-semibold border-b-3 border-blue-500"
-                        : "text-gray-700 group"
-                    }`}
+                    <Bookmark className="w-5 h-5" />
+                    <p
+                      className={`group w-max relative py-1 transition-all ${
+                        sidebarFilter === "Saved Jobs"
+                          ? "font-semibold border-b-3 border-blue-500"
+                          : "text-gray-700 group"
+                      }`}
+                    >
+                      <span>Saved Jobs</span>
+                      {sidebarFilter !== "Saved Jobs" && (
+                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                      )}
+                    </p>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="flex gap-3 items-center w-full px-3 py-2"
+                    onClick={() => setSidebarFilter("Create Jobs")}
                   >
-                    <span>Created Jobs</span>
-                    {sidebarFilter !== "Create Jobs" && (
-                      <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                    )}
-                  </p>
-                </button>
-              </li>
-            </ul>
+                    <FilePlus className="w-5 h-5" />
+                    <p
+                      className={`group w-max relative py-1 transition-all ${
+                        sidebarFilter === "Create Jobs"
+                          ? "font-semibold border-b-3 border-blue-500"
+                          : "text-gray-700 group"
+                      }`}
+                    >
+                      <span>Created Jobs</span>
+                      {sidebarFilter !== "Create Jobs" && (
+                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                      )}
+                    </p>
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Post a Job Button */}
+            <Button
+              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-[10px] hover:bg-[#063d8c] transition-all"
+              onClick={() => setShowForm(!showForm)}
+            >
+              <Pencil className="w-5 h-5" />
+              <p className="group w-max relative py-1 transition-all font-semibold">
+                Post a Job</p>
+            </Button>
           </div>
 
+          
           {/* Main content revised yass */}
           <div className="flex-1 flex-col grid grid-cols-2 gap-4 pl-4 min-h-[600px]">
             {/* Left Column - Job Listings */}
@@ -944,16 +958,34 @@ export default function JobOffers() {
         </div>
 
         {/* "Add Job" Button + Form */}
-        <Button
+        {/* <Button
           className="h-10 px-5 fixed bottom-8 right-8 bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg rounded-full"
           onClick={() => setShowForm(!showForm)}
         >
           Post a Job
-        </Button>
+        </Button> */}
         {showForm && (
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
-              onSubmit={handleSubmit}
+              onSubmit={(e) => {
+                e.preventDefault();
+                // Check all required fields
+                if (
+                  !position || 
+                  !employmentType || 
+                  !jobType || 
+                  !jobDescription || 
+                  !company || 
+                  !location || 
+                  !experienceLevel || 
+                  !salaryRange || 
+                  !image
+                ) {
+                  alert("Please fill in all required fields");
+                  return;
+                }
+                handleSubmit(e);
+              }}
               className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
             >
               <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
@@ -1154,23 +1186,30 @@ export default function JobOffers() {
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Salary Range<span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500">₱</span>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="e.g. 10000 - 30000"
-                        value={salaryRange}
-                        onChange={(e) => setSalaryRange(e.target.value)}
-                        className="w-full pl-8 p-1.5 border rounded text-sm"
-                        required
-                      />
+                  <label className="block text-sm font-medium mb-1">
+                    Salary Range<span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500">₱</span>
                     </div>
+                    <input
+                      type="text"
+                      placeholder="e.g. 10000-30000"
+                      value={salaryRange}
+                      onChange={(e) => setSalaryRange(e.target.value)}
+                      onInput={(e) => {
+                        const value = e.target.value;
+                        if (!/^[0-9-]*$/.test(value)) {
+                          e.target.value = value.replace(/[^0-9-]/g, "");
+                        }
+                      }}
+                      pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
+                      className="w-full pl-8 p-1.5 border rounded text-sm"
+                      required
+                    />
                   </div>
+                </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
@@ -1184,8 +1223,12 @@ export default function JobOffers() {
                       required
                     />
                   </div>
+                  </div>
+                </div>
 
-                  <div className="mb-4">
+                  <hr className="my-2 border-t border-gray-300" />
+
+                  <div className="mb-6 pt-2 pl-1">
                     <label className="block text-sm font-medium mb-1">
                       Company Logo<span className="text-red-500">*</span>
                     </label>
@@ -1216,8 +1259,6 @@ export default function JobOffers() {
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
 
               <div className="flex justify-end gap-4 mt-6">
                 <button
@@ -1229,7 +1270,6 @@ export default function JobOffers() {
                 </button>
                 <button
                   type="submit"
-                  onClick={handleSubmit}
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                 >
                   Submit

@@ -204,6 +204,7 @@ export function EducationProvider({ children }: { children: React.ReactNode }) {
         deleteEducation,
         editEducation,
         fetchEducation,
+        setUserEducation
       }}
     >
       {children}

@@ -1,11 +1,12 @@
 "use client";
 
 import { 
-  CalendarDays, 
+  CalendarCheck, 
   Bookmark, 
-  Heart, 
+  HandHeart, 
   Bell, 
-  Megaphone 
+  Megaphone, 
+  Book
 } from "lucide-react";
 
 type AnnouncementsSidebarProps = {
@@ -14,20 +15,16 @@ type AnnouncementsSidebarProps = {
 };
 
 const AnnouncementsSidebar = ({ activeFilter = "", setActiveFilter }: AnnouncementsSidebarProps) => {
-  // Filter categories with their respective icons
   const sidebarItems = [
-    { id: 'all', label: 'Announcements', filterValue: '', icon: Megaphone },
-    { id: 'general', label: 'General', filterValue: 'Announcement', icon: Bell },
-    { id: 'donations', label: 'Donation Update', filterValue: 'Update', icon: Heart },
-    { id: 'event', label: 'Event Update', filterValue: 'Update', icon: CalendarDays },
-    { id: 'saved', label: 'Saved Announcements', filterValue: 'Saved', icon: Bookmark },
+    { id: 'all', label: 'All Announcements', filterValue: '', icon: Megaphone },
+    { id: 'general', label: 'General Announcements', filterValue: 'General Announcement', icon: Bell },
+    { id: 'donations', label: 'Donation Update', filterValue: 'Donation Update', icon: HandHeart },
+    { id: 'event', label: 'Event Update', filterValue: 'Event Update', icon: CalendarCheck },
+    { id: 'saved', label: 'Saved Announcements', filterValue: 'Saved Announcements', icon: Bookmark },
   ];
 
-  // Handle filter selection - only one at a time
   const handleFilterClick = (filterValue: string) => {
     if (setActiveFilter) {
-      // If the current filter is already active, do nothing
-      // Otherwise, set the new filter
       if (activeFilter !== filterValue) {
         setActiveFilter(filterValue);
       }
@@ -45,13 +42,13 @@ const AnnouncementsSidebar = ({ activeFilter = "", setActiveFilter }: Announceme
             <li key={item.id}>
               <button
                 onClick={() => handleFilterClick(item.filterValue)}
-                className={`flex items-center gap-3 p-2 w-full text-left rounded-md transition-all ${
+                className={`flex items-center gap-5 p-2 w-full text-left rounded-md transition-all ${
                   isActive 
                     ? 'font-medium' 
-                    : 'text-gray-700 group hover:bg-gray-50'
+                    : 'text-gray-700'
                 }`}
               >
-                <Icon className={`size-6 ${isActive ? 'font-semibold' : 'text-gray-500'}`} />
+                <Icon className={`${(item.icon === Bell || item.icon === Bookmark ) ? 'size-8' :'size-6' }  text-black`} />
                 {!isActive ? <span className="relative group">
                   {item.label}
                   {!isActive && (
