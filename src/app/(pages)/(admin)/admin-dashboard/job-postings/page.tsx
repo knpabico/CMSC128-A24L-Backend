@@ -366,35 +366,34 @@ const filterJobs = (status: string) => {
         <div className="flex flex-col gap-3">
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
             <form
-              onClick={async (e) => {
-                e.preventDefault();
-                // Check all required fields
-                if (
-                  !position || 
-                  !employmentType || 
-                  !jobType || 
-                  !jobDescription || 
-                  !company || 
-                  !location || 
-                  !experienceLevel || 
-                  !salaryRange || 
-                  !image
-                ) {
-                  alert("Please fill in all required fields");
-                  return;
-                }
-                handleSubmit(e);
-                goBackToList(); // navigates back to the manage job postings page only after validation passes
+              onSubmit={async (e) => {
+              e.preventDefault();
+              // Check all required fields
+              if (
+                !position || 
+                !employmentType || 
+                !jobType || 
+                !jobDescription || 
+                !company || 
+                !location || 
+                !experienceLevel || 
+                !salaryRange || 
+                !image
+              ) {
+                toastError("Please fill in all required fields");
+                return;
+              }
+              try {
+                await handleSubmit(e);
+                toastSuccess("Job submitted successfully. Please wait for admin approval.");
+                goBackToList();
+              } catch (error) {
+                toastError("There was an error submitting the job. Please try again.");
+              }
               }}
-                try {
-                  await handleSubmit(e);
-                  toastSuccess("Job submitted successfully. Please wait for admin approval.");
-                  goBackToList();
-                } catch (error) {
-                  toastError("There was an error submitting the job. Please try again.");
-                }
-                }}
             >
+                {/* // handleSubmit(e);
+                // goBackToList(); // navigates back to the manage job postings page only after validation passes */}
               <div className="grid grid-cols-2 gap-6 mt-1">
                 {/* Left Column ng form */}
                 <div>

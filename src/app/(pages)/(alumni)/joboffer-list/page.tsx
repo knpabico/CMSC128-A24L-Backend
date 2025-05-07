@@ -28,6 +28,7 @@ import {
   FileText,
   Check,
   Pencil,
+  Trash2,
 } from "lucide-react";
 import { set } from "zod";
 
@@ -398,9 +399,7 @@ export default function JobOffers() {
         <div className="flex">
           <div>
             {/* Sidebar */}
-            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[5px] rounded-[10px] w-content h-max">
-              <ul className="space-y-2">
-                <li>
+            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
                   <button
                     className="flex gap-3 items-center w-full px-3 py-2"
                     onClick={() => {
@@ -422,8 +421,6 @@ export default function JobOffers() {
                       )}
                     </p>
                   </button>
-                </li>
-                <li>
                   <button
                     className="flex gap-3 items-center w-full px-3 py-2"
                     onClick={() => {
@@ -445,8 +442,6 @@ export default function JobOffers() {
                       )}
                     </p>
                   </button>
-                </li>
-                <li>
                   <button
                     className="flex gap-3 items-center w-full px-3 py-2"
                     onClick={() => {
@@ -468,8 +463,25 @@ export default function JobOffers() {
                       )}
                     </p>
                   </button>
-                </li>
-              </ul>
+                  <button
+                    className="flex gap-3 items-center w-full px-3 py-2"
+                    onClick={() => {
+                      setSidebarFilter("Drafts")
+                      setSelectedJob(null)
+                    }}
+                  >
+                    <FileText className="w-5 h-5" />
+                    <p
+                      className={`group w-max relative py-1 transition-all ${
+                        sidebarFilter === "Drafts" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                      }`}
+                    >
+                      <span>Drafts</span>
+                      {sidebarFilter !== "Drafts" && (
+                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                      )}
+                    </p>
+                  </button>
             </div>
 
             {/* Post a Job Button */}
@@ -763,6 +775,7 @@ export default function JobOffers() {
                                     job.status.slice(1)}
                                 </span>
 
+
                                 {/* Toggle Switch */}
                                   <label className="relative inline-flex items-center cursor-pointer">
                                     <input
@@ -774,6 +787,16 @@ export default function JobOffers() {
                                     />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                   </label>
+                                  {/* Trash button */}
+                                  <button
+                                    className="text-gray-500 hover:text-red-500 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      // No functionality yet
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
 
                               </div>
                             </div>
@@ -1262,13 +1285,19 @@ export default function JobOffers() {
                     )}
                   </div>
 
-              <div className="flex justify-end gap-4 mt-6">
+                <div className="flex justify-between gap-4 mt-6">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 >
                   Cancel
+                </button>
+                <button
+                  type="button"
+                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                >
+                  Save as Draft
                 </button>
                 <button
                   type="submit"
