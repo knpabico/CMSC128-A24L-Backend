@@ -30,14 +30,24 @@ export default function AddDonationDrive() {
 		setDescription,
 		creatorId,
 		setCreatorId,
-		image,
-		setImage,
-		fileName,
-		setFileName,
-		preview,
-		setPreview,
-		previewGcash,
-		previewPaymaya,
+		qrGcash, 
+        setQrGcash, 
+        fileGcashName, 
+        setFileGcashName, 
+        previewGcash, 
+        setPreviewGcash, 
+        qrPaymaya, 
+        setQrPaymaya, 
+        filePaymayaName, 
+        setFilePaymayaName, 
+        previewPaymaya, 
+        setPreviewPaymaya,
+        image,
+        setImage,
+        fileName,
+        setFileName,
+        preview,
+        setPreview,
 		targetAmount,
 		setTargetAmount,
 		isEvent,
@@ -88,6 +98,15 @@ export default function AddDonationDrive() {
 			setBeneficiary([]);
 			setTargetAmount(0);
 			setStatus("active");
+        	setQrGcash(null);  
+			setFileGcashName("");
+			setPreviewGcash(null); 
+			setQrPaymaya(null); 
+			setFilePaymayaName(""); 
+			setPreviewPaymaya(null); 
+			setImage(null); 
+			setFileName("");
+			setPreview(null); 
 		}
 	
 		setReset();

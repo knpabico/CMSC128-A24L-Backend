@@ -37,6 +37,18 @@ export default function ManageDonationDrive() {
     setDescription,
     creatorId,
     setCreatorId,
+    qrGcash, 
+    setQrGcash, 
+    fileGcashName, 
+    setFileGcashName, 
+    previewGcash, 
+    setPreviewGcash, 
+    qrPaymaya, 
+    setQrPaymaya, 
+    filePaymayaName, 
+    setFilePaymayaName, 
+    previewPaymaya, 
+    setPreviewPaymaya,
     image,
     setImage,
     fileName,
@@ -184,6 +196,27 @@ export default function ManageDonationDrive() {
       isMounted = false;
     };
   }, [filteredDrives, creatorNames]);
+
+	useEffect(() => {
+		const setReset = () => {
+			setCampaignName("");
+			setDescription("");
+			setBeneficiary([]);
+			setTargetAmount(0);
+			setStatus("active");
+      setQrGcash(null);  
+			setFileGcashName("");
+			setPreviewGcash(null); 
+			setQrPaymaya(null); 
+			setFilePaymayaName(""); 
+			setPreviewPaymaya(null); 
+			setImage(null); 
+			setFileName("");
+			setPreview(null); 
+		}
+	
+		setReset();
+	}, []);
 
 	async function toggleStatus(driveId: string, currentStatus: string) {
 		try {			
