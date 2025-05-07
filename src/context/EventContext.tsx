@@ -123,22 +123,20 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!image) {
-          setMessage("No image selected.");
-          setIsError(true);
-          return { success: false, message: "No image provided" };
+          newEvent.image = "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Ftemp_event_image.jpg?alt=media&token=49ed44c0-225c-45d3-9bd2-e7e44d0fb2d0"
+        } else {
+          const uploadResult = await uploadImage(
+            image,
+            `event/${newEvent.eventId}`
+          );
+          if (!uploadResult.success) {
+            setMessage(uploadResult.result || "Failed to upload image.");
+            setIsError(true);
+            return { success: false, message: "Image upload failed" };
+          }
+  
+          newEvent.image = uploadResult.url;
         }
-
-        const uploadResult = await uploadImage(
-          image,
-          `event/${newEvent.eventId}`
-        );
-        if (!uploadResult.success) {
-          setMessage(uploadResult.result || "Failed to upload image.");
-          setIsError(true);
-          return { success: false, message: "Image upload failed" };
-        }
-
-        newEvent.image = uploadResult.url;
 
         await setDoc(docRef, newEvent);
       } else {
