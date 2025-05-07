@@ -68,11 +68,14 @@ export default function JobOffers() {
     preview,
     fileName,
     handleImageChange,
+    handleSaveDraft,
+    handleEditDraft
   } = useJobOffer();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
   const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
+  const [draftJobsCurrentPage, setDraftJobsCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [activeFilterCategory, setActiveFilterCategory] = useState<
@@ -256,7 +259,7 @@ export default function JobOffers() {
 
   // Created Jobs pagination
   const filteredCreatedJobs = jobOffers
-    .filter((job) => job.alumniId === user?.uid)
+    .filter((job) => job.alumniId === user?.uid && job.status !== "Draft") 
     .filter((job) => {
       if (activeFilters.length === 0) return true;
       return activeFilters.some(
@@ -283,6 +286,34 @@ export default function JobOffers() {
   const currentCreatedJobs = filteredCreatedJobs.slice(
     createdJobsStartIndex,
     createdJobsEndIndex
+  );
+
+  // Draft Jobs pagination
+  const filteredDraftJobs = jobOffers
+    .filter((job) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
+    .filter(
+      (job) =>
+        activeFilters.length === 0 ||
+        activeFilters.some(
+          (filter) =>
+            job.experienceLevel === filter ||
+            job.jobType === filter ||
+            job.employmentType === filter ||
+            job.requiredSkill.includes(filter)
+        )
+    )
+    .sort((a, b) => {
+      const dateA = a.datePosted.seconds;
+      const dateB = b.datePosted.seconds;
+      return latestFirst ? dateB - dateA : dateA - dateB;
+    });
+
+  const draftJobsTotalPages = Math.ceil(filteredDraftJobs.length / jobsPerPage);
+  const draftJobsStartIndex = (draftJobsCurrentPage - 1) * jobsPerPage;
+  const draftJobsEndIndex = draftJobsStartIndex + jobsPerPage;
+  const currentDraftJobs = filteredDraftJobs.slice(
+    draftJobsStartIndex, 
+    draftJobsEndIndex
   );
 
   return (
@@ -846,8 +877,130 @@ export default function JobOffers() {
                     </>
                   )}
                 </div>
-              ) : null}
-            </div>
+                ) : sidebarFilter === "Drafts" ? (
+                <div className="space-y-2">
+                  {filteredDraftJobs.length === 0 ? (
+                  <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
+                  <p className="text-lg">No draft jobs found.</p>
+                  </div>
+                  ) : (
+                  <>
+                  <div className="space-y-2">
+                  {filteredDraftJobs.map((job, index) => (
+                    <div
+                      key={index}
+                      className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                      selectedJob?.jobId === job.jobId
+                      ? "border-blue-500"
+                      : "border-gray-200"
+                      }`}
+                      onClick={() => setSelectedJob(job)}
+                      >
+                      <div className="flex justify-between items-center">
+                        {/* Left side - Job details */}
+                        <div className="flex items-center">
+                          <div className="mr-3">
+                            {job.image ? (
+                            <img
+                            src={job.image || "/placeholder.svg"}
+                            alt={`${job.company} logo`}
+                            className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                            />
+                            ) : (
+                            <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                            {job.company.charAt(0).toUpperCase()}
+                            </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <h2 className="font-semibold text-md">{job.position}</h2>
+                            <p className="text-sm text-gray-600">{job.company}</p>
+                            <p className="text-xs text-[#0856BA] flex items-center">
+                            <MapPin className="w-3.5 h-3.5 mr-1" />
+                            {job.location}
+                            </p>
+                          </div>
+                          </div>
+
+                          {/* Right side */}
+                          <div className="flex items-center space-x-3">
+                          {/* Draft label */}
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                            Draft
+                          </span>
+
+                          {/* Edit button */}
+                          <button
+                            className="text-gray-500 hover:text-blue-500 transition-colors"
+                            onClick={(e) => {
+                              handleEditDraft(job);
+                              setShowForm(true);
+                            }}
+                          >
+                            <Pencil className="w-5 h-5" />
+                          </button>
+
+                          {/* Delete button */}
+                          <button
+                            className="text-gray-500 hover:text-red-500 transition-colors"
+                            onClick={(e) => {
+                            e.stopPropagation();
+                            // TODO: Add delete functionality
+                            }}
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {filteredDraftJobs.length < jobsPerPage &&
+                    [...Array(jobsPerPage - filteredDraftJobs.length)].map((_, i) => (
+                    <div key={`empty-draft-${i}`} className="h-[72px] invisible"></div>
+                    ))}
+                  </div>
+
+                  {/* Pagination Controls for Draft Jobs */}
+                  {filteredDraftJobs.length > 0 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    <button
+                    className="px-3 py-1 bg-white rounded text-sm"
+                    onClick={() =>
+                    setDraftJobsCurrentPage((prev) =>
+                    Math.max(prev - 1, 1)
+                    )
+                    }
+                    disabled={draftJobsCurrentPage === 1}
+                    >
+                    Prev
+                    </button>
+
+                    <span className="text-sm font-medium px-3 py-1">
+                    {draftJobsCurrentPage} of {draftJobsTotalPages || 1}
+                    </span>
+
+                    <button
+                    className="px-3 py-1 bg-white rounded text-sm"
+                    onClick={() =>
+                    setDraftJobsCurrentPage((prev) =>
+                    Math.min(prev + 1, draftJobsTotalPages || 1)
+                    )
+                    }
+                    disabled={
+                    draftJobsCurrentPage === draftJobsTotalPages ||
+                    filteredDraftJobs.length <= jobsPerPage
+                    }
+                    >
+                    Next
+                    </button>
+                  </div>
+                  )}
+                  </>
+                  )}
+                </div>
+                ) : null}
+              </div>
 
             {/* Right Column - Job Details */}
             <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
@@ -1274,15 +1427,27 @@ export default function JobOffers() {
 
                 {/* Right side - Save as Draft and Submit buttons */}
                 <div className="flex gap-4">
-                  <button
+                    <button
                     type="button"
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
-                  >
+                    onClick={async (e) => {
+                      try {
+                        // Save draft - this function needs to be implemented in JobOfferContext
+                        await handleSaveDraft(e);
+                        toastSuccess("Draft saved successfully");
+                        setShowForm(false);
+                      } catch (error) {
+                        toastError("Failed to save draft. Please try again.");
+                        console.error("Error saving draft:", error);
+                      }
+                    }}
+                    >
                     Save as Draft
-                  </button>
-                  <button
-                  type="submit"
-                  onClick={async (e) => {
+                    </button>
+
+                    <button
+                    type="submit"
+                    onClick={async (e) => {
                     if (
                       !position ||
                       !employmentType ||
