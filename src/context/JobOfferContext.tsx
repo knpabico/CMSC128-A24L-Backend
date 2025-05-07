@@ -72,13 +72,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     try {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
-      jobOffer.alumniId = isAdmin ? "Admin" : user?.uid ?? "";
+      jobOffer.alumniId = user?.uid || "Admin";
       jobOffer.status = isAdmin ? "Accepted" : "Pending";
       console.log(jobOffer);
       await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
-      if ( isAdmin ){
-        addNewsLetter(jobOffer.jobId, "job_offering");
-      }
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -138,43 +135,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setPreview(null);
     } else {
       console.error("Error adding job:", response.message);
-    }
-  };
-
-  const handleEdit = async (editedJob: JobOffering) => {
-    // Ensure required fields are defined
-    if (!editedJob.position || !editedJob.jobDescription || !editedJob.status) {
-      console.error("Required fields are missing");
-      return;
-    }
-  
-    const updatedFields = {
-      position: editedJob.position,
-      jobDescription: editedJob.jobDescription,
-      status: editedJob.status,
-    };
-  
-    try {
-      await updateDoc(doc(db, "job_offering", editedJob.jobId), updatedFields);
-      console.log("Job updated successfully!");
-    } catch (error) {
-      console.error("Error updating job:", error);
-    }
-  };
-
-
-  const updateStatus = async (status: string, jobId: string) => {
-    if (!status || !jobId) {
-      console.error("Status or Job ID is missing");
-      return;
-    }
-  
-    try {
-      const jobRef = doc(db, "job_offering", jobId);
-      await updateDoc(jobRef, { status });
-      console.log("Job updated successfully!");
-    } catch (error) {
-      console.error("Error updating job:", error);
     }
   };
 
@@ -284,8 +244,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         preview,
         fileName,
         handleImageChange,
-        handleEdit,
-        updateStatus
       }}
     >
       {children}

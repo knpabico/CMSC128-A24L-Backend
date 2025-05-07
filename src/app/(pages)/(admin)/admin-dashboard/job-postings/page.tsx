@@ -123,17 +123,15 @@ export default function Users() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState(null);
 
-const filterJobs = (status: string) => {
-  console.log("Filtering jobs with status:", status);
-  const filtered = jobOffers.filter((job: JobOffering) => {
-    if (status === "Accepted") {
-      return job.status === "Accepted" || job.status === "Closed";
-    }
-    return job.status === status;
-  });
-  console.log("Filtered jobs:", filtered);
-  return filtered;
-};
+  const filterJobs = (status: string) => {
+    return jobOffers.filter((job: JobOffering) => {
+      const matchesStatus = job.status === status;
+      const matchesSearch = job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            job.location?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+  };
 
   const tabs = ["Accepted", "Pending", "Rejected"];
 
@@ -370,6 +368,7 @@ const filterJobs = (status: string) => {
           <div>
             <ChevronRight size={15} />
           </div>
+          
           <div className="font-bold text-[var(--primary-blue)]">Post a Job</div>
         </div>
         <div className="w-full">
@@ -667,6 +666,15 @@ const filterJobs = (status: string) => {
           <div className="w-full">
             <div className="flex items-center justify-between">
               <div className="font-bold text-3xl">Manage Job Posting</div>
+              <div className="my-4">
+              <input
+                type="text"
+                placeholder="Search jobs..."
+                className="border px-3 py-2 rounded-md w-full max-w-md"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
               <div
                 className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
                 onClick={() => setCurrentPage("post")}

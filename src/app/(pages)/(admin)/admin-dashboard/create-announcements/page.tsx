@@ -31,24 +31,17 @@ export default function Users() {
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
-    let finalImage: string | null = null;
     if (imageFile) {
-      finalImage = URL.createObjectURL(imageFile); // still needs cloud upload ideally
-    }
-    await setAnnounceImage(finalImage); // might be better to refactor this as a param
-  
-    if (isEdit) {
-      handleEdit({ title, description, image: finalImage });
+      const localUrl = URL.createObjectURL(imageFile);
+      setAnnounceImage(localUrl);
     } else {
-      handleSubmit({ title, description, image: finalImage });
+      setAnnounceImage(null);
     }
-  
-    resetForm();
+    isEdit ? handleEdit(e) : handleSubmit(e);
+    setImageFile(null);
+    setImagePreview(null);
+    setShowForm(false);
   };
-<<<<<<< HEAD
-  
-=======
 
   function formatDate(timestamp: any) {
     if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -56,7 +49,6 @@ export default function Users() {
     return date.toISOString().split("T")[0];
   }
 
->>>>>>> 5252091225f1ca02770a8a4c4272dc77ecbebeb8
   return (
     <div className="p-8">
       {/* Top Header Row */}
