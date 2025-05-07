@@ -1690,12 +1690,12 @@ const UserProfile = () => {
                 .map((bookmark: Bookmark, index:number) => (
                     <button key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
-                     onClick={()=> {router.push(`/alumni/my-profile/${alumniId}/alumni-donations`);}}
+                    
                     >
                       {([...scholarships]
                         .filter((scho: Scholarship) => scho.scholarshipId === bookmark.entryId)
                         .map((scho: Scholarship, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"  onClick={()=> {router.push(`/scholarship/${scho.scholarshipId}`);}}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><SchoolIcon/></p>
                               <div className="flex space-x-3 items-center">
