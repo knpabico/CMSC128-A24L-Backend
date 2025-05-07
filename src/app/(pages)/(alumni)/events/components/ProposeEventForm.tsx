@@ -46,7 +46,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       setEventImage,
       fileName, 
       setFileName, 
-      handleEdit
+      handleEdit,
+      preview,
+      setPreview
       } = useEvents();
 
   const { user, alumInfo } = useAuth();
@@ -111,6 +113,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
     setSelectedAlumni([]);
     setFileName("");
     setUserInput("");
+    setPreview(null);
   };
 
   const requiredSentence =
@@ -210,7 +213,15 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
           {fileName && (
             <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>
           )}
-
+          {preview && (
+            <div className="mt-2">
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-md"
+              />
+            </div>
+          )}
           <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
             {/* Open to All */}
             <label className="flex items-center space-x-2">

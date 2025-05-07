@@ -189,7 +189,7 @@ export default function EditEventPage() {
             image, 
             targetGuests, 
             inviteType: visibility 
-          });
+          }, image);
   
           if (result.success) {
             // toastSuccess("Draft updated successfully!");

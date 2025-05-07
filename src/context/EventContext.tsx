@@ -21,6 +21,7 @@ import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { FirebaseError } from "firebase/app";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/lib/upload";
+import { deleteObject, ref, getStorage, listAll } from "firebase/storage";
 
 const EventContext = createContext<any>(null);
 
@@ -50,6 +51,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const storage = getStorage();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -315,14 +317,55 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleEdit = async (eventId: string, updatedData: Partial<Event>) => {
+  const deleteAllImagesInEventFolder = async (eventId: string) => {
+    const folderRef = ref(storage, `event/${eventId}`);
+  
     try {
-      await updateDoc(doc(db, "event", eventId), updatedData);
+      const listResult = await listAll(folderRef);
+      const deletionPromises = listResult.items.map((itemRef) => deleteObject(itemRef));
+      await Promise.all(deletionPromises);
+      console.log(`Deleted all files in event/${eventId}`);
+    } catch (err) {
+      console.warn("Error deleting old images:", err);
+    }
+  };
+
+  const handleEdit = async (
+    eventId: string,
+    updatedData: Partial<Event>,
+    newImageFile?: File
+  ) => {
+    try {
+      const currentEvent = events.find((e) => e.eventId === eventId);
+      let newImageUrl: string | undefined = undefined;
+  
+      if (newImageFile) {
+        // Delete all files inside the event folder
+        await deleteAllImagesInEventFolder(eventId);
+  
+        // Upload new image
+        const uploadResult = await uploadImage(newImageFile, `event/${eventId}`);
+        if (!uploadResult.success || !uploadResult.url) {
+          toastError("Failed to upload new image");
+          return { success: false, message: "Failed to upload new image" };
+        }
+        newImageUrl = uploadResult.url;
+      }
+  
+      // Update Firestore
+      const updatePayload = {
+        ...updatedData,
+        ...(newImageUrl && { image: newImageUrl }),
+      };
+  
+      await updateDoc(doc(db, "event", eventId), updatePayload);
+  
       setEvents((prev) =>
         prev.map((event) =>
-          event.eventId === eventId ? { ...event, ...updatedData } : event
+          event.eventId === eventId ? { ...event, ...updatePayload } : event
         )
       );
+  
       toastSuccess("Event updated successfully!");
       return { success: true, message: "Event successfully updated" };
     } catch (error) {
