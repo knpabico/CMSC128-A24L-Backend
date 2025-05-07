@@ -267,6 +267,7 @@ export default function AdminDashboard() {
     </Card>
 
     {/* list of industries like Alumni List */}
+    {/* Yung modal edit mo lang sa Aulumni Details Modal sa ui sa components */}
     <div className="mt-6">
       <h3 className="font-semibold mb-2">Industry Breakdown</h3>
       <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -529,23 +530,20 @@ export default function AdminDashboard() {
 
       {/* CardContent as a flex column */}
       <CardContent className="flex flex-col flex-1 px-2">
-        {/* 
-          Make this wrapper flex‑grow (fills available height) 
-          and scroll if content overflows 
-        */}
-<div className="max-h-96 overflow-y-auto space-y-2">
-  {jobOffers.map((jobOffer: JobOffering) => (
-    <div
-      key={jobOffer.jobId}
-      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-    >
-      <div>
-        <span className="font-medium">Job Type: {jobOffer.jobType}</span>
-        <p className="text-sm text-black-500">Status: {jobOffer.status}</p>
+
+      <div className="max-h-96 overflow-y-auto space-y-2">
+        {jobOffers.map((jobOffer: JobOffering) => (
+          <div
+            key={jobOffer.jobId}
+            className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+          >
+            <div>
+              <span className="font-medium">Job Type: {jobOffer.jobType}</span>
+              <p className="text-sm text-black-500">Status: {jobOffer.status}</p>
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
 
       </CardContent>
             <div className="px-2 pt-0">
