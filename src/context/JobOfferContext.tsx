@@ -329,13 +329,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     setJobDescription(draft.jobDescription);
     setJobType(draft.jobType);
     setPosition(draft.position);
-    setRequiredSkill(draft.requiredSkill);
+    setRequiredSkill(draft.requiredSkill || []); 
     setSalaryRange(draft.salaryRange);
     setLocation(draft.location);
     if (draft.image) {
       setPreview(draft.image);
     }
-    setEditingDraftId(draft.jobId); // Save the ID of the draft being edited
+    setEditingDraftId(draft.jobId);
     setShowForm(true);
   };
 
@@ -361,6 +361,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         setJobType,
         position,
         setPosition,
+        requiredSkill,
         handleSkillChange,
         salaryRange,
         setSalaryRange,

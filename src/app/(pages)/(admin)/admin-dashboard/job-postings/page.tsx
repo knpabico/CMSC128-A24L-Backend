@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { set } from "zod";
 
 export default function Users() {
   const {
@@ -56,6 +57,7 @@ export default function Users() {
     setJobType,
     position,
     setPosition,
+    requiredSkill,
     handleSkillChange,
     salaryRange,
     setSalaryRange,
@@ -67,7 +69,9 @@ export default function Users() {
     fileName,
     handleImageChange,
     handleEdit,
-    updateStatus
+    updateStatus,
+    handleSaveDraft,
+    handleEditDraft,
   } = useJobOffer();
 
   const filterCategories = {
@@ -109,24 +113,28 @@ export default function Users() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState(null);
 
-const filterJobs = (status: string) => {
-  console.log("Filtering jobs with status:", status);
-  const filtered = jobOffers.filter((job: JobOffering) => {
-    if (status === "Accepted") {
-      return job.status === "Accepted" || job.status === "Closed";
-    }
-    return job.status === status;
-  });
-  console.log("Filtered jobs:", filtered);
-  return filtered;
-};
+  const filterJobs = (status: string) => {
+    console.log("Filtering jobs with status:", status);
+    const filtered = jobOffers.filter((job: JobOffering) => {
+      if (status === "Accepted") {
+        return job.status === "Accepted" || job.status === "Closed";
+      }
+      if (status === "Drafts") {
+        return job.status === "Draft";
+      }
+      return job.status === status;
+    });
+    console.log("Filtered jobs:", filtered);
+    return filtered;
+  };
 
-  const tabs = ["Accepted", "Pending", "Rejected"];
+  const tabs = ["Accepted", "Pending", "Rejected", "Draft"];
 
   const stats = {
     pending: jobOffers.filter((job) => job.status === "Pending").length,
     accepted: jobOffers.filter((job) => job.status === "Accepted").length,
     rejected: jobOffers.filter((job) => job.status === "Rejected").length,
+    drafts: jobOffers.filter((job) => job.status === "Draft").length,
     total: jobOffers.length,
   };
 
@@ -591,6 +599,7 @@ const filterJobs = (status: string) => {
                     </label>
                     <input
                       type="text"
+                      value={requiredSkill.join(", ")}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
                       className="w-full p-1.5 border rounded placeholder:text-sm"
@@ -607,6 +616,7 @@ const filterJobs = (status: string) => {
                     <div className="flex items-center gap-4">
                       <label className="cursor-pointer">
                         <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                          
                           Choose File
                         </div>
                         <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
@@ -625,7 +635,7 @@ const filterJobs = (status: string) => {
                   <button
                     type="button"
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
-                    onClick={() => setShowForm(false)}
+                    onClick={() => setCurrentPage("list")}
                     >
                     Cancel
                   </button>
@@ -636,6 +646,17 @@ const filterJobs = (status: string) => {
                   <button
                     type="button"
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                    onClick={async (e) => {
+                      try {
+                        // Save draft - this function needs to be implemented in JobOfferContext
+                        await handleSaveDraft(e);
+                        toastSuccess("Draft saved successfully");
+                        setCurrentPage("list")
+                      } catch (error) {
+                        toastError("Failed to save draft. Please try again.");
+                        console.error("Error saving draft:", error);
+                      }
+                    }}
                   >
                     Save as Draft
                   </button>
@@ -714,7 +735,9 @@ const filterJobs = (status: string) => {
                         ? stats.pending
                         : tab === "Accepted"
                         ? stats.accepted
-                        : stats.rejected}
+                        : tab === "Rejected"
+                        ? stats.rejected
+                        : stats.drafts}
                     </div>
                   </div>
                 </div>
@@ -779,21 +802,23 @@ const filterJobs = (status: string) => {
                       <div className="flex items-center w-[220px]">
                         {/* Toggle Switch - Fixed width */}
                         <div className="w-16 flex items-center justify-center">
+                          {activeTab === "Accepted" && (
                           <label className="relative inline-flex items-center cursor-pointer">
                             <input
-                              type="checkbox"
-                              className="sr-only peer"
-                              checked={job.status === "Accepted"}
-                              onChange={() => {
-                                if (job.status === "Accepted") {
-                                  updateStatus("Closed", job.jobId)
-                                } else {
-                                  updateStatus("Accepted", job.jobId)
-                                }
-                              }}
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={job.status === "Accepted"}
+                            onChange={() => {
+                              if (job.status === "Accepted") {
+                              updateStatus("Closed", job.jobId)
+                              } else {
+                              updateStatus("Accepted", job.jobId)
+                              }
+                            }}
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                           </label>
+                          )}
                         </div>
 
                         {/* Status Badge - Fixed width */}
@@ -812,18 +837,31 @@ const filterJobs = (status: string) => {
                         </div>
                       </div>
 
-                      {/* View Details Button */}
-                      <div className="w-28 flex items-center justify-center">
-                        <button
+                        {/* View/Edit Details Button */}
+                        <div className="w-28 flex items-center justify-center">
+                        {activeTab === "Draft" ? (
+                          <button
+                          className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditDraft(job);
+                            setCurrentPage("post");
+                          }}
+                          >
+                          Edit Draft
+                          </button>
+                        ) : (
+                          <button
                           className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleViewJob(job.jobId)
                           }}
-                        >
+                          >
                           View Details
-                        </button>
-                      </div>
+                          </button>
+                        )}
+                        </div>
 
                       {/* Action Buttons Container - Fixed width for both Trash and Accept/Reject */}
                       <div className="w-[140px] flex items-center justify-center">
@@ -848,6 +886,31 @@ const filterJobs = (status: string) => {
                             >
                               <ThumbsUp size={18} />
                               <span>Accept</span>
+                            </button>
+                          </div>
+                        ) : activeTab === "Drafts" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditDraft(job);
+                                setCurrentPage("post");
+                              }}
+                              className="text-white bg-blue-500 hover:bg-blue-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Pencil size={18} />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setJobToDelete(job);
+                                setIsConfirmationOpen(true);
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Trash2 size={18} />
+                              <span>Delete</span>
                             </button>
                           </div>
                         ) : (

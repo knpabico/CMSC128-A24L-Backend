@@ -58,6 +58,7 @@ export default function JobOffers() {
     setJobType,
     position,
     setPosition,
+    requiredSkill,
     handleSkillChange,
     salaryRange,
     setSalaryRange,
@@ -1370,6 +1371,7 @@ export default function JobOffers() {
                     </label>
                     <input
                       type="text"
+                      value={requiredSkill.join(', ')}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
                       className="w-full p-1.5 border rounded placeholder:text-sm"
@@ -1416,13 +1418,24 @@ export default function JobOffers() {
                   <div className="flex justify-between items-center mt-6">
                 {/* Left side - Cancel button */}
                 <div>
-                  <button
+                    <button
                     type="button"
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
-                    onClick={() => setShowForm(false)}
+                    onClick={() => {
+                      setShowForm(false);
+                      setPosition('');
+                      setEmploymentType('');
+                      setJobType('');
+                      setJobDescription('');
+                      setCompany('');
+                      setLocation('');
+                      setExperienceLevel('');
+                      setSalaryRange('');
+                      setJobImage(null);
+                    }}
                     >
                     Cancel
-                  </button>
+                    </button>
                 </div>
 
                 {/* Right side - Save as Draft and Submit buttons */}
