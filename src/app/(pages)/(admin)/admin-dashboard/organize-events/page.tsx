@@ -109,7 +109,7 @@ export default function EventPageAdmin() {
   const filteredEvents =
     statusFilter === "all"
       ? sortedEvents
-      : sortedEvents.filter((event) => event.status === statusFilter && event.creatorType === "admin");
+      : sortedEvents.filter((event) => event.status === statusFilter);
 
   const formatDate = (date: any) => {
     if (!date) return "N/A";
