@@ -73,6 +73,7 @@ import { ListItem } from "@mui/material";
 import { useEducation } from "@/context/EducationContext";
 import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
 
+
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
