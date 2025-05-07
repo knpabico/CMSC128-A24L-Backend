@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
 import { Asterisk, Upload } from 'lucide-react';
+import { Event } from "@/models/models";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
@@ -35,7 +36,9 @@ export default function EditEventPage() {
     setFileName,
     handleImageChange,
     preview,
-    setPreview
+    setPreview,
+    addEvent,
+    handleEdit
   } = useEvents();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,54 +48,71 @@ export default function EditEventPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedButton, setButton] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentEvent, setCurrentEvent] = useState(null);
+
 
   console.log("Event ID:", eventId);
   // Fetch event data on component mount
   useEffect(() => {
-    if (eventId && events?.length > 0) {
-      const event = events.find(event => event.eventId === eventId);
+    const eventToEdit = events.find((g: Event) => g.eventId === eventId);
+    setVisibility("all");
+    setSelectedAlumni([]);
+    setSelectedBatches([]);
+    setErrorMessage("");
 
-      
-      
-      if (event) {
-        setCurrentEvent(event);
-        // Initialize form with event data
-        setEventTitle(event.title || "");
-        setEventDescription(event.description || "");
-        setEventDate(event.date || "");
-        setEventTime(event.time || "");
-        setEventLocation(event.location || "");
-        
-        // Set image and preview if available
-        if (event.image) {
-          setEventImage(event.image);
-          setPreview(event.image);
-          // Extract filename from the image URL or path if possible
-          const imageName = event.image.split('/').pop();
-          setFileName(imageName || "Current image");
-        }
+    if (eventToEdit) {
+      setCurrentEvent(eventToEdit);
+      setEventTitle(eventToEdit.title);
+      setEventDescription(eventToEdit.description);
+      setEventImage(eventToEdit.image);
+      setEventDate(eventToEdit.date);
+      setEventTime(eventToEdit.time);
+      setEventLocation(eventToEdit.location);
 
-        // Set visibility and target guests
-        if (event.inviteType) {
-          setVisibility(event.inviteType);
-          
-          if (event.inviteType === "batch" && event.targetGuests?.length > 0) {
-            setSelectedBatches(event.targetGuests);
-          } else if (event.inviteType === "alumni" && event.targetGuests?.length > 0) {
-            setSelectedAlumni(event.targetGuests);
-          }
-        }
-        
-        setIsLoading(false);
-      } else {
-        // Event not found
-        setErrorMessage("Event not found");
-        setIsLoading(false);
+      if (eventToEdit.image) {
+        setEventImage(eventToEdit.image);
+        setPreview(eventToEdit.image);
+        // Extract filename from the image URL or path if possible
+        const imageName = eventToEdit.image.split('/').pop();
+        setFileName(imageName || "Current image");
       }
+
+      // Properly check targetGuests for alumni and batches
+      if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
+        // Check if the first item is a batch (e.g., a string of length 4)
+        if (eventToEdit.targetGuests[0].length === 4) {
+          setSelectedBatches(eventToEdit.targetGuests); // Set the batches
+          setVisibility("batch"); // Set visibility to batches
+        } else {
+          setSelectedAlumni(eventToEdit.targetGuests); // Set the alumni
+          setVisibility("alumni"); // Set visibility to alumni
+        }
+      }
+      setIsLoading(false);
+    } else {
+      // Event not found
+      setErrorMessage("Event not found");
+      setIsLoading(false);
     }
-  }, [eventId, events, setEventTitle, setEventDescription, setEventDate, setEventTime, setEventLocation, setEventImage, setPreview]);
+  }, [events, eventId]);
+
+  const resetFormState = () => {
+    setEventTitle("");
+    setEventDescription("");
+    setEventDate("");
+    setEventTime("");
+    setEventLocation("");
+    setEventImage("");
+    setVisibility("all");
+    setSelectedBatches([]);
+    setSelectedAlumni([]);
+    setFileName("");
+    setErrorMessage("");
+    setButton("");
+    setPreview(null);
+  };
 
   // Check if form is complete
   const formComplete =
@@ -107,7 +127,13 @@ export default function EditEventPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      setIsSubmitting(true);
+
+      if(selectedButton === "Update"){
+        setIsUpdating(true);
+      } else {
+        setIsSubmitting(true);
+      }
+      
       setErrorMessage("");
     
       // Validate form completion
@@ -152,49 +178,26 @@ export default function EditEventPage() {
           return;
         }
       }
-    
-      // Prepare the updated event object
-      const updatedEvent: Event = {
-        eventId: currentEvent?.eventId || "", // Use the existing eventId
-        datePosted: currentEvent?.datePosted || new Date(), // Use the existing datePosted or set to now
-        title,
-        description,
-        date,
-        rsvps: currentEvent?.rsvps || [], // Retain existing RSVPs
-        status: selectedButton === "Update" ? "Accepted" : "Draft", // Set status based on action
-        inviteType: visibility,
-        creatorId: currentEvent?.creatorId || "admin", // Retain creatorId
-        creatorName: currentEvent?.creatorName || "Admin", // Retain creatorName
-        creatorType: currentEvent?.creatorType || "admin", // Retain creatorType
-        time,
-        location,
-        image: currentEvent?.image || "", // Retain existing image
-        numofAttendees: currentEvent?.numofAttendees || 0, // Retain existing attendee count
-        targetGuests,
-        stillAccepting: currentEvent?.stillAccepting || true, // Retain existing value
-        needSponsorship: currentEvent?.needSponsorship || false, // Retain existing value
-        donationDriveId: currentEvent?.donationDriveId || "", // Retain existing donation drive ID
-      };
-    
+
       try {
-        if (selectedButton === "Finalize") {
-          // Finalize the event
-          const result = await addEvent(updatedEvent, true, false); // Finalize the event
+        if (selectedButton === "Update") {
+          const result = await handleEdit(eventId, { 
+            title, 
+            description, 
+            location, 
+            date, 
+            image, 
+            targetGuests, 
+            inviteType: visibility 
+          });
+  
           if (result.success) {
-           // toastSuccess("Event updated successfully!");
-            router.push("/admin-dashboard/organize-events");
-          } else {
-            setErrorMessage(result.message || "Failed to update event.");
-          }
-        } else if (selectedButton === "Update") {
-          // Save as draft
-          const result = await addEvent(updatedEvent, false, false); // Save as draft
-          if (result.success) {
-           // toastSuccess("Draft updated successfully!");
-            router.push("/admin-dashboard/organize-events");
-          } else {
-            setErrorMessage(result.message || "Failed to save draft.");
-          }
+            // toastSuccess("Draft updated successfully!");
+            resetFormState();
+             router.push("/admin-dashboard/organize-events");
+           } else {
+             setErrorMessage(result.message || "Failed to save draft.");
+           }
         }
       } catch (error) {
         console.error("Error updating event:", error);
@@ -529,7 +532,10 @@ export default function EditEventPage() {
         <div className="flex justify-between mt-4">
           <button
             type="button"
-            onClick={() => router.push("/admin-dashboard/organize-events")}
+            onClick={() => {
+              resetFormState(); // Reset the form state
+              router.push("/admin-dashboard/organize-events"); // Navigate back to the events page
+            }}
             className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
           >
             Cancel
@@ -540,13 +546,18 @@ export default function EditEventPage() {
               type="submit"
               onClick={() => setButton("Update")}
               className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
+              disabled={isUpdating}
             >
-              Update
+              {isUpdating ? "Updating..." : "Update"}
             </button>
 
             <button
-              type="submit"
-              onClick={() => setButton("Finalize")}
+              type="button"
+              onClick={() => {
+                addEvent(currentEvent, true)
+                resetFormState(); // Reset the form state
+                router.push("/admin-dashboard/organize-events"); // Navigate back to the events page
+              }}
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
               disabled={isSubmitting || !formComplete}
             >
