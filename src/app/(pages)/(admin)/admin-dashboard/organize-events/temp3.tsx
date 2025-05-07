@@ -344,147 +344,214 @@ export default function EventPageAdmin() {
             style={{ width: isSticky ? headerWidth : "100%" }}
           >
             <div className="w-1/2 flex items-center justify-baseline font-semibold">
-              Events Info
+              Event Title
             </div>
-            {/* <div className="w-1/2 flex justify-end items-center">
-              <div className="w-1/6 flex items-center justify-center font-semibold">Actions</div>
-              <div className="w-1/6 flex items-center justify-center font-semibold">Actions</div>
+            <div className="w-[450px]"></div>
+            <div className="w-1/8 flex justify-left items-center font-semibold"> Details </div>
+            <div className="w-[2000px]"></div>
+            <div className="w-1/2 flex justify-left items-center font-semibold"> Status </div>
+            <div className="w-1/2 flex justify-end items-center">
+              <div className="w-[450px] flex items-center justify-center font-semibold">Actions</div>
+              <div className="w-1/6 flex items-center justify-center font-semibold"></div>
               <div className="w-1/6 flex items-center justify-center"></div>
-            </div> */}
+            </div>
           </div>
 
           {/* Spacer div to prevent content jump when header becomes fixed */}
-          {isSticky && <div style={{ height: "56px" }}></div>}
+          {filteredEvents.length === 0 ? (
+          <p className="w-1/2 flex flex-col p-4 text-gray-500">No Events found.</p>
+          ) : (
+            <>
+              {isSticky && <div style={{ height: "56px" }}></div>}
+              {/* Loop over filtered events */}
+              {filteredEvents.map((e: Event, index: number) => (
+                <div
+                  key={e.eventId}
+                  className={`w-full flex gap-4 border-t border-gray-300 ${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  } hover:bg-blue-50`}
+                >
+                  {/* title + description */}
+                  <div className="w-1/2 flex flex-col p-4 gap-1">
+                    <div className="text-base font-bold">{e.title}</div>
+                    <div className="text-sm text-gray-600">
+                      {e.description.split(' ').slice(0, 5).join(' ')}{e.description.split(' ').length > 4 ? '...' : ''}
+                    </div>
+                  </div>
 
-          {/* Loop over filtered events */}
-          {filteredEvents.map((e: Event, index: number) => (
-            <div
-              key={e.eventId}
-              className={`w-full flex gap-4 border-t border-gray-300 ${
-                index % 2 === 0 ? "bg-white" : "bg-gray-50"
-              } hover:bg-blue-50`}
-            >
-              <div className="w-1/2 flex flex-col p-4 gap-1">
-                <div className="text-base font-bold">{e.title}</div>
-                <div className="text-sm text-gray-600"> 
-                  {e.description.split(' ').slice(0, 5).join(' ')}{e.description.split(' ').length > 4 ? '...' : ''}
-                </div>
-              </div>
-              <div className="w-1/2 flex items-center justify-end p-5">
-                <div className="w-1/6 flex items-center justify-center">
-                  <div
-                    onClick={() =>
-                      setToggles((prev: boolean[]) =>
-                        prev.map((val, i) => (i === index ? !val : val))
-                      )
-                    }
-                    className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${
-                      toggles[index] ? "bg-[var(--primary-blue)]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                        toggles[index] ? "translate-x-6" : "translate-x-0"
+                  {/* Other components for event info */}
+                  <div className="w-full flex justify-between items-center p-5 text-gray-600">
+                    {/* Event Details beside buttons */}
+                    <div className="flex items-center gap-4 justify-start w-1/2">
+                      {/* Event Date */}
+                      <div className="flex gap-1 items-center justify-center">
+                        <Calendar size={16} />
+                        <p className="text-xs">{e.date}</p>
+                      </div>
+
+                      {/* Event Time */}
+                      <div className="flex gap-1 items-center justify-center">
+                        <Clock size={16} />
+                        <p className="text-xs">{e.time}</p>
+                      </div>
+
+                      {/* Where */}
+                      <div className="flex gap-1 items-center justify-center">
+                        <MapPin size={16} />
+                        <p className="text-xs truncate">{e.location}</p>
+                      </div>
+
+                      {/* num of attendees */}
+                      <div className="flex gap-1 items-center justify-center">
+                        <UserCheck size={16} />
+                        <p className="text-xs truncate">{e.numofAttendees} Going</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Other components for event info */}
+                  <div className="w-full flex justify-between items-center p-5">
+                    {/* Status Badge */}
+                    <span
+                      className={`ml-4 px-5 py-2 text-xs font-medium border rounded-full ${
+                        e.status === "Accepted"
+                          ? "mx-[180px] bg-green-100 text-green-800 border-green-600"
+                          : e.status === "Pending"
+                          ? "mx-[250px] bg-yellow-100 text-yellow-800 border-yellow-600"
+                          : e.status === "Rejected"
+                          ? "bg-red-100 text-red-800 border-red-600"
+                          : "mx-[260px] bg-gray-100 text-gray-800 border-gray-600"
                       }`}
-                    />
+                    >
+                      {e.status === "Accepted"
+                        ? "Approved"
+                        : e.status.charAt(0).toUpperCase() + e.status.slice(1)}
+                    </span>
+
+                    {/* Buttons */}
+                    <div className="flex items-center gap-x-5">
+                      {e.status === "Pending" ? (
+                        <>
+                          <div className="flex items-center gap-x-4">
+                            <div
+                              onClick={() => handleViewEventAdmin(e)}
+                              className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
+                            >
+                              <Eye size={20} className="text-gray-500 hover:text-yellow-400" />
+                            </div>
+                            <div
+                              onClick={() => {
+                                resetFormState();
+                                setEdit(true);
+                                setEditingEventId(e.eventId);
+                                setShowForm(true);
+                              }}
+                              className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
+                            >
+                              <SquarePen size={20} className="text-gray-500 hover:text-blue-400" />
+                            </div>
+                            <div
+                              onClick={() => handleDelete(e.eventId)}
+                              className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
+                            >
+                              <Trash2 size={20} className="text-gray-500 hover:text-red-400" />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-x-2 ml-5">
+                            <button
+                              onClick={() => addEvent(e, true, false)}
+                              className="px-4 py-2 bg-green-500 text-white rounded-md text-black hover:bg-green-300"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleReject(e.eventId)}
+                              className="px-4 py-2 bg-red-500 text-white rounded-md text-black hover:bg-red-300"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </>
+                      ) : e.status === "Accepted" ? (
+                        <>
+                          <div className="w-[380px] flex items-center justify-center gap-x-4">
+
+                            <button
+                              onClick={() => alert(
+                                `Placeholder: Create donation drive for event ID ${events.eventId}`
+                              )}
+                              className="text-gray-600 hover:underline cursor-pointer"
+                            >
+                              Create Donation Drive
+                            </button>
+                            
+                            <div
+                            onClick={() => handleViewEventAdmin(e)}
+                            className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                            >
+                            View Details
+                            </div>
+                          
+                          </div>
+                        </>
+                      ) : e.status === "Rejected" ? (
+                        <div className="w-[550px] flex items-center justify-center">
+                          <div
+                            onClick={() => handleViewEventAdmin(e)}
+                            className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                          >
+                            View Details
+                          </div>
+                        </div>
+                      ) : e.status === "Draft" && e.creatorType === "admin" && (
+                        <>
+                          <div className="flex items-center gap-x-4">
+                            <div
+                              onClick={() => handleViewEventAdmin(e)}
+                              className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
+                            >
+                              <Eye size={20} className="text-gray-500 hover:text-yellow-400" />
+                            </div>
+                            <div
+                              onClick={() => {
+                                resetFormState();
+                                setEdit(true);
+                                setEditingEventId(e.eventId);
+                                setShowForm(true);
+                              }}
+                              className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
+                            >
+                              <SquarePen size={20} className="text-gray-500 hover:text-blue-400" />
+                            </div>
+                            <div
+                              onClick={() => handleDelete(e.eventId)}
+                              className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
+                            >
+                              <Trash2 size={20} className="text-gray-500 hover:text-red-400" />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-x-2 ml-5">
+                            <button
+                              disabled
+                              className="px-4 py-2 text-white"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              disabled
+                              className="px-4 py-2 text-white"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-                {e.status === "Pending" ? (
-                <>
-                  <div className="flex gap-5">
-                    {/* View More */}
-                    <div
-                      onClick={() => handleViewEventAdmin(e)}
-                      className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
-                    >
-                      <Eye size={20} className="text-gray-500 hover:text-yellow-400" />
-                    </div>
-                    
-                    {/* Edit */}
-                    <div
-                      onClick={() => 
-                      {
-                        resetFormState();
-                        setEdit(true);
-                        setEditingEventId(e.eventId);
-                        setShowForm(true);
-                      }}
-                      className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
-                    >
-                      <SquarePen size={20} className="text-gray-500 hover:text-gray-400" />
-                    </div>
-                  </div>
-                  <div className="flex">
-                    <div className="text-[var(--primary-blue)] hover:underline cursor-pointer">
-                      Approve
-                    </div>
-                  </div>
-                </>
-                
-                ) : e.status === "Accepted" || e.status === "Rejected" ? (
-                <>
-                  <div className="flex gap-5 px-50">
-                    {/* View More */}
-                    <div
-                      onClick={() => handleViewEventAdmin(e)}
-                      className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
-                    >
-                      <Eye size={20} className="text-gray-500 hover:text-yellow-400" />
-                    </div>
-                  </div>
-                </>
-                ) : e.status === "Draft" && e.creatorType === "admin" && (
-                <>
-                  <div className="flex gap-5 px-50">
-                    {/* View More */}
-                    <div
-                      onClick={() => handleViewEventAdmin(e)}
-                      className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
-                    >
-                      <Eye size={20} className="text-gray-500 hover:text-yellow-400" />
-                    </div>
-                    {/* Edit */}
-                    <div
-                      onClick={() => 
-                      {
-                        resetFormState();
-                        setEdit(true);
-                        setEditingEventId(e.eventId);
-                        setShowForm(true);
-                      }}
-                      className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
-                    >
-                      <SquarePen size={20} className="text-gray-500 hover:text-blue-400" />
-                    </div>
-
-                    {/* Delete */}
-                    <div
-                      onClick={() => handleDelete(e.eventId)}
-                      className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
-                    >
-                      <Trash2 size={20} className="text-gray-500 hover:text-red-400" />
-                    </div>
-                    {/* Approve Proposal */}
-                    <button
-                      onClick={() => addEvent(e, true, false)}
-                      className="px-4 py-2 bg-green-500 text-white rounded-md text-black hover:bg-green-300"
-                    >
-                      Approve
-                    </button>
-
-                    {/* Reject Proposal */}
-                    <button
-                      onClick={() => handleReject(e.eventId)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-md text-black hover:bg-red-300"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </>
-                )}
-              </div>
-            </div>
-          ))}
+              ))}
+            </>
+          )}
           </div>
         </div>
       </div>
