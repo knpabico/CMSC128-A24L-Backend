@@ -293,7 +293,7 @@ export default function JobOffers() {
         style={{ backgroundImage: 'url("/ICS2.jpg")' }}
       >
         <div className="absolute inset-0 bg-blue-500/50" />
-        <div className="relative z-10">
+        <div className="relative">
           <h1 className="text-5xl font-bold my-2 text-white">Job Opportunities</h1>
           <p className="text-white text-sm md:text-base">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat
