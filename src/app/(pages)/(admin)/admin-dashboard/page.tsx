@@ -1,9 +1,4 @@
-/* Card components for formatting muna, comments on where to put the data is in each part of the card n rin.
-Di ko muna inalis yung buttons to each button since di pa okay routing ng navbar
-*/
 "use client"
-import { Breadcrumbs } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import MapComponent from "./google-maps/map";
@@ -11,29 +6,12 @@ import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience,Event, DonationDrive, Scholarship, JobOffering } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
-import { useDonationContext } from "@/context/DonationContext";
 import DonutChart from "@/components/charts/DonutChart";
 import React, {useState} from "react";
 import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { useJobOffer } from "@/context/JobOfferContext";
-
-
-const adminLinks = [
-  { label: "Manage Users", link: "manage-users" },
-  { label: "Organize Events", link: "organize-events" },
-  { label: "Create Announcement", link: "create-announcements" },
-  { label: "Job Postings", link: "job-postings" },
-  { label: "Send Newsletters", link: "send-newsletters" },
-  { label: "Create Donation Drive", link: "donation-drive" },
-  { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
-  { label: "Site Settings", link: "site-settings" },
-  { label: "Statistical Reports", link: "alum-statistical-reports" },
-  { label: "Manage Scholarships", link: "scholarships/manage" },
-  { label: "Add Scholarships", link: "scholarships/add" },
-  { label: "Write story", link: "create-story" },
-];
 
 export default function AdminDashboard() {
   // Get work experience list from context
@@ -156,133 +134,157 @@ export default function AdminDashboard() {
     };
   
   return (
-    <div className="p-6 w-full">
-      <Breadcrumbs
-        items={[
-          {
-            label: "Dashboard",
-          },
-        ]}
-      />
-
+    <div className="p-2 w-full">
       {/* Page title */}
       <h1 className="text-3xl font-bold my-6">Admin Dashboard</h1>
 
       {/* Information Cards*/}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Alumni Card */}
-        <Card className="border-0 shadow-md">
-        <CardHeader>
-          <CardTitle>Alumni</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Total Alums: {totalAlums}</p>
-          <p>Active Alums: {getActiveAlums(alums).length}</p>
-          <p>Inactive Alums: {getInactiveAlums(alums).length}</p>
-          
-          <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                Active vs Pending Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex justify-center pt-0">
-              <DonutChart
-                labels={["Active", "Pending"]}
-                data={[
-                  getActiveAlums(alums).length,
-                  getInactiveAlums(alums).length,
-                ]}
-              />
-            </CardContent>
-          </Card>
-          
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2">Alumni List</h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {alums.map((alum: Alumnus) => (
-                <div 
-                  key={alum.alumniId}
-                  onClick={() => handleOpenModal(alum)}
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                >
-                  <div>
-                    <span className="font-medium">{alum.lastName}, {alum.firstName} {alum.middleName}</span>
-                    <p className="text-sm text-gray-500">{alum.studentNumber || 'No Student ID'}</p>
-                  </div>
-                  <span className={`px-2 py-0.5 text-xs rounded-full ${alum.activeStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {alum.activeStatus ? 'Active' : 'Pending'}
-                  </span>
-                </div>
-              ))}
+        <Card className="border-0 shadow-md bg-white w-full">
+          <CardHeader>
+            <CardTitle>Alumni</CardTitle>
+          </CardHeader>
+
+          <CardContent className="flex flex-col gap-6 w-full px-4 py-6">
+          {/* Alumni Stats*/}
+          <div className="w-full flex flex-col md:flex-row gap-6 items-start">
+            
+            {/* Chart */}
+            <div className="w-full md:w-2/3 flex justify-center items-center">
+              <div className="w-60 h-60">
+                <DonutChart
+                  labels={["Active", "Inactive"]}
+                  data={[getActiveAlums(alums).length, getInactiveAlums(alums).length]}
+                  backgroundColor={["#87CEEB", "#B0E0E6"]}
+                  options={{
+                    cutout: '70%',
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'bottom'
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Stats Column */}
+            <div className="w-full md:w-1/3 flex flex-col gap-4">
+              <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
+                <div className="text-sm text-gray-500 mb-1">Total</div>
+                <div className="text-2xl font-bold">{totalAlums}</div>
+              </div>
+              <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
+                <div className="text-sm text-gray-500 mb-1">Active</div>
+                <div className="text-2xl font-bold">{getActiveAlums(alums).length}</div>
+              </div>
+              <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
+                <div className="text-sm text-gray-500 mb-1">Inactive</div>
+                <div className="text-2xl font-bold">{getInactiveAlums(alums).length}</div>
+              </div>
             </div>
           </div>
-          
-          {/* Add the modal component */}
+
+            <div className="flex flex-col space-y-4 w-full">
+              {/* Pending section */}
+              <div className="border-0 rounded-md shadow-md p-4 bg-white w-full">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-sm text-gray-500">Pending</div>
+                  <div className="text-xl font-bold">{getInactiveAlums(alums).length}</div>
+                </div>
+
+                {/* List */}
+                <div className="mt-2 max-h-70 overflow-y-auto w-full">
+                  {alums.map((alum: Alumnus) => (
+                    <div
+                      key={alum.alumniId}
+                      onClick={() => handleOpenModal(alum)}
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center mb-2 w-full"
+                    >
+                      <div className="overflow-hidden">
+                        <span className="font-medium text-sm truncate block">
+                          {alum.lastName}, {alum.firstName} {alum.middleName || ''}
+                        </span>
+                        <p className="text-xs text-gray-500 truncate">
+                          {alum.studentNumber || 'No Student ID'}
+                        </p>
+                      </div>
+                      <span
+                        className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ml-2 ${
+                          alum.activeStatus
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {alum.activeStatus ? 'Active' : 'Pending'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+
+          {/* Modal */}
           <AlumniDetailsModal
             alumnus={selectedAlumnus}
             isOpen={isModalOpen}
             onClose={handleCloseModal}
             onToggleActiveStatus={handleToggleActiveStatus}
           />
-          
-        </CardContent>
-      </Card>
- {/* Industries Card */}
-<Card className="border-0 shadow-md">
-  <CardHeader>
-    <CardTitle>Industries</CardTitle>
-  </CardHeader>
-  <CardContent>
-    {/* summary stats, just like Alumni */}
-    <p>Total Fields: {Object.keys(fieldCounts).length}</p>
-    <p>Total Alumni Counted: {Object.entries(fieldCounts).reduce((sum, [, c]) => sum + c, 0)}</p>
-    <p>Distinct Industries: {Object.keys(fieldCounts).filter(f => fieldCounts[f] > 0).length}</p>
+        </Card>
 
-    {/* inner chart card */}
-    <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all my-4">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-center text-lg font-semibold text-gray-700">
-          Distribution by Industry
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex justify-center pt-0">
-        <DonutChart
-          labels={Object.entries(fieldCounts).map(([field]) => field)}
-          data={Object.entries(fieldCounts).map(([_, count]) => count)}
-          backgroundColor={Object.entries(fieldCounts).map(
-            ([field], i) => getColorForField(field, i)
-          )}
-        />
-      </CardContent>
-    </Card>
+        {/* Industries Card */}
+        <Card className="border-0 shadow-md bg-white">
+          <CardHeader>
+            <CardTitle>Industries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* summary stats, just like Alumni
+            <p>Total Fields: {Object.keys(fieldCounts).length}</p>
+            <p>Total Alumni Counted: {Object.entries(fieldCounts).reduce((sum, [, c]) => sum + c, 0)}</p>
+            <p>Distinct Industries: {Object.keys(fieldCounts).filter(f => fieldCounts[f] > 0).length}</p> */}
 
-    {/* list of industries like Alumni List */}
-    {/* Yung modal edit mo lang sa Aulumni Details Modal sa ui sa components */}
-    <div className="mt-6">
-      <h3 className="font-semibold mb-2">Industry Breakdown</h3>
-      <div className="space-y-2 max-h-96 overflow-y-auto">
-        {Object.entries(fieldCounts).map(([field, count], idx) => (
-          <div
-            key={field}
-            className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
-          >
-            <div className="flex items-center">
-              <span
-                className="inline-block w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: getColorForField(field, idx) }}
-              />
-              <span className="font-medium">{field}</span>
+            {/* inner chart card */}
+            <div className="w-full flex justify-center">
+              <div className="w-50 h-50">
+                <DonutChart
+                    labels={Object.entries(fieldCounts).map(([field]) => field)}
+                    data={Object.entries(fieldCounts).map(([_, count]) => count)}
+                    backgroundColor={Object.entries(fieldCounts).map(
+                      ([field], i) => getColorForField(field, i)
+                    )}
+                  />
+              </div>
             </div>
-            <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
-              {count}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  </CardContent>
-</Card>
+
+            {/* list of industries like Alumni List */}
+            <div className="mt-6">
+              <h3 className="font-semibold mb-2">Industry Breakdown</h3>
+              <div className="space-y-2 max-h-70 overflow-y-auto">
+                {Object.entries(fieldCounts).map(([field, count], idx) => (
+                  <div
+                    key={field}
+                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
+                  >
+                    <div className="flex items-center">
+                      <span
+                        className="inline-block w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: getColorForField(field, idx) }}
+                      />
+                      <span className="font-medium">{field}</span>
+                    </div>
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
+                      {count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
 
 
@@ -291,7 +293,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
         {/* Event Proposals
         To Fix: border between the card title and the line seperator ay dapat mas malapit (chan gagawa)*/}
-        <Card className="border-0 shadow-md flex flex-col">
+        <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Event Proposals</CardTitle>
           </CardHeader>
@@ -331,7 +333,6 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
 
-          {/* To fix: icenter yung text button (chan gagawa)*/}
           <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             <div className="text-center">
@@ -346,7 +347,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Upcoming Events */}
-        <Card className="border-0 shadow-md flex flex-col">
+        <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Upcoming Events</CardTitle>
           </CardHeader>
@@ -355,12 +356,6 @@ export default function AdminDashboard() {
           </div>
           <CardContent className="flex-1 overflow-y-auto">
             <div className="max-h-60">
-              {/* Lagay upcoming events data here tnx po. Dapat kaya maopen yung full details (overlay not page)
-              Contents:
-                - Event name
-                - Date
-                - Event venue
-              */}
              {getUpcomingEvents(events).map((event:Event, index:number)=>{
               return (
                 <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -395,7 +390,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Donations */}
-        <Card className="border-0 shadow-md flex flex-col">
+        <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Donations</CardTitle>
           </CardHeader>
@@ -444,7 +439,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Scholarship Grants */}
-        <Card className="border-0 shadow-md flex flex-col">
+        <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Scholarship Grants</CardTitle>
           </CardHeader>
@@ -495,13 +490,11 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-10 gap-6 mt-6">
         <div className="md:col-span-7">
           {/* Map */}
-          <Card className="border-0 shadow-md h-full">
+          <Card className="border-0 shadow-md h-full bg-white">
             <CardHeader>
               <CardTitle>Map of Current Companies</CardTitle>
-
             </CardHeader>
             <CardContent>
-              {/* Lagay map na may pin ng lahat ng current company ng mga alumni*/}
               <MapComponent workExperienceList={presentWorkExperiences}/>
             </CardContent>
           </Card>
@@ -509,7 +502,7 @@ export default function AdminDashboard() {
 
         {/* Job Posting */}
         <div className="md:col-span-3">
-        <Card className="border-0 shadow-md flex flex-col h-full">
+        <Card className="border-0 shadow-md flex flex-col h-full bg-white">
       <CardHeader className="pb-0">
         <CardTitle>Job Posting</CardTitle>
       </CardHeader>
@@ -520,7 +513,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* CardContent as a flex column */}
-      <CardContent className="flex flex-col flex-1 px-2">
+      <CardContent className="flex flex-col flex-1 px-4">
 
       <div className="max-h-96 overflow-y-auto space-y-2">
         {jobOffers.map((jobOffer: JobOffering) => (
