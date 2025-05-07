@@ -463,18 +463,20 @@ export default function EventPageAdmin() {
                           <>
                             <div className="flex items-center gap-x-4">
                               <div
-                                onClick={() => handleViewEventAdmin(e)}
+                                // onClick={() => handleViewEventAdmin(e)}
                                 className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
                               >
-                                <Eye size={20} className="text-gray-500 hover:text-yellow-400" />
+                                <Eye size={20} 
+                                onClick={() => router.push(`/admin-dashboard/organize-events/edit/${e.eventId}`)}
+                                className="text-gray-500 hover:text-yellow-400" />
                               </div>
                               <div
-                                onClick={() => {
-                                  resetFormState();
-                                  setEdit(true);
-                                  setEditingEventId(e.eventId);
-                                  setShowForm(true);
-                                }}
+                                // onClick={() => {
+                                //   resetFormState();
+                                //   setEdit(true);
+                                //   setEditingEventId(e.eventId);
+                                //   setShowForm(true);
+                                // }}
                                 className="w-3/2 flex items-center justify-center cursor-pointer hover:text-black"
                               >
                                 <SquarePen size={20} className="text-gray-500 hover:text-blue-400" />
