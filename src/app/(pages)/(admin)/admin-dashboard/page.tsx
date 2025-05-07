@@ -12,6 +12,8 @@ import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience,Event, Donation } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import { useDonationContext } from "@/context/DonationContext";
+import DonutChart from "@/components/charts/DonutChart";
+
 
 
 const adminLinks = [
@@ -34,7 +36,8 @@ export default function AdminDashboard() {
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
   const {totalAlums,alums, getActiveAlums, getInactiveAlums} = useAlums();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
-  const { allDonations } = useDonationContext();
+  // const { allDonations } = useDonationContext();
+
 
   const fields = [
     "Artificial Intelligence (AI)",
@@ -127,13 +130,33 @@ export default function AdminDashboard() {
             */}
             <p>Total Alums:{totalAlums}</p> {/*total alumni*/}
             <p>Actve Alums: {getActiveAlums(alums).length}</p> {/*active alumni*/}
-            <p>Pending Alums: {getInactiveAlums(alums).length}</p> {/*inactive alumni*/}
+            <p>Inactive Alums: {getInactiveAlums(alums).length}</p> {/*inactive alumni*/}
+            <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                  Active vs Inactive Alumni
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex justify-center pt-0">
+                <DonutChart
+                  labels={["Active", "Inactive"]}
+                  data={[
+                    getActiveAlums(alums).length,
+                    getInactiveAlums(alums).length,
+                  ]}
+                />
+              </CardContent>
+            </Card>
             {alums.map((alum:Alumnus, index:number)=>{
               return (
-                <div key={alum.alumniId}>
-                  Name: {alum.lastName}, {alum.firstName} {alum.middleName}
-                </div>
-              )
+              <>
+              <div key={alum.alumniId}>
+                Name: {alum.lastName}, {alum.firstName} {alum.middleName}
+              </div>
+
+              
+              </>
+            )
             })}
           </CardContent>
         </Card>
@@ -256,7 +279,7 @@ export default function AdminDashboard() {
                 - Name of donator
                 - name of donation drive? basta kung san siya nagdonate lmao
               */}
-             {allDonations.map((donation:Donation, index:number)=>{
+             {/* {allDonations.map((donation:Donation, index:number)=>{
               return (
                 <div key={donation.donationId}>
                 <div>
@@ -265,7 +288,7 @@ export default function AdminDashboard() {
                 <span>Status: {event.status}</span>
                 </div>
               )
-            })}               
+            })}                */}
             </div>
           </CardContent>
           <div className="px-2 pt-0">
