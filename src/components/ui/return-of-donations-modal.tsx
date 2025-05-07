@@ -173,81 +173,80 @@ const RecordOfDonations: React.FC = () => {
             {displayError && <p className="text-red-500">{displayError}</p>}
             {showLoading && <p>Loading...</p>}
 
+            {userDonations && userDonations.length > 0 ? (
             <div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
-                {userDonations && userDonations.length > 0 ? (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-100">
-                                <tr>
-                                    <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
-                                        Campaign
-                                    </th>
-                                    <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
-                                        Amount
-                                    </th>
-                                    <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
-                                        Payment Method
-                                    </th>
-                                    <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
-                                        Date
-                                    </th>
-                                    <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
-                                        Anonymous
-                                    </th>
-                                    <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
-                                        Proof
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {userDonations.map((donation) => (
-                                    <tr key={donation.donationId} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-700">
-                                            {campaignNames[donation.donationDriveId] || 'Loading campaign name...'}
-                                        </td>
-                                        <td className="px-4 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
-                                            ₱ {donation.amount.toLocaleString()}
-                                        </td>
-                                        <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
-                                            {donation.paymentMethod}
-                                        </td>
-                                        <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(donation.date).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
-                                            <div className="flex justify-center items-center mt-2">
-                                                <label className="flex items-center cursor-pointer space-x-2">
-                                                    <input type="checkbox" checked={donation.isAnonymous} onChange={() => toggleAnonymity(donation.donationId, donation.isAnonymous)} disabled={updatingAnonymity === donation.donationId} className="w-4 h-4" />
-                                                    {updatingAnonymity === donation.donationId && (
-                                                        <span className="ml-2 text-sm text-gray-500">Updating...</span>
-                                                    )}
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>
-                                        <button onClick={() => { setSelectedDonationId(donation.donationId); setSelectedImage('/proof.jpg'); }} // Adjust with the correct image path
-                                            className="text-blue-500 hover:underline text-sm">
-                                            View Proof
-                                        </button>
-                                            {selectedDonationId === donation.donationId && selectedImage && (
-                                                <ProofOfPaymentDialog
-                                                    selectedImage={selectedImage}
-                                                    setSelectedImage={setSelectedImage}
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
-                        <h3 className="text-xl font-medium text-gray-600">No donations have been made yet. </h3>
-                        <p className="text-gray-500 mt-2">Waiting for your first donation!</p>
-                    </div>
-                )}
+              <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                          <tr>
+                              <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+                                  Campaign
+                              </th>
+                              <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+                                  Amount
+                              </th>
+                              <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+                                  Payment Method
+                              </th>
+                              <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+                                  Date
+                              </th>
+                              <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+                                  Anonymous
+                              </th>
+                              <th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
+                                  Proof
+                              </th>
+                          </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                          {userDonations.map((donation) => (
+                              <tr key={donation.donationId} className="hover:bg-gray-50">
+                                  <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-700">
+                                      {campaignNames[donation.donationDriveId] || 'Loading campaign name...'}
+                                  </td>
+                                  <td className="px-4 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
+                                      ₱ {donation.amount.toLocaleString()}
+                                  </td>
+                                  <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+                                      {donation.paymentMethod}
+                                  </td>
+                                  <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+                                      {new Date(donation.date).toLocaleDateString()}
+                                  </td>
+                                  <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+                                      <div className="flex justify-center items-center mt-2">
+                                          <label className="flex items-center cursor-pointer space-x-2">
+                                              <input type="checkbox" checked={donation.isAnonymous} onChange={() => toggleAnonymity(donation.donationId, donation.isAnonymous)} disabled={updatingAnonymity === donation.donationId} className="w-4 h-4" />
+                                              {updatingAnonymity === donation.donationId && (
+                                                  <span className="ml-2 text-sm text-gray-500">Updating...</span>
+                                              )}
+                                          </label>
+                                      </div>
+                                  </td>
+                                  <td>
+                                  <button onClick={() => { setSelectedDonationId(donation.donationId); setSelectedImage('/proof.jpg'); }} // Adjust with the correct image path
+                                      className="text-blue-500 hover:underline text-sm">
+                                      View Proof
+                                  </button>
+                                      {selectedDonationId === donation.donationId && selectedImage && (
+                                          <ProofOfPaymentDialog
+                                              selectedImage={selectedImage}
+                                              setSelectedImage={setSelectedImage}
+                                          />
+                                      )}
+                                  </td>
+                              </tr>
+                          ))}
+                      </tbody>
+                  </table>
+              </div>
             </div>
+            ) : (
+                <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
+                  <p className="text-gray-700">No donations have been made yet.</p>
+                </div>
+            )}
         </div>
     </div>
     
