@@ -3,11 +3,11 @@
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { Asterisk, ChevronRight, CirclePlus, Pencil, Trash2, Upload } from "lucide-react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AddDonationDrive() {
-	// const router = useRouter();
+	const router = useRouter();
   	const {
 		donationDrives,
 		events,
@@ -112,10 +112,14 @@ export default function AddDonationDrive() {
 		setReset();
 	}, []);
 
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
           Home
         </div>
         <div>

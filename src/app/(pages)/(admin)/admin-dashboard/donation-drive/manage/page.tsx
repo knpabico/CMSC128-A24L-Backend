@@ -266,7 +266,7 @@ export default function ManageDonationDrive() {
     <div className="flex flex-col gap-5">
 			{/* Path */}
 		 <div className="flex items-center gap-2">
-        <div className="hover:text-blue-600" onClick={home}>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
           Home
         </div>
         <div>

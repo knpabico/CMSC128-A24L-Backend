@@ -61,6 +61,7 @@ export default function AddDonationDrive() {
 			getEventById,
 			fetchAlumnusById,
 		} = useDonationDrives();
+	const router = useRouter();
   const buttonsContainerRef = useRef(null);
   const placeholderRef = useRef(null);
   const [message, setMessage] = useState("");
@@ -338,7 +339,6 @@ export default function AddDonationDrive() {
       setIsSubmitting(false);
     }
 	};
-	const router = useRouter();
 	const manage = () => {
     router.push("/admin-dashboard/donation-drive/manage");
   };
@@ -351,13 +351,13 @@ export default function AddDonationDrive() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div className="hover:text-blue-600" onClick={home}>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
           Home
         </div>
         <div>
           <ChevronRight size={15} />
         </div>
-        <div className="hover:text-blue-600" onClick={manage}>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>
           Manage Donation Drive
         </div>
         <div>
