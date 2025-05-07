@@ -510,7 +510,7 @@ const EventPageAdmin = () => {
             event.creatorType === "alumni" ? (
               <div className="flex flex-col gap-2 mt-4">
                 <button
-                  onClick={() => addEvent(event, true, false)}
+                  onClick={() => addEvent(event, true)}
                   className="px-4 py-2 bg-green-500 text-white rounded-md"
                 >
                   Accept Proposal
@@ -535,7 +535,7 @@ const EventPageAdmin = () => {
             ) : (
               <div className="flex flex-col gap-2 mt-4">
                 <button
-                  onClick={() => addEvent(event, true, false)}
+                  onClick={() => addEvent(event, true)}
                   className="px-4 py-2 bg-green-500 text-white rounded-md"
                 >
                   Finalize

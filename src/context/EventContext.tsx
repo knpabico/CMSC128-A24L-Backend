@@ -10,6 +10,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  increment,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -98,12 +99,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const addEvent = async (
     newEvent: Event,
     finalize: boolean,
-    create: boolean
   ) => {
     try {
       let docRef;
 
-      if (!finalize || create) {
+      if (!finalize) {
         docRef = doc(collection(db, "event"));
         newEvent.eventId = docRef.id;
 
@@ -139,12 +139,12 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         }
 
         await setDoc(docRef, newEvent);
-      } else {
-        docRef = doc(db, "event", newEvent.eventId);
       }
 
       // If finalizing, embed the RSVP and event update logic here
-      if (finalize || create) {
+      if (finalize) {
+        docRef = doc(db, "event", newEvent.eventId);
+
         const alums = await fetchAllAlumni();
         const updatedTargetGuests: string[] = [];
 
@@ -197,6 +197,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           rsvps: rsvpId,
           status: "Accepted",
           datePosted: new Date(),
+          numofAttendees: increment(1)
         };
 
         if (newEvent.inviteType !== "all") {
@@ -269,7 +270,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       donationDriveId: "",
     };
 
-    const response = await addEvent(newEvent, false, false);
+    const response = await addEvent(newEvent, false);
 
     if (response.success) {
       toastSuccess("Event saved successfully!");
@@ -302,8 +303,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       }
 
       await deleteDoc(doc(db, "event", eventId));
-      await deleteNewsLetter(eventId);
       setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
+      
+      await deleteNewsLetter(eventId);
+      
       toastSuccess("Event successfully deleted!");
       return { success: true, message: "Event successfully deleted" };
     } catch (error) {

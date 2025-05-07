@@ -459,7 +459,7 @@ export default function EventPageAdmin() {
                           </div>
                           <div className="flex items-center gap-x-2 ml-5">
                             <button
-                              onClick={() => addEvent(e, true, false)}
+                              onClick={() => addEvent(e, true)}
                               className="px-4 py-2 bg-green-500 text-white rounded-md text-black hover:bg-green-300"
                             >
                               Approve
@@ -653,7 +653,7 @@ export default function EventPageAdmin() {
 
                     //console.log("Image being used:", image || defaultImageUrl);
                     
-                    addEvent(newEvent, true, true);
+                    addEvent(newEvent, true);
                   } else {
                     // If button is not "Create", just save
                     handleSave(e, image, targetGuests, visibility, "Draft");
