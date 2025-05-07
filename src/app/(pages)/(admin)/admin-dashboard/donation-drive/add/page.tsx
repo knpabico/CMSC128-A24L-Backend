@@ -1,13 +1,13 @@
 "use client";
 
-import { toastSuccess } from "@/components/ui/sonner";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { Asterisk, ChevronRight, CirclePlus, Pencil, Trash2, Upload } from "lucide-react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AddDonationDrive() {
-	// const router = useRouter();
+	const router = useRouter();
   	const {
 		donationDrives,
 		events,
@@ -30,14 +30,24 @@ export default function AddDonationDrive() {
 		setDescription,
 		creatorId,
 		setCreatorId,
-		image,
-		setImage,
-		fileName,
-		setFileName,
-		preview,
-		setPreview,
-		previewGcash,
-		previewPaymaya,
+		qrGcash, 
+        setQrGcash, 
+        fileGcashName, 
+        setFileGcashName, 
+        previewGcash, 
+        setPreviewGcash, 
+        qrPaymaya, 
+        setQrPaymaya, 
+        filePaymayaName, 
+        setFilePaymayaName, 
+        previewPaymaya, 
+        setPreviewPaymaya,
+        image,
+        setImage,
+        fileName,
+        setFileName,
+        preview,
+        setPreview,
 		targetAmount,
 		setTargetAmount,
 		isEvent,
@@ -60,26 +70,23 @@ export default function AddDonationDrive() {
 	const buttonsContainerRef = useRef(null);
 	const placeholderRef = useRef(null);
 	const [message, setMessage] = useState("");
-	const [isError, setIsError] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();	
 		if (!preview || !previewGcash || !previewPaymaya) {
-			setMessage("No image selected");
-			setIsError(true);
+			if (!preview) toastError("No image selected for backgorund photo")
+			if (!previewGcash) toastError("No image selected for GCASH QR")
+			if (!previewPaymaya) toastError("No image selected for PayMaya QR")
 			return;
 		}
 
 		try {
 			setIsSubmitting(true);
-			setIsError(false);
-			setMessage("");
 			await handleSave(e);
 			toastSuccess("Donation drive successfully created");
 		} catch (error) {
 			console.error("Error saving donation drive:", error);
-			setMessage("Failed to create donation drive.");
-			setIsError(true);
+			toastError("Failed to create donation drive.");
 		} finally {
 		setIsSubmitting(false);
 		}
@@ -91,15 +98,28 @@ export default function AddDonationDrive() {
 			setBeneficiary([]);
 			setTargetAmount(0);
 			setStatus("active");
+        	setQrGcash(null);  
+			setFileGcashName("");
+			setPreviewGcash(null); 
+			setQrPaymaya(null); 
+			setFilePaymayaName(""); 
+			setPreviewPaymaya(null); 
+			setImage(null); 
+			setFileName("");
+			setPreview(null); 
 		}
 	
 		setReset();
 	}, []);
 
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
           Home
         </div>
         <div>
@@ -176,8 +196,9 @@ export default function AddDonationDrive() {
 									</div>
 								)}
 								<label htmlFor="image-upload" className="text-sm font-medium flex items-center cursor-pointer justify-center gap-3  py-2">
+									<Asterisk size={16} className="text-red-600"/>
 									<Upload className="size-5"/>
-									Upload Photo
+									Upload Backgournd Photo
 								</label>
 								<input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
 							</div>
@@ -190,6 +211,7 @@ export default function AddDonationDrive() {
 									</div>
 								)}
 								<label htmlFor="gcash-upload" className="text-sm font-medium flex items-center cursor-pointer justify-center gap-3 py-2">
+									<Asterisk size={16} className="text-red-600"/>
 									<Upload className="size-5"/>
 									Upload Gcash QR Code
 								</label>
@@ -204,17 +226,13 @@ export default function AddDonationDrive() {
 									</div>
 								)}
 								<label htmlFor="paymaya-upload" className="text-sm font-medium flex items-center cursor-pointer justify-center gap-3 py-2">
+									<Asterisk size={16} className="text-red-600"/>
 									<Upload className="size-5"/>
 									Upload PayMaya QR Code
 								</label>
 								<input id="paymaya-upload" type="file" accept="image/*" onChange={handlePaymayaChange} className="hidden" />
 							</div>
 						</div>
-						{message && (
-								<p className={`w-full text-center ${isError ? "text-red-600" : "text-green-600"}`}>
-									{message}
-								</p>
-							)}
 						{/* Buttons */}
 						<div ref={placeholderRef} className="bg-white rounded-2xl p-4 flex justify-end gap-2">
             	<button type="button" className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300">

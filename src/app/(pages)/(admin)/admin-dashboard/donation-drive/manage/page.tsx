@@ -37,6 +37,18 @@ export default function ManageDonationDrive() {
     setDescription,
     creatorId,
     setCreatorId,
+    qrGcash, 
+    setQrGcash, 
+    fileGcashName, 
+    setFileGcashName, 
+    previewGcash, 
+    setPreviewGcash, 
+    qrPaymaya, 
+    setQrPaymaya, 
+    filePaymayaName, 
+    setFilePaymayaName, 
+    previewPaymaya, 
+    setPreviewPaymaya,
     image,
     setImage,
     fileName,
@@ -185,6 +197,27 @@ export default function ManageDonationDrive() {
     };
   }, [filteredDrives, creatorNames]);
 
+	useEffect(() => {
+		const setReset = () => {
+			setCampaignName("");
+			setDescription("");
+			setBeneficiary([]);
+			setTargetAmount(0);
+			setStatus("active");
+      setQrGcash(null);  
+			setFileGcashName("");
+			setPreviewGcash(null); 
+			setQrPaymaya(null); 
+			setFilePaymayaName(""); 
+			setPreviewPaymaya(null); 
+			setImage(null); 
+			setFileName("");
+			setPreview(null); 
+		}
+	
+		setReset();
+	}, []);
+
 	async function toggleStatus(driveId: string, currentStatus: string) {
 		try {			
 			// Update in Firestore
@@ -221,11 +254,19 @@ export default function ManageDonationDrive() {
 	const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 	const [selectedDonationDrive, setSelectedDonationDrive] = useState<DonationDrive>();
 
+	const create = () => {
+    router.push("/admin-dashboard/donation-drive/add");
+  };
+
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   return (
     <div className="flex flex-col gap-5">
 			{/* Path */}
 		 <div className="flex items-center gap-2">
-        <div>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
           Home
         </div>
         <div>
@@ -241,7 +282,7 @@ export default function ManageDonationDrive() {
           <div className="font-bold text-3xl">
             Manage Donation Drive
           </div>
-          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600">
+          <div className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600" onClick={create}>
             + Create Donation Drive
           </div>
         </div>

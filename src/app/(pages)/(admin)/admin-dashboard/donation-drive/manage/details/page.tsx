@@ -9,7 +9,7 @@ import { Donation, DonationDrive } from "@/models/models";
 import { doc, getDoc } from "firebase/firestore";
 import { Asterisk, Calendar, ChevronRight, CirclePlus, Clock, MapPin, Pencil, Trash2, Upload, Users2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AddDonationDrive() {
@@ -61,6 +61,7 @@ export default function AddDonationDrive() {
 			getEventById,
 			fetchAlumnusById,
 		} = useDonationDrives();
+	const router = useRouter();
   const buttonsContainerRef = useRef(null);
   const placeholderRef = useRef(null);
   const [message, setMessage] = useState("");
@@ -324,34 +325,40 @@ export default function AddDonationDrive() {
 			await handleEdit(donationDriveId, {
 				campaignName,
 				description,
-				image,
 				beneficiary,
 				targetAmount,
 				endDate,
 		});
-			toastSuccess("Donation drive successfully created");
+			toastSuccess("Donation drive successfully edited");
 			setIsEditing(false);
 		} catch (error) {
 			console.error("Error saving donation drive:", error);
-			setMessage("Failed to create donation drive.");
+			setMessage("Failed to edit donation drive.");
 			setIsError(true);
 		} finally {
       setIsSubmitting(false);
     }
 	};
+	const manage = () => {
+    router.push("/admin-dashboard/donation-drive/manage");
+  };
+
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
 	
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
           Home
         </div>
         <div>
           <ChevronRight size={15} />
         </div>
-        <div>
-          Add Donation Drive
+        <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>
+          Manage Donation Drive
         </div>
         <div>
           <ChevronRight size={15} />
@@ -504,10 +511,6 @@ export default function AddDonationDrive() {
 								<p className="text-sm font-medium flex items-center">
 									<span className="font-medium">Start: </span> 
 									{formatDate(donationDrive?.startDate)}
-								</p>
-								<p className="text-sm font-medium flex items-center">
-									<span className="font-medium">End:</span> 
-									{formatDate(donationDrive?.endDate)}
 								</p>
 								<p className="text-sm font-medium flex items-center">
 									<span className="font-medium">Date Posted: </span> 

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { uploadImage } from "@/lib/upload";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ import { useAuth } from "@/context/AuthContext";
 import { createDonation } from "@/data/donation";
 import { useState } from "react";
 import { useDonationDrives } from '@/context/DonationDriveContext';
+import { DonationContextProvider, useDonationContext } from "@/context/DonationContext";
 
 // Update the schema to include the new fields
 export const donationFormSchema = z.object({
@@ -51,6 +53,8 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
+	const [image, setImage] = useState(null);
+	const { updateDonationImageProof } = useDonationContext();
   
   // Import the refresh function from context
   // const { refreshDonationDrives } = useDonationDrives();
@@ -79,22 +83,10 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
       setIsLoading(false);
       return;
     }
-
-    // Handle image upload if provided
-    let imageProofUrl = "";
-    if (imageFile) {
-      try {
-        // You'll need to implement an image upload function that returns the URL
-        // imageProofUrl = await uploadImage(imageFile); 
-        // For now, let's just set it to a placeholder
-        imageProofUrl = "image_url_placeholder";
-      } catch (error) {
-        toastError("Failed to upload image proof");
-        setIsLoading(false);
-        return;
-      }
-    }
-
+		if(!imageFile || imageFile == null){
+			toastError("Image Proof Required");
+			return;
+		}
     // Optimistically update the UI - only for amount
     // This will show the progress bar updating immediately
     const currentAmount = drive.currentAmount || 0;
@@ -107,16 +99,29 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
       isAnonymous: data.isAnonymous,
       donationDriveId: drive.donationDriveId,
       alumniId: alumInfo?.alumniId!,
-      imageProof: imageProofUrl,
+      imageProof: "",
     };
 
     try {
       // Call the server action to create the donation
-      await createDonation(donationData);
-      
+      const donationId = await createDonation(donationData);
+      let imageProofUrl = "";
+      try {
+				if (!donationId) {
+					throw new Error("No donation ID returned from server");
+				}
+				const uploadResult = await uploadImage(imageFile, `donation/${donationId}`);
+				imageProofUrl = uploadResult.url;
+				if (imageProofUrl && donationId) {
+					await updateDonationImageProof(donationId, imageProofUrl);
+				}
+			} catch (error) {
+				toastError("Failed to upload image proof");
+				console.error("Image upload error:", error);
+			}
       // if there is no error, then display a success toast message
       toastSuccess(`You have donated ₱${data.amount} to ${drive.campaignName}.`);
-	  setIsThankYouOpen(true);
+	  	setIsThankYouOpen(true);
       
       // Refresh the donation drives to get the updated data from the server
       // refreshDonationDrives();
@@ -126,7 +131,7 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
       setImageFile(null);
       // close the dialog box
       setIsDialogOpen(false);
-	  onDonationSuccess();
+	  	onDonationSuccess();
     } catch (error) {
       console.error("Error creating donation:", error);
       toastError("Failed to process donation. Please try again.");
@@ -204,7 +209,6 @@ return (
 												<SelectContent className="bg-[#ffff] border-0">
 													<SelectItem value="gcash">GCash</SelectItem>
 													<SelectItem value="maya">Maya</SelectItem>
-													<SelectItem value="debit card">Debit Card</SelectItem>
 												</SelectContent></Select>
 											</FormControl>
 											<FormMessage />
@@ -234,12 +238,24 @@ return (
 							</fieldset>
 							{/* Will change depending on the chosen payment method */}
 							<div className="mt-3 w-auto h-96">
-								<p className="text-center">QR CODE </p>
-								<img src={'/proof.jpg'} alt="Payment Proof" className="w-auto h-80 rounded-2xl" />
+								{form.watch("paymentMethod") == "gcash" ? (
+									<>
+										<p className="text-center">GCASH QR CODE </p>
+										<img src={drive.qrGcash} alt="Payment Proof" className="w-auto h-80 rounded-2xl" />
+									</>
+								) : (
+									<>
+										<p className="text-center">PAYMAYA QR CODE </p>
+										<img src={drive.qrPaymaya} alt="Payment Proof" className="w-auto h-80 rounded-2xl" />
+									</>
+								)}
 							</div>
 						</div>
 						<DialogFooter className="mx-30">
-							<Button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 bg-[#0856BA]" type="submit" disabled={isLoading}>{isLoading ? "Processing..." : "Donate"}</Button>
+							<button type="submit" className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] w-full px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]" disabled={isLoading}>
+								{isLoading ? "Processing…" : "Donate"}
+							</button>
+							{/* <Button className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 bg-[#0856BA]" type="submit" disabled={isLoading}> {isLoading ? "Processing..." : "Donate"}</Button> */}
 						</DialogFooter>
 					</form>
 				</Form>
