@@ -185,8 +185,7 @@ export default function EditEventPage() {
             title, 
             description, 
             location, 
-            date, 
-            image, 
+            date,  
             targetGuests, 
             inviteType: visibility 
           }, image);

@@ -385,7 +385,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                     : [];
                 
                 if(isEditing && editingEventId){
-                  await handleEdit(editingEventId, {title, description, location, date, image, time, targetGuests, inviteType: visibility });
+                  await handleEdit(editingEventId, {title, description, location, date, time, targetGuests, inviteType: visibility }, image);
                 } else {
                   await handleSave(e, image, targetGuests, visibility, "Draft");
                 } 
@@ -466,7 +466,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                 [];
 
               if(isDetails){
-                await handleEdit(editingEventId, {title, description, location, date, image, time, targetGuests, status: "Pending", inviteType: visibility });
+                await handleEdit(editingEventId, {title, description, location, date, time, targetGuests, status: "Pending", inviteType: visibility }, image);
               } else {
                 await handleSave(e, image, targetGuests, visibility, "Pending");
               }

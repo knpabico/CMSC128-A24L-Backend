@@ -608,11 +608,10 @@ export default function EventPageAdmin() {
                       title, 
                       description, 
                       location, 
-                      date, 
-                      image, 
+                      date,  
                       targetGuests, 
                       inviteType: visibility 
-                    });
+                    }, image);
                     setShowForm(false);
                     setEdit(false);
                     setButton("");
