@@ -32,6 +32,19 @@ import {
 } from "@/components/ui/dialog";
 import { set } from "zod";
 
+function formatDate(timestamp: any) {
+  if (!timestamp || !timestamp.seconds) return "Invalid Date";
+  const date = new Date(timestamp.seconds * 1000);
+  return date.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export default function Users() {
   const {
     jobOffers,
@@ -308,7 +321,7 @@ export default function Users() {
                 <div>
                   <label className="block text-sm font-medium">Date Posted</label>
                   <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                    {new Date(editedJob.datePosted).toLocaleString()}
+                  {formatDate(viewingJob.datePosted)}
                   </div>
                 </div>
               </div>
