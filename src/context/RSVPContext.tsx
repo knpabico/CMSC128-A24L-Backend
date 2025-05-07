@@ -10,6 +10,7 @@ import { doc, getDoc, updateDoc,
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "./AuthContext";
 import { RSVP } from "@/models/models";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 
 const RsvpContext = createContext<any>({
   rsvpDetails: [], 
@@ -75,8 +76,10 @@ export function RsvpProvider({ children }: { children: React.ReactNode }) {
           [`alums.${alumniId}`]: { status: "Accepted" }
         });
         console.log(`RSVP ${rsvp.id} updated to Accepted`);
+        toastSuccess("RSVP successfully accepted")
         return { success: true, message: "RSVP successfully accepted" };
       } else {
+        toastError("RSVP not found")
         return { success: false, message: "RSVP not found" };
       }
   
@@ -98,8 +101,10 @@ export function RsvpProvider({ children }: { children: React.ReactNode }) {
           [`alums.${alumniId}`]: { status: "Rejected" }
         });
         console.log(`RSVP ${rsvp.id} updated to Rejected`);
+        toastSuccess("RSVP successfully rejected");
         return { success: true, message: "RSVP successfully rejected" };
       } else {
+        toastError("RSVP not found")
         return { success: false, message: "RSVP not found" };
       }
   
