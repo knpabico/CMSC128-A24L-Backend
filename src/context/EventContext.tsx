@@ -16,6 +16,7 @@ import { useAuth } from "./AuthContext";
 import { Event, RSVP, Alumnus } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { FirebaseError } from "firebase/app";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/lib/upload";
@@ -216,8 +217,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       setEventImage(null);
       setPreview(null);
 
+      toastSuccess("Event processed successfully");
       return { success: true, message: "Event processed successfully" };
     } catch (error) {
+      toastError("Error adding event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -271,6 +274,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     const response = await addEvent(newEvent, false, false);
 
     if (response.success) {
+      toastSuccess("Event saved successfully!");
       setShowForm(false);
       setEventTitle("");
       setEventDescription("");
@@ -285,6 +289,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       return { success: true };
     } else {
       console.error("Error adding event:", response.message);
+      toastError("Error saving event");
     }
   };
 
@@ -301,8 +306,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       await deleteDoc(doc(db, "event", eventId));
       await deleteNewsLetter(eventId);
       setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
+      toastSuccess("Event successfully deleted!");
       return { success: true, message: "Event successfully deleted" };
     } catch (error) {
+      toastError("Error deleting event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -315,8 +322,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           event.eventId === eventId ? { ...event, ...updatedData } : event
         )
       );
+      toastSuccess("Event updated successfully!");
       return { success: true, message: "Event successfully updated" };
     } catch (error) {
+      toastError("Error updating event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -325,8 +334,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     try {
       const eventRef = doc(db, "event", eventId);
       await updateDoc(eventRef, { status: "Rejected" });
+      toastSuccess("Event successfully rejected.");
       return { success: true, message: "Event successfully rejected" };
     } catch (error) {
+      toastError("Error rejecting event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
