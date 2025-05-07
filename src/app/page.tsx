@@ -61,6 +61,7 @@ import {
   useAnnouncement,
 } from "@/context/AnnouncementContext";
 import { useJobOffer } from "@/context/JobOfferContext";
+import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
 import React from "react";
 import { useDonationContext } from "@/context/DonationContext";
@@ -77,17 +78,11 @@ const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
 
-const oswald = Oswald({
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700"],
-});
-
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
     useAuth();
   const { newsLetters } = useNewsLetters();
-  const { announces, setAnnounce } = useAnnouncement();
-  const [publicAnnouncement, setPublicAnnouncement]  = useState(announces)
+  const { announces } = useAnnouncement();
   const { jobOffers } = useJobOffer();
   const { events } = useEvents();
   const { alums } = useAlums();
@@ -104,35 +99,17 @@ export default function Home() {
   const [currentDonationIndex, setCurrentDonationIndex] = useState(0);
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
 
-  const { userEducation } = useEducation();
-  const [filteredEducation, setFilteredEducation] = useState<Education[]>([]);
-  
-  useEffect(() => {
-    if (user?.uid) {
-      const filtered = userEducation.filter(
-        (edu: Education) => edu.alumniId === user.uid
-      );
-      setFilteredEducation(filtered);
-    }
-    console.log("User Education", userEducation);
-  }, [user?.uid, userEducation]); 
-  
+
   const nextDonation = () => {
-    setCurrentDonationIndex((prev) =>
-      prev === donationDrives.length - 1 ? 0 : prev + 1
-    );
+      setCurrentDonationIndex((prev) => 
+          prev === donationDrives.length - 1 ? 0 : prev + 1
+      );
   };
 
-  useEffect(() => {
-    if (isGoogleSignIn) {
-      router.push("/sign-up");
-    }
-  }, [router, isGoogleSignIn]);
-
   const previousDonation = () => {
-    setCurrentDonationIndex((prev) =>
-      prev === 0 ? donationDrives.length - 1 : prev - 1
-    );
+      setCurrentDonationIndex((prev) => 
+          prev === 0 ? donationDrives.length - 1 : prev - 1
+      );
   };
 
   function formatDate(timestamp: any) {
@@ -142,11 +119,15 @@ export default function Home() {
   }
 
   const nextEvent = () => {
-    setCurrentEventIndex((prev) => (prev === events.length - 1 ? 0 : prev + 1));
+    setCurrentEventIndex((prev) => 
+        prev === events.length - 1 ? 0 : prev + 1
+    );
   };
 
   const previousEvent = () => {
-    setCurrentEventIndex((prev) => (prev === 0 ? events.length - 1 : prev - 1));
+      setCurrentEventIndex((prev) => 
+          prev === 0 ? events.length - 1 : prev - 1
+      );
   };
 
   useEffect(() => {
@@ -154,15 +135,6 @@ export default function Home() {
       router.push("/admin-dashboard");
     }
   }, [isAdmin, router, loading, user]);
-
-  useEffect(() => {
-    const filteredAnnouncements = announces.filter(
-      (announcement: Announcement) => announcement.isPublic === true
-    );
-    if (JSON.stringify(filteredAnnouncements) !== JSON.stringify(announces)) {
-      setPublicAnnouncement(filteredAnnouncements);
-    }
-  }, [announces]);
 
   //function for handling change on sort type
   function handleSortChange(sortType: string) {
@@ -358,119 +330,47 @@ export default function Home() {
     );
   }
 
-  // Calculate days remaining until the donation drive ends
+ // Calculate days remaining until the donation drive ends
   function getDaysRemaining(endDate: any) {
     try {
       const now = new Date();
-
+    
       // Clear time portions to calculate full days
       // const endDateOnly = new Date(endDate);
       // endDateOnly.setHours(0, 0, 0, 0);
-
+      
       // const todayOnly = new Date(now);
       // todayOnly.setHours(0, 0, 0, 0);
 
       const todayOnly = new Date(); // Current date
       const endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
-
+      
       // Calculate difference in days
       const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
-      const differenceInDays = Math.ceil(
-        differenceInTime / (1000 * 60 * 60 * 24)
-      );
+      const differenceInDays = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24));
       if (differenceInDays <= 0) return "Expired";
       else if (differenceInDays === 1) return "1 day left";
       else return `${differenceInDays} days left`;
       // Return 0 if ended or negative
     } catch (err) {
-      return "Not Available";
+      return 'Not Available';
     }
   }
+
+
 
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
-      <div>
-        {/* <div className="flex justify-end p-4">
+      <div className="flex flex-col min-h-screen justify-center items-center">
+        <p className="text-black text-[70px] font-bold">WELCOME, Guest!</p>
+        <div className="flex gap-3">
           <Button asChild>
             <Link href="/login">Log in</Link>
           </Button>
-        </div> */}
-
-        {/* Carousel */}
-        <div className="relative w-full h-screen overflow-hidden">
-          {/* Navbar */}
-          <div
-            className="flex items-center justify-between h-20 fixed top-0 w-full"
-            style={{ padding: "0 10% 0 10%" }}
-          >
-            <div>ICS-ARMS</div>
-            <div>
-              <Button asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-10 h-screen justify-center">
-            <div className="flex flex-col items-center justify-center gap-10">
-              <div className={`${oswald.className} text-6xl`}>
-                Extending Our Reach, Embracing Our Legacy
-              </div>
-              <div className="text-lg text-center">
-                ICS-ARMS reaches out to connect, support, and celebrate the
-                journeys<br></br>of our alumni—building a stronger, united ICS
-                community.
-              </div>
-            </div>
-            <div>
-              <div className="flex gap-5" style={{ padding: "0 10% 0 10%" }}>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 1</div>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 2</div>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 3</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="flex flex-col gap-8"
-          style={{ padding: "50px 10% 5% 10%" }}
-        >
-          <div className="font-bold text-3xl">News & Announcements</div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {publicAnnouncement.map((item: Announcement) => (
-              <Link
-                href={`/announcements/${item.announcementId}`}
-                key={item.announcementId}
-                className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
-              >
-                <div className="w-full h-40 bg-pink-400 overflow-hidden">
-                  <img
-                    src={
-                      item.image === ""
-                        ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
-                        : item.image
-                    }
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4 flex flex-col gap-2 flex-grow">
-                  <div className="text-xs text-gray-500">
-                    {formatDate(item.datePosted)}
-                  </div>
-                  <div className="font-bold text-md line-clamp-2">
-                    {item.title}
-                  </div>
-                  <div className="text-xs text-gray-700 line-clamp-3">
-                    {item.description}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <Button asChild>
+            <Link href="/sign-up">Sign up</Link>
+          </Button>
         </div>
       </div>
     );
@@ -540,38 +440,36 @@ export default function Home() {
               </Button>
             </div>
 
-            {/* Feed  */}
-            <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
-              {/*sorting dropdown*/}
-              <div className="flex flex-row w-full justify-end mb-3">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-white border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10 focus:outline-none">
-                    {selectedSort}
-                    <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">
-                    {sortTypes.map((sortType, index) => (
-                      <DropdownMenuItem key={sortType} asChild>
-                        <button
-                          onClick={() => {
-                            setSelectedSort(sortType);
-                            setLatestFirst(sortType === "Latest");
-                            handleSortChange(sortValues[index]);
-                          }}
-                          className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 focus:outline-none ${
-                            selectedSort === sortType
-                              ? "bg-white text-[#0856BA] font-semibold"
-                              : ""
-                          }`}
-                        >
-                          {sortType}
-                        </button>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+        {/* Feed  */}
+        <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
+          {/*sorting dropdown*/}
+          <div className="flex flex-row w-full justify-end mb-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-white border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10 focus:outline-none">
+                {selectedSort}
+                <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+              </DropdownMenuTrigger>
+              
+              <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">                    
+                {sortTypes.map((sortType, index) => (
+                  <DropdownMenuItem key={sortType} asChild>
+                    <button
+                      onClick={() => {
+                        setSelectedSort(sortType);
+                        setLatestFirst(sortType === "Latest");
+                        handleSortChange(sortValues[index]);
+                      }}
+                      className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 focus:outline-none ${
+                        selectedSort === sortType ? "bg-white text-[#0856BA] font-semibold" : ""
+                      }`}
+                    >
+                      {sortType}
+                    </button>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
               {/* Feed Content */}
               <div className="scroll-smooth flex flex-col w-full gap-[5px]">
@@ -730,18 +628,22 @@ export default function Home() {
                                     </p>
                                   </div>
 
-                                  <div className="flex flex-row gap-[5px]">
-                                    <PhilippinePeso className="size-5"/>
-                                    <p className="text-[13px] md:text-[15px]">
-                                      {jobOffering.salaryRange}
-                                    </p>
-                                  </div>
-
-                                  <div className="text-[13px] md:text-[15px]">
-                                    <div className="flex flex-row gap-[3px]">
-                                      <ClipboardList className="size-5"/>                                      
-                                      Required skill(s):
-                                    </div>
+                            <div className="flex flex-row gap-[5px]">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[18px] md:h-[20px] w-auto">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                              </svg>
+                              <p className="text-[13px] md:text-[15px]">
+                                {jobOffering.salaryRange}
+                              </p>
+                            </div>
+                          
+                            <div className="text-[13px] md:text-[15px]"> 
+                              <div className="flex flex-row gap-[3px]">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-[18px] md:h-[20px] w-auto">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                                </svg>
+                                Required skill(s):
+                              </div>
 
                                     <div className="pl-[25px]">
                                       {jobOffering.requiredSkill.map(
@@ -851,70 +753,42 @@ export default function Home() {
                                 />
                               </div>
 
-                              {donationDrive.image === "" ? (
-                                ""
-                              ) : (
-                                <img
-                                  src={donationDrive.image}
-                                  className="w-full"
-                                  alt="Donation drive"
-                                />
-                              )}
+                      {donationDrive.image === "" ? "" :
+                        <img src={donationDrive.image} className="w-full" alt="Donation drive" /> 
+                      }
+                        
+                        <div className="flex flex-col px-4 md:px-[20px]">
+                          <div className="w-full">
+                            <div className="flex justify-between mb-1">
+                              <div className='flex gap-2 items-center'>
+                                <Users className='size-4 text-[#616161]'/>
+                                <span className="text-[13px] md:text-[15px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
+                              </div>
+                              {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                              <div className='flex gap-2 items-center'>
+                                <Clock className='size-4 text-[#616161]'/>
+                                <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                              </div>)}
+                            </div>
 
-                              <div className="flex flex-col px-4 md:px-[20px]">
-                                <div className="w-full">
-                                  <div className="flex justify-between mb-1">
-                                    <div className="flex gap-2 items-center">
-                                      <Users className="size-4 text-[#616161]" />
-                                      <span className="text-[13px] md:text-[15px] text-gray-500">
-                                        {donationDrive.donorList?.length || 0}{" "}
-                                        Patrons
-                                      </span>
-                                    </div>
-                                    {getDaysRemaining(
-                                      donationDrive.endDate
-                                    ) === "Not Available" ? (
-                                      ""
-                                    ) : (
-                                      <div className="flex gap-2 items-center">
-                                        <Clock className="size-4 text-[#616161]" />
-                                        <span className="text-[13px] md:text-[15px] text-gray-500">
-                                          {getDaysRemaining(
-                                            donationDrive.endDate
-                                          )}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* progress bar */}
-                                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                                    {donationDrive.currentAmount === 0 ? (
-                                      <div
-                                        className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full"
-                                        style={{
-                                          width: `${Math.min(
-                                            ((donationDrive.currentAmount || 0) /
-                                            donationDrive.targetAmount) *
-                                              100,
-                                            100
-                                          )}%`,
-                                        }}
-                                      ></div>
-                                    ) : (
-                                      <div
-                                        className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                                        style={{
-                                          width: `${Math.min(
-                                            ((donationDrive.currentAmount || 0) /
-                                            donationDrive.targetAmount) *
-                                              100,
-                                            100
-                                          )}%`,
-                                        }}
-                                      ></div>
-                                    )}
-                                  </div>
+                            {/* progress bar */}
+                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
+                              {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                                <div 
+                                className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
+                                style={{
+                                  width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                }}
+                              >
+                              </div>) : 
+                              <div 
+                                className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                                style={{
+                                  width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                }}
+                              >
+                              </div>}
+                            </div>
 
                                   <div className="flex justify-between my-1 text-[13px] md:text-[15px]">
                                     <span className="font-medium">
@@ -1012,135 +886,74 @@ export default function Home() {
                         );
                       })()}
 
-                    {/* if newsletter is an event */}
-                    {newsLetter.category === "event" &&
-                      (() => {
-                        const event_array = events.filter(
-                          (event: Event) =>
-                            event.eventId === newsLetter.referenceId
-                        ); // Using filter to get all matching events
-
-                        return (
-                          <>
-                            {/* Map over the event_array */}
+                {/* if newsletter is an event */}
+                {newsLetter.category === "event" && (() => {
+                  const event_array = events.filter(
+                    (event: Event) => event.eventId === newsLetter.referenceId
+                  ); // Using filter to get all matching events
+                  
+                  return (
+                    <>
+                      {/* Map over the event_array */}
+                      <div>
+                        {event_array.map((event: Event) => (
+                        <div className="flex flex-col gap-[20px]" key={event.eventId}>
+                          <div className="flex flex-col gap-[20px] px-4 md:px-[20px]">
                             <div>
-                              {event_array.map((event: Event) => (
-                                <div
-                                  className="flex flex-col gap-[20px]"
-                                  key={event.eventId}
+                              <p className="text-xl md:text-[24px] font-semibold">{event.title}</p>
+                              <p className="text-[13px] md:text-[15px] mt-2">{event.description}</p>
+                            </div>
+                          </div>
+                        
+                          {event.image === "" ? "" :
+                            <img src={event.image}></img>
+                          }
+                          <>
+                          
+                          {event.needSponsorship === true && (
+                          <>
+
+                          {/* TODO: edit sponsorship details according to events */}
+                          <div className="flex flex-col px-4 md:px-[20px]">
+                            <div className="w-full">
+                              <div className="flex justify-between mb-1">
+                                <div className='flex gap-2 items-center'>
+                                  <Users className='size-4 text-[#616161]'/>
+                                  <span className="text-[13px] md:text-[15px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
+                                </div>
+                                {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                                  <div className='flex gap-2 items-center'>
+                                  <Clock className='size-4 text-[#616161]'/>
+                                  <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                                </div>)}
+                              </div>
+
+                              {/* progress bar */}
+                              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
+                                {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                                  <div 
+                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
+                                  style={{
+                                    width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  }}
                                 >
-                                  <div className="flex flex-col gap-[20px] px-4 md:px-[20px]">
-                                    <div>
-                                      <p className="text-xl md:text-[24px] font-semibold">
-                                        {event.title}
-                                      </p>
-                                      <p className="text-[13px] md:text-[15px] mt-2">
-                                        {event.description}
-                                      </p>
-                                    </div>
-                                  </div>
+                                </div>) : <div 
+                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                                  style={{
+                                    width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  }}
+                                >
+                                </div>}
+                              </div>
 
-                                  {event.image === "" ? (
-                                    ""
-                                  ) : (
-                                    <img src={event.image}></img>
-                                  )}
-                                  <>
-                                    {event.needSponsorship === true && (
-                                      <>
-                                        {/* TODO: edit sponsorship details according to events */}
-                                        <div className="flex flex-col px-4 md:px-[20px]">
-                                          <div className="w-full">
-                                            <div className="flex justify-between mb-1">
-                                              <div className="flex gap-2 items-center">
-                                                <Users className="size-4 text-[#616161]" />
-                                                <span className="text-[13px] md:text-[15px] text-gray-500">
-                                                  {donationDrives[
-                                                    currentDonationIndex
-                                                  ].donorList?.length || 0}{" "}
-                                                  Patrons
-                                                </span>
-                                              </div>
-                                              {getDaysRemaining(
-                                                donationDrives[
-                                                  currentDonationIndex
-                                                ].endDate
-                                              ) === "Not Available" ? (
-                                                ""
-                                              ) : (
-                                                <div className="flex gap-2 items-center">
-                                                  <Clock className="size-4 text-[#616161]" />
-                                                  <span className="text-[13px] md:text-[15px] text-gray-500">
-                                                    {getDaysRemaining(
-                                                      donationDrives[
-                                                        currentDonationIndex
-                                                      ].endDate
-                                                    )}
-                                                  </span>
-                                                </div>
-                                              )}
-                                            </div>
-
-                                            {/* progress bar */}
-                                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                                              {donationDrives[
-                                                currentDonationIndex
-                                              ].currentAmount === 0 ? (
-                                                <div
-                                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full"
-                                                  style={{
-                                                    width: `${Math.min(
-                                                      ((donationDrives[
-                                                        currentDonationIndex
-                                                      ].currentAmount || 0) /
-                                                        donationDrives[
-                                                          currentDonationIndex
-                                                        ].targetAmount) *
-                                                        100,
-                                                      100
-                                                    )}%`,
-                                                  }}
-                                                ></div>
-                                              ) : (
-                                                <div
-                                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                                                  style={{
-                                                    width: `${Math.min(
-                                                      ((donationDrives[
-                                                        currentDonationIndex
-                                                      ].currentAmount || 0) /
-                                                        donationDrives[
-                                                          currentDonationIndex
-                                                        ].targetAmount) *
-                                                        100,
-                                                      100
-                                                    )}%`,
-                                                  }}
-                                                ></div>
-                                              )}
-                                            </div>
-
-                                            <div className="flex justify-between my-1 text-[13px] md:text-[15px]">
-                                              <span className="font-medium">
-                                                ₱{" "}
-                                                {
-                                                  donationDrives[
-                                                    currentDonationIndex
-                                                  ].currentAmount
-                                                }
-                                              </span>
-                                              <span className="text-gray-500">
-                                                of ₱{" "}
-                                                {donationDrives[
-                                                  currentDonationIndex
-                                                ].targetAmount || 0}
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </>
-                                    )}
-                                  </>
+                              <div className="flex justify-between my-1 text-[13px] md:text-[15px]">
+                                <span className="font-medium">₱ {donationDrives[currentDonationIndex].currentAmount}</span>
+                                <span className="text-gray-500">of ₱ {donationDrives[currentDonationIndex].targetAmount || 0}</span>
+                              </div>
+                            </div>
+                          </div>
+                          </>)}
+                          </>
 
                                   <div className="px-4 md:px-[20px] flex gap-1">
                                     <button
@@ -1167,15 +980,15 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="w-full lg:w-[350px] lg:sticky lg:top-23 lg:self-start flex flex-col items-center gap-[5px]">
-              {/* Donation Sample */}
-              {donationDrives.length > 0 && (
-                <div className="border border-[#DADADA] w-full flex flex-row bg-white py-[5px] rounded-lg items-center">
-                  {/* left button (previous) */}
-                  <button
-                    onClick={previousDonation}
-                    className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
+        {/* Sidebar */}
+        <div className="w-full lg:w-[350px] lg:sticky lg:top-23 lg:self-start flex flex-col items-center gap-[5px]">
+          {/* Donation Sample */}
+          {donationDrives.length > 0 && (
+            <div className="border border-[#DADADA] w-full flex flex-row bg-white py-[5px] rounded-lg items-center">
+              {/* left button (previous) */}
+              <button 
+              onClick={previousDonation} 
+              className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                   >
                     <svg
                       fill="none"
@@ -1183,110 +996,61 @@ export default function Home() {
                       width="11"
                       height="11"
                       viewBox="0 0 10 10"
-                      aria-hidden="true"
+                      aria-hidden="true" 
                       strokeWidth={1.5}
                       className="-ml-0.5 rotate-180"
                     >
-                      <path
-                        className="opacity-0 transition group-hover:opacity-100"
-                        d="M0 5h7"
-                      />
-                      <path
-                        className="transition group-hover:translate-x-[3px]"
-                        d="M1 1l4 4-4 4"
-                      />
+                      <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                      <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
                     </svg>
                   </button>
 
                   {/* donation contents */}
                   <div className="w-full flex flex-col py-[10px] place-items-center">
-                    {donationDrives[currentDonationIndex].image === "" ? (
-                      ""
-                    ) : (
-                      <img
-                        src={donationDrives[currentDonationIndex].image}
-                        className="mb-[10px] h-[150px] object-cover w-full"
-                        alt="Donation drive"
-                      />
-                    )}
+                    {donationDrives[currentDonationIndex].image === '' ? '' : 
+                    (<img src={donationDrives[currentDonationIndex].image} className="mb-[10px] h-[150px] object-cover w-full" alt="Donation drive" />)
+                    }
                     <div className="w-full">
-                      <p className="font-semibold mb-2">
-                        {donationDrives[currentDonationIndex].campaignName}
-                      </p>
+                      <p className="font-semibold mb-2">{donationDrives[currentDonationIndex].campaignName}</p>
                       <div className="flex justify-between mb-1">
-                        <div className="flex gap-2 items-center">
-                          <Users className="size-4 text-[#616161]" />
-                          <span className="text-[13px] text-gray-500">
-                            {donationDrives[currentDonationIndex].donorList
-                              ?.length || 0}{" "}
-                            Patrons
-                          </span>
+                        <div className='flex gap-2 items-center'>
+                          <Users className='size-4 text-[#616161]'/>
+                          <span className="text-[13px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
                         </div>
-                        {getDaysRemaining(
-                          donationDrives[currentDonationIndex].endDate
-                        ) === "Not Available" ? (
-                          ""
-                        ) : (
-                          <div className="flex gap-2 items-center">
-                            <Clock className="size-4 text-[#616161]" />
-                            <span className="text-[13px] text-gray-500">
-                              {getDaysRemaining(
-                                donationDrives[currentDonationIndex].endDate
-                              )}
-                            </span>
-                          </div>
-                        )}
+                        {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                          <div className='flex gap-2 items-center'>
+                          <Clock className='size-4 text-[#616161]'/>
+                          <span className="text-[13px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                        </div>)}
                       </div>
 
                       {/* progress bar */}
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                        {donationDrives[currentDonationIndex].currentAmount ===
-                        0 ? (
-                          <div
-                            className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full"
-                            style={{
-                              width: `${Math.min(
-                                ((donationDrives[currentDonationIndex]
-                                  .currentAmount || 0) /
-                                  donationDrives[currentDonationIndex]
-                                    .targetAmount) *
-                                  100,
-                                100
-                              )}%`,
-                            }}
-                          ></div>
-                        ) : (
-                          <div
-                            className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                            style={{
-                              width: `${Math.min(
-                                ((donationDrives[currentDonationIndex]
-                                  .currentAmount || 0) /
-                                  donationDrives[currentDonationIndex]
-                                    .targetAmount) *
-                                  100,
-                                100
-                              )}%`,
-                            }}
-                          ></div>
-                        )}
+                        {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                          <div 
+                          className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
+                          style={{
+                            width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                          }}
+                        >
+                        </div>) : <div 
+                          className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                          style={{
+                            width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                          }}
+                        >
+                        </div>}
                       </div>
 
                       <div className="flex justify-between my-1 text-sm">
-                        <span className="font-medium">
-                          ₱ {donationDrives[currentDonationIndex].currentAmount}
-                        </span>
-                        <span className="text-gray-500">
-                          of ₱{" "}
-                          {donationDrives[currentDonationIndex].targetAmount ||
-                            0}
-                        </span>
+                        <span className="font-medium">₱ {donationDrives[currentDonationIndex].currentAmount}</span>
+                        <span className="text-gray-500">of ₱ {donationDrives[currentDonationIndex].targetAmount || 0}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* right button (next) */}
-                  <button
+                  <button 
                     onClick={nextDonation}
                     className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                   >
@@ -1300,24 +1064,18 @@ export default function Home() {
                       strokeWidth={1.5}
                       className="-mr-0.5"
                     >
-                      <path
-                        className="opacity-0 transition group-hover:opacity-100"
-                        d="M0 5h7"
-                      />
-                      <path
-                        className="transition group-hover:translate-x-[3px]"
-                        d="M1 1l4 4-4 4"
-                      />
+                      <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                      <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
                     </svg>
                   </button>
                 </div>
               )}
-
+                              
               {/* Event Sample */}
               {events.length > 0 && (
                 <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center">
                   {/* left button (previous) */}
-                  <button
+                  <button 
                     onClick={previousEvent}
                     className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                   >
@@ -1331,14 +1089,8 @@ export default function Home() {
                       strokeWidth={1.5}
                       className="-ml-0.5 rotate-180"
                     >
-                      <path
-                        className="opacity-0 transition group-hover:opacity-100"
-                        d="M0 5h7"
-                      />
-                      <path
-                        className="transition group-hover:translate-x-[3px]"
-                        d="M1 1l4 4-4 4"
-                      />
+                      <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                      <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
                     </svg>
                   </button>
 
@@ -1350,47 +1102,35 @@ export default function Home() {
                         className="mb-[10px] h-[150px] w-full object-cover"
                       />
                       <div className="flex flex-col text-[15px]">
-                        <p className="font-semibold">
-                          {events[currentEventIndex].title}
-                        </p>
+                        <p className="font-semibold">{events[currentEventIndex].title}</p>
                       </div>
-
+                      
                       <div className="flex flex-col gap-[10px] content-stretch">
                         <div className="flex justify-between text-[13px] gap-[30px] mt-[10px]">
-                          <div className="flex gap-2 items-center">
-                            <Calendar className="size-4 text-[#616161]" />
-                            <span className="text-[13px] text-gray-500">
-                              {new Date(
-                                events[currentEventIndex].date
-                              ).toLocaleDateString()}
-                            </span>
+                          <div className='flex gap-2 items-center'>
+                            <Calendar className="size-4 text-[#616161]"/>
+                            <span className="text-[13px] text-gray-500">{new Date(events[currentEventIndex].date).toLocaleDateString()}</span>
                           </div>
-
-                          <div className="flex gap-2  items-center">
-                            <Clock className="size-4 text-[#616161]" />
-                            <span className="text-[13px] text-gray-500">
-                              {new Date(
-                                events[currentEventIndex].date
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
+                          
+                          <div className='flex gap-2  items-center'>
+                            <Clock className='size-4 text-[#616161]'/>
+                            <span className="text-[13px] text-gray-500">{new Date(events[currentEventIndex].date).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}</span>
                           </div>
                         </div>
 
                         <div className="flex flex-row text-[13px] gap-[3px] items-center place-self-start">
-                          <MapPin className="size-4 text-[#616161] " />
-                          <span className="text-[13px] text-gray-500">
-                            {events[currentEventIndex].location}
-                          </span>
+                          <MapPin className="size-4 text-[#616161] "/>
+                          <span className="text-[13px] text-gray-500">{events[currentEventIndex].location}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* right button (next) */}
-                  <button
+                  <button 
                     onClick={nextEvent}
                     className="group inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md from-slate-950 to-slate-900 py-2.5 px-3.5 sm:text-[14px] font-medium text-[#0856BA] transition-all duration-100 ease-in-out hover:to-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:pointer-events-none"
                   >
@@ -1404,14 +1144,8 @@ export default function Home() {
                       strokeWidth={1.5}
                       className="-mr-0.5"
                     >
-                      <path
-                        className="opacity-0 transition group-hover:opacity-100"
-                        d="M0 5h7"
-                      />
-                      <path
-                        className="transition group-hover:translate-x-[3px]"
-                        d="M1 1l4 4-4 4"
-                      />
+                      <path className="opacity-0 transition group-hover:opacity-100" d="M0 5h7" />
+                      <path className="transition group-hover:translate-x-[3px]" d="M1 1l4 4-4 4" />
                     </svg>
                   </button>
                 </div>

@@ -72,10 +72,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     try {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
-      jobOffer.alumniId = user?.uid || "Admin";
+      jobOffer.alumniId = isAdmin ? "Admin" : user?.uid ?? "";
       jobOffer.status = isAdmin ? "Accepted" : "Pending";
       console.log(jobOffer);
       await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
+      if ( isAdmin ){
+        addNewsLetter(jobOffer.jobId, "job_offering");
+      }
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
