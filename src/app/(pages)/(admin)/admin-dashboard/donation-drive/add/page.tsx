@@ -74,7 +74,7 @@ export default function AddDonationDrive() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();	
 		if (!preview || !previewGcash || !previewPaymaya) {
-			if (!preview) toastError("No image selected for backgorund phot")
+			if (!preview) toastError("No image selected for backgorund photo")
 			if (!previewGcash) toastError("No image selected for GCASH QR")
 			if (!previewPaymaya) toastError("No image selected for PayMaya QR")
 			return;

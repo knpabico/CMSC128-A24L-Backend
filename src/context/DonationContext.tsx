@@ -27,6 +27,10 @@ type DonationContextType = {
     donationId: string,
     isAnonymous: boolean
   ) => Promise<void>;
+	updateDonationImageProof: (
+		donationId: string,
+		imageProofUrl: string
+	) => Promise<void>;
 };
 
 const DonationContext = createContext<DonationContextType | null>(null);
@@ -274,6 +278,38 @@ export const DonationContextProvider = ({
     }
   };
 
+	// Update donation image proof
+	const updateDonationImageProof = async (
+		donationId: string,
+		imageProofUrl: string
+	): Promise<void> => {
+		if (!donationId) {
+			throw new Error("No donation ID provided");
+		}
+
+		try {
+			// Update the donation document
+			const donationRef = doc(db, "donation", donationId);
+			await updateDoc(donationRef, {
+				imageProof: imageProofUrl,
+			});
+
+			// Update local state if this donation is in userDonations
+			if (userDonations) {
+				const updatedDonations = userDonations.map((donation) =>
+					donation.donationId === donationId
+						? { ...donation, imageProof: imageProofUrl }
+						: donation
+				);
+				setUserDonations(updatedDonations);
+			}
+		} catch (error) {
+			console.error("Error updating donation image proof:", error);
+			setError("Failed to update donation image proof.");
+			throw error;
+		}
+	};
+
   return (
     <DonationContext.Provider
       value={{
@@ -285,6 +321,7 @@ export const DonationContextProvider = ({
         getDonationsByDonationDrive,
         getCampaignName,
         updateDonationAnonymity,
+				updateDonationImageProof,
       }}
     >
       {children}

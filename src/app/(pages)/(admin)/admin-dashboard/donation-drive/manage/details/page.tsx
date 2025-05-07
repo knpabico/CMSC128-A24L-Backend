@@ -513,10 +513,6 @@ export default function AddDonationDrive() {
 									{formatDate(donationDrive?.startDate)}
 								</p>
 								<p className="text-sm font-medium flex items-center">
-									<span className="font-medium">End:</span> 
-									{formatDate(donationDrive?.endDate)}
-								</p>
-								<p className="text-sm font-medium flex items-center">
 									<span className="font-medium">Date Posted: </span> 
 									{formatDate(donationDrive?.datePosted)} 
 									<span className="text-gray-400 text-sm ml-2">({formatTimeAgo(donationDrive?.datePosted)})</span>
