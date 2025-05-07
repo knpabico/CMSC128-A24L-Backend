@@ -15,6 +15,7 @@ import { useRsvpDetails } from "@/context/RSVPContext";
 import { useRouter } from "next/navigation";
 
 export default function EventPageAdmin() {
+  const router = useRouter();
   const params = useParams();
   const {
     events,
@@ -321,10 +322,12 @@ export default function EventPageAdmin() {
             <option value="alphabetical">A-Z</option>
           </select>
           <button
-            onClick={() => {
-              resetFormState();
-              setShowForm(true);
-            }}
+            // onClick={() => {
+            //   resetFormState();
+            //   setShowForm(true);
+            // }}
+            onClick={() => router.push("/admin-dashboard/organize-events/add")}
+
             className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
           >
             <FilePlus2 className="w-5 h-5" /> Create Event
