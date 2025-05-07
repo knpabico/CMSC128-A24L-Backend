@@ -399,89 +399,85 @@ export default function JobOffers() {
         <div className="flex">
           <div>
             {/* Sidebar */}
-            <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
-                  <button
-                    className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => {
-                      setSidebarFilter("Job Postings")
-                      setSelectedJob(null)
-                    }}
-                  >
-                    <Briefcase className="w-5 h-5" />
-                    <p
-                      className={`group w-max relative py-1 transition-all ${
-                        sidebarFilter === "Job Postings"
-                          ? "font-semibold border-b-3 border-blue-500"
-                          : "text-gray-700 group"
-                      }`}
-                    >
-                      <span>All Job Posts</span>
-                      {sidebarFilter !== "Job Postings" && (
-                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                      )}
-                    </p>
-                  </button>
-                  <button
-                    className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => {
-                      setSidebarFilter("Saved Jobs")
-                      setSelectedJob(null)
-                    }}
-                  >
-                    <Bookmark className="w-5 h-5" />
-                    <p
-                      className={`group w-max relative py-1 transition-all ${
-                        sidebarFilter === "Saved Jobs"
-                          ? "font-semibold border-b-3 border-blue-500"
-                          : "text-gray-700 group"
-                      }`}
-                    >
-                      <span>Saved Jobs</span>
-                      {sidebarFilter !== "Saved Jobs" && (
-                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                      )}
-                    </p>
-                  </button>
-                  <button
-                    className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => {
-                      setSidebarFilter("Create Jobs")
-                      setSelectedJob(null)
-                    }}
-                  >
-                    <FilePlus className="w-5 h-5" />
-                    <p
-                      className={`group w-max relative py-1 transition-all ${
-                        sidebarFilter === "Create Jobs"
-                          ? "font-semibold border-b-3 border-blue-500"
-                          : "text-gray-700 group"
-                      }`}
-                    >
-                      <span>Created Jobs</span>
-                      {sidebarFilter !== "Create Jobs" && (
-                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                      )}
-                    </p>
-                  </button>
-                  <button
-                    className="flex gap-3 items-center w-full px-3 py-2"
-                    onClick={() => {
-                      setSidebarFilter("Drafts")
-                      setSelectedJob(null)
-                    }}
-                  >
-                    <FileText className="w-5 h-5" />
-                    <p
-                      className={`group w-max relative py-1 transition-all ${
-                        sidebarFilter === "Drafts" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
-                      }`}
-                    >
-                      <span>Drafts</span>
-                      {sidebarFilter !== "Drafts" && (
-                        <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
-                      )}
-                    </p>
-                  </button>
+            <div className="bg-[#FFFFFF] flex flex-col px-10 py-8 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
+              <button
+                onClick={() => {
+                  setSidebarFilter("Job Postings")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <Briefcase className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Job Postings"
+                      ? "font-semibold border-b-3 border-blue-500"
+                      : "text-gray-700 group"
+                  }`}
+                >
+                  <span>All Job Posts</span>
+                  {sidebarFilter !== "Job Postings" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarFilter("Saved Jobs")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <Bookmark className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Saved Jobs" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Saved Jobs</span>
+                  {sidebarFilter !== "Saved Jobs" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarFilter("Create Jobs")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <FilePlus className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Create Jobs" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Created Jobs</span>
+                  {sidebarFilter !== "Create Jobs" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarFilter("Drafts")
+                  setSelectedJob(null)
+                }}
+                className="flex items-center gap-3"
+              >
+                <FileText className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Drafts" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Drafts</span>
+                  {sidebarFilter !== "Drafts" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
             </div>
 
             {/* Post a Job Button */}
@@ -734,11 +730,12 @@ export default function JobOffers() {
                             onClick={() => setSelectedJob(job)}
                           >
                             <div className="flex justify-between items-center">
-                              <div className="flex">
+                              {/* Left side - Job details */}
+                              <div className="flex items-center">
                                 <div className="mr-3">
                                   {job.image ? (
                                     <img
-                                      src={job.image}
+                                      src={job.image || "/placeholder.svg"}
                                       alt={`${job.company} logo`}
                                       className="w-15 h-15 object-contain rounded-md border border-gray-200"
                                     />
@@ -748,68 +745,61 @@ export default function JobOffers() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="flex-1">
-                                  <h2 className="font-semibold text-md">
-                                    {job.position}
-                                  </h2>
-                                  <p className="text-sm text-gray-600">
-                                    {job.company}
-                                  </p>
+                                <div>
+                                  <h2 className="font-semibold text-md">{job.position}</h2>
+                                  <p className="text-sm text-gray-600">{job.company}</p>
                                   <p className="text-xs text-[#0856BA] flex items-center">
                                     <MapPin className="w-3.5 h-3.5 mr-1" />
                                     {job.location}
                                   </p>
                                 </div>
                               </div>
-                              <div>
-                                <span
-                                  className={`px-2 mr-2.5 py-1 rounded text-xs font-medium ${
-                                    job.status === "Accepted"
-                                      ? "bg-green-100 text-green-700"
-                                      : job.status === "Rejected"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-yellow-100 text-yellow-700"
-                                  }`}
-                                >
-                                  {job.status.charAt(0).toUpperCase() +
-                                    job.status.slice(1)}
-                                </span>
 
-
-                                {/* Toggle Switch */}
-                                  <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
+                              {/* Middle - Toggle switch */}
+                              <div className="w-[100px] flex justify-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input
                                     type="checkbox"
                                     className="sr-only peer"
                                     onChange={() => {
                                       // No functionality added here
                                     }}
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                  </label>
-                                  {/* Trash button */}
-                                  <button
-                                    className="text-gray-500 hover:text-red-500 transition-colors"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      // No functionality yet
-                                    }}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </button>
+                                  />
+                                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                </label>
+                              </div>
 
+                              {/* Right side - Status and trash icon */}
+                              <div className="flex items-center space-x-3">
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                                    job.status === "Accepted"
+                                      ? "bg-green-100 text-green-700"
+                                      : job.status === "Rejected"
+                                        ? "bg-red-100 text-red-700"
+                                        : "bg-yellow-100 text-yellow-700"
+                                  }`}
+                                >
+                                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                                </span>
+
+                                {/* Trash button */}
+                                <button
+                                  className="text-gray-500 hover:text-red-500 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    // No functionality yet
+                                  }}
+                                >
+                                  <Trash2 className="w-5 h-5" />
+                                </button>
                               </div>
                             </div>
                           </div>
                         ))}
                         {currentCreatedJobs.length < jobsPerPage &&
-                          [
-                            ...Array(jobsPerPage - currentCreatedJobs.length),
-                          ].map((_, i) => (
-                            <div
-                              key={`empty-created-${i}`}
-                              className="h-[72px] invisible"
-                            ></div>
+                          [...Array(jobsPerPage - currentCreatedJobs.length)].map((_, i) => (
+                            <div key={`empty-created-${i}`} className="h-[72px] invisible"></div>
                           ))}
                       </div>
 
@@ -992,25 +982,7 @@ export default function JobOffers() {
         {showForm && (
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                // Check all required fields
-                if (
-                  !position || 
-                  !employmentType || 
-                  !jobType || 
-                  !jobDescription || 
-                  !company || 
-                  !location || 
-                  !experienceLevel || 
-                  !salaryRange || 
-                  !image
-                ) {
-                  alert("Please fill in all required fields");
-                  return;
-                }
-                handleSubmit(e);
-              }}
+              onSubmit={handleSubmit}
               className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
             >
               <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
@@ -1306,20 +1278,34 @@ export default function JobOffers() {
                     Save as Draft
                   </button>
                   <button
-                    type="submit"
-                    onClick={async (e) => {
-                      try {
-                        await handleSubmit(e)
-                        toastSuccess("Job submitted successfully. Please wait for admin approval.")
-                        setShowForm(false)
-                      } catch (error) {
-                        toastError("There was an error submitting the job. Please try again.")
-                      }
+                  type="submit"
+                  onClick={async (e) => {
+                    if (
+                      !position ||
+                      !employmentType ||
+                      !jobType ||
+                      !jobDescription ||
+                      !company ||
+                      !location ||
+                      !experienceLevel ||
+                      !salaryRange ||
+                      !image
+                    ) {
+                      alert("Please fill in all required fields")
+                      return
+                    }
+                    try {
+                      await handleSubmit(e);
+                      toastSuccess("Job submitted successfully");
+                      setShowForm(false);
+                    } catch (error) {
+                      toastError("There was an error submitting the job. Please try again.");
+                    }
                     }}
-                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-                  >
-                    Submit
-                  </button>
+                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+                >
+                  Submit
+                </button>
                 </div>
                 </div>
             </form>

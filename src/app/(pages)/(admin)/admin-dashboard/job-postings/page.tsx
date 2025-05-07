@@ -385,7 +385,7 @@ const filterJobs = (status: string) => {
               }
               try {
                 await handleSubmit(e);
-                toastSuccess("Job submitted successfully. Please wait for admin approval.");
+                toastSuccess("Job submitted successfully.");
                 goBackToList();
               } catch (error) {
                 toastError("There was an error submitting the job. Please try again.");
@@ -645,15 +645,6 @@ const filterJobs = (status: string) => {
                   </button>
                   <button
                     type="submit"
-                    onClick={async (e) => {
-                      try {
-                        await handleSubmit(e)
-                        toastSuccess("Job submitted successfully. Please wait for admin approval.")
-                        setShowForm(false)
-                      } catch (error) {
-                        toastError("There was an error submitting the job. Please try again.")
-                      }
-                    }}
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                   >
                     Submit
