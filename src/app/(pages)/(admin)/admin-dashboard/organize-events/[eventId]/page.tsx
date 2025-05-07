@@ -102,6 +102,21 @@ const EventPageAdmin = () => {
     time.trim() !== "" &&
     location.trim() !== "";
 
+  const resetFormState = () => {
+    setEdit(false);
+    setEventTitle(""); 
+    setEventDescription("");
+    setEventDate("");
+    setEventTime("");
+    setEventLocation("");
+    setEventImage("");
+    setVisibility("all");
+    setSelectedBatches([]);
+    setSelectedAlumni([]);
+    setFileName("");
+    setErrorMessage("");
+  };
+
   return (
     <div className="p-4">
       <button
@@ -176,6 +191,8 @@ const EventPageAdmin = () => {
               const form = document.querySelector("form");
               if (form && form.checkValidity()) {
                 handleSave(e, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
+                resetFormState(); // ← Reset the form
+                setShowForm(false); // Close the modal
               } else {
                 form?.reportValidity(); // Show browser's validation tooltips
               }
@@ -418,7 +435,10 @@ const EventPageAdmin = () => {
             <div className="flex justify-between">
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                      resetFormState();
+                      setShowForm(false);
+                    }}
                 className="text-gray-500"
               >
                 Cancel
@@ -541,18 +561,6 @@ const EventPageAdmin = () => {
                 </button>
               </div>
             )
-          ) : event.status === "Accepted" ? (
-            <div className="flex flex-col gap-2 mt-4">
-              <button
-                onClick={() => {
-                  handleDelete(event.eventId); // Deletes the event
-                  router.back(); // Navigates back after the delete
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded-md"
-              >
-                Delete
-              </button>
-            </div>
           ) : null}
         </div>
       ) : (

@@ -110,7 +110,7 @@ export default function EventPageAdmin() {
   const filteredEvents =
     statusFilter === "all"
       ? sortedEvents
-      : sortedEvents.filter((event) => event.status === statusFilter);
+      : sortedEvents.filter((event) => event.status === statusFilter && event.creatorType === "admin");
 
   const formatDate = (date: any) => {
     if (!date) return "N/A";
@@ -196,18 +196,7 @@ export default function EventPageAdmin() {
       setSelectedAlumni([]);
       setFileName("");
       setErrorMessage("");
-              setEdit(false);
-              setEventTitle("");
-              setEventTime("");
-              setEventDescription("");
-              setEventDate("");
-              setEventLocation("");
-              setFileName("");
-              setEventImage(null);
-              setSelectedAlumni([]);
-              setSelectedBatches([]);
-              setVisibility("all");
-              setButton("");
+      setButton("");
     };  
     
   return (
@@ -472,100 +461,103 @@ export default function EventPageAdmin() {
 
                     {/* Action Buttons - Right Side */}
                     <div className="p-4 bg-gray-50 border-l flex flex-col justify-center gap-2 min-w-32">
-                      {e.status === "Pending" && (
-                        <>
-                          <button
-                            onClick={() => {
-                              addEvent(e, true, false);
-                              setShowForm(false);
-                            }}
-                            className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-300 hover:text-black transition w-full"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => {
-                              setEdit(true);
-                              setEditingEventId(e.eventId);
-                              setShowForm(true);
-                            }}
-                            className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-300 hover:text-black transition w-full"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleReject(e.eventId)}
-                            className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-300 hover:text-black transition w-full"
-                          >
-                            Reject
-                          </button>
-                          <button
-                            onClick={() => handleViewEventAdmin(e)}
-                            className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
-                          >
-                            View More
-                          </button>
-                        </>
-                      )}
-                      {e.status === "Accepted" && (
-                        <>
-                          <button
-                            onClick={() => handleViewEventAdmin(e)}
-                            className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
-                          >
-                            View More
-                          </button>
-                        </>
-                      )}
-
-                      {e.status === "Rejected" && (
-                        <>
-                          <button
-                            onClick={() => handleViewEventAdmin(e)}
-                            className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
-                          >
-                            View More
-                          </button>
-                        </>
-                      )}
-
-                      {e.status === "Draft" && e.creatorType === "alumni" && (
-                        <>
-                          <button
-                            onClick={() => handleViewEventAdmin(e)}
-                            className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
-                          >
-                            View More
-                          </button>
-                        </>
-                      )}
-                      {e.status === "Draft" && e.creatorType === "admin" && (
-                        <>
-                          <button
-                            onClick={() => handleViewEventAdmin(e)}
-                            className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
-                          >
-                            View More
-                          </button>
-                          <button
-                            onClick={() => 
-                            {
-                              setEdit(true);
-                              setEditingEventId(e.eventId);
-                              setShowForm(true);
-                            }}
-                            className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-300 hover:text-black transition w-full"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(e.eventId)}
-                            className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-300 hover:text-black transition w-full"
-                          >
-                            Delete
-                          </button>
-                        </>
-                      )}
+                    {e.status === "Pending" && e.creatorType === "alumni" ? (
+                      <div className="flex flex-col gap-2 mt-4">
+                        <button
+                          onClick={() => addEvent(e, true, false)}
+                          className="px-4 py-2 bg-green-500 text-white rounded-md"
+                        >
+                          Accept Proposal
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEdit(true);
+                            setEditingEventId(e.eventId);
+                            setShowForm(true);
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleReject(e.eventId)}
+                          className="px-4 py-2 bg-red-500 text-white rounded-md"
+                        >
+                          Reject Proposal
+                        </button>
+                        <button
+                          onClick={() => handleViewEventAdmin(e)}
+                          className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                        >
+                          View More
+                        </button>
+                      </div>
+                    ) : e.status === "Pending" && e.creatorType === "admin" ? (
+                      <div className="flex flex-col gap-2 mt-4">
+                        <button
+                          onClick={() => addEvent(e, true, false)}
+                          className="px-4 py-2 bg-green-500 text-white rounded-md"
+                        >
+                          Finalize
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEdit(true);
+                            setEditingEventId(e.eventId);
+                            setShowForm(true);
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(e.eventId)}
+                          className="px-4 py-2 bg-red-500 text-white rounded-md"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => handleViewEventAdmin(e)}
+                          className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                        >
+                          View More
+                        </button>
+                      </div>
+                    ) : e.status === "Accepted" || e.status === "Rejected" ? (
+                      <div className="flex flex-col gap-2 mt-4">
+                        <button
+                          onClick={() => handleViewEventAdmin(e)}
+                          className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                        >
+                          View More
+                        </button>
+                      </div>
+                    ) : e.status === "Draft" && e.creatorType === "admin" && (
+                      <div className="flex flex-col gap-2 mt-4">
+                        <button
+                          onClick={() => {
+                            setEdit(true);
+                            setEditingEventId(e.eventId);
+                            setShowForm(true);
+                          }}
+                          className="px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-300 hover:text-black transition w-full"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(e.eventId)}
+                          className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-300 hover:text-black transition w-full"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => handleViewEventAdmin(e)}
+                          className="px-3 py-1.5 bg-gray-500 text-white rounded-md text-sm font-medium hover:bg-gray-300 hover:text-black transition w-full"
+                        >
+                          View More
+                        </button>
+                      </div>
+                    )}
                     </div>
                   </div>
                 );
@@ -679,9 +671,8 @@ export default function EventPageAdmin() {
                   }
                   
                   // Only close the form if we've reached this point without errors
+                  resetFormState();
                   setShowForm(false);
-                  setEdit(false);
-                  setButton("");
                 }}
                 className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px]"
               >
@@ -931,7 +922,10 @@ export default function EventPageAdmin() {
                 <div className="flex justify-between mt-4">
                   <button
                     type="button"
-                    onClick={() => setShowForm(false)}
+                    onClick={() => {
+                      resetFormState();
+                      setShowForm(false);
+                    }}
                     className="text-gray-500"
                   >
                     Cancel

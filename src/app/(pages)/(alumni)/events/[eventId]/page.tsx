@@ -98,6 +98,7 @@ const EventPageAlumni = () => {
   if (alumInfo?.alumniId && matchingRSVP?.alums) {
     alumniRsvpStatus = matchingRSVP.alums[alumInfo.alumniId]?.status;
   }
+
   return (
     <div className="w-full px-6 md:px-10 lg:px-20 pt-6 pb-10">
       <Link href="/events" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
@@ -120,18 +121,28 @@ const EventPageAlumni = () => {
                 <p className="text-gray-500 mt-1">{event.description}</p>
               </div>
               <div className="flex items-center gap-2 text-sm font-medium">
-                {event.status === "Accepted" ? (
+                {event.status === "Accepted" && event.creatorType === "alumni" ? (
                   <span className="text-green-600 flex items-center gap-1">
                     Accepted <CircleCheck className="w-4 h-4" />
                   </span>
-                ) : event.status === "Rejected" ? (
+                ) : event.status === "Rejected" && event.creatorType === "alumni" ? (
                   <span className="text-red-600 flex items-center gap-1">
                     Rejected <X className="w-4 h-4" />
                   </span>
-                ) : event.status === "Pending" ? (
+                ) : event.status === "Pending" && event.creatorType === "alumni"? (
                   <span className="text-yellow-600">Pending</span>
-                ) : (
+                ) : event.status === "Draft" && event.creatorType === "alumni"?(
                   <span className="text-gray-600">Draft</span>
+                ) : alumniRsvpStatus === "Accepted" ? (
+                  <span className="text-green-600 flex items-center gap-1">
+                    Going <CircleCheck className="w-4 h-4" />
+                  </span>
+                ) : alumniRsvpStatus === "Rejected" ? (
+                  <span className="text-red-600 flex items-center gap-1">
+                    Not Going <X className="w-4 h-4" />
+                  </span>
+                ) : alumniRsvpStatus === "Pending" && (
+                  <span className="text-yellow-600">Pending</span>
                 )}
               </div>
             </div>
