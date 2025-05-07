@@ -357,20 +357,33 @@ const filterJobs = (status: string) => {
           </div>
           <div className="font-bold text-[var(--primary-blue)]">Post a Job</div>
         </div>
-
         <div className="w-full">
           <div className="flex items-center justify-between">
             <div className="font-bold text-3xl">Post a Job Opportunity</div>
           </div>
         </div>
-
         <div className="flex flex-col gap-3">
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                // Check all required fields
+                if (
+                  !position || 
+                  !employmentType || 
+                  !jobType || 
+                  !jobDescription || 
+                  !company || 
+                  !location || 
+                  !experienceLevel || 
+                  !salaryRange || 
+                  !image
+                ) {
+                  alert("Please fill in all required fields");
+                  return;
+                }
                 handleSubmit(e);
-                goBackToList(); // navigates back to the manage job postings page
+                goBackToList(); // navigates back to the manage job postings page only after validation passes
               }}
             >
               <div className="grid grid-cols-2 gap-6 mt-1">
@@ -389,7 +402,6 @@ const filterJobs = (status: string) => {
                       required
                     />
                   </div>
-
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Employment Type<span className="text-red-500">*</span>
@@ -422,7 +434,6 @@ const filterJobs = (status: string) => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Job Type<span className="text-red-500">*</span>
@@ -455,7 +466,6 @@ const filterJobs = (status: string) => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Job Description<span className="text-red-500">*</span>
@@ -486,7 +496,6 @@ const filterJobs = (status: string) => {
                     />
                   </div>
                 </div>
-
                 {/* Right Column ng form */}
                 <div>
                   <div className="mb-4">
@@ -515,7 +524,6 @@ const filterJobs = (status: string) => {
                       required
                     />
                   </div>
-
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Experience Level<span className="text-red-500">*</span>
@@ -548,7 +556,6 @@ const filterJobs = (status: string) => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-
                   <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     Salary Range<span className="text-red-500">*</span>
@@ -574,7 +581,6 @@ const filterJobs = (status: string) => {
                     />
                   </div>
                 </div>
-
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                       Required Skills<span className="text-red-500">*</span>
@@ -589,9 +595,7 @@ const filterJobs = (status: string) => {
                   </div>
                   </div>
                   </div>
-
                   <hr className="my-2 border-t border-gray-300" />
-
                   <div className="mb-4 pt-2 pl-1">
                     <label className="block text-sm font-medium mb-1">
                       Company Logo<span className="text-red-500">*</span>
@@ -605,14 +609,12 @@ const filterJobs = (status: string) => {
                       </label>
                       <span className="text-sm text-gray-500">{fileName || "No file chosen"}</span>
                     </div>
-
                     {preview && (
                       <div className="mt-3">
                         <img src={preview || "/placeholder.svg"} alt="Preview" className="h-20 object-contain" />
                       </div>
                     )}
                   </div>
-
               <div className="flex justify-end gap-4 mt-6">
                 <button
                   type="button"
