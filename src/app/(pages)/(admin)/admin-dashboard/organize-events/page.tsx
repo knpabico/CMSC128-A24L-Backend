@@ -14,8 +14,6 @@ import { Button } from "@mui/material";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { useRouter } from "next/navigation";
 
-
-
 export default function EventPageAdmin() {
   const params = useParams();
   const {
@@ -471,6 +469,7 @@ export default function EventPageAdmin() {
                         </button>
                         <button
                           onClick={() => {
+                            resetFormState();
                             setEdit(true);
                             setEditingEventId(e.eventId);
                             setShowForm(true);
@@ -502,6 +501,7 @@ export default function EventPageAdmin() {
                         </button>
                         <button
                           onClick={() => {
+                            resetFormState();
                             setEdit(true);
                             setEditingEventId(e.eventId);
                             setShowForm(true);
@@ -536,6 +536,7 @@ export default function EventPageAdmin() {
                       <div className="flex flex-col gap-2 mt-4">
                         <button
                           onClick={() => {
+                            resetFormState();
                             setEdit(true);
                             setEditingEventId(e.eventId);
                             setShowForm(true);
@@ -763,14 +764,11 @@ export default function EventPageAdmin() {
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
-                  required    //alisin nalang sa default image para kahit di required
                 />
 
                 {fileName && (
                   <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>
                 )}
-
-
 
                 <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
                   {/* Visibility options remain the same... */}
