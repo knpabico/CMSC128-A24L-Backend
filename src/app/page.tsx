@@ -69,7 +69,6 @@ import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { log } from "console";
 import { Oswald } from "next/font/google";
-import CollapseText from "@/components/CollapseText";
 import { ListItem } from "@mui/material";
 import { useEducation } from "@/context/EducationContext";
 import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
@@ -98,6 +97,18 @@ export default function Home() {
 
   const [currentDonationIndex, setCurrentDonationIndex] = useState(0);
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const { userEducation } = useEducation();
+  const [filteredEducation, setFilteredEducation] = useState<Education[]>([]);
+  
+  useEffect(() => {
+    if (user?.uid) {
+      const filtered = userEducation.filter(
+        (edu: Education) => edu.alumniId === user.uid
+      );
+      setFilteredEducation(filtered);
+    }
+    console.log("User Education", userEducation);
+  }, [user?.uid, userEducation]); 
 
 
   const nextDonation = () => {
@@ -493,7 +504,9 @@ export default function Home() {
                                 (jobOffer: JobOffering) =>
                                   jobOffer.jobId === newsLetter.referenceId
                               );
-                              return jobOffering?.image
+                             if (jobOffering.alumniId === "Admin") {
+                                return "/ics-logo.jpg";
+                              }
                             })()
                           : ""}
                         className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
@@ -510,7 +523,10 @@ export default function Home() {
                                 (jobOffer: JobOffering) =>
                                   jobOffer.jobId === newsLetter.referenceId
                               );
-                              return jobOffering
+                              if (jobOffering.alumniId === "Admin") {
+                                return "Institute of Computer Science";
+                              } else{
+                                return jobOffering
                                 && alums.find(
                                     (alum: Alumnus) =>
                                       alum.alumniId === jobOffering.alumniId
@@ -520,6 +536,7 @@ export default function Home() {
                                       (alum: Alumnus) =>
                                         alum.alumniId === jobOffering.alumniId
                                     )?.lastName || "Unknown Alumni"
+                              };
                             })()
                           : ""}
                       </p>
