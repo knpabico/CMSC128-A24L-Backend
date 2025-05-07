@@ -24,6 +24,8 @@ import { sendEmailTemplate } from "@/lib/emailTemplate";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { uploadImage } from "@/lib/upload";
 import { messaging } from "firebase-admin";
+import { toast } from "sonner";
+
 
 
 const AlumContext = createContext<any>(null);
@@ -113,10 +115,12 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           await updateDoc(alumniRef, updatedData);
         }
       }
-  
+      toast.success("Profile updated successfully!");
       return { success: true, message: "Your changes are successfully saved" };
     } catch (error) {
       console.error("Error:", error);
+      
+      toast.error(error.message);
       return { success: false, error: error.message };
     }
   };

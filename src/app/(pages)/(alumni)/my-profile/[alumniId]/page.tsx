@@ -49,6 +49,7 @@ import { Scholarship } from "@/models/models";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { JobOffering } from "@/models/models";
 import { useJobOffer } from "@/context/JobOfferContext";
+import { toast } from "sonner";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -266,6 +267,7 @@ const UserProfile = () => {
       selectedFields,
       privacy
     );
+    
     // console.log(updatedAlumnus);
   }
   
@@ -1204,12 +1206,12 @@ const UserProfile = () => {
                   setMessage={setMessage}
                 />
               )}
-              <Snackbar
+              {/* <Snackbar
                 open={snackbar}
                 autoHideDuration={4000}
                 onClose={() => setSnackbar(false)}
                 message={message}
-              />
+              /> */}
             </div>
           </div>)}
 
@@ -1314,7 +1316,7 @@ const UserProfile = () => {
             <div className="flex flex-col gap-5 w-full">
               {bookmarks.length > 0 ? (
                 bookmarks.map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
@@ -1494,7 +1496,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       ) : (<div></div>)}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1510,7 +1512,7 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "announcement")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
@@ -1549,7 +1551,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1565,7 +1567,7 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "event")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
@@ -1604,7 +1606,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                 <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1620,7 +1622,7 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "donation_drive")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
@@ -1659,7 +1661,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1675,7 +1677,7 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "scholarship")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
@@ -1714,7 +1716,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1730,7 +1732,7 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "job_offering")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
@@ -1769,7 +1771,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
