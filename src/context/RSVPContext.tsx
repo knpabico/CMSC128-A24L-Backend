@@ -1,90 +1,80 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { FirebaseError } from "firebase/app";
+import { createContext, useContext, useState, useEffect } from "react";
 
-export function useRsvpDetails(events) {
-  const [rsvpDetails, setRsvpDetails] = useState({});
-  const [alumniDetails, setAlumniDetails] = useState({});
-  const [isLoadingRsvp, setIsLoadingRsvp] = useState(false);
+import { db } from "@/lib/firebase";
+import { doc, getDoc, updateDoc, 
+  collection,
+  onSnapshot,
+  query} from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
+import { useAuth } from "./AuthContext";
+import { RSVP } from "@/models/models";
+
+const RsvpContext = createContext<any>({
+  rsvpDetails: [], 
+  isLoadingRsvp: false,
+  handleAlumAccept: () => {},
+  handleAlumReject: () => {},
+});
+
+export function RsvpProvider({ children }: { children: React.ReactNode }) {
+  const [rsvpDetails, setRsvpDetails] = useState<any[]>([]);
+  const [isLoadingRsvp, setIsLoadingRsvp] = useState<boolean>(false);
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
-    async function fetchRsvpDetails() {
-      if (!events || !events.length) return;
-      
-      setIsLoadingRsvp(true);
-      
-      const rsvpData = {};
-      const alumniData = {};
-      
-      // Collect all unique RSVP IDs from all events
-      const allRsvpIds = [];
-      events.forEach(event => {
-        if (!event.rsvps) return;
-        event.rsvps.forEach(rsvpId => {
-          if (!allRsvpIds.includes(rsvpId)) {
-            allRsvpIds.push(rsvpId);
-          }
-        });
-      });
-      
-      // Process RSVPs sequentially with async/await
-      for (const rsvpId of allRsvpIds) {
-        try {
-          const docSnap = await getDoc(doc(db, "RSVP", rsvpId));
-          
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            rsvpData[rsvpId] = data;
-            
-            // Fetch alumni details if alumniId exists
-            if (data.alumniId) {
-              try {
-                const alumniSnap = await getDoc(doc(db, "alumni", data.alumniId));
-                if (alumniSnap.exists()) {
-                  alumniData[data.alumniId] = alumniSnap.data();
-                }
-              } catch (err) {
-                console.error(`Error fetching alumni ${data.alumniId}:`, err);
-              }
-            }
-          } else {
-            console.log(`RSVP with ID ${rsvpId} does not exist`);
-            rsvpData[rsvpId] = { error: "RSVP not found" };
-          }
-        } catch (err) {
-          console.error(`Error fetching RSVP ${rsvpId}:`, err);
-          rsvpData[rsvpId] = { error: "Error loading RSVP" };
-        }
-      }
-      
-      setRsvpDetails(rsvpData);
-      setAlumniDetails(alumniData);
+    let unsubscribe: (() => void) | null;
+
+    if (user || isAdmin) {
+      unsubscribe = subscribeToRSVP();
+    } else {
+      setRsvpDetails([]);
       setIsLoadingRsvp(false);
     }
-    
-    fetchRsvpDetails();
-  }, [events]);
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user, isAdmin]);
+
+  const subscribeToRSVP = () => {
+    setIsLoadingRsvp(true);
+    const q = query(collection(db, "RSVP"));
+
+    const unsubscribeEvents = onSnapshot(
+      q,
+      (querySnapshot: any) => {
+        const rsvpData = querySnapshot.docs.map(
+          (doc: any) => doc.data() as RSVP
+        );
+        setRsvpDetails(rsvpData);
+        setIsLoadingRsvp(false);
+        console.log("RSVP fetched:", rsvpData);
+      },
+
+      (error) => {
+        console.error("Error fetching events:", error);
+        setIsLoadingRsvp(false);
+      }
+    );
+    return unsubscribeEvents;
+  };
 
   const handleAlumAccept = async (eventId: string, alumniId: string) => {
     try {
-      let rsvpFound = false;
+      const rsvp = rsvpDetails.find(
+        (r: any) => r.alumniId === alumniId && r.postId === eventId
+      );
   
-      for (const rsvpId in rsvpDetails) {
-        const rsvp = rsvpDetails[rsvpId];
-  
-        if (rsvp.alumniId === alumniId && rsvp.postId === eventId) {
-          const rsvpRef = doc(db, "RSVP", rsvpId);
-          await updateDoc(rsvpRef, { status: "Accepted" });
-          console.log(`RSVP ${rsvpId} updated to Accepted`); // Log confirmation
-          rsvpFound = true;
-          break;
-        }
-      }
-  
-      if (rsvpFound) {
+      if (rsvp) {
+        const rsvpRef = doc(db, "RSVP", rsvp.id);
+        await updateDoc(rsvpRef, {
+          [`alums.${alumniId}`]: { status: "Accepted" }
+        });
+        console.log(`RSVP ${rsvp.id} updated to Accepted`);
         return { success: true, message: "RSVP successfully accepted" };
       } else {
         return { success: false, message: "RSVP not found" };
@@ -98,21 +88,16 @@ export function useRsvpDetails(events) {
   
   const handleAlumReject = async (eventId: string, alumniId: string) => {
     try {
-      let rsvpFound = false;  // Flag to track if RSVP is found
+      const rsvp = rsvpDetails.find(
+        (r: any) => r.postId === eventId && r.alums?.includes(alumniId)
+      );
   
-      // Loop through RSVP details
-      for (const rsvpId in rsvpDetails) {
-        const rsvp = rsvpDetails[rsvpId];  // Assuming rsvpDetails is an object of RSVPs
-  
-        if (rsvp.alumniId === alumniId && rsvp.postId === eventId) {
-          const rsvpRef = doc(db, "RSVP", rsvpId); // Dynamically create the reference for each RSVP
-          await updateDoc(rsvpRef, { status: "Rejected" });
-          rsvpFound = true; // Mark as found
-          break;  // Exit the loop once the RSVP is found and updated
-        }
-      }
-  
-      if (rsvpFound) {
+      if (rsvp) {
+        const rsvpRef = doc(db, "RSVP", rsvp.id);
+        await updateDoc(rsvpRef, {
+          [`alums.${alumniId}`]: { status: "Rejected" }
+        });
+        console.log(`RSVP ${rsvp.id} updated to Rejected`);
         return { success: true, message: "RSVP successfully rejected" };
       } else {
         return { success: false, message: "RSVP not found" };
@@ -123,5 +108,11 @@ export function useRsvpDetails(events) {
     }
   };
 
-  return { rsvpDetails, alumniDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject };
+  return (
+    <RsvpContext.Provider value={{ rsvpDetails, setRsvpDetails, isLoadingRsvp, setIsLoadingRsvp, handleAlumAccept, handleAlumReject }}>
+      {children}
+    </RsvpContext.Provider>
+  );
 }
+
+export const useRsvpDetails = () => useContext(RsvpContext);

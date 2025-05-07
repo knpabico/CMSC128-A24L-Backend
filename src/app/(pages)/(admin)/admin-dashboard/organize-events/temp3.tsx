@@ -49,7 +49,7 @@ export default function EventPageAdmin()
     const evId = params?.eventId as string;
     const ev = events.find((e: Event) => e.eventId === evId);
 
-    const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
+    const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails();
     const [isEditing, setEdit] = useState(false);
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
   
@@ -198,7 +198,7 @@ export default function EventPageAdmin()
     return (
         <div>
             {/* will be used for the filter */}
-            {(() => {
+            {/* {(() => {
             // Group alumni by their ID and compile the events they RSVPed to
             const grouped: Record<string, { alum: any; events: string[] }> = {};
 
@@ -234,21 +234,21 @@ export default function EventPageAdmin()
                 });
             });
 
-            // return (
-            //   <ul>
-            //     {Object.values(grouped).map(({ alum, events }) => (
-            //       <li key={alum.alumniId}>
-            //         <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
-            //         <ul>
-            //           {events.map((event, i) => (
-            //             <li key={`${alum.alumniId}-${i}`}>{event}</li>
-            //           ))}
-            //         </ul>
-            //       </li>
-            //     ))}
-            //   </ul>
-            // );
-            })()}        
+            return (
+              <ul>
+                {Object.values(grouped).map(({ alum, events }) => (
+                  <li key={alum.alumniId}>
+                    <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
+                    <ul>
+                      {events.map((event, i) => (
+                        <li key={`${alum.alumniId}-${i}`}>{event}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            );
+            })()}         */}
             <Breadcrumbs
             items=
             {[

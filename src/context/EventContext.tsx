@@ -39,7 +39,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [needSponsorship, setNeedSponsorship] = useState(false);
   const router = useRouter();
 
-  const { rsvpDetails, alumniDetails } = useRsvpDetails(events);
+  const { rsvpDetails } = useRsvpDetails();
   const { user, alumInfo, isAdmin } = useAuth();
   const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
@@ -282,7 +282,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const handleDelete = async (eventId: string) => {
     try {
-      const rsvps = Object.values(rsvpDetails) as RSVP[];
+      const rsvps = rsvpDetails as RSVP[];
 
       for (const rsvp of rsvps) {
         if (rsvp.postId === eventId) {

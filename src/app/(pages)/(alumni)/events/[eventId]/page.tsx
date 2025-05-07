@@ -40,7 +40,7 @@ const EventPageAlumni = () => {
   } = useEvents();
 
   const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject } =
-    useRsvpDetails(events);
+    useRsvpDetails();
   const { alumInfo } = useAuth();
   const params = useParams();
   const router = useRouter();
@@ -51,7 +51,8 @@ const EventPageAlumni = () => {
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
 
-  const rsvps = Object.values(rsvpDetails) as RSVP[];
+
+  const rsvps = rsvpDetails as RSVP[];
   const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
 
   const eventStories = featuredItems.filter((story) => story.type === "event");

@@ -52,7 +52,7 @@ export default function EventPageAdmin() {
   //const defaultImageUrl = "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Ftemp_event_image.jpg?alt=media&token=49ed44c0-225c-45d3-9bd2-e7e44d0fb2d0"
 
 
-  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
+  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails();
   const [isEditing, setEdit] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
 
@@ -188,7 +188,7 @@ export default function EventPageAdmin() {
   return (
     <div>
       {/* will be used for the filter */}
-      {(() => {
+      {/* {(() => {
         // Group alumni by their ID and compile the events they RSVPed to
         const grouped: Record<string, { alum: any; events: string[] }> = {};
 
@@ -223,21 +223,21 @@ export default function EventPageAdmin() {
           });
         });
 
-        // return (
-        //   <ul>
-        //     {Object.values(grouped).map(({ alum, events }) => (
-        //       <li key={alum.alumniId}>
-        //         <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
-        //         <ul>
-        //           {events.map((event, i) => (
-        //             <li key={`${alum.alumniId}-${i}`}>{event}</li>
-        //           ))}
-        //         </ul>
-        //       </li>
-        //     ))}
-        //   </ul>
-        // );
-      })()}
+        return (
+          <ul>
+            {Object.values(grouped).map(({ alum, events }) => (
+              <li key={alum.alumniId}>
+                <strong>{alum.firstName} ({alum.email}) - {alum.studentNumber}</strong>
+                <ul>
+                  {events.map((event, i) => (
+                    <li key={`${alum.alumniId}-${i}`}>{event}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        );
+      })()} */}
       <Breadcrumbs
         items={[
           { href: "/admin-dashboard", label: "Admin Dashboard" },

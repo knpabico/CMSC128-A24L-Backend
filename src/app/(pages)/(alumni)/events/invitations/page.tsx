@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { useAuth } from "@/context/AuthContext";
-import { useRsvpDetails } from "@/context/RSVPContext"; 
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 import BookmarkButton from "@/components/ui/bookmark-button";
@@ -37,7 +36,6 @@ export default function Invitations()
 {
   const { events, isLoading } = useEvents();
   const { alumInfo } = useAuth();
-  const { rsvpDetails } = useRsvpDetails(events);
 
   // State for sorting and filtering
   const [invitationEvents, setInvitationEvents] = useState<Event[]>([]);

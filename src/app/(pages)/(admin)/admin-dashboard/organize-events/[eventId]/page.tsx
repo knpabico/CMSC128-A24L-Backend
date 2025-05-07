@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
+import { useAlums } from "@/context/AlumContext";
 
 const EventPageAdmin = () => {
   const {
@@ -49,10 +50,12 @@ const EventPageAdmin = () => {
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
-  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
+  const { rsvpDetails, alumniDetails } = useRsvpDetails();
   const [rsvpFilter, setRsvpFilter] = useState("All");
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { alums } = useAlums();
 
   useEffect(() => {
     // Properly show the selected filter when Editing the values
@@ -444,45 +447,40 @@ const EventPageAdmin = () => {
             <p className="text-gray-700">{event.donationDriveId}</p>
           )}
           <h3>RSVPs:</h3>
-          {event.rsvps?.length > 0 ? (
+          {event.rsvps && event.rsvps.length > 0 ? (
             <div>
-              {event.rsvps.map((rsvpId, index) => {
-                const rsvp = rsvpDetails[rsvpId];
-                const alumni = rsvp?.alumniId
-                  ? alumniDetails[rsvp.alumniId]
-                  : null;
+              {rsvpDetails
+                .filter((rsvp) => rsvp.postId === event.eventId)
+                .flatMap((rsvp) =>
+                  Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
+                    const { status } = alumData as { status: string };
+                    const alumni = alums.find((a) => a.alumniId === alumniId);
 
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      border: "1px solid #eee",
-                      padding: "10px",
-                      marginBottom: "5px",
-                    }}
-                  >
-                    {rsvp ? (
-                      rsvp.error ? (
-                        <p>{rsvp.error}</p>
-                      ) : alumni ? (
-                        <>
-                          <p>
-                            <strong>Name:</strong> {alumni.firstName}{" "}
-                            {alumni.lastName}
-                          </p>
-                          <p>
-                            <strong>Status:</strong> {rsvp.status}
-                          </p>
-                        </>
-                      ) : (
-                        <p>Alumni details not found.</p>
-                      )
-                    ) : (
-                      <p>Loading RSVP details...</p>
-                    )}
-                  </div>
-                );
-              })}
+                    return (
+                      <div
+                        key={`${rsvp.rsvpId}-${alumniId}`}
+                        style={{
+                          border: "1px solid #eee",
+                          padding: "10px",
+                          marginBottom: "5px",
+                        }}
+                      >
+                        {alumni ? (
+                          <>
+                            <p>
+                              <strong>Name:</strong> {alumni.firstName} {alumni.lastName}
+                            </p>
+                            <p>
+                              <strong>Status:</strong> {status}
+                            </p>
+                          </>
+                        ) : (
+                          <p>Alumni details not found for ID: {alumniId}</p>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
             </div>
           ) : (
             <p>No RSVPs yet.</p>
