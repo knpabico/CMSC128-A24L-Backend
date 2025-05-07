@@ -161,12 +161,12 @@ export default function AdminDashboard() {
           <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
             <CardHeader className="pb-2">
               <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                Active vs Inactive Alumni
+                Active vs Pending Status
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center pt-0">
               <DonutChart
-                labels={["Active", "Inactive"]}
+                labels={["Active", "Pending"]}
                 data={[
                   getActiveAlums(alums).length,
                   getInactiveAlums(alums).length,
@@ -189,7 +189,7 @@ export default function AdminDashboard() {
                     <p className="text-sm text-gray-500">{alum.studentNumber || 'No Student ID'}</p>
                   </div>
                   <span className={`px-2 py-0.5 text-xs rounded-full ${alum.activeStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {alum.activeStatus ? 'Active' : 'Inactive'}
+                    {alum.activeStatus ? 'Active' : 'Pending'}
                   </span>
                 </div>
               ))}
