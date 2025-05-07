@@ -366,7 +366,9 @@ export default function EventPageAdmin() {
             >
               <div className="w-1/2 flex flex-col p-4 gap-1">
                 <div className="text-base font-bold">{e.title}</div>
-                <div className="text-sm text-gray-600">{e.description}</div>
+                <div className="text-sm text-gray-600"> 
+                  {e.description.split(' ').slice(0, 5).join(' ')}{e.description.split(' ').length > 4 ? '...' : ''}
+                </div>
               </div>
               <div className="w-1/2 flex items-center justify-end p-5">
                 <div className="w-1/6 flex items-center justify-center">
@@ -421,7 +423,7 @@ export default function EventPageAdmin() {
                 
                 ) : e.status === "Accepted" || e.status === "Rejected" ? (
                 <>
-                  <div className="flex gap-5">
+                  <div className="flex gap-5 px-50">
                     {/* View More */}
                     <div
                       onClick={() => handleViewEventAdmin(e)}
@@ -433,7 +435,7 @@ export default function EventPageAdmin() {
                 </>
                 ) : e.status === "Draft" && e.creatorType === "admin" && (
                 <>
-                  <div className="flex gap-5">
+                  <div className="flex gap-5 px-50">
                     {/* View More */}
                     <div
                       onClick={() => handleViewEventAdmin(e)}
@@ -462,6 +464,21 @@ export default function EventPageAdmin() {
                     >
                       <Trash2 size={20} className="text-gray-500 hover:text-red-400" />
                     </div>
+                    {/* Approve Proposal */}
+                    <button
+                      onClick={() => addEvent(e, true, false)}
+                      className="px-4 py-2 bg-green-500 text-white rounded-md text-black hover:bg-green-300"
+                    >
+                      Approve
+                    </button>
+
+                    {/* Reject Proposal */}
+                    <button
+                      onClick={() => handleReject(e.eventId)}
+                      className="px-4 py-2 bg-red-500 text-white rounded-md text-black hover:bg-red-300"
+                    >
+                      Reject
+                    </button>
                   </div>
                 </>
                 )}
