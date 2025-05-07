@@ -75,6 +75,7 @@ export default function JobOffers() {
     updateStatus
   } = useJobOffer();
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
   const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
@@ -97,10 +98,17 @@ export default function JobOffers() {
   const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
 
   const acceptedJobs = jobOffers.filter(
-    (job: { status: string }) => job.status === "Accepted"
+    (job: JobOffering) =>
+      job.status === "Accepted" &&
+      (job.position.toLowerCase().includes(searchQuery) ||
+       job.company.toLowerCase().includes(searchQuery))
   );
 
   const jobsPerPage = 8;
+
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearchQuery(e.target.value.toLowerCase());
+  }
 
   // Define filter categories and their respective filter options
   const filterCategories = {
@@ -359,6 +367,15 @@ export default function JobOffers() {
           </button>
 
           <div className="flex space-x-3">
+          <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search jobs..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+              />
+            </div>
             <div className="relative" ref={filterContainerRef}>
               <button
                 className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
@@ -552,7 +569,7 @@ export default function JobOffers() {
                         {currentJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-2 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -653,7 +670,7 @@ export default function JobOffers() {
                         {currentSavedJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -759,7 +776,7 @@ export default function JobOffers() {
                         {currentCreatedJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -903,7 +920,7 @@ export default function JobOffers() {
                   {filteredDraftJobs.map((job, index) => (
                     <div
                       key={index}
-                      className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                      className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                       selectedJob?.jobId === job.jobId
                       ? "border-blue-500"
                       : "border-gray-200"
