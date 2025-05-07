@@ -183,8 +183,33 @@ export default function EventPageAdmin() {
     time.trim() !== "" &&
     location.trim() !== "";
 
+    const resetFormState = () => {
+      setEdit(false);
+      setEventTitle(""); 
+      setEventDescription("");
+      setEventDate("");
+      setEventTime("");
+      setEventLocation("");
+      setEventImage("");
+      setVisibility("all");
+      setSelectedBatches([]);
+      setSelectedAlumni([]);
+      setFileName("");
+      setErrorMessage("");
+              setEdit(false);
+              setEventTitle("");
+              setEventTime("");
+              setEventDescription("");
+              setEventDate("");
+              setEventLocation("");
+              setFileName("");
+              setEventImage(null);
+              setSelectedAlumni([]);
+              setSelectedBatches([]);
+              setVisibility("all");
+              setButton("");
+    };  
     
-
   return (
     <div>
       {/* will be used for the filter */}
@@ -300,20 +325,8 @@ export default function EventPageAdmin() {
           </select>
           <button
             onClick={() => {
-              setErrorMessage("");
-              setEdit(false);
+              resetFormState();
               setShowForm(true);
-              setEventTitle("");
-              setEventTime("");
-              setEventDescription("");
-              setEventDate("");
-              setEventLocation("");
-              setFileName("");
-              setEventImage(null);
-              setSelectedAlumni([]);
-              setSelectedBatches([]);
-              setVisibility("all");
-              setButton("");
             }}
             className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
           >

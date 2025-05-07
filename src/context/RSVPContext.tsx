@@ -66,11 +66,11 @@ export function RsvpProvider({ children }: { children: React.ReactNode }) {
   const handleAlumAccept = async (eventId: string, alumniId: string) => {
     try {
       const rsvp = rsvpDetails.find(
-        (r: any) => r.alumniId === alumniId && r.postId === eventId
+        (r: any) => r.postId === eventId && Object.keys(r.alums || {}).includes(alumniId)
       );
-  
+
       if (rsvp) {
-        const rsvpRef = doc(db, "RSVP", rsvp.id);
+        const rsvpRef = doc(db, "RSVP", rsvp.rsvpId);
         await updateDoc(rsvpRef, {
           [`alums.${alumniId}`]: { status: "Accepted" }
         });
@@ -89,11 +89,11 @@ export function RsvpProvider({ children }: { children: React.ReactNode }) {
   const handleAlumReject = async (eventId: string, alumniId: string) => {
     try {
       const rsvp = rsvpDetails.find(
-        (r: any) => r.postId === eventId && r.alums?.includes(alumniId)
+        (r: any) => r.postId === eventId && Object.keys(r.alums || {}).includes(alumniId)
       );
   
       if (rsvp) {
-        const rsvpRef = doc(db, "RSVP", rsvp.id);
+        const rsvpRef = doc(db, "RSVP", rsvp.rsvpId);
         await updateDoc(rsvpRef, {
           [`alums.${alumniId}`]: { status: "Rejected" }
         });

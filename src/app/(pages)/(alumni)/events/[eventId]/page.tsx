@@ -90,6 +90,13 @@ const EventPageAlumni = () => {
 
   if (!eventId || events.length === 0) return <p>Loading...</p>;
 
+  console.log(matchingRSVP?.rsvpId);
+
+  let alumniRsvpStatus: string | undefined = undefined;
+
+  if (alumInfo?.alumniId && matchingRSVP?.alums) {
+    alumniRsvpStatus = matchingRSVP.alums[alumInfo.alumniId]?.status;
+  }
   return (
     <div className="w-full px-6 md:px-10 lg:px-20 pt-6 pb-10">
       <div className="flex items-center gap-2 mb-6">
@@ -131,7 +138,7 @@ const EventPageAlumni = () => {
             {event.status !== "Pending" && matchingRSVP && (
               <div className="mb-3">
                 <p className="text-sm text-gray-700">
-                  Your RSVP: <strong>{matchingRSVP.status}</strong>
+                  Your RSVP: <strong>{alumniRsvpStatus}</strong>
                 </p>
               </div>
             )}
@@ -157,7 +164,8 @@ const EventPageAlumni = () => {
           </div>
 
           {/* RSVP Buttons */}
-          {event.status !== "Pending" && matchingRSVP?.status === "Pending" && (
+          
+          {event.status !== "Pending" && alumniRsvpStatus === "Pending" && (
             <div className="bg-white py-4 px-6 rounded-[10px] shadow-md border border-gray-200 flex gap-4">
               {isLoadingRsvp ? (
                 <div className="text-gray-500">Loading...</div>

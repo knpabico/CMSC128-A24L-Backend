@@ -147,27 +147,32 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       // If finalizing, embed the RSVP and event update logic here
       if (finalize || create) {
         const alums = await fetchAllAlumni();
-        const updatedRSVPIds: string[] = [];
         const updatedTargetGuests: string[] = [];
 
-        const createRSVP = async (alumniId: string) => {
+        const createRSVP = async () => {
           const rsvpRef = doc(collection(db, "RSVP"));
+
+          // Convert updatedTargetGuests (string[]) to the correct object structure
+          const alumsData: Record<string, { status: string }> = {};
+          updatedTargetGuests.forEach((alumniId) => {
+            alumsData[alumniId] = { status: "Pending" };
+          });
+
           const newRSVP: RSVP = {
             rsvpId: rsvpRef.id,
-            status: "Pending",
-            alumniId,
+            alums: alumsData,
             postId: newEvent.eventId,
           };
+
           await setDoc(rsvpRef, newRSVP);
-          updatedRSVPIds.push(rsvpRef.id);
-          updatedTargetGuests.push(alumniId);
+          return rsvpRef.id;
         };
 
         if (newEvent.inviteType === "batch") {
           for (const alumni of alums) {
             const batchYear = alumni.studentNumber?.slice(0, 4).trim();
             if (batchYear && newEvent.targetGuests.includes(batchYear)) {
-              await createRSVP(alumni.alumniId);
+              updatedTargetGuests.push(alumni.alumniId);
             }
           }
         } else if (newEvent.inviteType === "alumni") {
@@ -177,21 +182,24 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           for (const alumni of alums) {
             const email = alumni.email?.trim().toLowerCase();
             if (email && targetEmails.includes(email)) {
-              await createRSVP(alumni.alumniId);
+              updatedTargetGuests.push(alumni.alumniId);
             }
           }
         } else if (newEvent.inviteType === "all") {
           for (const alumni of alums) {
-            await createRSVP(alumni.alumniId);
+            updatedTargetGuests.push(alumni.alumniId);
           }
         }
 
+        const rsvpId = await createRSVP();
+
         // Update the event document
         const updateData: any = {
-          rsvps: updatedRSVPIds,
+          rsvps: rsvpId,
           status: "Accepted",
           datePosted: new Date(),
         };
+
         if (newEvent.inviteType !== "all") {
           updateData.targetGuests = updatedTargetGuests;
         }
