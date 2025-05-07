@@ -685,26 +685,26 @@ export default function Users() {
             <div>Manage Job Posting</div>
           </div>
           <div className="w-full">
-            <div className="flex items-center justify-between">
-              <div className="font-bold text-3xl">Manage Job Posting</div>
-              <div className="my-4">
+          <div className="flex items-center justify-between">
+            <div className="font-bold text-3xl">Manage Job Posting</div>
+            <div className="flex items-center gap-4">
               <input
                 type="text"
                 placeholder="Search jobs..."
-                className="border px-3 py-2 rounded-md w-full max-w-md"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              </div>
               <div
                 className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
                 onClick={() => setCurrentPage("post")}
               >
                 <CirclePlus size={18} />
-                Post a Job
+                Create a Job Post
               </div>
             </div>
           </div>
+        </div>
 
           <div className="flex flex-col gap-3">
             {/* Tabs */}

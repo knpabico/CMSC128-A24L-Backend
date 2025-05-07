@@ -373,12 +373,12 @@ export default function JobOffers() {
                 placeholder="Search jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
               />
             </div>
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -442,7 +442,7 @@ export default function JobOffers() {
             </div>
 
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -834,15 +834,17 @@ export default function JobOffers() {
                                 </div>
                                 )}
 
-                              {/* Right side - Status and trash icon */}
-                              <div className="flex items-center space-x-3">
+                                {/* Right side - Status and trash icon */}
+                                <div className="flex items-center space-x-3">
                                 <span
                                   className={`px-2 py-1 rounded text-xs font-medium ${
-                                    job.status === "Accepted"
-                                      ? "bg-green-100 text-green-700"
-                                      : job.status === "Rejected"
-                                        ? "bg-red-100 text-red-700"
-                                        : "bg-yellow-100 text-yellow-700"
+                                  job.status === "Accepted"
+                                    ? "bg-green-100 text-green-700"
+                                    : job.status === "Rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : job.status === "Closed"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
                                   }`}
                                 >
                                   {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
