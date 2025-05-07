@@ -288,16 +288,19 @@ export default function JobOffers() {
   return (
     <>
       {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
-      <div className="w-full h-80 relative bg-[#0856BA] overflow-hidden">
-        <div className="left-[200px] top-[109px] absolute text-[#FFFFFF] text-6xl font-semibold">
-          Job Opportunities
-        </div>
-        <div className="w-[971px] left-[200px] top-[200px] absolute text-[#FFFFFF] text-base font-normal">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta,
-          ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor
-          nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis
-          maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis
-          tempus nulla, sed ullamcorper quam hendrerit eget.
+      <div
+        className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50"
+        style={{ backgroundImage: 'url("/ICS2.jpg")' }}
+      >
+        <div className="absolute inset-0 bg-blue-500/50" />
+        <div className="relative z-10">
+          <h1 className="text-5xl font-bold my-2 text-white">Job Opportunities</h1>
+          <p className="text-white text-sm md:text-base">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat
+            aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus
+            quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit
+            eget.
+          </p>
         </div>
       </div>
 
