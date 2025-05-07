@@ -567,17 +567,6 @@ export default function Users() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleEditDraft(job)
-                                setCurrentPage("post")
-                              }}
-                              className="text-white bg-blue-500 hover:bg-blue-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
-                            >
-                              <Pencil size={18} />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
                                 setJobToDelete(job)
                                 setIsConfirmationOpen(true)
                               }}
