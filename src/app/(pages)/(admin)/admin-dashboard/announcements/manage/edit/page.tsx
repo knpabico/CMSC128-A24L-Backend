@@ -67,7 +67,7 @@ export default function AddAnnouncement() {
       await handleEdit(e);
       
       setIsEditing(false);
-      router.push("/admin-dashboard/manage-announcements");
+      router.push("/admin-dashboard/announcements/manage");
     } catch (error) {
       toastError("Error submitting announcement");
     }
@@ -102,7 +102,7 @@ export default function AddAnnouncement() {
           <ChevronRight size={15} />
         </div>
         <button 
-          onClick={() => router.push("/admin-dashboard/manage-announcements")}
+          onClick={() => router.push("/admin-dashboard/announcements/manage")}
           className="cursor-pointer rounded-full transition"
         >
           Manage Announcements

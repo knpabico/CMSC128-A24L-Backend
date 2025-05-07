@@ -969,7 +969,25 @@ export default function JobOffers() {
         {showForm && (
           <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
             <form
-              onSubmit={handleSubmit}
+              onSubmit={(e) => {
+                e.preventDefault();
+                // Check all required fields
+                if (
+                  !position || 
+                  !employmentType || 
+                  !jobType || 
+                  !jobDescription || 
+                  !company || 
+                  !location || 
+                  !experienceLevel || 
+                  !salaryRange || 
+                  !image
+                ) {
+                  alert("Please fill in all required fields");
+                  return;
+                }
+                handleSubmit(e);
+              }}
               className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
             >
               <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
