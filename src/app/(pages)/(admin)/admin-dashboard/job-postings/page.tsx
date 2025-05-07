@@ -814,7 +814,24 @@ export default function Users() {
                       <div className="text-base font-bold">{job.position}</div>
                       <div className="text-sm text-gray-600">{job.company}</div>
                       <div className="text-sm text-gray-500">
-                        {job.employmentType} • {job.experienceLevel} • {job.salaryRange}
+                        {job.employmentType ? (
+                          <>
+                            {job.employmentType}
+                            {job.experienceLevel && <> • {job.experienceLevel}</>}
+                            {job.salaryRange && <> • ₱{job.salaryRange}</>}
+                          </>
+                        ) : (
+                          <>
+                            {job.experienceLevel ? (
+                              <>
+                                {job.experienceLevel}
+                                {job.salaryRange && <> • ₱{job.salaryRange}</>}
+                              </>
+                            ) : (
+                              job.salaryRange ? `₱${job.salaryRange}` : "This draft can't be published yet. Please complete all required fields."
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
 
