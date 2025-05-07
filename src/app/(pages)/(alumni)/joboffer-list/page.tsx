@@ -518,7 +518,7 @@ export default function JobOffers() {
                         {currentJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                            className={`bg-white p-3 border-2 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
