@@ -71,7 +71,8 @@ export default function JobOffers() {
     handleImageChange,
     handleSaveDraft,
     handleEditDraft,
-    handleDelete
+    handleDelete,
+    updateStatus
   } = useJobOffer();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -797,9 +798,18 @@ export default function JobOffers() {
                                   <input
                                     type="checkbox"
                                     className="sr-only peer"
-                                    onChange={() => {
-                                      // No functionality added here
-                                    }}
+                                    checked={job.status === "Accepted"}
+                                      onChange={async () => {
+                                        try {
+                                          if (job.status === "Accepted") {
+                                            await updateStatus("Closed", job.jobId);
+                                          } else {
+                                            await updateStatus("Accepted", job.jobId);
+                                          }
+                                        } catch (error) {
+                                          toastError("Failed to update job status");
+                                        }
+                                      }}
                                   />
                                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                 </label>

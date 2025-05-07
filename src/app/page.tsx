@@ -500,6 +500,7 @@ export default function Home() {
                             ? "/ics-logo.jpg"
                             : newsLetter.category === "job_offering"
                             ? (() => {
+                              console.log("News:", newsLetter.referenceId);
                               const jobOffering = jobOffers.find(
                                 (jobOffer: JobOffering) =>
                                   jobOffer.jobId === newsLetter.referenceId

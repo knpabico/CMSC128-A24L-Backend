@@ -808,11 +808,15 @@ export default function Users() {
                             type="checkbox"
                             className="sr-only peer"
                             checked={job.status === "Accepted"}
-                            onChange={() => {
-                              if (job.status === "Accepted") {
-                              updateStatus("Closed", job.jobId)
-                              } else {
-                              updateStatus("Accepted", job.jobId)
+                            onChange={async () => {
+                              try {
+                                if (job.status === "Accepted") {
+                                  await updateStatus("Closed", job.jobId);
+                                } else {
+                                  await updateStatus("Accepted", job.jobId);
+                                }
+                              } catch (error) {
+                                toastError("Failed to update job status");
                               }
                             }}
                             />
