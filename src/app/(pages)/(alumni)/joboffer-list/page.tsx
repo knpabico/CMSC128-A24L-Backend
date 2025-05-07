@@ -953,15 +953,26 @@ export default function JobOffers() {
                             </div>
                             )}
                           </div>
-
+                          {
+                          !job.company || !job.location ? (
+                            <div>
+                              <h2 className="font-semibold text-md">{job.position}</h2>
+                              <p className="text-sm text-gray-500">
+                                This draft can't be published yet.
+                                <br/> Please complete all required fields.
+                              </p>
+                            </div>
+                          ) : (
                           <div>
                             <h2 className="font-semibold text-md">{job.position}</h2>
                             <p className="text-sm text-gray-600">{job.company}</p>
                             <p className="text-xs text-[#0856BA] flex items-center">
                             <MapPin className="w-3.5 h-3.5 mr-1" />
-                            {job.location}
+                            {job.location || "No location added yet."}
                             </p>
                           </div>
+                            )
+                          }
                           </div>
 
                           {/* Right side */}
