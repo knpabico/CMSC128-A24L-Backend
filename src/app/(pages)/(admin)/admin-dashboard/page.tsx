@@ -9,7 +9,7 @@ import Link from "next/link";
 import MapComponent from "./google-maps/map";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useAlums } from "@/context/AlumContext";
-import { Alumnus, WorkExperience,Event, DonationDrive } from "@/models/models";
+import { Alumnus, WorkExperience,Event, DonationDrive, Scholarship } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import { useDonationContext } from "@/context/DonationContext";
 import DonutChart from "@/components/charts/DonutChart";
@@ -464,6 +464,24 @@ export default function AdminDashboard() {
                 - Alumni Name
                 - Scholarship title
               */}
+              {scholarships.map((scholarship:Scholarship, index:number)=>{
+              return (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                    
+                <div 
+                  key={scholarship.scholarshipId}
+
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-medium">Scholarships: {scholarship.title}</span>
+                    <p className="text-sm text-black-500">Status: {scholarship.status}</p>
+                    
+                  </div>
+                </div>
+                </div>
+              )
+            })}  
             </div>
           </CardContent>
           <div className="px-2 pt-0">
