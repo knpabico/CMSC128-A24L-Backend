@@ -114,7 +114,10 @@ export default function EventPageAdmin() {
   const filteredEvents = useMemo(() => {
     return sortedEvents.filter((event) => {
       // Filter events based on the activeTab (status)
-      return event.status === activeTab;
+      if (activeTab === "Draft") {
+        return event.status === "Draft" && event.creatorType === "admin"; // Only show admin drafts
+      }
+      return event.status === activeTab; // For other tabs, filter by status only
     });
   }, [sortedEvents, activeTab]);
 
@@ -231,7 +234,12 @@ export default function EventPageAdmin() {
   
         <div className="w-full flex gap-2">
           {tabs.map((tab) => {
-            const eventCount = events.filter((event : Event) => event.status === tab).length;
+            const eventCount = events.filter((event: Event) => {
+              if (tab === "Draft") {
+                return event.status === "Draft" && event.creatorType === "admin"; // Only count admin drafts
+              }
+              return event.status === tab; // Count all events matching the tab's status
+            }).length;;
             const eventCountBgColor = "bg-[var(--primary-blue)]";
 
             const tabClass = `w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
