@@ -210,25 +210,28 @@ export default function FeaturedStoriesPage() {
               ref={tableRef}
             >
               {/* Sticky header */}
-              <div
+                <div
                 className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
-                  isSticky ? "fixed top-0" : ""
+                  isSticky ? "fixed top-0 left-0" : ""
                 }`}
-                style={{ width: isSticky ? headerWidth : "100%" }}
-              >
-                <div className="flex-grow items-center justify-baseline font-semibold">
+                style={{
+                  width: isSticky ? `${headerWidth}px` : "100%",
+                  position: isSticky ? "fixed" : "relative",
+                }}
+                >
+                <div className="flex-grow flex items-center font-semibold">
                   Featured Story Info
                 </div>
-                <div className="w-1/3 flex items-center justify-center font-semibold mr-7">
+                <div className="w-[270px] flex items-center justify-center font-semibold mr-7">
                   Public
                 </div>
-                  <div className="w-[90px] flex items-center justify-center font-semibold">
-                    Type
-                  </div>
-                  <div className="w-[150px] flex items-center justify-center font-semibold">
-                    Actions
-                  </div>
-              </div>
+                <div className="w-[80px] flex items-center justify-center font-semibold">
+                  Type
+                </div>
+                <div className="w-[120px] flex items-center justify-center font-semibold">
+                  Actions
+                </div>
+                </div>
 
               {/* Spacer div to prevent content jump when header becomes fixed */}
               {isSticky && <div style={{ height: "56px" }}></div>}
