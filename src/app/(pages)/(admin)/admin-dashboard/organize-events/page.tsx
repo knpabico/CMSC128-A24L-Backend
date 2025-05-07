@@ -330,7 +330,8 @@ export default function EventPageAdmin() {
                     <div className="w-1/2 flex flex-col p-4 gap-1">
                       <div className="text-base font-bold">{e.title}</div>
                       <div className="text-sm text-gray-600">
-                        {e.description.split(' ').slice(0, 5).join(' ')}{e.description.split(' ').length > 4 ? '...' : ''}
+                        <p className="font-normal">{e.description.split(' ').slice(0, 5).join(' ')}{e.description.split(' ').length > 4 ? '...' : ''}</p>
+                        <p className="text-xs font-light"> Proposed by: {e.creatorName ?? "Admin"}</p>
                       </div>
                     </div>
   
