@@ -7,7 +7,7 @@ interface BarGraphProps {
   type: string;
 }
 
-const BarGraph = ({ data, labels, type }: BarGraphProps) => {
+const LineGraph = ({ data, labels, type }: BarGraphProps) => {
   const chartRef = useRef<HTMLCanvasElement & { chart?: Chart }>(null);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const BarGraph = ({ data, labels, type }: BarGraphProps) => {
       const context = chartRef.current.getContext("2d");
       if (!context) return;
       const newChart = new Chart(context, {
-        type: "bar",
+        type: "line",
         data: {
           labels,
           datasets: [
@@ -48,10 +48,10 @@ const BarGraph = ({ data, labels, type }: BarGraphProps) => {
     }
   }, [data, labels, type]);
   return (
-    <div style={{ position: "relative", width: "30vw", height: "40vh" }}>
+    <div style={{ position: "relative", width: "50vw", height: "50vh" }}>
       <canvas ref={chartRef} />
     </div>
   );
 };
 
-export default BarGraph;
+export default LineGraph;
