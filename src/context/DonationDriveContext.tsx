@@ -17,6 +17,7 @@ import { DonationDrive, Event } from "@/models/models";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
 import { uploadImage } from "@/lib/upload";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 import { toastSuccess } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
 
@@ -368,6 +369,9 @@ export function DonationDriveProvider({
     donationDriveId: string,
     updatedData: Partial<DonationDrive>
   ) => {
+    const docRef = doc(db, "donation_drive", donationDriveId);
+    const storage = getStorage();
+    const drive = await getDonationDriveById(donationDriveId);
     try {
       await updateDoc(doc(db, "donation_drive", donationDriveId), updatedData);
       setDonationDrives((prev) =>
@@ -377,39 +381,72 @@ export function DonationDriveProvider({
             : donationDrive
         )
       );
-      // if (qrGcash) {
-      //   const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash/${donationDriveId}`);
-      //   if (uploadResult.success) {
-
-      //     await updateDoc(doc(db, "donation_drive", donationDriveId), {qrGcash: uploadResult.url});
-      //   } else {
-      //     return { success: false, message: "Gcash QR Code upload failed" };
-      //   }
-      // } else {
-      //   return { success: false, message: "No Gcash QR Code provided" };
-      // }
-      // if (qrPaymaya) {
-      //   const uploadResult = await uploadImage(qrPaymaya, `donation-drive/qr_paymaya/${donationDriveId}`);
-      //   if (uploadResult.success) {
-
-      //     await updateDoc(doc(db, "donation_drive", donationDriveId), {qrPaymaya: uploadResult.url});
-      //   } else {
-      //     return { success: false, message: "Paymaya QR Code upload failed" };
-      //   }
-      // } else {
-      //   return { success: false, message: "No Paymaya QR Code provided" };
-      // }
-      // if (image) {
-      //   const uploadResult = await uploadImage(image, `donation-drive/${donationDriveId}`);
-      //   if (uploadResult.success) {
-
-      //     await updateDoc(doc(db, "donation_drive", donationDriveId), {image: uploadResult.url});
-      //   } else {
-      //     return { success: false, message: "Image upload failed" };
-      //   }
-      // } else {
-      //   return { success: false, message: "No image provided" };
-      // }
+      if (qrGcash) {
+        const fileURL = drive?.qrGcash;
+        const fileRef = ref(storage, fileURL);
+        deleteObject(fileRef).then(() => {
+          // File deleted successfully
+          console.log("Gcash QR code deleted successfully");
+        }).catch((error) => {
+          // Handle any errors
+          console.error("Error deleting Gcash QR code:", error);
+        });
+        const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash/${docRef.id}`);
+        if (uploadResult.success) {
+          const qrGcashUrl = uploadResult.url;
+          
+          await updateDoc(docRef, {qrGcash: qrGcashUrl});
+        } else {
+          console.log("gcash fail");
+          return { success: false, message: "Gcash QR Code upload failed" };
+        }
+      } else {
+        return { success: false, message: "No Gcash QR Code provided" };
+      }
+      if (qrPaymaya) {
+        const fileURL = drive?.qrPaymaya;
+        const fileRef = ref(storage, fileURL);
+        deleteObject(fileRef).then(() => {
+          // File deleted successfully
+          console.log("Paymaya QR code deleted successfully");
+        }).catch((error) => {
+          // Handle any errors
+          console.error("Error deleting Paymaya QR code:", error);
+        });
+        const uploadResult = await uploadImage(qrPaymaya, `donation-drive/qr_paymaya/${docRef.id}`);
+        if (uploadResult.success) {
+          const qrPaymayaUrl = uploadResult.url;
+          
+          await updateDoc(docRef, {qrPaymaya: qrPaymayaUrl});
+        } else {
+          console.log("paymaya fail");
+          return { success: false, message: "Paymaya QR Code upload failed" };
+        }
+      } else {
+        return { success: false, message: "No Paymaya QR Code provided" };
+      }
+      if (image) {
+        const fileURL = drive?.image;
+        const fileRef = ref(storage, fileURL);
+        deleteObject(fileRef).then(() => {
+          // File deleted successfully
+          console.log("Image deleted successfully");
+        }).catch((error) => {
+          // Handle any errors
+          console.error("Error deleting Image:", error);
+        });
+        const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
+        if (uploadResult.success) {
+          const imageUrl = uploadResult.url;
+          
+          await updateDoc(docRef, {image: imageUrl});
+        } else {
+          console.log("image fail");
+          return { success: false, message: "Image upload failed" };
+        }
+      } else {
+        return { success: false, message: "No image provided" };
+      }
       setCreatorId("");
       setCampaignName("");
       setDescription("");
