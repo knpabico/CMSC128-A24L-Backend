@@ -500,7 +500,6 @@ export default function Home() {
                             ? "/ics-logo.jpg"
                             : newsLetter.category === "job_offering"
                             ? (() => {
-                              console.log("News:", newsLetter.referenceId);
                               const jobOffering = jobOffers.find(
                                 (jobOffer: JobOffering) =>
                                   jobOffer.jobId === newsLetter.referenceId
@@ -611,7 +610,7 @@ export default function Home() {
                         const jobOffering = jobOffers.find(
                           (jobOffer: JobOffering) =>
                             jobOffer.jobId === newsLetter.referenceId &&
-                            jobOffer.status === "Accepted"
+                            jobOffer.status === "Accepted" || jobOffer.status === "Closed"
                         );
                         return jobOffering ? (
                           <div className="px-4 md:px-[20px]">
@@ -621,7 +620,8 @@ export default function Home() {
                                 <p className="text-xl md:text-[24px] font-semibold">
                                  {jobOffering.position}
                                 </p>
-                                <div className="flex gap-1 items-center">
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex gap-1 items-center">
                                   <p className="text-base md:text-[18px]">
                                     {jobOffering.company}
                                   </p>
@@ -629,6 +629,16 @@ export default function Home() {
                                   <p className="text-base md:text-[13px] text-[#0856BA]">
                                     {jobOffering.location}
                                   </p>
+                                  </div>
+                                  <div className="flex items-center">
+                                  <span className={`text-xs px-2 py-1 rounded-full ${
+                                    jobOffering.status === "Closed" 
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-green-100 text-green-800"
+                                  }`}>
+                                    {jobOffering.status === "Accepted" ? "Still Open": "Closed"}
+                                  </span>
+                                  </div>
                                 </div>
                               </div>
                               <div className="flex flex-col gap-4 md:gap-[30px]">
