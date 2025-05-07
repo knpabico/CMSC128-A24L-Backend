@@ -48,7 +48,6 @@ export default function CreateEventPage() {
     location.trim() !== "" &&
     date.trim() !== "" &&
     time.trim() !== "" &&
-    image !== "" &&
     (visibility !== "batch" || selectedBatches.length > 0) &&
     (visibility !== "alumni" || selectedAlumni.length > 0);
 
@@ -278,7 +277,7 @@ export default function CreateEventPage() {
         {/* Event Image */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">
-            <Asterisk size={16} className="text-red-600 inline-block mr-1" />
+            {/* <Asterisk size={16} className="text-red-600 inline-block mr-1" /> */}
             Event Image
           </label>
           <label
@@ -294,7 +293,7 @@ export default function CreateEventPage() {
             accept="image/*"
             onChange={handleImageChange}
             className="hidden"
-            required
+            // required
           />
           {fileName && (
             <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>

@@ -103,7 +103,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     try {
       let docRef;
 
-      if (!finalize) {
+      if (!newEvent.eventId) {
         docRef = doc(collection(db, "event"));
         newEvent.eventId = docRef.id;
 
