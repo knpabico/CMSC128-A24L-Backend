@@ -13,7 +13,8 @@ import { Alumnus, WorkExperience,Event, Donation } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import { useDonationContext } from "@/context/DonationContext";
 import DonutChart from "@/components/charts/DonutChart";
-
+import React, {useState} from "react";
+import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
 
 
 const adminLinks = [
@@ -34,7 +35,7 @@ const adminLinks = [
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
-  const {totalAlums,alums, getActiveAlums, getInactiveAlums} = useAlums();
+  const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus} = useAlums();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
   // const { allDonations } = useDonationContext();
 
@@ -92,6 +93,37 @@ export default function AdminDashboard() {
   const presentWorkExperiences = allWorkExperience.filter(
     (exp:WorkExperience) => exp.endYear === "present"
   );
+
+  //Activate Alum 
+    // Add these new states for the modal
+    const [selectedAlumnus, setSelectedAlumnus] = useState<Alumnus | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    // Function to handle opening the modal
+    const handleOpenModal = (alumnus: Alumnus) => {
+      setSelectedAlumnus(alumnus);
+      setIsModalOpen(true);
+    };
+  
+    // Function to handle closing the modal
+    const handleCloseModal = () => {
+      setIsModalOpen(false);
+    };
+  
+    // Function to toggle active status
+    const handleToggleActiveStatus = (alumniId: string, newStatus: boolean) => {
+      // Call your context function to update the status
+      updateAlumnusActiveStatus(alumniId, newStatus);
+      
+      // Update the local state if needed
+      if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
+        setSelectedAlumnus({
+          ...selectedAlumnus,
+          activeStatus: newStatus
+        });
+      }
+    };
+  
   return (
     <div className="p-6 w-full">
       <Breadcrumbs
@@ -118,49 +150,62 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Alumni Card */}
         <Card className="border-0 shadow-md">
-          <CardHeader>
-            <CardTitle>Alumni</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Pie chart ??? 
-              Needed data:
-                - Ilan ang total alumni sa system
-                - Active alumni count
-                - Pending alumni count pati data na pwede iroute dun sa pag accept/reject
-            */}
-            <p>Total Alums:{totalAlums}</p> {/*total alumni*/}
-            <p>Actve Alums: {getActiveAlums(alums).length}</p> {/*active alumni*/}
-            <p>Inactive Alums: {getInactiveAlums(alums).length}</p> {/*inactive alumni*/}
-            <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                  Active vs Inactive Alumni
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center pt-0">
-                <DonutChart
-                  labels={["Active", "Inactive"]}
-                  data={[
-                    getActiveAlums(alums).length,
-                    getInactiveAlums(alums).length,
-                  ]}
-                />
-              </CardContent>
-            </Card>
-            {alums.map((alum:Alumnus, index:number)=>{
-              return (
-              <>
-              <div key={alum.alumniId}>
-                Name: {alum.lastName}, {alum.firstName} {alum.middleName}
-              </div>
-
-              
-              </>
-            )
-            })}
-          </CardContent>
-        </Card>
-
+        <CardHeader>
+          <CardTitle>Alumni</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Total Alums: {totalAlums}</p>
+          <p>Active Alums: {getActiveAlums(alums).length}</p>
+          <p>Inactive Alums: {getInactiveAlums(alums).length}</p>
+          
+          <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                Active vs Inactive Alumni
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center pt-0">
+              <DonutChart
+                labels={["Active", "Inactive"]}
+                data={[
+                  getActiveAlums(alums).length,
+                  getInactiveAlums(alums).length,
+                ]}
+              />
+            </CardContent>
+          </Card>
+          
+          <div className="mt-6">
+            <h3 className="font-semibold mb-2">Alumni List</h3>
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {alums.map((alum: Alumnus) => (
+                <div 
+                  key={alum.alumniId}
+                  onClick={() => handleOpenModal(alum)}
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-medium">{alum.lastName}, {alum.firstName} {alum.middleName}</span>
+                    <p className="text-sm text-gray-500">{alum.studentNumber || 'No Student ID'}</p>
+                  </div>
+                  <span className={`px-2 py-0.5 text-xs rounded-full ${alum.activeStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {alum.activeStatus ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Add the modal component */}
+          <AlumniDetailsModal
+            alumnus={selectedAlumnus}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onToggleActiveStatus={handleToggleActiveStatus}
+          />
+          
+        </CardContent>
+      </Card>
         {/* Industries Card */}
         <Card className="border-0 shadow-md">
           <CardHeader>

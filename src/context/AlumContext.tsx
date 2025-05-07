@@ -356,7 +356,13 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       return inactiveAlums;
     }
 }
-
+const updateAlumnusActiveStatus = (alumniId: string, newStatus: boolean) => {
+  // Update in your database/backend
+  // Then update your local state
+  setAlums(prevAlums => prevAlums.map(alum => 
+    alum.alumniId === alumniId ? {...alum, activeStatus: newStatus} : alum
+  ));
+};
 
 
   return (
@@ -373,6 +379,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         myEducation,
         updateAlumnus,
         emailNewsLettertoAlums,
+        updateAlumnusActiveStatus,
         totalAlums,
         getActiveAlums,
         getInactiveAlums
