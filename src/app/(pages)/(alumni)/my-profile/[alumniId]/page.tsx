@@ -703,17 +703,34 @@ const UserProfile = () => {
       {seeProfile && (<div className="mx-50 my-15">
         <div className="flex space-x-7">
 
-          <div className='bg-[#3675c5] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${personalView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handlePersonalClick}>
-              <span><CircleUserRoundIcon/></span><span>Personal</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${educationView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleEducationClick}>
-              <span><GraduationCapIcon/></span><span>Education</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${careerView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleCareerClick}>
-              <span><BriefcaseIcon/></span><span>Career</span>
-            </button>
+          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
+            <div className="bg-white">
+              <ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-65 h-max">
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handlePersonalClick}>
+                  <CircleUserRoundIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${personalView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Personal Information</span>
+                    {!personalView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleEducationClick}>
+                  <GraduationCapIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${educationView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Educational Background</span>
+                    {!educationView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleCareerClick}>
+                  <BriefcaseIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${careerView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Career</span>
+                    {!careerView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+              </ul>
+            </div>
           </div>
+          
 
           {/* INFO BOX */}
 
@@ -1267,47 +1284,54 @@ const UserProfile = () => {
       {seeBookmarks && (<div className="mx-50 my-15">
         <div className="flex space-x-7">
 
-          <div className='bg-[#3675c5] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${allView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleAllViewClick}>
-              <span><Rows3Icon/></span><span>All</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${announcementsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleAnnouncementsViewClick}>
-              <span><MegaphoneIcon/></span><span>Announcements</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${eventsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleEventsViewClick}>
-              <span><CalendarDaysIcon/></span><span>Events</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${drivesView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleDrivesViewClick}>
-              <span><HandHeartIcon/></span><span>Donation Drives</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${scholarshipsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleScholarshipsViewClick}>
-              <span><SchoolIcon/></span><span>Scholarships</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${jobsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleJobsViewClick}>
-              <span><BriefcaseIcon/></span><span>Job Posts</span>
-            </button>
-
-            {/* <div className="flex space-x-2 mb-4">
-              <button
-                onClick={() => setSortOrder("latest")}
-                className={`px-3 py-1 rounded text-sm ${
-                  sortOrder === "latest" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Latest
-              </button>
-              <button
-                onClick={() => setSortOrder("earliest")}
-                className={`px-3 py-1 rounded text-sm ${
-                  sortOrder === "earliest" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Earliest
-              </button>
-            </div> */}
+        <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
+            <div className="bg-white">
+              <ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-50 h-max">
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleAllViewClick}>
+                  <Rows3Icon/>
+                  <p className={`group w-max relative py-1 transition-all ${allView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>All</span>
+                    {!allView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleAnnouncementsViewClick}>
+                  <MegaphoneIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${announcementsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Announcements</span>
+                    {!announcementsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleEventsViewClick}>
+                  <CalendarDaysIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${eventsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Events</span>
+                    {!eventsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleDrivesViewClick}>
+                  <HandHeartIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${drivesView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Donation Drives</span>
+                    {!drivesView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleScholarshipsViewClick}>
+                  <SchoolIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${scholarshipsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Scholarships</span>
+                    {!scholarshipsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleJobsViewClick}>
+                  <BriefcaseIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${jobsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Job Posts</span>
+                    {!jobsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+              </ul>
+            </div>
           </div>
-
-          
 
           {/* INFO BOX */}
 

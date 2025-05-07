@@ -157,8 +157,8 @@ const RecordOfDonations: React.FC = () => {
     <div className="mx-50 my-15">
         <div className='flex flex-col gap-[10px] w-full mb-10'>
             {/* Sort Tab */}
-            <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200 ">
-                <h2 className="text-lg font-semibold">Your Donations</h2>
+            <div className="justify-end flex">
+              <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-end items-center shadow-md border border-gray-200 w-fit ">
                 <div className="flex items-center">
                     <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
                     <select id="sort" defaultValue={getDefaultSort()} onChange={(e) => { handleSortChange(e.target.value); }}>
@@ -167,7 +167,9 @@ const RecordOfDonations: React.FC = () => {
                         ))}
                     </select>
                 </div>
+              </div>
             </div>
+            
             {displayError && <p className="text-red-500">{displayError}</p>}
             {showLoading && <p>Loading...</p>}
 
