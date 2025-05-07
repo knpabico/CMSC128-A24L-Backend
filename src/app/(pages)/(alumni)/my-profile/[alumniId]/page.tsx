@@ -8,6 +8,7 @@ import AlumnusUploadPic from "./upload-profile/page";
 import Image from "next/image";
 import { Alumnus } from "@/models/models";
 import BookmarkButton from "@/components/ui/bookmark-button";
+import Link from 'next/link';
 
 import {
   Button,
@@ -695,7 +696,7 @@ const UserProfile = () => {
           </div>
           <div className={`${seeBookmarks ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeBookmarks ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
-              onClick={handleBookmarksClick}>Bookmarks</button>
+              onClick={handleBookmarksClick}>Bookmarks</button> 
           </div>
         </div>
       </div>
@@ -1569,17 +1570,27 @@ const UserProfile = () => {
                 .map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
-                    // onClick={}
+                    // onClick={()=>{router.push(`/alumni/events/${alumniId}/alumni-donations`);}}
                     >
                       {([...events]
                         .filter((eve : Event) => eve.eventId === bookmark.entryId)
                         .map((eve : Event, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between" onClick={() => {
+                            if (eve.eventId) router.push(`../events/${eve.eventId}`);
+                          }}
+                          >
+                            {/* Event Id: {eve.eventId} */}
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><CalendarDaysIcon/></p>
                               <div className="flex space-x-3 items-center">
                                 <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {/* Try mo to click */}
                                   {eve.image && (
+                                    <>
+                                    <Link //will redirected to the page, hindi nagwowork yung sa click
+                                      href={`/alumni/events/${eve.eventId}`} 
+                                      className="flex items-center p-3 hover:bg-gray-50 rounded-md"
+                                    ></Link>
                                     <Image
                                       src={eve.image}
                                       alt="Alumnus Image"
@@ -1588,6 +1599,7 @@ const UserProfile = () => {
                                       sizes="100vw"
                                       className="object-cover w-full h-full"
                                     />
+                                    </>
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
@@ -1635,6 +1647,11 @@ const UserProfile = () => {
                               <div className="flex space-x-3 items-center">
                                 <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
                                   {don.image && (
+                                    <>
+                                    <Link //will redirected to the page, hindi nagwowork yung sa click
+                                      href={`/alumni/donationdrive-list/`} 
+                                      className="flex items-center p-3 hover:bg-gray-50 rounded-md"
+                                    ></Link>
                                     <Image
                                       src={don.image}
                                       alt="Alumnus Image"
@@ -1643,6 +1660,7 @@ const UserProfile = () => {
                                       sizes="100vw"
                                       className="object-cover w-full h-full"
                                     />
+                                    </>
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
@@ -1679,7 +1697,7 @@ const UserProfile = () => {
                 .map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
-                    // onClick={}
+                     onClick={()=> {router.push(`/alumni/my-profile/${alumniId}/alumni-donations`);}}
                     >
                       {([...scholarships]
                         .filter((scho: Scholarship) => scho.scholarshipId === bookmark.entryId)
