@@ -755,20 +755,23 @@ export default function Users() {
                 className="rounded-xl overflow-hidden border border-gray-300 relative"
                 ref={tableRef}
               >
-                <div className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm">
-                  <div className="w-2/3 flex items-center justify-baseline font-semibold">
-                    Job Posting Info
-                  </div>
-                    <div className="w-2/3 flex justify-end items-center pl-12">
-                    <div className="w-1/3 flex items-center justify-center font-semibold">
-                      Status
-                    </div>
-                    <div className="w-1/3 flex items-center justify-end font-semibold pl-12">
-                      Actions
-                    </div>
-                    <div className="w-1/3 flex items-center justify-center"></div>
-                    </div>
+                {/* Sticky header */}
+              <div
+                className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
+                  isSticky ? "fixed top-0" : ""
+                }`}
+                style={{ width: isSticky ? headerWidth : "100%" }}
+              >
+                    <div className="flex-grow flex items-center pl-20 font-semibold">Job Posting Info</div>
+                    {activeTab === "Accepted" && (
+                    <div className="w-[1px] flex items-center justify-center font-semibold">Availability</div>
+                  )}
+                    <div className="w-[120px] flex items-center justify-center font-semibold mr-9">Status</div>
+                    <div className="w-[280px] flex items-center justify-center font-semibold">Actions</div>
                 </div>
+
+                {/* Spacer div to prevent content jump when header becomes fixed */}
+              {isSticky && <div style={{ height: "56px" }}></div>}
 
                 {/* Dynamic rows */}
                 {filterJobs(activeTab).map((job, index) => (
@@ -862,7 +865,7 @@ export default function Users() {
                           </button>
                         ) : (
                           <button
-                          className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                          className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleViewJob(job.jobId)
@@ -873,7 +876,6 @@ export default function Users() {
                         )}
                         </div>
 
-                      {/* Action Buttons Container - Fixed width for both Trash and Accept/Reject */}
                       <div className="w-[140px] flex items-center justify-center">
                         {activeTab === "Pending" ? (
                           <div className="flex gap-2">
