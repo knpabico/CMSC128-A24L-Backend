@@ -9,7 +9,7 @@ import Link from "next/link";
 import MapComponent from "./google-maps/map";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useAlums } from "@/context/AlumContext";
-import { Alumnus, WorkExperience,Event, DonationDrive, Scholarship } from "@/models/models";
+import { Alumnus, WorkExperience,Event, DonationDrive, Scholarship, JobOffering } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import { useDonationContext } from "@/context/DonationContext";
 import DonutChart from "@/components/charts/DonutChart";
@@ -17,6 +17,7 @@ import React, {useState} from "react";
 import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
+import { useJobOffer } from "@/context/JobOfferContext";
 
 
 const adminLinks = [
@@ -41,6 +42,7 @@ export default function AdminDashboard() {
   const {donationDrives} = useDonationDrives();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
   const {scholarships} = useScholarship();
+  const {jobOffers} = useJobOffer();
   // const { allDonations } = useDonationContext();
 
 
@@ -515,22 +517,37 @@ export default function AdminDashboard() {
 
         {/* Job Posting */}
         <div className="md:col-span-3">
-          <Card className="border-0 shadow-md h-full">
-            <CardHeader className="pb-0">
-              <CardTitle>Job Posting</CardTitle>
-            </CardHeader>
-            <div className="px-2 pt-0">
-              <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            </div>
+        <Card className="border-0 shadow-md flex flex-col h-full">
+      <CardHeader className="pb-0">
+        <CardTitle>Job Posting</CardTitle>
+      </CardHeader>
 
-            <CardContent>
-              {/* Pending job postings. Dapat kaya maopen yung full details (overlay not page)
-              Contents:
-                - Job title
-                - Company
-                - Employment type
-              */}
-            </CardContent>
+      {/* divider */}
+      <div className="px-2 pt-0">
+        <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
+      </div>
+
+      {/* CardContent as a flex column */}
+      <CardContent className="flex flex-col flex-1 px-2">
+        {/* 
+          Make this wrapper flex‑grow (fills available height) 
+          and scroll if content overflows 
+        */}
+<div className="max-h-96 overflow-y-auto space-y-2">
+  {jobOffers.map((jobOffer: JobOffering) => (
+    <div
+      key={jobOffer.jobId}
+      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+    >
+      <div>
+        <span className="font-medium">Job Type: {jobOffer.jobType}</span>
+        <p className="text-sm text-black-500">Status: {jobOffer.status}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+      </CardContent>
             <div className="px-2 pt-0">
               <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
               <div className="text-center">
