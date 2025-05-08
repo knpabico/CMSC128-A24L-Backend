@@ -5,7 +5,7 @@ import Carousel from "@/components/Carousel";
 import { Button } from "@/components/ui/button";
 import { Oswald } from "next/font/google";
 import Link from "next/link";
-import ICSARMSLogo from "../app/images/ics-arms-logo.png";
+import ICSARMSLogo from "../app/images/ICS_ARMS_logo.png";
 import Image from "next/image";
 import Carousel2 from "./Carousel2";
 

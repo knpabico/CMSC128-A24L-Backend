@@ -25,6 +25,7 @@ import { AffiliationProvider } from "@/context/AffiliationContext";
 import { FeaturedProvider } from "@/context/FeaturedStoryContext";
 
 import { Inter } from "next/font/google";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -58,6 +59,7 @@ export default function RootLayout({
                                         <Navbar />
                                         <div className="">{children}</div>
                                         <Toaster />
+                                        <Footer />
                                       </body>
                                     </AffiliationProvider>
                                   </EducationProvider>
