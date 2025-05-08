@@ -71,6 +71,13 @@ import { ListItem } from "@mui/material";
 import { useEducation } from "@/context/EducationContext";
 import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
 import Landing from "@/components/Landing";
+import Footer from "@/components/Footer";
+import { Oswald } from "next/font/google";
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700"],
+});
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -288,42 +295,6 @@ export default function Home() {
     }
   };
 
-  // Start upload process
-  const startUpload = () => {
-    setIsUploading(true);
-  };
-
-  // Cancel upload
-  const cancelUpload = () => {
-    setIsUploading(false);
-  };
-
-  const carouselImages = [
-    {
-      src: "/images/alumni-1.jpg", // Update with your actual image paths
-      alt: "Alumni gathering at reunion",
-    },
-    {
-      src: "/images/campus-life.jpg",
-      alt: "Campus life at ICS",
-    },
-    {
-      src: "/images/graduation.jpg",
-      alt: "Graduation ceremony",
-    },
-    {
-      src: "/images/alumni-event.jpg",
-      alt: "Alumni networking event",
-    },
-    {
-      src: "/images/research-lab.jpg",
-      alt: "Research laboratory at ICS",
-    },
-    {
-      src: "/images/alumni-success.jpg",
-      alt: "Alumni success story",
-    },
-  ];
 
   function adminHeader(announcement) {
     // Use announcement author's image if available, fallback to ICS logo
@@ -388,7 +359,9 @@ export default function Home() {
           className="flex flex-col gap-8 bg-[#EBF4FF]"
           style={{ padding: "50px 10% 5% 10%" }}
         >
-          <div className="font-bold text-3xl">News & Announcements</div>
+          <div className={`font-bold text-3xl text-[var(--blue-900)]`}>
+            News & Announcements
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {announces.map((item: Announcement) => (
@@ -397,7 +370,7 @@ export default function Home() {
                 key={item.announcementId}
                 className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
               >
-                <div className="w-full h-40 bg-pink-400 overflow-hidden">
+                <div className="w-full h-40 bg-pink-400 overflow-hidden border-b-gray-300 border-b-1">
                   <img
                     src={
                       item.image === ""
@@ -423,6 +396,8 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        <Footer />
       </div>
     );
   } else if (user) {

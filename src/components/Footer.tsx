@@ -18,7 +18,7 @@ const oswald = Oswald({
 export default function Footer() {
   return (
     <div>
-      <div className="bg-gray-300 flex justify-center bg-whit p-15 gap-5 pl-[15%] pr-[15%] text-xs">
+      <div className="bg-white flex justify-center items-center bg-whit p-15 gap-5 pl-[15%] pr-[15%] text-xs">
         <div className="   w-1/2 flex flex-col gap-5">
           <div>
             <div className={`${oswald.className} text-[16px] font-light text-gray-600`}>
@@ -29,10 +29,14 @@ export default function Footer() {
             </div>
           </div>
 
+          <div className="h-[0.5px] w-[90%] bg-gray-400"></div>
+
           <div className="flex flex-col gap-1 text-[var(--blue-900)] ">
             <div className="flex gap-1 ">
               <div className="flex items-center"><Mail size={14}/></div>
-              <div className="flex items-center">ics.uplb@up.edu.ph</div>
+              <div className="flex items-center">
+                ics.uplb@up.edu.ph
+              </div>
             </div>
 
             <div className="flex gap-1 ">
@@ -48,58 +52,53 @@ export default function Footer() {
                 College of Arts and Sciences, UPLB Los Baños Laguna, Philippines 4031
               </div>
             </div>
-
-            
-
           </div>
 
-          
-          
         </div>
         <div className=" w-1/2  flex flex-col gap-3">
-          <div className=" flex justify-end items-center gap-3">
-            <div className="bg-white  rounded-md flex items-center justify-center h-25 w-25">
+          <div className=" flex justify-end items-center gap-4">
+            <div className="">
               <Image
                 src={ICSARMSLogo}
                 alt="ICS-ARMS Logo"
-                width={75}
-                height={75}
+                width={80}
+                height={80}
               />
             </div>
 
-            <div className="bg-white  rounded-md flex items-center justify-center h-25 w-25">
+            <div className="">
               <Image
                 src={ICSNewLogo}
                 alt="ICS Reimagined Logo"
+                width={90}
+                height={90}
+              />
+            </div>
+
+            <div className="">
+              <Image
+                src={ICSOriginalLogo}
+                alt="ICS Logo"
                 width={85}
                 height={85}
               />
             </div>
 
-            <div className="bg-white  rounded-md flex items-center justify-center h-25 w-25">
-              <Image
-                src={ICSOriginalLogo}
-                alt="ICS Logo"
-                width={80}
-                height={80}
-              />
-            </div>
-
-            <div className="bg-white  rounded-md flex items-center justify-center h-25 w-25">
+            <div className="">
               <Image
                 src={CASLogo}
                 alt="CAS Logo"
-                width={80}
-                height={80}
+                width={85}
+                height={85}
               />
             </div>
 
-            <div className="bg-white  rounded-md flex items-center justify-center h-25 w-25">
+            <div className="">
               <Image
                 src={UPLBLogo}
                 alt="UPLB Logo"
-                width={80}
-                height={80}
+                width={85}
+                height={85}
               />
             </div>
             
@@ -109,7 +108,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center p-2 text-xs bg-gray-400 text-white">
+      <div className="flex items-center justify-center p-3 text-xs bg-[var(--primary-blue)] text-white">
         Copyright All Rights Reserved &copy; 2025
       </div>
     </div>

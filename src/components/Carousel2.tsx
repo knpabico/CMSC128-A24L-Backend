@@ -23,7 +23,7 @@ export default function Carousel2() {
             {/* First set of images */}
             {images.map((src, index) => (
               <div key={`first-${index}`} className="flex-shrink-0 h-60 w-100 mx-3 rounded-lg overflow-hidden shadow-lg">
-                <div className="relative h-full w-full bg-green-500 flex justify-center items-center">
+                <div className="relative h-full w-full  flex justify-center items-center">
                   <Image src={src || "/placeholder.svg"} alt={`Slide ${index + 1}`} fill className="object-cover" />
                 </div>
               </div>
@@ -35,7 +35,7 @@ export default function Carousel2() {
                 key={`second-${index}`}
                 className="flex-shrink-0 h-60 w-100 mx-3 rounded-lg overflow-hidden shadow-lg"
               >
-                <div className="relative h-full w-full bg-green-500 flex justify-center items-center">
+                <div className="relative h-full w-full  flex justify-center items-center">
                   <Image src={src || "/placeholder.svg"} alt={`Slide ${index + 1}`} fill className="object-cover" />
                 </div>
               </div>
