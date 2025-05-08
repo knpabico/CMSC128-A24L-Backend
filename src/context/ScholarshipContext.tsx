@@ -147,7 +147,7 @@ export function ScholarshipProvider({
     setError(null);
 
     // Fetch all scholarship-student relationships
-    const q = query(collection(db, "scholarshipStudent"));
+    const q = query(collection(db, "scholarship_student"));
 
     // Listener for any changes
     const unsubscribeScholarshipStudents = onSnapshot(
@@ -354,7 +354,7 @@ export function ScholarshipProvider({
     try {
       // First check if student is associated with any scholarships
       const scholarshipStudentQuery = query(
-        collection(db, "scholarshipStudent"), 
+        collection(db, "scholarship_student"), 
         where("studentId", "==", studentId)
       );
       
@@ -405,7 +405,7 @@ export function ScholarshipProvider({
   // ScholarshipStudent-related functions
   const addScholarshipStudent = async (scholarshipStudent: ScholarshipStudent) => {
     try {
-      const docRef = doc(collection(db, "scholarshipStudent"));
+      const docRef = doc(collection(db, "scholarship_student"));
       scholarshipStudent.ScholarshipStudentId = docRef.id;
       
       await setDoc(docRef, scholarshipStudent);
@@ -441,7 +441,7 @@ export function ScholarshipProvider({
     updates: Partial<ScholarshipStudent>
   ) => {
     try {
-      const scholarshipStudentRef = doc(db, "scholarshipStudent", scholarshipStudentId);
+      const scholarshipStudentRef = doc(db, "scholarship_student", scholarshipStudentId);
       await updateDoc(scholarshipStudentRef, updates);
       return { success: true, message: "Scholarship application updated successfully" };
     } catch (error) {
@@ -453,7 +453,7 @@ export function ScholarshipProvider({
   const deleteScholarshipStudent = async (scholarshipStudentId: string) => {
     try {
       // Get the scholarship student record first to get the scholarshipId and studentId
-      const scholarshipStudentRef = doc(db, "scholarshipStudent", scholarshipStudentId);
+      const scholarshipStudentRef = doc(db, "scholarship_student", scholarshipStudentId);
       const scholarshipStudentDoc = await getDoc(scholarshipStudentRef);
       
       if (scholarshipStudentDoc.exists()) {
@@ -491,7 +491,7 @@ export function ScholarshipProvider({
     id: string
   ): Promise<ScholarshipStudent | null> => {
     try {
-      const scholarshipStudentDoc = doc(db, "scholarshipStudent", id);
+      const scholarshipStudentDoc = doc(db, "scholarship_student", id);
       const scholarshipStudentSnapshot = await getDoc(scholarshipStudentDoc);
 
       if (scholarshipStudentSnapshot.exists()) {
@@ -540,7 +540,7 @@ export function ScholarshipProvider({
   const getScholarshipStudentsByScholarshipId = async (scholarshipId: string): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
-        collection(db, "scholarshipStudent"),
+        collection(db, "scholarship_student"),
         where("scholarshipId", "==", scholarshipId)
       );
       
@@ -561,7 +561,7 @@ export function ScholarshipProvider({
   const getScholarshipStudentsByStudentId = async (studentId: string): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
-        collection(db, "scholarshipStudent"),
+        collection(db, "scholarship_student"),
         where("studentId", "==", studentId)
       );
       
@@ -582,7 +582,7 @@ export function ScholarshipProvider({
   const getScholarshipStudentsByAlumId = async (alumId: string): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
-        collection(db, "scholarshipStudent"),
+        collection(db, "scholarship_student"),
         where("alumId", "==", alumId)
       );
       
