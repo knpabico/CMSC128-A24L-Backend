@@ -72,6 +72,7 @@ export interface Scholarship {
   datePosted: Date;
   image: string;
   status: string;
+  studentList: string[];
 }
 
 export interface Event {
@@ -212,3 +213,24 @@ export interface Featured {
   datePosted: Date;
   isPublic: boolean;
 }
+
+export interface Student {
+  studentId: string;
+  name: string;
+  studentNumber: string;
+  age: number;
+  shortBackground: string;
+  address: string;
+  emailAddress: string;
+  background: string;
+}
+
+export interface ScholarshipStudent {
+  ScholarshipStudentId: string;
+  studentId: string;
+  alumId: string;
+  scholarshipId: string;
+  status: string; //accepted, pending, or rejected
+  pdf: string; 
+}
+
