@@ -458,6 +458,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setFileName,
         preview,
         setPreview,
+        getEventProposals,
+        getUpcomingEvents,
       }}
     >
       {children}

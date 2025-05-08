@@ -1,14 +1,20 @@
 "use client";
 import { useRef, useEffect } from "react";
-import { Chart } from "chart.js/auto";
+import { Chart, ChartOptions } from "chart.js/auto";
 
 interface DonutChartProps {
   labels: string[];
   data: number[];
   backgroundColor?: string[];
+  options?: ChartOptions;
 }
 
-const DonutChart = ({ labels, data , backgroundColor}: DonutChartProps) => {
+const DonutChartAdmin = ({
+  labels,
+  data,
+  backgroundColor,
+  options,
+}: DonutChartProps) => {
   const chartRef = useRef<(HTMLCanvasElement & { chart?: Chart }) | null>(null);
 
   useEffect(() => {
@@ -27,16 +33,13 @@ const DonutChart = ({ labels, data , backgroundColor}: DonutChartProps) => {
               {
                 label: "Number",
                 data,
-                backgroundColor: backgroundColor|| ["#0856BA", "#979FAD"],
+                backgroundColor: backgroundColor || ["#0856BA", "#979FAD"],
                 borderColor: "#D1D5DB",
                 borderWidth: 1,
               },
             ],
           },
-          options: {
-            responsive: true,
-            
-          },
+          options: options,
         });
         chartRef.current.chart = newChart;
       }
@@ -49,4 +52,4 @@ const DonutChart = ({ labels, data , backgroundColor}: DonutChartProps) => {
     </div>
   );
 };
-export default DonutChart;
+export default DonutChartAdmin;
