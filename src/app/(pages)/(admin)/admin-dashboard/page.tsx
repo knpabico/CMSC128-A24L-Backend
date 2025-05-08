@@ -22,6 +22,7 @@ const adminLinks = [
   { label: "Statistical Reports", link: "alum-statistical-reports" },
   { label: "Manage Scholarships", link: "scholarships/manage" },
   { label: "Add Scholarships", link: "scholarships/add" },
+  { label: "View Pending Scholarships", link: "scholarships/pending" },
   { label: "Write story", link: "create-story" },
 ];
 
