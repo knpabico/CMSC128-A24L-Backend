@@ -22,11 +22,12 @@ export default function Users() {
     setIsEdit,
     setCurrentAnnouncementId,
     setAnnounceImage,
-    handleImageChange
+    handleImageChange,
+    preview,
+    setPreview,
   } = useAnnouncement();
 
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -39,7 +40,8 @@ export default function Users() {
     }
     isEdit ? handleEdit(e) : handleSubmit(e);
     setImageFile(null);
-    setImagePreview(null);
+    setPreview(null);
+    setAnnounceImage(null);
     setShowForm(false);
   };
 
@@ -60,7 +62,8 @@ export default function Users() {
             setShowForm(true);
             setTitle("");
             setDescription("");
-            setImagePreview(null);
+            setAnnounceImage(null);
+            setPreview(null);
             setImageFile(null);
             setIsEdit(false);
           }}
@@ -137,7 +140,7 @@ export default function Users() {
                     setShowForm(true);
                     setIsEdit(true);
                     setCurrentAnnouncementId(announcement.announcementId);
-                    setImagePreview(announcement.image ?? null);
+                    setPreview(announcement.image ?? null);
                     setShowDropdown(null);
                   }}
                 >
@@ -213,9 +216,9 @@ export default function Users() {
                 className="w-[155px] h-[155px] rounded-[12px] flex items-center justify-center cursor-pointer bg-[#E5F1FF] mb-6"
                 onClick={() => document.getElementById("image-upload")?.click()}
               >
-                {imagePreview ? (
+                {preview ? (
                   <img
-                    src={imagePreview}
+                    src={preview}
                     alt="Preview"
                     className="w-full h-full object-cover rounded-lg"
                   />

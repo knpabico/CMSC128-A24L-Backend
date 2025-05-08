@@ -119,35 +119,48 @@ export function AnnouncementProvider({
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     const updatedAnnouncement: Announcement = {
       title,
       description,
       datePosted: new Date(),
       type,
       announcementId: currentAnnouncementId!,
-      image: "",
+      image: "", // We'll conditionally assign this below
       isPublic,
     };
-
+  
     try {
-      if (currentAnnouncementId) {
-        await updateDoc(doc(db, "Announcement", currentAnnouncementId), {
-          ...updatedAnnouncement,
-        });
+      if (image) {
+        // User uploaded a new image
+        const uploadResult = await uploadImage(image, `announcement/${Date.now()}`);
+        if (uploadResult.success) {
+          updatedAnnouncement.image = uploadResult.url;
+        } else {
+          console.error("Image upload failed:", uploadResult.result);
+          return;
+        }
       } else {
-        console.error("Error: ann id is null");
+        // No new image, preserve the old one
+        const docRef = doc(db, "Announcement", currentAnnouncementId!);
+        const oldData = (await (await docRef.get()).data()) as Announcement;
+        updatedAnnouncement.image = oldData?.image || "";
       }
-      console.log("Announcement updated successfully!");
-      // Optionally, reset the form and close the form
+  
+      await updateDoc(doc(db, "Announcement", currentAnnouncementId!), updatedAnnouncement);
+  
+      // Cleanup
       setShowForm(false);
       setTitle("");
       setDescription("");
-      setIsEdit(false); // Reset the edit mode
+      setAnnounceImage(null);
+      setPreview(null);
+      setIsEdit(false);
     } catch (error) {
       console.error("Error updating announcement:", error);
     }
   };
+  
 
   const subscribeToUsers = () => {
     setLoading(true);
