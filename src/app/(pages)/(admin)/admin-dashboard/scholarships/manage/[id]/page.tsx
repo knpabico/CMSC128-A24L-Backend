@@ -178,7 +178,7 @@ const ScholarshipDetailPage: React.FC = () => {
               const alumSponsor = alumList.find(
                 (alum) => alum.alumniId === scholarshipStudent.alumId
               );
-              scholarshipSponsor[scholarshipStudent.scholarshipId] =
+              scholarshipSponsor[scholarshipStudent.ScholarshipStudentId] =
                 alumSponsor;
             }
           );
@@ -602,16 +602,20 @@ const ScholarshipDetailPage: React.FC = () => {
                         (scholarshipStudent) => (
                           <div key={scholarshipStudent.scholarshipId}>
                             {/*sponsor info just in case na need*/}
-                            {sponsorAlum[scholarshipStudent.scholarshipId] ? (
+                            {sponsorAlum[
+                              scholarshipStudent.ScholarshipStudentId
+                            ] ? (
                               <div>
                                 Sponsor:{" "}
                                 {
-                                  sponsorAlum[scholarshipStudent.scholarshipId]
-                                    ?.firstName
+                                  sponsorAlum[
+                                    scholarshipStudent.ScholarshipStudentId
+                                  ]?.firstName
                                 }{" "}
                                 {
-                                  sponsorAlum[scholarshipStudent.scholarshipId]
-                                    ?.lastName
+                                  sponsorAlum[
+                                    scholarshipStudent.ScholarshipStudentId
+                                  ]?.lastName
                                 }
                               </div>
                             ) : (
