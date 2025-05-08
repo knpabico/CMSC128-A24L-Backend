@@ -1347,7 +1347,10 @@ const UserProfile = () => {
                         [...announces]
                         .filter((ann: Announcement) => ann.announcementId === bookmark.entryId)
                         .map((ann: Announcement, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                          onClick={() =>
+                            router.push(`/announcement/${ann.announcementId}`)
+                          }>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><MegaphoneIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1551,7 +1554,10 @@ const UserProfile = () => {
                       {([...announces]
                         .filter((ann: Announcement) => ann.announcementId === bookmark.entryId)
                         .map((ann: Announcement, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"                         
+                          onClick={() =>
+                            router.push(`/announcement/${ann.announcementId}`)
+                          }>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><MegaphoneIcon/></p>
                               <div className="flex space-x-3 items-center">
