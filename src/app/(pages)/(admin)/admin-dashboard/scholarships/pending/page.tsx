@@ -54,7 +54,7 @@ export default function ViewPendingScholarships() {
 
   //for retrieving each alum info per scholarshipStudent
   const [sponsorAlum, setSponsorAlumMapping] = useState<
-    Record<string, Alumnus | undefined>
+    Record<string, Alumnus>
   >({});
 
   //for retrieving each student info per scholarshipStudent
@@ -117,7 +117,7 @@ export default function ViewPendingScholarships() {
 
         //intialize as empty scholarship map
         const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
-        const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
+        const scholarshipSponsor: Record<string, Alumnus> = {};
         const studentScholar: Record<string, Student> = {};
         scholarshipStudent.forEach((scholar) => {
           scholar.scholarshipList.forEach((ss: ScholarshipStudent) => {
@@ -187,7 +187,11 @@ export default function ViewPendingScholarships() {
     router.push("/admin-dashboard");
   };
 
-  const handleApprove = async (scholarshipStudentId: string) => {};
+  const handleApprove = async (
+    scholarshipStudent: ScholarshipStudent,
+    student: Student,
+    alum: Alumnus
+  ) => {};
 
   //function for rejecting scholarshipStudent
   const handleReject = async (scholarshipStudentId: string) => {
@@ -303,22 +307,46 @@ export default function ViewPendingScholarships() {
                                 {/* Student Info */}
                                 <div className="w-1/3 text-sm text-gray-600">
                                   <span className="font-medium">Student:</span>{" "}
-                                  {studentScholar[
-                                    scholarshipStudent.ScholarshipStudentId
-                                  ]?.name || "N/A"}
+                                  {
+                                    studentScholar[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].name
+                                  }
                                 </div>
 
                                 {/* Sponsor Info */}
                                 <div className="w-1/3 text-sm text-gray-600">
                                   <span className="font-medium">Sponsor:</span>{" "}
-                                  {sponsorAlum[
-                                    scholarshipStudent.ScholarshipStudentId
-                                  ]?.firstName || "N/A"}
+                                  {
+                                    sponsorAlum[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].firstName
+                                  }{" "}
+                                  {
+                                    sponsorAlum[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].lastName
+                                  }
                                 </div>
 
                                 {/* Actions */}
                                 <div className="w-1/3 flex justify-end items-center gap-4">
-                                  <button className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm">
+                                  <button
+                                    className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm"
+                                    onClick={() => {
+                                      handleApprove(
+                                        scholarshipStudent,
+                                        studentScholar[
+                                          scholarshipStudent
+                                            .ScholarshipStudentId
+                                        ],
+                                        sponsorAlum[
+                                          scholarshipStudent
+                                            .ScholarshipStudentId
+                                        ]
+                                      );
+                                    }}
+                                  >
                                     Approve
                                   </button>
                                   <button
