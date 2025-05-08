@@ -10,6 +10,7 @@ import {
   NewsletterItem,
   Announcement,
   JobOffering,
+  ScholarshipStudent,
 } from "@/models/models";
 import {
   ChevronLeft,
@@ -31,7 +32,7 @@ import { DialogDescription } from "@radix-ui/react-dialog";
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
-  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId } = useScholarship();
+  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId, addScholarshipStudent } = useScholarship();
   const { user } = useAuth();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
@@ -159,6 +160,22 @@ const ScholarshipDetailPage: React.FC = () => {
       setSponsoring(false);
     }
   };
+
+  const handleStudentSponsor = async (studentId: string) => {
+    if (!user || !scholarship) return;
+
+    const newStudentSponsor: ScholarshipStudent = {
+      ScholarshipStudentId: "",
+      studentId: studentId,
+      alumId: user.uid,
+      scholarshipId: scholarship.scholarshipId,
+      status: "pending", //accepted  or pending
+      pdf: "",
+    }
+
+    const result = await addScholarshipStudent(newStudentSponsor);
+    console.log(result.message);
+  }
 
   const goBack = () => {
     router.back();
@@ -314,8 +331,15 @@ const ScholarshipDetailPage: React.FC = () => {
                   <ul className="list-disc pl-6">
                     {students.map((student) => (
                       <li key={student.studentId} className="text-gray-700">
-                        <strong>{student.name}</strong> - {student.emailAddress}
-                
+                        <div className="flex justify-between items-center gap-4">
+                          <strong>{student.name}</strong>  {student.emailAddress}
+                          {isAlreadySponsoring && <button
+                            onClick={() => {handleStudentSponsor(student.studentId)}}
+                            className="px-10 py-2 bg-blue-500 text-white rounded-md"
+                          >
+                            Sponsor Student
+                          </button>}                          
+                        </div>                
                       </li>
                     ))}
                   </ul>
