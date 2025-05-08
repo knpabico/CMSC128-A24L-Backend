@@ -34,6 +34,10 @@ const DonutChart = ({ labels, data }: DonutChartProps) => {
           },
           options: {
             responsive: true,
+            animation: {
+              duration: 1000, // Animation duration in milliseconds
+              easing: "easeInOutQuad", // Smooth easing function
+            },
           },
         });
         chartRef.current.chart = newChart;

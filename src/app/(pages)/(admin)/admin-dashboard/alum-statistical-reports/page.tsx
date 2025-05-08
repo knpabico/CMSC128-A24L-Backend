@@ -71,23 +71,23 @@ const StatisticalReports = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2">
         <div className="hover:text-[#0856BA] cursor-pointer transition-colors">
           Home
         </div>
         <div>
-          <ChevronRight size={14} />
+          <ChevronRight size={15} />
         </div>
-        <div className="font-medium text-[#0856BA]">Statistical Reports</div>
+        <div className="font-bold text-[#0856BA]">Statistical Reports</div>
       </div>
 
       {/* Page Title and Info */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <ClipboardList className="w-8 h-8 text-[#0856BA]" />
-          <h1 className="font-bold text-2xl text-gray-800">
+          <h1 className="font-bold text-3xl text-gray-800">
             Alumni Statistical Reports
           </h1>
         </div>
@@ -100,9 +100,9 @@ const StatisticalReports = () => {
       {/* Main Content Area with Side Panel */}
       <div className="flex flex-col lg:flex-row gap-6 h-full">
         {/* Left Side - Charts and Cards */}
-        <div className="flex-grow space-y-6 h-full">
+        <div className="flex-grow space-y-6">
           {/* Charts Container */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 h-auto">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             {/* Registration Status */}
             <div className="mb-8">
               <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2 flex items-center">
@@ -346,17 +346,17 @@ const StatisticalReports = () => {
           </div>
         </div>
 
-        {/* Right Side - Report Summary */}
-        <div className="lg:w-1/3 lg:min-w-[320px] h-full">
-          <Card className="bg-white sticky top-4 rounded-xl shadow-sm border-none ring-1 ring-gray-100 h-full">
-            <CardHeader className="pb-1 border-b border-gray-100">
+        {/* Right Side - Report Summary - With fixed height and scrollable */}
+        <div className="lg:w-1/3 lg:min-w-[320px] lg:flex lg:flex-col">
+          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col h-288">
+            <CardHeader className="pb-1 border-b border-gray-100 flex-none ">
               <CardTitle className="flex items-center text-xl font-bold text-gray-800">
                 <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
                 Report Summary
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto">
-              <div className="bg-gradient-to-r from-[#0856BA]/5 to-white p-6 rounded-lg">
+            <CardContent className="flex-none h-255 overflow-y-auto ">
+              <div className="p-2 rounded-lg ">
                 <ReportSummaryCard
                   data={`Total Number of alumni: ${approvedAlums.length} 
                     Active alumni: ${approvedActiveAlums.length} 
