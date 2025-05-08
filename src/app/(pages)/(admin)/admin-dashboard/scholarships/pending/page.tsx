@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAlums } from "@/context/AlumContext";
 import ScholarshipDetailPage from "../manage/[id]/page";
+import { uploadDocToFirebase } from "./scholarshipPDF";
 
 export default function ViewPendingScholarships() {
   const {
@@ -54,13 +55,16 @@ export default function ViewPendingScholarships() {
 
   //for retrieving each alum info per scholarshipStudent
   const [sponsorAlum, setSponsorAlumMapping] = useState<
-    Record<string, Alumnus | undefined>
+    Record<string, Alumnus>
   >({});
 
   //for retrieving each student info per scholarshipStudent
   const [studentScholar, setStudentScholarMapping] = useState<
     Record<string, Student>
   >({});
+
+  const [loadingApprove, setLoadingApprove] = useState(false);
+  const [loadingReject, setLoadingReject] = useState(false);
 
   const [sortOption, setSortOption] = useState<
     | "newest"
@@ -117,7 +121,7 @@ export default function ViewPendingScholarships() {
 
         //intialize as empty scholarship map
         const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
-        const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
+        const scholarshipSponsor: Record<string, Alumnus> = {};
         const studentScholar: Record<string, Student> = {};
         scholarshipStudent.forEach((scholar) => {
           scholar.scholarshipList.forEach((ss: ScholarshipStudent) => {
@@ -187,10 +191,31 @@ export default function ViewPendingScholarships() {
     router.push("/admin-dashboard");
   };
 
-  const handleApprove = async (scholarshipStudentId: string) => {};
+  const handleApprove = async (
+    scholarshipStudent: ScholarshipStudent,
+    student: Student,
+    alum: Alumnus
+  ) => {
+    setLoadingApprove(true);
+    try {
+      //generate and upload the scholarship agreement to firebase
+      await uploadDocToFirebase(scholarshipStudent, student, alum);
+
+      //call updateScholarship function to update the status of the scholarshipStudent
+      await updateScholarshipStudent(scholarshipStudent.ScholarshipStudentId, {
+        status: "approved",
+      });
+      toastSuccess("Scholarship student approved successfully.");
+    } catch (error) {
+      setError("Failed to approve scholarship student.");
+    } finally {
+      setLoadingApprove(false);
+    }
+  };
 
   //function for rejecting scholarshipStudent
   const handleReject = async (scholarshipStudentId: string) => {
+    setLoadingReject(true);
     try {
       //call updateScholarship function to update the status of the scholarshipStudent
       await updateScholarshipStudent(scholarshipStudentId, {
@@ -199,6 +224,8 @@ export default function ViewPendingScholarships() {
       toastSuccess("Scholarship student rejected successfully.");
     } catch (error) {
       setError("Failed to reject scholarship student.");
+    } finally {
+      setLoadingReject(false);
     }
   };
 
@@ -303,23 +330,50 @@ export default function ViewPendingScholarships() {
                                 {/* Student Info */}
                                 <div className="w-1/3 text-sm text-gray-600">
                                   <span className="font-medium">Student:</span>{" "}
-                                  {studentScholar[
-                                    scholarshipStudent.ScholarshipStudentId
-                                  ]?.name || "N/A"}
+                                  {
+                                    studentScholar[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].name
+                                  }
                                 </div>
 
                                 {/* Sponsor Info */}
                                 <div className="w-1/3 text-sm text-gray-600">
                                   <span className="font-medium">Sponsor:</span>{" "}
-                                  {sponsorAlum[
-                                    scholarshipStudent.ScholarshipStudentId
-                                  ]?.firstName || "N/A"}
+                                  {
+                                    sponsorAlum[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].firstName
+                                  }{" "}
+                                  {
+                                    sponsorAlum[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].lastName
+                                  }
                                 </div>
 
                                 {/* Actions */}
                                 <div className="w-1/3 flex justify-end items-center gap-4">
-                                  <button className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm">
-                                    Approve
+                                  <button
+                                    className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm"
+                                    onClick={() => {
+                                      handleApprove(
+                                        scholarshipStudent,
+                                        studentScholar[
+                                          scholarshipStudent
+                                            .ScholarshipStudentId
+                                        ],
+                                        sponsorAlum[
+                                          scholarshipStudent
+                                            .ScholarshipStudentId
+                                        ]
+                                      );
+                                    }}
+                                    disabled={loadingApprove}
+                                  >
+                                    {loadingApprove
+                                      ? "Approving..."
+                                      : "Approve"}
                                   </button>
                                   <button
                                     className="text-red-700 hover:cursor-pointer"
@@ -328,6 +382,7 @@ export default function ViewPendingScholarships() {
                                         scholarshipStudent.ScholarshipStudentId
                                       );
                                     }}
+                                    disabled={loadingReject}
                                   >
                                     <Trash2 className="size-6" />
                                   </button>
