@@ -338,14 +338,19 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     try {
       const currentEvent = events.find((e) => e.eventId === eventId);
       let newImageUrl: string | undefined = undefined;
+
+      console.log("Current Event:", newImageFile);
   
-      if (newImageFile) {
+      if (newImageFile && newImageFile !== currentEvent.image) {
+
         // Delete all files inside the event folder
         await deleteAllImagesInEventFolder(eventId);
   
         // Upload new image
         const uploadResult = await uploadImage(newImageFile, `event/${eventId}`);
         if (!uploadResult.success || !uploadResult.url) {
+          
+
           toastError("Failed to upload new image");
           return { success: false, message: "Failed to upload new image" };
         }
