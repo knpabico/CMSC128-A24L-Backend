@@ -18,6 +18,7 @@ import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { useJobOffer } from "@/context/JobOfferContext";
+import { CheckCircle, XCircle } from 'lucide-react';
 
 
 const adminLinks = [
@@ -44,7 +45,26 @@ export default function AdminDashboard() {
   const {scholarships} = useScholarship();
   const {jobOffers} = useJobOffer();
   const [activeTab, setActiveTab] = useState('pending');
+  const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   // const { allDonations } = useDonationContext();
+
+  const openModal = (job) => {
+    setSelectedJob(job);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedJob(null);
+  };
+  
+  const updateJobStatus = (jobId, newStatus) => {
+    // In a real application, this would make an API call to update the job status
+    console.log(`Updating job ${jobId} to status: ${newStatus}`);
+    closeModal();
+    // Here you would typically update your state or refetch data
+  };
 
 
   const fields = [
@@ -518,7 +538,7 @@ export default function AdminDashboard() {
         </div>
 
       {/* Job Posting */}
-      <div className="md:col-span-3">
+    <div className="md:col-span-3">
       <Card className="border-0 shadow-md flex flex-col h-full">
         <CardHeader className="pb-0">
           <CardTitle>Job Posting</CardTitle>
@@ -566,6 +586,7 @@ export default function AdminDashboard() {
                 <div
                   key={jobOffer.jobId}
                   className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                  onClick={() => openModal(jobOffer)}
                 >
                   <div className="flex-1">
                     <div className="flex justify-between">
@@ -592,6 +613,87 @@ export default function AdminDashboard() {
           </div>
         </div>
       </Card>
+      
+      {/* Modal for job details */}
+      {isModalOpen && selectedJob && (
+        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">{selectedJob.position}</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <XCircle size={24} />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <p className="text-lg font-semibold">{selectedJob.company}</p>
+                  <p className="text-gray-600">{selectedJob.location}</p>
+                  <p className="text-gray-600">{selectedJob.employmentType}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Salary Range: {selectedJob.salaryRange}</p>
+                  <p className="text-gray-600">Experience: {selectedJob.experienceLevel}</p>
+                  {/* <p className="text-gray-600">Posted: {selectedJob.datePosted.toLocaleDateString()}</p> */}
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2">Job Description</h3>
+                <p className="text-gray-700">{selectedJob.jobDescription}</p>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2">Required Skills</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedJob.requiredSkill.map((skill, index) => (
+                    <span 
+                      key={index} 
+                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-lg font-semibold mb-3">Status Management</h3>
+                <p className="mb-3">Current Status: <span className={`font-semibold ${selectedJob.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>{selectedJob.status}</span></p>
+                
+                <div className="flex gap-3">
+                  {selectedJob.status === 'Pending' ? (
+                    <button
+                      onClick={() => updateJobStatus(selectedJob.jobId, 'Active')}
+                      className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors"
+                    >
+                      <CheckCircle size={18} /> Approve
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => updateJobStatus(selectedJob.jobId, 'Pending')}
+                      className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors"
+                    >
+                      <CheckCircle size={18} /> Mark as Pending
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={() => updateJobStatus(selectedJob.jobId, 'Rejected')}
+                    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors"
+                  >
+                    <XCircle size={18} /> Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
 
       </div>
