@@ -46,9 +46,9 @@ const BarGraph = ({ data, labels, type }: BarGraphProps) => {
 
       chartRef.current.chart = newChart;
     }
-  }, [data, labels]);
+  }, [data, labels, type]);
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", width: "30vw", height: "40vh" }}>
       <canvas ref={chartRef} />
     </div>
   );

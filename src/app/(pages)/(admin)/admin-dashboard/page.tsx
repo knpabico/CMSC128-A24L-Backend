@@ -8,28 +8,67 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import MapComponent from "./google-maps/map";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { WorkExperience } from "@/models/models";
-
-
-const adminLinks = [
-  { label: "Manage Users", link: "manage-users" },
-  { label: "Organize Events", link: "organize-events" },
-  { label: "Create Announcement", link: "create-announcements" },
-  { label: "Job Postings", link: "job-postings" },
-  { label: "Send Newsletters", link: "send-newsletters" },
-  { label: "Create Donation Drive", link: "donation-drive" },
-  { label: "Monitor Engagement Metrics", link: "engagement-metrics" },
-  { label: "Site Settings", link: "site-settings" },
-  { label: "Statistical Reports", link: "alum-statistical-reports" },
-  { label: "Manage Scholarships", link: "scholarships/manage" },
-  { label: "Add Scholarships", link: "scholarships/add" },
-  { label: "Write story", link: "create-story" },
-];
+import { useAlums } from "@/context/AlumContext";
+import { Alumnus, WorkExperience,Event, Donation } from "@/models/models";
+import { useEvents } from "@/context/EventContext";
+import { useDonationContext } from "@/context/DonationContext";
 
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
-  console.log(allWorkExperience, "workexperience");
+  const {totalAlums,alums, getActiveAlums, getInactiveAlums} = useAlums();
+  const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
+  const { allDonations } = useDonationContext();
+
+  const fields = [
+    "Artificial Intelligence (AI)",
+    "Machine Learning (ML)",
+    "Data Science",
+    "Cybersecurity",
+    "Software Engineering",
+    "Computer Networks",
+    "Computer Graphics and Visualization",
+    "Human-Computer Interaction (HCI)",
+    "Theoretical Computer Science",
+    "Operating Systems",
+    "Databases",
+    "Web Development",
+    "Mobile Development",
+    "Cloud Computing",
+    "Embedded Systems",
+    "Robotics",
+    "Game Development",
+    "Quantum Computing",
+    "DevOps and System Administration",
+    "Information Systems",
+    "Others"
+  ];
+  
+  const getFieldInterestCounts = (alums: Alumnus[]) => {
+    const counts: Record<string, number> = {}; //rereturn ito like this 
+                                              // [<field> count]
+    
+    
+    fields.forEach(field => {
+      counts[field] = 0;
+    });
+  
+    // Count occurrences
+    alums.forEach(alum => {
+      alum.fieldOfInterest?.forEach(field => {
+        if (counts.hasOwnProperty(field)) {
+          counts[field]++;
+        } else {
+          counts["Others"]++; 
+        }
+      });
+    });
+    
+    return counts;
+  };
+  
+  const fieldCounts = getFieldInterestCounts(alums);
+  console.log(alums, "alumnis", getActiveAlums(alums));
 
   const presentWorkExperiences = allWorkExperience.filter(
     (exp:WorkExperience) => exp.endYear === "present"
@@ -47,15 +86,6 @@ export default function AdminDashboard() {
       {/* Page title */}
       <h1 className="text-3xl font-bold my-6">Admin Dashboard</h1>
 
-      {/* Admin control buttons */}
-      <div className="flex flex-col gap-4 mb-6">
-        {adminLinks.map((item, i) => (
-          <Button asChild key={i} className="text-lg h-14">
-            <Link href={`/admin-dashboard/${item.link}`}>{item.label}</Link>
-          </Button>
-        ))}
-      </div>
-
       {/* Information Cards*/}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Alumni Card */}
@@ -70,6 +100,16 @@ export default function AdminDashboard() {
                 - Active alumni count
                 - Pending alumni count pati data na pwede iroute dun sa pag accept/reject
             */}
+            <p>Total Alums:{totalAlums}</p> {/*total alumni*/}
+            <p>Actve Alums: {getActiveAlums(alums).length}</p> {/*active alumni*/}
+            <p>Pending Alums: {getInactiveAlums(alums).length}</p> {/*inactive alumni*/}
+            {alums.map((alum:Alumnus, index:number)=>{
+              return (
+                <div key={alum.alumniId}>
+                  Name: {alum.lastName}, {alum.firstName} {alum.middleName}
+                </div>
+              )
+            })}
           </CardContent>
         </Card>
 
@@ -81,6 +121,10 @@ export default function AdminDashboard() {
           <CardContent>
             {/* Pie chart !
               Count ng alumni per industry */}
+              {/* field count  check mo heree getFieldInterestCount*/}
+            {Object.entries(fieldCounts).map(([field, count]) => ( 
+              <p key={field}>{field}: {count}</p>
+            ))}
           </CardContent>
         </Card>
       </div>
@@ -103,6 +147,16 @@ export default function AdminDashboard() {
                 - Date
                 - Event venue
               */}
+            {getEventProposals(events).map((event:Event, index:number)=>{
+              return (
+                <div key={event.eventId}>
+                <div>
+                  <span>Event: {event.title}</span>
+                </div>
+                <span>Status: {event.status}</span>
+                </div>
+              )
+            })}
             </div>
           </CardContent>
 
@@ -136,6 +190,16 @@ export default function AdminDashboard() {
                 - Date
                 - Event venue
               */}
+             {getUpcomingEvents(events).map((event:Event, index:number)=>{
+              return (
+                <div key={event.eventId}>
+                <div>
+                  <span>Event: {event.title}</span>
+                </div>
+                <span>Status: {event.status}</span>
+                </div>
+              )
+            })}             
             </div>
           </CardContent>
           <div className="px-2 pt-0">
@@ -167,6 +231,16 @@ export default function AdminDashboard() {
                 - Name of donator
                 - name of donation drive? basta kung san siya nagdonate lmao
               */}
+             {/* {allDonations.map((donation:Donation, index:number)=>{
+              return (
+                <div key={donation.donationId}>
+                <div>
+                  <span>Event: {donation.amount}</span>
+                </div>
+                <span>Status: {event.status}</span>
+                </div>
+              )
+            })}                */}
             </div>
           </CardContent>
           <div className="px-2 pt-0">

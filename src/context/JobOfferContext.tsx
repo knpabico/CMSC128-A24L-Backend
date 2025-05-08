@@ -41,6 +41,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
   useEffect(() => {
@@ -72,10 +73,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     try {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
-      jobOffer.alumniId = user?.uid || "Admin";
-      jobOffer.status = isAdmin ? "Accepted" : "Pending";
+      jobOffer.alumniId = isAdmin ? "Admin" : user?.uid ?? "";
+      jobOffer.status = jobOffer.status? "Draft" : isAdmin ? "Accepted" : "Pending";
       console.log(jobOffer);
       await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
+      if ( isAdmin && jobOffer.status === "Accepted") {
+        addNewsLetter(jobOffer.jobId, "job_offering");
+      }
       return { success: true, message: "success" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -121,6 +125,11 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
 
     if (response.success) {
       console.log("Job offer added:", newJobOffering);
+      // Delete from draft if it exists
+      if (editingDraftId) {
+        await deleteDoc(doc(db, "job_offering", editingDraftId));
+        console.log("Draft deleted successfully");
+      }
       // Reset form
       setShowForm(false);
       setCompany("");
@@ -135,6 +144,43 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setPreview(null);
     } else {
       console.error("Error adding job:", response.message);
+    }
+  };
+
+  const handleEdit = async (editedJob: JobOffering) => {
+    // Ensure required fields are defined
+    if (!editedJob.position || !editedJob.jobDescription || !editedJob.status) {
+      console.error("Required fields are missing");
+      return;
+    }
+  
+    const updatedFields = {
+      position: editedJob.position,
+      jobDescription: editedJob.jobDescription,
+      status: editedJob.status,
+    };
+  
+    try {
+      await updateDoc(doc(db, "job_offering", editedJob.jobId), updatedFields);
+      console.log("Job updated successfully!");
+    } catch (error) {
+      console.error("Error updating job:", error);
+    }
+  };
+
+
+  const updateStatus = async (status: string, jobId: string) => {
+    if (!status || !jobId) {
+      console.error("Status or Job ID is missing");
+      return;
+    }
+  
+    try {
+      const jobRef = doc(db, "job_offering", jobId);
+      await updateDoc(jobRef, { status });
+      console.log("Job updated successfully!");
+    } catch (error) {
+      console.error("Error updating job:", error);
     }
   };
 
@@ -206,6 +252,106 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleSaveDraft = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    const draftJobOffering: JobOffering = {
+      company,
+      employmentType,
+      experienceLevel,
+      jobDescription,
+      jobType,
+      position,
+      requiredSkill,
+      salaryRange,
+      jobId: editingDraftId || "", // Use existing ID if editing
+      alumniId: isAdmin ? "Admin" : user?.uid || "",
+      datePosted: new Date(),
+      status: "Draft",
+      location,
+      image: preview || "", // Use existing preview if available
+    };
+  
+    try {
+      if (image) {
+        const uploadResult = await uploadImage(image, `job_offers/${Date.now()}`);
+        if (uploadResult.success) {
+          draftJobOffering.image = uploadResult.url;
+        } else {
+          setMessage(uploadResult.result || "Failed to upload image.");
+          setIsError(true);
+          return;
+        }
+      }
+  
+      let response;
+      
+      if (editingDraftId) {
+        // Update existing draft
+        const updateFields = {
+          company: draftJobOffering.company,
+          employmentType: draftJobOffering.employmentType,
+          experienceLevel: draftJobOffering.experienceLevel,
+          jobDescription: draftJobOffering.jobDescription,
+          jobType: draftJobOffering.jobType,
+          position: draftJobOffering.position,
+          requiredSkill: draftJobOffering.requiredSkill,
+          salaryRange: draftJobOffering.salaryRange,
+          status: draftJobOffering.status,
+          location: draftJobOffering.location,
+          image: draftJobOffering.image,
+        };
+        await updateDoc(doc(db, "job_offering", editingDraftId), updateFields);
+        response = { success: true, message: "Draft updated successfully" };
+      } else {
+        // Create new draft
+        response = await addJobOffer(draftJobOffering, user?.uid || "Admin");
+      }
+  
+      if (response.success) {
+        // Reset form and states
+        setShowForm(false);
+        setCompany("");
+        setEmploymentType("");
+        setExperienceLevel("");
+        setJobDescription("");
+        setJobType("");
+        setPosition("");
+        setRequiredSkill([]);
+        setSalaryRange("");
+        setLocation("");
+        setJobImage(null);
+        setPreview(null);
+        setEditingDraftId(null); // Reset the editing draft ID
+        
+        return { success: true, message: editingDraftId ? "Draft updated" : "Draft saved" };
+      } else {
+        console.error("Error saving draft:", response.message);
+        return { success: false, message: response.message };
+      }
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      return { success: false, message: "Failed to save draft" };
+    }
+  };
+  
+  const handleEditDraft = (draft: JobOffering) => {
+    setCompany(draft.company);
+    setEmploymentType(draft.employmentType);
+    setExperienceLevel(draft.experienceLevel);
+    setJobDescription(draft.jobDescription);
+    setJobType(draft.jobType);
+    setPosition(draft.position);
+    setRequiredSkill(draft.requiredSkill || []); 
+    setSalaryRange(draft.salaryRange);
+    setLocation(draft.location);
+    if (draft.image) {
+      setPreview(draft.image);
+    }
+    setEditingDraftId(draft.jobId);
+    setShowForm(true);
+  };
+
   return (
     <JobOfferContext.Provider
       value={{
@@ -228,6 +374,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         setJobType,
         position,
         setPosition,
+        requiredSkill,
         handleSkillChange,
         salaryRange,
         setSalaryRange,
@@ -244,6 +391,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         preview,
         fileName,
         handleImageChange,
+        handleEdit,
+        updateStatus,
+        handleSaveDraft,
+        handleEditDraft
       }}
     >
       {children}

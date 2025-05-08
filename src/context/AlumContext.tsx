@@ -14,6 +14,7 @@ import {
   updateDoc,
   QueryDocumentSnapshot,
   DocumentData,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -25,7 +26,6 @@ import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { uploadImage } from "@/lib/upload";
 import { messaging } from "firebase-admin";
 
-
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -35,6 +35,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   const [myEducation, setEducation] = useState<Education[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user, isAdmin } = useAuth();
+  const [totalAlums, setTotalAlums] = useState<number>(0);
+  const [activeAlumsTotal, setActiveAlumsTotal] = useState<number>(0);
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -42,18 +44,19 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     let unsubscribeCareer: (() => void) | null;
     let unsubscribeEducation: (() => void) | null;
 
-    if (user) {
+    if (isAdmin) {
+      unsubscribe = subscribeToUsers();
+      unsubscribeActive = subscribeToActiveUsers();
+    } else if (user) {
       unsubscribe = subscribeToUsers(); //maglilisten sa firestore
       unsubscribeCareer = subscribeToMyCareer();
       unsubscribeEducation = subscribeToMyEducation();
-    } else if (isAdmin) {
-      unsubscribe = subscribeToUsers();
-      unsubscribeActive = subscribeToActiveUsers();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);
       setCareer([]);
       setLoading(false);
+      setTotalAlums(0);
     }
 
     return () => {
@@ -85,35 +88,42 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     email: string,
     studentNumber: string,
     address: string[],
-    birthDate: Date,
-    fieldOfInterest: string[]
+    fieldOfInterest: string[],
+    contactPrivacy: boolean
   ) => {
     try {
       const alumniRef = doc(db, "alumni", alum.alumniId);
-      const docSnap = await getDoc(alumniRef);  // Fetch current data to check for existing fields
-  
-      const updatedData: any = {};  // Will hold fields to update
-  
+      const docSnap = await getDoc(alumniRef); // Fetch current data to check for existing fields
+
+      const updatedData: any = {}; // Will hold fields to update
+
       if (docSnap.exists()) {
         const currentData = docSnap.data();
-        
+
         // Only update fields that have changed
-        if (firstName !== currentData.firstName) updatedData.firstName = firstName ?? "";
-        if (middleName !== currentData.middleName) updatedData.middleName = middleName ?? "";
-        if (lastName !== currentData.lastName) updatedData.lastName = lastName ?? "";
+        if (firstName !== currentData.firstName)
+          updatedData.firstName = firstName ?? "";
+        if (middleName !== currentData.middleName)
+          updatedData.middleName = middleName ?? "";
+        if (lastName !== currentData.lastName)
+          updatedData.lastName = lastName ?? "";
         if (suffix !== currentData.suffix) updatedData.suffix = suffix ?? "";
         if (email !== currentData.email) updatedData.email = email ?? "";
-        if (studentNumber !== currentData.studentNumber) updatedData.studentNumber = studentNumber ?? "";
-        if (address !== currentData.address) updatedData.address = address ?? [];
-        if (birthDate !== currentData.birthDate) updatedData.birthDate = birthDate ?? new Date();
-        if (fieldOfInterest !== currentData.fieldOfInterest) updatedData.fieldOfInterest = fieldOfInterest ?? [];
-  
+        if (studentNumber !== currentData.studentNumber)
+          updatedData.studentNumber = studentNumber ?? "";
+        if (address !== currentData.address)
+          updatedData.address = address ?? [];
+        if (fieldOfInterest !== currentData.fieldOfInterest)
+          updatedData.fieldOfInterest = fieldOfInterest ?? [];
+        if (contactPrivacy !== currentData.contactPrivacy)
+          updatedData.contactPrivacy = contactPrivacy ?? false;
+
         // If there's any updated data, update the document
         if (Object.keys(updatedData).length > 0) {
           await updateDoc(alumniRef, updatedData);
         }
       }
-  
+
       return { success: true, message: "Your changes are successfully saved" };
     } catch (error) {
       console.error("Error:", error);
@@ -122,7 +132,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   };
 
   //for fetching the photo of alumni
-  const uploadAlumniPhoto = async (alum:Alumnus, imageFile:any) => {
+  const uploadAlumniPhoto = async (alum: Alumnus, imageFile: any) => {
     try {
       //uploading
       const data = await uploadImage(imageFile, `alumni/${user?.uid}`);
@@ -293,6 +303,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setAlums(userList);
+        console.log(userList.length, "total");
+        setTotalAlums(userList.length);
         setLoading(false);
       },
       (error) => {
@@ -319,6 +331,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setActiveAlums(activeUserList);
+        setActiveAlumsTotal(activeUserList.length);
         setLoading(false);
       },
       (error) => {
@@ -329,6 +342,26 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
 
     return unsubscribeActiveUsers;
   };
+
+  const getActiveAlums = (alums: Alumnus[]) => {
+    if (!alums) {
+      return 0;
+    } else {
+      const activeAlums = alums.filter((alum) => alum.activeStatus === true);
+      console.log(activeAlums, "this is activeAlums");
+      return activeAlums;
+    }
+  };
+  const getInactiveAlums = (alums: Alumnus[]) => {
+    if (!alums) {
+      return 0;
+    } else {
+      const inactiveAlums = alums.filter((alum) => alum.activeStatus === false);
+      console.log(activeAlums, "this is activeAlums");
+      return inactiveAlums;
+    }
+  };
+
   return (
     <AlumContext.Provider
       value={{
@@ -343,6 +376,9 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         myEducation,
         updateAlumnus,
         emailNewsLettertoAlums,
+        totalAlums,
+        getActiveAlums,
+        getInactiveAlums,
       }}
     >
       {children}

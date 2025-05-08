@@ -17,11 +17,11 @@ export default function EventRelatedDrivesPage() {
       // Filter for event-related drives
       const eventRelated = donationDrives.filter((drive: { isEvent: boolean; }) => drive.isEvent);
 	//   Filter active and completed 
-	//   const filteredDrives = eventRelated.filter(
-	// 	(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed'));
+	  const filteredDrives = eventRelated.filter(
+		(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed' || drive.status === 'Accepted'));
       
       // Apply sorting
-      const sorted = [...eventRelated].sort((a, b) => {
+      const sorted = [...filteredDrives].sort((a, b) => {
         switch (sortOption) {
           case 'newest':
             const dateA = a.datePosted?.toDate?.() || new Date(0);
@@ -95,7 +95,7 @@ return (
 						emptyMessage="No event-related donation have been created yet."
 					/>
 				) : (
-					<div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+					<div className="text-center py-12 bg-gray-50 rounded-lg w-full shadow-md border border-gray-200">
 						<h3 className="text-xl font-medium text-gray-600">No donation drive found</h3>
 						<p className="text-gray-500 mt-2">There are no donation drive with the selected filter.</p>
 					</div>

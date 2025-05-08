@@ -55,9 +55,9 @@ const AddEducationModal = ({
       <Card className="w-full max-w-xl bg-white border-none shadow-2xl">
         <CardHeader>
           <div className="flex items-center justify-between relative">
-            {degreeType == "Bachelor" && (<p className="text-xl font-bold pb-3">Add bachelor's degree</p>)}
-            {degreeType == "Masters" && (<p className="text-xl font-bold pb-3">Add master's degree</p>)}
-            {degreeType == "Doctoral" && (<p className="text-xl font-bold pb-3">Add doctoral degree</p>)}
+            {degreeType == "bachelors" && (<p className="text-xl font-bold pb-3">Add bachelor's degree</p>)}
+            {degreeType == "masters" && (<p className="text-xl font-bold pb-3">Add master's degree</p>)}
+            {degreeType == "doctoral" && (<p className="text-xl font-bold pb-3">Add doctoral degree</p>)}
             <button onClick={onClose} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
           </div>
           
@@ -77,21 +77,21 @@ const AddEducationModal = ({
             <div className="grid grid-cols-12 gap-x-4 gap-y-3 pb-3">
               <div className="col-span-9">
                 <p className="text-xs font-light">Degree Program*</p>
-                {degreeType == "Bachelor" && (<input
+                {degreeType == "bachelors" && (<input
                   placeholder="Bachelor of Science in Computer Science"
                   value={major}
                   onChange={(e) => setMajor(e.target.value)}
                   required
                   className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
                 />)}
-                {degreeType == "Masters" && (<input
+                {degreeType == "masters" && (<input
                   placeholder="Master of Science in Computer Science"
                   value={major}
                   onChange={(e) => setMajor(e.target.value)}
                   required
                   className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
                 />)}
-                {degreeType == "Doctoral" && (<input
+                {degreeType == "doctoral" && (<input
                   placeholder="Doctor of Philosophy in Computer Science"
                   value={major}
                   onChange={(e) => setMajor(e.target.value)}
