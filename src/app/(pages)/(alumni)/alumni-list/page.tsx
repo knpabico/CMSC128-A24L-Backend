@@ -1,15 +1,11 @@
 "use client";
 import { useAlums } from "@/context/AlumContext";
-import { Alumnus, Education } from "@/models/models";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useWorkExperience } from "@/context/WorkExperienceContext";
-import { WorkExperience } from "@/models/models";
 import { db } from "@/lib/firebase";
-import { useEffect, useState } from "react";
+import { Alumnus, Education, WorkExperience } from "@/models/models";
 import { collection, getDocs, query, where } from "firebase/firestore"; // Import missing Firebase functions
 import { ChevronDown } from "lucide-react";
-import { useEducation } from "@/context/EducationContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 export default function Users() {
   const { alums, isLoading } = useAlums();
   //const [workExperience, setWorkExperience] = useState<WorkExperience[]>([]);

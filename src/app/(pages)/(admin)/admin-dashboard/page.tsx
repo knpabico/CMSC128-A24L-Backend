@@ -345,31 +345,31 @@ export default function AdminDashboard() {
                 - Event venue
               */}
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {getEventProposals(events).map(
-                  (event: Event, index: number) => {
-                    return (
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
-                        <div
-                          key={event.eventId}
-                          onClick={() => handleOpenModalEventProposal(event)}
-                          className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                        >
-                          <div>
-                            <span className="font-medium">
-                              Event: {event.title}
-                            </span>
-                            <p className="text-sm text-black-500">
-                              Date: {event.date}
-                            </p>
-                            <p className="text-sm text-black-500">
-                              Place: {event.location}
-                            </p>
-                          </div>
+                {getEventProposals(events).map((event: Event) => {
+                  return (
+                    <div
+                      key={event.eventId}
+                      className="space-y-2 max-h-96 overflow-y-auto"
+                    >
+                      <div
+                        onClick={() => handleOpenModalEventProposal(event)}
+                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                      >
+                        <div>
+                          <span className="font-medium">
+                            Event: {event.title}
+                          </span>
+                          <p className="text-sm text-black-500">
+                            Date: {event.date}
+                          </p>
+                          <p className="text-sm text-black-500">
+                            Place: {event.location}
+                          </p>
                         </div>
                       </div>
-                    );
-                  }
-                )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </CardContent>
@@ -397,11 +397,13 @@ export default function AdminDashboard() {
           </div>
           <CardContent className="flex-1 overflow-y-auto">
             <div className="max-h-60">
-              {getUpcomingEvents(events).map((event: Event, index: number) => {
+              {getUpcomingEvents(events).map((event: Event) => {
                 return (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                  <div
+                    key={event.eventId}
+                    className="space-y-2 max-h-96 overflow-y-auto"
+                  >
                     <div
-                      key={event.eventId}
                       onClick={() => handleOpenModalEventProposal(event)}
                       className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                     >
@@ -448,27 +450,28 @@ export default function AdminDashboard() {
                 - Name of donator
                 - name of donation drive? basta kung san siya nagdonate lmao
               */}
-              {donationDrives.map(
-                (donationDrive: DonationDrive, index: number) => {
-                  return (
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                      <div
-                        key={donationDrive.eventId}
-                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                      >
-                        <div>
-                          <span className="font-medium">
-                            Donation Drive: {donationDrive.campaignName}
-                          </span>
-                          <p className="text-sm text-black-500">
-                            Beneficiary: {donationDrive.beneficiary}
-                          </p>
-                        </div>
+              {donationDrives.map((donationDrive: DonationDrive) => {
+                return (
+                  <div
+                    key={donationDrive.eventId}
+                    className="space-y-2 max-h-96 overflow-y-auto"
+                  >
+                    <div
+                      key={donationDrive.eventId}
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                    >
+                      <div>
+                        <span className="font-medium">
+                          Donation Drive: {donationDrive.campaignName}
+                        </span>
+                        <p className="text-sm text-black-500">
+                          Beneficiary: {donationDrive.beneficiary}
+                        </p>
                       </div>
                     </div>
-                  );
-                }
-              )}
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
           <div className="px-2 pt-0">
@@ -499,9 +502,12 @@ export default function AdminDashboard() {
                 - Alumni Name
                 - Scholarship title
               */}
-              {scholarships.map((scholarship: Scholarship, index: number) => {
+              {scholarships.map((scholarship: Scholarship) => {
                 return (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                  <div
+                    key={scholarship.scholarshipId}
+                    className="space-y-2 max-h-96 overflow-y-auto"
+                  >
                     <div
                       key={scholarship.scholarshipId}
                       className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
