@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Asterisk } from "lucide-react";
+import { Asterisk, Trash2Icon } from "lucide-react";
 import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
 
 export const AddStudent = ({
@@ -23,25 +23,24 @@ export const AddStudent = ({
   };
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="w-full">
+    <div className="flex flex-col gap-5 ">
+      {/* <div className="w-full ">
         <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl">Add Student</div>
           {!(type === "add" && index === 0) && (
             <button
               onClick={onRemove}
-              className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+              className="w-30 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-300"
             >
-              Remove
+							<Trash2Icon />
             </button>
           )}
         </div>
-      </div>
+      </div> */}
       {/* Form */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-5">
-          {/* Student Name */}
-          <div className="space-y-2">
+      <div className="flex flex-col gap-3 bg-gray-100 px-3 py-5 rounded-lg my-2">
+				<div className="flex w-full justify-between gap-3">
+					{/* Student Name */}
+          <div className="space-y-2 w-2/3">
             <label
               htmlFor="name"
               className="text-sm font-medium flex items-center"
@@ -96,26 +95,19 @@ export const AddStudent = ({
               required
             />
           </div>
-
-          {/* Short Background */}
-          <div className="space-y-2">
-            <label
-              htmlFor="name"
-              className="text-sm font-medium flex items-center"
+					{!(type === "add" && index === 0) && (
+            <button
+              onClick={onRemove}
+              className="flex justify-center gap-2 cursor-pointer"
             >
-              <Asterisk size={16} className="text-red-600" /> Short Background
-            </label>
-            <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Short Background"
-              value={formData.shortBackground}
-              onChange={(e) => setFormData("shortBackground", e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Address */}
-          <div className="space-y-2">
+							<Trash2Icon className="hover:text-gray-500 text-gray-700"/>
+              {/* Remove */}
+            </button>
+          )}
+				</div>
+				<div className="flex w-full gap-3">
+					{/* Address */}
+          <div className="space-y-2 w-full">
             <label
               htmlFor="name"
               className="text-sm font-medium flex items-center"
@@ -133,7 +125,7 @@ export const AddStudent = ({
           </div>
 
           {/* Email Address */}
-          <div className="space-y-2">
+          <div className="space-y-2 w-full">
             <label
               htmlFor="name"
               className="text-sm font-medium flex items-center"
@@ -149,9 +141,27 @@ export const AddStudent = ({
               required
             />
           </div>
+				</div>
+        <div className="flex flex-col gap-5">
+          {/* Short Background */}
+          <div className="space-y-2">
+            <label
+              htmlFor="name"
+              className="text-sm font-medium flex items-center"
+            >
+              <Asterisk size={16} className="text-red-600" /> Short Background
+            </label>
+            <textarea
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Short Background"
+              value={formData.shortBackground}
+              onChange={(e) => setFormData("shortBackground", e.target.value)}
+              required
+            />
+          </div>
 
           {/* Background */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label
               htmlFor="name"
               className="text-sm font-medium flex items-center"
@@ -165,7 +175,7 @@ export const AddStudent = ({
               onChange={(e) => setFormData("background", e.target.value)}
               required
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

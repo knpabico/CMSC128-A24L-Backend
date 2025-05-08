@@ -5,7 +5,7 @@ import { Scholarship, Student } from "@/models/models";
 import { useScholarship } from "@/context/ScholarshipContext";
 import React, { useRef, useState } from "react";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
-import { Asterisk, ChevronRight, Upload } from "lucide-react";
+import { Asterisk, ChevronRight, CirclePlus, Upload } from "lucide-react";
 import { AddStudent } from "../manage/[id]/add-student-form";
 import { useRouter } from "next/navigation";
 
@@ -163,6 +163,7 @@ export default function AddScholarships() {
   const handleUpload = async (newScholarship: Scholarship) => {
     if (!image) {
       setMessage("No image selected");
+			toastError("No Image selected")
       setIsError(true);
       return;
     }
@@ -219,6 +220,10 @@ export default function AddScholarships() {
           onSubmit={handleSubmit}
         >
           <div className="flex flex-col gap-5">
+						<div className="text-lg font-medium flex items-center">
+							{/* <Asterisk size={16} className="text-red-600" />  */}
+							Scholarship Information:
+						</div>
             {/* Scholarship Name */}
             <div className="space-y-2">
               <label
@@ -263,10 +268,14 @@ export default function AddScholarships() {
                 </div>
                 <label
                   htmlFor="image-upload"
-                  className="text-sm font-medium flex items-center gap-2"
+                  className="text-sm font-medium flex items-center gap-2 cursor-pointer"
                 >
-                  <Upload className="size-4" />
-                  Upload Photo
+									<Upload className="size-4" />
+									{preview ? (
+										<div>Change Photo</div>
+									) : (
+										<div>Upload Photo</div>
+									)}
                 </label>
                 <input
                   id="image-upload"
@@ -292,6 +301,10 @@ export default function AddScholarships() {
             </div>
 
             <div>
+							<div className="text-lg font-medium flex items-center">
+								{/* <Asterisk size={16} className="text-red-600" />  */}
+								Student Details:
+							</div>
               {studentForms.map((form, index) => (
                 <AddStudent
                   key={index}
@@ -306,8 +319,9 @@ export default function AddScholarships() {
               ))}
               <button
                 onClick={addStudentForm}
-                className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+                className="flex items-center justify-center gap-2 text-[var(--primary-blue)] px-4 py-3 cursor-pointer hover:text-blue-500"
               >
+								<CirclePlus />
                 Add Student
               </button>
             </div>
