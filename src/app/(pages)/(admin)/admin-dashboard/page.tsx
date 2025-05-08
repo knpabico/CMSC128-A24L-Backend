@@ -43,7 +43,7 @@ export default function AdminDashboard() {
   const {donationDrives} = useDonationDrives();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
   const {scholarships} = useScholarship();
-  const {jobOffers} = useJobOffer();
+  const {jobOffers, handleAccept, handleReject, handlePending} = useJobOffer();
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
@@ -62,6 +62,15 @@ export default function AdminDashboard() {
   const updateJobStatus = (jobId, newStatus) => {
     // In a real application, this would make an API call to update the job status
     console.log(`Updating job ${jobId} to status: ${newStatus}`);
+    if (newStatus === "Active") {
+      handleAccept(jobId); // or just handleAccept() depending on your function signature
+    }else if (newStatus === "Pending"){
+      handlePending(jobId);
+    }else{
+      handleReject(jobId);
+    }
+  
+     
     closeModal();
     // Here you would typically update your state or refetch data
   };
