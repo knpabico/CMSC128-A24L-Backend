@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAlums } from "@/context/AlumContext";
 import ScholarshipDetailPage from "../manage/[id]/page";
+import { uploadDocToFirebase } from "./scholarshipPDF";
 
 export default function ViewPendingScholarships() {
   const {
@@ -61,6 +62,9 @@ export default function ViewPendingScholarships() {
   const [studentScholar, setStudentScholarMapping] = useState<
     Record<string, Student>
   >({});
+
+  const [loadingApprove, setLoadingApprove] = useState(false);
+  const [loadingReject, setLoadingReject] = useState(false);
 
   const [sortOption, setSortOption] = useState<
     | "newest"
@@ -191,10 +195,27 @@ export default function ViewPendingScholarships() {
     scholarshipStudent: ScholarshipStudent,
     student: Student,
     alum: Alumnus
-  ) => {};
+  ) => {
+    setLoadingApprove(true);
+    try {
+      //generate and upload the scholarship agreement to firebase
+      await uploadDocToFirebase(scholarshipStudent, student, alum);
+
+      //call updateScholarship function to update the status of the scholarshipStudent
+      await updateScholarshipStudent(scholarshipStudent.ScholarshipStudentId, {
+        status: "approved",
+      });
+      toastSuccess("Scholarship student approved successfully.");
+    } catch (error) {
+      setError("Failed to approve scholarship student.");
+    } finally {
+      setLoadingApprove(false);
+    }
+  };
 
   //function for rejecting scholarshipStudent
   const handleReject = async (scholarshipStudentId: string) => {
+    setLoadingReject(true);
     try {
       //call updateScholarship function to update the status of the scholarshipStudent
       await updateScholarshipStudent(scholarshipStudentId, {
@@ -203,6 +224,8 @@ export default function ViewPendingScholarships() {
       toastSuccess("Scholarship student rejected successfully.");
     } catch (error) {
       setError("Failed to reject scholarship student.");
+    } finally {
+      setLoadingReject(false);
     }
   };
 
@@ -346,8 +369,11 @@ export default function ViewPendingScholarships() {
                                         ]
                                       );
                                     }}
+                                    disabled={loadingApprove}
                                   >
-                                    Approve
+                                    {loadingApprove
+                                      ? "Approving..."
+                                      : "Approve"}
                                   </button>
                                   <button
                                     className="text-red-700 hover:cursor-pointer"
@@ -356,6 +382,7 @@ export default function ViewPendingScholarships() {
                                         scholarshipStudent.ScholarshipStudentId
                                       );
                                     }}
+                                    disabled={loadingReject}
                                   >
                                     <Trash2 className="size-6" />
                                   </button>
