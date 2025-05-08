@@ -11,7 +11,7 @@ import Link from "next/link";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 import { useBookmarks } from "@/context/BookmarkContext";
-import EventSidebar from "./components/Sidebar";
+// import EventSidebar from "@/components/Sidebar";
 
 function formatPostedDate(timestamp: Timestamp | any)
 {
