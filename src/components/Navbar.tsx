@@ -44,7 +44,7 @@ export default function Navbar() {
         {
           id: "pending-alumni",
           label: "View Pending Alumni",
-          path: "/admin/alumni/pending",
+          path: "/admin-dashboard/manage-users",
         },
         {
           id: "stats-alumni",
@@ -67,7 +67,7 @@ export default function Navbar() {
         {
           id: "pending-events",
           label: "View Pending Events",
-          path: "/admin/events/pending",
+          path: "/admin-dashboard/organize-events",
         },
         {
           id: "stats-events",
@@ -84,12 +84,12 @@ export default function Navbar() {
         {
           id: "manage-donations",
           label: "Manage Donations",
-          path: "/admin/donations/manage",
+          path: "/admin-dashboard/donation-drive/manage",
         },
         {
           id: "add-donations",
           label: "Add Donations",
-          path: "/admin/donations/add",
+          path: "/admin-dashboard/donation-drive/add",
         },
         {
           id: "stats-donation",
@@ -106,12 +106,12 @@ export default function Navbar() {
         {
           id: "manage-scholarships",
           label: "Manage Scholarships",
-          path: "/admin/scholarships/manage",
+          path: "/admin-dashboard/scholarships/manage",
         },
         {
           id: "add-scholarships",
           label: "Add Scholarship Drive",
-          path: "/admin/scholarships/add",
+          path: "/admin-dashboard/scholarships/add",
         },
       ],
     },
@@ -123,14 +123,9 @@ export default function Navbar() {
         {
           id: "manage-jobs",
           label: "Manage Job Posting",
-          path: "/admin/jobs/manage",
+          path: "/admin-dashboard/job-postings",
         },
         { id: "add-jobs", label: "Add Job Posting", path: "/admin/jobs/add" },
-        {
-          id: "view-jobs",
-          label: "View Job Posting",
-          path: "/admin/jobs/view",
-        },
       ],
     },
     {
@@ -141,23 +136,27 @@ export default function Navbar() {
         {
           id: "manage-announcements",
           label: "Manage Posts",
-          path: "/admin/announcements/manage",
+          path: "/admin-dashboard/create-announcements",
         },
         {
           id: "add-announcements",
           label: "Add Posts",
-          path: "/admin/announcements/add",
+          path: "/admin-dashboard/create-announcements",
         },
       ],
     },
     {
-      id: 'featuredStory',
-      label: 'featuredStory',
+      id: "featuredStory",
+      label: "featuredStory",
       initiallyCollapsed: true,
       subItems: [
-        { id: 'manage-featuredStory', label: 'Write A Story', path: '/admin/create-story' },
+        {
+          id: "manage-featuredStory",
+          label: "Write A Story",
+          path: "/admin-dashboard/create-story",
+        },
         // { id: 'add-featuredStory', label: 'Add Feat', path: '/admin/announcements/add' },
-      ]
+      ],
     },
   ];
 
@@ -429,7 +428,7 @@ export default function Navbar() {
 
       {isAdmin && (
         <nav
-          className="fixed top-0 left-0 w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
+          className="fixed top-0 left-0 w-20 md:w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
           style={{ paddingTop: "2%", paddingBottom: "2%" }}
         >
           <div className="text-xl font-bold px-5">ICS-ARMS</div>

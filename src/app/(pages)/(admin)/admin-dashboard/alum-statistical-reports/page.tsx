@@ -21,6 +21,7 @@ const StatisticalReports = () => {
   const { allWorkExperience } = useWorkExperience();
 
   const approvedActiveAlums = useMemo(() => {
+    console.log(activeAlums.length);
     return activeAlums.filter((alum: Alumnus) => alum.regStatus === "approved");
   }, [activeAlums]);
 

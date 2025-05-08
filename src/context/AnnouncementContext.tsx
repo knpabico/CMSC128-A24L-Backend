@@ -6,6 +6,7 @@ import {
   onSnapshot,
   query,
   setDoc,
+  getDoc, 
   doc,
   deleteDoc,
   updateDoc,
@@ -17,6 +18,7 @@ import { Announcement } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { auth } from "@/lib/firebase";
+import { uploadImage } from "@/lib/upload";
 
 const AnnouncementContext = createContext<any>(null);
 
@@ -25,7 +27,7 @@ export function AnnouncementProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [announces, setAnnounce] = useState<any[]>([]);
+  const [announces, setAnnounce] = useState<Announcement[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -34,6 +36,11 @@ export function AnnouncementProvider({
   const [type, setType] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const { user, isAdmin } = useAuth();
+  const [image, setAnnounceImage] = useState(null);
+  const [fileName, setFileName] = useState<string>("");
+  const [preview, setPreview] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false)
   const [currentAnnouncementId, setCurrentAnnouncementId] = useState<
     string | null
   >(null);
@@ -48,10 +55,14 @@ export function AnnouncementProvider({
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const announcements = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          announcementId: doc.id,
-        }));
+        const announcements = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            ...data,
+            announcementId: doc.id,
+            datePosted: data.datePosted.toDate(), // Convert Firestore Timestamp to Date
+          } as Announcement;
+        });
         setAnnounce(announcements);
         setLoading(false);
       },
@@ -63,6 +74,15 @@ export function AnnouncementProvider({
 
     return () => unsubscribe();
   }, []); // Remove dependencies to ensure single subscription
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAnnounceImage(file);
+      setFileName(file.name);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
   const addAnnouncement = async (announce: Announcement) => {
     try {
@@ -100,35 +120,54 @@ export function AnnouncementProvider({
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     const updatedAnnouncement: Announcement = {
       title,
       description,
       datePosted: new Date(),
       type,
       announcementId: currentAnnouncementId!,
-      image: "",
+      image: "", // will be set conditionally
       isPublic,
     };
-
+  
     try {
-      if (currentAnnouncementId) {
-        await updateDoc(doc(db, "Announcement", currentAnnouncementId), {
-          ...updatedAnnouncement,
-        });
+      if (image) {
+        // A new image was uploaded
+        const uploadResult = await uploadImage(image, `announcement/${Date.now()}`);
+        if (uploadResult.success) {
+          updatedAnnouncement.image = uploadResult.url;
+        } else {
+          console.error("Image upload failed:", uploadResult.result);
+          return;
+        }
       } else {
-        console.error("Error: ann id is null");
+        // No new image; fetch and preserve existing image
+        const docRef = doc(db, "Announcement", currentAnnouncementId!);
+        const existingDoc = await getDoc(docRef);
+  
+        if (existingDoc.exists()) {
+          const oldData = existingDoc.data() as Announcement;
+          updatedAnnouncement.image = oldData.image || "";
+        } else {
+          console.warn("No previous document found to retain image.");
+        }
       }
-      console.log("Announcement updated successfully!");
-      // Optionally, reset the form and close the form
+  
+      await updateDoc(doc(db, "Announcement", currentAnnouncementId!), updatedAnnouncement);
+  
+      // Reset form state
       setShowForm(false);
       setTitle("");
       setDescription("");
-      setIsEdit(false); // Reset the edit mode
+      setAnnounceImage(null);
+      setPreview(null);
+      setIsEdit(false);
     } catch (error) {
       console.error("Error updating announcement:", error);
     }
   };
+  
 
   const subscribeToUsers = () => {
     setLoading(true);
@@ -172,12 +211,25 @@ export function AnnouncementProvider({
       isPublic,
     };
 
-    const response = await addAnnouncement(newAnnouncement);
+    if (image) {
+      const uploadResult = await uploadImage(image, `announcement/${Date.now()}`);
+      if (uploadResult.success) {
+        newAnnouncement.image = uploadResult.url;
+      } else {
+        setMessage(uploadResult.result || "Failed to upload image.");
+        setIsError(true);
+        return;
+      }
+    }
+    
 
+    const response = await addAnnouncement(newAnnouncement);
+    
     if (response.success) {
       setShowForm(false);
       setTitle("");
       setDescription("");
+      setAnnounceImage(null);
     } else {
       console.error("Error adding announcement:", response.message);
     }
@@ -205,6 +257,11 @@ export function AnnouncementProvider({
         setShowForm,
         setType,
         setIsEdit,
+        handleImageChange,
+        image,
+        setAnnounceImage,
+        preview,
+        fileName,
         setCurrentAnnouncementId,
         setIsPublic,
       }}

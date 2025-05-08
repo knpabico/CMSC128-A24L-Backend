@@ -11,7 +11,7 @@ import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from '@/components/ui/bookmark-button';
-import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
+import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck, ImageOff } from 'lucide-react';
 import { ThankYouDialog } from '../../../../../components/ThankYouDialog';
 
 
@@ -86,7 +86,7 @@ const DonationDriveDetailsPage: React.FC = () => {
 const getRemainingDays = (endDate: any) => {
 	try {
 		const today = new Date(); // Current date
-		const end = endDate.toDate(); // Firestore Timestamp to JS Date
+		const end = new Date(endDate); // Firestore Timestamp to JS Date
 		const diffTime = end.getTime() - today.getTime();
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -265,24 +265,11 @@ const getRemainingDays = (endDate: any) => {
   }
 
   return (
-    <div className="bg-[#EAEAEA] mx-auto px-10 py-8">
-		<Link href="/donationdrive-list" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
-			<MoveLeft className='size-[17px]'/>
-			Back to Donation Drives
-		</Link>
-
+    <div className="bg-[#EAEAEA] mx-auto px-10 py-10">
 		<div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[85px] h-screen">
 			{/* Title */}
 			<div className="flex justify-between items-center">
 				<h1 className="text-3xl lg:text-5xl font-bold text-gray-800">{donationDrive.isEvent && event ? event.title : donationDrive.campaignName}</h1>
-				{/* <span className={`px-3 py-1 text-sm rounded-full ${
-					donationDrive.status === 'active' ? 'bg-green-100 text-green-800' :
-					donationDrive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-					donationDrive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-					'bg-gray-100 text-gray-800'
-				}`}>
-					{donationDrive.status.charAt(0).toUpperCase() + donationDrive.status.slice(1)}
-				</span> */}
 				<BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="lg" />
 			</div>
 
@@ -291,27 +278,21 @@ const getRemainingDays = (endDate: any) => {
 				{/* Body */}
 				<div className='flex flex-col gap-[10px] w-full'>
 					{/* Image */}
-					<div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]" style={{ backgroundImage: 'url("/ICS3.jpg")' }} />
-					{/* {donationDrive.isEvent && event && (
-						<div className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
-							{event.image ? (
-								<img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+					{event?.image || donationDrive.image ? (
+						<div className="relative">
+							{donationDrive.isEvent && event ? (
+								<img src={event.image} alt={event.title} className="object-fit w-full bg-center h-[230px] md:h-[350px] lg:h-[400px]" />
 							) : (
-								<img src={donationDrive.image} alt={donationDrive.campaignName} className="w-full h-full object-cover" />
+								<img src={donationDrive.image} alt={donationDrive.campaignName} className="object-fit w-full bg-center h-[230px] md:h-[350px] lg:h-[400px]" />
 							)}
-							<div className="absolute top-4 right-4 flex space-x-2">
-								<span className={`px-3 py-1 text-sm rounded-full ${
-									event.status === 'active' ? 'bg-green-100 text-green-800' : 
-									event.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-									event.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-									'bg-gray-100 text-gray-800'
-								}`}>
-									{event.status?.charAt(0).toUpperCase() + event.status?.slice(1) || "N/A"}
-								</span>
-								<span className="bg-blue-100 text-blue-800 px-3 py-1 text-sm rounded-full">Event</span>
-							</div>
 						</div>
-					)} */}
+					) : (
+						<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
+							<span className="text-blue-500 font-medium">
+								<ImageOff className="size-[50px]" />
+							</span>
+						</div>
+					)}
 					{/* Event details */}
 					{donationDrive.isEvent && event && (
 						<div className='mt-5 px-5'>
