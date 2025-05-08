@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
-import { Asterisk, Upload } from 'lucide-react';
+import { Asterisk, Upload, Edit, Eye } from 'lucide-react';
 import { Event } from "@/models/models";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@mui/material";
@@ -51,7 +51,7 @@ export default function EditEventPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentEvent, setCurrentEvent] = useState(null);
-
+  const [isEditMode, setIsEditMode] = useState(false);
 
   console.log("Event ID:", eventId);
   // Fetch event data on component mount
@@ -112,6 +112,7 @@ export default function EditEventPage() {
     setErrorMessage("");
     setButton("");
     setPreview(null);
+    setIsEditMode(false); 
   };
 
   // Check if form is complete
@@ -127,19 +128,20 @@ export default function EditEventPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-
-      if(selectedButton === "Update"){
+    
+      if (selectedButton === "Update") {
         setIsUpdating(true);
       } else {
         setIsSubmitting(true);
       }
-      
+    
       setErrorMessage("");
     
       // Validate form completion
       if (!formComplete) {
         setErrorMessage("Please fill out all required fields before updating the event.");
         setIsSubmitting(false);
+        setIsUpdating(false); // Reset isUpdating to false
         return;
       }
     
@@ -156,11 +158,13 @@ export default function EditEventPage() {
         if (selectedBatches.length === 0) {
           setErrorMessage("Please add at least one batch.");
           setIsSubmitting(false);
+          setIsUpdating(false); // Reset isUpdating to false
           return;
         }
         if (selectedBatches.some((batch) => !/^\d+$/.test(batch))) {
           setErrorMessage("Batch inputs must contain only numbers.");
           setIsSubmitting(false);
+          setIsUpdating(false); // Reset isUpdating to false
           return;
         }
       }
@@ -170,50 +174,43 @@ export default function EditEventPage() {
         if (selectedAlumni.length === 0) {
           setErrorMessage("Please add at least one alumni email.");
           setIsSubmitting(false);
+          setIsUpdating(false); // Reset isUpdating to false
           return;
         }
         if (selectedAlumni.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
           setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
           setIsSubmitting(false);
+          setIsUpdating(false); // Reset isUpdating to false
           return;
         }
       }
-
+    
       try {
         if (selectedButton === "Update") {
-          const result = await handleEdit(eventId, { 
-            title, 
-            description, 
-            location, 
-            date,  
-            targetGuests, 
-            inviteType: visibility 
+          const result = await handleEdit(eventId, {
+            title,
+            description,
+            location,
+            date,
+            targetGuests,
+            inviteType: visibility,
           }, image);
-  
+    
           if (result.success) {
-            // toastSuccess("Draft updated successfully!");
             resetFormState();
-             router.push("/admin-dashboard/organize-events");
-           } else {
-             setErrorMessage(result.message || "Failed to save draft.");
-           }
+            router.push("/admin-dashboard/organize-events");
+          } else {
+            setErrorMessage(result.message || "Failed to save draft.");
+          }
         }
       } catch (error) {
         console.error("Error updating event:", error);
         setErrorMessage("An error occurred while updating the event.");
       } finally {
         setIsSubmitting(false);
+        setIsUpdating(false); // Reset isUpdating to false in the finally block
       }
     };
-
-  // Show loading state while fetching event data
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl">Loading event data...</div>
-      </div>
-    );
-  }
 
   // Show error message if event not found
   if (!currentEvent && !isLoading) {
@@ -243,8 +240,18 @@ export default function EditEventPage() {
           { label: "Edit Event" },
         ]}
       />
+    
       
-      <div className="text-3xl font-bold">Edit Event</div>
+      <div className="flex justify-between items-center">
+        <div className="text-3xl font-bold">{isEditMode ? "Edit Event" : "View Event"}</div>
+        <button 
+          onClick={() => setIsEditMode(!isEditMode)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg ${isEditMode ? "bg-blue-100 text-blue-700" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+        >
+          {isEditMode ? <Eye size={20} /> : <Edit size={20} />}
+          {isEditMode ? "View Mode" : "Edit Mode"}
+        </button>
+      </div>
       
       <form
         className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto"
@@ -263,6 +270,7 @@ export default function EditEventPage() {
             onChange={(e) => setEventTitle(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             required
+            disabled={!isEditMode}
           />
         </div>
 
@@ -279,8 +287,9 @@ export default function EditEventPage() {
             onChange={(e) => setEventDescription(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             required
+            disabled={!isEditMode}
           />
-          <Button onClick={() => setIsModalOpen(true)} className="mt-2">
+          <Button onClick={() => setIsModalOpen(true)} disabled={!isEditMode} className="mt-2">
             Need AI help for description?
           </Button>
           <ModalInput
@@ -306,6 +315,7 @@ export default function EditEventPage() {
             onChange={(e) => setEventLocation(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             required
+            disabled={!isEditMode}
           />
         </div>
 
@@ -317,6 +327,7 @@ export default function EditEventPage() {
               Date
             </label>
             <input
+              disabled={!isEditMode}
               type="date"
               value={date}
               onChange={(e) => setEventDate(e.target.value)}
@@ -334,6 +345,7 @@ export default function EditEventPage() {
               Time
             </label>
             <input
+              disabled={!isEditMode}
               type="time"
               value={time}
               onChange={(e) => setEventTime(e.target.value)}
@@ -359,6 +371,7 @@ export default function EditEventPage() {
             Upload Photo
           </label>
           <input
+          disabled={!isEditMode}
             id="image-upload"
             type="file"
             accept="image/*"
@@ -386,6 +399,7 @@ export default function EditEventPage() {
             {/* Open to All Option */}
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
+              disabled={!isEditMode}
                 type="radio"
                 name="visibility"
                 value="all"
@@ -403,6 +417,7 @@ export default function EditEventPage() {
             {/* Batch Option */}
             <label className="flex items-start space-x-2 cursor-pointer">
               <input
+              disabled={!isEditMode}
                 type="radio"
                 name="visibility"
                 value="batch"
@@ -439,6 +454,7 @@ export default function EditEventPage() {
                       ))}
                     </div>
                     <input
+                    disabled={!isEditMode}
                       type="text"
                       className="mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 w-full"
                       placeholder="e.g. 2022"
@@ -462,6 +478,7 @@ export default function EditEventPage() {
             {/* Alumni Option */}
             <label className="flex items-start space-x-2 cursor-pointer">
               <input
+              disabled={!isEditMode}
                 type="radio"
                 name="visibility"
                 value="alumni"
@@ -498,6 +515,7 @@ export default function EditEventPage() {
                       ))}
                     </div>
                     <input
+                    disabled={!isEditMode}
                       type="text"
                       className="mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 w-full"
                       placeholder="e.g. email1@up.edu.ph"
@@ -528,6 +546,8 @@ export default function EditEventPage() {
         )}
 
         {/* Submit Buttons */}
+
+        {isEditMode && (
         <div className="flex justify-between mt-4">
           <button
             type="button"
@@ -564,6 +584,7 @@ export default function EditEventPage() {
             </button>
           </div>
         </div>
+        )}
       </form>
     </div>
   );
