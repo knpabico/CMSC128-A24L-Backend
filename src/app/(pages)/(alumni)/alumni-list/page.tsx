@@ -6,6 +6,7 @@ import { collection, getDocs, query, where } from "firebase/firestore"; // Impor
 import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 export default function Users() {
   const { alums, isLoading } = useAlums();
   //const [workExperience, setWorkExperience] = useState<WorkExperience[]>([]);
@@ -212,14 +213,15 @@ export default function Users() {
                 className="bg-white shadow-md rounded-lg flex flex-col h-full overflow-hidden"
               >
                 {/* Image placeholder - consistent aspect ratio */}
-                <div className="bg-blue-400 w-full aspect-square flex items-center justify-center">
+                <div className="bg-blue-400 w-full relative aspect-square flex items-center justify-center">
                   <span className="text-white">
                     {alum.image ? (
-                      <img
+                      <Image
+                        fill
                         className="object-cover"
                         src={alum.image}
                         alt={alum.firstName}
-                      ></img>
+                      />
                     ) : (
                       `Profile Photo`
                     )}

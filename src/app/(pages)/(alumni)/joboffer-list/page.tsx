@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
-import { Bookmark } from "@/models/models";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
@@ -32,6 +31,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { set } from "zod";
+import Image from "next/image";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -580,7 +580,11 @@ export default function JobOffers() {
                             <div className="flex">
                               <div className="mr-2">
                                 {job.image ? (
-                                  <img
+                                  <Image
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    priority
                                     src={job.image}
                                     alt={`${job.company} logo`}
                                     className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -681,7 +685,11 @@ export default function JobOffers() {
                             <div className="flex">
                               <div className="mr-3">
                                 {job.image ? (
-                                  <img
+                                  <Image
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    priority
                                     src={job.image}
                                     alt={`${job.company} logo`}
                                     className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -785,77 +793,50 @@ export default function JobOffers() {
                             onClick={() => setSelectedJob(job)}
                           >
                             <div className="flex justify-between items-center">
-                            {/* Left side - Job details */}
-                            <div className="flex items-center">
-                              <div className="mr-3">
-                                {job.image ? (
-                                  <img
-                                    src={job.image || "/placeholder.svg"}
-                                    alt={`${job.company} logo`}
-                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
-                                  />
-                                ) : (
-                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
-                                  </div>
-                                )}
+                              <div className="flex">
+                                <div className="mr-3">
+                                  {job.image ? (
+                                    <Image
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
+                                      src={job.image || "placeholder.svg"}
+                                      alt={`${job.company} logo`}
+                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                    />
+                                  ) : (
+                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                      {job.company.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <h2 className="font-semibold text-md">
+                                    {job.position}
+                                  </h2>
+                                  <p className="text-sm text-gray-600">
+                                    {job.company}
+                                  </p>
+                                  <p className="text-xs text-[#0856BA] flex items-center">
+                                    <MapPin className="w-3.5 h-3.5 mr-1" />
+                                    {job.location}
+                                  </p>
+                                </div>
                               </div>
                               <div>
-                                <h2 className="font-semibold text-md">{job.position}</h2>
-                                <p className="text-sm text-gray-600">{job.company}</p>
-                                <p className="text-xs text-[#0856BA] flex items-center">
-                                  <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Right side - Status and trash icon with toggle moved here */}
-                            <div className="flex items-center space-x-3">
-                              {/* Toggle switch */}
-                              {job.status !== "Pending" && (
-                              <div className="w-12 flex justify-center">
-                                  <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      className="sr-only peer"
-                                      checked={job.status === "Accepted"}
-                                      onChange={async () => {
-                                        try {
-                                          if (job.status === "Accepted") {
-                                            await updateStatus("Closed", job.jobId);
-                                          } else {
-                                            await updateStatus("Accepted", job.jobId);
-                                          }
-                                        } catch (error) {
-                                          toastError("Failed to update job status");
-                                        }
-                                      }}
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                  </label>
-                              </div>
-                              )}
-                              {job.status === "Pending" && (
-                                <div className="w-11 h-6 opacity-0">
-                                  {/* Placeholder to prevent layout shift */}
-                                </div>
-                              )}
-                              <div className="w-24 flex items-center justify-center">
-                              {/* Status label */}
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-medium ${
-                                  job.status === "Accepted"
-                                    ? "bg-green-100 text-green-700"
-                                    : job.status === "Rejected"
-                                    ? "bg-red-100 text-red-700"
-                                    : job.status === "Closed"
-                                    ? "bg-red-100 text-red-700"
-                                    : "bg-yellow-100 text-yellow-700"
-                                }`}
-                              >
-                                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                              </span>
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                                    job.status === "Accepted"
+                                      ? "bg-green-100 text-green-700"
+                                      : job.status === "Rejected"
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-yellow-100 text-yellow-700"
+                                  }`}
+                                >
+                                  {job.status.charAt(0).toUpperCase() +
+                                    job.status.slice(1)}
+                                </span>
                               </div>
 
                               {/* Trash button */}
@@ -1062,7 +1043,11 @@ export default function JobOffers() {
                     {/* Company Logo */}
                     <div className="mr-4">
                       {selectedJob.image ? (
-                        <img
+                        <Image
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          priority
                           src={selectedJob.image}
                           alt={`${selectedJob.company} logo`}
                           className="w-20 h-20 object-contain rounded-md border border-gray-200"

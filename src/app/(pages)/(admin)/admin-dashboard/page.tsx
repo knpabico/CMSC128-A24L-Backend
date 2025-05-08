@@ -233,9 +233,9 @@ export default function AdminDashboard() {
 
                 {/* List */}
                 <div className="mt-2 max-h-70 overflow-y-auto w-full">
-                  {alums.map((alum: Alumnus) => (
+                  {alums.map((alum: Alumnus, index: number) => (
                     <div
-                      key={alum.alumniId}
+                      key={index}
                       onClick={() => handleOpenModal(alum)}
                       className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center mb-2 w-full"
                     >
@@ -450,28 +450,27 @@ export default function AdminDashboard() {
                 - Name of donator
                 - name of donation drive? basta kung san siya nagdonate lmao
               */}
-              {donationDrives.map((donationDrive: DonationDrive) => {
-                return (
-                  <div
-                    key={donationDrive.eventId}
-                    className="space-y-2 max-h-96 overflow-y-auto"
-                  >
+              {donationDrives.map(
+                (donationDrive: DonationDrive, index: number) => {
+                  return (
                     <div
-                      key={donationDrive.eventId}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                      key={index}
+                      className="space-y-2 max-h-96 overflow-y-auto"
                     >
-                      <div>
-                        <span className="font-medium">
-                          Donation Drive: {donationDrive.campaignName}
-                        </span>
-                        <p className="text-sm text-black-500">
-                          Beneficiary: {donationDrive.beneficiary}
-                        </p>
+                      <div className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center">
+                        <div>
+                          <span className="font-medium">
+                            Donation Drive: {donationDrive.campaignName}
+                          </span>
+                          <p className="text-sm text-black-500">
+                            Beneficiary: {donationDrive.beneficiary}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
             </div>
           </CardContent>
           <div className="px-2 pt-0">

@@ -10,6 +10,11 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import { toastSuccess } from "@/components/ui/sonner";
+
+export const resizeGoogleUserImage = (url: string | null | undefined) => {
+  return url?.replace(/s\d+-c/, "s400-c") ?? null;
+};
 
 //function for uploading to firebase
 export const uploadToFirebase = async (image: any, alumniId: string) => {
@@ -48,15 +53,27 @@ export const uploadToFirebase = async (image: any, alumniId: string) => {
   }
 };
 
+export const updateAlumPhoto = async (photoURL: string, alumniId: string) => {
+  const alumniRef = doc(db, "alumni", alumniId);
+  const alumniDoc = await getDoc(alumniRef);
+
+  //set image attribute as the alum photo url
+  if (alumniDoc.exists()) {
+    const newPhotoURL = resizeGoogleUserImage(photoURL);
+    // toastSuccess(newPhotoURL ?? "");
+    await updateDoc(alumniRef, { image: newPhotoURL });
+  }
+};
+
 export const AlumPhotoUpload = ({
   imageSetter,
 }: {
   imageSetter: (file: File | null) => void;
 }) => {
-  const { user } = useAuth();
+  const { user, isGoogleSignIn } = useAuth();
 
   const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
@@ -72,6 +89,12 @@ export const AlumPhotoUpload = ({
       imageSetter(file);
     }
   };
+
+  useEffect(() => {
+    if (isGoogleSignIn) {
+      setPreview(resizeGoogleUserImage(user!.photoURL!));
+    }
+  }, [isGoogleSignIn, user]);
 
   //handle removal of file
   const handleRemoval = () => {
@@ -104,7 +127,7 @@ export const AlumPhotoUpload = ({
   return (
     <div>
       <div>
-        {preview && (
+        {preview && !isGoogleSignIn && (
           <button
             className="absolute text-gray-500 cursor-pointer text-red-500"
             onClick={handleRemoval}
@@ -116,7 +139,11 @@ export const AlumPhotoUpload = ({
         <div className="relative w-55 h-55 flex items-center justify-center">
           {preview ? (
             <>
-              <img
+              <Image
+                width={0}
+                height={0}
+                sizes="100vw"
+                priority
                 src={preview}
                 alt="Uploaded Preview"
                 className="w-full h-full object-cover"
