@@ -43,6 +43,7 @@ export default function AdminDashboard() {
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
   const {scholarships} = useScholarship();
   const {jobOffers} = useJobOffer();
+  const [activeTab, setActiveTab] = useState('pending');
   // const { allDonations } = useDonationContext();
 
 
@@ -516,51 +517,83 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Job Posting */}
-        <div className="md:col-span-3">
-        <Card className="border-0 shadow-md flex flex-col h-full">
-      <CardHeader className="pb-0">
-        <CardTitle>Pending Job Posting</CardTitle>
-      </CardHeader>
-
-      {/* divider */}
-      <div className="px-2 pt-0">
-        <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-      </div>
-
-      {/* CardContent as a flex column */}
-      <CardContent className="flex flex-col flex-1 px-2">
-
-      <div className="max-h-96 overflow-y-auto space-y-2">
-      {jobOffers
-          .filter((jobOffer: JobOffering) => jobOffer.status === "Pending")
-          .map((jobOffer: JobOffering) => (
-            <div
-              key={jobOffer.jobId}
-              className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+      {/* Job Posting */}
+      <div className="md:col-span-3">
+      <Card className="border-0 shadow-md flex flex-col h-full">
+        <CardHeader className="pb-0">
+          <CardTitle>Job Posting</CardTitle>
+          
+          {/* Tabs */}
+          <div className="flex space-x-2 mt-2">
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                activeTab === 'active'
+                  ? 'bg-gray-100 border-b-2 border-blue-500'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
-              <div>
-                <span className="font-medium">Job Type: {jobOffer.jobType}</span>
-                <p className="text-sm text-black-500">Status: {jobOffer.status}</p>
-              </div>
-            </div>
-        ))}
-      </div>
+              Active
+            </button>
+            <button
+              onClick={() => setActiveTab('pending')}
+              className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                activeTab === 'pending'
+                  ? 'bg-gray-100 border-b-2 border-blue-500'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Pending
+            </button>
+          </div>
+        </CardHeader>
 
-      </CardContent>
-            <div className="px-2 pt-0">
-              <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-              <div className="text-center">
-                <Link
-                  href="/admin-dashboard/job-postings"
-                  className="text-black hover:underline text-sm"
-                >
-                  View all pending job postings
-                </Link>
-              </div>
-            </div>
-          </Card>
+        {/* divider */}
+        <div className="px-2 pt-0">
+          <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
         </div>
+
+        {/* CardContent as a flex column */}
+        <CardContent className="flex flex-col flex-1 px-2">
+          <div className="max-h-96 overflow-y-auto space-y-2">
+            {jobOffers
+              .filter((jobOffer:JobOffering) => 
+                activeTab === 'active' 
+                  ? jobOffer.status === 'Accepted' 
+                  : jobOffer.status === 'Pending'
+              )
+              .map((jobOffer:JobOffering) => (
+                <div
+                  key={jobOffer.jobId}
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                >
+                  <div className="flex-1">
+                    <div className="flex justify-between">
+                      <span className="font-medium">{jobOffer.position}</span>
+                      <span className="text-sm text-gray-500">{jobOffer.jobType}</span>
+                    </div>
+                    <p className="text-sm text-gray-500">{jobOffer.company}</p>
+                    <p className="text-sm text-blue-500">Status: {jobOffer.status}</p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </CardContent>
+
+        <div className="px-2 pt-0">
+          <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
+          <div className="text-center py-2">
+            <Link
+              href={`/admin-dashboard/job-postings${activeTab === 'active' ? '/active' : ''}`}
+              className="text-black hover:underline text-sm"
+            >
+              View all {activeTab} job postings
+            </Link>
+          </div>
+        </div>
+      </Card>
+    </div>
+
       </div>
     </div>
   );
