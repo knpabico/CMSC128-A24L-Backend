@@ -23,10 +23,13 @@ import { uploadImage } from "@/lib/upload";
 import { useAlums } from "@/context/AlumContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { AddStudent } from "./add-student-form";
+import formatTimeString from "@/lib/timeFormatter";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
   const {
+    addStudent,
     getScholarshipById,
     updateScholarship,
     getStudentsByScholarshipId,
@@ -199,11 +202,6 @@ const ScholarshipDetailPage: React.FC = () => {
   }, [students, scholarshipStudents]);
 
   const router = useRouter();
-  const addStudentRoute = () => {
-    router.push(
-      `/admin-dashboard/scholarships/manage/${scholarshipId}/add-student`
-    );
-  };
 
   // Scholarship Edit/Update
   const [editData, setEditData] = useState({
@@ -212,10 +210,91 @@ const ScholarshipDetailPage: React.FC = () => {
     image: "",
   });
 
+  //forms for student
+  const [studentForms, setStudentForms] = useState<any[]>([]);
+
+  //for adding student form
+  const addStudentForm = () => {
+    setStudentForms([
+      ...studentForms,
+      {
+        name: "",
+        studentNumber: "",
+        age: "",
+        shortBackground: "",
+        address: "",
+        emailAddress: "",
+        background: "",
+      },
+    ]);
+  };
+
+  //for removing student form
+  const removeStudentForm = (index: number) => {
+    setStudentForms(studentForms.filter((_, i) => i !== index));
+  };
+
+  //for updating student form
+  const updateStudentForm = (index: number, updatedStudentData: any) => {
+    const updatedStudentForms = [...studentForms];
+    updatedStudentForms[index] = updatedStudentData;
+    setStudentForms(updatedStudentForms);
+  };
+
+  //function for saving the new students to firestore
+  const saveStudents = async (students: any[]) => {
+    let newStudentList = [];
+    for (let i = 0; i < students.length; i++) {
+      //ensure students[i] is not empty
+      if (students[i]) {
+        const newStudent: Student = {
+          studentId: "",
+          name: students[i].name,
+          studentNumber: students[i].studentNumber,
+          age: Number(students[i].age),
+          shortBackground: students[i].shortBackground,
+          address: students[i].address,
+          emailAddress: students[i].emailAddress,
+          background: students[i].background,
+        };
+
+        const response = await addStudent(newStudent);
+
+        if (response.success) {
+          newStudentList.push(response.studentId); //push the studentId to the list
+        } else {
+          console.error("Error adding student: ", response.message);
+        }
+      }
+    }
+
+    if (newStudentList.length > 0) {
+      const { studentList } = scholarship as Scholarship;
+      //update scholarship's student list
+      const updateScholarshipResponse = await updateScholarship(scholarshipId, {
+        studentList: [...studentList, ...newStudentList],
+      });
+      //check reponse if success or not
+      if (updateScholarshipResponse.success) {
+        console.log(
+          `You have successfully added the student/s to the scholarship.`
+        );
+      } else {
+        console.error(
+          "Error adding student: ",
+          updateScholarshipResponse.message
+        );
+      }
+    }
+
+    setStudentForms([]); //reset the forms
+  };
+
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!scholarship?.scholarshipId) return;
     let updatedData = { ...editData };
+
     if (image && image !== scholarship.image) {
       try {
         setIsSubmitting(true);
@@ -243,6 +322,8 @@ const ScholarshipDetailPage: React.FC = () => {
       scholarship.scholarshipId,
       updatedData
     );
+
+    await saveStudents(studentForms); //save the students to firestore
     if (result.success) {
       toastSuccess("Scholarship updated successfully!");
       setIsSubmitting(false);
@@ -420,13 +501,40 @@ const ScholarshipDetailPage: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {isEditing && (
+                <div>
+                  {studentForms.map((form, index) => (
+                    <AddStudent
+                      key={index}
+                      formData={form}
+                      onUpdate={(updatedData) =>
+                        updateStudentForm(index, updatedData)
+                      }
+                      onRemove={() => removeStudentForm(index)}
+                      type="edit"
+                      index={index}
+                    />
+                  ))}
+                  <button
+                    onClick={addStudentForm}
+                    className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+                  >
+                    Add Student
+                  </button>
+                </div>
+              )}
             </div>
+
             {/* Button */}
             {isEditing && (
               <div className="bg-white rounded-2xl p-4 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false);
+                    setStudentForms([]);
+                  }}
                   className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
                 >
                   Cancel
@@ -498,18 +606,6 @@ const ScholarshipDetailPage: React.FC = () => {
         ) : (
           <p>No students are currently associated with this scholarship.</p>
         )}
-      </div>
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          {!isEditing && (
-            <div
-              onClick={addStudentRoute}
-              className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-            >
-              + Add Student
-            </div>
-          )}
-        </div>
       </div>
     </>
   );

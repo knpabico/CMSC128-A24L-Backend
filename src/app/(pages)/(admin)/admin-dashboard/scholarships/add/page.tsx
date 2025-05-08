@@ -1,15 +1,22 @@
 "use client";
 
 import { uploadImage } from "@/lib/upload";
-import { Scholarship } from "@/models/models";
+import { Scholarship, Student } from "@/models/models";
 import { useScholarship } from "@/context/ScholarshipContext";
 import React, { useRef, useState } from "react";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Asterisk, ChevronRight, Upload } from "lucide-react";
+import { AddStudent } from "../manage/[id]/add-student-form";
 
 export default function AddScholarships() {
-  const { scholarships, loading, error, addScholarship, updateScholarship } =
-    useScholarship();
+  const {
+    scholarships,
+    loading,
+    error,
+    addScholarship,
+    updateScholarship,
+    addStudent,
+  } = useScholarship();
   // Input Data
   const [formData, setFormData] = useState({
     description: "",
@@ -25,6 +32,95 @@ export default function AddScholarships() {
   const placeholderRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  //forms for student
+  const [studentForms, setStudentForms] = useState([
+    {
+      name: "",
+      studentNumber: "",
+      age: "",
+      shortBackground: "",
+      address: "",
+      emailAddress: "",
+      background: "",
+    },
+  ]);
+
+  //for adding student form
+  const addStudentForm = () => {
+    setStudentForms([
+      ...studentForms,
+      {
+        name: "",
+        studentNumber: "",
+        age: "",
+        shortBackground: "",
+        address: "",
+        emailAddress: "",
+        background: "",
+      },
+    ]);
+  };
+
+  //for removing student form
+  const removeStudentForm = (index: number) => {
+    setStudentForms(studentForms.filter((_, i) => i !== index));
+  };
+
+  //for updating student form
+  const updateStudentForm = (index: number, updatedStudentData: any) => {
+    const updatedStudentForms = [...studentForms];
+    updatedStudentForms[index] = updatedStudentData;
+    setStudentForms(updatedStudentForms);
+  };
+
+  //function for saving the new students to firestore
+  const saveStudents = async (students: any[], scholarshipId: string) => {
+    let newStudentList = [];
+    for (let i = 0; i < students.length; i++) {
+      //ensure students[i] is not empty
+      if (students[i]) {
+        const newStudent: Student = {
+          studentId: "",
+          name: students[i].name,
+          studentNumber: students[i].studentNumber,
+          age: Number(students[i].age),
+          shortBackground: students[i].shortBackground,
+          address: students[i].address,
+          emailAddress: students[i].emailAddress,
+          background: students[i].background,
+        };
+
+        const response = await addStudent(newStudent);
+
+        if (response.success) {
+          newStudentList.push(response.studentId); //push the studentId to the list
+        } else {
+          console.error("Error adding student: ", response.message);
+        }
+      }
+    }
+
+    if (newStudentList.length > 0) {
+      //update scholarship's student list
+      const updateScholarshipResponse = await updateScholarship(scholarshipId, {
+        studentList: newStudentList,
+      });
+      //check reponse if success or not
+      if (updateScholarshipResponse.success) {
+        console.log(
+          `You have successfully added the student/s to the scholarship.`
+        );
+      } else {
+        console.error(
+          "Error adding student: ",
+          updateScholarshipResponse.message
+        );
+      }
+    }
+
+    setStudentForms([]); //reset the forms
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newScholarship: Scholarship = {
@@ -34,9 +130,14 @@ export default function AddScholarships() {
       alumList: [],
       image: "",
       scholarshipId: "",
+      status: "",
+      studentList: [],
     };
     setIsSubmitting(true);
     const response = await addScholarship(newScholarship);
+
+    await saveStudents(studentForms, newScholarship.scholarshipId); //save the students to firestore
+
     handleUpload(newScholarship);
     if (response.success) {
       toastSuccess(`You have successfully created ${formData.title}.`);
@@ -184,6 +285,27 @@ export default function AddScholarships() {
                   />
                 </div>
               )}
+            </div>
+
+            <div>
+              {studentForms.map((form, index) => (
+                <AddStudent
+                  key={index}
+                  formData={form}
+                  onUpdate={(updatedData) =>
+                    updateStudentForm(index, updatedData)
+                  }
+                  onRemove={() => removeStudentForm(index)}
+                  type="add"
+                  index={index}
+                />
+              ))}
+              <button
+                onClick={addStudentForm}
+                className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+              >
+                Add Student
+              </button>
             </div>
           </div>
           {/* Submit Button */}
