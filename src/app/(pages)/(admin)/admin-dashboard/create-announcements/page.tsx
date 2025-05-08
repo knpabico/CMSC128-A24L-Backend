@@ -34,10 +34,9 @@ export default function Users() {
     e.preventDefault();
     if (imageFile) {
       const localUrl = URL.createObjectURL(imageFile);
-      setAnnounceImage(localUrl);
-    } else {
-      setAnnounceImage(null);
-    }
+      setAnnounceImage(imageFile);
+      setPreview(localUrl);
+    } 
     isEdit ? handleEdit(e) : handleSubmit(e);
     setImageFile(null);
     setPreview(null);

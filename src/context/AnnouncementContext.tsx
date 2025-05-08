@@ -6,6 +6,7 @@ import {
   onSnapshot,
   query,
   setDoc,
+  getDoc, 
   doc,
   deleteDoc,
   updateDoc,
@@ -126,13 +127,13 @@ export function AnnouncementProvider({
       datePosted: new Date(),
       type,
       announcementId: currentAnnouncementId!,
-      image: "", // We'll conditionally assign this below
+      image: "", // will be set conditionally
       isPublic,
     };
   
     try {
       if (image) {
-        // User uploaded a new image
+        // A new image was uploaded
         const uploadResult = await uploadImage(image, `announcement/${Date.now()}`);
         if (uploadResult.success) {
           updatedAnnouncement.image = uploadResult.url;
@@ -141,15 +142,21 @@ export function AnnouncementProvider({
           return;
         }
       } else {
-        // No new image, preserve the old one
+        // No new image; fetch and preserve existing image
         const docRef = doc(db, "Announcement", currentAnnouncementId!);
-        const oldData = (await (await docRef.get()).data()) as Announcement;
-        updatedAnnouncement.image = oldData?.image || "";
+        const existingDoc = await getDoc(docRef);
+  
+        if (existingDoc.exists()) {
+          const oldData = existingDoc.data() as Announcement;
+          updatedAnnouncement.image = oldData.image || "";
+        } else {
+          console.warn("No previous document found to retain image.");
+        }
       }
   
       await updateDoc(doc(db, "Announcement", currentAnnouncementId!), updatedAnnouncement);
   
-      // Cleanup
+      // Reset form state
       setShowForm(false);
       setTitle("");
       setDescription("");
