@@ -7,14 +7,18 @@ import { useBookmarks } from "@/context/BookmarkContext";
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 import { Event } from "@/models/models";
+import ProposeEventForm from "../components/ProposeEventForm";
+import { FilePlus2 } from "lucide-react";
 
 export default function SavedEventsPage()
 {
-    const { events, isLoading } = useEvents();
+    const { events, isLoading, showForm, setShowForm } = useEvents();
     const { user, alumInfo } = useAuth();
     const { bookmarks, entries, isLoading: isLoadingBookmarks } = useBookmarks();
     const [savedEvents, setSavedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
+    const [isEditing, setEdit] = useState<boolean>(false);
+    const [isDetails, setDetailsPage] = useState<boolean>(false);
 
     useEffect(() =>
     {
@@ -108,8 +112,26 @@ export default function SavedEventsPage()
                                 <option value="posted-newest">Date Approved (Newest)</option>
                                 <option value="post-oldest">Date Approved (Earliest)</option>
                             </select>
+                            {/* Propose Event */}
+                            <button 
+                                className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
+                                onClick={() => setShowForm(true)}
+                            >
+                                <FilePlus2 className="w-5 h-5" />
+                                Propose Event
+                            </button>
                         </div>
                     </div>
+                    <ProposeEventForm 
+                        isOpen={showForm}
+                        onClose={() => setShowForm(false)}
+                        isEditing={isEditing}
+                        isDetails={false}
+                        setDetailsPage={setDetailsPage}
+                        editingEventId={""}
+                        setEdit={setEdit}
+                    />
+
                     {savedEvents.length > 0 ? (
                         // event cards
                         <EventsList

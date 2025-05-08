@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { Event } from '@/models/models';
+import { Event, RSVP } from '@/models/models';
 import BookmarkButton from '@/components/ui/bookmark-button';
 import { useEvents } from '@/context/EventContext';
 import { useAuth } from '@/context/AuthContext';
+import { useRsvpDetails } from "@/context/RSVPContext";
 import { Users, Clock, MapPin, Calendar, ImageOff } from "lucide-react"
 import { useEffect } from 'react';
 import { Timestamp } from 'firebase-admin/firestore';
@@ -20,6 +21,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) =>
 {
     const router = useRouter();
     const {user, alumInfo} = useAuth();
+    const { rsvpDetails } = useRsvpDetails();
     const
     {
 
@@ -51,12 +53,22 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) =>
         router.push(`/events/${eventId}`);
     };
 
+    const rsvps = rsvpDetails as RSVP[];
+
+    const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
+
+    let alumniRsvpStatus: string | undefined = undefined;
+
+    if (alumInfo?.alumniId && matchingRSVP?.alums) {
+        alumniRsvpStatus = matchingRSVP.alums[alumInfo.alumniId]?.status;
+    }
+
     return(
         <div>
             <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleViewDetails(event.eventId)} >
                 {/* Image */}
                 <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]" style={{ backgroundImage: event.image ? `url(${event.image})` : 'url("/ICS3.jpg")' }} >
-                {type !== "All Events" && (
+                {type === "Proposed Events" ? (
                     <span className={`absolute bottom-2 right-2 px-3 py-1 text-sm rounded-full ${
                         (() => 
                         {
@@ -74,6 +86,29 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) =>
                         })()
                         }`}>
                             {event.status === 'Accepted' ? 'Approved' : event.status}
+                    </span>
+                ) : type === "Invitations" && (
+                    <span className={`absolute bottom-2 right-2 px-3 py-1 text-sm rounded-full ${
+                        (() => 
+                        {
+                            switch (alumniRsvpStatus)
+                            {
+                                case 'Accepted':
+                                    return 'bg-green-100 text-green-800 px-2 py-1 font-bold';
+                                case 'Pending':
+                                    return 'bg-yellow-100 text-yellow-800 px-2 py-1 font-bold';
+                                case 'Rejected':
+                                    return 'bg-red-100 text-red-800 px-2 py-1 font-bold';
+                                default:
+                                    return 'bg-gray-100 text-gray-800 px-2 py-1 font-bold';
+                            }
+                        })()
+                        }`}>
+                            {alumniRsvpStatus === 'Accepted'
+                                ? "Going"
+                                : alumniRsvpStatus === 'Rejected'
+                                    ? "Not Going"
+                                    : alumniRsvpStatus}
                     </span>
                 )}
                 </div>
