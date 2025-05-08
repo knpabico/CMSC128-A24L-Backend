@@ -194,7 +194,7 @@ export default function AddScholarships() {
               type="submit"
               className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
             >
-              {isSubmitting ? "Processing…" : "Create Drive"}
+              {isSubmitting ? "Processing…" : "Create Scholarship"}
             </button>
           </div>
         </form>

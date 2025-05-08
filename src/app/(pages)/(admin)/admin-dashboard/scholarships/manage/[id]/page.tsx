@@ -202,7 +202,7 @@ const ScholarshipDetailPage: React.FC = () => {
           <div>
             <ChevronRight size={15} />
           </div>
-          <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>Manage Donation Drives</div>
+          <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>Manage Scholarship</div>
           <div>
             <ChevronRight size={15} />
           </div>
@@ -219,7 +219,7 @@ const ScholarshipDetailPage: React.FC = () => {
                 onClick={() => setIsEditing(true)}
                 className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
               >
-                <Pencil size={18} /> Edit Donation Drive
+                <Pencil size={18} /> Edit {scholarship?.title}
               </div>
             )}
           </div>
@@ -232,7 +232,7 @@ const ScholarshipDetailPage: React.FC = () => {
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
             <div className="flex justify-between items-center px-2">
               <div className="text-sm font-medium flex items-center">
-                Scholarship Infomations
+                Scholarship Infomation
               </div>
               <button
                 onClick={() => setIsInformationOpen(!isInformationOpen)}
