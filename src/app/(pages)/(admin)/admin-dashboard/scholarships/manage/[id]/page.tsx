@@ -3,7 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useScholarship } from "@/context/ScholarshipContext";
-import { Alumnus, Scholarship } from "@/models/models";
+import {
+  Alumnus,
+  Scholarship,
+  ScholarshipStudent,
+  Student,
+} from "@/models/models";
 import {
   Asterisk,
   ChevronRight,
@@ -18,16 +23,33 @@ import { uploadImage } from "@/lib/upload";
 import { useAlums } from "@/context/AlumContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { AddStudent } from "./add-student-form";
+import formatTimeString from "@/lib/timeFormatter";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
-  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId } =
-    useScholarship();
+  const {
+    addStudent,
+    getScholarshipById,
+    updateScholarship,
+    getStudentsByScholarshipId,
+    scholarshipStudents,
+  } = useScholarship();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const scholarshipId = params?.id as string;
   const { alums, isLoading } = useAlums();
+
+  //for retrieving each scholarshipStudent info per studentId
+  const [scholarshipStudentMapping, setScholarshipStudentMapping] = useState<
+    Record<string, ScholarshipStudent[]>
+  >({});
+
+  //for retrieving each alum info per scholarshipStudent
+  const [sponsorAlum, setSponsorAlumMapping] = useState<
+    Record<string, Alumnus | undefined>
+  >({});
 
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
@@ -120,12 +142,66 @@ const ScholarshipDetailPage: React.FC = () => {
     }
   }, [scholarshipId, getStudentsByScholarshipId]);
 
+  //useEffect to fetch scholarshipStudent with mapping
+  useEffect(() => {
+    //function to fetch scholarshipStudent while being mapped to studentId
+    const mapScholarshipStudent = async () => {
+      if (students.length === 0) return;
+      if (!students) return;
+      setLoading(true);
+
+      try {
+        //fetch educationList of students
+        const fetchScholarshipStudent = students.map(
+          async (student: Student) => {
+            const studentId = student.studentId;
+
+            //get scholarshipStudent list by filtering by studentId
+            const scholarshipStudentList = scholarshipStudents.filter(
+              (scholarshipStudent: ScholarshipStudent) =>
+                scholarshipStudent.studentId === studentId
+            );
+
+            return { studentId, scholarshipStudentList };
+          }
+        );
+
+        const scholarshipStudent = await Promise.all(fetchScholarshipStudent);
+
+        //intialize as empty education record
+        const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
+        const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
+        scholarshipStudent.forEach((stud) => {
+          stud.scholarshipStudentList.forEach(
+            (scholarshipStudent: ScholarshipStudent) => {
+              //finding the alumId in the alumList
+              const alumSponsor = alumList.find(
+                (alum) => alum.alumniId === scholarshipStudent.alumId
+              );
+              scholarshipSponsor[scholarshipStudent.scholarshipId] =
+                alumSponsor;
+            }
+          );
+
+          scholarshipStudentMap[stud.studentId] = stud.scholarshipStudentList;
+        });
+
+        //set educationMap
+        setScholarshipStudentMapping(scholarshipStudentMap);
+        setSponsorAlumMapping(scholarshipSponsor);
+      } catch (error) {
+        console.error("Error fetching scholarshipStudent:", error);
+
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    mapScholarshipStudent();
+  }, [students, scholarshipStudents]);
+
   const router = useRouter();
-  const addStudentRoute = () => {
-    router.push(
-      `/admin-dashboard/scholarships/manage/${scholarshipId}/add-student`
-    );
-  };
 
   // Scholarship Edit/Update
   const [editData, setEditData] = useState({
@@ -134,10 +210,91 @@ const ScholarshipDetailPage: React.FC = () => {
     image: "",
   });
 
+  //forms for student
+  const [studentForms, setStudentForms] = useState<any[]>([]);
+
+  //for adding student form
+  const addStudentForm = () => {
+    setStudentForms([
+      ...studentForms,
+      {
+        name: "",
+        studentNumber: "",
+        age: "",
+        shortBackground: "",
+        address: "",
+        emailAddress: "",
+        background: "",
+      },
+    ]);
+  };
+
+  //for removing student form
+  const removeStudentForm = (index: number) => {
+    setStudentForms(studentForms.filter((_, i) => i !== index));
+  };
+
+  //for updating student form
+  const updateStudentForm = (index: number, updatedStudentData: any) => {
+    const updatedStudentForms = [...studentForms];
+    updatedStudentForms[index] = updatedStudentData;
+    setStudentForms(updatedStudentForms);
+  };
+
+  //function for saving the new students to firestore
+  const saveStudents = async (students: any[]) => {
+    let newStudentList = [];
+    for (let i = 0; i < students.length; i++) {
+      //ensure students[i] is not empty
+      if (students[i]) {
+        const newStudent: Student = {
+          studentId: "",
+          name: students[i].name,
+          studentNumber: students[i].studentNumber,
+          age: Number(students[i].age),
+          shortBackground: students[i].shortBackground,
+          address: students[i].address,
+          emailAddress: students[i].emailAddress,
+          background: students[i].background,
+        };
+
+        const response = await addStudent(newStudent);
+
+        if (response.success) {
+          newStudentList.push(response.studentId); //push the studentId to the list
+        } else {
+          console.error("Error adding student: ", response.message);
+        }
+      }
+    }
+
+    if (newStudentList.length > 0) {
+      const { studentList } = scholarship as Scholarship;
+      //update scholarship's student list
+      const updateScholarshipResponse = await updateScholarship(scholarshipId, {
+        studentList: [...studentList, ...newStudentList],
+      });
+      //check reponse if success or not
+      if (updateScholarshipResponse.success) {
+        console.log(
+          `You have successfully added the student/s to the scholarship.`
+        );
+      } else {
+        console.error(
+          "Error adding student: ",
+          updateScholarshipResponse.message
+        );
+      }
+    }
+
+    setStudentForms([]); //reset the forms
+  };
+
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!scholarship?.scholarshipId) return;
     let updatedData = { ...editData };
+
     if (image && image !== scholarship.image) {
       try {
         setIsSubmitting(true);
@@ -165,6 +322,8 @@ const ScholarshipDetailPage: React.FC = () => {
       scholarship.scholarshipId,
       updatedData
     );
+
+    await saveStudents(studentForms); //save the students to firestore
     if (result.success) {
       toastSuccess("Scholarship updated successfully!");
       setIsSubmitting(false);
@@ -182,11 +341,11 @@ const ScholarshipDetailPage: React.FC = () => {
     }
   };
 
-	const manage = () => {
+  const manage = () => {
     router.push("/admin-dashboard/scholarships/manage");
   };
 
-	const home = () => {
+  const home = () => {
     router.push("/admin-dashboard");
   };
 
@@ -198,11 +357,15 @@ const ScholarshipDetailPage: React.FC = () => {
     <>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
-          <div className="hover:text-blue-600 cursor-pointer" onClick={home} >Home</div>
+          <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
+            Home
+          </div>
           <div>
             <ChevronRight size={15} />
           </div>
-          <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>Manage Scholarship</div>
+          <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>
+            Manage Scholarship
+          </div>
           <div>
             <ChevronRight size={15} />
           </div>
@@ -243,39 +406,39 @@ const ScholarshipDetailPage: React.FC = () => {
             </div>
             {isInformationOpen && (
               <div className="flex w-full gap-10 py-2">
-								<div className="w-1/2">
-									{/* Sponsors */}
-									<div className="flex items-center text-sm text-gray-600 px-3">
-										<span className="mr-2"> Interested Alumni:</span>
-										<span className="font-medium">
-											{scholarship?.alumList.length}
-										</span>
-									</div>
-									<div className="rounded-lg px-1">
-										{alumList.length > 0 && (
-											<div className="px-4">
-												{alumList.map((alum, index) => (
-													<div key={index} className="text-sm text-gray-600">
-														{index + 1}. {alum.firstName} {alum.lastName}
-													</div>
-												))}
-											</div>
-										)}
-									</div>
-								</div>
-								<div className="flex flex-col w-1/2">
-									{/* Date */}
-									<div className="">
-										<p className="text-sm text-gray-600">
-											Posted on {scholarship?.datePosted.toLocaleDateString()}
-										</p>
-									</div>
-									<div className="">
-										<p className="text-sm text-gray-600">
-											Number of Students: {scholarship?.studentList.length}
-										</p>
-									</div>
-								</div>
+                <div className="w-1/2">
+                  {/* Sponsors */}
+                  <div className="flex items-center text-sm text-gray-600 px-3">
+                    <span className="mr-2"> Interested Alumni:</span>
+                    <span className="font-medium">
+                      {scholarship?.alumList.length}
+                    </span>
+                  </div>
+                  <div className="rounded-lg px-1">
+                    {alumList.length > 0 && (
+                      <div className="px-4">
+                        {alumList.map((alum, index) => (
+                          <div key={index} className="text-sm text-gray-600">
+                            {index + 1}. {alum.firstName} {alum.lastName}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col w-1/2">
+                  {/* Date */}
+                  <div className="">
+                    <p className="text-sm text-gray-600">
+                      Posted on {scholarship?.datePosted.toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="">
+                    <p className="text-sm text-gray-600">
+                      Number of Students: {scholarship?.studentList.length}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -285,72 +448,72 @@ const ScholarshipDetailPage: React.FC = () => {
             onSubmit={handleEdit}
           >
             <div className="flex w-full gap-5">
-							<div className="w-2/3 flex flex-col gap-5">
-								{/* Scholarship Name */}
-								<div className="space-y-2">
-									<label
-										htmlFor="name"
-										className="text-sm font-medium flex items-center"
-									>
-										<Asterisk size={16} className="text-red-600" /> Scholarship
-										Name
-									</label>
-									<input
-										type="text"
-										className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-										placeholder="Scholarship name"
-										value={editData.title}
-										onChange={(e) =>
-											setEditData({ ...editData, title: e.target.value })
-										}
-										required
-										disabled={!isEditing}
-									/>
-								</div>
-								{/* Scholarship Description */}
-								<div className="space-y-2">
-									<label
-										htmlFor="name"
-										className="text-sm font-medium flex items-center"
-									>
-										<Asterisk size={16} className="text-red-600" /> Description
-									</label>
-									<textarea
-										className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-										placeholder="Scholarship Description"
-										value={editData.description}
-										onChange={(e) =>
-											setEditData({ ...editData, description: e.target.value })
-										}
-										required
-										disabled={!isEditing}
-									/>
-								</div>
-								{/* Image */}
-								{isEditing && (
-									<div className="flex gap-3">
-										<div className="text-sm font-medium flex items-center">
-											<Asterisk size={16} className="text-red-600" /> Photo:
-										</div>
-										<label
-											htmlFor="image-upload"
-											className="text-sm font-medium flex items-center gap-2 cursor-pointer"
-										>
-											<Upload className="size-4" />
-											Change Image
-										</label>
-										<input
-											id="image-upload"
-											type="file"
-											accept="image/*"
-											onChange={handleImageChange}
-											className="hidden"
-											disabled={!isEditing}
-										/>
-									</div>
-								)}
-							</div>
-							{/* Preview */}
+              <div className="w-2/3 flex flex-col gap-5">
+                {/* Scholarship Name */}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="name"
+                    className="text-sm font-medium flex items-center"
+                  >
+                    <Asterisk size={16} className="text-red-600" /> Scholarship
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Scholarship name"
+                    value={editData.title}
+                    onChange={(e) =>
+                      setEditData({ ...editData, title: e.target.value })
+                    }
+                    required
+                    disabled={!isEditing}
+                  />
+                </div>
+                {/* Scholarship Description */}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="name"
+                    className="text-sm font-medium flex items-center"
+                  >
+                    <Asterisk size={16} className="text-red-600" /> Description
+                  </label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Scholarship Description"
+                    value={editData.description}
+                    onChange={(e) =>
+                      setEditData({ ...editData, description: e.target.value })
+                    }
+                    required
+                    disabled={!isEditing}
+                  />
+                </div>
+                {/* Image */}
+                {isEditing && (
+                  <div className="flex gap-3">
+                    <div className="text-sm font-medium flex items-center">
+                      <Asterisk size={16} className="text-red-600" /> Photo:
+                    </div>
+                    <label
+                      htmlFor="image-upload"
+                      className="text-sm font-medium flex items-center gap-2 cursor-pointer"
+                    >
+                      <Upload className="size-4" />
+                      Change Image
+                    </label>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      disabled={!isEditing}
+                    />
+                  </div>
+                )}
+              </div>
+              {/* Preview */}
               <div className="space-y-2 flex justify-center w-1/3 text-center items-center">
                 {preview && (
                   <div className="flex flex-col justify-center">
@@ -365,13 +528,40 @@ const ScholarshipDetailPage: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {isEditing && (
+                <div>
+                  {studentForms.map((form, index) => (
+                    <AddStudent
+                      key={index}
+                      formData={form}
+                      onUpdate={(updatedData) =>
+                        updateStudentForm(index, updatedData)
+                      }
+                      onRemove={() => removeStudentForm(index)}
+                      type="edit"
+                      index={index}
+                    />
+                  ))}
+                  <button
+                    onClick={addStudentForm}
+                    className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+                  >
+                    Add Student
+                  </button>
+                </div>
+              )}
             </div>
+
             {/* Button */}
             {isEditing && (
               <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-3">
                 <button
                   type="button"
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false);
+                    setStudentForms([]);
+                  }}
                   className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
                 >
                   Cancel
@@ -398,26 +588,51 @@ const ScholarshipDetailPage: React.FC = () => {
         ) : students.length > 0 ? (
           <ul className="list-disc pl-6">
             {students.map((student) => (
-              <li key={student.studentId} className="text-gray-700">
+              <div key={student.studentId} className="text-gray-700">
                 <strong>{student.name}</strong> - {student.emailAddress}
-              </li>
+                {""}
+                {/*scholarships of current student */}
+                {scholarshipStudentMapping[student.studentId] &&
+                scholarshipStudentMapping[student.studentId].length > 0 ? (
+                  <div>
+                    <p className="text-sm text-gray-600">Sponsors:</p>
+                    <ul className="list-disc pl-6">
+                      {/*mapping one of the scholarship of student*/}
+                      {scholarshipStudentMapping[student.studentId].map(
+                        (scholarshipStudent) => (
+                          <div key={scholarshipStudent.scholarshipId}>
+                            {/*sponsor info just in case na need*/}
+                            {sponsorAlum[scholarshipStudent.scholarshipId] ? (
+                              <div>
+                                Sponsor:{" "}
+                                {
+                                  sponsorAlum[scholarshipStudent.scholarshipId]
+                                    ?.firstName
+                                }{" "}
+                                {
+                                  sponsorAlum[scholarshipStudent.scholarshipId]
+                                    ?.lastName
+                                }
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                            {/*status ng scholarship ng student, clickable pag pending*/}
+                            <button>Status: {scholarshipStudent.status}</button>
+                          </div>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                ) : (
+                  "No sponsors yet"
+                )}
+              </div>
             ))}
           </ul>
         ) : (
           <p>No students are currently associated with this scholarship.</p>
         )}
-      </div>
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          {!isEditing && (
-            <div
-              onClick={addStudentRoute}
-              className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-            >
-              + Add Student
-            </div>
-          )}
-        </div>
       </div>
     </>
   );
