@@ -21,26 +21,34 @@ export default function Users() {
     setShowForm,
     setIsEdit,
     setCurrentAnnouncementId,
-    setimage,
+    setAnnounceImage,
+    handleImageChange,
+    preview,
+    setPreview,
   } = useAnnouncement();
 
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (imageFile) {
       const localUrl = URL.createObjectURL(imageFile);
-      setimage(localUrl);
-    } else {
-      setimage(null);
+      setAnnounceImage(imageFile);
+      setPreview(localUrl);
     }
-    void (isEdit ? handleEdit(e) : handleSubmit(e));
+    isEdit ? handleEdit(e) : handleSubmit(e);
     setImageFile(null);
-    setImagePreview(null);
+    setPreview(null);
+    setAnnounceImage(null);
     setShowForm(false);
   };
+
+  function formatDate(timestamp: any) {
+    if (!timestamp || !timestamp.seconds) return "Invalid Date";
+    const date = new Date(timestamp.seconds * 1000);
+    return date.toISOString().split("T")[0];
+  }
 
   return (
     <div className="p-8">
@@ -53,7 +61,8 @@ export default function Users() {
             setShowForm(true);
             setTitle("");
             setDescription("");
-            setImagePreview(null);
+            setAnnounceImage(null);
+            setPreview(null);
             setImageFile(null);
             setIsEdit(false);
           }}
@@ -86,7 +95,7 @@ export default function Users() {
         >
           <div className="flex-1 pr-4">
             <p className="text-sm text-gray-500 mb-1">
-              Date Posted: {announcement.datePosted.toLocaleString()}
+              Date Posted: {announcement.datePosted.toDateString()}
             </p>
             <h2 className="text-lg font-semibold mb-2">{announcement.title}</h2>
             <CollapseText
@@ -130,7 +139,7 @@ export default function Users() {
                     setShowForm(true);
                     setIsEdit(true);
                     setCurrentAnnouncementId(announcement.announcementId);
-                    setImagePreview(announcement.image ?? null);
+                    setPreview(announcement.image ?? null);
                     setShowDropdown(null);
                   }}
                 >
@@ -206,9 +215,9 @@ export default function Users() {
                 className="w-[155px] h-[155px] rounded-[12px] flex items-center justify-center cursor-pointer bg-[#E5F1FF] mb-6"
                 onClick={() => document.getElementById("image-upload")?.click()}
               >
-                {imagePreview ? (
+                {preview ? (
                   <img
-                    src={imagePreview}
+                    src={preview}
                     alt="Preview"
                     className="w-full h-full object-cover rounded-lg"
                   />
@@ -219,13 +228,7 @@ export default function Users() {
                   type="file"
                   id="image-upload"
                   accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setImageFile(file);
-                      setImagePreview(URL.createObjectURL(file));
-                    }
-                  }}
+                  onChange={handleImageChange}
                   className="hidden"
                 />
               </div>

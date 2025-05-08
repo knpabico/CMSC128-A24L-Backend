@@ -2,26 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
-import { JobOffering } from "@/models/models";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import type { JobOffering } from "@/models/models";
+import { toastError } from "@/components/ui/sonner";
 import {
   ChevronRight,
   Trash2,
   ThumbsDown,
   ThumbsUp,
-  ChevronDown,
-  Check,
   CirclePlus,
   Pencil,
   CircleX,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import ModalInput from "@/components/ModalInputForm";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +20,20 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/[id]/page";
+
+function formatDate(timestamp: any) {
+  if (!timestamp || !timestamp.seconds) return "Invalid Date";
+  const date = new Date(timestamp.seconds * 1000);
+  return date.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
 
 export default function Users() {
   const {
@@ -55,6 +60,7 @@ export default function Users() {
     setJobType,
     position,
     setPosition,
+    requiredSkill,
     handleSkillChange,
     salaryRange,
     setSalaryRange,
@@ -65,7 +71,13 @@ export default function Users() {
     preview,
     fileName,
     handleImageChange,
+    handleEdit,
+    updateStatus,
+    handleSaveDraft,
+    handleEditDraft,
   } = useJobOffer();
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   const filterCategories = {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
@@ -103,22 +115,27 @@ export default function Users() {
   const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedJob, setEditedJob] = useState(null);
 
   const filterJobs = (status: string) => {
-    console.log("Filtering jobs with status:", status);
-    const filtered = jobOffers.filter(
-      (job: JobOffering) => job.status === status
-    );
-    console.log("Filtered jobs:", filtered);
-    return filtered;
+    return jobOffers.filter((job: JobOffering) => {
+      const matchesStatus = job.status === status;
+      const matchesSearch =
+        job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.location?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
   };
 
-  const tabs = ["Accepted", "Pending", "Rejected"];
+  const tabs = ["Accepted", "Pending", "Rejected", "Draft"];
 
   const stats = {
     pending: jobOffers.filter((job) => job.status === "Pending").length,
     accepted: jobOffers.filter((job) => job.status === "Accepted").length,
     rejected: jobOffers.filter((job) => job.status === "Rejected").length,
+    drafts: jobOffers.filter((job) => job.status === "Draft").length,
     total: jobOffers.length,
   };
 
@@ -157,6 +174,7 @@ export default function Users() {
     if (job) {
       setViewingJob(job);
       setCurrentPage("view");
+      setEditedJob(job);
     }
   };
 
@@ -191,127 +209,165 @@ export default function Users() {
         </div>
 
         <div className="w-full">
+          {/* Header Section */}
           <div className="flex items-center justify-between">
             <div className="font-bold text-3xl">View Job Posting</div>
-            <div className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300">
-              <Pencil size={18} /> Edit Job Posting
+            <div
+              className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              <Pencil size={18} />
+              {isEditing ? "Cancel Edit" : "Edit Job Posting"}
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-            <div className="flex flex-col gap-5">
-              {/* Job Position */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Job Position
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.position}
+          {/* Job Info Section */}
+          <div className="flex flex-col gap-3 mt-6">
+            <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+              <div className="flex flex-col gap-5">
+                <div className="flex items-start gap-4">
+                  <div className="mr-2">
+                    {editedJob.image ? (
+                      <img
+                        src={editedJob.image || "/placeholder.svg"}
+                        alt={`${editedJob.company} logo`}
+                        className="w-35 h-35 object-contain rounded-md border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-35 h-35 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
+                        {editedJob.company?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium">
+                        Job Position
+                      </label>
+                      {isEditing ? (
+                        <input
+                          value={editedJob.position}
+                          onChange={(e) =>
+                            setEditedJob({
+                              ...editedJob,
+                              position: e.target.value,
+                            })
+                          }
+                          className="px-3 py-2 border border-gray-300 rounded-md w-full"
+                        />
+                      ) : (
+                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                          {editedJob.position}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium">
+                        Company Name
+                      </label>
+                      {isEditing ? (
+                        <input
+                          value={editedJob.company}
+                          onChange={(e) =>
+                            setEditedJob({
+                              ...editedJob,
+                              company: e.target.value,
+                            })
+                          }
+                          className="px-3 py-2 border border-gray-300 rounded-md w-full"
+                        />
+                      ) : (
+                        <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                          {editedJob.company}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Other Fields */}
+                {[
+                  ["Location", editedJob.location],
+                  ["Employment Type", editedJob.employmentType],
+                  ["Job Type", editedJob.jobType],
+                  ["Experience Level", editedJob.experienceLevel],
+                  ["Salary Range", editedJob.salaryRange],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <label className="block text-sm font-medium">{label}</label>
+                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                      {value}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Required Skills */}
+                <div>
+                  <label className="block text-sm font-medium">
+                    Required Skills
+                  </label>
+                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                    {editedJob.requiredSkill?.join(", ")}
+                  </div>
+                </div>
+
+                {/* Job Description */}
+                <div>
+                  <label className="block text-sm font-medium">
+                    Job Description
+                  </label>
+                  {isEditing ? (
+                    <textarea
+                      value={editedJob.jobDescription}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          jobDescription: e.target.value,
+                        })
+                      }
+                      className="px-3 py-2 border border-gray-300 rounded-md w-full min-h-[100px]"
+                    />
+                  ) : (
+                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[100px]">
+                      {editedJob.jobDescription}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">
+                    Date Posted
+                  </label>
+                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                    {formatDate(viewingJob.datePosted)}
+                  </div>
                 </div>
               </div>
 
-              {/* Company */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Company Name
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.company}
+              {/* Revised buttons */}
+              {isEditing && (
+                <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+                    onClick={() => {
+                      setIsEditing(false);
+                      handleEdit(editedJob);
+                    }}
+                  >
+                    Save Changes
+                  </button>
                 </div>
-              </div>
-
-              {/* Location */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Location</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.location}
-                </div>
-              </div>
-
-              {/* Employment Type */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Employment Type
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.employmentType}
-                </div>
-              </div>
-
-              {/* Job Type */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Job Type</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.jobType}
-                </div>
-              </div>
-
-              {/* Experience Level */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Experience Level
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.experienceLevel}
-                </div>
-              </div>
-
-              {/* Salary Range */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Salary Range
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.salaryRange}
-                </div>
-              </div>
-
-              {/* Required Skills */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Required Skills
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.requiredSkill?.join(", ")}
-                </div>
-              </div>
-
-              {/* Job Description */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Job Description
-                </label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[110px]">
-                  {viewingJob.jobDescription}
-                </div>
-              </div>
-
-              {/* Date Posted */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Date Posted</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  {viewingJob.datePosted?.toLocaleString?.() ||
-                    new Date(viewingJob.datePosted).toLocaleString()}
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Status</label>
-                <div
-                  className={`px-3 py-2 border border-gray-300 rounded-md ${
-                    viewingJob.status === "Accepted"
-                      ? "bg-green-100 text-green-800"
-                      : viewingJob.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {viewingJob.status}
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -321,7 +377,7 @@ export default function Users() {
 
   return (
     <>
-      {/* Main content conditional rendering based on current page */}
+      {/* Main content */}
       {currentPage === "list" ? (
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-2">
@@ -334,12 +390,21 @@ export default function Users() {
           <div className="w-full">
             <div className="flex items-center justify-between">
               <div className="font-bold text-3xl">Manage Job Posting</div>
-              <div
-                className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
-                onClick={() => setShowForm(!showForm)}
-              >
-                <CirclePlus size={18} />
-                Post a Job
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  placeholder="Search jobs..."
+                  className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <div
+                  className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
+                  onClick={() => setCurrentPage("post")}
+                >
+                  <CirclePlus size={18} />
+                  Create a Job Post
+                </div>
               </div>
             </div>
           </div>
@@ -379,7 +444,9 @@ export default function Users() {
                         ? stats.pending
                         : tab === "Accepted"
                         ? stats.accepted
-                        : stats.rejected}
+                        : tab === "Rejected"
+                        ? stats.rejected
+                        : stats.drafts}
                     </div>
                   </div>
                 </div>
@@ -391,90 +458,209 @@ export default function Users() {
                 className="rounded-xl overflow-hidden border border-gray-300 relative"
                 ref={tableRef}
               >
-                <div className="bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm">
-                  <div className="w-1/2 flex items-center justify-baseline font-semibold">
+                {/* Sticky header */}
+                <div
+                  className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
+                    isSticky ? "fixed top-0" : ""
+                  }`}
+                  style={{ width: isSticky ? headerWidth : "100%" }}
+                >
+                  <div className="flex-grow flex items-center pl-20 font-semibold">
                     Job Posting Info
                   </div>
-                  <div className="w-1/2 flex justify-end items-center">
-                    <div className="w-1/6 flex items-center justify-center font-semibold">
-                      Status
+                  {activeTab === "Accepted" && (
+                    <div className="w-[1px] flex items-center justify-center font-semibold">
+                      Availability
                     </div>
-                    <div className="w-1/6 flex items-center justify-center font-semibold">
-                      Actions
-                    </div>
-                    <div className="w-1/6 flex items-center justify-center"></div>
+                  )}
+                  <div className="w-[120px] flex items-center justify-center font-semibold mr-9">
+                    Status
+                  </div>
+                  <div className="w-[280px] flex items-center justify-center font-semibold">
+                    Actions
                   </div>
                 </div>
+
+                {/* Spacer div to prevent content jump when header becomes fixed */}
+                {isSticky && <div style={{ height: "56px" }}></div>}
 
                 {/* Dynamic rows */}
                 {filterJobs(activeTab).map((job, index) => (
                   <div
                     key={index}
-                    className={`w-full flex gap-4 border-t border-gray-300 ${
+                    className={`w-full flex items-center border-t border-gray-300 ${
                       index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:bg-blue-50`}
                   >
+                    {/* Company Logo */}
+                    <div className="flex-shrink-0 p-4">
+                      {job.image ? (
+                        <img
+                          src={job.image || "/placeholder.svg"}
+                          alt={`${job.company} logo`}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                          {job.company.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Job Details */}
                     <div
-                      className="w-1/2 flex flex-col p-4 gap-1 cursor-pointer"
+                      className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
                       onClick={() => handleViewJob(job.jobId)}
                     >
                       <div className="text-base font-bold">{job.position}</div>
                       <div className="text-sm text-gray-600">{job.company}</div>
                       <div className="text-sm text-gray-500">
-                        {job.employmentType} • {job.experienceLevel} •{" "}
-                        {job.salaryRange}
+                        {job.employmentType ? (
+                          <>
+                            {job.employmentType}
+                            {job.experienceLevel && (
+                              <> • {job.experienceLevel}</>
+                            )}
+                            {job.salaryRange && <> • ₱{job.salaryRange}</>}
+                          </>
+                        ) : (
+                          <>
+                            {job.experienceLevel ? (
+                              <>
+                                {job.experienceLevel}
+                                {job.salaryRange && <> • ₱{job.salaryRange}</>}
+                              </>
+                            ) : job.salaryRange ? (
+                              `₱${job.salaryRange}`
+                            ) : (
+                              "This draft can't be published yet. Please complete all required fields."
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="w-1/2 flex items-center justify-end p-5">
-                      <div className="w-1/6 flex items-center justify-center">
-                        <div
-                          className={`px-2 py-1 text-xs rounded ${
-                            job.status === "Accepted"
-                              ? "bg-green-100 text-green-800"
-                              : job.status === "Pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {job.status}
+
+                    {/* Actions Section */}
+                    <div className="flex items-center gap-4 p-4">
+                      {/* Toggle and Status*/}
+                      <div className="flex items-center w-[220px]">
+                        {/* Toggle Switch */}
+                        <div className="w-16 flex items-center justify-center">
+                          {activeTab === "Accepted" && (
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={job.status === "Accepted"}
+                                onChange={async () => {
+                                  try {
+                                    if (job.status === "Accepted") {
+                                      await updateStatus("Closed", job.jobId);
+                                    } else {
+                                      await updateStatus("Accepted", job.jobId);
+                                    }
+                                  } catch (error) {
+                                    toastError("Failed to update job status");
+                                  }
+                                }}
+                              />
+                              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </label>
+                          )}
+                        </div>
+
+                        {/* Status Badge */}
+                        <div className="w-24 flex items-center justify-center">
+                          <div
+                            className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
+                              job.status === "Accepted"
+                                ? "bg-green-100 text-green-800"
+                                : job.status === "Pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {job.status}
+                          </div>
                         </div>
                       </div>
 
-                      <div className="w-1/6 flex items-center justify-center">
-                        <div
-                          className="text-[var(--primary-blue)] hover:underline cursor-pointer"
-                          onClick={() => handleViewJob(job.jobId)}
-                        >
-                          View Details
-                        </div>
+                      {/* View/Edit Details Button */}
+                      <div className="w-28 flex items-center justify-center">
+                        {activeTab === "Draft" ? (
+                          <button
+                            className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditDraft(job);
+                              setCurrentPage("post");
+                            }}
+                          >
+                            Edit Draft
+                          </button>
+                        ) : (
+                          <button
+                            className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewJob(job.jobId);
+                            }}
+                          >
+                            View Details
+                          </button>
+                        )}
                       </div>
-                      <div className="w-1/6 flex items-center justify-center">
+
+                      <div className="w-[140px] flex items-center justify-center">
                         {activeTab === "Pending" ? (
-                          <div className="w-1/6 flex flex-col gap-2 items-center justify-center">
+                          <div className="flex gap-2">
                             <button
-                              onClick={() => handleReject(job.jobId)}
-                              className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReject(job.jobId);
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
                             >
-                              <ThumbsDown size={14} />
+                              <ThumbsDown size={18} />
                               <span>Reject</span>
                             </button>
                             <button
-                              onClick={() => handleAccept(job.jobId)}
-                              className="text-green-500 hover:text-green-700 text-sm flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAccept(job.jobId);
+                              }}
+                              className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
                             >
-                              <ThumbsUp size={14} />
+                              <ThumbsUp size={18} />
                               <span>Accept</span>
                             </button>
                           </div>
+                        ) : activeTab === "Drafts" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setJobToDelete(job);
+                                setIsConfirmationOpen(true);
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Trash2 size={18} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         ) : (
-                          <Trash2
-                            size={20}
-                            className="text-gray-500 hover:text-red-500 cursor-pointer"
-                            onClick={() => {
-                              setJobToDelete(job); // Set the job to delete
-                              setIsConfirmationOpen(true); // Open the confirmation dialog}
-                            }}
-                          />
+                          <div className="flex items-center justify-center w-full">
+                            <Trash2
+                              size={18}
+                              className="text-gray-500 hover:text-red-500 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setJobToDelete(job);
+                                setIsConfirmationOpen(true);
+                              }}
+                            />
+                          </div>
                         )}
                       </div>
                     </div>
@@ -484,297 +670,12 @@ export default function Users() {
             </div>
           </div>
         </div>
-      ) : (
+      ) : currentPage === "view" ? (
         renderViewPage()
+      ) : (
+        <PostJobPage goBackToList={goBackToList} />
       )}
 
-      {/* "Add Job" Form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
-          >
-            <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
-              <h2 className="text-2xl font-semibold">Post a Job Opportunity</h2>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 mt-5">
-              {/* Left Column ng form */}
-              <div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Job Position<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Software Engineer"
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    className="w-full p-1.5 border rounded text-sm"
-                    required
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Employment Type<span className="text-red-500">*</span>
-                  </label>
-                  <DropdownMenu
-                    open={employmentTypeOpen}
-                    onOpenChange={setEmploymentTypeOpen}
-                  >
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
-                      >
-                        {employmentType || "Select Employment Type"}
-                        <ChevronDown className="h-4 w-4 ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
-                      {filterCategories["Employment Type"].map((type) => (
-                        <Button
-                          key={type}
-                          variant="ghost"
-                          className="w-full justify-start p-2 text-left hover:bg-gray-100"
-                          onClick={() => {
-                            setEmploymentType(type);
-                            setEmploymentTypeOpen(false);
-                          }}
-                        >
-                          {type}
-                          {employmentType === type && (
-                            <Check className="ml-auto h-4 w-4" />
-                          )}
-                        </Button>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Job Type<span className="text-red-500">*</span>
-                  </label>
-                  <DropdownMenu
-                    open={jobTypeOpen}
-                    onOpenChange={setJobTypeOpen}
-                  >
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
-                      >
-                        {jobType || "Select Job Type"}
-                        <ChevronDown className="h-4 w-4 ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
-                      {filterCategories["Job Type"].map((type) => (
-                        <Button
-                          key={type}
-                          variant="ghost"
-                          className="w-full justify-start p-2 text-left hover:bg-gray-100"
-                          onClick={() => {
-                            setJobType(type);
-                            setJobTypeOpen(false);
-                          }}
-                        >
-                          {type}
-                          {jobType === type && (
-                            <Check className="ml-auto h-4 w-4" />
-                          )}
-                        </Button>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Job Description<span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
-                    value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
-                    className="w-full p-1.5 border rounded resize-none text-sm"
-                    style={{ height: "110px" }} // Increased height (4x the original)
-                    required
-                  />
-                  <Button
-                    onClick={() => setIsModalOpen(true)}
-                    variant="ghost"
-                    className="pl-2 text-[#0856BA] hover:text-blue-700 text-sm bg-transparent hover:bg-transparent"
-                  >
-                    Need AI help for description?
-                  </Button>
-                  <ModalInput
-                    isOpen={isModalOpen}
-                    mainTitle={position}
-                    onClose={() => setIsModalOpen(false)}
-                    onSubmit={(response) => setJobDescription(response)}
-                    title="AI Assistance for Job Description"
-                    type="job offer"
-                    subtitle="Get AI-generated description for your job offer. Only fill in the applicable fields."
-                  />
-                </div>
-              </div>
-
-              {/* Right Column ng form */}
-              <div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Company Name<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Company"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    className="w-full p-1.5 border rounded text-sm"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Location<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full p-1.5 border rounded text-sm"
-                    required
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Experience Level<span className="text-red-500">*</span>
-                  </label>
-                  <DropdownMenu
-                    open={experienceLevelOpen}
-                    onOpenChange={setExperienceLevelOpen}
-                  >
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
-                      >
-                        {experienceLevel || "Select Experience Level"}
-                        <ChevronDown className="h-4 w-4 ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
-                      {filterCategories["Experience Level"].map((level) => (
-                        <Button
-                          key={level}
-                          variant="ghost"
-                          className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
-                          onClick={() => {
-                            setExperienceLevel(level);
-                            setExperienceLevelOpen(false);
-                          }}
-                        >
-                          {level}
-                          {experienceLevel === level && (
-                            <Check className="ml-auto h-4 w-4" />
-                          )}
-                        </Button>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Salary Range<span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500">₱</span>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="e.g. 10000 - 30000"
-                      value={salaryRange}
-                      onChange={(e) => setSalaryRange(e.target.value)}
-                      className="w-full pl-8 p-1.5 border rounded text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Required Skills<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Required Skills (comma-separated)"
-                    onChange={handleSkillChange}
-                    className="w-full p-1.5 border rounded placeholder:text-sm"
-                    required
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Company Logo<span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <label className="cursor-pointer">
-                      <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                        Choose File
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </label>
-                    <span className="text-sm text-gray-500">
-                      {fileName || "No file chosen"}
-                    </span>
-                  </div>
-
-                  {preview && (
-                    <div className="mt-3">
-                      <img
-                        src={preview || "/placeholder.svg"}
-                        alt="Preview"
-                        className="h-20 object-contain"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-4 mt-6">
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                onClick={handleSubmit}
-                className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-              >
-                Submit
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
       {/* Confirmation Dialog */}
       {isConfirmationOpen && (
         <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
