@@ -58,14 +58,15 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
         onClick={() => handleViewDetails(event.eventId)}
       >
         {/* Image */}
-        <div
-          className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
-          style={{
-            backgroundImage: event.image
-              ? `url(${event.image})`
-              : 'url("/ICS3.jpg")',
-          }}
-        >
+        <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]">
+          <Image
+            src={event.image || "/ICS3.jpg"}
+            alt={event.title}
+            priority
+            layout="fill"
+            objectFit="cover"
+            className="rounded-t-lg"
+          />
           {type === "Proposed Events" ? (
             <span
               className={`absolute bottom-2 right-2 px-3 py-1 text-sm rounded-full ${(() => {

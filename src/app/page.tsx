@@ -376,6 +376,28 @@ export default function Home() {
     }
   }
 
+  const getImageSrc = (newsLetter: NewsletterItem) => {
+    if (
+      newsLetter.category === "announcement" ||
+      newsLetter.category === "event" ||
+      newsLetter.category === "scholarship" ||
+      newsLetter.category === "donation_drive"
+    ) {
+      return "/ics-logo.jpg";
+    } else if (newsLetter.category === "job_offering") {
+      const jobOffering = jobOffers.find(
+        (jobOffer: JobOffering) => jobOffer.jobId === newsLetter.referenceId
+      );
+      if (!jobOffering || jobOffering.alumniId === "Admin") {
+        return "/ics-logo.jpg";
+      }
+      // You seem to be missing a return value for this case
+      return "/ics-logo.jpg"; // or whatever the default should be
+    } else {
+      return ""; // or a default image
+    }
+  };
+
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
@@ -547,32 +569,12 @@ export default function Home() {
                     {/* user info */}
                     <div className="flex flex-row mb-[20px] px-4 md:px-[20px] mt-[20px] gap-2 items-center">
                       <Image
+                        priority
                         alt="pic"
                         width={0}
                         height={0}
                         sizes="100vw"
-                        priority
-                        src={
-                          newsLetter.category === "announcement" ||
-                          newsLetter.category === "event" ||
-                          newsLetter.category === "scholarship" ||
-                          newsLetter.category === "donation_drive"
-                            ? "/ics-logo.jpg"
-                            : newsLetter.category === "job_offering"
-                            ? (() => {
-                                const jobOffering = jobOffers.find(
-                                  (jobOffer: JobOffering) =>
-                                    jobOffer.jobId === newsLetter.referenceId
-                                );
-                                if (
-                                  !jobOffering ||
-                                  jobOffering.alumniId === "Admin"
-                                ) {
-                                  return "/ics-logo.jpg";
-                                }
-                              })()
-                            : ""
-                        }
+                        src={getImageSrc(newsLetter)}
                         className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
                       />
                       <p className="text-sm md:text-[16px]">
@@ -1031,7 +1033,11 @@ export default function Home() {
                             {scholarship.image === "" ? (
                               ""
                             ) : (
-                              <img
+                              <Image
+                                priority
+                                width={0}
+                                height={0}
+                                sizes="100vw"
                                 src={scholarship.image}
                                 className="w-full"
                                 alt="Donation drive"
@@ -1404,6 +1410,7 @@ export default function Home() {
                   <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                     <div className="w-full">
                       <Image
+                        alt={events[currentEventIndex].title}
                         width={0}
                         height={0}
                         priority
