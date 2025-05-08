@@ -182,6 +182,14 @@ const ScholarshipDetailPage: React.FC = () => {
     }
   };
 
+	const manage = () => {
+    router.push("/admin-dashboard/scholarships/manage");
+  };
+
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   if (loading) {
     return <div style={{ margin: "20px" }}>Loading...</div>;
   }
@@ -190,11 +198,11 @@ const ScholarshipDetailPage: React.FC = () => {
     <>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
-          <div>Home</div>
+          <div className="hover:text-blue-600 cursor-pointer" onClick={home} >Home</div>
           <div>
             <ChevronRight size={15} />
           </div>
-          <div>Manage Donation Drives</div>
+          <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>Manage Donation Drives</div>
           <div>
             <ChevronRight size={15} />
           </div>

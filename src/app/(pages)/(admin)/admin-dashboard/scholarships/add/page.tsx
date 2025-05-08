@@ -6,10 +6,12 @@ import { useScholarship } from "@/context/ScholarshipContext";
 import React, { useRef, useState } from "react";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Asterisk, ChevronRight, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AddScholarships() {
   const { scholarships, loading, error, addScholarship, updateScholarship } =
     useScholarship();
+	const router = useRouter();
   // Input Data
   const [formData, setFormData] = useState({
     description: "",
@@ -84,14 +86,14 @@ export default function AddScholarships() {
     }
   };
 
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div>Home</div>
-        <div>
-          <ChevronRight size={15} />
-        </div>
-        <div>Manage Scholarships</div>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>Home</div>
         <div>
           <ChevronRight size={15} />
         </div>
