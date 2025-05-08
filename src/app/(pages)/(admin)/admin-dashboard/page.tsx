@@ -520,7 +520,7 @@ export default function AdminDashboard() {
         <div className="md:col-span-3">
         <Card className="border-0 shadow-md flex flex-col h-full">
       <CardHeader className="pb-0">
-        <CardTitle>Job Posting</CardTitle>
+        <CardTitle>Pending Job Posting</CardTitle>
       </CardHeader>
 
       {/* divider */}
@@ -532,16 +532,18 @@ export default function AdminDashboard() {
       <CardContent className="flex flex-col flex-1 px-2">
 
       <div className="max-h-96 overflow-y-auto space-y-2">
-        {jobOffers.map((jobOffer: JobOffering) => (
-          <div
-            key={jobOffer.jobId}
-            className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-          >
-            <div>
-              <span className="font-medium">Job Type: {jobOffer.jobType}</span>
-              <p className="text-sm text-black-500">Status: {jobOffer.status}</p>
+      {jobOffers
+          .filter((jobOffer: JobOffering) => jobOffer.status === "Pending")
+          .map((jobOffer: JobOffering) => (
+            <div
+              key={jobOffer.jobId}
+              className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+            >
+              <div>
+                <span className="font-medium">Job Type: {jobOffer.jobType}</span>
+                <p className="text-sm text-black-500">Status: {jobOffer.status}</p>
+              </div>
             </div>
-          </div>
         ))}
       </div>
 
