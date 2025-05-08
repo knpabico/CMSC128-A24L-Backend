@@ -96,8 +96,9 @@ const StatisticalReports = () => {
         </div>
       </div>
 
+      <div className="h-full">
       {/* Main Content Area with Side Panel */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6 h-full">
         {/* Left Side - Charts and Cards */}
         <div className="flex-grow space-y-6 h-full">
           {/* Charts Container */}
@@ -346,7 +347,7 @@ const StatisticalReports = () => {
         </div>
 
         {/* Right Side - Report Summary */}
-        <div className="lg:w-1/3 lg:min-w-[320px]">
+        <div className="lg:w-1/3 lg:min-w-[320px] h-full">
           <Card className="bg-white sticky top-4 rounded-xl shadow-sm border-none ring-1 ring-gray-100 h-full">
             <CardHeader className="pb-1 border-b border-gray-100">
               <CardTitle className="flex items-center text-xl font-bold text-gray-800">
@@ -354,11 +355,10 @@ const StatisticalReports = () => {
                 Report Summary
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-1">
+            <CardContent className="flex-1 overflow-y-auto">
               <div className="bg-gradient-to-r from-[#0856BA]/5 to-white p-6 rounded-lg">
                 <ReportSummaryCard
-                  data={`
-                    Total Number of alumni: ${approvedAlums.length} 
+                  data={`Total Number of alumni: ${approvedAlums.length} 
                     Active alumni: ${approvedActiveAlums.length} 
                     Inactive alumni: ${
                       approvedAlums.length - approvedActiveAlums.length
@@ -385,6 +385,7 @@ const StatisticalReports = () => {
           </Card>
         </div>
       </div>
+    </div>
     </div>
   );
 };
