@@ -1,6 +1,5 @@
 "use client";
 import LoadingPage from "@/components/Loading";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
@@ -61,17 +60,17 @@ import {
   useAnnouncement,
 } from "@/context/AnnouncementContext";
 import { useJobOffer } from "@/context/JobOfferContext";
-import CollapseText from '@/components/CollapseText';
 import { useEvents } from "@/context/EventContext";
 import React from "react";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { log } from "console";
-import { Oswald } from "next/font/google";
+import CollapseText from "@/components/CollapseText";
 import { ListItem } from "@mui/material";
 import { useEducation } from "@/context/EducationContext";
 import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
+import Landing from "@/components/Landing";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -381,15 +380,48 @@ export default function Home() {
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
-      <div className="flex flex-col min-h-screen justify-center items-center">
-        <p className="text-black text-[70px] font-bold">WELCOME, Guest!</p>
-        <div className="flex gap-3">
-          <Button asChild>
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/sign-up">Sign up</Link>
-          </Button>
+      <div>
+
+        <Landing />
+
+        <div
+          className="flex flex-col gap-8 bg-[#EBF4FF]"
+          style={{ padding: "50px 10% 5% 10%" }}
+        >
+          <div className="font-bold text-3xl">News & Announcements</div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {announces.map((item: Announcement) => (
+              <Link
+                href={`/announcements/${item.announcementId}`}
+                key={item.announcementId}
+                className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
+              >
+                <div className="w-full h-40 bg-pink-400 overflow-hidden">
+                  <img
+                    src={
+                      item.image === ""
+                        ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
+                        : item.image
+                    }
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4 flex flex-col gap-2 flex-grow">
+                  <div className="text-xs text-gray-500">
+                    {formatDate(item.datePosted)}
+                  </div>
+                  <div className="font-bold text-md line-clamp-2">
+                    {item.title}
+                  </div>
+                  <div className="text-xs text-gray-700 line-clamp-3">
+                    {item.description}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     );
