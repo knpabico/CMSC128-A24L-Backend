@@ -2,12 +2,12 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Oswald } from "next/font/google";
 import Link from "next/link";
 import ICSARMSLogo from "../app/images/ICS_ARMS_logo.png";
 import LandingBG from "../app/images/network-bg.png";
 import Image from "next/image";
 import Carousel2 from "./Carousel2";
+import { Oswald } from "next/font/google";
 
 const oswald = Oswald({
 	subsets: ["latin"],
