@@ -109,6 +109,12 @@ export default function Home() {
   const { userEducation } = useEducation();
   const [filteredEducation, setFilteredEducation] = useState<Education[]>([]);
   
+  const [searchQuery, setSearchQuery] = useState("");
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearchQuery(e.target.value.toLowerCase());
+  }
+
+
   useEffect(() => {
     if (user?.uid) {
       const filtered = userEducation.filter(
@@ -820,18 +826,26 @@ export default function Home() {
                                   <img src={jobOffering.image}></img>
                                 )} */}
                                 <div className="flex gap-1">
-                                  <button
+                                  {/* <button
                                     onClick={() => router.push(`/joboffer-list`)}
                                     className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                                   >
                                     View more job offers
-                                  </button>
+                                  </button> */}
+                                  {jobOffering.status === "Closed" ? 
+                                  <button
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full text-[12px] bg-[#A9BEDA] text-white"
+                                  >
+                                    Apply
+                                  </button> 
+                                  : 
                                   <button
                                     onClick={() => router.push(`/joboffer-list/`)}
                                     className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
                                   >
                                     Apply
                                   </button>
+                                  }
                                 </div>
                               </div>
                             </div>
@@ -849,8 +863,7 @@ export default function Home() {
                         const donationDrive = donationDrives.find(
                           (donation: DonationDrive) => {
                             return (
-                              donation.donationDriveId ===
-                              newsLetter.referenceId
+                              donation.donationDriveId === newsLetter.referenceId
                             );
                           }
                         );
