@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
@@ -76,6 +77,8 @@ export default function JobOffers() {
     updateStatus
   } = useJobOffer();
 
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get('jobId');
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
@@ -138,6 +141,16 @@ export default function JobOffers() {
       Status: ["Accepted", "Rejected", "Pending"],
     }),
   };
+
+  useEffect(() => {
+    if (jobId) {
+      const foundJob = currentSavedJobs.find((job:JobOffering) => job.jobId === jobId);
+      if (foundJob) {
+        setSidebarFilter("Saved Jobs");
+        setSelectedJob(foundJob);
+      }
+    }
+  }, [jobId]);
 
   // Close filter dropdowns when clicking outside
   useEffect(() => {
@@ -977,33 +990,33 @@ export default function JobOffers() {
 
                           {/* Right side */}
                           <div className="flex items-center space-x-3">
-                          {/* Draft label */}
-                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                            Draft
-                          </span>
+                            {/* Draft label */}
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                              Draft
+                            </span>
 
-                          {/* Edit button */}
-                          <button
-                            className="text-gray-500 hover:text-blue-500 transition-colors"
-                            onClick={(e) => {
-                              handleEditDraft(job);
-                              setShowForm(true);
-                            }}
-                          >
-                            <Pencil className="w-5 h-5" />
-                          </button>
+                            {/* Edit button */}
+                            <button
+                              className="text-gray-500 hover:text-blue-500 transition-colors"
+                              onClick={(e) => {
+                                handleEditDraft(job);
+                                setShowForm(true);
+                              }}
+                            >
+                              <Pencil className="w-5 h-5" />
+                            </button>
 
-                          {/* Delete button */}
-                          <button
-                            className="text-gray-500 hover:text-red-500 transition-colors mr-3"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDelete(job.jobId);
-                            }}
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
+                            {/* Delete button */}
+                            <button
+                              className="text-gray-500 hover:text-red-500 transition-colors mr-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(job.jobId);
+                              }}
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
                       </div>
                     </div>
                   ))}

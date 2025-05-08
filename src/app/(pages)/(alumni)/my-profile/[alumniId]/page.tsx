@@ -481,6 +481,32 @@ const UserProfile = () => {
     return date.toISOString().split("T")[0];
   }
 
+  function timeAgo(timestamp: any): string {
+    const date = timestamp.toDate(); // Firestore Timestamp to JS Date
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+    const intervals = [
+      { label: "year", seconds: 31536000 },
+      { label: "month", seconds: 2592000 },
+      { label: "week", seconds: 604800 },
+      { label: "day", seconds: 86400 },
+      { label: "hour", seconds: 3600 },
+      { label: "minute", seconds: 60 },
+      { label: "second", seconds: 1 },
+    ];
+  
+    for (const interval of intervals) {
+      const count = Math.floor(seconds / interval.seconds);
+      if (count > 0) {
+        return `${count} ${interval.label}${count !== 1 ? "s" : ""} ago`;
+      }
+    }
+  
+    return "just now";
+  }
+  
+
   const [sortOrder, setSortOrder] = useState("latest");
   const getBookmarkDetails = (bookmark:Bookmark) => {
     if (bookmark.type.toString() === "announcement") {
@@ -1283,7 +1309,7 @@ const UserProfile = () => {
       {seeBookmarks && (<div className="mx-50 my-15">
         <div className="flex space-x-7">
 
-        <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
+          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
             <div className="bg-white">
               <ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-50 h-max">
                 <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleAllViewClick}>
@@ -1369,6 +1395,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{ann.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1409,6 +1436,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{eve.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1446,6 +1474,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{don.campaignName}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1483,6 +1512,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{scho.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1499,7 +1529,10 @@ const UserProfile = () => {
                         [...jobOffers]
                         .filter((job: JobOffering) => job.jobId === bookmark.entryId)
                         .map((job: JobOffering, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                            onClick={()=> {
+                              router.push(`/joboffer-list?jobId=${job.jobId}`);
+                            }}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><BriefcaseIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1518,6 +1551,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{job.position}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1576,6 +1610,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{ann.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1639,6 +1674,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{eve.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1696,6 +1732,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{don.campaignName}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1751,6 +1788,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{scho.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1787,7 +1825,10 @@ const UserProfile = () => {
                       {([...jobOffers]
                         .filter((job: JobOffering) => job.jobId === bookmark.entryId)
                         .map((job: JobOffering, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between" 
+                            onClick={()=> {
+                              router.push(`/joboffer-list?jobId=${job.jobId}`);
+                            }}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><BriefcaseIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1806,6 +1847,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{job.position}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
