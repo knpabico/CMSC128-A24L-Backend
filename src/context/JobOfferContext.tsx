@@ -77,7 +77,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       jobOffer.status = jobOffer.status? "Draft" : isAdmin ? "Accepted" : "Pending";
       console.log(jobOffer);
       await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
-      if ( isAdmin ){
+      if ( isAdmin && jobOffer.status === "Accepted") {
         addNewsLetter(jobOffer.jobId, "job_offering");
       }
       return { success: true, message: "success" };
@@ -288,7 +288,20 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       
       if (editingDraftId) {
         // Update existing draft
-        await updateDoc(doc(db, "job_offering", editingDraftId), draftJobOffering);
+        const updateFields = {
+          company: draftJobOffering.company,
+          employmentType: draftJobOffering.employmentType,
+          experienceLevel: draftJobOffering.experienceLevel,
+          jobDescription: draftJobOffering.jobDescription,
+          jobType: draftJobOffering.jobType,
+          position: draftJobOffering.position,
+          requiredSkill: draftJobOffering.requiredSkill,
+          salaryRange: draftJobOffering.salaryRange,
+          status: draftJobOffering.status,
+          location: draftJobOffering.location,
+          image: draftJobOffering.image,
+        };
+        await updateDoc(doc(db, "job_offering", editingDraftId), updateFields);
         response = { success: true, message: "Draft updated successfully" };
       } else {
         // Create new draft

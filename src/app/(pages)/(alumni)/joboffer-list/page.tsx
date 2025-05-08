@@ -29,6 +29,7 @@ import {
   Check,
   Pencil,
   Trash2,
+  CheckCircle,
 } from "lucide-react";
 import { set } from "zod";
 
@@ -109,6 +110,7 @@ export default function JobOffers() {
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchQuery(e.target.value.toLowerCase());
   }
+
   // Define filter categories and their respective filter options
   const filterCategories = {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
@@ -334,7 +336,7 @@ export default function JobOffers() {
         style={{ backgroundImage: 'url("/ICS2.jpg")' }}
       >
         <div className="absolute inset-0 bg-blue-500/50" />
-        <div className="relative z-10">
+        <div className="relative">
           <h1 className="text-5xl font-bold my-2 text-white">Job Opportunities</h1>
           <p className="text-white text-sm md:text-base">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat
@@ -366,18 +368,18 @@ export default function JobOffers() {
           </button>
 
           <div className="flex space-x-3">
-            <div className="mb-4">
+          <div className="mb-4">
               <input
                 type="text"
                 placeholder="Search jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
               />
             </div>
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -441,7 +443,7 @@ export default function JobOffers() {
             </div>
 
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -568,7 +570,7 @@ export default function JobOffers() {
                         {currentJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-2 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -669,7 +671,7 @@ export default function JobOffers() {
                         {currentSavedJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -775,7 +777,7 @@ export default function JobOffers() {
                         {currentCreatedJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -783,38 +785,41 @@ export default function JobOffers() {
                             onClick={() => setSelectedJob(job)}
                           >
                             <div className="flex justify-between items-center">
-                              {/* Left side - Job details */}
-                              <div className="flex items-center">
-                                <div className="mr-3">
-                                  {job.image ? (
-                                    <img
-                                      src={job.image || "/placeholder.svg"}
-                                      alt={`${job.company} logo`}
-                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
-                                    />
-                                  ) : (
-                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                      {job.company.charAt(0).toUpperCase()}
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <h2 className="font-semibold text-md">{job.position}</h2>
-                                  <p className="text-sm text-gray-600">{job.company}</p>
-                                  <p className="text-xs text-[#0856BA] flex items-center">
-                                    <MapPin className="w-3.5 h-3.5 mr-1" />
-                                    {job.location}
-                                  </p>
-                                </div>
+                            {/* Left side - Job details */}
+                            <div className="flex items-center">
+                              <div className="mr-3">
+                                {job.image ? (
+                                  <img
+                                    src={job.image || "/placeholder.svg"}
+                                    alt={`${job.company} logo`}
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                    {job.company.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
                               </div>
+                              <div>
+                                <h2 className="font-semibold text-md">{job.position}</h2>
+                                <p className="text-sm text-gray-600">{job.company}</p>
+                                <p className="text-xs text-[#0856BA] flex items-center">
+                                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                                  {job.location}
+                                </p>
+                              </div>
+                            </div>
 
-                              {/* Middle - Toggle switch */}
-                              <div className="w-[100px] flex justify-center">
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    className="sr-only peer"
-                                    checked={job.status === "Accepted"}
+                            {/* Right side - Status and trash icon with toggle moved here */}
+                            <div className="flex items-center space-x-3">
+                              {/* Toggle switch */}
+                              {job.status !== "Pending" && (
+                              <div className="w-12 flex justify-center">
+                                  <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      className="sr-only peer"
+                                      checked={job.status === "Accepted"}
                                       onChange={async () => {
                                         try {
                                           if (job.status === "Accepted") {
@@ -826,35 +831,43 @@ export default function JobOffers() {
                                           toastError("Failed to update job status");
                                         }
                                       }}
-                                  />
-                                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                </label>
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                  </label>
+                              </div>
+                              )}
+                              {job.status === "Pending" && (
+                                <div className="w-11 h-6 opacity-0">
+                                  {/* Placeholder to prevent layout shift */}
+                                </div>
+                              )}
+                              <div className="w-24 flex items-center justify-center">
+                              {/* Status label */}
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${
+                                  job.status === "Accepted"
+                                    ? "bg-green-100 text-green-700"
+                                    : job.status === "Rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : job.status === "Closed"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                                }`}
+                              >
+                                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                              </span>
                               </div>
 
-                              {/* Right side - Status and trash icon */}
-                              <div className="flex items-center space-x-3">
-                                <span
-                                  className={`px-2 py-1 rounded text-xs font-medium ${
-                                    job.status === "Accepted"
-                                      ? "bg-green-100 text-green-700"
-                                      : job.status === "Rejected"
-                                        ? "bg-red-100 text-red-700"
-                                        : "bg-yellow-100 text-yellow-700"
-                                  }`}
-                                >
-                                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                                </span>
-
-                                {/* Trash button */}
-                                <button
-                                  className="text-gray-500 hover:text-red-500 transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    // No functionality yet
-                                  }}
-                                >
-                                  <Trash2 className="w-5 h-5" />
-                                </button>
+                              {/* Trash button */}
+                              <button
+                                className="text-gray-500 hover:text-red-500 transition-colors mr-3"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDelete(job.jobId);
+                                }}
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
                               </div>
                             </div>
                           </div>
@@ -917,7 +930,7 @@ export default function JobOffers() {
                   {filteredDraftJobs.map((job, index) => (
                     <div
                       key={index}
-                      className={`bg-white p-3 border rounded-lg cursor-pointer hover:border-blue-300 ${
+                      className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                       selectedJob?.jobId === job.jobId
                       ? "border-blue-500"
                       : "border-gray-200"
@@ -940,15 +953,26 @@ export default function JobOffers() {
                             </div>
                             )}
                           </div>
-
+                          {
+                          !job.company || !job.location ? (
+                            <div>
+                              <h2 className="font-semibold text-md">{job.position}</h2>
+                              <p className="text-sm text-gray-500">
+                                This draft can't be published yet.
+                                <br/> Please complete all required fields.
+                              </p>
+                            </div>
+                          ) : (
                           <div>
                             <h2 className="font-semibold text-md">{job.position}</h2>
                             <p className="text-sm text-gray-600">{job.company}</p>
                             <p className="text-xs text-[#0856BA] flex items-center">
                             <MapPin className="w-3.5 h-3.5 mr-1" />
-                            {job.location}
+                            {job.location || "No location added yet."}
                             </p>
                           </div>
+                            )
+                          }
                           </div>
 
                           {/* Right side */}
@@ -971,8 +995,9 @@ export default function JobOffers() {
 
                           {/* Delete button */}
                           <button
-                            className="text-gray-500 hover:text-red-500 transition-colors"
+                            className="text-gray-500 hover:text-red-500 transition-colors mr-3"
                             onClick={(e) => {
+                              e.stopPropagation()
                               handleDelete(job.jobId);
                             }}
                           >
@@ -1125,17 +1150,12 @@ export default function JobOffers() {
                             key={skill}
                             className="max-w-md space-y-1 text-gray-500 list-inside dark:text-gray-500"
                           >
-                            <li className="flex items-center">
-                              <svg
-                                className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 shrink-0"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
+                            <li
+                              key={skill}
+                              className="flex items-center gap-[5px]"
                               >
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                              </svg>
-                              {skill}
+                              <CheckCircle className="size-4 text-green-500"/>
+                                {skill}
                             </li>
                           </ul>
                         ))}
