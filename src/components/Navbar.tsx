@@ -209,7 +209,6 @@ export default function Navbar() {
     await logOut();
     setMenuOpen(false);
     setDropdownOpen(false);
-    router.refresh();
   };
 
   // Toggle section collapse
@@ -349,12 +348,14 @@ export default function Navbar() {
 
                   {/* Dropdown Menu */}
                   {dropdownOpen && (
-                    <div
-                      className="absolute top-17 bg-white shadow-md rounded-lg py-2 text-[var(--primary-blue)]"
-                      onClick={() => router.push(`/my-profile/${user?.uid}`)}
-                    >
+                    <div className="absolute top-17 bg-white shadow-md rounded-lg py-2 text-[var(--primary-blue)]">
                       {
-                        <button className="w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                        <button
+                          className="w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() =>
+                            router.push(`/my-profile/${user?.uid}`)
+                          }
+                        >
                           Profile
                         </button>
                       }

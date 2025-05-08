@@ -196,6 +196,7 @@ export default function RegistrationForm() {
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
   const [hasCurrentJob, setHasCurrentJob] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
@@ -1090,6 +1091,19 @@ export default function RegistrationForm() {
                         >
                           Submit
                         </Button>
+                        {(isGoogleSignIn || isGoogleLoading) && (
+                          <Button
+                            className="w-1/2 border-2 border-blue-500 text-blue-500 p-5 rounded-full cursor-pointer hover:bg-blue-100 hover:text-blue-700"
+                            disabled={isGoogleLoading}
+                            onClick={() => {
+                              setIsGoogleLoading(true);
+                              form.reset();
+                              logOut();
+                            }}
+                          >
+                            Log Out
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -18,18 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [user, isAdmin, router, isGoogleSignIn]);
   if (isGoogleSignIn) {
-    return (
-      <div>
-        {/* <Button
-          onClick={() => {
-            logOut();
-          }}
-        >
-          Log Out
-        </Button> */}
-        {children}
-      </div>
-    );
+    return <div>{children}</div>;
   } else if (loading || user || isAdmin) {
     return <LoadingPage />;
   } else return <div>{children}</div>;
