@@ -9,6 +9,8 @@ import { workFieldOptions } from "@/data/work-field-options";
 import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Trash2Icon, PlusCircleIcon } from "lucide-react";
+import ICSARMSLogo from "../../../app/images/ICS_ARMS_logo_white.png";
+import { MoveLeft } from "lucide-react";
 
 // components
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
@@ -470,9 +472,14 @@ export default function RegistrationForm() {
               {/*USER CREDENTIALS SECTION */}
               {currentPart === 0 && (
                 <div className="flex h-screen bg-white">
+                  <div className="fixed top-10 left-[5%] z-99">
+                    <Link href="/login"  className="flex gap-2 items-center text-[var(--primary-blue)] text-[14px] hover:underline font-light">
+                      <MoveLeft size={18}/> Back
+                    </Link>
+                  </div>
                   <div className="flex w-[50%] justify-center items-center">
                     <div className="flex flex-col w-full mx-41 items-center">
-                      <p className="text-5xl font-bold text-[#0856ba] pb-10">
+                      <p className="text-5xl font-bold text-[var(--primary-blue)] pb-10">
                         Create an account
                       </p>
 
@@ -485,19 +492,19 @@ export default function RegistrationForm() {
                               type="button"
                               onClick={goNext}
                               disabled={disableGoNext}
-                              className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                              className="bg-[var(--primary-blue)] text-white p-3 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                             >
                               Sign up
                             </Button>
                           </div>
 
-                          <div className="flex justify-center items-center space-x-2">
+                          <div className="flex justify-center items-center space-x-2 text-[14px]">
                             <p>Already have an account?</p>
                             <button
                               disabled={
                                 form.formState.isSubmitting || isLoading
                               }
-                              className="hover:underline text-[#0856ba]"
+                              className="hover:underline text-[var(--primary-blue)]"
                             >
                               <Link href="/login">Log in</Link>
                             </button>
@@ -514,7 +521,15 @@ export default function RegistrationForm() {
                       className="w-full h-full object-cover"
                       layout="fill"
                     />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-70 h-70 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  flex items-center justify-center">
+                      <Image
+                        src={ICSARMSLogo}
+                        alt="ICS ARMS Logo"
+                        className="shadow-xl"
+                        width={200}
+                        height={200}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -526,7 +541,7 @@ export default function RegistrationForm() {
                       onClick={() => {
                         goBack();
                       }}
-                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
+                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[var(--primary-blue)] rounded-full cursor-pointer"
                     >
                       <ChevronLeft />
                       <p>Back</p>
@@ -1062,7 +1077,7 @@ export default function RegistrationForm() {
 
                       <div className="flex flex-col items-start px-5">
                         <Button
-                          className="w-50 col-span-6 bg-[#0856ba] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                          className="w-50 col-span-6 bg-[var(--primary-blue)] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
                           variant="outline"
                           type="submit"
                         >
