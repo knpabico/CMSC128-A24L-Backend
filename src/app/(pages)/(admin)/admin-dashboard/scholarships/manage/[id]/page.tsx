@@ -341,6 +341,14 @@ const ScholarshipDetailPage: React.FC = () => {
     }
   };
 
+  const manage = () => {
+    router.push("/admin-dashboard/scholarships/manage");
+  };
+
+  const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   if (loading) {
     return <div style={{ margin: "20px" }}>Loading...</div>;
   }
@@ -349,11 +357,15 @@ const ScholarshipDetailPage: React.FC = () => {
     <>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
-          <div>Home</div>
+          <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
+            Home
+          </div>
           <div>
             <ChevronRight size={15} />
           </div>
-          <div>Manage Donation Drives</div>
+          <div className="hover:text-blue-600 cursor-pointer" onClick={manage}>
+            Manage Scholarship
+          </div>
           <div>
             <ChevronRight size={15} />
           </div>
@@ -370,7 +382,7 @@ const ScholarshipDetailPage: React.FC = () => {
                 onClick={() => setIsEditing(true)}
                 className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
               >
-                <Pencil size={18} /> Edit Donation Drive
+                <Pencil size={18} /> Edit {scholarship?.title}
               </div>
             )}
           </div>
@@ -383,7 +395,7 @@ const ScholarshipDetailPage: React.FC = () => {
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
             <div className="flex justify-between items-center px-2">
               <div className="text-sm font-medium flex items-center">
-                Scholarship Infomations
+                Scholarship Infomation
               </div>
               <button
                 onClick={() => setIsInformationOpen(!isInformationOpen)}
@@ -393,32 +405,41 @@ const ScholarshipDetailPage: React.FC = () => {
               </button>
             </div>
             {isInformationOpen && (
-              <>
-                {/* Date */}
-                <div className="flex items-center py-1 px-3">
-                  <p className="text-sm text-gray-600">
-                    Posted on {scholarship?.datePosted.toLocaleDateString()}
-                  </p>
+              <div className="flex w-full gap-10 py-2">
+                <div className="w-1/2">
+                  {/* Sponsors */}
+                  <div className="flex items-center text-sm text-gray-600 px-3">
+                    <span className="mr-2"> Interested Alumni:</span>
+                    <span className="font-medium">
+                      {scholarship?.alumList.length}
+                    </span>
+                  </div>
+                  <div className="rounded-lg px-1">
+                    {alumList.length > 0 && (
+                      <div className="px-4">
+                        {alumList.map((alum, index) => (
+                          <div key={index} className="text-sm text-gray-600">
+                            {index + 1}. {alum.firstName} {alum.lastName}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {/* Sponsors */}
-                <div className="flex items-center text-sm text-gray-600 px-3">
-                  <span className="mr-2">Sponsors:</span>
-                  <span className="font-medium">
-                    {scholarship?.alumList.length}
-                  </span>
+                <div className="flex flex-col w-1/2">
+                  {/* Date */}
+                  <div className="">
+                    <p className="text-sm text-gray-600">
+                      Posted on {scholarship?.datePosted.toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="">
+                    <p className="text-sm text-gray-600">
+                      Number of Students: {scholarship?.studentList.length}
+                    </p>
+                  </div>
                 </div>
-                <div className="rounded-lg px-1">
-                  {alumList.length > 0 && (
-                    <div className="px-4 py-2">
-                      {alumList.map((alum, index) => (
-                        <div key={index} className="text-sm text-gray-600">
-                          {index + 1}. {alum.firstName} {alum.lastName}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
+              </div>
             )}
           </div>
           {/* Editable Details */}
@@ -426,72 +447,78 @@ const ScholarshipDetailPage: React.FC = () => {
             className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4"
             onSubmit={handleEdit}
           >
-            <div className="flex flex-col gap-5">
-              {/* Scholarship Name */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="text-sm font-medium flex items-center"
-                >
-                  <Asterisk size={16} className="text-red-600" /> Scholarship
-                  Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Scholarship name"
-                  value={editData.title}
-                  onChange={(e) =>
-                    setEditData({ ...editData, title: e.target.value })
-                  }
-                  required
-                  disabled={!isEditing}
-                />
-              </div>
-              {/* Scholarship Description */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="text-sm font-medium flex items-center"
-                >
-                  <Asterisk size={16} className="text-red-600" /> Description
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Scholarship Description"
-                  value={editData.description}
-                  onChange={(e) =>
-                    setEditData({ ...editData, description: e.target.value })
-                  }
-                  required
-                  disabled={!isEditing}
-                />
-              </div>
-              <div className="space-y-2 text-start">
-                <div className="flex gap-3">
-                  <div className="text-sm font-medium flex items-center">
-                    <Asterisk size={16} className="text-red-600" /> Photo:
-                  </div>
+            <div className="flex w-full gap-5">
+              <div className="w-2/3 flex flex-col gap-5">
+                {/* Scholarship Name */}
+                <div className="space-y-2">
                   <label
-                    htmlFor="image-upload"
-                    className="text-sm font-medium flex items-center gap-2"
+                    htmlFor="name"
+                    className="text-sm font-medium flex items-center"
                   >
-                    <Upload className="size-4" />
-                    Upload Gcash QR Code
+                    <Asterisk size={16} className="text-red-600" /> Scholarship
+                    Name
                   </label>
                   <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Scholarship name"
+                    value={editData.title}
+                    onChange={(e) =>
+                      setEditData({ ...editData, title: e.target.value })
+                    }
+                    required
                     disabled={!isEditing}
                   />
                 </div>
+                {/* Scholarship Description */}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="name"
+                    className="text-sm font-medium flex items-center"
+                  >
+                    <Asterisk size={16} className="text-red-600" /> Description
+                  </label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Scholarship Description"
+                    value={editData.description}
+                    onChange={(e) =>
+                      setEditData({ ...editData, description: e.target.value })
+                    }
+                    required
+                    disabled={!isEditing}
+                  />
+                </div>
+                {/* Image */}
+                {isEditing && (
+                  <div className="flex gap-3">
+                    <div className="text-sm font-medium flex items-center">
+                      <Asterisk size={16} className="text-red-600" /> Photo:
+                    </div>
+                    <label
+                      htmlFor="image-upload"
+                      className="text-sm font-medium flex items-center gap-2 cursor-pointer"
+                    >
+                      <Upload className="size-4" />
+                      Change Image
+                    </label>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      disabled={!isEditing}
+                    />
+                  </div>
+                )}
+              </div>
+              {/* Preview */}
+              <div className="space-y-2 flex justify-center w-1/3 text-center items-center">
                 {preview && (
-                  <div className="mt-2 pl-5">
-                    <p className="text-sm font-medium flex items-center">
-                      Preview:
+                  <div className="flex flex-col justify-center">
+                    <p className="text-sm font-medium flex justify-center">
+                      Image Preview
                     </p>
                     <img
                       src={preview}
@@ -528,7 +555,7 @@ const ScholarshipDetailPage: React.FC = () => {
 
             {/* Button */}
             {isEditing && (
-              <div className="bg-white rounded-2xl p-4 flex justify-end gap-2">
+              <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-3">
                 <button
                   type="button"
                   onClick={() => {

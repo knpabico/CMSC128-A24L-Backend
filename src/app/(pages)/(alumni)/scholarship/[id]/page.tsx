@@ -10,6 +10,7 @@ import {
   NewsletterItem,
   Announcement,
   JobOffering,
+  ScholarshipStudent,
 } from "@/models/models";
 import {
   ChevronLeft,
@@ -31,7 +32,7 @@ import { DialogDescription } from "@radix-ui/react-dialog";
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
-  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId } = useScholarship();
+  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId, addScholarshipStudent } = useScholarship();
   const { user } = useAuth();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
@@ -160,6 +161,22 @@ const ScholarshipDetailPage: React.FC = () => {
     }
   };
 
+  const handleStudentSponsor = async (studentId: string) => {
+    if (!user || !scholarship) return;
+
+    const newStudentSponsor: ScholarshipStudent = {
+      ScholarshipStudentId: "",
+      studentId: studentId,
+      alumId: user.uid,
+      scholarshipId: scholarship.scholarshipId,
+      status: "pending", //accepted  or pending
+      pdf: "",
+    }
+
+    const result = await addScholarshipStudent(newStudentSponsor);
+    console.log(result.message);
+  }
+
   const goBack = () => {
     router.back();
   };
@@ -205,7 +222,7 @@ const ScholarshipDetailPage: React.FC = () => {
                     className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md"
                   >
                     <HandCoins className="size-6" />
-                    Sponsor a Student
+                    Join as a Sponsor
                   </button>
                 )}
               </>
@@ -262,7 +279,7 @@ const ScholarshipDetailPage: React.FC = () => {
                       setIsThankYouOpen(true);
                     }}
                   >
-                    Become a sponsor
+                    Join as a sponsor
                   </button>
                   <button
                     className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100"
@@ -284,14 +301,10 @@ const ScholarshipDetailPage: React.FC = () => {
                   <DialogTitle className="text-2xl"> Thank You! </DialogTitle>
                 </DialogHeader>
                 <p className="text-center">
-                  Like an open-source project, your generosity makes everything
-                  better! Thank you for contributing to something bigger than
-                  yourself!
+									We're grateful for your interest in our scholarship program.
                 </p>
-                <p className="italic text-xs pt-4">
-                  Our admin team will reach out to you soon to coordinate the
-                  next steps and discuss how your support can make a meaningful
-                  impact through our scholarship program.
+                <p className="italic text-xs pt-3 text-center">
+									Please see the list of students below and choose one to support in shaping his or her future.
                 </p>
                 <DialogFooter className="mt-5">
                   <button
@@ -314,8 +327,15 @@ const ScholarshipDetailPage: React.FC = () => {
                   <ul className="list-disc pl-6">
                     {students.map((student) => (
                       <li key={student.studentId} className="text-gray-700">
-                        <strong>{student.name}</strong> - {student.emailAddress}
-                
+                        <div className="flex justify-between items-center gap-4">
+                          <strong>{student.name}</strong>  {student.emailAddress}
+                          {isAlreadySponsoring && <button
+                            onClick={() => {handleStudentSponsor(student.studentId)}}
+                            className="px-10 py-2 bg-blue-500 text-white rounded-md"
+                          >
+                            Sponsor Student
+                          </button>}                          
+                        </div>                
                       </li>
                     ))}
                   </ul>

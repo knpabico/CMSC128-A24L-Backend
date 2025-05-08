@@ -124,15 +124,21 @@ export default function ManageScholarship() {
     router.push("/admin-dashboard/scholarships/add");
   };
 
+	const home = () => {
+    router.push("/admin-dashboard");
+  };
+
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div> Home </div>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}> 
+					Home 
+				</div>
         <div>
-          {" "}
-          <ChevronRight size={15} />{" "}
+          <ChevronRight size={15} />
         </div>
-        <div> Manage Scholarships </div>
+        <div className="font-bold text-[var(--primary-blue)]"> Manage Scholarships </div>
       </div>
       <div className="w-full">
         <div className="flex items-center justify-between">

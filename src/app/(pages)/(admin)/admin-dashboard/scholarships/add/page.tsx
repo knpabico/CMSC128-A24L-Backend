@@ -7,6 +7,7 @@ import React, { useRef, useState } from "react";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Asterisk, ChevronRight, Upload } from "lucide-react";
 import { AddStudent } from "../manage/[id]/add-student-form";
+import { useRouter } from "next/navigation";
 
 export default function AddScholarships() {
   const {
@@ -17,6 +18,7 @@ export default function AddScholarships() {
     updateScholarship,
     addStudent,
   } = useScholarship();
+  const router = useRouter();
   // Input Data
   const [formData, setFormData] = useState({
     description: "",
@@ -185,14 +187,16 @@ export default function AddScholarships() {
     }
   };
 
+  const home = () => {
+    router.push("/admin-dashboard");
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div>Home</div>
-        <div>
-          <ChevronRight size={15} />
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
+          Home
         </div>
-        <div>Manage Scholarships</div>
         <div>
           <ChevronRight size={15} />
         </div>
@@ -314,7 +318,7 @@ export default function AddScholarships() {
               type="submit"
               className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
             >
-              {isSubmitting ? "Processing…" : "Create Drive"}
+              {isSubmitting ? "Processing…" : "Create Scholarship"}
             </button>
           </div>
         </form>

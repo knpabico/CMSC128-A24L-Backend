@@ -363,7 +363,7 @@ export function ScholarshipProvider({
     try {
       // First check if student is associated with any scholarships
       const scholarshipStudentQuery = query(
-        collection(db, "scholarshipStudent"),
+        collection(db, "scholarship_student"),
         where("studentId", "==", studentId)
       );
 
@@ -417,7 +417,7 @@ export function ScholarshipProvider({
     scholarshipStudent: ScholarshipStudent
   ) => {
     try {
-      const docRef = doc(collection(db, "scholarshipStudent"));
+      const docRef = doc(collection(db, "scholarship_student"));
       scholarshipStudent.ScholarshipStudentId = docRef.id;
 
       await setDoc(docRef, scholarshipStudent);
@@ -459,7 +459,7 @@ export function ScholarshipProvider({
     try {
       const scholarshipStudentRef = doc(
         db,
-        "scholarshipStudent",
+        "scholarship_student",
         scholarshipStudentId
       );
       await updateDoc(scholarshipStudentRef, updates);
@@ -478,7 +478,7 @@ export function ScholarshipProvider({
       // Get the scholarship student record first to get the scholarshipId and studentId
       const scholarshipStudentRef = doc(
         db,
-        "scholarshipStudent",
+        "scholarship_student",
         scholarshipStudentId
       );
       const scholarshipStudentDoc = await getDoc(scholarshipStudentRef);
@@ -523,7 +523,7 @@ export function ScholarshipProvider({
     id: string
   ): Promise<ScholarshipStudent | null> => {
     try {
-      const scholarshipStudentDoc = doc(db, "scholarshipStudent", id);
+      const scholarshipStudentDoc = doc(db, "scholarship_student", id);
       const scholarshipStudentSnapshot = await getDoc(scholarshipStudentDoc);
 
       if (scholarshipStudentSnapshot.exists()) {
@@ -580,7 +580,7 @@ export function ScholarshipProvider({
   ): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
-        collection(db, "scholarshipStudent"),
+        collection(db, "scholarship_student"),
         where("scholarshipId", "==", scholarshipId)
       );
 
@@ -606,7 +606,7 @@ export function ScholarshipProvider({
   ): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
-        collection(db, "scholarshipStudent"),
+        collection(db, "scholarship_student"),
         where("studentId", "==", studentId)
       );
 
@@ -632,7 +632,7 @@ export function ScholarshipProvider({
   ): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
-        collection(db, "scholarshipStudent"),
+        collection(db, "scholarship_student"),
         where("alumId", "==", alumId)
       );
 
