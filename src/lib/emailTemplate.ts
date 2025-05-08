@@ -1,6 +1,30 @@
-import { addDoc, collection } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  QueryDocumentSnapshot,
+  DocumentData,
+  getDocs,
+  query,
+  where,
+  getDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "./firebase";
 import { FirebaseError } from "firebase/app";
+import {
+  Alumnus,
+  Announcement,
+  DonationDrive,
+  Event,
+  JobOffering,
+  Scholarship,
+} from "@/models/models";
+
+function formatDate(timestamp: any) {
+  if (!timestamp || !timestamp.seconds) return "Invalid Date";
+  const date = new Date(timestamp.seconds * 1000);
+  return date.toISOString().split("T")[0];
+}
 
 export async function sendEmailTemplate(
   alumniEmail: string,
@@ -336,42 +360,274 @@ export async function sendVerificationCode(code: string, alumniEmail: string) {
   }
 }
 
-export async function sendEmailTemplateForNewsletter(
-  photoURL: string,
-  title: string,
-  content: string,
-  alumniEmail: string,
-  category: string
+export async function sendEmailTemplateForNewsletterDonationDrive(
+  donationDrive: DonationDrive,
+  alumniEmail: string
 ) {
   try {
     await addDoc(collection(db, "mail"), {
       to: alumniEmail,
       message: {
-        subject: category.toUpperCase() + ": " + title,
-        text: content,
+        subject: donationDrive.campaignName,
+        text: donationDrive.description,
         html: `<!DOCTYPE html>
-                    <html lang="en" style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-                    <head>
-                        <meta charset="UTF-8" />
-                        <title>${title}</title>
-                    </head>
-                    <body style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <div style="text-align: center; margin-bottom: 20px;">
-                        <h2 style="color: #004aad;">ICS-ARMS</h2>
-                        </div>
-                        <img src="${photoURL}" alt="Newsletter Image" style="width: 100%; height: auto; border-radius: 8px;" />
-                        <h3 style="color: #333;">${title}</h3>
-                        <p>${content}</p>
-                        <div style="margin: 30px 0; text-align: center;">
-                        <a href="https://your-website-link.com/newsletter" style="background-color: #004aad; color: #ffffff; padding: 12px 14px; text-decoration: none; border-radius: 5px; display: inline-block;">View Newsletter</a>
-                        </div>
-                        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-                        <p style="font-size: 0.8em; color: #999; text-align: center;">
-                        © 2025 ICS-ARMS | University of the Philippines Los Baños<br />
-                        All rights reserved. <br />
-                        </p>
-                    </body>
-                    </html>`,
+<html lang="en" style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${donationDrive.campaignName} - ICS-ARMS Donation Drive</title>
+</head>
+<body style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #004aad;">ICS-ARMS DONATION DRIVE</h2>
+    </div>
+    
+    <img src="${
+      donationDrive.image
+    }" alt="Donation Drive Image" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px;" />
+    
+    <h3 style="color: #333; font-size: 24px; margin-bottom: 15px;">${
+      donationDrive.campaignName
+    }</h3>
+    
+    <div style="background-color: #f7f9fc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="margin: 5px 0;"><strong>Beneficiary:</strong> ${donationDrive.beneficiary.join(
+          ", "
+        )}</p>
+        <p style="margin: 5px 0;"><strong>Campaign Period:</strong> ${formatDate(
+          donationDrive.startDate
+        )} - ${donationDrive.endDate}</p>
+        ${
+          donationDrive.isEvent
+            ? `<p style="margin: 5px 0;"><strong>For Event:</strong> This donation drive supports an ICS-ARMS event</p>`
+            : ""
+        }
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #004aad; margin-bottom: 10px;">About This Campaign</h4>
+        <p style="line-height: 1.6;">${donationDrive.description}</p>
+    </div>
+    
+    <div style="background-color: #e8f5e9; padding: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center;">
+        <h4 style="margin-top: 0; color: #2e7d32;">Progress</h4>
+        <div style="background-color: #e0e0e0; height: 25px; border-radius: 12px; overflow: hidden; margin: 15px 0;">
+            <div style="background-color: #4caf50; height: 100%; width: ${Math.min(
+              Math.round(
+                (donationDrive.currentAmount / donationDrive.targetAmount) * 100
+              ),
+              100
+            )}%; border-radius: 12px;"></div>
+        </div>
+        <p><strong>₱${donationDrive.currentAmount.toLocaleString()}</strong> raised of <strong>₱${donationDrive.targetAmount.toLocaleString()}</strong> goal (${Math.round(
+          (donationDrive.currentAmount / donationDrive.targetAmount) * 100
+        )}%)</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #004aad; margin-bottom: 10px;">How to Donate</h4>
+        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
+            ${
+              donationDrive.qrGcash
+                ? `
+            <div style="text-align: center;">
+                <p><strong>GCash</strong></p>
+                <img src="${donationDrive.qrGcash}" alt="GCash QR Code" style="width: 150px; height: 150px;" />
+            </div>
+            `
+                : ""
+            }
+            ${
+              donationDrive.qrPaymaya
+                ? `
+            <div style="text-align: center;">
+                <p><strong>PayMaya</strong></p>
+                <img src="${donationDrive.qrPaymaya}" alt="PayMaya QR Code" style="width: 150px; height: 150px;" />
+            </div>
+            `
+                : ""
+            }
+        </div>
+    </div>
+    
+    <div style="margin: 30px 0; text-align: center;">
+        <a href="https://ics-arms.up.edu.ph/donations/${
+          donationDrive.donationDriveId
+        }" style="background-color: #004aad; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Donate Now</a>
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    
+    <p style="font-size: 0.8em; color: #999; text-align: center;">
+        © 2025 ICS-ARMS | University of the Philippines Los Baños<br />
+        All rights reserved.<br />
+        To unsubscribe from these emails, please visit your <a href="https://ics-arms.up.edu.ph/profile" style="color: #004aad;">account settings</a>.
+    </p>
+</body>
+</html>
+    `,
+      },
+    });
+  } catch (error) {
+    return { success: false, message: (error as FirebaseError).message };
+  }
+}
+
+export async function sendEmailTemplateForNewsletterScholarship(
+  scholarship: Scholarship,
+  alumniEmail: string
+) {
+  try {
+    await addDoc(collection(db, "mail"), {
+      to: alumniEmail,
+      message: {
+        subject: scholarship.title,
+        text: scholarship.description,
+        html: `<!DOCTYPE html>
+<html lang="en" style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${scholarship.title} - ICS-ARMS Scholarship</title>
+</head>
+<body style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #004aad;">ICS-ARMS SCHOLARSHIP OPPORTUNITY</h2>
+    </div>
+    
+    ${
+      scholarship.image
+        ? `<img src="${scholarship.image}" alt="Scholarship Image" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px;" />`
+        : ""
+    }
+    
+    <h3 style="color: #333; font-size: 24px; margin-bottom: 15px;">${
+      scholarship.title
+    }</h3>
+    
+    <div style="background-color: #f7f9fc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="margin: 5px 0;"><strong>Date Posted:</strong> ${formatDate(
+          scholarship.datePosted
+        )}</p>
+        <p style="margin: 5px 0;"><strong>Status:</strong> ${
+          scholarship.status
+        }</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #004aad; margin-bottom: 10px;">Scholarship Details</h4>
+        <p style="line-height: 1.6;">${scholarship.description}</p>
+    </div>
+    
+    <div style="margin: 30px 0; text-align: center;">
+        <a href="https://ics-arms.up.edu.ph/scholarships/${
+          scholarship.scholarshipId
+        }" style="background-color: #004aad; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Learn More</a>
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    
+    <p style="font-size: 0.8em; color: #999; text-align: center;">
+        © 2025 ICS-ARMS | University of the Philippines Los Baños<br />
+        All rights reserved.<br />
+        To unsubscribe from these emails, please visit your <a href="https://ics-arms.up.edu.ph/profile" style="color: #004aad;">account settings</a>.
+    </p>
+</body>
+</html>`,
+      },
+    });
+  } catch (error) {
+    return { success: false, message: (error as FirebaseError).message };
+  }
+}
+
+export async function sendEmailTemplateForNewsletterJobOffer(
+  jobOffer: JobOffering,
+  alumniEmail: string
+) {
+  try {
+    await addDoc(collection(db, "mail"), {
+      to: alumniEmail,
+      message: {
+        subject: jobOffer.position + " at " + jobOffer.company,
+        text: jobOffer.jobDescription,
+        html: `<!DOCTYPE html>
+<html lang="en" style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${jobOffer.position} at ${
+          jobOffer.company
+        } - ICS-ARMS Job Opportunity</title>
+</head>
+<body style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #004aad;">ICS-ARMS JOB OPPORTUNITY</h2>
+    </div>
+    
+    ${
+      jobOffer.image
+        ? `<img src="${jobOffer.image}" alt="Company Logo" style="max-width: 250px; height: auto; margin: 0 auto 20px; display: block;" />`
+        : ""
+    }
+    
+    <h3 style="color: #333; font-size: 24px; margin-bottom: 5px;">${
+      jobOffer.position
+    }</h3>
+    <h4 style="color: #555; font-size: 18px; margin-top: 0; margin-bottom: 20px;">${
+      jobOffer.company
+    }</h4>
+    
+    <div style="background-color: #f7f9fc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="margin: 5px 0;"><strong>Location:</strong> ${
+          jobOffer.location
+        }</p>
+        <p style="margin: 5px 0;"><strong>Employment Type:</strong> ${
+          jobOffer.employmentType
+        }</p>
+        <p style="margin: 5px 0;"><strong>Job Type:</strong> ${
+          jobOffer.jobType
+        }</p>
+        <p style="margin: 5px 0;"><strong>Experience Level:</strong> ${
+          jobOffer.experienceLevel
+        }</p>
+        <p style="margin: 5px 0;"><strong>Salary Range:</strong> ${
+          jobOffer.salaryRange
+        }</p>
+        <p style="margin: 5px 0;"><strong>Date Posted:</strong> ${formatDate(
+          jobOffer.datePosted
+        )}</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #004aad; margin-bottom: 10px;">Job Description</h4>
+        <p style="line-height: 1.6;">${jobOffer.jobDescription}</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #004aad; margin-bottom: 10px;">Required Skills</h4>
+        <ul style="padding-left: 20px; line-height: 1.6;">
+            ${jobOffer.requiredSkill
+              .map((skill) => `<li>${skill}</li>`)
+              .join("")}
+        </ul>
+    </div>
+    
+    <div style="margin: 30px 0; text-align: center;">
+        <a href="https://ics-arms.up.edu.ph/jobs/${
+          jobOffer.jobId
+        }" style="background-color: #004aad; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Apply Now</a>
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    
+    <p style="font-size: 0.8em; color: #999; text-align: center;">
+        © 2025 ICS-ARMS | University of the Philippines Los Baños<br />
+        All rights reserved.<br />
+        To unsubscribe from these emails, please visit your <a href="https://ics-arms.up.edu.ph/profile" style="color: #004aad;">account settings</a>.
+    </p>
+</body>
+</html>`,
       },
     });
     return {
@@ -382,3 +638,271 @@ export async function sendEmailTemplateForNewsletter(
     return { success: false, message: (error as FirebaseError).message };
   }
 }
+
+export async function sendEmailTemplateForNewsletterAnnouncement(
+  announcement: Announcement,
+  alumniEmail: string
+) {
+  try {
+    await addDoc(collection(db, "mail"), {
+      to: alumniEmail,
+      message: {
+        subject: announcement.title,
+        text: announcement.description,
+        html: `<!DOCTYPE html>
+<html lang="en" style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${announcement.title} - ICS-ARMS Announcement</title>
+</head>
+<body style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #004aad;">ICS-ARMS ANNOUNCEMENT</h2>
+    </div>
+    
+    ${
+      announcement.image
+        ? `<img src="${announcement.image}" alt="Announcement Image" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px;" />`
+        : ""
+    }
+    
+    <h3 style="color: #333; font-size: 24px; margin-bottom: 15px;">${
+      announcement.title
+    }</h3>
+    
+    <div style="background-color: #f7f9fc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="margin: 5px 0;"><strong>Date Posted:</strong> ${formatDate(
+          announcement.datePosted
+        )}</p>
+        <p style="margin: 5px 0;"><strong>Type:</strong> ${announcement.type.join(
+          ", "
+        )}</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #004aad; margin-bottom: 10px;">Announcement Details</h4>
+        <p style="line-height: 1.6;">${announcement.description}</p>
+    </div>
+    
+    <div style="margin: 30px 0; text-align: center;">
+        <a href="https://ics-arms.up.edu.ph/announcements/${
+          announcement.announcementId
+        }" style="background-color: #004aad; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Read More</a>
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    
+    <p style="font-size: 0.8em; color: #999; text-align: center;">
+        © 2025 ICS-ARMS | University of the Philippines Los Baños<br />
+        All rights reserved.<br />
+        To unsubscribe from these emails, please visit your <a href="https://ics-arms.up.edu.ph/profile" style="color: #004aad;">account settings</a>.
+    </p>
+</body>
+</html>`,
+      },
+    });
+    return {
+      success: true,
+      message: `Newsletter sent successfully!`,
+    };
+  } catch (error) {
+    return { success: false, message: (error as FirebaseError).message };
+  }
+}
+
+export async function sendEmailTemplateForNewsletterEvent(
+  event: Event,
+  alumniEmail: string
+) {
+  try {
+    const alumRef = query(
+      collection(db, "alumni"),
+      where("email", "==", alumniEmail)
+    );
+    const querySnapshot = await getDocs(alumRef);
+    const alum = querySnapshot.docs[0].data() as Alumnus;
+
+    if (!event.targetGuests.includes(alum.alumniId)) {
+      return {
+        success: false,
+        message: "Alumni not in target guests",
+      };
+    }
+
+    await addDoc(collection(db, "mail"), {
+      to: alumniEmail,
+      message: {
+        subject: event.title,
+        text: event.description,
+        html: `<!DOCTYPE html>
+<html lang="en" style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${event.title} - ICS-ARMS Event</title>
+</head>
+<body style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #004aad;">ICS-ARMS ALUMNI EVENT</h2>
+    </div>
+    
+    <img src="${
+      event.image
+    }" alt="Event Image" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px;" />
+    
+    <h3 style="color: #333; font-size: 24px; margin-bottom: 15px;">${
+      event.title
+    }</h3>
+    
+    <div style="background-color: #f7f9fc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="margin: 5px 0;"><strong>Date:</strong> ${event.date}</p>
+        <p style="margin: 5px 0;"><strong>Time:</strong> ${event.time}</p>
+        <p style="margin: 5px 0;"><strong>Location:</strong> ${
+          event.location
+        }</p>
+        <p style="margin: 5px 0;"><strong>Organized by:</strong> ${
+          event.creatorName
+        }</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <h4 style="color: #004aad; margin-bottom: 10px;">Event Details</h4>
+        <p style="line-height: 1.6;">${event.description}</p>
+    </div>
+    
+    ${
+      event.needSponsorship
+        ? `
+    <div style="background-color: #fff8e1; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+        <p style="margin: 5px 0;"><strong>This event is seeking sponsorship!</strong> If you'd like to contribute, please check our donation drive page.</p>
+    </div>
+    `
+        : ""
+    }
+    
+    <div style="margin: 30px 0; text-align: center;">
+        ${
+          event.stillAccepting
+            ? `
+        <a href="https://ics-arms.up.edu.ph/events/${event.eventId}" style="background-color: #004aad; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">RSVP Now</a>
+        `
+            : `
+        <p style="color: #666; font-style: italic;">Registration for this event is now closed.</p>
+        <a href="https://ics-arms.up.edu.ph/events/${event.eventId}" style="background-color: #004aad; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; margin-top: 10px;">View Event Details</a>
+        `
+        }
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    
+    <p style="font-size: 0.8em; color: #999; text-align: center;">
+        © 2025 ICS-ARMS | University of the Philippines Los Baños<br />
+        All rights reserved.<br />
+        To unsubscribe from these emails, please visit your <a href="https://ics-arms.up.edu.ph/profile" style="color: #004aad;">account settings</a>.
+    </p>
+</body>
+</html>`,
+      },
+    });
+    return {
+      success: true,
+      message: `Newsletter sent successfully!`,
+    };
+  } catch (error) {
+    return { success: false, message: (error as FirebaseError).message };
+  }
+}
+
+export const emailNewsLettertoAlums = async (
+  referenceId: string,
+  category: string
+) => {
+  try {
+    const q = query(
+      collection(db, "alumni"),
+      where("activeStatus", "==", true),
+      where("subscribeToNewsletter", "==", true),
+      where("regStatus", "==", "approved")
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (category === "event") {
+      const eventDoc = await getDoc(doc(db, "event", referenceId));
+      if (!eventDoc.exists()) {
+        throw new Error("Event not found");
+      }
+      const event = eventDoc.data() as Event;
+      querySnapshot.docs.map(
+        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
+          await sendEmailTemplateForNewsletterEvent(event, doc.data().email)
+      );
+    } else if (category === "announcement") {
+      const announcementDoc = await getDoc(
+        doc(db, "Announcement", referenceId)
+      );
+      if (!announcementDoc.exists()) {
+        throw new Error("Announcement not found");
+      }
+      const announcement = announcementDoc.data() as Announcement;
+      querySnapshot.docs.map(
+        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
+          await sendEmailTemplateForNewsletterAnnouncement(
+            announcement,
+            doc.data().email
+          )
+      );
+    } else if (category === "job_offering") {
+      const jobOfferDoc = await getDoc(doc(db, "job_offering", referenceId));
+      if (!jobOfferDoc.exists()) {
+        throw new Error("Job offering not found");
+      }
+      const jobOffer = jobOfferDoc.data() as JobOffering;
+      querySnapshot.docs.map(
+        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
+          await sendEmailTemplateForNewsletterJobOffer(
+            jobOffer,
+            doc.data().email
+          )
+      );
+    } else if (category === "scholarship") {
+      const scholarshipDoc = await getDoc(doc(db, "scholarships", referenceId));
+      if (!scholarshipDoc.exists()) {
+        throw new Error("Scholarship not found");
+      }
+      const scholarship = scholarshipDoc.data() as Scholarship;
+      querySnapshot.docs.map(
+        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
+          await sendEmailTemplateForNewsletterScholarship(
+            scholarship,
+            doc.data().email
+          )
+      );
+    } else if (category === "donation_drive") {
+      const donationDriveDoc = await getDoc(
+        doc(db, "donation_drive", referenceId)
+      );
+      if (!donationDriveDoc.exists()) {
+        throw new Error("Donation drive not found");
+      }
+      const donationDrive = donationDriveDoc.data() as DonationDrive;
+      querySnapshot.docs.map(
+        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
+          await sendEmailTemplateForNewsletterDonationDrive(
+            donationDrive,
+            doc.data().email
+          )
+      );
+    }
+    return {
+      success: true,
+      message: "Newsletter sent successfully to all subscribed alumni",
+    };
+  } catch (error) {
+    console.error("Error sending newsletter:", error);
+    return {
+      success: false,
+      message: (error as Error).message,
+    };
+  }
+};

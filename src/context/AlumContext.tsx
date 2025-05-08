@@ -1,31 +1,24 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import {
-  collection,
-  onSnapshot,
-  query,
-  setDoc,
-  doc,
-  where,
-  getDoc,
-  orderBy,
-  addDoc,
-  updateDoc,
-  QueryDocumentSnapshot,
-  DocumentData,
-  getDocs,
-} from "firebase/firestore";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { sendEmailTemplate } from "@/lib/emailTemplate";
 import { db } from "@/lib/firebase";
-import { useAuth } from "./AuthContext";
+import { uploadImage } from "@/lib/upload";
 import { Alumnus, Career, Education } from "@/models/models";
 import { FirebaseError } from "firebase-admin/app";
-import { sendEmailTemplateForNewsletter } from "@/lib/emailTemplate";
-import { sendEmailTemplate } from "@/lib/emailTemplate";
-import { toastError, toastSuccess } from "@/components/ui/sonner";
-import { uploadImage } from "@/lib/upload";
-import { messaging } from "firebase-admin";
-
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "./AuthContext";
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -247,38 +240,6 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const emailNewsLettertoAlums = async (
-    title: string,
-    content: string,
-    photoURL: string,
-    category: string
-  ) => {
-    try {
-      const q = query(
-        collection(db, "alumni"),
-        where("activeStatus", "==", true),
-        where("subscribeToNewsletter", "==", true)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.docs.map(
-        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
-          await sendEmailTemplateForNewsletter(
-            photoURL,
-            title,
-            content,
-            doc.data().email,
-            category
-          )
-      );
-      // const data =
-      // if (data.success) {
-      //   toastSuccess(data.message);
-      // } else toastError(data.message);
-    } catch (error) {
-      console.error("Error sending newsletter:", error);
-    }
-  };
-
   //birthdayy
   const handleUpdateBirthday = async (alumniId: string, birthDate: Date) => {
     try {
@@ -384,7 +345,6 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         myCareer,
         myEducation,
         updateAlumnus,
-        emailNewsLettertoAlums,
         updateAlumnusActiveStatus,
         totalAlums,
         getActiveAlums,
