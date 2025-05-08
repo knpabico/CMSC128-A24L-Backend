@@ -29,7 +29,9 @@ export function ScholarshipProvider({
 }) {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
-  const [scholarshipStudents, setScholarshipStudents] = useState<ScholarshipStudent[]>([]);
+  const [scholarshipStudents, setScholarshipStudents] = useState<
+    ScholarshipStudent[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { user, isAdmin } = useAuth();
@@ -147,7 +149,7 @@ export function ScholarshipProvider({
     setError(null);
 
     // Fetch all scholarship-student relationships
-    const q = query(collection(db, "scholarshipStudent"));
+    const q = query(collection(db, "scholarship_student"));
 
     // Listener for any changes
     const unsubscribeScholarshipStudents = onSnapshot(
@@ -332,14 +334,21 @@ export function ScholarshipProvider({
       const docRef = doc(collection(db, "student"));
       student.studentId = docRef.id;
       await setDoc(docRef, student);
-      return { success: true, message: "Student added successfully", studentId: docRef.id };
+      return {
+        success: true,
+        message: "Student added successfully",
+        studentId: docRef.id,
+      };
     } catch (error) {
       console.error("Error adding student:", error);
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const updateStudent = async (studentId: string, updates: Partial<Student>) => {
+  const updateStudent = async (
+    studentId: string,
+    updates: Partial<Student>
+  ) => {
     try {
       const studentRef = doc(db, "student", studentId);
       await updateDoc(studentRef, updates);
@@ -354,19 +363,20 @@ export function ScholarshipProvider({
     try {
       // First check if student is associated with any scholarships
       const scholarshipStudentQuery = query(
-        collection(db, "scholarshipStudent"), 
+        collection(db, "scholarshipStudent"),
         where("studentId", "==", studentId)
       );
-      
+
       const scholarshipStudentSnapshot = await getDocs(scholarshipStudentQuery);
-      
+
       if (!scholarshipStudentSnapshot.empty) {
-        return { 
-          success: false, 
-          message: "Cannot delete student as they are associated with scholarships" 
+        return {
+          success: false,
+          message:
+            "Cannot delete student as they are associated with scholarships",
         };
       }
-      
+
       // If no associations, delete the student
       const studentRef = doc(db, "student", studentId);
       await deleteDoc(studentRef);
@@ -403,32 +413,38 @@ export function ScholarshipProvider({
   };
 
   // ScholarshipStudent-related functions
-  const addScholarshipStudent = async (scholarshipStudent: ScholarshipStudent) => {
+  const addScholarshipStudent = async (
+    scholarshipStudent: ScholarshipStudent
+  ) => {
     try {
       const docRef = doc(collection(db, "scholarshipStudent"));
       scholarshipStudent.ScholarshipStudentId = docRef.id;
-      
+
       await setDoc(docRef, scholarshipStudent);
-      
+
       // Add student to the studentList array in the scholarship document
-      const scholarshipRef = doc(db, "scholarship", scholarshipStudent.scholarshipId);
+      const scholarshipRef = doc(
+        db,
+        "scholarship",
+        scholarshipStudent.scholarshipId
+      );
       const scholarshipDoc = await getDoc(scholarshipRef);
-      
+
       if (scholarshipDoc.exists()) {
         const scholarshipData = scholarshipDoc.data();
         const studentList = scholarshipData.studentList || [];
-        
+
         if (!studentList.includes(scholarshipStudent.studentId)) {
           await updateDoc(scholarshipRef, {
-            studentList: [...studentList, scholarshipStudent.studentId]
+            studentList: [...studentList, scholarshipStudent.studentId],
           });
         }
       }
-      
-      return { 
-        success: true, 
-        message: "Scholarship application submitted successfully", 
-        scholarshipStudentId: docRef.id 
+
+      return {
+        success: true,
+        message: "Scholarship application submitted successfully",
+        scholarshipStudentId: docRef.id,
       };
     } catch (error) {
       console.error("Error adding scholarship student:", error);
@@ -437,13 +453,20 @@ export function ScholarshipProvider({
   };
 
   const updateScholarshipStudent = async (
-    scholarshipStudentId: string, 
+    scholarshipStudentId: string,
     updates: Partial<ScholarshipStudent>
   ) => {
     try {
-      const scholarshipStudentRef = doc(db, "scholarshipStudent", scholarshipStudentId);
+      const scholarshipStudentRef = doc(
+        db,
+        "scholarshipStudent",
+        scholarshipStudentId
+      );
       await updateDoc(scholarshipStudentRef, updates);
-      return { success: true, message: "Scholarship application updated successfully" };
+      return {
+        success: true,
+        message: "Scholarship application updated successfully",
+      };
     } catch (error) {
       console.error("Error updating scholarship student:", error);
       return { success: false, message: (error as FirebaseError).message };
@@ -453,31 +476,40 @@ export function ScholarshipProvider({
   const deleteScholarshipStudent = async (scholarshipStudentId: string) => {
     try {
       // Get the scholarship student record first to get the scholarshipId and studentId
-      const scholarshipStudentRef = doc(db, "scholarshipStudent", scholarshipStudentId);
+      const scholarshipStudentRef = doc(
+        db,
+        "scholarshipStudent",
+        scholarshipStudentId
+      );
       const scholarshipStudentDoc = await getDoc(scholarshipStudentRef);
-      
+
       if (scholarshipStudentDoc.exists()) {
         const scholarshipStudentData = scholarshipStudentDoc.data();
         const { scholarshipId, studentId } = scholarshipStudentData;
-        
+
         // Delete the scholarship student record
         await deleteDoc(scholarshipStudentRef);
-        
+
         // Remove student from the studentList in the scholarship document
         const scholarshipRef = doc(db, "scholarship", scholarshipId);
         const scholarshipDoc = await getDoc(scholarshipRef);
-        
+
         if (scholarshipDoc.exists()) {
           const scholarshipData = scholarshipDoc.data();
           const studentList = scholarshipData.studentList || [];
-          const updatedStudentList = studentList.filter((id: string) => id !== studentId);
-          
+          const updatedStudentList = studentList.filter(
+            (id: string) => id !== studentId
+          );
+
           await updateDoc(scholarshipRef, {
-            studentList: updatedStudentList
+            studentList: updatedStudentList,
           });
         }
-        
-        return { success: true, message: "Scholarship application deleted successfully" };
+
+        return {
+          success: true,
+          message: "Scholarship application deleted successfully",
+        };
       } else {
         return { success: false, message: "Scholarship application not found" };
       }
@@ -513,20 +545,26 @@ export function ScholarshipProvider({
   };
 
   // Get all students for a specific scholarship
-  const getStudentsByScholarshipId = async (scholarshipId: string): Promise<Student[]> => {
+  const getStudentsByScholarshipId = async (
+    scholarshipId: string
+  ): Promise<Student[]> => {
     try {
       // First get the scholarship to get the studentList
       const scholarshipDoc = await getScholarshipById(scholarshipId);
-      
-      if (!scholarshipDoc || !scholarshipDoc.studentList || scholarshipDoc.studentList.length === 0) {
+
+      if (
+        !scholarshipDoc ||
+        !scholarshipDoc.studentList ||
+        scholarshipDoc.studentList.length === 0
+      ) {
         return [];
       }
-      
+
       // Fetch all students in the studentList
-      const studentPromises = scholarshipDoc.studentList.map((studentId: string) => 
-        getStudentById(studentId)
+      const studentPromises = scholarshipDoc.studentList.map(
+        (studentId: string) => getStudentById(studentId)
       );
-      
+
       const students = await Promise.all(studentPromises);
       // Filter out any null results
       return students.filter((student): student is Student => student !== null);
@@ -537,65 +575,79 @@ export function ScholarshipProvider({
   };
 
   // Get all scholarship applications for a specific scholarship
-  const getScholarshipStudentsByScholarshipId = async (scholarshipId: string): Promise<ScholarshipStudent[]> => {
+  const getScholarshipStudentsByScholarshipId = async (
+    scholarshipId: string
+  ): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
         collection(db, "scholarshipStudent"),
         where("scholarshipId", "==", scholarshipId)
       );
-      
+
       const querySnapshot = await getDocs(q);
-      const scholarshipStudentList = querySnapshot.docs.map(doc => ({
+      const scholarshipStudentList = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
-        ScholarshipStudentId: doc.id
+        ScholarshipStudentId: doc.id,
       })) as ScholarshipStudent[];
-      
+
       return scholarshipStudentList;
     } catch (err) {
-      console.error("Error fetching scholarship applications by scholarship ID:", err);
+      console.error(
+        "Error fetching scholarship applications by scholarship ID:",
+        err
+      );
       throw new Error("Failed to load scholarship applications");
     }
   };
 
   // Get all scholarship applications for a specific student
-  const getScholarshipStudentsByStudentId = async (studentId: string): Promise<ScholarshipStudent[]> => {
+  const getScholarshipStudentsByStudentId = async (
+    studentId: string
+  ): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
         collection(db, "scholarshipStudent"),
         where("studentId", "==", studentId)
       );
-      
+
       const querySnapshot = await getDocs(q);
-      const scholarshipStudentList = querySnapshot.docs.map(doc => ({
+      const scholarshipStudentList = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
-        ScholarshipStudentId: doc.id
+        ScholarshipStudentId: doc.id,
       })) as ScholarshipStudent[];
-      
+
       return scholarshipStudentList;
     } catch (err) {
-      console.error("Error fetching scholarship applications by student ID:", err);
+      console.error(
+        "Error fetching scholarship applications by student ID:",
+        err
+      );
       throw new Error("Failed to load student's scholarship applications");
     }
   };
 
   // Get all scholarship applications for a specific alumnus
-  const getScholarshipStudentsByAlumId = async (alumId: string): Promise<ScholarshipStudent[]> => {
+  const getScholarshipStudentsByAlumId = async (
+    alumId: string
+  ): Promise<ScholarshipStudent[]> => {
     try {
       const q = query(
         collection(db, "scholarshipStudent"),
         where("alumId", "==", alumId)
       );
-      
+
       const querySnapshot = await getDocs(q);
-      const scholarshipStudentList = querySnapshot.docs.map(doc => ({
+      const scholarshipStudentList = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
-        ScholarshipStudentId: doc.id
+        ScholarshipStudentId: doc.id,
       })) as ScholarshipStudent[];
-      
+
       return scholarshipStudentList;
     } catch (err) {
       console.error("Error fetching scholarship applications by alum ID:", err);
-      throw new Error("Failed to load alum's sponsored scholarship applications");
+      throw new Error(
+        "Failed to load alum's sponsored scholarship applications"
+      );
     }
   };
 
@@ -609,14 +661,14 @@ export function ScholarshipProvider({
         deleteScholarship,
         getScholarshipById,
         getAllScholarships,
-        
+
         // Student-related
         students,
         addStudent,
         updateStudent,
         deleteStudent,
         getStudentById,
-        
+
         // ScholarshipStudent-related
         scholarshipStudents,
         addScholarshipStudent,
@@ -627,7 +679,7 @@ export function ScholarshipProvider({
         getScholarshipStudentsByStudentId,
         getScholarshipStudentsByAlumId,
         getStudentsByScholarshipId,
-        
+
         // Status
         loading,
         error,

@@ -12,7 +12,7 @@ import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
 
-export default function AddStudent() {
+export const AddStudent = () => {
   const params = useParams();
   const {
     getScholarshipById,
@@ -296,4 +296,4 @@ export default function AddStudent() {
       </div>
     </div>
   );
-}
+};

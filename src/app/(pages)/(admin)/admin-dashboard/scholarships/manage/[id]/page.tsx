@@ -3,7 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useScholarship } from "@/context/ScholarshipContext";
-import { Alumnus, Scholarship } from "@/models/models";
+import {
+  Alumnus,
+  Scholarship,
+  ScholarshipStudent,
+  Student,
+} from "@/models/models";
 import {
   Asterisk,
   ChevronRight,
@@ -21,13 +26,27 @@ import { db } from "@/lib/firebase";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
-  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId } =
-    useScholarship();
+  const {
+    getScholarshipById,
+    updateScholarship,
+    getStudentsByScholarshipId,
+    scholarshipStudents,
+  } = useScholarship();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const scholarshipId = params?.id as string;
   const { alums, isLoading } = useAlums();
+
+  //for retrieving each scholarshipStudent info per studentId
+  const [scholarshipStudentMapping, setScholarshipStudentMapping] = useState<
+    Record<string, ScholarshipStudent[]>
+  >({});
+
+  //for retrieving each alum info per scholarshipStudent
+  const [sponsorAlum, setSponsorAlumMapping] = useState<
+    Record<string, Alumnus | undefined>
+  >({});
 
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
@@ -119,6 +138,65 @@ const ScholarshipDetailPage: React.FC = () => {
       fetchStudents();
     }
   }, [scholarshipId, getStudentsByScholarshipId]);
+
+  //useEffect to fetch scholarshipStudent with mapping
+  useEffect(() => {
+    //function to fetch scholarshipStudent while being mapped to studentId
+    const mapScholarshipStudent = async () => {
+      if (students.length === 0) return;
+      if (!students) return;
+      setLoading(true);
+
+      try {
+        //fetch educationList of students
+        const fetchScholarshipStudent = students.map(
+          async (student: Student) => {
+            const studentId = student.studentId;
+
+            //get scholarshipStudent list by filtering by studentId
+            const scholarshipStudentList = scholarshipStudents.filter(
+              (scholarshipStudent: ScholarshipStudent) =>
+                scholarshipStudent.studentId === studentId
+            );
+
+            return { studentId, scholarshipStudentList };
+          }
+        );
+
+        const scholarshipStudent = await Promise.all(fetchScholarshipStudent);
+
+        //intialize as empty education record
+        const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
+        const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
+        scholarshipStudent.forEach((stud) => {
+          stud.scholarshipStudentList.forEach(
+            (scholarshipStudent: ScholarshipStudent) => {
+              //finding the alumId in the alumList
+              const alumSponsor = alumList.find(
+                (alum) => alum.alumniId === scholarshipStudent.alumId
+              );
+              scholarshipSponsor[scholarshipStudent.scholarshipId] =
+                alumSponsor;
+            }
+          );
+
+          scholarshipStudentMap[stud.studentId] = stud.scholarshipStudentList;
+        });
+
+        //set educationMap
+        setScholarshipStudentMapping(scholarshipStudentMap);
+        setSponsorAlumMapping(scholarshipSponsor);
+      } catch (error) {
+        console.error("Error fetching scholarshipStudent:", error);
+
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    mapScholarshipStudent();
+  }, [students, scholarshipStudents]);
 
   const router = useRouter();
   const addStudentRoute = () => {
@@ -375,9 +453,46 @@ const ScholarshipDetailPage: React.FC = () => {
         ) : students.length > 0 ? (
           <ul className="list-disc pl-6">
             {students.map((student) => (
-              <li key={student.studentId} className="text-gray-700">
+              <div key={student.studentId} className="text-gray-700">
                 <strong>{student.name}</strong> - {student.emailAddress}
-              </li>
+                {""}
+                {/*scholarships of current student */}
+                {scholarshipStudentMapping[student.studentId] &&
+                scholarshipStudentMapping[student.studentId].length > 0 ? (
+                  <div>
+                    <p className="text-sm text-gray-600">Sponsors:</p>
+                    <ul className="list-disc pl-6">
+                      {/*mapping one of the scholarship of student*/}
+                      {scholarshipStudentMapping[student.studentId].map(
+                        (scholarshipStudent) => (
+                          <div key={scholarshipStudent.scholarshipId}>
+                            {/*sponsor info just in case na need*/}
+                            {sponsorAlum[scholarshipStudent.scholarshipId] ? (
+                              <div>
+                                Sponsor:{" "}
+                                {
+                                  sponsorAlum[scholarshipStudent.scholarshipId]
+                                    ?.firstName
+                                }{" "}
+                                {
+                                  sponsorAlum[scholarshipStudent.scholarshipId]
+                                    ?.lastName
+                                }
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                            {/*status ng scholarship ng student, clickable pag pending*/}
+                            <button>Status: {scholarshipStudent.status}</button>
+                          </div>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                ) : (
+                  "No sponsors yet"
+                )}
+              </div>
             ))}
           </ul>
         ) : (
