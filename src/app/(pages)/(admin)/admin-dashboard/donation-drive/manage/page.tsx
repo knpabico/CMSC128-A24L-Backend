@@ -122,7 +122,7 @@ export default function ManageDonationDrive() {
 			if (donationDrives) {
 					const toggleStates: { [key: string]: boolean } = {};
 					donationDrives.forEach((drive: DonationDrive) => {
-							toggleStates[drive.donationDriveId] = drive.status === "active";
+						toggleStates[drive.donationDriveId] = drive.status === "active";
 					});
 					setToggles(toggleStates);
 			}
@@ -219,29 +219,39 @@ export default function ManageDonationDrive() {
 	}, []);
 
 	async function toggleStatus(driveId: string, currentStatus: string) {
-		try {			
+		try {
+			// Determine the new status
+			const newStatus = currentStatus === "active" ? "completed" : "active";
+			
 			// Update in Firestore
 			const donationRef = doc(db, "donation_drive", driveId);
-			let newstatus;
-			if (currentStatus == "active"){
-				newstatus = "completed";
-			} else {
-				newstatus = "active";
-			}
-			await updateDoc(donationRef, {status: newstatus});
+			await updateDoc(donationRef, { status: newStatus });
 			
 			// Update local state
-			if (donationDrives) {
-				const updatedDrives = localDrives.map((drive: DonationDrive) => drive.donationDriveId === driveId ? { ...drive, status: newstatus } : drive);
-				setLocalDrives(updatedDrives);				
-				toastSuccess(`Donation Drive status updated successfully.`)
+			if (localDrives) {
+				const updatedDrives = localDrives.map((drive: DonationDrive) => 
+					drive.donationDriveId === driveId ? { ...drive, status: newStatus } : drive
+				);
+				setLocalDrives(updatedDrives);
+				toastSuccess(`Donation Drive status updated successfully.`);
 			}
 		} catch (err) {
-			console.error("Error updating anonymity:", err);
-			toastError("Failed to update Donation Drive status.")
+			console.error("Error updating status:", err);
+			toastError("Failed to update Donation Drive status.");
+			
+			// Revert the toggle in case of error
+			setToggles(prev => ({...prev, [driveId]: !prev[driveId]}));
 		}
 	}
 
+	const handleToggleClick = (drive: DonationDrive) => {
+		// First update the toggle state for immediate UI feedback
+		setToggles(prev => ({...prev, [drive.donationDriveId]: !prev[drive.donationDriveId]}));
+		
+		// Then update the status in the database
+		toggleStatus(drive.donationDriveId, drive.status);
+	};
+	
 	//  Scholarship Deletion
 	const handleDeleteClick = (donationDrive : DonationDrive) => {
 		if (!donationDrive.donationDriveId) {
@@ -371,9 +381,16 @@ export default function ManageDonationDrive() {
 								<div className="w-1/3 md:w-1/6 flex items-center justify-center">
 								{/* <div className="w-1/6 flex items-center justify-center"> */}
 									{/* Toggle for status */}
-									<div
-										onClick={() => {setToggles(prev => ({...prev,[drive.donationDriveId]: !prev[drive.donationDriveId]}));toggleStatus(drive.donationDriveId, drive.status);}}className={`w-10 md:w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${toggles[drive.donationDriveId] ? "bg-[var(--primary-blue)]" : "bg-gray-300"}`}>
-										<div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${toggles[drive.donationDriveId] ? "translate-x-6" : "translate-x-0"}`}/>
+									<div 
+										onClick={() => handleToggleClick(drive)}
+										className={`w-10 md:w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${
+											toggles[drive.donationDriveId] ? "bg-[var(--primary-blue)]" : "bg-gray-300"
+										}`}
+									>
+										{/* Toggle switch inner button */}
+										<div className={`bg-white h-4 w-4 rounded-full shadow-md transform transition-transform ${
+											toggles[drive.donationDriveId] ? "translate-x-6" : "translate-x-0"
+										}`} />
 									</div>
 								</div>
 								<div className="w-1/3 md:w-1/6 flex text-center items-center justify-center text-xs">
