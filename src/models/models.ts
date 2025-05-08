@@ -230,7 +230,7 @@ export interface ScholarshipStudent {
   studentId: string;
   alumId: string;
   scholarshipId: string;
-  status: string; //accepted, pending, or rejected
+  status: string; //accepted  or pending
   pdf: string; 
 }
 

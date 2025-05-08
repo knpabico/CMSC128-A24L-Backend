@@ -14,7 +14,7 @@ import { db } from '@/lib/firebase';
 const ScholarshipDetailPage: React.FC = () => {
 	
   const params = useParams();
-  const { getScholarshipById, updateScholarship } = useScholarship();
+  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId } = useScholarship();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +29,8 @@ const ScholarshipDetailPage: React.FC = () => {
 	const [alumList, setAlumniList] = useState<Alumnus[]>([]);
 	const [isInformationOpen, setIsInformationOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
+	const [students, setStudents] = useState<any[]>([]);
+	const [loadingStudents, setLoadingStudents] = useState(true);
 	
   useEffect(() => {
 		const fetchScholarship = async () => {
@@ -85,11 +87,24 @@ const ScholarshipDetailPage: React.FC = () => {
 				setLoading(false);
 			}
 		};
+
+		const fetchStudents = async () => {
+			try {
+			  setLoadingStudents(true);
+			  const studentList = await getStudentsByScholarshipId(scholarshipId);
+			  setStudents(studentList);
+			} catch (error) {
+			  console.error("Error fetching students:", error);
+			} finally {
+			  setLoadingStudents(false);
+			}
+		  };
 		
 		if (scholarshipId) {
 			fetchScholarship();
+			fetchStudents();
 		}
-	}, [scholarshipId]); // Remove getScholarshipById from dependency array
+	}, [scholarshipId, getStudentsByScholarshipId]); 
 
 	// Scholarship Edit/Update
 	const [editData, setEditData] = useState({
@@ -268,9 +283,30 @@ const ScholarshipDetailPage: React.FC = () => {
 							</button>
 						</div>
 					)}
-				</form>
+				</form>		
 			</div>
 		</div>
+		{/* Student Section */}
+		<br></br>
+		<div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-4">Students in this Scholarship</h2>
+        {loadingStudents ? (
+          <p>Loading students...</p>
+        ) : students.length > 0 ? (
+          <ul className="list-disc pl-6">
+            {students.map((student) => (
+              <li key={student.studentId} className="text-gray-700">
+                <strong>{student.name}</strong> - {student.emailAddress}
+				
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No students are currently associated with this scholarship.</p>
+        )}
+      </div>
+
+		
     </>
   );
 };

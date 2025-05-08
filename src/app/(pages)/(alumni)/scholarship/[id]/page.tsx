@@ -31,7 +31,7 @@ import { DialogDescription } from "@radix-ui/react-dialog";
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
-  const { getScholarshipById, updateScholarship } = useScholarship();
+  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId } = useScholarship();
   const { user } = useAuth();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +41,9 @@ const ScholarshipDetailPage: React.FC = () => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
   const { featuredItems, isLoading } = useFeatured();
+
+    const [students, setStudents] = useState<any[]>([]);
+    const [loadingStudents, setLoadingStudents] = useState(true);
 
   const eventStories = featuredItems.filter(
     (story) => story.type === "scholarship"
@@ -108,11 +111,26 @@ const ScholarshipDetailPage: React.FC = () => {
         setLoading(false);
       }
     };
+    
+    const fetchStudents = async () => {
+			try {
+			  setLoadingStudents(true);
+			  const studentList = await getStudentsByScholarshipId(scholarshipId);
+			  setStudents(studentList);
+			} catch (error) {
+			  console.error("Error fetching students:", error);
+			} finally {
+			  setLoadingStudents(false);
+			}
+		  };
 
     if (scholarshipId) {
       fetchScholarship();
+      fetchStudents();
     }
-  }, [scholarshipId, getScholarshipById]);
+
+		
+  }, [scholarshipId, getScholarshipById, getStudentsByScholarshipId]);
 
   const handleSponsor = async () => {
     if (!user || !scholarship) return;
@@ -286,6 +304,26 @@ const ScholarshipDetailPage: React.FC = () => {
               </DialogContent>
             </Dialog>
           )}
+
+          <br></br>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-2xl font-bold mb-4">Students in this Scholarship</h2>
+                {loadingStudents ? (
+                  <p>Loading students...</p>
+                ) : students.length > 0 ? (
+                  <ul className="list-disc pl-6">
+                    {students.map((student) => (
+                      <li key={student.studentId} className="text-gray-700">
+                        <strong>{student.name}</strong> - {student.emailAddress}
+                
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No students are currently associated with this scholarship.</p>
+                )}
+              </div>
+
 
           {/* Featured Stories Section - Carousel */}
           <div className="mt-16">
