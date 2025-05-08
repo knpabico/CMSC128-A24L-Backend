@@ -1,6 +1,5 @@
 "use client";
 import LoadingPage from "@/components/Loading";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
@@ -57,17 +56,13 @@ import React from "react";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { log } from "console";
-import { Oswald } from "next/font/google";
 import CollapseText from "@/components/CollapseText";
+import Carousel from "@/components/Carousel";
+import Landing from "@/components/Landing";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 const SORT_TAGS = ["Earliest", "Latest"];
-
-const oswald = Oswald({
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700"],
-});
 
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
@@ -364,41 +359,7 @@ export default function Home() {
           </Button>
         </div> */}
 
-        {/* Carousel */}
-        <div className="relative w-full h-screen overflow-hidden">
-          {/* Navbar */}
-          <div
-            className="flex items-center justify-between h-20 fixed top-0 w-full"
-            style={{ padding: "0 10% 0 10%" }}
-          >
-            <div>ICS-ARMS</div>
-            <div>
-              <Button asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-10 h-screen justify-center">
-            <div className="flex flex-col items-center justify-center gap-10">
-              <div className={`${oswald.className} text-6xl`}>
-                Extending Our Reach, Embracing Our Legacy
-              </div>
-              <div className="text-lg text-center">
-                ICS-ARMS reaches out to connect, support, and celebrate the
-                journeys<br></br>of our alumni—building a stronger, united ICS
-                community.
-              </div>
-            </div>
-            <div>
-              <div className="flex gap-5" style={{ padding: "0 10% 0 10%" }}>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 1</div>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 2</div>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 3</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Landing />
 
         <div
           className="flex flex-col gap-8"
