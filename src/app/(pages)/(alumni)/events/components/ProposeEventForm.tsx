@@ -78,6 +78,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
         setEventImage(eventToEdit.image);
         setEventDate(eventToEdit.date);
         setEventLocation(eventToEdit.location);
+        setPreview(eventToEdit.image);
         // Optional: handle image if you prefill it somehow
   
         // Properly set visibility and guests
