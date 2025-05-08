@@ -11,6 +11,7 @@ import {
   Announcement,
   JobOffering,
   ScholarshipStudent,
+	Student,
 } from "@/models/models";
 import {
   ChevronLeft,
@@ -43,8 +44,9 @@ const ScholarshipDetailPage: React.FC = () => {
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
   const { featuredItems, isLoading } = useFeatured();
 
-    const [students, setStudents] = useState<any[]>([]);
-    const [loadingStudents, setLoadingStudents] = useState(true);
+	const [students, setStudents] = useState<any[]>([]);
+	const [loadingStudents, setLoadingStudents] = useState(true);
+	const [studentDetails, setstudentDetails] = useState< Student | null>(null);
 
   const eventStories = featuredItems.filter(
     (story) => story.type === "scholarship"
@@ -318,7 +320,86 @@ const ScholarshipDetailPage: React.FC = () => {
             </Dialog>
           )}
 
-          <br></br>
+					{/* Student Section */}
+					<div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
+						<div className="flex justify-between">
+							<h2 className="text-md font-semibold">List of Students</h2>
+							<div>
+								Flitering
+							</div>
+						</div>
+						<div className="my-3">
+								{loadingStudents ? (
+									<p>Loading students...</p>
+								) : students.length > 0 ? (
+									<div className="overflow-x-auto">
+										{/* Table Header */}
+										<div className="flex w-full bg-gray-100 p-3 rounded-md mb-2 justify-between">
+											<div className="w-2/3">
+												Student
+											</div>
+											<div className="w-1/3 flex justify-around">
+												<div className="">
+													Status
+												</div>
+												<div className="">
+													Become a Sponsor
+												</div>
+											</div>
+										</div>
+										{/* Table Body */}
+										<div>
+											<ul>
+												{students.map((student) => (
+													<li key={student.studentId}  >
+														<div className="flex justify-between w-full rounded-md px-3 my-2">
+															<div className="w-2/3">
+																<div className="text-md mb-1 font-semibold">
+																	{student.name}
+																</div>
+																<div className="text-xs">
+																	<div>
+																		{student.age} years old
+																	</div>
+																	<div className="h-fit">
+																		{student.shortBackground}
+																	</div>
+																</div>
+															</div>
+															<div className="w-1/3 flex justify-around items-center">
+																<div className="">
+																	status
+																</div>
+																<div className="">
+																	<div className="">
+																	<button 
+																		onClick={() => handleStudentSponsor(student.studentId)}
+																		className={`text-md cursor-pointer rounded-full px-3 py-1 text-white shadow-lg 
+																		${isAlreadySponsoring ? 'bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
+																		disabled={!isAlreadySponsoring}
+																	>
+																		Sponsor
+																	</button>
+																	</div>
+																</div>
+															</div>
+														</div>
+														<div className="border-b-2 border-gray-100 w-full"></div>          
+													</li>
+												))}
+											</ul>
+										</div>
+									</div>
+								) : (
+									<div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+										<h3 className="text-xl font-medium text-gray-600"> No students are available for sponsorship at the moment. </h3>
+										<p className="text-gray-500 mt-2"> Please check back later or explore our other scholarship opportunities.</p>
+									</div>
+								)}
+							</div>
+					</div>
+
+          {/* <br></br>
             <div className="bg-white p-6 rounded-lg shadow-md">
                 <h2 className="text-2xl font-bold mb-4">Students in this Scholarship</h2>
                 {loadingStudents ? (
@@ -342,8 +423,9 @@ const ScholarshipDetailPage: React.FC = () => {
                 ) : (
                   <p>No students are currently associated with this scholarship.</p>
                 )}
-              </div>
-
+              </div> */}
+					
+					
 
           {/* Featured Stories Section - Carousel */}
           <div className="mt-16">
