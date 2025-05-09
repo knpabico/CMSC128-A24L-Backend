@@ -12,7 +12,6 @@ import { useScholarship } from "@/context/ScholarshipContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
-import { saveAs } from "file-saver";
 
 export default function SponsorshipDetails() {
   const router = useRouter();
