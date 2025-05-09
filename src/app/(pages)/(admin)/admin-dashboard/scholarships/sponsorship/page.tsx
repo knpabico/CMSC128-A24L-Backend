@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronRight,
   CircleAlert,
+  CircleCheck,
   CircleX,
   Trash2,
 } from "lucide-react";
@@ -44,8 +45,9 @@ export default function ViewPendingScholarships() {
   const [error, setError] = useState<string | null>(null);
   const [isSticky, setIsSticky] = useState(false);
   const router = useRouter();
-  const navigateToDetail = (scholarshipId: string) => {
-    router.push(`/admin-dashboard/scholarships/manage/${scholarshipId}`);
+
+  const navigateToDetail = (scholarship_studentID: string) => {
+    router.push(`/admin-dashboard/scholarships/sponsorship/${scholarship_studentID}`);
   };
 
   //for retrieving each scholarshipStudent info per studentId
@@ -65,6 +67,7 @@ export default function ViewPendingScholarships() {
 
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingReject, setLoadingReject] = useState(false);
+	const [statusFilter, setStatusFilter] = useState("all");
 
   const [sortOption, setSortOption] = useState<
     | "newest"
@@ -240,14 +243,39 @@ export default function ViewPendingScholarships() {
         </div>
         <div className="font-bold text-[var(--primary-blue)]">
           {" "}
-          View Pending Scholarships{" "}
+         	Manage Sponsorship{" "}
         </div>
       </div>
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl">Pending Scholarships</div>
+			<div className="w-full">
+        <div className="flex flex-col items-start gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="font-bold text-3xl">
+            Manage Sponsorships
+          </div>
         </div>
       </div>
+      {/* Filter Buttons */}
+      <div className="flex flex-col gap-3">
+        <div className="w-full flex gap-2">
+					<div onClick={() => setStatusFilter("all")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "all" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
+						<div className={`w-full h-1 transition-colors ${statusFilter === "all" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
+						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "all" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+							All Sponsorship
+						</div>
+					</div>
+					<div onClick={() => setStatusFilter("active")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "active" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
+						<div className={`w-full h-1 transition-colors ${statusFilter === "active" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
+						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "active" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+							Approved
+						</div>
+					</div>
+          <div onClick={() => setStatusFilter("completed")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
+						<div className={`w-full h-1 transition-colors ${statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
+						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "completed" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+							Rejected
+						</div>
+					</div>
+        </div>
+			</div>
       {/* Filter tabs */}
       <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
         <div className="text-sm font-medium">Filter by:</div>
@@ -270,135 +298,118 @@ export default function ViewPendingScholarships() {
         </div>
       </div>
       {/* Table Container with Fixed Height for Scrolling */}
-      <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-        <div
-          className="rounded-xl overflow-hidden border border-gray-300 relative"
-          ref={tableRef}
-        >
-          <div
-            className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
-              isSticky ? "fixed top-0" : ""
-            }`}
-            style={{ width: isSticky ? headerWidth : "100%" }}
-          >
-            <div className="w-1/2 flex items-center justify-baseline font-semibold">
-              Scholarship Info
-            </div>
-          </div>
+			<div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+				<div
+					className="rounded-xl overflow-hidden border border-gray-300 relative"
+					ref={tableRef}
+				>
+					{/* Header Row */}
+					<div
+						className={`bg-blue-100 w-full flex p-4 text-xs z-10 shadow-sm ${
+							isSticky ? "fixed top-0" : ""
+						}`}
+						style={{ width: isSticky ? headerWidth : "100%" }}
+					>
+						<div className="w-1/3 font-semibold">Scholarship Info</div>
+						<div className="w-1/5 font-semibold">Student</div>
+						<div className="w-1/5 font-semibold">Alumnus</div>
+						<div className="w-1/5 font-semibold text-center">Actions</div>
+					</div>
 
-          {/* Spacer div to prevent content jump when header becomes fixed */}
-          {isSticky && <div style={{ height: "56px" }}></div>}
+					{/* Spacer div to prevent content jump when header becomes fixed */}
+					{isSticky && <div style={{ height: "56px" }}></div>}
 
-          {/* Dynamic rows */}
-          {sortedScholarships.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
-              'No scholarships available.'
-            </div>
-          ) : (
-            <div className="">
-              {sortedScholarships.map((scholarship: Scholarship, index) => (
-                <div
-                  key={scholarship.scholarshipId}
-                  className={`w-full flex gap-4 border-t border-gray-300 ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-blue-50`}
-                >
-                  <div className="w-1/2 flex flex-col p-4 gap-1">
-                    <div className="text-base font-bold">
-                      {scholarship.title} {"("}
-                      {scholarship.status}
-                      {")"}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Date Posted: {scholarship.datePosted.toLocaleDateString()}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Sponsors: {scholarship.alumList.length}
-                    </div>
-                  </div>
-                  {scholarship.status === "active" &&
-                    scholarshipStudentMapping[scholarship.scholarshipId] &&
-                    scholarshipStudentMapping[scholarship.scholarshipId].map(
-                      (scholarshipStudent: ScholarshipStudent) => (
-                        <div key={scholarshipStudent.ScholarshipStudentId}>
-                          {scholarshipStudent.status === "pending" && (
-                            <div>
-                              <div
-                                key={scholarshipStudent.studentId}
-                                className="w-full flex items-center gap-4 border-t border-gray-300 p-4"
-                              >
-                                {/* Student Info */}
-                                <div className="w-1/3 text-sm text-gray-600">
-                                  <span className="font-medium">Student:</span>{" "}
-                                  {
-                                    studentScholar[
-                                      scholarshipStudent.ScholarshipStudentId
-                                    ].name
-                                  }
-                                </div>
+					{/* Dynamic rows */}
+					{sortedScholarships.length === 0 ? (
+						<div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
+							No scholarships available.
+						</div>
+					) : (
+						<div>
+							{sortedScholarships.map((scholarship: Scholarship, index) => (
+								<div
+									key={scholarship.scholarshipId}
+									className={`w-full flex-col ${
+										index % 2 === 0 ? "bg-white" : "bg-gray-50"
+									} `}
+								>
+									<div className="flex flex-col w-full">
+										{scholarship.status === "active" &&
+											scholarshipStudentMapping[scholarship.scholarshipId] &&
+											scholarshipStudentMapping[scholarship.scholarshipId].map(
+												(scholarshipStudent: ScholarshipStudent) => (
+													<div 
+														key={scholarshipStudent.ScholarshipStudentId}
+														className="hover:bg-blue-50"
+													>
+														{scholarshipStudent.status === "pending" && (
+															<div
+																className="w-full flex items-center border-t border-gray-300 p-4"
+															>
+																<div className="w-1/3">
+																	<div className="font-semibold">
+																		{scholarship.title} <span className="font-normal">({scholarship.status})</span>
+																	</div>
+																</div>
+																
+																{/* Student Info */}
+																<div className="w-1/6 text-sm text-gray-600">
+																	{studentScholar[scholarshipStudent.ScholarshipStudentId].name}
+																</div>
 
-                                {/* Sponsor Info */}
-                                <div className="w-1/3 text-sm text-gray-600">
-                                  <span className="font-medium">Sponsor:</span>{" "}
-                                  {
-                                    sponsorAlum[
-                                      scholarshipStudent.ScholarshipStudentId
-                                    ].firstName
-                                  }{" "}
-                                  {
-                                    sponsorAlum[
-                                      scholarshipStudent.ScholarshipStudentId
-                                    ].lastName
-                                  }
-                                </div>
+																{/* Sponsor Info */}
+																<div className="w-1/6 text-sm text-gray-600">
+																	{sponsorAlum[scholarshipStudent.ScholarshipStudentId].firstName}{" "}
+																	{sponsorAlum[scholarshipStudent.ScholarshipStudentId].lastName}
+																</div>
 
-                                {/* Actions */}
-                                <div className="w-1/3 flex justify-end items-center gap-4">
-                                  <button
-                                    className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm"
-                                    onClick={() => {
-                                      handleApprove(
-                                        scholarshipStudent,
-                                        studentScholar[
-                                          scholarshipStudent
-                                            .ScholarshipStudentId
-                                        ],
-                                        sponsorAlum[
-                                          scholarshipStudent
-                                            .ScholarshipStudentId
-                                        ]
-                                      );
-                                    }}
-                                    disabled={loadingApprove}
-                                  >
-                                    {loadingApprove
-                                      ? "Approving..."
-                                      : "Approve"}
-                                  </button>
-                                  <button
-                                    className="text-red-700 hover:cursor-pointer"
-                                    onClick={() => {
-                                      handleReject(
-                                        scholarshipStudent.ScholarshipStudentId
-                                      );
-                                    }}
-                                    disabled={loadingReject}
-                                  >
-                                    <Trash2 className="size-6" />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+																{/* Actions */}
+																<div className="w-1/3 flex justify-between items-center gap-4">
+																	<button
+																		className="bg-green-600 text-white px-4 py-1 rounded-full cursor-pointer text-sm hover:bg-green-400 flex gap-1 items-center"
+																		onClick={() => {
+																			handleApprove(
+																				scholarshipStudent,
+																				studentScholar[scholarshipStudent.ScholarshipStudentId],
+																				sponsorAlum[scholarshipStudent.ScholarshipStudentId]
+																			);
+																		}}
+																		disabled={loadingApprove}
+																	>
+																		<CircleCheck className="size-4.5" />
+																		{loadingApprove ? "Approving..." : "Approve"}
+																	</button>
+																	<button
+																		className="bg-red-500 text-white px-5 py-1 rounded-full cursor-pointer text-sm hover:bg-red-400 flex gap-1 items-center"
+																		onClick={() => {
+																			handleReject(scholarshipStudent.ScholarshipStudentId);
+																		}}
+																		disabled={loadingReject}
+																	>	
+																		<CircleX className="size-4.5"/>
+																		Reject
+																	</button>
+																	<button
+																		className="bg-blue-500 text-white px-5 py-1 rounded-full cursor-pointer text-sm hover:bg-blue-400 flex gap-1 items-center"
+																		onClick={() => {
+																			navigateToDetail(scholarshipStudent.ScholarshipStudentId);
+																		}}
+																	>	
+																		View Details
+																	</button>
+																</div>
+															</div>
+														)}
+													</div>
+												)
+											)}
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</div>
+			</div>
     </div>
   );
 }
