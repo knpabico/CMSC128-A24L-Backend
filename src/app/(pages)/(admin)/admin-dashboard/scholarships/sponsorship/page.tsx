@@ -68,6 +68,7 @@ export default function ViewPendingScholarships() {
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingReject, setLoadingReject] = useState(false);
   const [statusFilter, setStatusFilter] = useState("pending");
+	const [currentProcessingId, setCurrentProcessingId] = useState("");
 
   const [sortOption, setSortOption] = useState<
     | "newest"
@@ -213,6 +214,7 @@ export default function ViewPendingScholarships() {
       setError("Failed to approve scholarship student.");
     } finally {
       setLoadingApprove(false);
+			setCurrentProcessingId("");
     }
   };
 
@@ -229,6 +231,7 @@ export default function ViewPendingScholarships() {
       setError("Failed to reject scholarship student.");
     } finally {
       setLoadingReject(false);
+			setCurrentProcessingId("");
     }
   };
 
@@ -397,6 +400,7 @@ export default function ViewPendingScholarships() {
                                       <button
                                         className="bg-green-600 text-white px-3 py-1 rounded-full cursor-pointer text-sm hover:bg-green-400 flex gap-1 items-center"
                                         onClick={() => {
+																					setCurrentProcessingId(scholarshipStudent.ScholarshipStudentId)
                                           handleApprove(
                                             scholarshipStudent,
                                             studentScholar[scholarshipStudent.ScholarshipStudentId],
@@ -406,7 +410,7 @@ export default function ViewPendingScholarships() {
                                         disabled={loadingApprove}
                                       >
                                         <CircleCheck className="size-4.5" />
-                                        {loadingApprove ? "Approving..." : "Approve"}
+                                        {(loadingApprove && currentProcessingId === scholarshipStudent.ScholarshipStudentId) ? "Approving..." : "Approve"}
                                       </button>
                                       <button
                                         className="bg-red-500 text-white px-3 py-1 rounded-full cursor-pointer text-sm hover:bg-red-400 flex gap-1 items-center"
@@ -416,7 +420,7 @@ export default function ViewPendingScholarships() {
                                         disabled={loadingReject}
                                       >	
                                         <CircleX className="size-4.5"/>
-                                        Reject
+																				{(loadingReject && currentProcessingId === scholarshipStudent.ScholarshipStudentId) ? "Processing..." : "Reject"}
                                       </button>
                                     </>
                                   )}

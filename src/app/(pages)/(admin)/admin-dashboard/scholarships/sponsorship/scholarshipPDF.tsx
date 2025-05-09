@@ -45,70 +45,124 @@ const ScholarshipStudentPDF = ({
   student: Student;
   alum: Alumnus;
 }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Title */}
-      <Text style={styles.title}>Scholarship Agreement Letter</Text>
+  // <Document>
+  //   <Page size="A4" style={styles.page}>
+  //     {/* Title */}
+  //     <Text style={styles.title}>Scholarship Agreement Letter</Text>
 
-      <View style={styles.section}>
-        <Text style={styles.paragraph}>
-          This agreement is made between a willing alumnus and a student in-need
-          of a scholarship and has been made on{" "}
-          {new Date().toLocaleDateString()}. This letter serves as the formal
-          agreement between the alumnus providing the scholarship and the
-          student recipient with the administrator as the witness.
-        </Text>
-      </View>
+  //     <View style={styles.section}>
+  //       <Text style={styles.paragraph}>
+  //         This agreement is made between a willing alumnus and a student in-need
+  //         of a scholarship and has been made on{" "}
+  //         {new Date().toLocaleDateString()}. This letter serves as the formal
+  //         agreement between the alumnus providing the scholarship and the
+  //         student recipient with the administrator as the witness.
+  //       </Text>
+  //     </View>
 
-      <Text style={{ fontWeight: "bold" }}>
-        Written below are the details of the two parties involved in this
-        scholarship agreement:
+  //     <Text style={{ fontWeight: "bold" }}>
+  //       Written below are the details of the two parties involved in this
+  //       scholarship agreement:
+  //     </Text>
+
+  //     {/* Student info */}
+  //     <View style={styles.section}>
+  //       <Text style={styles.paragraph}>Student Name: {student.name}</Text>
+
+  //       <Text style={styles.paragraph}>
+  //         Student Number: {student.studentNumber}
+  //       </Text>
+
+  //       <Text style={styles.paragraph}>Age: {student.age}</Text>
+
+  //       <Text style={styles.paragraph}>Address: {student.address}</Text>
+
+  //       <Text style={styles.paragraph}>
+  //         Email Address: {student.emailAddress}
+  //       </Text>
+
+  //       <Text style={styles.paragraph}>Address: {student.address}</Text>
+
+  //       <Text style={styles.paragraph}>
+  //         Student's background:
+  //         {student.shortBackground}
+  //       </Text>
+  //     </View>
+
+  //     {/* Alum Info */}
+  //     <View>
+  //       <Text style={styles.paragraph}>
+  //         Sponsor: {alum.firstName} {alum.lastName}{" "}
+  //       </Text>
+
+  //       <Text style={styles.paragraph}>
+  //         Student Number: {alum.studentNumber}
+  //       </Text>
+
+  //       <Text style={styles.paragraph}>Age: {alum.age}</Text>
+
+  //       <Text style={styles.paragraph}>
+  //         Address: {alum.address[0]}, {alum.address[1]}, {alum.address[2]}
+  //       </Text>
+
+  //       <Text style={styles.paragraph}>Email Address: {alum.email}</Text>
+  //     </View>
+  //   </Page>
+  // </Document>
+	<Document>
+  <Page size="A4" style={styles.page}>
+    {/* Title */}
+    <Text style={styles.title}>Scholarship Agreement Letter</Text>
+
+    {/* Introduction */}
+    <View style={styles.section}>
+      <Text style={styles.paragraph}>
+        This Scholarship Agreement is entered into on {new Date().toLocaleDateString()} by and between:
       </Text>
+      <Text style={styles.paragraph}>
+        <Text style={{ fontWeight: "bold" }}>The Sponsor</Text>, an alumnus extending financial support, and 
+        <Text style={{ fontWeight: "bold" }}> the Student</Text>, a recipient in need of scholarship assistance.
+        This agreement outlines the understanding between the two parties, with the program administrator acting as a witness.
+      </Text>
+    </View>
 
-      {/* Student info */}
-      <View style={styles.section}>
-        <Text style={styles.paragraph}>Student Name: {student.name}</Text>
+    {/* Section Heading */}
+    <Text style={[styles.paragraph, { fontWeight: "bold", marginTop: 10 }]}>
+      Details of the Parties Involved
+    </Text>
 
-        <Text style={styles.paragraph}>
-          Student Number: {student.studentNumber}
-        </Text>
+    {/* Student Details */}
+    <View style={[styles.section, { marginTop: 5 }]}>
+      <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Student Information</Text>
+      <Text style={styles.paragraph}>• Full Name: {student.name}</Text>
+      <Text style={styles.paragraph}>• Student Number: {student.studentNumber}</Text>
+      <Text style={styles.paragraph}>• Age: {student.age}</Text>
+      <Text style={styles.paragraph}>• Address: {student.address}</Text>
+      <Text style={styles.paragraph}>• Email: {student.emailAddress}</Text>
+      <Text style={styles.paragraph}>• Background: {student.shortBackground}</Text>
+    </View>
 
-        <Text style={styles.paragraph}>Age: {student.age}</Text>
+    {/* Sponsor Details */}
+    <View style={[styles.section, { marginTop: 10 }]}>
+      <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Sponsor (Alumnus) Information</Text>
+      <Text style={styles.paragraph}>• Full Name: {alum.firstName} {alum.lastName}</Text>
+      <Text style={styles.paragraph}>• Student Number (as alumnus): {alum.studentNumber}</Text>
+      <Text style={styles.paragraph}>• Age: {alum.age}</Text>
+      <Text style={styles.paragraph}>
+        • Address: {alum.address[0]}, {alum.address[1]}, {alum.address[2]}
+      </Text>
+      <Text style={styles.paragraph}>• Email: {alum.email}</Text>
+    </View>
 
-        <Text style={styles.paragraph}>Address: {student.address}</Text>
+    {/* Closing Note */}
+    <View style={[styles.section, { marginTop: 15 }]}>
+      <Text style={styles.paragraph}>
+        Both parties acknowledge that this agreement fosters educational opportunity and mutual responsibility. By signing, they commit to their roles in upholding the terms and intent of this scholarship support.
+      </Text>
+    </View>
+  </Page>
+</Document>
 
-        <Text style={styles.paragraph}>
-          Email Address: {student.emailAddress}
-        </Text>
-
-        <Text style={styles.paragraph}>Address: {student.address}</Text>
-
-        <Text style={styles.paragraph}>
-          Student's background:
-          {student.background}
-        </Text>
-      </View>
-
-      {/* Alum Info */}
-      <View>
-        <Text style={styles.paragraph}>
-          Sponsor: {alum.firstName} {alum.lastName}{" "}
-        </Text>
-
-        <Text style={styles.paragraph}>
-          Student Number: {alum.studentNumber}
-        </Text>
-
-        <Text style={styles.paragraph}>Age: {alum.age}</Text>
-
-        <Text style={styles.paragraph}>
-          Address: {alum.address[0]}, {alum.address[1]}, {alum.address[2]}
-        </Text>
-
-        <Text style={styles.paragraph}>Email Address: {alum.email}</Text>
-      </View>
-    </Page>
-  </Document>
 );
 
 //generate and upload PDF to Firebase Storage
