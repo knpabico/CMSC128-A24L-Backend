@@ -249,7 +249,7 @@ export default function ViewPendingScholarships() {
       <div className="w-full">
         <div className="flex flex-col items-start gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="font-bold text-3xl">
-            Manage Sponsorships
+            Manage Sponsorship
           </div>
         </div>
       </div>
@@ -395,7 +395,7 @@ export default function ViewPendingScholarships() {
                                   {scholarshipStudent.status === "pending" && (
                                     <>
                                       <button
-                                        className="bg-green-600 text-white px-4 py-1 rounded-full cursor-pointer text-sm hover:bg-green-400 flex gap-1 items-center"
+                                        className="bg-green-600 text-white px-3 py-1 rounded-full cursor-pointer text-sm hover:bg-green-400 flex gap-1 items-center"
                                         onClick={() => {
                                           handleApprove(
                                             scholarshipStudent,
@@ -409,7 +409,7 @@ export default function ViewPendingScholarships() {
                                         {loadingApprove ? "Approving..." : "Approve"}
                                       </button>
                                       <button
-                                        className="bg-red-500 text-white px-5 py-1 rounded-full cursor-pointer text-sm hover:bg-red-400 flex gap-1 items-center"
+                                        className="bg-red-500 text-white px-3 py-1 rounded-full cursor-pointer text-sm hover:bg-red-400 flex gap-1 items-center"
                                         onClick={() => {
                                           handleReject(scholarshipStudent.ScholarshipStudentId);
                                         }}
@@ -421,7 +421,7 @@ export default function ViewPendingScholarships() {
                                     </>
                                   )}
                                   <button
-                                    className="bg-blue-500 text-white px-5 py-1 rounded-full cursor-pointer text-sm hover:bg-blue-400 flex gap-1 items-center"
+                                    className="text-blue-500 cursor-pointer text-sm hover:text-blue-400 flex gap-1 items-center"
                                     onClick={() => {
                                       navigateToDetail(scholarshipStudent.ScholarshipStudentId);
                                     }}
