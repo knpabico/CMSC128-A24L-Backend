@@ -260,7 +260,7 @@ const DonationReportPage = () => {
         </div>
         <div className="font-medium text-[#0856BA]">Donation Statistical Reports</div>
       </div>
-
+  
       {/* Page Title */}
       <div className="w-full">
         <div className="flex items-center justify-between mb-2">
@@ -273,9 +273,9 @@ const DonationReportPage = () => {
           </div>
         </div>
       </div>
-
-            {/* Filter Section */}
-            <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
+  
+      {/* Filter Section */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div className="w-full md:w-auto">
             <Dropdown
@@ -287,24 +287,19 @@ const DonationReportPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Charts Section - Full Width */}
-      <div className="bg-white rounded-xl shadow-sm p-10 border border-gray-100 mb-6">
-        <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 flex items-center">
-          <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-          Donation Charts
-        </h2>
-
-        <div
-          className={`grid ${driveType === "completed" ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1 lg:grid-cols-2"} gap-6`}
-        >
-          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+  
+      {/* Main Content Grid */}
+      {driveType === "completed" ? (
+        // COMPLETED DONATION DRIVES LAYOUT
+        <div className="grid grid-cols-12 gap-6">
+          {/* Top Row - First Two Cards */}
+          <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
             <CardHeader className="pb-2">
               <CardTitle className="text-center text-lg font-semibold text-gray-700">
                 Users with the Highest Total Donated Amount
               </CardTitle>
             </CardHeader>
-            <CardContent className={`flex justify-center pt-0 ${driveType === "completed" ? "h-[250px]" : "h-[350px]"}`}>
+            <CardContent className="flex justify-center pt-0 h-[180px]">
               <BarGraph
                 labels={[...alumniDonations]
                   .sort((a, b) => b.totalDonated - a.totalDonated)
@@ -318,73 +313,258 @@ const DonationReportPage = () => {
               />
             </CardContent>
           </Card>
-
-          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+  
+          <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
             <CardHeader className="pb-2">
               <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                {driveType === "active"
-                  ? "Active Donation Drives' Current-Target Amount Ratio"
-                  : "Top Completed Drives with Highest Donations"}
+                Top Completed Drives with Highest Donations
               </CardTitle>
             </CardHeader>
-            <CardContent className={`flex justify-center pt-0 ${driveType === "completed" ? "h-[250px]" : "h-[350px]"}`}>
-              {driveType === "completed" ? (
-                <BarGraph
-                  type="Total amount donated (in Php)"
-                  labels={drivesData.map((drive: DonationDrive) => drive.campaignName).slice(0, 5)}
-                  data={drivesData.map((drive: DonationDrive) => drive.currentAmount).slice(0, 5)}
-                />
-              ) : (
-                <GroupedBarGraph
-                  labels={groupedBarData.labels}
-                  currentAmounts={groupedBarData.currentAmounts}
-                  targetAmounts={groupedBarData.targetAmounts}
-                  campaignNames={groupedBarData.campaignNames}
-                />
-              )}
+            <CardContent className="flex justify-center pt-0 h-[180px]">
+              <BarGraph
+                type="Total amount donated (in Php)"
+                labels={drivesData.map((drive: DonationDrive) => drive.campaignName).slice(0, 5)}
+                data={drivesData.map((drive: DonationDrive) => drive.currentAmount).slice(0, 5)}
+              />
             </CardContent>
           </Card>
-
-          {driveType === "completed" && (
-            <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                  Completed Donation Trends (Last 5 Years)
-                </CardTitle>
+  
+          {/* Report Summary - Spans Two Rows */}
+          <Card className="col-span-4 row-span-2 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100">
+            <CardHeader className="pb-1 border-b border-gray-100">
+              <CardTitle className="flex items-center text-xl font-bold text-gray-800">
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                Report Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-y-auto h-[400px]">
+              <div className="p-2 rounded-lg">
+                <ReportSummaryCard data={prompt} />
+              </div>
+            </CardContent>
+          </Card>
+  
+          {/* Middle Row - Donation Trends */}
+          <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                Completed Donation Trends (Last 5 Years)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center pt-0 h-[180px]">
+              <LineGraph
+                labels={fiveYearDonationData.map((item) => item.year)}
+                data={fiveYearDonationData.map((item) => item.amount)}
+                type="Total donations per year (in Php)"
+              />
+            </CardContent>
+          </Card>
+  
+          {/* Bottom Row - Rearranged as per the image */}
+          <div className="col-span-12 grid grid-cols-12 gap-6">
+            {/* Bottom Row */}
+            <Card className="col-span-3 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+              <CardHeader className="pb-3 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-800">
+                      Total Amount of Completed Donations by Year
+                    </CardTitle>
+                    {!isLoading && (
+                      <div className="text-[#0856BA] font-medium text-sm mt-1">Total Years: {donationsByYear.length}</div>
+                    )}
+                  </div>
+                  <div className="bg-[#0856BA] text-white rounded-full h-10 w-10 flex items-center justify-center">
+                    {donationsByYear.length}
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="flex justify-center pt-0 h-[250px]">
-                <LineGraph
-                  labels={fiveYearDonationData.map((item) => item.year)}
-                  data={fiveYearDonationData.map((item) => item.amount)}
-                  type="Total donations per year (in Php)"
-                />
+              <CardContent className="pt-4 h-[180px] overflow-y-auto">
+                {isLoading ? (
+                  <p className="text-gray-500 py-3">Loading...</p>
+                ) : (
+                  <>
+                    <ul className="divide-y divide-gray-100">
+                      {donationsByYear.map((yearData, index) => (
+                        <li key={index} className="py-2 text-gray-700 flex items-center">
+                          <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                          <span className="font-medium">{yearData.year}</span>
+                          <span className="ml-auto text-[#0856BA] font-semibold">
+                            ₱{yearData.totalAmount.toLocaleString()}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {overallTotal > 0 && (
+                      <div className="mt-4 pt-2 border-t border-gray-100 text-gray-800 font-medium">
+                        Amount Donated in Total:{" "}
+                        <span className="text-[#0856BA] font-semibold">₱{overallTotal.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
-          )}
-        </div>
-      </div>
 
-      {/* Middle Section - Cards Grid and Report Summary */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6">
-        {/* Donation Lists Grid */}
-        <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+            <Card className="col-span-3 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+              <CardHeader className="pb-3 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-bold text-gray-800">Top Donors</CardTitle>
+                    {!isLoading && (
+                      <div className="text-[#0856BA] font-medium text-sm mt-1">
+                        Total Donors: {sortedAlumniDonations.length}
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-[#0856BA] text-white rounded-full h-10 w-10 flex items-center justify-center">
+                    {sortedAlumniDonations.length}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4 h-[180px] overflow-y-auto">
+                {isLoading ? (
+                  <p className="text-gray-500 py-3">Loading...</p>
+                ) : (
+                  <ul className="divide-y divide-gray-100">
+                    {sortedAlumniDonations
+                      .slice(0, 10)
+                      .map((donation: { name: string; totalDonated: number }, index: number) => (
+                        <li
+                          key={index}
+                          className="py-2 text-gray-700 flex items-center hover:bg-gray-50 transition-colors rounded-md"
+                        >
+                          <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                          <span className="font-medium">{donation.name}</span>
+                          <span className="ml-auto text-[#0856BA] font-semibold">
+                            ₱{donation.totalDonated.toLocaleString()}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-6 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+              <CardHeader className="pb-3 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-bold text-gray-800">Completed Donation Drives</CardTitle>
+                    {!isLoading && (
+                      <div className="text-[#0856BA] font-medium text-sm mt-1">
+                        Total Donation Drives: {currentDrives.length}
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-[#0856BA] text-white rounded-full h-10 w-10 flex items-center justify-center">
+                    {currentDrives.length}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4 h-[180px] overflow-y-auto">
+                {isLoading ? (
+                  <p className="text-gray-500 py-3">Loading...</p>
+                ) : (
+                  <ul className="divide-y divide-gray-100">
+                    {currentDrives.map((drive: DonationDrive, index: number) => {
+                      const driveDonations = userDonations.filter(
+                        (donation) => donation.donationDriveId === drive.donationDriveId,
+                      )
+                      const totalDonated = driveDonations.reduce((sum, donation) => sum + donation.amount, 0)
+
+                      return (
+                        <li
+                          key={index}
+                          className="py-2 text-gray-700 flex items-center hover:bg-gray-50 transition-colors rounded-md"
+                        >
+                          <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                          <span className="font-medium">{drive.campaignName}</span>
+                          <span className="ml-auto text-[#0856BA] font-semibold">₱{totalDonated.toLocaleString()}</span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      ) : (
+        // ACTIVE DONATION DRIVES LAYOUT
+        <div className="grid grid-cols-12 gap-6">
+          {/* Top Row */}
+          <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                Users with the Highest Total Donated Amount
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center pt-0 h-[180px]">
+              <BarGraph
+                labels={[...alumniDonations]
+                  .sort((a, b) => b.totalDonated - a.totalDonated)
+                  .map((user) => user.name)
+                  .slice(0, 5)}
+                data={[...alumniDonations]
+                  .sort((a, b) => b.totalDonated - a.totalDonated)
+                  .map((donor) => donor.totalDonated)
+                  .slice(0, 5)}
+                type="Total amount donated (in Php)"
+              />
+            </CardContent>
+          </Card>
+  
+          {/* Report Summary - Spans Two Rows */}
+          <Card className="col-span-4 row-span-2 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100">
+            <CardHeader className="pb-1 border-b border-gray-100">
+              <CardTitle className="flex items-center text-xl font-bold text-gray-800">
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                Report Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-y-auto h-[400px]">
+              <div className="p-2 rounded-lg">
+                <ReportSummaryCard data={prompt} />
+              </div>
+            </CardContent>
+          </Card>
+  
+          {/* Middle Row */}
+          <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                Active Donation Drives' Current-Target Amount Ratio
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center pt-0 h-[180px]">
+              <GroupedBarGraph
+                labels={groupedBarData.labels}
+                currentAmounts={groupedBarData.currentAmounts}
+                targetAmounts={groupedBarData.targetAmounts}
+                campaignNames={groupedBarData.campaignNames}
+              />
+            </CardContent>
+          </Card>
+  
+          {/* Bottom Row */}
+          <Card className="col-span-3 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
             <CardHeader className="pb-3 border-b border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl font-bold text-gray-800">
-                    Total Amount of {driveType === "active" ? "Active" : "Completed"} Donations by Year
+                  <CardTitle className="text-lg font-bold text-gray-800">
+                    Total Amount of Active Donations by Year
                   </CardTitle>
                   {!isLoading && (
                     <div className="text-[#0856BA] font-medium text-sm mt-1">Total Years: {donationsByYear.length}</div>
                   )}
                 </div>
-                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                <div className="bg-[#0856BA] text-white rounded-full h-10 w-10 flex items-center justify-center">
                   {donationsByYear.length}
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-4 h-[200px] overflow-y-auto">
+            <CardContent className="pt-4 h-[180px] overflow-y-auto">
               {isLoading ? (
                 <p className="text-gray-500 py-3">Loading...</p>
               ) : (
@@ -410,8 +590,8 @@ const DonationReportPage = () => {
               )}
             </CardContent>
           </Card>
-
-          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+  
+          <Card className="col-span-3 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
             <CardHeader className="pb-3 border-b border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
@@ -422,12 +602,12 @@ const DonationReportPage = () => {
                     </div>
                   )}
                 </div>
-                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                <div className="bg-[#0856BA] text-white rounded-full h-10 w-10 flex items-center justify-center">
                   {sortedAlumniDonations.length}
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-4 h-[200px] overflow-y-auto">
+            <CardContent className="pt-4 h-[180px] overflow-y-auto">
               {isLoading ? (
                 <p className="text-gray-500 py-3">Loading...</p>
               ) : (
@@ -450,24 +630,24 @@ const DonationReportPage = () => {
               )}
             </CardContent>
           </Card>
-
-          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden md:col-span-2">
+  
+          <Card className="col-span-6 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
             <CardHeader className="pb-3 border-b border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl font-bold text-gray-800">
-                    {driveType === "active" ? "Active" : "Completed"} Donation Drives
-                  </CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-800">Active Donation Drives</CardTitle>
                   {!isLoading && (
-                    <div className="text-[#0856BA] font-medium text-sm mt-1">Total Donation Drives: {currentDrives.length}</div>
+                    <div className="text-[#0856BA] font-medium text-sm mt-1">
+                      Total Donation Drives: {currentDrives.length}
+                    </div>
                   )}
                 </div>
-                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                <div className="bg-[#0856BA] text-white rounded-full h-10 w-10 flex items-center justify-center">
                   {currentDrives.length}
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-4 h-[200px] overflow-y-auto">
+            <CardContent className="pt-4 h-[180px] overflow-y-auto">
               {isLoading ? (
                 <p className="text-gray-500 py-3">Loading...</p>
               ) : (
@@ -477,7 +657,7 @@ const DonationReportPage = () => {
                       (donation) => donation.donationDriveId === drive.donationDriveId,
                     )
                     const totalDonated = driveDonations.reduce((sum, donation) => sum + donation.amount, 0)
-
+  
                     return (
                       <li
                         key={index}
@@ -487,31 +667,14 @@ const DonationReportPage = () => {
                         <span className="font-medium">{drive.campaignName}</span>
                         <span className="ml-auto text-[#0856BA] font-semibold">₱{totalDonated.toLocaleString()}</span>
                       </li>
-                    );
+                    )
                   })}
                 </ul>
               )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Report Summary - Right Side */}
-        <div className="lg:w-1/3 lg:min-w-[320px]">
-          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 h-full">
-            <CardHeader className="pb-1 border-b border-gray-100">
-              <CardTitle className="flex items-center text-xl font-bold text-gray-800">
-                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-                Report Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-y-auto h-195">
-              <div className="p-2 rounded-lg">
-                <ReportSummaryCard data={prompt} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
