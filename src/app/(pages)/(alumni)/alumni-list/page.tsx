@@ -139,146 +139,156 @@ export default function Users() {
     mapEducation();
   }, [alums]);
 
-
   return (
-    <div>
-      <Banner 
-        title="Alumni Records" 
+    <div className="min-h-screen bg-gray-100">
+      <Banner
+        title="Alumni Records"
         description="Meet your fellow alumni and learn about their UPLB degrees, graduation years, and shared interest in the field of Computer Science."
       />
-      {isLoading && <h1>Loading</h1>}
-      {
-        <div
-          className="container mx-auto flex flex-col gap-5"
-          style={{ padding: "30px 10% 10% 10%" }}
-        >
-          <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
+
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <h1 className="text-xl font-semibold">Loading...</h1>
+        </div>
+      ) : (
+        <div className="container mx-auto px-4 md:px-8 lg:px-16 py-8 flex flex-col gap-6">
+          {/* Filter Bar */}
+          <div className="bg-white rounded-xl flex flex-wrap gap-3 p-3 items-center shadow-sm">
             <div className="text-sm font-medium">Filter by:</div>
-            <div className="bg-gray-300 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400">
-              <div className="text-xs">Any Date</div>
-              <ChevronDown size={20} />
+            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
+              <div>Any Date</div>
+              <ChevronDown size={16} />
             </div>
-            <div className="bg-gray-300 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400">
-              <div className="text-xs">Status</div>
-              <ChevronDown size={20} />
+            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
+              <div>Status</div>
+              <ChevronDown size={16} />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {alums.map((alum: Alumnus, index: any) => (
+          {/* Alumni Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {alums.map((alum, index) => (
               <div
                 key={index}
-                className="bg-white shadow-md rounded-lg flex flex-col h-full overflow-hidden"
+                className="bg-white shadow-md rounded-lg flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow"
               >
-                {/* Image placeholder - consistent aspect ratio */}
-                <div className="bg-gray-300 w-full aspect-square flex items-center justify-center overflow-hidden">
-                  <span className="text-white">
-                    {alum.image ? (
-                      <Image
-                        fill
-                        className="object-cover"
-                        src={alum.image}
-                        alt={alum.firstName}
-                      />
-                    ) : (
-                      `Photo`
-                    )}
-                  </span>
+                {/* Image container with proper Next.js Image implementation */}
+                <div className="relative w-full aspect-square bg-gray-200 overflow-hidden">
+                  {alum.image ? (
+                    <Image
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      src={alum.image}
+                      alt={`${alum.firstName} ${alum.lastName}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      src="/ICS2.jpg"
+                      alt="Default alumni image"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
 
-                {/* Content area with fixed structure */}
+                {/* Content area */}
                 <div className="p-5 flex flex-col gap-3 flex-grow">
                   {/* Name - centered */}
-                  <div className="flex items-center justify-center font-bold text-[16px]">
+                  <div className="flex items-center justify-center font-bold text-lg">
                     {alum.firstName} {alum.lastName}
                   </div>
-                  <hr className="text-gray-300"></hr>
-                  {/* Degree info - consistent table */}
-                  <div className="flex-grow text-[12px] px-3">
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full">
-                        <thead className="border-b border-gray-300">
-                          <tr>
-                            <th className="text-left pb-2 pr-3 pt-1 font-medium text-gray-500">
-                              Degree
-                            </th>
-                            <th className="text-center pb-2 pt-1 font-medium text-gray-500">
-                              Graduated
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="pt-3">
-                          {/* Add space above the tbody */}
-                          {educationMapping[alum.alumniId] &&
-                            educationMapping[alum.alumniId].map(
-                              (degree, idx) => (
-                                <tr
-                                  key={idx}
-                                  className={idx === 0 ? "pt-5" : "pt-0"}
-                                >
-                                  <td className="text-left py-1 pr-3 pt-2">
-                                    {degree.major}
-                                  </td>
-                                  <td className="text-center py-1 pt-2">
-                                    {degree.yearGraduated}
-                                  </td>
-                                </tr>
-                              )
-                            )}
-                        </tbody>
-                      </table>
+                  {alum.contactPrivacy && (
+                    <div
+                      className="cursor-pointer text-center text-xs text-blue-500 underline"
+                      onClick={() =>
+                        window.open(
+                          `https://mail.google.com/mail/?view=cm&fs=1&to=${alum.email}&su=Greetings, ${alum.firstName} ${alum.lastName}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      Contact Me
                     </div>
-                  </div>
-                  <hr className="text-gray-300"></hr>
+                  )}
+                  <hr className="border-gray-200" />
 
-                  {/*Interests - flexbox with wrapping*/}
-                  <div className="flex flex-wrap gap-1 items-center justify-center">
-                    {alum.fieldOfInterest && (
-                      <>
-                        {alum.fieldOfInterest.map((interest, idx) => (
-                          <div
-                            key={idx}
-                            className="text-xs px-2 py-1 rounded-md border border-blue-500 text-blue-500"
-                          >
-                            {interest}
-                          </div>
+                  {/* Degree info */}
+                  <div className="flex-grow text-sm px-1">
+                    <table className="min-w-full">
+                      <thead className="border-b border-gray-200">
+                        <tr>
+                          <th className="text-left pb-2 pr-3 font-medium text-gray-600">
+                            Degree
+                          </th>
+                          <th className="text-center pb-2 font-medium text-gray-600">
+                            Graduated
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="pt-2">
+                        {educationMapping[alum.alumniId]?.map((degree, idx) => (
+                          <tr key={idx}>
+                            <td className="text-left py-1.5 pr-3">
+                              {degree.major}
+                            </td>
+                            <td className="text-center py-1.5">
+                              {degree.yearGraduated}
+                            </td>
+                          </tr>
                         ))}
-                      </>
-                    )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <hr className="border-gray-200" />
+
+                  {/* Interests */}
+                  <div className="flex flex-wrap gap-1.5 items-center justify-center">
+                    {alum.fieldOfInterest?.map((interest, idx) => (
+                      <div
+                        key={idx}
+                        className="text-xs px-2.5 py-1 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-50 transition-colors"
+                      >
+                        {interest}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Work Experience Section (when an alumni is selected) */}
-          {/*Magdidisplay na ng work experience data depende sa kung ano naka-set as selectedAlumniId */}
+          {/* Work Experience Section */}
           {selectedAlumniId && (
-            <div className="mt-8 p-4 border border-gray-300 bg-gray-50 rounded-lg">
+            <div className="mt-6 p-5 border border-gray-200 bg-white rounded-lg shadow-sm">
               <h2 className="text-xl font-bold mb-4">Work Experience</h2>
               {loading ? (
-                <p>Loading...</p>
-              ) : workExperience[selectedAlumniId].length > 0 ? (
+                <p className="text-gray-600">Loading work experience...</p>
+              ) : workExperience[selectedAlumniId]?.length > 0 ? (
                 <ul className="space-y-4">
-                  {workExperience[selectedAlumniId].map(
-                    (exp: WorkExperience, i: any) => (
-                      <li key={i} className="p-3 bg-white shadow rounded">
-                        <h3 className="font-semibold text-lg">{exp.company}</h3>
-                        <p>Position: {exp.jobTitle}</p>
-                        <p>
-                          Years: {exp.startYear} - {exp.endYear}
-                        </p>
-                      </li>
-                    )
-                  )}
+                  {workExperience[selectedAlumniId].map((exp, i) => (
+                    <li
+                      key={i}
+                      className="p-4 bg-gray-50 border border-gray-100 shadow-sm rounded"
+                    >
+                      <h3 className="font-semibold text-lg">{exp.company}</h3>
+                      <p className="text-gray-700">Position: {exp.jobTitle}</p>
+                      <p className="text-gray-700">
+                        Years: {exp.startYear} - {exp.endYear || "Present"}
+                      </p>
+                    </li>
+                  ))}
                 </ul>
               ) : (
-                <p>No work experience found.</p>
+                <p className="text-gray-600">No work experience found.</p>
               )}
             </div>
           )}
         </div>
-      }
+      )}
     </div>
   );
 }
