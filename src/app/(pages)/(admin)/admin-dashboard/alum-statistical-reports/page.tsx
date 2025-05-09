@@ -1,7 +1,6 @@
 "use client";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience } from "@/models/models";
-import { Typography } from "@mui/material";
 import React, { useMemo, useState } from "react";
 import DonutChart from "@/components/charts/DonutChart";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
@@ -9,9 +8,7 @@ import ReportSummaryCard from "@/components/ReportSummaryCard";
 import {
   Card,
   CardHeader,
-  CardFooter,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { ChevronDown, ChevronRight, ClipboardList } from "lucide-react";
@@ -346,7 +343,7 @@ const StatisticalReports = () => {
           </div>
         </div>
 
-        {/* Right Side - Report Summary - With fixed height and scrollable */}
+        {/* Right Side - Report Summary */}
         <div className="lg:w-1/3 lg:min-w-[320px] lg:flex lg:flex-col">
           <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col h-288">
             <CardHeader className="pb-1 border-b border-gray-100 flex-none ">
