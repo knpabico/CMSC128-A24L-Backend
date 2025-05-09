@@ -500,7 +500,7 @@ const DonationReportPage = () => {
                 Users with the Highest Total Donated Amount
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-center pt-0 h-[180px]">
+            <CardContent className="flex justify-center pt-0 h-[250px]">
               <BarGraph
                 labels={[...alumniDonations]
                   .sort((a, b) => b.totalDonated - a.totalDonated)
@@ -515,7 +515,7 @@ const DonationReportPage = () => {
             </CardContent>
           </Card>
   
-          {/* Report Summary - Spans Two Rows */}
+          {/* Report Summary */}
           <Card className="col-span-4 row-span-2 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100">
             <CardHeader className="pb-1 border-b border-gray-100">
               <CardTitle className="flex items-center text-xl font-bold text-gray-800">
@@ -523,7 +523,7 @@ const DonationReportPage = () => {
                 Report Summary
               </CardTitle>
             </CardHeader>
-            <CardContent className="overflow-y-auto h-[400px]">
+            <CardContent className="overflow-y-auto h-[450px]">
               <div className="p-2 rounded-lg">
                 <ReportSummaryCard data={prompt} />
               </div>
@@ -537,7 +537,7 @@ const DonationReportPage = () => {
                 Active Donation Drives' Current-Target Amount Ratio
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-center pt-0 h-[180px]">
+            <CardContent className="flex justify-center h-[250px]">
               <GroupedBarGraph
                 labels={groupedBarData.labels}
                 currentAmounts={groupedBarData.currentAmounts}
