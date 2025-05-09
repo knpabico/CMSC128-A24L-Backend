@@ -42,7 +42,7 @@ const ScholarshipDetailPage: React.FC = () => {
 	const [loadingStudents, setLoadingStudents] = useState(true);
 	const [studentDetails, setstudentDetails] = useState< Student | null>(null);
   const [sortOption, setSortOption] = useState<"oldest" | "youngest" | "A-Z" | "Z-A">("A-Z");
-  const [filterOption, setFilterOption] = useState<"all" | "pending" | "approved">("all");
+  const [filterOption, setFilterOption] = useState<"all" | "available" |"pending" | "approved">("all");
   const [scholarshipStudents, setScholarshipStudents] = useState<ScholarshipStudent[]>([]);
  
   const eventStories = featuredItems.filter(
@@ -137,7 +137,7 @@ const ScholarshipDetailPage: React.FC = () => {
 
   const getStudentStatus = (studentId: string) => {
     const scholarshipStudent = scholarshipStudents.find((ss) => ss.studentId === studentId);
-    return scholarshipStudent?.status || "None";
+    return scholarshipStudent?.status || "available";
   };
 
   const handleSponsor = async () => {
@@ -366,10 +366,11 @@ const ScholarshipDetailPage: React.FC = () => {
 								Filter by:
                   <select
                   value={filterOption}
-                  onChange={(e) => setFilterOption(e.target.value as "pending" | "approved" | "all")}
+                  onChange={(e) => setFilterOption(e.target.value as "pending" | "approved" | "all" | "available")}
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="all">All</option>
+                  <option value="available">Available</option>
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
                 </select>
@@ -420,12 +421,22 @@ const ScholarshipDetailPage: React.FC = () => {
 																<div className="">
 																	<div className="">
 																	<button 
-																		onClick={() => handleStudentSponsor(student.studentId)}
-																		className={`text-md cursor-pointer rounded-full px-3 py-1 text-white shadow-lg 
-																		${isAlreadySponsoring ? 'bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
-																		disabled={!isAlreadySponsoring}
-																	>
-																		Sponsor
+                                    onClick={() => handleStudentSponsor(student.studentId)}
+                                      className={`text-md rounded-full px-3 py-1 text-white shadow-lg ${
+                                        getStudentStatus(student.studentId) === "available"
+                                          ? "bg-blue-600 hover:bg-blue-500 cursor-pointer"
+                                          : "bg-gray-400 cursor-not-allowed"
+                                      }`}
+                                      disabled={getStudentStatus(student.studentId) !== "available"}
+                                      title={
+                                      getStudentStatus(student.studentId) === "available"
+                                          ? "Sponsor this student"
+                                          : getStudentStatus(student.studentId) === "pending"
+                                          ? "This student's sponsorship is pending approval"
+                                          : "This student is already sponsored"
+                                      }
+                                    >
+                                      Sponsor
 																	</button>
 																	</div>
 																</div>
