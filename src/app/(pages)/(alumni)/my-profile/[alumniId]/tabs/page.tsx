@@ -1,17 +1,40 @@
 "use client";
 
-import React from "react";
 import { Bookmark, Donation, JobOffering } from "@/models/models";
 import { useBookmarks } from "@/context/BookmarkContext";
 import { useDonationContext } from "@/context/DonationContext";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { useAuth } from "@/context/AuthContext";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Alumnus, WorkExperience } from "@/models/models";
+import { useAlums } from "@/context/AlumContext";
+import React, { useMemo, useState } from "react";
+
+
+
 
 const AlumniTabs = () => {
     const { bookmarks } = useBookmarks();
     const { userDonations } = useDonationContext();
     const { user, alumInfo, loading } = useAuth();
-    const { jobOffers, isLoading } = useJobOffer();
+    const { jobOffers } = useJobOffer();
+    const { activeAlums, isLoading, alums } = useAlums();
+
+      const approvedActiveAlums = useMemo(() => {
+        return activeAlums.filter((alum: Alumnus) => alum.regStatus === "approved");
+      }, [activeAlums]);
+    
+      const approvedAlums = useMemo(() => {
+        return alums.filter((alum: Alumnus) => alum.regStatus === "approved");
+      }, [alums]);
+    
+      const inactiveAlums = useMemo(() => {
+        return alums.filter(
+          (alum: Alumnus) =>
+            alum.activeStatus === false && alum.regStatus === "approved"
+        );
+      }, [alums]);
+    
 
     return (
         <div className="w-full space-y-6">

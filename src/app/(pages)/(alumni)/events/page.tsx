@@ -5,13 +5,17 @@ import { useEvents } from "@/context/EventContext";
 import EventSidebar from "./components/Sidebar";
 import EventsList from "./components/EventsList";
 import { Event } from "@/models/models";
+import ProposeEventForm from "./components/ProposeEventForm";
+import { FilePlus2 } from "lucide-react";
 import Banner from "@/components/Banner";
 
 export default function AllEventsPage()
 {
-    const { events, isLoading } = useEvents();
+    const { events, isLoading, setShowForm, showForm } = useEvents();
     const [sortedEvents, setSortedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
+    const [isEditing, setEdit] = useState<boolean>(false);
+    const [isDetails, setDetailsPage] = useState<boolean>(false);
 
     useEffect(() =>
     {
@@ -94,8 +98,27 @@ export default function AllEventsPage()
                                 <option value="posted-newest">Date Approved (Newest)</option>
                                 <option value="post-oldest">Date Approved (Earliest)</option>
                             </select>
+                            {/* Propose Event */}
+                            <button 
+                                className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
+                                onClick={() => setShowForm(true)}
+                            >
+                                <FilePlus2 className="w-5 h-5" />
+                                Propose Event
+                            </button>
                         </div>
                     </div>
+
+                    <ProposeEventForm 
+                        isOpen={showForm}
+                        onClose={() => setShowForm(false)}
+                        isEditing={isEditing}
+                        isDetails={false}
+                        setDetailsPage={setDetailsPage}
+                        editingEventId={""}
+                        setEdit={setEdit}
+                    />
+
                     {sortedEvents.length > 0 ? (
                         // event cards
                         <EventsList

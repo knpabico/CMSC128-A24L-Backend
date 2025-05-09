@@ -4,11 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { useAuth } from "@/context/AuthContext";
-import { useRsvpDetails } from "@/context/RSVPContext"; 
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
+import ProposeEventForm from "../components/ProposeEventForm";
+import { FilePlus2 } from "lucide-react";
 
 // Function to format the event date
 function formatEventDate(dateString: string)
@@ -35,14 +36,15 @@ function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done
 
 export default function Invitations()
 {
-  const { events, isLoading } = useEvents();
+  const { events, isLoading, showForm, setShowForm } = useEvents();
   const { alumInfo } = useAuth();
-  const { rsvpDetails } = useRsvpDetails(events);
 
   // State for sorting and filtering
   const [invitationEvents, setInvitationEvents] = useState<Event[]>([]);
   const [sortOption, setSortOption] = useState<string>('event-closest');
   const [filterOption, setFilterOption] = useState<string>('All');
+  const [isEditing, setEdit] = useState<boolean>(false);
+  const [isDetails, setDetailsPage] = useState<boolean>(false);
 
   // Filter the events based on the user's info and RSVP status
   useEffect(() =>
@@ -146,8 +148,26 @@ export default function Invitations()
                 <option value="posted-newest">Date Posted (Newest First)</option>
                 <option value="posted-oldest">Date Posted (Oldest First)</option>
               </select>
+              {/* Propose Event */}
+              <button 
+                  className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
+                  onClick={() => setShowForm(true)}
+              >
+                  <FilePlus2 className="w-5 h-5" />
+                  Propose Event
+              </button>
             </div>
           </div>
+
+          <ProposeEventForm 
+              isOpen={showForm}
+              onClose={() => setShowForm(false)}
+              isEditing={isEditing}
+              isDetails={false}
+              setDetailsPage={setDetailsPage}
+              editingEventId={""}
+              setEdit={setEdit}
+          />
 
           {/* Event List */}
           {sortedEvents.length > 0 ? (

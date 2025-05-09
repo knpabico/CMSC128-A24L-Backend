@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Alumnus } from "@/models/models";
 import Image from "next/image";

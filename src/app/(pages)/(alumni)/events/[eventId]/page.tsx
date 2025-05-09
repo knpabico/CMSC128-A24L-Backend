@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useFeatured } from "@/context/FeaturedStoryContext";
 import ProposeEventForm from "../components/ProposeEventForm";
+import Link from "next/link";
 
 const EventPageAlumni = () => {
   const {
@@ -40,7 +41,7 @@ const EventPageAlumni = () => {
   } = useEvents();
 
   const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject } =
-    useRsvpDetails(events);
+    useRsvpDetails();
   const { alumInfo } = useAuth();
   const params = useParams();
   const router = useRouter();
@@ -51,7 +52,8 @@ const EventPageAlumni = () => {
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
 
-  const rsvps = Object.values(rsvpDetails) as RSVP[];
+
+  const rsvps = rsvpDetails as RSVP[];
   const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
 
   const eventStories = featuredItems.filter((story) => story.type === "event");
@@ -89,12 +91,20 @@ const EventPageAlumni = () => {
 
   if (!eventId || events.length === 0) return <p>Loading...</p>;
 
+  console.log(matchingRSVP?.rsvpId);
+
+  let alumniRsvpStatus: string | undefined = undefined;
+
+  if (alumInfo?.alumniId && matchingRSVP?.alums) {
+    alumniRsvpStatus = matchingRSVP.alums[alumInfo.alumniId]?.status;
+  }
+
   return (
     <div className="w-full px-6 md:px-10 lg:px-20 pt-6 pb-10">
-      <div className="flex items-center gap-2 mb-6">
-        <MoveLeft className="cursor-pointer" onClick={() => router.back()} />
-        <h2 className="text-lg font-semibold">Back</h2>
-      </div>
+      <Link href="/events" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
+        <MoveLeft className='size-[17px]'/>
+        Back to Events
+      </Link>
 
       {event ? (
         <div className="space-y-4">
@@ -111,18 +121,28 @@ const EventPageAlumni = () => {
                 <p className="text-gray-500 mt-1">{event.description}</p>
               </div>
               <div className="flex items-center gap-2 text-sm font-medium">
-                {event.status === "Accepted" ? (
+                {event.status === "Accepted" && event.creatorType === "alumni" ? (
                   <span className="text-green-600 flex items-center gap-1">
                     Accepted <CircleCheck className="w-4 h-4" />
                   </span>
-                ) : event.status === "Rejected" ? (
+                ) : event.status === "Rejected" && event.creatorType === "alumni" ? (
                   <span className="text-red-600 flex items-center gap-1">
                     Rejected <X className="w-4 h-4" />
                   </span>
-                ) : event.status === "Pending" ? (
+                ) : event.status === "Pending" && event.creatorType === "alumni"? (
                   <span className="text-yellow-600">Pending</span>
-                ) : (
+                ) : event.status === "Draft" && event.creatorType === "alumni"?(
                   <span className="text-gray-600">Draft</span>
+                ) : alumniRsvpStatus === "Accepted" ? (
+                  <span className="text-green-600 flex items-center gap-1">
+                    Going <CircleCheck className="w-4 h-4" />
+                  </span>
+                ) : alumniRsvpStatus === "Rejected" ? (
+                  <span className="text-red-600 flex items-center gap-1">
+                    Not Going <X className="w-4 h-4" />
+                  </span>
+                ) : alumniRsvpStatus === "Pending" && (
+                  <span className="text-yellow-600">Pending</span>
                 )}
               </div>
             </div>
@@ -130,7 +150,7 @@ const EventPageAlumni = () => {
             {event.status !== "Pending" && matchingRSVP && (
               <div className="mb-3">
                 <p className="text-sm text-gray-700">
-                  Your RSVP: <strong>{matchingRSVP.status}</strong>
+                  Your RSVP: <strong>{alumniRsvpStatus}</strong>
                 </p>
               </div>
             )}
@@ -156,7 +176,8 @@ const EventPageAlumni = () => {
           </div>
 
           {/* RSVP Buttons */}
-          {event.status !== "Pending" && matchingRSVP?.status === "Pending" && (
+          
+          {event.status !== "Pending" && alumniRsvpStatus === "Pending" && (
             <div className="bg-white py-4 px-6 rounded-[10px] shadow-md border border-gray-200 flex gap-4">
               {isLoadingRsvp ? (
                 <div className="text-gray-500">Loading...</div>

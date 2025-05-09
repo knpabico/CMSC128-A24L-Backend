@@ -84,7 +84,11 @@ import { Education } from "./sign-up-fields/education";
 import { Affiliation } from "./sign-up-fields/affiliation";
 import { NameAndPhoto } from "./sign-up-fields/name-and-photo";
 import { UserCredentials } from "./sign-up-fields/credentials";
-import { AlumPhotoUpload, uploadToFirebase } from "./sign-up-fields/alum_photo";
+import {
+  AlumPhotoUpload,
+  updateAlumPhoto,
+  uploadToFirebase,
+} from "./sign-up-fields/alum_photo";
 
 import Image from "next/image";
 import physciImage from "./physci.png";
@@ -93,6 +97,7 @@ import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationCodeModal } from "./sign-up-fields/emailverify";
 import { TextField, Autocomplete } from "@mui/material";
+import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
@@ -163,7 +168,7 @@ const formParts = [
       "career",
       "acceptTerms",
       "subscribeToNewsletter",
-      "contactPrivacy"
+      "contactPrivacy",
     ],
   },
 ];
@@ -193,6 +198,7 @@ export default function RegistrationForm() {
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
   const [hasCurrentJob, setHasCurrentJob] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
@@ -329,13 +335,16 @@ export default function RegistrationForm() {
 
     console.log("Testing sign-up:");
     console.log(data);
-    console.log(alumImage);
+    console.log("ALUM IMAGE", alumImage);
 
     //display error or success toast message
     if (response?.error) {
       toastError(response.message);
       setIsLoading(false);
       return;
+    }
+    if (isGoogleSignIn && !alumImage) {
+      updateAlumPhoto(user!.photoURL ?? "", user!.uid);
     }
 
     //upload alum photo to firebase storage
@@ -650,7 +659,7 @@ export default function RegistrationForm() {
                                         "Quantum Computing",
                                         "DevOps and System Administration",
                                         "Information Systems",
-                                        "Others"
+                                        "Others",
                                       ]}
                                       value={field.value || []}
                                       onChange={(event, newValue) => {
@@ -662,27 +671,33 @@ export default function RegistrationForm() {
                                       renderInput={(params) => (
                                         <TextField
                                           {...params}
-                                          placeholder={field.value?.length > 0 ? "" : "Select your fields of interest"}
+                                          placeholder={
+                                            field.value?.length > 0
+                                              ? ""
+                                              : "Select your fields of interest"
+                                          }
                                           InputProps={{
                                             ...params.InputProps,
-                                            style: { padding: 3 }
+                                            style: { padding: 3 },
                                           }}
                                           inputProps={{
                                             ...params.inputProps,
-                                            style: { padding: '3px 9px' }
+                                            style: { padding: "3px 9px" },
                                           }}
                                           sx={{
-                                            '& .MuiOutlinedInput-notchedOutline': {
-                                              border: 'none',
-                                              borderRadius: '5px'
-                                            }
+                                            "& .MuiOutlinedInput-notchedOutline":
+                                              {
+                                                border: "none",
+                                                borderRadius: "5px",
+                                              },
                                           }}
                                         />
                                       )}
                                     />
                                   </FormControl>
                                   <p className="text-xs text-gray-500 mt-1">
-                                    {(field.value?.length || 0)}/5 selected &nbsp;&nbsp; Max: 5
+                                    {field.value?.length || 0}/5 selected
+                                    &nbsp;&nbsp; Max: 5
                                   </p>
                                   <FormMessage />
                                 </FormItem>
@@ -1041,14 +1056,19 @@ export default function RegistrationForm() {
                                     />
                                   </FormControl>
                                   <FormLabel>
-                                    <p>I consent to making my email address visible to other alumni.</p>
+                                    <p>
+                                      I consent to making my email address
+                                      visible to other alumni.
+                                    </p>
                                   </FormLabel>
                                 </div>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                          <p className="font-light text-xs pl-6 pt-1">(You can change this preference later.)</p>
+                          <p className="font-light text-xs pl-6 pt-1">
+                            (You can change this preference later.)
+                          </p>
                         </div>
 
                         {/* subscribeToNewsletter form field */}
@@ -1072,17 +1092,37 @@ export default function RegistrationForm() {
                             </FormItem>
                           )}
                         />
-                        
                       </div>
 
-                      <div className="flex flex-col items-start px-5">
+                      <div
+                        className={`flex flex-row items-center justify-between ${
+                          isGoogleSignIn ? "space-x-2" : "px-5 space-x-4"
+                        }`}
+                      >
                         <Button
+<<<<<<< HEAD
                           className="w-50 col-span-6 bg-[var(--primary-blue)] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+=======
+                          className="w-1/2 bg-[#0856ba] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+>>>>>>> origin/merged-branch-deployment
                           variant="outline"
                           type="submit"
                         >
                           Submit
                         </Button>
+                        {(isGoogleSignIn || isGoogleLoading) && (
+                          <Button
+                            className="w-1/2 border-2 border-blue-500 text-blue-500 p-5 rounded-full cursor-pointer hover:bg-blue-100 hover:text-blue-700"
+                            disabled={isGoogleLoading}
+                            onClick={() => {
+                              setIsGoogleLoading(true);
+                              form.reset();
+                              logOut();
+                            }}
+                          >
+                            Log Out
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

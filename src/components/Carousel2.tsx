@@ -1,5 +1,5 @@
-"use client"
-import Image from "next/image"
+"use client";
+import Image from "next/image";
 
 export default function Carousel2() {
   const images = [
@@ -8,10 +8,10 @@ export default function Carousel2() {
     "https://ics.uplb.edu.ph/wp-content/uploads/2024/05/FICC2024_REG-1024x768.jpg",
     "https://ics.uplb.edu.ph/wp-content/uploads/2024/06/career_talk_2024-1024x576.jpg",
     "https://ics.uplb.edu.ph/wp-content/uploads/2024/04/2024-03-22_zenith-1024x728.png",
-  ]
+  ];
 
   // Duplicate images to create seamless loop
-  const allImages = [...images, ...images]
+  const allImages = [...images, ...images];
 
   return (
     <div className="w-full overflow-hidden">
@@ -44,5 +44,5 @@ export default function Carousel2() {
         </div>
       </div>
     </div>
-  )
+  );
 }

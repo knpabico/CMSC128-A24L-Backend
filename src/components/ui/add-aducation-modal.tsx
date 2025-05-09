@@ -43,7 +43,7 @@ const AddEducationModal = ({
       setMajor("");
       onClose();
     }
-    setSnackbarOpen(true);
+    // setSnackbarOpen(true);
   };
 
 
@@ -135,7 +135,7 @@ const AddEducationModal = ({
         </CardHeader>
       </Card>
 
-      <Snackbar
+      {/* <Snackbar
         open={error}
         onClose={() => setError(false)}
         autoHideDuration={2000}
@@ -144,7 +144,7 @@ const AddEducationModal = ({
         <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg">
             Please Enter Some Details
           </div>
-      </Snackbar>
+      </Snackbar> */}
     </div>
   );
 };

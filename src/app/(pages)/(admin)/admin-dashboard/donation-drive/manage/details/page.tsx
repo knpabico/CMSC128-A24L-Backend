@@ -385,7 +385,7 @@ export default function AddDonationDrive() {
 				<div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
 					<div className="space-y-2 flex items-center justify-between px-2">
 						<label htmlFor="name" className="text-md font-medium">
-							Donation Drive Informations
+							Donation Drive Information
 						</label>
 						<button onClick={() => setIsInformationOpen(!isInformationOpen)} className="text-sm text-blue-600 hover:underline" >
 								{isInformationOpen ? 'Hide Details' : 'Show Details'}

@@ -147,9 +147,12 @@ export interface Donation {
 
 export interface RSVP {
   rsvpId: string;
-  status: string;
   postId: string;
-  alumniId: string;
+  alums: {
+    [alumniId: string]: {
+      status: string;
+    };
+  };
 }
 
 export interface JobOffering {

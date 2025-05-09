@@ -1,12 +1,21 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, doc, onSnapshot, orderBy, query, setDoc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { useSearchParams } from "next/navigation";
 import { NewsletterItem } from "@/models/models";
 import { FirebaseError } from "firebase-admin";
+import { emailNewsLettertoAlums } from "@/lib/emailTemplate";
 
 const NewsLetterContext = createContext<any>(null);
 
@@ -35,17 +44,13 @@ export function NewsLetterProvider({
         unsubscribe(); //stops listening after logg out
       }
     };
-
   }, [user, sort]);
 
   const subscribeToNewsLetters = () => {
     setLoading(true);
 
     //default (newest first)
-    let q = query(
-      collection(db, "newsletter"),
-      orderBy("timestamp", "desc")
-    );
+    let q = query(collection(db, "newsletter"), orderBy("timestamp", "desc"));
 
     //oldest first
     if (sort === "of") {
@@ -79,6 +84,7 @@ export function NewsLetterProvider({
         timestamp: new Date(),
       };
       await setDoc(docRef, newsLetter);
+      await emailNewsLettertoAlums(referenceId, category);
       return { success: true, message: "Newsletter created successfully" };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
@@ -95,7 +101,7 @@ export function NewsLetterProvider({
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         querySnapshot.forEach(async (doc) => {
           if (doc.data().referenceId === referenceId) {
-        await deleteDoc(doc.ref);
+            await deleteDoc(doc.ref);
           }
         });
       });
@@ -107,7 +113,9 @@ export function NewsLetterProvider({
   };
 
   return (
-    <NewsLetterContext.Provider value={{ newsLetters, isLoading, addNewsLetter, deleteNewsLetter}}>
+    <NewsLetterContext.Provider
+      value={{ newsLetters, isLoading, addNewsLetter, deleteNewsLetter }}
+    >
       {children}
     </NewsLetterContext.Provider>
   );

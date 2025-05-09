@@ -22,11 +22,8 @@ export default function AlumPage() {
   const { loading: authloading } = useAuth();
   const { fetchWorkExperience, isLoading: workLoading } = useWorkExperience();
   const params = useParams();
-  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<
-    WorkExperience[]
-  >([]);
+  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
   const [showWorkExperience, setShowWorkExperience] = useState(false);
-
   const alumniId = params?.alumniId;
   const [alum, setAlum] = useState<Alumnus | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{
@@ -34,42 +31,35 @@ export default function AlumPage() {
     lng: number;
   } | null>(null);
   const [activeMarker, setActiveMarker] = useState(0);
-
   const { allEducation } = useEducation();
   const [edu, setEdu] = useState<Education[]>([]);
-
   const { allAffiliation } = useAffiliation();
   const [affil, setAffil] = useState<Affiliation[]>([]);
-
   const { allWorkExperience } = useWorkExperience();
   const [work, setWork] = useState<WorkExperience[]>([]);
-
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
+  const { isLoaded } = useGoogleMaps();
 
-  const [alumAge, setAge] = useState<number | null>(null);
-
-
-  //function for calculating age (year only) based from birthdate
   const calculateAge = (birthDate: Date) => {
     //current date
     const current_date = new Date();
     const current_day = current_date.getDate();
     const current_month = current_date.getMonth();
     const current_year = current_date.getFullYear();
-
+  
     //birthDate
     const day = birthDate.getDate();
     const month = birthDate.getMonth();
     const year = birthDate.getFullYear();
-
+  
     //student number
-
+  
     let age = current_year - year;
     //if current day < day or current month < month
     if ((current_month === month && current_day < day) || current_month < month) {
       age = age - 1; //subtract 1 from age
     }
-
+  
     return age;
   };
 
@@ -93,34 +83,6 @@ export default function AlumPage() {
       const foundWork =
         allWorkExperience.filter((work: WorkExperience) => String(work.alumniId) === String(alumniId));
       setWork(foundWork);
-
-      if (foundAlum) {
-        setAlum(foundAlum);
-
-        if (foundAlum.birthDate) {
-          let birthDateObj;
-          
-          if (foundAlum.birthDate.toDate && typeof foundAlum.birthDate.toDate === 'function') {
-            birthDateObj = foundAlum.birthDate.toDate();
-          } 
-          else if (typeof foundAlum.birthDate === 'string') {
-            birthDateObj = new Date(foundAlum.birthDate);
-          }
-          else if (foundAlum.birthDate instanceof Date) {
-            birthDateObj = foundAlum.birthDate;
-          }
-
-          if (birthDateObj && birthDateObj instanceof Date) {
-            const age = calculateAge(birthDateObj);
-            setAge(age);
-          }
-        }
-      }
-
-      fetchWorkExperience(alumniId).then((data) => {
-        console.log("Fetched Work Experience inside AlumPage:", data);
-        setSelectedAlumWorkExperience(data);
-      });
     }
   }, [alumniId, alums, allEducation, allAffiliation, allWorkExperience]);
 
@@ -128,24 +90,10 @@ export default function AlumPage() {
     setIsMapOpenArray(new Array(work.length).fill(false));
   }, [work]);
 
+
+
   if (alumsloading || authloading) return <h1>Loading...</h1>;
   if (!alum) return <h1>Alum not found...</h1>;
-  console.log("fetch experiences:", selectedAlumWorkExperience);
-
-  const handleLocationClick = (lat: number, lng: number, index: number) => {
-    setSelectedLocation({ lat, lng });
-    setActiveMarker(index); // Make marker bounce
-    setTimeout(() => setActiveMarker(null), 2000); // Stop bouncing after 2 seconds
-  };
-
-  //handles the clicked button see exp
-  const handleFetchWorkExperience = async () => {
-    if (alumniId) {
-      const workExperience = await fetchWorkExperience(alumniId);
-      setSelectedAlumWorkExperience(workExperience);
-      setShowWorkExperience(true);
-    }
-  };
 
   const openMap = (index:number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
@@ -157,7 +105,6 @@ export default function AlumPage() {
     newIsMapOpenArray[index] = false;
     setIsMapOpenArray(newIsMapOpenArray);
   };
-  const { isLoaded } = useGoogleMaps();
 
 
   return (
@@ -247,18 +194,14 @@ export default function AlumPage() {
                   <PersonStanding/>
                   <p className="font-semibold">Current Age</p>
                 </div>
-                <p className="pl-9 pt-3">
-                  {alumAge}
-                </p>
+                <p className="pl-9 pt-3">{calculateAge(alum.birthDate.toDate())}</p>
               </div>
               <div className="col-span-5">
                 <div className="flex space-x-3 items-center">
                   <MapPin/>
                   <p className="font-semibold">Current Location</p>
                 </div>
-                <p className="pl-9 pt-3">
-                  {alum.address[1]}, {alum.address[2]}, {alum.address[0]}
-                </p>
+                <p className="pl-9 pt-3">{alum.address[1]}, {alum.address[2]}, {alum.address[0]}</p>
               </div>
               <div className="col-span-5">
                 <div className="flex space-x-3 items-center">
@@ -273,7 +216,7 @@ export default function AlumPage() {
                       </span>
                     ))
                   ) : (
-                    <p>None</p>
+                    <span>None</span>
                   )}
                 </p>
               </div>

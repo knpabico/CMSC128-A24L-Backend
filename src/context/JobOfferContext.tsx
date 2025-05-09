@@ -19,6 +19,7 @@ import { useNewsLetters } from "./NewsLetterContext";
 import { set } from "zod";
 const JobOfferContext = createContext<any>(null);
 import { uploadImage } from "@/lib/upload";
+import { toast } from "sonner";
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -91,6 +92,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    document.body.style.overflow = 'auto';
     e.preventDefault();
 
     const newJobOffering: JobOffering = {
@@ -124,6 +126,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     const response = await addJobOffer(newJobOffering, user?.uid || "Admin");
 
     if (response.success) {
+      toast.success("Job offer added successfully!");
       console.log("Job offer added:", newJobOffering);
       // Delete from draft if it exists
       if (editingDraftId) {
@@ -143,6 +146,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       setJobImage(null);
       setPreview(null);
     } else {
+      toast.error(response.message);
       console.error("Error adding job:", response.message);
     }
   };
@@ -222,6 +226,16 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     try {
       await updateDoc(doc(db, "job_offering", jobId), {
         status: "Rejected",
+      });
+    } catch (error) {
+      console.error("Error updating job:", error);
+    }
+  };
+  
+  const handlePending = async (jobId: string) => {
+    try {
+      await updateDoc(doc(db, "job_offering", jobId), {
+        status: "Pending",
       });
     } catch (error) {
       console.error("Error updating job:", error);
@@ -323,13 +337,15 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         setJobImage(null);
         setPreview(null);
         setEditingDraftId(null); // Reset the editing draft ID
-        
+        toast.success("Draft saved successfully");
         return { success: true, message: editingDraftId ? "Draft updated" : "Draft saved" };
       } else {
+        toast.error(response.message);
         console.error("Error saving draft:", response.message);
         return { success: false, message: response.message };
       }
     } catch (error) {
+      toast.error((error as FirebaseError).message);
       console.error("Error saving draft:", error);
       return { success: false, message: "Failed to save draft" };
     }
@@ -391,6 +407,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         preview,
         fileName,
         handleImageChange,
+        handlePending,
         handleEdit,
         updateStatus,
         handleSaveDraft,

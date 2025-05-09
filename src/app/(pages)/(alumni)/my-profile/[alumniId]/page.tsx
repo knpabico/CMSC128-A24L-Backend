@@ -8,6 +8,7 @@ import AlumnusUploadPic from "./upload-profile/page";
 import Image from "next/image";
 import { Alumnus } from "@/models/models";
 import BookmarkButton from "@/components/ui/bookmark-button";
+import Link from 'next/link';
 
 import {
   Button,
@@ -480,6 +481,32 @@ const UserProfile = () => {
     return date.toISOString().split("T")[0];
   }
 
+  function timeAgo(timestamp: any): string {
+    const date = timestamp.toDate(); // Firestore Timestamp to JS Date
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+    const intervals = [
+      { label: "year", seconds: 31536000 },
+      { label: "month", seconds: 2592000 },
+      { label: "week", seconds: 604800 },
+      { label: "day", seconds: 86400 },
+      { label: "hour", seconds: 3600 },
+      { label: "minute", seconds: 60 },
+      { label: "second", seconds: 1 },
+    ];
+  
+    for (const interval of intervals) {
+      const count = Math.floor(seconds / interval.seconds);
+      if (count > 0) {
+        return `${count} ${interval.label}${count !== 1 ? "s" : ""} ago`;
+      }
+    }
+  
+    return "just now";
+  }
+  
+
   const [sortOrder, setSortOrder] = useState("latest");
   const getBookmarkDetails = (bookmark:Bookmark) => {
     if (bookmark.type.toString() === "announcement") {
@@ -693,7 +720,7 @@ const UserProfile = () => {
           </div>
           <div className={`${seeBookmarks ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeBookmarks ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
-              onClick={handleBookmarksClick}>Bookmarks</button>
+              onClick={handleBookmarksClick}>Bookmarks</button> 
           </div>
         </div>
       </div>
@@ -701,17 +728,34 @@ const UserProfile = () => {
       {seeProfile && (<div className="mx-50 my-15">
         <div className="flex space-x-7">
 
-          <div className='bg-[#3675c5] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${personalView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handlePersonalClick}>
-              <span><CircleUserRoundIcon/></span><span>Personal</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${educationView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleEducationClick}>
-              <span><GraduationCapIcon/></span><span>Education</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${careerView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleCareerClick}>
-              <span><BriefcaseIcon/></span><span>Career</span>
-            </button>
+          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
+            <div className="bg-white">
+              <ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-65 h-max">
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handlePersonalClick}>
+                  <CircleUserRoundIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${personalView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Personal Information</span>
+                    {!personalView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleEducationClick}>
+                  <GraduationCapIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${educationView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Educational Background</span>
+                    {!educationView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleCareerClick}>
+                  <BriefcaseIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${careerView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Career</span>
+                    {!careerView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+              </ul>
+            </div>
           </div>
+          
 
           {/* INFO BOX */}
 
@@ -1265,47 +1309,54 @@ const UserProfile = () => {
       {seeBookmarks && (<div className="mx-50 my-15">
         <div className="flex space-x-7">
 
-          <div className='bg-[#3675c5] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${allView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleAllViewClick}>
-              <span><Rows3Icon/></span><span>All</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${announcementsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleAnnouncementsViewClick}>
-              <span><MegaphoneIcon/></span><span>Announcements</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${eventsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleEventsViewClick}>
-              <span><CalendarDaysIcon/></span><span>Events</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${drivesView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleDrivesViewClick}>
-              <span><HandHeartIcon/></span><span>Donation Drives</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${scholarshipsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleScholarshipsViewClick}>
-              <span><SchoolIcon/></span><span>Scholarships</span>
-            </button>
-            <button className={`flex gap-4 text-left text-white whitespace-nowrap py-2 px-5 w-60 cursor-pointer hover:bg-gray-100/20 transition rounded-sm ${jobsView ? "bg-gray-100/20 font-bold" : ""}`} onClick={handleJobsViewClick}>
-              <span><BriefcaseIcon/></span><span>Job Posts</span>
-            </button>
-
-            {/* <div className="flex space-x-2 mb-4">
-              <button
-                onClick={() => setSortOrder("latest")}
-                className={`px-3 py-1 rounded text-sm ${
-                  sortOrder === "latest" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Latest
-              </button>
-              <button
-                onClick={() => setSortOrder("earliest")}
-                className={`px-3 py-1 rounded text-sm ${
-                  sortOrder === "earliest" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Earliest
-              </button>
-            </div> */}
+          <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
+            <div className="bg-white">
+              <ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-50 h-max">
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleAllViewClick}>
+                  <Rows3Icon/>
+                  <p className={`group w-max relative py-1 transition-all ${allView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>All</span>
+                    {!allView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleAnnouncementsViewClick}>
+                  <MegaphoneIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${announcementsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Announcements</span>
+                    {!announcementsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleEventsViewClick}>
+                  <CalendarDaysIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${eventsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Events</span>
+                    {!eventsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleDrivesViewClick}>
+                  <HandHeartIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${drivesView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Donation Drives</span>
+                    {!drivesView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleScholarshipsViewClick}>
+                  <SchoolIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${scholarshipsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Scholarships</span>
+                    {!scholarshipsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+                <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleJobsViewClick}>
+                  <BriefcaseIcon/>
+                  <p className={`group w-max relative py-1 transition-all ${jobsView ? 'font-semibold  border-b-3 border-blue-500' : 'text-gray-700 group'}`}>
+                    <span>Job Posts</span>
+                    {!jobsView && (<span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>)}
+                  </p>
+                </li>
+              </ul>
+            </div>
           </div>
-
-          
 
           {/* INFO BOX */}
 
@@ -1314,7 +1365,7 @@ const UserProfile = () => {
             <div className="flex flex-col gap-5 w-full">
               {bookmarks.length > 0 ? (
                 bookmarks.map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
@@ -1322,7 +1373,10 @@ const UserProfile = () => {
                         [...announces]
                         .filter((ann: Announcement) => ann.announcementId === bookmark.entryId)
                         .map((ann: Announcement, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                          onClick={() =>
+                            router.push(`/announcement/${ann.announcementId}`)
+                          }>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><MegaphoneIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1341,6 +1395,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{ann.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1357,25 +1412,31 @@ const UserProfile = () => {
                         [...events]
                         .filter((eve : Event) => eve.eventId === bookmark.entryId)
                         .map((eve : Event, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"                           
+                          onClick={() => {
+                            if (eve.eventId) router.push(`../events/${eve.eventId}`);
+                          }}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><CalendarDaysIcon/></p>
                               <div className="flex space-x-3 items-center">
                                 <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
                                   {eve.image && (
-                                    <Image
-                                      src={eve.image}
-                                      alt="Alumnus Image"
-                                      width={0}
-                                      height={0}
-                                      sizes="100vw"
-                                      className="object-cover w-full h-full"
-                                    />
+
+                                      <Image
+                                        src={eve.image}
+                                        alt="Alumnus Image"
+                                        width={0}
+                                        height={0}
+                                        sizes="100vw"
+                                        className="object-cover w-full h-full"
+                                      />
+                                    
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{eve.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1392,7 +1453,9 @@ const UserProfile = () => {
                         donationDrives
                         .filter((don : DonationDrive) => don.donationDriveId === bookmark.entryId)
                         .map((don : DonationDrive, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                          onClick={()=>{router.push(`/donationdrive-list/details?id=${don.donationDriveId}`)}}
+                          >
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><HandHeartIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1411,6 +1474,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{don.campaignName}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1427,7 +1491,9 @@ const UserProfile = () => {
                         [...scholarships]
                         .filter((scho: Scholarship) => scho.scholarshipId === bookmark.entryId)
                         .map((scho: Scholarship, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                          onClick={()=> {router.push(`/scholarship/${scho.scholarshipId}`);}}
+                          >
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><SchoolIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1446,6 +1512,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{scho.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1462,7 +1529,10 @@ const UserProfile = () => {
                         [...jobOffers]
                         .filter((job: JobOffering) => job.jobId === bookmark.entryId)
                         .map((job: JobOffering, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"
+                            onClick={()=> {
+                              router.push(`/joboffer-list?jobId=${job.jobId}`);
+                            }}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><BriefcaseIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1481,6 +1551,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{job.position}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1494,7 +1565,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       ) : (<div></div>)}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1510,14 +1581,17 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "announcement")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {([...announces]
                         .filter((ann: Announcement) => ann.announcementId === bookmark.entryId)
                         .map((ann: Announcement, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"                         
+                          onClick={() =>
+                            router.push(`/announcement/${ann.announcementId}`)
+                          }>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><MegaphoneIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1536,6 +1610,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{ann.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(ann.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1549,7 +1624,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1565,19 +1640,26 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "event")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
-                    // onClick={}
+                    // onClick={()=>{router.push(`/alumni/events/${alumniId}/alumni-donations`);}}
                     >
                       {([...events]
                         .filter((eve : Event) => eve.eventId === bookmark.entryId)
                         .map((eve : Event, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between" 
+                          onClick={() => {
+                            if (eve.eventId) router.push(`../events/${eve.eventId}`);
+                          }}
+                          >
+                            {/* Event Id: {eve.eventId} */}
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><CalendarDaysIcon/></p>
                               <div className="flex space-x-3 items-center">
                                 <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
+                                  {/* Try mo to click */}
                                   {eve.image && (
+                                    <>
                                     <Image
                                       src={eve.image}
                                       alt="Alumnus Image"
@@ -1586,11 +1668,13 @@ const UserProfile = () => {
                                       sizes="100vw"
                                       className="object-cover w-full h-full"
                                     />
+                                    </>
                                   )}
                                 </div>
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{eve.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(eve.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1604,7 +1688,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                 <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1620,19 +1704,21 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "donation_drive")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {(donationDrives
                         .filter((don : DonationDrive) => don.donationDriveId === bookmark.entryId)
                         .map((don : DonationDrive, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between" 
+                          onClick={()=> {router.push(`/donationdrive-list/details?id=${don.donationDriveId}`);}}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><HandHeartIcon/></p>
                               <div className="flex space-x-3 items-center">
                                 <div className="w-30 h-20 bg-gray-200 flex-shrink-0">
                                   {don.image && (
+
                                     <Image
                                       src={don.image}
                                       alt="Alumnus Image"
@@ -1646,6 +1732,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{don.campaignName}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(don.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1659,7 +1746,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1675,14 +1762,14 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "scholarship")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
-                    // onClick={}
+                    
                     >
                       {([...scholarships]
                         .filter((scho: Scholarship) => scho.scholarshipId === bookmark.entryId)
                         .map((scho: Scholarship, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between"  onClick={()=> {router.push(`/scholarship/${scho.scholarshipId}`);}}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><SchoolIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1701,6 +1788,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{scho.title}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(scho.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1714,7 +1802,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
@@ -1730,14 +1818,17 @@ const UserProfile = () => {
                 bookmarks
                 .filter(bookmark => bookmark.type.toString() === "job_offering")
                 .map((bookmark: Bookmark, index:number) => (
-                    <button key={index} 
+                    <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
                     >
                       {([...jobOffers]
                         .filter((job: JobOffering) => job.jobId === bookmark.entryId)
                         .map((job: JobOffering, i:number) => (
-                          <div key={i} className="flex items-center justify-between">
+                          <div key={i} className="flex items-center justify-between" 
+                            onClick={()=> {
+                              router.push(`/joboffer-list?jobId=${job.jobId}`);
+                            }}>
                             <div className="flex space-x-8 items-center">
                               <p className="flex font-bold"><BriefcaseIcon/></p>
                               <div className="flex space-x-3 items-center">
@@ -1756,6 +1847,7 @@ const UserProfile = () => {
                                 <div className="flex flex-col items-start">
                                   <p className="font-bold pt-2 text-left">{job.position}</p>
                                   <p className="font-light text-xs">Posted: {formatDate(job.datePosted)}</p>
+                                  <p className="font-light text-xs">Saved {timeAgo(bookmark.timestamp)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1769,7 +1861,7 @@ const UserProfile = () => {
                           </div>
                         ))
                       )}
-                    </button>
+                    </div>
                 ))
               ) : (
                   <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">

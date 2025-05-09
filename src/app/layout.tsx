@@ -6,6 +6,7 @@ import { AlumProvider } from "@/context/AlumContext";
 import { JobOfferProvider } from "@/context/JobOfferContext";
 import { AnnouncementProvider } from "@/context/AnnouncementContext";
 import { EventProvider } from "@/context/EventContext";
+import { RsvpProvider } from "@/context/RSVPContext";
 import { DonationDriveProvider } from "@/context/DonationDriveContext";
 import { BookmarkProvider } from "@/context/BookmarkContext";
 import { Toaster } from "sonner";
@@ -42,21 +43,23 @@ export default function RootLayout({
                       <AlumProvider>
                         <WorkExperienceProvider>
                           <EventProvider>
-                            <DonationContextProvider>
-                              <GoogleMapsProvider>
-                                <MapProvider>
-                                  <EducationProvider>
-                                    <AffiliationProvider>
-                                      <body className={inter.className}>
-                                        <Navbar />
-                                        <div className="">{children}</div>
-                                        <Toaster />
-                                      </body>
-                                    </AffiliationProvider>
-                                  </EducationProvider>
-                                </MapProvider>
-                              </GoogleMapsProvider>
-                            </DonationContextProvider>
+                            <RsvpProvider>
+                              <DonationContextProvider>
+                                <GoogleMapsProvider>
+                                  <MapProvider>
+                                    <EducationProvider>
+                                      <AffiliationProvider>
+                                        <body className={inter.className}>
+                                          <Navbar />
+                                          <div className="">{children}</div>
+                                          <Toaster />
+                                        </body>
+                                      </AffiliationProvider>
+                                    </EducationProvider>
+                                  </MapProvider>
+                                </GoogleMapsProvider>
+                              </DonationContextProvider>
+                            </RsvpProvider>
                           </EventProvider>
                         </WorkExperienceProvider>
                       </AlumProvider>
