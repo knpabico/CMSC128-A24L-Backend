@@ -95,14 +95,14 @@ const Page = () => {
           </div>
         </div>
   
-        {/* Charts Section - Full Width */}
-        <div className="bg-white rounded-xl shadow-sm p-10 border border-gray-100 mb-6">
+        {/* Charts Section */}
+        <div className="bg-white rounded-xl shadow-sm p-10 border border-gray-100">
           <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 flex items-center">
             <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-            Events Charts
+            Events Overview
           </h2>
   
-          <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-4">
             <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-center text-lg font-semibold text-gray-700">
@@ -129,14 +129,17 @@ const Page = () => {
         </div>
   
         {/* Middle Section - Cards Grid and Report Summary */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4">
           {/* Events Grid */}
-          <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
               <CardHeader className="pb-3 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl font-bold text-gray-800">Events with Donations</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                  <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                      Events with Donations
+                      </CardTitle>
                     {!eventLoading && (
                       <div className="text-[#0856BA] font-medium text-sm mt-1">Total: {eventsWithDonations.length}</div>
                     )}
@@ -175,7 +178,10 @@ const Page = () => {
               <CardHeader className="pb-3 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl font-bold text-gray-800">Number of RSVPs per event</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                  <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                      RSVPs per Event
+                      </CardTitle>
                     {!eventLoading && (
                       <div className="text-[#0856BA] font-medium text-sm mt-1">
                         Events with RSVPs: {eventsRSVPs.length}
@@ -221,7 +227,10 @@ const Page = () => {
               <CardHeader className="pb-3 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl font-bold text-gray-800">Upcoming Events</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                  <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                  Upcoming Events
+                  </CardTitle>
                     {!eventLoading && (
                       <div className="text-[#0856BA] font-medium text-sm mt-1">Total: {upcomingEvents.length}</div>
                     )}
@@ -267,7 +276,10 @@ const Page = () => {
               <CardHeader className="pb-3 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl font-bold text-gray-800">Past Events</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                  <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                      Past Events
+                      </CardTitle>
                     {!eventLoading && (
                       <div className="text-[#0856BA] font-medium text-sm mt-1">Total: {pastEvents.length}</div>
                     )}
