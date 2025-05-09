@@ -11,11 +11,15 @@ import {
 	Student,
 } from "@/models/models";
 import {
+	CheckCircle,
   ChevronLeft,
   ChevronRight,
   CircleAlert,
   CircleCheck,
+  CircleX,
+  Clock,
   HandCoins,
+	HelpCircle,
 } from "lucide-react";
 
 
@@ -23,6 +27,7 @@ import {
 import { useFeatured } from "@/context/FeaturedStoryContext";
 import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
+import { toastSuccess } from "@/components/ui/sonner";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
@@ -35,7 +40,9 @@ const ScholarshipDetailPage: React.FC = () => {
   const [sponsoring, setSponsoring] = useState(false);
   const scholarshipId = params?.id as string;
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+	const [isStudentConfirmationOpen, setIsStudentConfirmationOpen] = useState(false);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
+	const [isStudentThankYouOpen, setStudentIsThankYouOpen] = useState(false);
   const { featuredItems, isLoading } = useFeatured();
 
 	const [students, setStudents] = useState<any[]>([]);
@@ -181,6 +188,7 @@ const ScholarshipDetailPage: React.FC = () => {
     }
 
     const result = await addScholarshipStudent(newStudentSponsor);
+		toastSuccess("Your sponsorship request has been submitted successfully!")
     console.log(result.message);
   }
 
@@ -291,14 +299,13 @@ const ScholarshipDetailPage: React.FC = () => {
                   <CircleAlert className="size-15" />
                   <DialogTitle className="text-2xl">
                     {" "}
-                    Confirm Sponsorship{" "}
+                    Confirm Your Interest{" "}
                   </DialogTitle>
                 </DialogHeader>
                 <p>
-                  {" "}
-                  Are you sure you want to become a sponsor for the{" "}
-                  <strong>{scholarship?.title}</strong> scholarship?{" "}
-                </p>
+									Are you sure you want to express your interest in sponsoring the{" "}
+									<strong>{scholarship?.title}</strong> scholarship?
+								</p>
                 <DialogFooter className="mt-5">
                   <button
                     className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] bg-[#0856BA]  hover:bg-blue-500 hover:cursor-pointer"
@@ -327,13 +334,10 @@ const ScholarshipDetailPage: React.FC = () => {
               <DialogContent className="w-96">
                 <DialogHeader className="text-green-700 flex items-center">
                   <CircleCheck className="size-15" />
-                  <DialogTitle className="text-2xl"> Thank You! </DialogTitle>
+                  <DialogTitle className="text-center"> Thank you for your interest in our scholarship program. </DialogTitle>
                 </DialogHeader>
-                <p className="text-center">
-									We're grateful for your interest in our scholarship program.
-                </p>
-                <p className="italic text-xs pt-3 text-center">
-									Please see the list of students below and choose one to support in shaping his or her future.
+                <p className="text-sm text-center">
+									Take your time in choosing a scholar whose journey you’d like to support — your generosity can help shape their future.
                 </p>
                 <DialogFooter className="mt-5">
                   <button
@@ -351,19 +355,19 @@ const ScholarshipDetailPage: React.FC = () => {
 					<div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
 						<div className="flex justify-between">
 							<h2 className="text-md font-semibold">List of Students</h2>
-							<div>
+							<div className="flex gap-3 items-center">
                 Sort by:
                 <select
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value as "oldest" | "youngest" | "A-Z" | "Z-A")}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="px-3 py- rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="A-Z">A-Z</option>
                   <option value="Z-A">Z-A</option>
                   <option value="oldest">Oldest</option>
                   <option value="youngest">Youngest</option>
                 </select>
-								Filter by:
+								| Filter by:
                   <select
                   value={filterOption}
                   onChange={(e) => setFilterOption(e.target.value as "pending" | "approved" | "all" | "available")}
@@ -382,64 +386,104 @@ const ScholarshipDetailPage: React.FC = () => {
 								) : filteredAndSortedStudents.length > 0 ? (
 									<div className="overflow-x-auto">
 										{/* Table Header */}
-										<div className="flex w-full bg-gray-100 p-3 rounded-md mb-2 justify-between">
-											<div className="w-2/3">
+										<div className="flex w-full bg-gray-100 p-3 rounded-md mb-2">
+											<div className="w-2/3 font-medium text-gray-700">
 												Student
 											</div>
-											<div className="w-1/3 flex justify-around">
-												<div className="">
-													Status
-												</div>
-												<div className="">
-													Become a Sponsor
-												</div>
+											<div className="w-1/6 text-center font-medium text-gray-700">
+												Status
+											</div>
+											<div className="w-1/6 text-center font-medium text-gray-700">
+												Sponsorship
 											</div>
 										</div>
+										
 										{/* Table Body */}
 										<div>
 											<ul>
 												{filteredAndSortedStudents.map((student) => (
-													<li key={student.studentId}  >
-														<div className="flex justify-between w-full rounded-md px-3 my-2">
+													<li key={student.studentId}>
+														<div className="flex w-full rounded-md px-3 my-2 items-center">
 															<div className="w-2/3">
 																<div className="text-md mb-1 font-semibold">
 																	{student.name}
 																</div>
-																<div className="text-xs">
+																<div className="text-xs text-gray-600">
 																	<div>
 																		{student.age} years old
 																	</div>
-																	<div className="h-fit">
+																	<div className="line-clamp-2 hover:line-clamp-none">
 																		{student.shortBackground}
 																	</div>
 																</div>
 															</div>
-															<div className="w-1/3 flex justify-around items-center">
-																<div className="">
-																	{getStudentStatus(student.studentId)}
-																</div>
-																<div className="">
-																	<div className="">
-																	<button 
-                                    onClick={() => handleStudentSponsor(student.studentId)}
-                                      className={`text-md rounded-full px-3 py-1 text-white shadow-lg ${
-                                        getStudentStatus(student.studentId) === "available"
-                                          ? "bg-blue-600 hover:bg-blue-500 cursor-pointer"
-                                          : "bg-gray-400 cursor-not-allowed"
-                                      }`}
-                                      disabled={getStudentStatus(student.studentId) !== "available"}
-                                      title={
-                                      getStudentStatus(student.studentId) === "available"
-                                          ? "Sponsor this student"
-                                          : getStudentStatus(student.studentId) === "pending"
-                                          ? "This student's sponsorship is pending approval"
-                                          : "This student is already sponsored"
-                                      }
-                                    >
-                                      Sponsor
-																	</button>
-																	</div>
-																</div>
+															
+															{/* Status column */}
+															<div className="w-1/6 flex justify-center">
+																<button 
+																	className={`flex text-sm rounded-full px-3 py-1 shadow-lg transition-colors justify-center items-center gap-2
+																		${(() => {
+																			const status = getStudentStatus(student.studentId)?.toLowerCase();
+																			
+																			switch(status) {
+																				case 'approved':
+																					return 'bg-green-500 text-white hover:bg-green-600';
+																				case 'pending':
+																					return 'bg-yellow-500 text-white hover:bg-yellow-600';
+																				case 'rejected':
+																					return 'bg-red-500 text-white hover:bg-red-600';
+																				default:
+																					return 'bg-gray-400 text-white hover:bg-gray-500';
+																			}
+																		})()}`}
+																>
+																	{(() => {
+																		const status = getStudentStatus(student.studentId)?.toLowerCase();
+																		
+																		switch(status) {
+																			case 'approved':
+																				return <CircleCheck className="size-4" />;
+																			case 'pending':
+																				return <Clock className="size-4" />;
+																			case 'rejected':
+																				return <CircleX className="size-4" />;
+																			default:
+																				return <HelpCircle className="size-4" />;
+																		}
+																	})()}
+																	
+																	<span className="whitespace-nowrap">
+																		{getStudentStatus(student.studentId) 
+																			? getStudentStatus(student.studentId).charAt(0).toUpperCase() + getStudentStatus(student.studentId).slice(1)
+																			: "None"}
+																	</span>
+																</button>
+															</div>
+															
+															{/* Sponsorship column */}
+															<div className="w-1/6 flex justify-center">
+																<button 
+																	onClick={() => {
+																		setstudentDetails(student);
+																		setIsStudentConfirmationOpen(true);
+																	}}
+																	className={`text-sm rounded-full px-3 py-1 text-white shadow-lg transition-colors
+																		${
+																				!isAlreadySponsoring || getStudentStatus(student.studentId) !== "available"
+																						? "bg-gray-400 cursor-not-allowed"
+																						: "bg-blue-600 hover:bg-blue-500 cursor-pointer"
+																		}`}
+																	disabled={getStudentStatus(student.studentId) !== "available" || !isAlreadySponsoring}
+																	title={
+																		getStudentStatus(student.studentId) === "available"
+																			? "Sponsor this student"
+																			: getStudentStatus(student.studentId) === "pending"
+																			? "This student's sponsorship is pending approval"
+																			: "This student is already sponsored"
+																	}
+																>
+																	Sponsor
+																</button>
 															</div>
 														</div>
 														<div className="border-b-2 border-gray-100 w-full"></div>          
@@ -457,34 +501,68 @@ const ScholarshipDetailPage: React.FC = () => {
 							</div>
 					</div>
 
-          {/* <br></br>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold mb-4">Students in this Scholarship</h2>
-                {loadingStudents ? (
-                  <p>Loading students...</p>
-                ) : students.length > 0 ? (
-                  <ul className="list-disc pl-6">
-                    {students.map((student) => (
-                      <li key={student.studentId} className="text-gray-700">
-                        <div className="flex justify-between items-center gap-4">
-                          <strong>{student.name}</strong>  {student.emailAddress}
-                          {isAlreadySponsoring && <button
-                            onClick={() => {handleStudentSponsor(student.studentId)}}
-                            className="px-10 py-2 bg-blue-500 text-white rounded-md"
-                          >
-                            Sponsor Student
-                          </button>}                          
-                        </div>                
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No students are currently associated with this scholarship.</p>
-                )}
-              </div> */}
-					
-					
+					{/* Confirmation Dialog */}
+          {isStudentConfirmationOpen && (
+            <Dialog open={isStudentConfirmationOpen}>
+              <DialogContent className="w-96">
+                <DialogHeader className="text-orange-500 flex items-center">
+                  <CircleAlert className="size-15" />
+                  <DialogTitle className="text-2xl">
+                    {" "}
+                    Confirm Sponsorship{" "}
+                  </DialogTitle>
+                </DialogHeader>
+                <p>
+                  {" "}
+                  Are you sure you want to sponsor {" "}
+                  <strong>{studentDetails?.name}</strong>?{" "}
+                </p>
+                <DialogFooter className="mt-5">
+                  <button
+                    className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] bg-[#0856BA]  hover:bg-blue-500 hover:cursor-pointer"
+                    onClick={() => {
+                      setIsStudentConfirmationOpen(false);
+                      if (studentDetails) {
+												handleStudentSponsor(studentDetails.studentId);
+											}
+                      setIsThankYouOpen(true);
+                    }}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100"
+                    onClick={() => setIsStudentConfirmationOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
 
+					{isStudentThankYouOpen && (
+            <Dialog open={isStudentThankYouOpen}>
+              <DialogContent className="w-96">
+                <DialogHeader className="text-green-700 flex items-center">
+                  <CircleCheck className="size-15" />
+                  <DialogTitle className="text-center"> Thank you for your support in sponsoring a student. </DialogTitle>
+                </DialogHeader>
+								<p className="text-sm text-center">
+								Your kindness is opening doors to education and brighter futures for our ICS scholars.
+								</p>
+                <DialogFooter className="mt-5">
+                  <button
+                    className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100"
+                    onClick={() => setStudentIsThankYouOpen(false)}
+                  >
+                    Close
+                  </button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+          
           {/* Featured Stories Section - Carousel */}
           <div className="mt-16">
             <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">
