@@ -532,7 +532,7 @@ export default function AdminDashboard() {
 
       {/* Job Posting */}
     <div className="md:col-span-3">
-      <Card className="border-0 shadow-md flex flex-col h-full">
+      <Card className="border-0 shadow-md flex flex-col h-full bg-white">
         <CardHeader className="pb-0">
           <CardTitle>Job Posting</CardTitle>
           
