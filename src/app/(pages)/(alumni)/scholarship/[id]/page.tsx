@@ -47,7 +47,8 @@ const ScholarshipDetailPage: React.FC = () => {
 	const [students, setStudents] = useState<any[]>([]);
 	const [loadingStudents, setLoadingStudents] = useState(true);
 	const [studentDetails, setstudentDetails] = useState< Student | null>(null);
-
+  const [sortOption, setSortOption] = useState<"oldest" | "youngest" | "A-Z" | "Z-A">("A-Z");
+  
   const eventStories = featuredItems.filter(
     (story) => story.type === "scholarship"
   );
@@ -189,6 +190,22 @@ const ScholarshipDetailPage: React.FC = () => {
 
   const isAlreadySponsoring = scholarship?.alumList?.includes(user?.uid);
 
+  const sortedStudents = [...students].sort((a, b) => {
+    switch (sortOption) {
+      case "oldest":
+        return b.age - a.age; // age descending 
+      case "youngest":
+        return a.age - b.age; //  age ascending
+      case "A-Z":
+        return a.name.localeCompare(b.name); 
+      case "Z-A":
+        return b.name.localeCompare(a.name); 
+      default:
+        return 0;
+    }
+  });
+
+
   return (
     <>
       <div className="bg-[#EAEAEA] mx-auto px-10 py-10">
@@ -325,13 +342,32 @@ const ScholarshipDetailPage: React.FC = () => {
 						<div className="flex justify-between">
 							<h2 className="text-md font-semibold">List of Students</h2>
 							<div>
-								Flitering
+                Sort by:
+                <select
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value as "oldest" | "youngest" | "A-Z" | "Z-A")}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="A-Z">A-Z</option>
+                  <option value="Z-A">Z-A</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="youngest">Youngest</option>
+                </select>
+								Filter by:
+                  {/* <select
+                  value={filterOption}
+                  onChange={(e) => setFilterOption(e.target.value as "pending" | "approved")}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                </select> */}
 							</div>
 						</div>
 						<div className="my-3">
 								{loadingStudents ? (
 									<p>Loading students...</p>
-								) : students.length > 0 ? (
+								) : sortedStudents.length > 0 ? (
 									<div className="overflow-x-auto">
 										{/* Table Header */}
 										<div className="flex w-full bg-gray-100 p-3 rounded-md mb-2 justify-between">
@@ -350,7 +386,7 @@ const ScholarshipDetailPage: React.FC = () => {
 										{/* Table Body */}
 										<div>
 											<ul>
-												{students.map((student) => (
+												{sortedStudents.map((student) => (
 													<li key={student.studentId}  >
 														<div className="flex justify-between w-full rounded-md px-3 my-2">
 															<div className="w-2/3">
