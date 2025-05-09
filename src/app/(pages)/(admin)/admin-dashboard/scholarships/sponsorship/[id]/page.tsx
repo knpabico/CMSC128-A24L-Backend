@@ -3,19 +3,62 @@
 // student info
 // scholarship info
 // pdf
-"use client"
+"use client";
 
 import { ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams} from "next/navigation";
+import { useEffect, useState } from "react";
+import { useScholarship } from "@/context/ScholarshipContext";
 
 export default function SponsorshipDetails() {
-	const router = useRouter();
-	const manage = () => {
+  const router = useRouter();
+  const params = useParams();
+  const { getStudentById, getAlumniById, getScholarshipById, getScholarshipStudentById } = useScholarship();
+
+  const [student, setStudent] = useState<any | null>(null);
+  const [alumni, setAlumni] = useState<any | null>(null);
+  const [scholarship, setScholarship] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const sponsorshipId = params?.id as string;
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch the scholarship-student relationship
+        const sponsorshipDetails = await getScholarshipStudentById(sponsorshipId);
+        if (sponsorshipDetails) {
+          // Fetch student details
+          const studentDetails = await getStudentById(sponsorshipDetails.studentId);
+          setStudent(studentDetails);
+
+          // Fetch alumni details
+          const alumniDetails = await getAlumniById(sponsorshipDetails.alumId); 
+          setAlumni(alumniDetails);
+
+          // Fetch scholarship details
+          const scholarshipDetails = await getScholarshipById(sponsorshipDetails.scholarshipId);
+          setScholarship(scholarshipDetails);
+        }
+      } catch (error) {
+        console.error("Error fetching sponsorship details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetails();
+  }, [getScholarshipStudentById, getStudentById, getAlumniById, getScholarshipById, sponsorshipId]);
+
+  const manage = () => {
     router.push("/admin-dashboard/scholarships/sponsorship");
   };
-	const home = () => {
+  const home = () => {
     router.push("/admin-dashboard");
   };
+
 
 	return (
 		<>
@@ -56,23 +99,23 @@ export default function SponsorshipDetails() {
 						<div className="space-y-3">
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Name: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{student?.name}</span>
 							</div>
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Email Address: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{student?.emailAddress}</span>
 							</div>
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Student Number: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{student?.studentNumber}</span>
 							</div>
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Background: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{student?.shortBackground}</span>
 							</div>
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Address: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{student?.address}</span>
 							</div>
 						</div>
 					</div>
@@ -85,15 +128,15 @@ export default function SponsorshipDetails() {
 						<div className="space-y-3">
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Name: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{alumni?.firstName} {alumni?.middleName}  {alumni?.lastName} {alumni?.suffix}</span>
 							</div>
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Email Address: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{alumni?.email}</span>
 							</div>
 							<div className="flex flex-col">
 								<span className="text-sm text-gray-500">Address: </span>
-								<span className="font-medium"></span>
+								<span className="font-medium">{alumni?.address[1]}, {alumni?.address[2]}, {alumni?.address[0]}</span>
 							</div>
 						</div>
 					</div>
