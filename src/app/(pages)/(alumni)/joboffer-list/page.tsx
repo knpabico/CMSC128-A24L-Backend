@@ -31,6 +31,7 @@ import {
   Trash2,
   CheckCircle,
 } from "lucide-react";
+import Banner from "@/components/Banner";
 import { set } from "zod";
 
 function formatDate(timestamp: any) {
@@ -331,21 +332,10 @@ export default function JobOffers() {
   return (
     <>
       {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
-      <div
-        className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50"
-        style={{ backgroundImage: 'url("/ICS2.jpg")' }}
-      >
-        <div className="absolute inset-0 bg-blue-500/50" />
-        <div className="relative">
-          <h1 className="text-5xl font-bold my-2 text-white">Job Opportunities</h1>
-          <p className="text-white text-sm md:text-base">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat
-            aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus
-            quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit
-            eget.
-          </p>
-        </div>
-      </div>
+      <Banner 
+        title="Job Opportunities" 
+        description="Discover job opportunities through ICS and alumni partnerships, bridging the gap between education and career success for ICS graduates."
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex justify-between items-center mb-4">

@@ -11,6 +11,7 @@ import CollapseText from "@/components/CollapseText";
 import { useRouter } from "next/navigation";
 import AnnouncementsSidebar from "./sidebar";
 import { useBookmarks } from "@/context/BookmarkContext";
+import Banner from "@/components/Banner";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -68,13 +69,10 @@ export default function Announcements() {
   return (
     <div>
       {/* Title */}
-      <div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
-        <div className="absolute inset-0 bg-blue-500/50" />
-        <div className="relative z-10">
-          <h1 className="text-5xl font-bold my-2 text-white">Announcements</h1>
-          <p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
-        </div>
-      </div>
+      <Banner 
+        title="Announcements" 
+        description="Stay connected with the ICS community through timely announcements, academic news, and upcoming events."
+      />
 
       <div className="mx-[30px] xl:mx-[10%] lg:mx-[50px] my-[40px] static">
         <div className="flex flex-row gap-[40px] mt-6">
