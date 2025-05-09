@@ -350,7 +350,7 @@ export default function FeaturedStoriesPage() {
                 className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer"
                 onClick={() => {
                   if (storyToDelete) {
-                    handleDelete(storyToDelete.title);
+                    handleDelete(storyToDelete?.featuredId);
                     setIsConfirmationOpen(false);
                   }
                 }}
