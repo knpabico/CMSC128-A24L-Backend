@@ -52,7 +52,7 @@ const EditWorkExperience: React.FC<{
     if (result.success) {
       onClose();
     }
-    setSnackbar(true);
+    // setSnackbar(true);
   };
 
   const [presentJob, setPresentJob] = useState(endYear === "present" ? true : false);

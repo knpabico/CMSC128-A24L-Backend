@@ -682,9 +682,9 @@ export default function Home() {
                       (() => {
                         const jobOffering: JobOffering = jobOffers.find(
                           (jobOffer: JobOffering) =>
-                            (jobOffer.jobId === newsLetter.referenceId &&
-                              jobOffer.status === "Accepted") ||
-                            jobOffer.status === "Closed"
+                            jobOffer.jobId === newsLetter.referenceId &&
+                            (jobOffer.status === "Accepted" ||
+                              jobOffer.status === "Closed")
                         );
                         return jobOffering ? (
                           <div className="px-4 md:px-[20px]">

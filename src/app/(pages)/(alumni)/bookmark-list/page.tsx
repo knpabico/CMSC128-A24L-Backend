@@ -4,11 +4,14 @@ import { useState } from "react";
 import { useBookmarks } from "@/context/BookmarkContext";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function BookmarksPage() {
   const { isLoading, entries, filteredBookmarks, sortedBookmarks, removeBookmark } = useBookmarks();
   const [filterType, setFilterType] = useState("all");
   const [sortOption, setSortOption] = useState("latest");
+  const router=useRouter();
+  
 
   if (isLoading) return <h1 className="text-xl font-semibold p-4">Loading bookmarks...</h1>;
 

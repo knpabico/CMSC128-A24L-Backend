@@ -591,7 +591,7 @@ export async function sendEmailTemplateForNewsletterJobOffer(
         <p style="margin: 5px 0;"><strong>Experience Level:</strong> ${
           jobOffer.experienceLevel
         }</p>
-        <p style="margin: 5px 0;"><strong>Salary Range:</strong> ${
+        <p style="margin: 5px 0;"><strong>Salary Range:</strong> Php${
           jobOffer.salaryRange
         }</p>
         <p style="margin: 5px 0;"><strong>Date Posted:</strong> ${formatDate(

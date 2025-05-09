@@ -48,7 +48,7 @@ const AddWorkExperience: React.FC<{
       console.error("Missing alumniId. Cannot submit.");
       setMessage("Could not submit: missing alumni ID.");
       setSuccess(false);
-      setSnackbar(true);
+      // setSnackbar(true);
       return;
     }
   
@@ -70,7 +70,7 @@ const AddWorkExperience: React.FC<{
     setSuccess(result.success);
     setMessage(result.message);
     if (result.success) onClose();
-    setSnackbar(true);
+    // setSnackbar(true);
   };
 
   const [presentJob, setPresentJob] = useState(endYear === "present" ? true : false);

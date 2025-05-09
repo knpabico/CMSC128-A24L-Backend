@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
@@ -76,6 +77,8 @@ export default function JobOffers() {
     updateStatus,
   } = useJobOffer();
 
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("jobId");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
@@ -138,6 +141,18 @@ export default function JobOffers() {
       Status: ["Accepted", "Rejected", "Pending"],
     }),
   };
+
+  useEffect(() => {
+    if (jobId) {
+      const foundJob = currentSavedJobs.find(
+        (job: JobOffering) => job.jobId === jobId
+      );
+      if (foundJob) {
+        setSidebarFilter("Saved Jobs");
+        setSelectedJob(foundJob);
+      }
+    }
+  }, [jobId]);
 
   // Close filter dropdowns when clicking outside
   useEffect(() => {
