@@ -623,8 +623,49 @@ const ScholarshipPage: React.FC = () => {
                 </div>
               )}
             </>
-          ) : (
-            // Regular scholarships list display for other tabs
+          ) : activeTab === "myScholars" ? (
+						<div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
+							<div className="overflow-x-auto">
+									<table className="min-w-full divide-y divide-gray-200">
+										<thead className="bg-gray-100">
+											<tr>
+												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
+													Scholarship
+												</th>
+												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
+													Student
+												</th>
+												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
+													Status
+												</th>
+												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
+													Agreement
+												</th>
+											</tr>
+										</thead>
+										<tbody className="bg-white divide-y divide-gray-200">
+											<tr className="hover:bg-gray-50">
+												<td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-700">
+													Schoarship Name
+												</td>
+												<td className="px-4 py-3 text-left whitespace-nowrap text-sm font-medium text-gray-900">
+													Student Name
+												</td>
+												<td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
+													Status
+												</td>
+												<td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
+													<button className="text-blue-500 hover:underline text-sm">
+														View PDF
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+						</div>
+					) : (
+						// Regular scholarships list display for other tabs
             <>
               {sortedScholarships.length === 0 ? (
                 <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
