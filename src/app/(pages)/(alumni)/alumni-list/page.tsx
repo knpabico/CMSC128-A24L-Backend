@@ -174,7 +174,9 @@ export default function Users() {
               >
                 {/* Image container with proper Next.js Image implementation */}
                 <div className="relative w-full aspect-square bg-gray-200 overflow-hidden">
-                  {alum.image ? (
+                  {isLoading ? (
+                    <div className="w-full h-full animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
+                  ) : alum.image ? (
                     <Image
                       width={0}
                       height={0}

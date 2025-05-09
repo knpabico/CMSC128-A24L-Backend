@@ -347,8 +347,8 @@ export default function JobOffers() {
   return (
     <>
       {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
-      <Banner 
-        title="Job Opportunities" 
+      <Banner
+        title="Job Opportunities"
         description="Discover job opportunities through ICS and alumni partnerships, bridging the gap between education and career success for ICS graduates."
       />
 
@@ -696,7 +696,11 @@ export default function JobOffers() {
                             <div className="flex">
                               <div className="mr-3">
                                 {job.image ? (
-                                  <img
+                                  <Image
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    priority
                                     src={job.image}
                                     alt={`${job.company} logo`}
                                     className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -804,7 +808,11 @@ export default function JobOffers() {
                               <div className="flex items-center">
                                 <div className="mr-3">
                                   {job.image ? (
-                                    <img
+                                    <Image
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
                                       src={job.image || "/placeholder.svg"}
                                       alt={`${job.company} logo`}
                                       className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -975,7 +983,11 @@ export default function JobOffers() {
                               <div className="flex items-center">
                                 <div className="mr-3">
                                   {job.image ? (
-                                    <img
+                                    <Image
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
                                       src={job.image || "/placeholder.svg"}
                                       alt={`${job.company} logo`}
                                       className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -1105,7 +1117,11 @@ export default function JobOffers() {
                     {/* Company Logo */}
                     <div className="mr-4">
                       {selectedJob.image ? (
-                        <img
+                        <Image
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          priority
                           src={selectedJob.image}
                           alt={`${selectedJob.company} logo`}
                           className="w-20 h-20 object-contain rounded-md border border-gray-200"
@@ -1495,7 +1511,11 @@ export default function JobOffers() {
 
                 {preview && (
                   <div className="mt-3">
-                    <img
+                    <Image
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      priority
                       src={preview}
                       alt="Preview"
                       className="h-20 object-contain"
