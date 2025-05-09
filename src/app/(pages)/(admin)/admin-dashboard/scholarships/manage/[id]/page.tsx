@@ -12,6 +12,7 @@ import {
 import {
   Asterisk,
   ChevronRight,
+  CirclePlus,
   MoveLeft,
   Pen,
   Pencil,
@@ -25,6 +26,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { AddStudent } from "./add-student-form";
 import formatTimeString from "@/lib/timeFormatter";
+import { EditStudent } from "./edit-student-for-scholarship";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
@@ -318,6 +320,7 @@ const ScholarshipDetailPage: React.FC = () => {
         return;
       }
     }
+
     const result = await updateScholarship(
       scholarship.scholarshipId,
       updatedData
@@ -449,6 +452,9 @@ const ScholarshipDetailPage: React.FC = () => {
           >
             <div className="flex w-full gap-5">
               <div className="w-2/3 flex flex-col gap-5">
+								<div className="text-lg font-medium flex items-center">
+									Scholarship Details:
+								</div>
                 {/* Scholarship Name */}
                 <div className="space-y-2">
                   <label
@@ -528,30 +534,40 @@ const ScholarshipDetailPage: React.FC = () => {
                   </div>
                 )}
               </div>
-
-              {isEditing && (
-                <div>
-                  {studentForms.map((form, index) => (
-                    <AddStudent
-                      key={index}
-                      formData={form}
-                      onUpdate={(updatedData) =>
-                        updateStudentForm(index, updatedData)
-                      }
-                      onRemove={() => removeStudentForm(index)}
-                      type="edit"
-                      index={index}
-                    />
-                  ))}
-                  <button
-                    onClick={addStudentForm}
-                    className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
-                  >
-                    Add Student
-                  </button>
-                </div>
-              )}
             </div>
+
+						<div className="mt-4">
+							<div className="text-lg font-medium flex items-center">
+								Student Details:
+							</div>
+							<div>
+								{/* Add current student edit implementation, same layout sa add */}
+							</div>
+						</div>
+
+						{isEditing && (
+							<div>
+								{studentForms.map((form, index) => (
+									<AddStudent
+										key={index}
+										formData={form}
+										onUpdate={(updatedData) =>
+											updateStudentForm(index, updatedData)
+										}
+										onRemove={() => removeStudentForm(index)}
+										type="edit"
+										index={index}
+									/>
+								))}
+								<button
+									onClick={addStudentForm}
+									className="flex items-center justify-center gap-2 text-[var(--primary-blue)] px-1 mt-3 cursor-pointer hover:text-blue-500"
+									>
+										<CirclePlus />
+										Add Student
+								</button>
+							</div>
+						)}
 
             {/* Button */}
             {isEditing && (

@@ -24,18 +24,6 @@ export const AddStudent = ({
 
   return (
     <div className="flex flex-col gap-5 ">
-      {/* <div className="w-full ">
-        <div className="flex items-center justify-between">
-          {!(type === "add" && index === 0) && (
-            <button
-              onClick={onRemove}
-              className="w-30 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-300"
-            >
-							<Trash2Icon />
-            </button>
-          )}
-        </div>
-      </div> */}
       {/* Form */}
       <div className="flex flex-col gap-3 bg-gray-100 px-3 py-5 rounded-lg my-2">
 				<div className="flex w-full justify-between gap-3">
