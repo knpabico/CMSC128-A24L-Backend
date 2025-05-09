@@ -80,7 +80,7 @@ const StatisticalReports = () => {
         <div className="font-bold text-[#0856BA]">Statistical Reports</div>
       </div>
 
-      {/* Page Title and Info */}
+      {/* Page Title */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <ClipboardList className="w-8 h-8 text-[#0856BA]" />
@@ -102,7 +102,7 @@ const StatisticalReports = () => {
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             {/* Registration Status */}
             <div className="mb-8">
-              <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2 flex items-center">
+              <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
                 Registration Status
               </h2>
@@ -145,7 +145,7 @@ const StatisticalReports = () => {
 
             {/* Work Experience */}
             <div>
-              <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2 flex items-center">
+              <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
                 Alumni Current Work Experience
               </h2>
