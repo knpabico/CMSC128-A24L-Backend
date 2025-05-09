@@ -391,7 +391,7 @@ export default function ViewPendingScholarships() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="w-1/3 flex justify-between items-center gap-4">
+                                <div className="w-1/3 flex justify-center items-center gap-4">
                                   {scholarshipStudent.status === "pending" && (
                                     <>
                                       <button
