@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { stat } from "fs";
+import Image from "next/image";
 
 export default function Navbar() {
   const {
@@ -22,6 +23,7 @@ export default function Navbar() {
     status,
     isGoogleSignIn,
     logOutAndDelete,
+    alumInfo,
   } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -282,7 +284,7 @@ export default function Navbar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [dropdownRef, menuRef]);
 
   return (
     <div>
@@ -338,8 +340,19 @@ export default function Navbar() {
                     onClick={handleProfileClick}
                   >
                     <div className="h-10 w-10 flex rounded-full">
-                      <img
-                        src="https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+                      <Image
+                        alt="Pic"
+                        priority
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        src={
+                          alumInfo &&
+                          alumInfo!.image !== "" &&
+                          alumInfo!.image !== null
+                            ? alumInfo!.image
+                            : "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+                        }
                         className="w-10 h-10 mb-5 object-cover object-top rounded-full border-2 group-hover:border-[var(--blue-200)] transition-colors"
                       />
                     </div>
