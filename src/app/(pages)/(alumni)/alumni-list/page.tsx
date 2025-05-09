@@ -6,6 +6,7 @@ import { collection, getDocs, query, where } from "firebase/firestore"; // Impor
 import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Banner from "@/components/Banner";
 import Image from "next/image";
 export default function Users() {
   const { alums, isLoading } = useAlums();
@@ -138,56 +139,13 @@ export default function Users() {
     mapEducation();
   }, [alums]);
 
-  // // Mock data to demonstrate the layout
-  // const mockAlums = [
-  //   {
-  //     id: "1",
-  //     name: "Dela Cruz, Juan",
-  //     degrees: [
-  //       { name: "BS Computer Science", year: "2026" },
-  //       { name: "MS Computer Science", year: "2030" },
-  //     ],
-  //     interests: ["Cybersecurity", "AI", "Machine Learning", "Data Science"],
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Santos, Maria",
-  //     degrees: [
-  //       { name: "Master of Information Technology", year: "2025" },
-  //       { name: "MS Computer Science", year: "2030" },
-  //     ],
-  //     interests: ["Web Development", "UX Design"],
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Reyes, Pedro",
-  //     degrees: [
-  //       { name: "BS Computer Science", year: "2026" },
-  //       { name: "PhD Computer Science", year: "2035" },
-  //     ],
-  //     interests: ["Cloud Computing", "Blockchain", "IoT"],
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Garcia, Ana",
-  //     degrees: [{ name: "BS Computer Engineering", year: "2027" }],
-  //     interests: ["Robotics", "Embedded Systems"],
-  //   },
-  //   {
-  //     id: "5",
-  //     name: "Garcia, Ana",
-  //     degrees: [{ name: "BS Computer Engineering", year: "2027" }],
-  //     interests: ["Robotics", "Embedded Systems"],
-  //   },
-  // ];
 
   return (
     <div>
-      <div className="bg-amber-300 h-80">
-        <div className="container mx-auto h-full flex items-center justify-center">
-          <h1 className="text-3xl font-bold">Alumni Directory</h1>
-        </div>
-      </div>
+      <Banner 
+        title="Alumni Records" 
+        description="Meet your fellow alumni and learn about their UPLB degrees, graduation years, and shared interest in the field of Computer Science."
+      />
       {isLoading && <h1>Loading</h1>}
       {
         <div
@@ -213,7 +171,7 @@ export default function Users() {
                 className="bg-white shadow-md rounded-lg flex flex-col h-full overflow-hidden"
               >
                 {/* Image placeholder - consistent aspect ratio */}
-                <div className="bg-blue-400 w-full relative aspect-square flex items-center justify-center">
+                <div className="bg-gray-300 w-full aspect-square flex items-center justify-center overflow-hidden">
                   <span className="text-white">
                     {alum.image ? (
                       <Image
@@ -223,7 +181,7 @@ export default function Users() {
                         alt={alum.firstName}
                       />
                     ) : (
-                      `Profile Photo`
+                      `Photo`
                     )}
                   </span>
                 </div>
