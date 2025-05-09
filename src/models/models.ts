@@ -222,7 +222,6 @@ export interface Student {
   shortBackground: string;
   address: string;
   emailAddress: string;
-  background: string;
 }
 
 export interface ScholarshipStudent {

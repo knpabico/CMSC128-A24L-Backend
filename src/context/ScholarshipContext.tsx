@@ -402,7 +402,6 @@ export function ScholarshipProvider({
           shortBackground: data.shortBackground,
           address: data.address,
           emailAddress: data.emailAddress,
-          background: data.background,
         };
       }
       return null;
