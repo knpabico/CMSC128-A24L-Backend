@@ -231,6 +231,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       console.error("Error updating job:", error);
     }
   };
+  
   const handlePending = async (jobId: string) => {
     try {
       await updateDoc(doc(db, "job_offering", jobId), {
@@ -406,7 +407,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         preview,
         fileName,
         handleImageChange,
-        handlePending
+        handlePending,
         handleEdit,
         updateStatus,
         handleSaveDraft,
@@ -418,4 +419,4 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const useJobOffer = () => useContext(JobOfferContext); 
+export const useJobOffer = () => useContext(JobOfferContext);
