@@ -7,9 +7,6 @@ import { useScholarship } from "@/context/ScholarshipContext";
 import { useAuth } from "@/context/AuthContext";
 import {
   Scholarship,
-  NewsletterItem,
-  Announcement,
-  JobOffering,
   ScholarshipStudent,
 	Student,
 } from "@/models/models";
@@ -18,22 +15,19 @@ import {
   ChevronRight,
   CircleAlert,
   CircleCheck,
-  CircleHelp,
   HandCoins,
-  MoveLeft,
 } from "lucide-react";
-import { useNewsLetters } from "@/context/NewsLetterContext";
+
 
 //for featured stories
 import { useFeatured } from "@/context/FeaturedStoryContext";
 import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
-  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId, addScholarshipStudent } = useScholarship();
+  const { getScholarshipById, updateScholarship, getStudentsByScholarshipId, addScholarshipStudent, getScholarshipStudentsByScholarshipId } = useScholarship();
   const { user } = useAuth();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +42,9 @@ const ScholarshipDetailPage: React.FC = () => {
 	const [loadingStudents, setLoadingStudents] = useState(true);
 	const [studentDetails, setstudentDetails] = useState< Student | null>(null);
   const [sortOption, setSortOption] = useState<"oldest" | "youngest" | "A-Z" | "Z-A">("A-Z");
-  
+  const [filterOption, setFilterOption] = useState<"all" | "pending" | "approved">("all");
+  const [scholarshipStudents, setScholarshipStudents] = useState<ScholarshipStudent[]>([]);
+ 
   const eventStories = featuredItems.filter(
     (story) => story.type === "scholarship"
   );
@@ -121,6 +117,9 @@ const ScholarshipDetailPage: React.FC = () => {
 			  setLoadingStudents(true);
 			  const studentList = await getStudentsByScholarshipId(scholarshipId);
 			  setStudents(studentList);
+
+        const scholarshipStudentList = await getScholarshipStudentsByScholarshipId(scholarshipId);
+        setScholarshipStudents(scholarshipStudentList);
 			} catch (error) {
 			  console.error("Error fetching students:", error);
 			} finally {
@@ -134,7 +133,12 @@ const ScholarshipDetailPage: React.FC = () => {
     }
 
 		
-  }, [scholarshipId, getScholarshipById, getStudentsByScholarshipId]);
+  }, [scholarshipId, getScholarshipById, getStudentsByScholarshipId, getScholarshipStudentsByScholarshipId]);
+
+  const getStudentStatus = (studentId: string) => {
+    const scholarshipStudent = scholarshipStudents.find((ss) => ss.studentId === studentId);
+    return scholarshipStudent?.status || "None";
+  };
 
   const handleSponsor = async () => {
     if (!user || !scholarship) return;
@@ -190,20 +194,26 @@ const ScholarshipDetailPage: React.FC = () => {
 
   const isAlreadySponsoring = scholarship?.alumList?.includes(user?.uid);
 
-  const sortedStudents = [...students].sort((a, b) => {
-    switch (sortOption) {
-      case "oldest":
-        return b.age - a.age; // age descending 
-      case "youngest":
-        return a.age - b.age; //  age ascending
-      case "A-Z":
-        return a.name.localeCompare(b.name); 
-      case "Z-A":
-        return b.name.localeCompare(a.name); 
-      default:
-        return 0;
-    }
-  });
+  const filteredAndSortedStudents = [...students]
+    .filter((student) => {
+      const status = getStudentStatus(student.studentId);
+      if (filterOption === "all") return true; // Include all students if "all" is selected
+      return status === filterOption; // Include only students matching the selected status
+    })
+    .sort((a, b) => {
+      switch (sortOption) {
+        case "oldest":
+          return b.age - a.age; // Sort by age descending (oldest first)
+        case "youngest":
+          return a.age - b.age; // Sort by age ascending (youngest first)
+        case "A-Z":
+          return a.name.localeCompare(b.name); // Sort by name alphabetically (A-Z)
+        case "Z-A":
+          return b.name.localeCompare(a.name); // Sort by name reverse alphabetically (Z-A)
+        default:
+          return 0;
+      }
+    });
 
 
   return (
@@ -354,20 +364,21 @@ const ScholarshipDetailPage: React.FC = () => {
                   <option value="youngest">Youngest</option>
                 </select>
 								Filter by:
-                  {/* <select
+                  <select
                   value={filterOption}
-                  onChange={(e) => setFilterOption(e.target.value as "pending" | "approved")}
+                  onChange={(e) => setFilterOption(e.target.value as "pending" | "approved" | "all")}
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
+                  <option value="all">All</option>
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
-                </select> */}
+                </select>
 							</div>
 						</div>
 						<div className="my-3">
 								{loadingStudents ? (
 									<p>Loading students...</p>
-								) : sortedStudents.length > 0 ? (
+								) : filteredAndSortedStudents.length > 0 ? (
 									<div className="overflow-x-auto">
 										{/* Table Header */}
 										<div className="flex w-full bg-gray-100 p-3 rounded-md mb-2 justify-between">
@@ -386,7 +397,7 @@ const ScholarshipDetailPage: React.FC = () => {
 										{/* Table Body */}
 										<div>
 											<ul>
-												{sortedStudents.map((student) => (
+												{filteredAndSortedStudents.map((student) => (
 													<li key={student.studentId}  >
 														<div className="flex justify-between w-full rounded-md px-3 my-2">
 															<div className="w-2/3">
@@ -404,7 +415,7 @@ const ScholarshipDetailPage: React.FC = () => {
 															</div>
 															<div className="w-1/3 flex justify-around items-center">
 																<div className="">
-																	status
+																	{getStudentStatus(student.studentId)}
 																</div>
 																<div className="">
 																	<div className="">
