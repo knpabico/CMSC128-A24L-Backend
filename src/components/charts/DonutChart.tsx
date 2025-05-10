@@ -35,8 +35,8 @@ const DonutChart = ({ labels, data }: DonutChartProps) => {
           options: {
             responsive: true,
             animation: {
-              duration: 1000, // Animation duration in milliseconds
-              easing: "easeInOutQuad", // Smooth easing function
+              duration: 1000, 
+              easing: "easeInOutQuad", 
             },
           },
         });

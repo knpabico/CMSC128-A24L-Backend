@@ -6,7 +6,7 @@ import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { Alumnus, Donation, DonationDrive } from "@/models/models";
 import { useEffect, useMemo, useState } from "react";
-import { BarChart, ChevronDown, ChevronRight, HeartHandshake } from "lucide-react";
+import { ChevronDown, ChevronRight, HeartHandshake } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Dropdown from "@/components/ui/dropdown";
 import ReportSummaryCard from "@/components/ReportSummaryCard";
@@ -277,7 +277,7 @@ const DonationReportPage = () => {
         {/* Filter Section */}
         <div className="bg-white px-4 py-3 rounded-xl">
           <div className="flex items-center gap-3">
-            <span className="text-gray-700 font-medium">Filter by:</span>
+            <span className="text-gray-700 font-semibold">Filter by:</span>
             <div className="relative">
                 <select
                 value={driveType}
@@ -546,24 +546,26 @@ const DonationReportPage = () => {
                   <ReportSummaryCard data={prompt} />
                 </div>
               </CardContent>
-            </Card>
-    
-            {/* Middle Row */}
-            <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                  Active Donation Drives' Current-Target Amount Ratio
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center h-full">
-                <GroupedBarGraph
-                  labels={groupedBarData.labels}
-                  currentAmounts={groupedBarData.currentAmounts}
-                  targetAmounts={groupedBarData.targetAmounts}
-                  campaignNames={groupedBarData.campaignNames}
-                />
-              </CardContent>
-            </Card>
+              </Card>
+
+                  {/* Middle Row */}
+                  <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-700 text-center w-full">
+                      Active Donation Drives' Current-Target Amount Ratio
+                    </CardTitle>
+                    <div className="ml-4 flex-shrink-0">
+                    </div>
+                    </CardHeader>
+                    <CardContent className="flex justify-center items-center h-full">
+                    <GroupedBarGraph
+                      labels={groupedBarData.labels}
+                      currentAmounts={groupedBarData.currentAmounts}
+                      targetAmounts={groupedBarData.targetAmounts}
+                      campaignNames={groupedBarData.campaignNames}
+                    />
+                    </CardContent>
+                  </Card>
     
             {/* Bottom Row */}
             <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
