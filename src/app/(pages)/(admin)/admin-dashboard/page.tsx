@@ -144,6 +144,13 @@ export default function AdminDashboard() {
     const handleCloseEventProposalModal = () => {
       setIsModalEventProOpen(false);
     };
+
+
+    //function to handle the job posting modal
+    const handleOpenJobModal = (job: JobOffering) => {
+      setSelectedJob(job);
+      setIsJobModalOpen(true);
+    };
   
     // Function to handle closing the modal
     const handleCloseModal = () => {
@@ -592,7 +599,7 @@ export default function AdminDashboard() {
                 <div
                   key={jobOffer.jobId}
                   className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                  onClick={() => openModal(jobOffer)}
+                  onClick={() => handleOpenJobModal(jobOffer)}
                 >
                   <div className="flex-1">
                     <div className="flex justify-between">
