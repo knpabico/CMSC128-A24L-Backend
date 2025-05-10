@@ -126,7 +126,9 @@ export default function FeaturedStoriesPage() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
+        <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
         <div>Home</div>
+        </span>
         <div>
           <ChevronRight size={15} />
         </div>
