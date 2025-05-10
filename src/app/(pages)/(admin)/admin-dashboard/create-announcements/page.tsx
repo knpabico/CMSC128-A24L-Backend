@@ -58,13 +58,13 @@ export default function Users() {
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-600 transition"
           onClick={() => {
+            setIsEdit(false);
             setShowForm(true);
             setTitle("");
             setDescription("");
             setAnnounceImage(null);
             setPreview(null);
             setImageFile(null);
-            setIsEdit(false);
           }}
         >
           + Create Announcement
