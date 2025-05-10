@@ -20,7 +20,7 @@ import { WorkExperienceModal } from "./add-work-experience";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-import EditWorkExperience from "../edit-work-experience";
+// import EditWorkExperience from "../edit-work-experience";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { useRouter } from "next/navigation";

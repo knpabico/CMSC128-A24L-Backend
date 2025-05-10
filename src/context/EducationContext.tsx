@@ -17,6 +17,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Education } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { toast } from "sonner";
 
 const EducationContext = createContext<any>(null);
 
@@ -79,8 +80,12 @@ export function EducationProvider({ children }: { children: React.ReactNode }) {
       EducationEntry.educationId = newDocRef.id;
       EducationEntry.alumniId = userId;
       await setDoc(newDocRef, EducationEntry);
+
+      toast.success("Degree added successfully!");
       return { success: true, message: "success" };
     } catch (error) {
+
+      toast.error((error as FirebaseError).message);
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -204,6 +209,7 @@ export function EducationProvider({ children }: { children: React.ReactNode }) {
         deleteEducation,
         editEducation,
         fetchEducation,
+        setUserEducation
       }}
     >
       {children}

@@ -9,6 +9,8 @@ import { workFieldOptions } from "@/data/work-field-options";
 import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Trash2Icon, PlusCircleIcon } from "lucide-react";
+import ICSARMSLogo from "../../../app/images/ICS_ARMS_logo_white.png";
+import { MoveLeft } from "lucide-react";
 
 // components
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
@@ -82,7 +84,11 @@ import { Education } from "./sign-up-fields/education";
 import { Affiliation } from "./sign-up-fields/affiliation";
 import { NameAndPhoto } from "./sign-up-fields/name-and-photo";
 import { UserCredentials } from "./sign-up-fields/credentials";
-import { AlumPhotoUpload, uploadToFirebase } from "./sign-up-fields/alum_photo";
+import {
+  AlumPhotoUpload,
+  updateAlumPhoto,
+  uploadToFirebase,
+} from "./sign-up-fields/alum_photo";
 
 import Image from "next/image";
 import physciImage from "./physci.png";
@@ -90,6 +96,8 @@ import googleImage from "./google.png";
 import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationCodeModal } from "./sign-up-fields/emailverify";
+import { TextField, Autocomplete } from "@mui/material";
+import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
@@ -160,6 +168,7 @@ const formParts = [
       "career",
       "acceptTerms",
       "subscribeToNewsletter",
+      "contactPrivacy",
     ],
   },
 ];
@@ -189,6 +198,7 @@ export default function RegistrationForm() {
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
   const [hasCurrentJob, setHasCurrentJob] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
@@ -242,6 +252,7 @@ export default function RegistrationForm() {
       career: [], //industry, jobTitle, company, startYear, endYear
       acceptTerms: false,
       subscribeToNewsletter: false,
+      contactPrivacy: false,
     },
   });
 
@@ -324,13 +335,16 @@ export default function RegistrationForm() {
 
     console.log("Testing sign-up:");
     console.log(data);
-    console.log(alumImage);
+    console.log("ALUM IMAGE", alumImage);
 
     //display error or success toast message
     if (response?.error) {
       toastError(response.message);
       setIsLoading(false);
       return;
+    }
+    if (isGoogleSignIn && !alumImage) {
+      updateAlumPhoto(user!.photoURL ?? "", user!.uid);
     }
 
     //upload alum photo to firebase storage
@@ -467,9 +481,14 @@ export default function RegistrationForm() {
               {/*USER CREDENTIALS SECTION */}
               {currentPart === 0 && (
                 <div className="flex h-screen bg-white">
+                  <div className="fixed top-10 left-[5%] z-99">
+                    <Link href="/login"  className="flex gap-2 items-center text-[var(--primary-blue)] text-[14px] hover:underline font-light">
+                      <MoveLeft size={18}/> Back
+                    </Link>
+                  </div>
                   <div className="flex w-[50%] justify-center items-center">
                     <div className="flex flex-col w-full mx-41 items-center">
-                      <p className="text-5xl font-bold text-[#0856ba] pb-10">
+                      <p className="text-5xl font-bold text-[var(--primary-blue)] pb-10">
                         Create an account
                       </p>
 
@@ -482,19 +501,19 @@ export default function RegistrationForm() {
                               type="button"
                               onClick={goNext}
                               disabled={disableGoNext}
-                              className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                              className="bg-[var(--primary-blue)] text-white p-3 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                             >
                               Sign up
                             </Button>
                           </div>
 
-                          <div className="flex justify-center items-center space-x-2">
+                          <div className="flex justify-center items-center space-x-2 text-[14px]">
                             <p>Already have an account?</p>
                             <button
                               disabled={
                                 form.formState.isSubmitting || isLoading
                               }
-                              className="hover:underline text-[#0856ba]"
+                              className="hover:underline text-[var(--primary-blue)]"
                             >
                               <Link href="/login">Log in</Link>
                             </button>
@@ -511,7 +530,15 @@ export default function RegistrationForm() {
                       className="w-full h-full object-cover"
                       layout="fill"
                     />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-70 h-70 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  flex items-center justify-center">
+                      <Image
+                        src={ICSARMSLogo}
+                        alt="ICS ARMS Logo"
+                        className="shadow-xl"
+                        width={200}
+                        height={200}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -523,7 +550,7 @@ export default function RegistrationForm() {
                       onClick={() => {
                         goBack();
                       }}
-                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
+                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[var(--primary-blue)] rounded-full cursor-pointer"
                     >
                       <ChevronLeft />
                       <p>Back</p>
@@ -596,7 +623,88 @@ export default function RegistrationForm() {
                           </div>
 
                           {/* field of interest field */}
+                          {/* Field of Interest dropdown with multi-select (max 5) - Material UI implementation */}
                           <div className="">
+                            <FormField
+                              control={form.control}
+                              name="fieldOfInterest"
+                              render={({ field }) => (
+                                <FormItem className="gap-0">
+                                  <p className="text-sm font-semibold">
+                                    Fields of Interest
+                                  </p>
+                                  <FormControl>
+                                    <Autocomplete
+                                      className="border border-gray-500 rounded-md"
+                                      multiple
+                                      id="field-of-interest"
+                                      options={[
+                                        "Artificial Intelligence (AI)",
+                                        "Machine Learning (ML)",
+                                        "Data Science",
+                                        "Cybersecurity",
+                                        "Software Engineering",
+                                        "Computer Networks",
+                                        "Computer Graphics and Visualization",
+                                        "Human-Computer Interaction (HCI)",
+                                        "Theoretical Computer Science",
+                                        "Operating Systems",
+                                        "Databases",
+                                        "Web Development",
+                                        "Mobile Development",
+                                        "Cloud Computing",
+                                        "Embedded Systems",
+                                        "Robotics",
+                                        "Game Development",
+                                        "Quantum Computing",
+                                        "DevOps and System Administration",
+                                        "Information Systems",
+                                        "Others",
+                                      ]}
+                                      value={field.value || []}
+                                      onChange={(event, newValue) => {
+                                        // Limit to maximum 5 selections
+                                        if (newValue.length <= 5) {
+                                          field.onChange(newValue);
+                                        }
+                                      }}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          placeholder={
+                                            field.value?.length > 0
+                                              ? ""
+                                              : "Select your fields of interest"
+                                          }
+                                          InputProps={{
+                                            ...params.InputProps,
+                                            style: { padding: 3 },
+                                          }}
+                                          inputProps={{
+                                            ...params.inputProps,
+                                            style: { padding: "3px 9px" },
+                                          }}
+                                          sx={{
+                                            "& .MuiOutlinedInput-notchedOutline":
+                                              {
+                                                border: "none",
+                                                borderRadius: "5px",
+                                              },
+                                          }}
+                                        />
+                                      )}
+                                    />
+                                  </FormControl>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {field.value?.length || 0}/5 selected
+                                    &nbsp;&nbsp; Max: 5
+                                  </p>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          {/* <div className="">
                             <FormField
                               control={form.control}
                               name="fieldOfInterest"
@@ -617,7 +725,7 @@ export default function RegistrationForm() {
                                 </FormItem>
                               )}
                             />
-                          </div>
+                          </div> */}
 
                           {/* bachelor's form field */}
                           <div>
@@ -933,6 +1041,36 @@ export default function RegistrationForm() {
                           )}
                         />
 
+                        {/* contactPrivacy form field */}
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name="contactPrivacy"
+                            render={({ field }) => (
+                              <FormItem>
+                                <div className="flex gap-2 justify-start items-center">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                  <FormLabel>
+                                    <p>
+                                      I consent to making my email address
+                                      visible to other alumni.
+                                    </p>
+                                  </FormLabel>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <p className="font-light text-xs pl-6 pt-1">
+                            (You can change this preference later.)
+                          </p>
+                        </div>
+
                         {/* subscribeToNewsletter form field */}
                         <FormField
                           control={form.control}
@@ -956,14 +1094,31 @@ export default function RegistrationForm() {
                         />
                       </div>
 
-                      <div className="flex flex-col items-start px-5">
+                      <div
+                        className={`flex flex-row items-center justify-between ${
+                          isGoogleSignIn ? "space-x-2" : "px-5 space-x-4"
+                        }`}
+                      >
                         <Button
-                          className="w-50 col-span-6 bg-[#0856ba] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                          className="w-50 col-span-6 bg-[var(--primary-blue)] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
                           variant="outline"
                           type="submit"
                         >
                           Submit
                         </Button>
+                        {(isGoogleSignIn || isGoogleLoading) && (
+                          <Button
+                            className="w-1/2 border-2 border-blue-500 text-blue-500 p-5 rounded-full cursor-pointer hover:bg-blue-100 hover:text-blue-700"
+                            disabled={isGoogleLoading}
+                            onClick={() => {
+                              setIsGoogleLoading(true);
+                              form.reset();
+                              logOut();
+                            }}
+                          >
+                            Log Out
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

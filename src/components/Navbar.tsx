@@ -12,6 +12,14 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { stat } from "fs";
+import ICSARMSLogo from "../app/images/ICS_ARMS_logo_white.png";
+import Image from "next/image";
+import { Oswald } from "next/font/google";
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700"],
+});
 
 export default function Navbar() {
   const {
@@ -22,6 +30,7 @@ export default function Navbar() {
     status,
     isGoogleSignIn,
     logOutAndDelete,
+    alumInfo,
   } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -44,7 +53,7 @@ export default function Navbar() {
         {
           id: "pending-alumni",
           label: "View Pending Alumni",
-          path: "/admin/alumni/pending",
+          path: "/admin-dashboard/manage-users",
         },
         {
           id: "stats-alumni",
@@ -67,7 +76,7 @@ export default function Navbar() {
         {
           id: "pending-events",
           label: "View Pending Events",
-          path: "/admin/events/pending",
+          path: "/admin-dashboard/organize-events",
         },
         {
           id: "stats-events",
@@ -84,12 +93,12 @@ export default function Navbar() {
         {
           id: "manage-donations",
           label: "Manage Donations",
-          path: "/admin/donations/manage",
+          path: "/admin-dashboard/donation-drive/manage",
         },
         {
           id: "add-donations",
           label: "Add Donations",
-          path: "/admin/donations/add",
+          path: "/admin-dashboard/donation-drive/add",
         },
         {
           id: "stats-donation",
@@ -106,12 +115,12 @@ export default function Navbar() {
         {
           id: "manage-scholarships",
           label: "Manage Scholarships",
-          path: "/admin/scholarships/manage",
+          path: "/admin-dashboard/scholarships/manage",
         },
         {
           id: "add-scholarships",
           label: "Add Scholarship Drive",
-          path: "/admin/scholarships/add",
+          path: "/admin-dashboard/scholarships/add",
         },
       ],
     },
@@ -123,14 +132,9 @@ export default function Navbar() {
         {
           id: "manage-jobs",
           label: "Manage Job Posting",
-          path: "/admin/jobs/manage",
+          path: "/admin-dashboard/job-postings",
         },
         { id: "add-jobs", label: "Add Job Posting", path: "/admin/jobs/add" },
-        {
-          id: "view-jobs",
-          label: "View Job Posting",
-          path: "/admin/jobs/view",
-        },
       ],
     },
     {
@@ -141,23 +145,27 @@ export default function Navbar() {
         {
           id: "manage-announcements",
           label: "Manage Posts",
-          path: "/admin/announcements/manage",
+          path: "/admin-dashboard/create-announcements",
         },
         {
           id: "add-announcements",
           label: "Add Posts",
-          path: "/admin/announcements/add",
+          path: "/admin-dashboard/create-announcements",
         },
       ],
     },
     {
-      id: 'featuredStory',
-      label: 'featuredStory',
+      id: "featuredStory",
+      label: "featuredStory",
       initiallyCollapsed: true,
       subItems: [
-        { id: 'manage-featuredStory', label: 'Write A Story', path: '/admin/create-story' },
+        {
+          id: "manage-featuredStory",
+          label: "Write A Story",
+          path: "/admin-dashboard/create-story",
+        },
         // { id: 'add-featuredStory', label: 'Add Feat', path: '/admin/announcements/add' },
-      ]
+      ],
     },
   ];
 
@@ -210,7 +218,6 @@ export default function Navbar() {
     await logOut();
     setMenuOpen(false);
     setDropdownOpen(false);
-    router.refresh();
   };
 
   // Toggle section collapse
@@ -284,7 +291,7 @@ export default function Navbar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [dropdownRef, menuRef]);
 
   return (
     <div>
@@ -298,10 +305,19 @@ export default function Navbar() {
           >
             {/* Logo */}
             <div
-              className="text-white font-[800] text-xl"
+              className={`text-white text-lg ${oswald.className}`}
               onClick={() => router.push("/")}
             >
-              ICS-ARMS
+              <Link href="/" className="flex items-center cursor-pointer gap-2">
+                <Image
+                  src={ICSARMSLogo}
+                  alt="ICS ARMS Logo"
+                  className="shadow-xl"
+                  width={35}
+                  height={35}
+                />
+                ICS-ARMS
+              </Link>
             </div>
 
             {/* Navigation & Profile Menu for Logged-in User */}
@@ -340,8 +356,19 @@ export default function Navbar() {
                     onClick={handleProfileClick}
                   >
                     <div className="h-10 w-10 flex rounded-full">
-                      <img
-                        src="https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+                      <Image
+                        alt="Pic"
+                        priority
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        src={
+                          alumInfo &&
+                          alumInfo!.image !== "" &&
+                          alumInfo!.image !== null
+                            ? alumInfo!.image
+                            : "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+                        }
                         className="w-10 h-10 mb-5 object-cover object-top rounded-full border-2 group-hover:border-[var(--blue-200)] transition-colors"
                       />
                     </div>
@@ -350,12 +377,14 @@ export default function Navbar() {
 
                   {/* Dropdown Menu */}
                   {dropdownOpen && (
-                    <div
-                      className="absolute top-17 bg-white shadow-md rounded-lg py-2 text-[var(--primary-blue)]"
-                      onClick={() => router.push(`/my-profile/${user?.uid}`)}
-                    >
+                    <div className="absolute top-17 bg-white shadow-md rounded-lg py-2 text-[var(--primary-blue)]">
                       {
-                        <button className="w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                        <button
+                          className="w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() =>
+                            router.push(`/my-profile/${user?.uid}`)
+                          }
+                        >
                           Profile
                         </button>
                       }
@@ -429,7 +458,7 @@ export default function Navbar() {
 
       {isAdmin && (
         <nav
-          className="fixed top-0 left-0 w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
+          className="fixed top-0 left-0 w-20 md:w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
           style={{ paddingTop: "2%", paddingBottom: "2%" }}
         >
           <div className="text-xl font-bold px-5">ICS-ARMS</div>

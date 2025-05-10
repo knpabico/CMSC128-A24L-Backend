@@ -123,6 +123,8 @@ export interface DonationDrive {
   beneficiary: string[];
   currentAmount: number;
   targetAmount: number;
+  qrGcash: string;
+  qrPaymaya: string;
   status: string;
   isEvent: boolean;
   eventId: string;
@@ -145,9 +147,12 @@ export interface Donation {
 
 export interface RSVP {
   rsvpId: string;
-  status: string;
   postId: string;
-  alumniId: string;
+  alums: {
+    [alumniId: string]: {
+      status: string;
+    };
+  };
 }
 
 export interface JobOffering {

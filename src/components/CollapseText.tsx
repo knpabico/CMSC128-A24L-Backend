@@ -17,7 +17,7 @@ const CollapseText: React.FC<Props> = ({ text, maxChars}) => {
       {isLongText && (
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-blue-500 hover:underline focus:outline-none"
+          className="text-gray-500 hover:underline focus:outline-none"
         >
           {collapsed ? 'See less' : 'See more'}
         </button>

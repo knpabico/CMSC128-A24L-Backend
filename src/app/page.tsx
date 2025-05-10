@@ -1,6 +1,5 @@
 "use client";
 import LoadingPage from "@/components/Loading";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
@@ -14,6 +13,9 @@ import {
   NewsletterItem,
   WorkExperience,
   Event,
+  Donation,
+  DonationDrive,
+  Scholarship,
 } from "@/models/models";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -24,11 +26,17 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import {
+  Award,
+  Briefcase,
   Calendar,
+  CheckCircle,
   ChevronDownIcon,
+  ClipboardList,
   Clock,
+  GraduationCap,
   Map,
   MapPin,
+  PhilippinePeso,
   Users,
 } from "lucide-react";
 import {
@@ -56,29 +64,37 @@ import { useEvents } from "@/context/EventContext";
 import React from "react";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
+import { useScholarship } from "@/context/ScholarshipContext";
 import { log } from "console";
-import { Oswald } from "next/font/google";
 import CollapseText from "@/components/CollapseText";
-
-const sortTypes = ["Latest", "Earliest"]; //sort types
-const sortValues = ["nf", "of"]; //sort values (query params)
-const SORT_TAGS = ["Earliest", "Latest"];
+import Image from "next/image";
+import { ListItem } from "@mui/material";
+import { useEducation } from "@/context/EducationContext";
+import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
+import Landing from "@/components/Landing";
+import Footer from "@/components/Footer";
+import { Oswald } from "next/font/google";
 
 const oswald = Oswald({
   subsets: ["latin"],
   weight: ["200", "300", "400", "500", "600", "700"],
 });
 
+const sortTypes = ["Latest", "Earliest"]; //sort types
+const sortValues = ["nf", "of"]; //sort values (query params)
+const SORT_TAGS = ["Earliest", "Latest"];
+
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
     useAuth();
   const { newsLetters } = useNewsLetters();
-  const { announces, setAnnounce } = useAnnouncement();
+  const { announces } = useAnnouncement();
   const { jobOffers } = useJobOffer();
   const { events } = useEvents();
   const { alums } = useAlums();
   const { donationDrives } = useDonationDrives();
   const { userWorkExperience } = useWorkExperience();
+  const { scholarships } = useScholarship();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
   const [latestFirst, setLatestFirst] = useState(true);
@@ -88,18 +104,33 @@ export default function Home() {
 
   const [currentDonationIndex, setCurrentDonationIndex] = useState(0);
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const { userEducation } = useEducation();
+  const [filteredEducation, setFilteredEducation] = useState<Education[]>([]);
+  const [acceptedJobs, setAcceptedJobs] = useState<JobOffering[]>([]);
+
+  useEffect(() => {
+    const filtered = jobOffers.filter(
+      (job: { status: string }) =>
+        job.status === "Accepted" || job.status === "Closed"
+    );
+    setAcceptedJobs(filtered);
+  }, [jobOffers]);
+
+  useEffect(() => {
+    if (user?.uid) {
+      const filtered = userEducation.filter(
+        (edu: Education) => edu.alumniId === user.uid
+      );
+      setFilteredEducation(filtered);
+    }
+    console.log("User Education", userEducation);
+  }, [user?.uid, userEducation]);
 
   const nextDonation = () => {
     setCurrentDonationIndex((prev) =>
       prev === donationDrives.length - 1 ? 0 : prev + 1
     );
   };
-
-  useEffect(() => {
-    if (isGoogleSignIn) {
-      router.push("/sign-up");
-    }
-  }, [router, isGoogleSignIn]);
 
   const previousDonation = () => {
     setCurrentDonationIndex((prev) =>
@@ -126,16 +157,6 @@ export default function Home() {
       router.push("/admin-dashboard");
     }
   }, [isAdmin, router, loading, user]);
-
-  useEffect(() => {
-    console.log("Announcements", announces);
-    const filteredAnnouncements = announces.filter(
-      (announcement: Announcement) => announcement.isPublic === true
-    );
-    if (JSON.stringify(filteredAnnouncements) !== JSON.stringify(announces)) {
-      setAnnounce(filteredAnnouncements);
-    }
-  }, [announces]);
 
   //function for handling change on sort type
   function handleSortChange(sortType: string) {
@@ -271,56 +292,28 @@ export default function Home() {
     }
   };
 
-  // Start upload process
-  const startUpload = () => {
-    setIsUploading(true);
-  };
 
-  // Cancel upload
-  const cancelUpload = () => {
-    setIsUploading(false);
-  };
+  function adminHeader(announcement) {
+    // Use announcement author's image if available, fallback to ICS logo
+    const authorPic =
+      announcement.authorImage && announcement.authorImage !== ""
+        ? announcement.authorImage
+        : "/ics-logo.jpg";
 
-  const carouselImages = [
-    {
-      src: "/images/alumni-1.jpg", // Update with your actual image paths
-      alt: "Alumni gathering at reunion",
-    },
-    {
-      src: "/images/campus-life.jpg",
-      alt: "Campus life at ICS",
-    },
-    {
-      src: "/images/graduation.jpg",
-      alt: "Graduation ceremony",
-    },
-    {
-      src: "/images/alumni-event.jpg",
-      alt: "Alumni networking event",
-    },
-    {
-      src: "/images/research-lab.jpg",
-      alt: "Research laboratory at ICS",
-    },
-    {
-      src: "/images/alumni-success.jpg",
-      alt: "Alumni success story",
-    },
-  ];
-  let total = 30000;
-  let partial = 3000;
-  let progress = Math.ceil((partial / total) * 100) + "%";
+    // Use announcement author's name if available, fallback to ICS
+    const authorName =
+      announcement.authorName && announcement.authorName !== ""
+        ? announcement.authorName
+        : "Institute of Computer Science";
 
-  function adminHeader() {
-    const adminPic = "/ics-logo.jpg";
-    const adminName = "Institute of Computer Science";
     return (
       <>
         <img
-          src={adminPic}
+          src={authorPic}
           className="w-10 h-10 object-cover object-top rounded-full border border-[#DADADA]"
+          alt={authorName}
         />
-        <p className="text-[16px]">{adminName}</p>
+        <p className="text-[16px]">{authorName}</p>
       </>
     );
   }
@@ -354,57 +347,41 @@ export default function Home() {
     }
   }
 
+  const getImageSrc = (newsLetter: NewsletterItem) => {
+    if (
+      newsLetter.category === "announcement" ||
+      newsLetter.category === "event" ||
+      newsLetter.category === "scholarship" ||
+      newsLetter.category === "donation_drive"
+    ) {
+      return "/ics-logo.jpg";
+    } else if (newsLetter.category === "job_offering") {
+      const jobOffering = jobOffers.find(
+        (jobOffer: JobOffering) => jobOffer.jobId === newsLetter.referenceId
+      );
+      if (!jobOffering || jobOffering.alumniId === "Admin") {
+        return "/ics-logo.jpg";
+      }
+      // You seem to be missing a return value for this case
+      return "/ics-logo.jpg"; // or whatever the default should be
+    } else {
+      return ""; // or a default image
+    }
+  };
+
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
     return (
       <div>
-        {/* <div className="flex justify-end p-4">
-          <Button asChild>
-            <Link href="/login">Log in</Link>
-          </Button>
-        </div> */}
-
-        {/* Carousel */}
-        <div className="relative w-full h-screen overflow-hidden">
-          {/* Navbar */}
-          <div
-            className="flex items-center justify-between h-20 fixed top-0 w-full"
-            style={{ padding: "0 10% 0 10%" }}
-          >
-            <div>ICS-ARMS</div>
-            <div>
-              <Button asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-10 h-screen justify-center">
-            <div className="flex flex-col items-center justify-center gap-10">
-              <div className={`${oswald.className} text-6xl`}>
-                Extending Our Reach, Embracing Our Legacy
-              </div>
-              <div className="text-lg text-center">
-                ICS-ARMS reaches out to connect, support, and celebrate the
-                journeys<br></br>of our alumni—building a stronger, united ICS
-                community.
-              </div>
-            </div>
-            <div>
-              <div className="flex gap-5" style={{ padding: "0 10% 0 10%" }}>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 1</div>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 2</div>
-                <div className="bg-blue-500 w-1/3 h-60 rounded-lg">Slide 3</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Landing />
 
         <div
-          className="flex flex-col gap-8"
+          className="flex flex-col gap-8 bg-[#EBF4FF]"
           style={{ padding: "50px 10% 5% 10%" }}
         >
-          <div className="font-bold text-3xl">News & Announcements</div>
+          <div className={`font-bold text-3xl text-[var(--blue-900)]`}>
+            News & Announcements
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {announces.map((item: Announcement) => (
@@ -413,7 +390,7 @@ export default function Home() {
                 key={item.announcementId}
                 className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
               >
-                <div className="w-full h-40 bg-pink-400 overflow-hidden">
+                <div className="w-full h-40 bg-pink-400 overflow-hidden border-b-gray-300 border-b-1">
                   <img
                     src={
                       item.image === ""
@@ -439,6 +416,8 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        <Footer />
       </div>
     );
   } else if (user) {
@@ -450,49 +429,69 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
             <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA]">
-              <img
+              <Image
+                sizes="100vw"
+                width={0}
+                height={0}
+                priority
+                alt={alumInfo!.lastName}
                 src={
                   alumInfo!.image === ""
                     ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
-                    : alumInfo.image
+                    : alumInfo!.image
                 }
                 className="w-20 h-20 md:w-40 md:h-40 lg:w-50 lg:h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
-              ></img>
+              />
               <p className="text-lg md:text-[20px] text-center font-bold justify-self-center">
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
+                {alumInfo!.suffix ? alumInfo!.suffix : ""}
               </p>
               <p className="text-xs md:text-[14px]">{alumInfo!.email}</p>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <div className="text-xs md:text-[14px] text-center wrap-break-word px-2">
                 <i>
                   Currently based on {alumInfo!.address[1]},{" "}
-                  {alumInfo!.address[2]}, {alumInfo!.address[0]}
+                  {alumInfo!.address[2]}
                 </i>
               </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center">
-                <p className="text-xs md:text-[14px]">
+              <div className="flex flex-col items-center gap-4">
+                {/* <p className="text-xs md:text-[14px]">
                   Std. No. {alumInfo!.studentNumber}
-                </p>
-                <p className="text-xs md:text-[14px]">
-                  Graduated: {alumInfo!.graduationYear}
-                </p>
-              </div>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-wrap justify-center gap-2 px-2">
-                {alumInfo!.fieldOfInterest.map((interest) => (
+                </p> */}
+                {filteredEducation.map((edu) => (
                   <div
-                    key={interest}
-                    className="text-xs md:text-[14px] border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px]"
+                    key={edu.educationId}
+                    className="text-xs md:text-sm items-center justify-items-center"
                   >
-                    {interest}
+                    <div className="flex flex-row items-center gap-3">
+                      <GraduationCap className="size-4" />
+                      <span>{edu.major}</span>
+                    </div>
+                    {/* <p>Graduated: {edu.yearGraduated}</p> */}
+                    <p className="text-xs md:text-[13px]">{edu.university}</p>
                   </div>
                 ))}
               </div>
+              {alumInfo!.fieldOfInterest[0] && (
+                <>
+                  <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
+                  <div className="flex flex-wrap justify-center gap-2 px-2">
+                    {alumInfo!.fieldOfInterest.map((interest) => (
+                      <div
+                        key={interest}
+                        className="text-xs md:text-[14px] text-center wrap-normal border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px]"
+                      >
+                        {interest}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
-                className="w-full h-[30px] cursor-pointer rounded-full text-white bg-[#0856BA] hover:bg-[#357BD6]"
+                className="w-full h-[30px] cursor-pointer rounded-full text-white bg-[#0856BA] hover:bg-blue-600"
               >
                 View Profile
               </Button>
@@ -540,17 +539,13 @@ export default function Home() {
                   >
                     {/* user info */}
                     <div className="flex flex-row mb-[20px] px-4 md:px-[20px] mt-[20px] gap-2 items-center">
-                      <img
-                        src={
-                          newsLetter.category === "announcement" ||
-                          newsLetter.category === "event" ||
-                          newsLetter.category === "scholarship" ||
-                          newsLetter.category === "donation_drive"
-                            ? "/ics-logo.jpg"
-                            : newsLetter.category === "job_offering"
-                            ? "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
-                            : "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
-                        }
+                      <Image
+                        priority
+                        alt="pic"
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        src={getImageSrc(newsLetter)}
                         className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
                       />
                       <p className="text-sm md:text-[16px]">
@@ -565,17 +560,26 @@ export default function Home() {
                                 (jobOffer: JobOffering) =>
                                   jobOffer.jobId === newsLetter.referenceId
                               );
-                              return jobOffering
-                                ? alums.find(
-                                    (alum: Alumnus) =>
-                                      alum.alumniId === jobOffering.alumniId
-                                  )?.firstName +
-                                    " " +
+                              if (
+                                !jobOffering ||
+                                jobOffering.alumniId === "Admin"
+                              ) {
+                                return "Institute of Computer Science";
+                              } else {
+                                return (
+                                  (jobOffering &&
                                     alums.find(
                                       (alum: Alumnus) =>
                                         alum.alumniId === jobOffering.alumniId
-                                    )?.lastName || "Unknown Alumni"
-                                : "Job Offering Not Found";
+                                    )?.firstName +
+                                      " " +
+                                      alums.find(
+                                        (alum: Alumnus) =>
+                                          alum.alumniId === jobOffering.alumniId
+                                      )?.lastName) ||
+                                  "Unknown Alumni"
+                                );
+                              }
                             })()
                           : ""}
                       </p>
@@ -588,10 +592,13 @@ export default function Home() {
                     {/* if newsletter is announcement */}
                     {newsLetter.category === "announcement" &&
                       (() => {
-                        const announcement = announces.find(
+                        const announcement: Announcement = announces.find(
                           (announce: Announcement) =>
                             announce.announcementId === newsLetter.referenceId
                         );
+
+                        // console.log("Found announcement:", announcement); // Add this to check the result
+
                         return announcement ? (
                           <div className="flex flex-col gap-[20px]">
                             <div className="flex flex-col">
@@ -601,18 +608,38 @@ export default function Home() {
                                 </p>
                                 <CollapseText
                                   text={announcement.description + " "}
-                                  maxChars={300}
+                                  maxChars={500}
+                                  className="text-justify"
                                 />
                               </div>
                               {announcement.image === "" ? (
                                 ""
                               ) : (
-                                <img
+                                <Image
+                                  alt={announcement.title}
+                                  width={0}
+                                  height={0}
+                                  sizes="100vw"
+                                  priority
                                   src={announcement.image}
                                   className="w-full rounded-b-[10px]"
-                                ></img>
+                                />
                               )}
                             </div>
+                            {/* <div className="flex gap-1 mx-[20px]">
+                              <button
+                                onClick={() => router.push(`/scholarship`)}
+                                className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                >
+                                View more announcement
+                              </button>
+                              <button
+                                onClick={() => router.push(`/scholarship/${scholarship.scholarshipId}`)}
+                                className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                              >
+                                Read more
+                              </button>
+                            </div> */}
                           </div>
                         ) : (
                           <p className="text-[12px] md:text-[14px] mx-4 md:mx-[20px] my-[10px] italic text-gray-500">
@@ -624,42 +651,56 @@ export default function Home() {
                     {/* if newsletter is a job post */}
                     {newsLetter.category === "job_offering" &&
                       (() => {
-                        const jobOffering = jobOffers.find(
+                        const jobOffering: JobOffering = jobOffers.find(
                           (jobOffer: JobOffering) =>
-                            jobOffer.jobId === newsLetter.referenceId
+                            jobOffer.jobId === newsLetter.referenceId &&
+                            (jobOffer.status === "Accepted" ||
+                              jobOffer.status === "Closed")
                         );
                         return jobOffering ? (
                           <div className="px-4 md:px-[20px]">
                             <div className="flex flex-col gap-4 md:gap-[30px]">
                               <div className="flex flex-col gap-[1px]">
+                                {/* <p className="text-xl md:text-[24px] font-semibold mb-3">[HIRING]</p>  */}
                                 <p className="text-xl md:text-[24px] font-semibold">
                                   {jobOffering.position}
                                 </p>
-                                <p className="text-base md:text-[18px]">
-                                  {jobOffering.company}
-                                </p>
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex gap-1 items-center">
+                                    <p className="text-base md:text-[18px]">
+                                      {jobOffering.company}
+                                    </p>
+                                    <MapPin className="ml-1 size-4 text-[#0856BA]" />
+                                    <p className="text-base md:text-[13px] text-[#0856BA]">
+                                      {jobOffering.location}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span
+                                      className={`text-xs px-2 py-1 rounded-full ${
+                                        jobOffering.status === "Closed"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-green-100 text-green-800"
+                                      }`}
+                                    >
+                                      {jobOffering.status === "Accepted"
+                                        ? "Still Open"
+                                        : "Closed"}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
                               <div className="flex flex-col gap-4 md:gap-[30px]">
                                 <div className="flex flex-col gap-[10px]">
                                   <div className="flex flex-row gap-[5px]">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      strokeWidth="1.5"
-                                      stroke="currentColor"
-                                      className="h-[18px] md:h-[20px] w-auto"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z"
-                                      />
-                                    </svg>
+                                    <Briefcase className="size-5" />
                                     <p className="text-[13px] md:text-[15px]">
                                       {jobOffering.employmentType}
                                     </p>
-                                    <p>&#xb7;</p>
+                                  </div>
+
+                                  <div className="flex flex-row gap-[5px]">
+                                    <Award className="size-5" />
                                     <p className="text-[13px] md:text-[15px]">
                                       {jobOffering.experienceLevel}
                                     </p>
@@ -713,17 +754,9 @@ export default function Home() {
                                           >
                                             <li
                                               key={skill}
-                                              className="flex items-center"
+                                              className="flex items-center gap-[5px]"
                                             >
-                                              <svg
-                                                className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 shrink-0"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                              >
-                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                              </svg>
+                                              <CheckCircle className="size-4 text-green-500" />
                                               {skill}
                                             </li>
                                           </ul>
@@ -757,27 +790,40 @@ export default function Home() {
                                   <div className="text-[13px] md:text-[15px] ml-[25px] mr-[25px] text-justify">
                                     <CollapseText
                                       text={jobOffering.jobDescription + " "}
-                                      maxChars={300}
+                                      maxChars={500}
+                                      className="text-justify"
                                     />
                                   </div>
                                 </div>
-                                {jobOffering.image === "" ? (
+                                {/* {jobOffering.image === "" ? (
                                   ""
                                 ) : (
                                   <img src={jobOffering.image}></img>
-                                )}
-                                <button
-                                  onClick={() => router.push(`/joboffer-list`)}
-                                  className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
-                                >
-                                  View More Job Offers
-                                </button>
+                                )} */}
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() =>
+                                      router.push(`/joboffer-list`)
+                                    }
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                  >
+                                    View more job offers
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      router.push(`/joboffer-list/`)
+                                    }
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                  >
+                                    Apply
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
                         ) : (
                           <p className="text-[12px] md:text-[14px] mx-4 md:mx-[20px] my-[10px] italic text-gray-500">
-                            Job offer not found
+                            Job offer not found or have been closed.
                           </p>
                         );
                       })()}
@@ -786,7 +832,7 @@ export default function Home() {
                     {newsLetter.category === "donation_drive" &&
                       (() => {
                         const donationDrive = donationDrives.find(
-                          (donation: Donation) => {
+                          (donation: DonationDrive) => {
                             return (
                               donation.donationDriveId ===
                               newsLetter.referenceId
@@ -797,7 +843,7 @@ export default function Home() {
                         return donationDrive ? (
                           <div className="flex flex-col gap-[20px]">
                             <div className="flex flex-col gap-[20px]">
-                              <div className="flex flex-col gap-[10px] px-4 md:px-[20px] mb-[20px]">
+                              <div className="flex flex-col gap-[5px] px-4 md:px-[20px] mb-[20px]">
                                 <p className="text-xl md:text-[24px] font-semibold">
                                   {donationDrive.campaignName}
                                 </p>
@@ -806,14 +852,19 @@ export default function Home() {
                                 </p>
                                 <CollapseText
                                   text={donationDrive.description + " "}
-                                  maxChars={300}
+                                  maxChars={500}
+                                  className="text-justify"
                                 />
                               </div>
 
                               {donationDrive.image === "" ? (
                                 ""
                               ) : (
-                                <img
+                                <Image
+                                  priority
+                                  width={0}
+                                  height={0}
+                                  sizes="100vw"
                                   src={donationDrive.image}
                                   className="w-full"
                                   alt="Donation drive"
@@ -889,28 +940,35 @@ export default function Home() {
 
                                   <div className="flex justify-between my-1 text-[13px] md:text-[15px]">
                                     <span className="font-medium">
-                                      ₱{" "}
-                                      {
-                                        donationDrives[currentDonationIndex]
-                                          .currentAmount
-                                      }
+                                      ₱ {donationDrive.currentAmount}
                                     </span>
                                     <span className="text-gray-500">
-                                      of ₱{" "}
-                                      {donationDrives[currentDonationIndex]
-                                        .targetAmount || 0}
+                                      of ₱ {donationDrive.targetAmount || 0}
                                     </span>
                                   </div>
                                 </div>
                               </div>
-                              <button
-                                onClick={() =>
-                                  router.push(`/donationdrive-list`)
-                                }
-                                className="cursor-pointer h-[30px] mx-4 md:mx-[20px] mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
-                              >
-                                View More Donation Drives
-                              </button>
+
+                              <div className="flex gap-1 w-full px-[20px]">
+                                <button
+                                  onClick={() =>
+                                    router.push(`/donationdrive-list`)
+                                  }
+                                  className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                >
+                                  View more donation drives
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    router.push(
+                                      `/donationdrive-list/details?id=${donationDrive.donationDriveId}`
+                                    )
+                                  }
+                                  className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                >
+                                  Donate
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ) : (
@@ -923,22 +981,63 @@ export default function Home() {
                     {/* if newsletter is a scholarship */}
                     {newsLetter.category === "scholarship" &&
                       (() => {
-                        return (
+                        const scholarship = scholarships.find(
+                          (scholarship: Scholarship) => {
+                            return (
+                              scholarship.scholarshipId ===
+                              newsLetter.referenceId
+                            );
+                          }
+                        );
+
+                        return scholarship ? (
                           <div className="flex flex-col gap-[20px] px-4 md:px-[20px] mb-[20px]">
                             <p className="text-xl md:text-[24px] font-semibold">
-                              Scholarship
+                              {scholarship.title}
                             </p>
                             <CollapseText
-                              text="Details about the scholarship will go here."
-                              maxChars={300}
+                              text={scholarship.description}
+                              maxChars={500}
+                              className="text-justify"
                             />
-                            <button
-                              onClick={() => router.push(`/scholarship`)}
-                              className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
-                            >
-                              View More Scholarships
-                            </button>
+
+                            {scholarship.image === "" ? (
+                              ""
+                            ) : (
+                              <Image
+                                priority
+                                width={0}
+                                height={0}
+                                sizes="100vw"
+                                src={scholarship.image}
+                                className="w-full"
+                                alt="Donation drive"
+                              />
+                            )}
+
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => router.push(`/scholarship`)}
+                                className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                              >
+                                View more sponsorships
+                              </button>
+                              <button
+                                onClick={() =>
+                                  router.push(
+                                    `/scholarship/${scholarship.scholarshipId}`
+                                  )
+                                }
+                                className="w-full cursor-pointer h-[30px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                              >
+                                Sponsor
+                              </button>
+                            </div>
                           </div>
+                        ) : (
+                          <p className="text-[12px] md:text-[14px] mx-4 md:mx-[20px] my-[10px] italic text-gray-500">
+                            Announcement not found
+                          </p>
                         );
                       })()}
 
@@ -1072,12 +1171,20 @@ export default function Home() {
                                     )}
                                   </>
 
-                                  <div className="px-4 md:px-[20px]">
+                                  <div className="px-4 md:px-[20px] flex gap-1">
                                     <button
                                       onClick={() => router.push(`/events`)}
-                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-[#0856BA] hover:text-white"
+                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                                     >
-                                      View More Events
+                                      View more events
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        router.push(`/events/${event.eventId}`)
+                                      }
+                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                    >
+                                      Accept Invite
                                     </button>
                                   </div>
                                 </div>
@@ -1127,7 +1234,11 @@ export default function Home() {
                     {donationDrives[currentDonationIndex].image === "" ? (
                       ""
                     ) : (
-                      <img
+                      <Image
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        priority
                         src={donationDrives[currentDonationIndex].image}
                         className="mb-[10px] h-[150px] object-cover w-full"
                         alt="Donation drive"
@@ -1269,10 +1380,18 @@ export default function Home() {
                   {/* event contents */}
                   <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                     <div className="w-full">
-                      <img
-                        src="/ICS2.jpg"
+                      <Image
+                        alt={events[currentEventIndex].title}
+                        width={0}
+                        height={0}
+                        priority
+                        sizes="100vw"
+                        src={
+                          events[currentEventIndex].image === ""
+                            ? "/ICS2.jpg"
+                            : events[currentEventIndex].image
+                        }
                         className="mb-[10px] h-[150px] w-full object-cover"
-                        alt="Event"
                       />
                       <div className="flex flex-col text-[15px]">
                         <p className="font-semibold">

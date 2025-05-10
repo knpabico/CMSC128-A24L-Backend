@@ -52,14 +52,14 @@ const EditWorkExperience: React.FC<{
     if (result.success) {
       onClose();
     }
-    setSnackbar(true);
+    // setSnackbar(true);
   };
 
-  const [presentJob, setPresentJob] = useState(endYear === "Present" ? true : false);
+  const [presentJob, setPresentJob] = useState(endYear === "present" ? true : false);
   const handlePresentJob = (value: boolean) => {
     setPresentJob(value);
     if(value === true){
-      setEndYear("Present");
+      setEndYear("present");
       numOfPresentJobs++;
     }
     else{
@@ -190,11 +190,11 @@ const EditWorkExperience: React.FC<{
                   />)}
                 {presentJob === true && (
                   <p className="cursor-not-allowed bg-gray-300 py-2 px-3 border border-gray-500 w-full text-gray-500 rounded-md">
-                    Present
+                    present
                   </p>
                 )}
                 {/* si present job lang ang may checkbox ng present job. pag wala nang present job at all, tsaka lang to lalabas sa lahat ng work exp */}
-                {(numOfPresentJobs == 0 || endYear == "Present") && (<div className="pt-1 flex gap-2 justify-start items-center">
+                {(numOfPresentJobs == 0 || endYear == "present") && (<div className="pt-1 flex gap-2 justify-start items-center">
                   <Checkbox
                     checked={presentJob}
                     onCheckedChange={(value: boolean) => {

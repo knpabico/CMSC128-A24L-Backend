@@ -1,30 +1,26 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { sendEmailTemplate } from "@/lib/emailTemplate";
+import { db } from "@/lib/firebase";
+import { uploadImage } from "@/lib/upload";
+import { FirebaseError } from "firebase-admin/app";
 import {
   collection,
+  doc,
+  getDoc,
   onSnapshot,
+  orderBy,
   query,
   setDoc,
-  doc,
-  where,
-  getDoc,
-  orderBy,
-  addDoc,
   updateDoc,
-  QueryDocumentSnapshot,
-  DocumentData,
+  where,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { Alumnus, Career, Education } from "@/models/models";
-import { FirebaseError } from "firebase-admin/app";
-import { sendEmailTemplateForNewsletter } from "@/lib/emailTemplate";
-import { sendEmailTemplate } from "@/lib/emailTemplate";
-import { toastError, toastSuccess } from "@/components/ui/sonner";
-import { uploadImage } from "@/lib/upload";
 import { messaging } from "firebase-admin";
-
+import { toast } from "sonner";
 
 const AlumContext = createContext<any>(null);
 
@@ -35,6 +31,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   const [myEducation, setEducation] = useState<Education[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user, isAdmin } = useAuth();
+  const [totalAlums, setTotalAlums] = useState<number>(0);
+  const [activeAlumsTotal, setActiveAlumsTotal] = useState<number>(0);
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -42,18 +40,19 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     let unsubscribeCareer: (() => void) | null;
     let unsubscribeEducation: (() => void) | null;
 
-    if (user) {
+    if (isAdmin) {
+      unsubscribe = subscribeToUsers();
+      unsubscribeActive = subscribeToActiveUsers();
+    } else if (user) {
       unsubscribe = subscribeToUsers(); //maglilisten sa firestore
       unsubscribeCareer = subscribeToMyCareer();
       unsubscribeEducation = subscribeToMyEducation();
-    } else if (isAdmin) {
-      unsubscribe = subscribeToUsers();
-      unsubscribeActive = subscribeToActiveUsers();
     } else {
       setAlums([]); //reset once logged out
       setActiveAlums([]);
       setCareer([]);
       setLoading(false);
+      setTotalAlums(0);
     }
 
     return () => {
@@ -85,44 +84,53 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     email: string,
     studentNumber: string,
     address: string[],
-    birthDate: Date,
-    fieldOfInterest: string[]
+    fieldOfInterest: string[],
+    contactPrivacy: boolean
   ) => {
     try {
       const alumniRef = doc(db, "alumni", alum.alumniId);
-      const docSnap = await getDoc(alumniRef);  // Fetch current data to check for existing fields
-  
-      const updatedData: any = {};  // Will hold fields to update
-  
+      const docSnap = await getDoc(alumniRef); // Fetch current data to check for existing fields
+
+      const updatedData: any = {}; // Will hold fields to update
+
       if (docSnap.exists()) {
         const currentData = docSnap.data();
-        
+
         // Only update fields that have changed
-        if (firstName !== currentData.firstName) updatedData.firstName = firstName ?? "";
-        if (middleName !== currentData.middleName) updatedData.middleName = middleName ?? "";
-        if (lastName !== currentData.lastName) updatedData.lastName = lastName ?? "";
+        if (firstName !== currentData.firstName)
+          updatedData.firstName = firstName ?? "";
+        if (middleName !== currentData.middleName)
+          updatedData.middleName = middleName ?? "";
+        if (lastName !== currentData.lastName)
+          updatedData.lastName = lastName ?? "";
         if (suffix !== currentData.suffix) updatedData.suffix = suffix ?? "";
         if (email !== currentData.email) updatedData.email = email ?? "";
-        if (studentNumber !== currentData.studentNumber) updatedData.studentNumber = studentNumber ?? "";
-        if (address !== currentData.address) updatedData.address = address ?? [];
-        if (birthDate !== currentData.birthDate) updatedData.birthDate = birthDate ?? new Date();
-        if (fieldOfInterest !== currentData.fieldOfInterest) updatedData.fieldOfInterest = fieldOfInterest ?? [];
-  
+        if (studentNumber !== currentData.studentNumber)
+          updatedData.studentNumber = studentNumber ?? "";
+        if (address !== currentData.address)
+          updatedData.address = address ?? [];
+        if (fieldOfInterest !== currentData.fieldOfInterest)
+          updatedData.fieldOfInterest = fieldOfInterest ?? [];
+        if (contactPrivacy !== currentData.contactPrivacy)
+          updatedData.contactPrivacy = contactPrivacy ?? false;
+
         // If there's any updated data, update the document
         if (Object.keys(updatedData).length > 0) {
           await updateDoc(alumniRef, updatedData);
         }
       }
-  
+      toast.success("Profile updated successfully!");
       return { success: true, message: "Your changes are successfully saved" };
     } catch (error) {
       console.error("Error:", error);
+
+      toast.error(error.message);
       return { success: false, error: error.message };
     }
   };
 
   //for fetching the photo of alumni
-  const uploadAlumniPhoto = async (alum:Alumnus, imageFile:any) => {
+  const uploadAlumniPhoto = async (alum: Alumnus, imageFile: any) => {
     try {
       //uploading
       const data = await uploadImage(imageFile, `alumni/${user?.uid}`);
@@ -237,38 +245,6 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const emailNewsLettertoAlums = async (
-    title: string,
-    content: string,
-    photoURL: string,
-    category: string
-  ) => {
-    try {
-      const q = query(
-        collection(db, "alumni"),
-        where("activeStatus", "==", true),
-        where("subscribeToNewsletter", "==", true)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.docs.map(
-        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
-          await sendEmailTemplateForNewsletter(
-            photoURL,
-            title,
-            content,
-            doc.data().email,
-            category
-          )
-      );
-      // const data =
-      // if (data.success) {
-      //   toastSuccess(data.message);
-      // } else toastError(data.message);
-    } catch (error) {
-      console.error("Error sending newsletter:", error);
-    }
-  };
-
   //birthdayy
   const handleUpdateBirthday = async (alumniId: string, birthDate: Date) => {
     try {
@@ -293,6 +269,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setAlums(userList);
+        console.log(userList.length, "total");
+        setTotalAlums(userList.length);
         setLoading(false);
       },
       (error) => {
@@ -319,6 +297,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setActiveAlums(activeUserList);
+        setActiveAlumsTotal(activeUserList.length);
         setLoading(false);
       },
       (error) => {
@@ -329,6 +308,35 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
 
     return unsubscribeActiveUsers;
   };
+
+  const getActiveAlums = (alums: Alumnus[]) => {
+    if (!alums) {
+      return 0;
+    } else {
+      const activeAlums = alums.filter((alum) => alum.activeStatus === true);
+      console.log(activeAlums, "this is activeAlums");
+      return activeAlums;
+    }
+  };
+  const getInactiveAlums = (alums: Alumnus[]) => {
+    if (!alums) {
+      return 0;
+    } else {
+      const inactiveAlums = alums.filter((alum) => alum.activeStatus === false);
+      console.log(activeAlums, "this is activeAlums");
+      return inactiveAlums;
+    }
+  };
+  const updateAlumnusActiveStatus = (alumniId: string, newStatus: boolean) => {
+    // Update in your database/backend
+    // Then update your local state
+    setAlums((prevAlums) =>
+      prevAlums.map((alum) =>
+        alum.alumniId === alumniId ? { ...alum, activeStatus: newStatus } : alum
+      )
+    );
+  };
+
   return (
     <AlumContext.Provider
       value={{
@@ -342,7 +350,10 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         myCareer,
         myEducation,
         updateAlumnus,
-        emailNewsLettertoAlums,
+        updateAlumnusActiveStatus,
+        totalAlums,
+        getActiveAlums,
+        getInactiveAlums,
       }}
     >
       {children}

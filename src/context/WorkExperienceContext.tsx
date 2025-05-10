@@ -17,6 +17,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { WorkExperience } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { toast } from "sonner";
 
 const WorkExperienceContext = createContext<any>(null);
 
@@ -79,7 +80,7 @@ export function WorkExperienceProvider({
       const startB =
         b.startYear === "present" ? currentYear : parseInt(b.startYear);
 
-      return startA - startB;
+      return startB - startA;
     });
     // Log the sorted list to the console
     console.log("Sorted Work Experience List:", sortedList);
@@ -97,8 +98,12 @@ export function WorkExperienceProvider({
       workExperienceEntry.workExperienceId = newDocRef.id;
       workExperienceEntry.alumniId = userId;
       await setDoc(newDocRef, workExperienceEntry);
+
+      toast.success("Work added successfully!");
       return { success: true, message: "success" };
     } catch (error) {
+
+      toast.error((error as FirebaseError).message);
       return { success: false, message: (error as FirebaseError).message };
     }
   };
