@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { useEvents } from "@/context/EventContext"
 import { Button } from "@mui/material"
 import ModalInput from "@/components/ModalInputForm"
+import Breadcrumb from "@/components/breadcrumb"
 
 export default function EventPage() {
   const router = useRouter()
@@ -646,17 +647,7 @@ export default function EventPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-2">
-        <div>Home</div>
-        <div>
-          <ChevronRight size={15} />
-        </div>
-        <div>Manage Events</div>
-        <div>
-          <ChevronRight size={15} />
-        </div>
-        <div className="font-bold text-[var(--primary-blue)]">Event Name</div>
-      </div>
+      <Breadcrumb items={breadcrumbItems} />
 
       <div className="w-full">
         <div className="flex items-center justify-between">
