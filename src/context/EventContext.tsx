@@ -10,7 +10,6 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  increment,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -197,7 +196,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           rsvps: rsvpId,
           status: "Accepted",
           datePosted: new Date(),
-          numofAttendees: increment(1),
         };
 
         if (newEvent.inviteType !== "all") {
