@@ -672,7 +672,7 @@ export default function JobOffers() {
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              job && selectedJob && selectedJob?.jobId === job.jobId
+                              job && selectedJob !== null && selectedJob.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
                             }`}
@@ -788,7 +788,7 @@ export default function JobOffers() {
                             {/* Left side - Job details */}
                             <div className="flex items-center">
                               <div className="mr-3">
-                                {job.image ? (
+                                {job && typeof job !== 'function' && job.image ? (
                                   <img
                                     src={job.image || "/placeholder.svg"}
                                     alt={`${job.company} logo`}
@@ -796,16 +796,20 @@ export default function JobOffers() {
                                   />
                                 ) : (
                                   <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
+                                    {typeof job === 'object' && job !== null && 'company' in job ? job.company.charAt(0).toUpperCase() : ""}
                                   </div>
                                 )}
                               </div>
                               <div>
-                                <h2 className="font-semibold text-md">{job.position}</h2>
-                                <p className="text-sm text-gray-600">{job.company}</p>
+                                <h2 className="font-semibold text-md">
+                                  {typeof job === 'object' && job !== null ? job.position : "Unknown Position"}
+                                </h2>
+                                <p className="text-sm text-gray-600">
+                                  {typeof job !== 'function' && job?.company}
+                                </p>
                                 <p className="text-xs text-[#0856BA] flex items-center">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
+                                  {typeof job !== 'function' && job?.location}
                                 </p>
                               </div>
                             </div>
@@ -813,7 +817,7 @@ export default function JobOffers() {
                             {/* Right side - Status and trash icon with toggle moved here */}
                             <div className="flex items-center space-x-3">
                               {/* Toggle switch */}
-                              {job.status !== "Pending" && (
+                              {typeof job === "object" && job !== null && "status" in job && job.status !== "Pending" && (
                               <div className="w-12 flex justify-center">
                                   <label className="relative inline-flex items-center cursor-pointer">
                                     <input
@@ -836,7 +840,7 @@ export default function JobOffers() {
                                   </label>
                               </div>
                               )}
-                              {job.status === "Pending" && (
+                              {typeof job === "object" && job !== null && "status" in job && job.status === "Pending" && (
                                 <div className="w-11 h-6 opacity-0">
                                   {/* Placeholder to prevent layout shift */}
                                 </div>
@@ -849,12 +853,14 @@ export default function JobOffers() {
                                     ? "bg-green-100 text-green-700"
                                     : job && typeof job !== 'function' && job.status === "Rejected"
                                     ? "bg-red-100 text-red-700"
-                                    : job.status === "Closed"
+                                    : typeof job === "object" && job !== null && "status" in job && job.status === "Closed"
                                     ? "bg-red-100 text-red-700"
                                     : "bg-yellow-100 text-yellow-700"
                                 }`}
                               >
-                                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                                {typeof job === "object" && job !== null && "status" in job
+                                  ? job.status.charAt(0).toUpperCase() + job.status.slice(1)
+                                  : ""}
                               </span>
                               </div>
 
@@ -863,7 +869,9 @@ export default function JobOffers() {
                                 className="text-gray-500 hover:text-red-500 transition-colors mr-3"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  handleDelete(job.jobId);
+                                  if (typeof job === "object" && job !== null && "jobId" in job) {
+                                    handleDelete(job.jobId);
+                                  }
                                 }}
                               >
                                 <Trash2 className="w-5 h-5" />
@@ -931,7 +939,7 @@ export default function JobOffers() {
                     <div
                       key={index}
                       className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                      selectedJob?.jobId === job.jobId
+                              job && selectedJob !== null && selectedJob.jobId === job.jobId
                       ? "border-blue-500"
                       : "border-gray-200"
                       }`}
@@ -941,7 +949,7 @@ export default function JobOffers() {
                         {/* Left side - Job details */}
                         <div className="flex items-center">
                           <div className="mr-3">
-                            {job.image ? (
+                            {job && typeof job !== 'function' && job.image ? (
                             <img
                             src={job.image || "/placeholder.svg"}
                             alt={`${job.company} logo`}
@@ -949,14 +957,16 @@ export default function JobOffers() {
                             />
                             ) : (
                             <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                            {job.company.charAt(0).toUpperCase()}
+                            {typeof job === "object" && job !== null && "company" in job ? job.company.charAt(0).toUpperCase() : ""}
                             </div>
                             )}
                           </div>
                           {
-                          !job.company || !job.location ? (
+                          typeof job === "object" && job !== null && "company" in job && "location" in job && (!job.company || !job.location) ? (
                             <div>
-                              <h2 className="font-semibold text-md">{job.position}</h2>
+                              <h2 className="font-semibold text-md">
+                                {typeof job === "object" && job !== null && "position" in job ? job.position : "Unknown Position"}
+                              </h2>
                               <p className="text-sm text-gray-500">
                                 This draft can't be published yet.
                                 <br/> Please complete all required fields.
@@ -964,11 +974,15 @@ export default function JobOffers() {
                             </div>
                           ) : (
                           <div>
-                            <h2 className="font-semibold text-md">{job.position}</h2>
-                            <p className="text-sm text-gray-600">{job.company}</p>
+                            <h2 className="font-semibold text-md">
+                              {typeof job === "object" && job !== null && "position" in job ? job.position : "Unknown Position"}
+                            </h2>
+                            <p className="text-sm text-gray-600">
+                              {typeof job === "object" && job !== null && "company" in job ? job.company : ""}
+                            </p>
                             <p className="text-xs text-[#0856BA] flex items-center">
                             <MapPin className="w-3.5 h-3.5 mr-1" />
-                            {job.location || "No location added yet."}
+                            {typeof job === "object" && job !== null && "location" in job ? job.location : "No location added yet."}
                             </p>
                           </div>
                             )
@@ -1399,9 +1413,9 @@ export default function JobOffers() {
                       value={salaryRange}
                       onChange={(e) => setSalaryRange(e.target.value)}
                       onInput={(e) => {
-                        const value = e.target.value;
+                        const value = (e.target as HTMLInputElement).value;
                         if (!/^[0-9-]*$/.test(value)) {
-                          e.target.value = value.replace(/[^0-9-]/g, "");
+                          (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "");
                         }
                       }}
                       pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
