@@ -4,6 +4,7 @@ import DonutChart from "@/components/charts/DonutChart";
 import EventCalendar from "@/components/EventCalendar";
 import ReportSummaryCard from "@/components/ReportSummaryCard";
 import { useEvents } from "@/context/EventContext";
+import { useRsvpDetails } from "@/context/RSVPContext";
 import formatTimeString from "@/lib/timeFormatter";
 import { Event } from "@/models/models";
 import { Typography } from "@mui/material";
@@ -13,6 +14,7 @@ import { ChevronRight } from "lucide-react";
 
 const Page = () => {
   const { events, isLoading: eventLoading } = useEvents();
+  const { rsvpDetails } = useRsvpDetails();
 
   const approvedEvents = useMemo(() => {
     return events.filter((event: Event) => event.status === "Accepted");
@@ -50,17 +52,29 @@ const Page = () => {
 
   const eventsRSVPs = useMemo(() => {
     return approvedEvents
-      .filter((event: Event) => event.rsvps.length > 0)
-      .sort((a: Event, b: Event) => b.rsvps.length - a.rsvps.length);
-  }, [approvedEvents]);
+      .filter((event: Event) => {
+        const rsvp = rsvpDetails.find((r: any) => r.postId === event.eventId);
+        return rsvp?.alums && Object.keys(rsvp.alums).length > 0;
+      })
+      .sort((a: Event, b: Event) => {
+        const rsvpA = rsvpDetails.find((r: any) => r.postId === a.eventId);
+        const rsvpB = rsvpDetails.find((r: any) => r.postId === b.eventId);
+        const countA = rsvpA?.alums ? Object.keys(rsvpA.alums).length : 0;
+        const countB = rsvpB?.alums ? Object.keys(rsvpB.alums).length : 0;
+        return countB - countA; // Descending
+      });
+  }, [approvedEvents, rsvpDetails]);
 
   const rsvpLabels = useMemo(() => {
     return eventsRSVPs.map((event: Event) => event.title);
   }, [eventsRSVPs]);
 
   const rsvpData = useMemo(() => {
-    return eventsRSVPs.map((event: Event) => event.rsvps.length);
-  }, [eventsRSVPs]);
+    return eventsRSVPs.map((event: Event) => {
+      const rsvp = rsvpDetails.find((r: any) => r.postId === event.eventId);
+      return rsvp?.alums ? Object.keys(rsvp.alums).length : 0;
+    });
+  }, [eventsRSVPs, rsvpDetails]);
 
   const rsvpStats = eventsRSVPs
     .map((event: Event) => `${event.title} - ${event.rsvps.length} RSVP(s)`)
@@ -212,20 +226,25 @@ const Page = () => {
               </div>
             ) : (
               <ul className="divide-y divide-gray-100">
-                {eventsRSVPs.map((event: Event, index: number) => (
-                  <li
-                    key={index}
-                    className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
-                  >
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
-                      <span className="font-medium">{event.title}</span>
-                    </div>
-                    <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
-                      {event.rsvps.length} RSVPs
-                    </span>
-                  </li>
-                ))}
+                {eventsRSVPs.map((event: Event, index: number) => {
+                  const rsvp = rsvpDetails.find((r: any) => r.postId === event.eventId);
+                  const alumCount = rsvp?.alums ? Object.keys(rsvp.alums).length : 0;
+
+                  return (
+                    <li
+                      key={event.eventId || index}
+                      className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
+                    >
+                      <div className="flex items-center">
+                        <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                        <span className="font-medium">{event.title}</span>
+                      </div>
+                      <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
+                        {alumCount} RSVPs
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </CardContent>
