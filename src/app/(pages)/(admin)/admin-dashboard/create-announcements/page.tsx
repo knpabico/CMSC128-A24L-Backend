@@ -134,10 +134,10 @@ export default function Users() {
                 <button
                   className="w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100"
                   onClick={() => {
+                    setIsEdit(true);
                     setTitle(announcement.title);
                     setDescription(announcement.description);
                     setShowForm(true);
-                    setIsEdit(true);
                     setCurrentAnnouncementId(announcement.announcementId);
                     setPreview(announcement.image ?? null);
                     setShowDropdown(null);
