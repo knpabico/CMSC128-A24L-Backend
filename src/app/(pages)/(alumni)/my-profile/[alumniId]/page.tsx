@@ -605,6 +605,7 @@ const UserProfile = () => {
     new Array(userWorkExperience.length).fill(false)
   );
 
+
   const openEditModal = (index:number) => {
     const newEditModal = [...isEditModalOpen];
     newEditModal[index] = true;
@@ -1124,7 +1125,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {userWorkExperience.map((item:WorkExperience, index:number) => (
-                    <div key={index} className="flex justify-between">
+                    <div key={item.workExperienceId} className="flex justify-between">
                       <div className="flex items-center space-x-5">
                         <div className="w-6 h-6 rounded-full bg-gray-500"></div>
                         <div>

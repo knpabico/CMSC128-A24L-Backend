@@ -71,7 +71,7 @@ const AddWorkExperience: React.FC<{
     });
     setCareerProof(null);
     setHasProof(true);
-    setPresentJob(false);
+    setPresentJob(endYear === "present" ? true : false);
   };
 
   const handleSubmit = async () => {
