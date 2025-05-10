@@ -13,6 +13,9 @@ import {
   Filter,
   ChevronDown,
   Calendar,
+	CircleCheck,
+	CircleX,
+	HelpCircle,
 } from "lucide-react";
 import { useBookmarks } from "@/context/BookmarkContext";
 import { useAuth } from "@/context/AuthContext";
@@ -708,13 +711,13 @@ const ScholarshipPage: React.FC = () => {
 												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
 													Scholarship
 												</th>
-												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
+												<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
 													Student
 												</th>
-												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
+												<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
 													Status
 												</th>
-												<th scope="col" className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider">
+												<th scope="col" className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider">
 													Agreement
 												</th>
 											</tr>
@@ -726,26 +729,78 @@ const ScholarshipPage: React.FC = () => {
                             {scholarshipMapping[scholarshipStudent.scholarshipId]}
                             {/* {'Loading campaign name...'} */}
                           </td>
-                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm font-medium text-gray-900">
+                          <td className="px-4 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
                             {studentMapping[scholarshipStudent.studentId]}
                           </td>
-                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
-                            {scholarshipStudent.status}
+                          <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+                            {/* Status column */}
+															<div className="flex justify-center items-center">
+																<button 
+																	className={`flex text-sm rounded-full px-3 py-1 shadow-lg transition-colors justify-center items-center gap-2
+																		${(() => {
+																			const status = scholarshipStudent.status?.toLowerCase();
+																			
+																			switch(status) {
+																				case 'approved':
+																					return 'bg-green-500 text-white hover:bg-green-600';
+																				case 'pending':
+																					return 'bg-yellow-500 text-white hover:bg-yellow-600';
+																				case 'rejected':
+																					return 'bg-red-500 text-white hover:bg-red-600';
+																				default:
+																					return 'bg-gray-400 text-white hover:bg-gray-500';
+																			}
+																		})()}`}
+																>
+																	{(() => {
+																		const status = scholarshipStudent.status.toLowerCase();
+																		
+																		switch(status) {
+																			case 'approved':
+																				return <CircleCheck className="size-4" />;
+																			case 'pending':
+																				return <Clock className="size-4" />;
+																			case 'rejected':
+																				return <CircleX className="size-4" />;
+																			default:
+																				return <HelpCircle className="size-4" />;
+																		}
+																	})()}
+																	
+																	<span className="whitespace-nowrap">
+																		{scholarshipStudent.status 
+																			? scholarshipStudent.status?.charAt(0).toUpperCase() + scholarshipStudent.status?.slice(1)
+																			: "None"}
+																	</span>
+																</button>
+															</div>
                           </td>
-                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
-											<button onClick={() => { setSelectedScholarshipStudentId(scholarshipStudent.ScholarshipStudentId); setSelectedFile(scholarshipStudent.pdf); }} // Adjust with the correct image path
-												className="text-blue-500 hover:underline text-sm">
-												View PDF
-											</button>
-												{selectedScholarshipStudentId === scholarshipStudent.ScholarshipStudentId && selectedFile && (
-													<PdfPreviewDialog
-														selectedFile={selectedFile}
-														setSelectedFile={setSelectedFile}
-													/>
-												)}
-                          </td>
-                        </tr>
-                    ))}   
+													<td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+														<button 
+															onClick={() => { 
+																if (scholarshipStudent.status === "approved") {
+																	setSelectedScholarshipStudentId(scholarshipStudent.ScholarshipStudentId); 
+																	setSelectedFile(scholarshipStudent.pdf);
+																}
+															}}
+															disabled={scholarshipStudent.status !== "approved"}
+															className={`text-sm ${
+																scholarshipStudent.status === "approved" 
+																	? "text-blue-500 hover:underline cursor-pointer" 
+																	: "text-gray-400 cursor-not-allowed"
+															}`}
+														>
+															View PDF
+														</button>
+														{selectedScholarshipStudentId === scholarshipStudent.ScholarshipStudentId && selectedFile && (
+															<PdfPreviewDialog
+																selectedFile={selectedFile}
+																setSelectedFile={setSelectedFile}
+															/>
+														)}
+													</td>
+												</tr>
+											))}   
                     </tbody>
 									</table>                                       
                   ) : (
