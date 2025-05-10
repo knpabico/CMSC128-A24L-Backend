@@ -615,11 +615,11 @@ export default function Home() {
                     {/* if newsletter is a job post */}
                     {newsLetter.category === "job_offering" &&
                       (() => {
-                        const jobOffering = jobOffers.find(
+                        const jobOffering = acceptedJobs.find(
                           (jobOffer: JobOffering) =>
-                            jobOffer.jobId === newsLetter.referenceId &&
-                            jobOffer.status === "Accepted" || jobOffer.status === "Closed"
+                            jobOffer.jobId === newsLetter.referenceId 
                         );
+                        console.log("Found job offering:", jobOffering); // Add this to check the result
                         return jobOffering ? (
                           <div className="px-4 md:px-[20px]">
                             <div className="flex flex-col gap-4 md:gap-[30px]">
