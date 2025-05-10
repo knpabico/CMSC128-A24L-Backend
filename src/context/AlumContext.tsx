@@ -360,30 +360,43 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
 
 
 
-const getPendingAlums = (alums:Alumnus[])=>{
-  if (!alums){
-    return 0;
-  }else{
-    const pendingAlums = alums.filter((alum) => alum.regStatus === "pending");
-    console.log(pendingAlums, "this is pending Alums");
-    return pendingAlums;
-  }
-  
-}
-const updateAlumnusActiveStatus = (alumniId: string, newStatus: boolean) => {
-  // Update in your database/backend
-  // Then update your local state
-  setAlums(prevAlums => prevAlums.map(alum => 
-    alum.alumniId === alumniId ? {...alum, activeStatus: newStatus} : alum
-  ));
-};
-const updateAlumnusRegStatus = (alumniId: string, newStatus: RegStatus) => {
-  // Update in your database/backend
-  // Then update your local state
-  setAlums(prevAlums => prevAlums.map(alum => 
-    alum.alumniId === alumniId ? {...alum, regStatus: newStatus} : alum
-  ));
-};
+    const getPendingAlums = (alums:Alumnus[])=>{
+      if (!alums){
+        return 0;
+      }else{
+        const pendingAlums = alums.filter((alum) => alum.regStatus === "pending");
+        console.log(pendingAlums, "this is pending Alums");
+        return pendingAlums;
+      }
+      
+    }
+    const updateAlumnusActiveStatus = (alumniId: string, newStatus: boolean) => {
+      // Update in your database/backend
+      // Then update your local state
+      setAlums(prevAlums => prevAlums.map(alum => 
+        alum.alumniId === alumniId ? {...alum, activeStatus: newStatus} : alum
+      ));
+    };
+
+
+    //update the registration status from pending to approved
+      const updateAlumnusRegStatus = async (alumniId: string, newStatus: RegStatus) => {
+        try {
+          const alumnusRef = doc(db, 'alumni', alumniId); 
+          await updateDoc(alumnusRef, { regStatus: newStatus });
+
+          setAlums(prevAlums =>
+            prevAlums.map(alum =>
+              alum.alumniId === alumniId ? { ...alum, regStatus: newStatus } : alum
+            )
+          );
+
+          console.log(`Updated regStatus for ${alumniId} to ${newStatus}`);
+        } catch (error) {
+          console.error('Failed to update regStatus in Firebase:', error);
+        }
+      };
+
 
 
   return (
