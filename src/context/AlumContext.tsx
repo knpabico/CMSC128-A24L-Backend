@@ -25,6 +25,7 @@ import { sendEmailTemplate } from "@/lib/emailTemplate";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { uploadImage } from "@/lib/upload";
 import { messaging } from "firebase-admin";
+import { RegStatus } from "@/types/alumni/regStatus";
 
 
 const AlumContext = createContext<any>(null);
@@ -356,11 +357,31 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       return inactiveAlums;
     }
 }
+
+
+
+const getPendingAlums = (alums:Alumnus[])=>{
+  if (!alums){
+    return 0;
+  }else{
+    const pendingAlums = alums.filter((alum) => alum.regStatus === "pending");
+    console.log(pendingAlums, "this is pending Alums");
+    return pendingAlums;
+  }
+  
+}
 const updateAlumnusActiveStatus = (alumniId: string, newStatus: boolean) => {
   // Update in your database/backend
   // Then update your local state
   setAlums(prevAlums => prevAlums.map(alum => 
     alum.alumniId === alumniId ? {...alum, activeStatus: newStatus} : alum
+  ));
+};
+const updateAlumnusRegStatus = (alumniId: string, newStatus: RegStatus) => {
+  // Update in your database/backend
+  // Then update your local state
+  setAlums(prevAlums => prevAlums.map(alum => 
+    alum.alumniId === alumniId ? {...alum, regStatus: newStatus} : alum
   ));
 };
 
@@ -382,7 +403,9 @@ const updateAlumnusActiveStatus = (alumniId: string, newStatus: boolean) => {
         updateAlumnusActiveStatus,
         totalAlums,
         getActiveAlums,
-        getInactiveAlums
+        getInactiveAlums,
+        getPendingAlums,
+        updateAlumnusRegStatus
       }}
     >
       {children}

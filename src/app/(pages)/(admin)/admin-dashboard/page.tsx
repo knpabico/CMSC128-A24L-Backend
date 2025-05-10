@@ -13,11 +13,12 @@ import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { CheckCircle, XCircle } from 'lucide-react';
+import { RegStatus } from "@/types/alumni/regStatus";
 
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
-  const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus} = useAlums();
+  const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus, getPendingAlums, updateAlumnusRegStatus} = useAlums();
   const {donationDrives} = useDonationDrives();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
   const {scholarships} = useScholarship();
@@ -162,6 +163,20 @@ export default function AdminDashboard() {
         });
       }
     };
+
+        // Function to toggle active status
+      const handleTogglePendingStatus = (alumniId: string, newStatus: RegStatus) => {
+        // Call your context function to update the status
+        updateAlumnusRegStatus(alumniId, newStatus);
+        
+        // Update the local state if needed
+        if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
+          setSelectedAlumnus({
+            ...selectedAlumnus,
+            regStatus: newStatus
+          });
+        }
+      };
   
   return (
     <div className="p-2 w-full">
@@ -221,13 +236,13 @@ export default function AdminDashboard() {
               {/* Pending section */}
               <div className="border-0 rounded-md shadow-md p-4 bg-white w-full">
                 <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm text-gray-500">Pending</div>
-                  <div className="text-xl font-bold">{getInactiveAlums(alums).length}</div>
+                  <div className="text-sm text-gray-500">Pending Registration Alumnis</div>
+                  <div className="text-xl font-bold">{getPendingAlums(alums).length}</div>
                 </div>
 
                 {/* List */}
                 <div className="mt-2 max-h-70 overflow-y-auto w-full">
-                  {alums.map((alum: Alumnus) => (
+                  {getPendingAlums(alums).map((alum: Alumnus) => (
                     <div
                       key={alum.alumniId}
                       onClick={() => handleOpenModal(alum)}
@@ -242,13 +257,11 @@ export default function AdminDashboard() {
                         </p>
                       </div>
                       <span
-                        className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ml-2 ${
-                          alum.activeStatus
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
+                        className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ml-2 
+                            bg-yellow-500 text-yellow-800
+                      `}
                       >
-                        {alum.activeStatus ? 'Active' : 'Pending'}
+                        {alum.regStatus == "pending" ? "Pending" : 'Approved'}
                       </span>
                     </div>
                   ))}
@@ -262,7 +275,7 @@ export default function AdminDashboard() {
             alumnus={selectedAlumnus}
             isOpen={isModalOpen}
             onClose={handleCloseModal}
-            onToggleActiveStatus={handleToggleActiveStatus}
+            onTogglePendingStatus={handleTogglePendingStatus}
           />
         </Card>
 
