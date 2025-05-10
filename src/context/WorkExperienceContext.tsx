@@ -100,9 +100,12 @@ export function WorkExperienceProvider({
       await setDoc(newDocRef, workExperienceEntry);
 
       toast.success("Work added successfully!");
-      return { success: true, message: "success" };
+      return {
+        success: true,
+        message: "success",
+        workExperienceId: newDocRef.id,
+      };
     } catch (error) {
-
       toast.error((error as FirebaseError).message);
       return { success: false, message: (error as FirebaseError).message };
     }

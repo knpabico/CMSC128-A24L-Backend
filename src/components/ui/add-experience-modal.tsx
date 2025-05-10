@@ -8,7 +8,8 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { XIcon, PencilIcon, MapPin } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-
+import { CareerDocumentUpload, uploadDocToFirebase } from "./career-document";
+import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
 
 const AddWorkExperience: React.FC<{
   open: boolean;
@@ -19,7 +20,15 @@ const AddWorkExperience: React.FC<{
   setSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ open, alumniId, onClose, numOfPresentJobs, setSnackbar, setMessage, setSuccess }) => {
+}> = ({
+  open,
+  alumniId,
+  onClose,
+  numOfPresentJobs,
+  setSnackbar,
+  setMessage,
+  setSuccess,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [industry, setIndustry] = useState<string>("");
   const [jobTitle, setJobTitle] = useState<string>("");
@@ -32,7 +41,10 @@ const AddWorkExperience: React.FC<{
     longitude: 121.25,
   });
 
-
+  //for setting career proof (if present job)
+  const [careerProof, setCareerProof] = useState<File | null>(null);
+  const [hasProof, setHasProof] = useState(true);
+  const [validYears, setValidYears] = useState(true);
   const { addWorkExperience } = useWorkExperience(); // make sure this exists
 
   const handleLocationSave = (address: string, lat: number, lng: number) => {
@@ -41,6 +53,25 @@ const AddWorkExperience: React.FC<{
       latitude: lat,
       longitude: lng,
     });
+  };
+  //current year for validation
+  const currentYear = new Date().getFullYear();
+
+  //function for resetting fields after submission
+  const resetFields = () => {
+    setIndustry("");
+    setJobTitle("");
+    setCompany("");
+    setStartYear("");
+    setEndYear("");
+    setSelectedLocation({
+      location: "",
+      latitude: 14.25,
+      longitude: 121.25,
+    });
+    setCareerProof(null);
+    setHasProof(true);
+    setPresentJob(false);
   };
 
   const handleSubmit = async () => {
@@ -51,7 +82,29 @@ const AddWorkExperience: React.FC<{
       // setSnackbar(true);
       return;
     }
-  
+
+    //check if valid years
+    if (endYear !== "present") {
+      if (parseInt(startYear, 10) > parseInt(endYear, 10)) {
+        setValidYears(false);
+        setSuccess(false);
+        // setSnackbar(true);
+        return;
+      } else {
+        setValidYears(true);
+      }
+    }
+
+    //if missing proof of employment for present job
+    if (!careerProof && endYear === "present") {
+      setHasProof(false);
+      setSuccess(false);
+      // setSnackbar(true);
+      return;
+    } else {
+      setHasProof(true);
+    }
+
     const newWork: WorkExperience = {
       industry,
       jobTitle,
@@ -62,26 +115,42 @@ const AddWorkExperience: React.FC<{
       latitude: selectedLocation.latitude,
       longitude: selectedLocation.longitude,
       workExperienceId: "",
-      alumniId:alumniId,
-      proofOfEmployment: ""
+      alumniId: alumniId,
+      proofOfEmployment: "",
     };
-  
-    const result = await addWorkExperience(newWork,alumniId);
+
+    const result = await addWorkExperience(newWork, alumniId);
+
     setSuccess(result.success);
     setMessage(result.message);
-    if (result.success) onClose();
+    if (result.success) {
+      //if endyear is present, upload proof of employment
+      if (endYear === "present" && careerProof) {
+        //upload proof of employment to firebase
+        uploadDocToFirebase(careerProof, alumniId, result.workExperienceId);
+      }
+
+      resetFields();
+      onClose();
+    }
     // setSnackbar(true);
   };
 
-  const [presentJob, setPresentJob] = useState(endYear === "present" ? true : false);
+  //callback for image upload
+  const handleDocumentUpload = (document: File | null): void => {
+    setCareerProof(document);
+    console.log("Uploaded document:", document);
+  };
+
+  const [presentJob, setPresentJob] = useState(
+    endYear === "present" ? true : false
+  );
   const handlePresentJob = (value: boolean) => {
     setPresentJob(value);
-    setEndYear(value === true ? "present" : endYear)
+    setEndYear(value === true ? "present" : endYear);
   };
-  
 
   if (!open) return null;
-
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
@@ -89,7 +158,15 @@ const AddWorkExperience: React.FC<{
         <CardHeader>
           <div className="flex items-center justify-between relative">
             <p className="text-xl font-bold pb-3">Add work experience</p>
-            <button onClick={onClose} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+            <button
+              onClick={() => {
+                resetFields();
+                onClose();
+              }}
+              className="absolute top-0 right-0"
+            >
+              <XIcon className="cursor-pointer hover:text-red-500" />
+            </button>
           </div>
           <form
             onSubmit={async (e) => {
@@ -153,7 +230,8 @@ const AddWorkExperience: React.FC<{
                       )}
                     </p>
                     <p className="text-sm hover:underline">
-                      {selectedLocation.location !== "" ? "Edit" : "Enter"} location
+                      {selectedLocation.location !== "" ? "Edit" : "Enter"}{" "}
+                      location
                     </p>
                   </button>
                 </div>
@@ -169,62 +247,86 @@ const AddWorkExperience: React.FC<{
               <div className="col-span-6">
                 <p className="text-xs font-light">Start Year*</p>
                 <input
+                  min={1980}
+                  max={currentYear}
+                  onKeyDown={handleYearInput}
                   placeholder="XXXX"
+                  pattern="^(19[8-9]\d|20\d\d|2100)$"
                   type="number"
                   value={startYear}
                   onChange={(e) => setStartYear(e.target.value)}
                   required
                   className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
                 />
+                {!validYears && (
+                  <p className="text-red-500 text-xs">
+                    Start year cannot exceed end year
+                  </p>
+                )}
               </div>
               <div className="col-span-6">
                 <p className="text-xs font-light">End Year*</p>
                 {presentJob === false && (
-                  <input
-                    placeholder="XXXX"
-                    type="number"
-                    value={endYear}
-                    onChange={(e) => setEndYear(e.target.value)}
-                    required
-                    className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
-                  />)}
+                  <>
+                    <input
+                      min={1980}
+                      max={currentYear}
+                      onKeyDown={handleYearInput}
+                      pattern="^^(19[8-9]\d|20\d\d|2100)$"
+                      placeholder="XXXX"
+                      type="number"
+                      value={endYear}
+                      onChange={(e) => setEndYear(e.target.value)}
+                      required
+                      className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                    />
+                    {!validYears && (
+                      <p className="text-red-500 text-xs">
+                        Start year cannot exceed end year
+                      </p>
+                    )}
+                  </>
+                )}
                 {presentJob === true && (
                   <p className="cursor-not-allowed bg-gray-300 py-2 px-3 border border-gray-500 w-full text-gray-500 rounded-md">
                     present
                   </p>
                 )}
                 {/* pag wala pang present job, tsaka lang lalabas yung checkbox ng present job */}
-                {numOfPresentJobs == 0 && (<div className="pt-1 flex gap-2 justify-start items-center">
-                  <Checkbox
-                    checked={presentJob}
-                    onCheckedChange={(value: boolean) => {
-                      handlePresentJob(value)
-                    }}
-                    className="bg-white"
-                  />
-                  <p className="text-xs font-light">
-                    Present job?
-                  </p>
-                </div>)}
+                {numOfPresentJobs == 0 && (
+                  <div className="pt-1 flex gap-2 justify-start items-center">
+                    <Checkbox
+                      checked={presentJob}
+                      onCheckedChange={(value: boolean) => {
+                        handlePresentJob(value);
+                      }}
+                      className="bg-white"
+                    />
+                    <p className="text-xs font-light">Present job?</p>
+                  </div>
+                )}
               </div>
               {presentJob === true && (
-              <div className="col-span-12">
-                <p className="text-xs font-light">Proof of Employment</p>
-                {/* palagay nalang dito ng for proof of employment salamatttttttttttttt */}
-              </div>
+                <div className="col-span-12">
+                  <p className="text-xs font-light">Proof of Employment</p>
+                  {/* palagay nalang dito ng for proof of employment salamatttttttttttttt */}
+                  <CareerDocumentUpload
+                    documentSetter={handleDocumentUpload}
+                    hasProof={hasProof}
+                  ></CareerDocumentUpload>
+                </div>
               )}
             </div>
 
             <div className="flex justify-end">
-              <button 
-              type="submit"
-              color="primary"
-              className="w-20 bg-[#0856ba] text-white py-2 px-3 rounded-full cursor-pointer hover:bg-[#92b2dc]">
+              <button
+                type="submit"
+                color="primary"
+                className="w-20 bg-[#0856ba] text-white py-2 px-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+              >
                 Save
               </button>
             </div>
-
-           
           </form>
         </CardHeader>
       </Card>
