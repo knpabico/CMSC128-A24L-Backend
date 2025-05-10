@@ -19,6 +19,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useFeatured } from "@/context/FeaturedStoryContext";
 import { Featured, Scholarship, ScholarshipStudent, Student } from "@/models/models";
+import { PdfPreviewDialog } from "./PdfPreviewDialog";
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -277,6 +278,7 @@ const ScholarshipPage: React.FC = () => {
   const router = useRouter();
 
   const { featuredItems, isLoading: featuredLoading } = useFeatured();
+  const [selectedScholarshipStudentId, setSelectedScholarshipStudentId] = useState<string | null>(null); 
   const [userScholarshipStudent, setUserScholarshipStudent]= useState<ScholarshipStudent[]>([]);
   const [scholarshipStories, setScholarshipStories] = useState<Featured[]>([]);
   const [scholarshipMapping, setScholarshipMapping] = useState<
@@ -285,6 +287,8 @@ const ScholarshipPage: React.FC = () => {
   const [studentMapping, setStudentMapping] = useState<
     Record<string, string>
   >({});
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+
 
 
   useEffect(() => {
@@ -729,9 +733,16 @@ const ScholarshipPage: React.FC = () => {
                             {scholarshipStudent.status}
                           </td>
                           <td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
-                            <button className="text-blue-500 hover:underline text-sm">
-                              View PDF
-                            </button>
+											<button onClick={() => { setSelectedScholarshipStudentId(scholarshipStudent.ScholarshipStudentId); setSelectedFile(scholarshipStudent.pdf); }} // Adjust with the correct image path
+												className="text-blue-500 hover:underline text-sm">
+												View PDF
+											</button>
+												{selectedScholarshipStudentId === scholarshipStudent.ScholarshipStudentId && selectedFile && (
+													<PdfPreviewDialog
+														selectedFile={selectedFile}
+														setSelectedFile={setSelectedFile}
+													/>
+												)}
                           </td>
                         </tr>
                     ))}   
