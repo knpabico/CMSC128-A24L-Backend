@@ -80,7 +80,7 @@ export interface Event {
   title: string;
   description: string;
   date: string;
-  rsvps: string[];
+  rsvps: string;
   status: string;
   inviteType: string;
   creatorId: string;
