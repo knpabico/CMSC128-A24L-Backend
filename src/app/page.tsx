@@ -799,29 +799,29 @@ export default function Home() {
                             <div className="flex justify-between mb-1">
                               <div className='flex gap-2 items-center'>
                                 <Users className='size-4 text-[#616161]'/>
-                                <span className="text-[13px] md:text-[15px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
+                                <span className="text-[13px] md:text-[15px] text-gray-500">{donationDrive.donorList?.length || 0} Patrons</span>
                               </div>
-                              {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                              {getDaysRemaining(donationDrive.endDate) === "Not Available" ? "" : (
                               <div className='flex gap-2 items-center'>
                                 <Clock className='size-4 text-[#616161]'/>
-                                <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                                <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrive.endDate)}</span>
                               </div>)}
                             </div>
 
                             {/* progress bar */}
                             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                              {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                              {donationDrive.currentAmount === 0 ? (
                                 <div 
                                 className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
                                 style={{
-                                  width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  width: `${Math.min((donationDrive.currentAmount || 0) / donationDrive.targetAmount * 100, 100)}%`
                                 }}
                               >
                               </div>) : 
                               <div 
                                 className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
                                 style={{
-                                  width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  width: `${Math.min((donationDrive.currentAmount || 0) / donationDrive.targetAmount * 100, 100)}%`
                                 }}
                               >
                               </div>}
