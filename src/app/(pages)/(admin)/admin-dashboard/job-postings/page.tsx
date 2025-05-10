@@ -6,7 +6,7 @@ import type { JobOffering } from "@/models/models"
 import { toastError } from "@/components/ui/sonner"
 import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, CirclePlus, Pencil, CircleX } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/[id]/page"
+import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page"
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date"
