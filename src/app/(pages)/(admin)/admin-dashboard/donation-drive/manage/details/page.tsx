@@ -406,11 +406,11 @@ export default function AddDonationDrive() {
 									</div>
 								</div>
 								<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-									<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}></div>
+									<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(donationDrive!.currentAmount, donationDrive!.targetAmount)}%` }}></div>
 								</div>
 								<div className="flex justify-between my-1 text-sm">
-									<span className="font-medium">₱ {donationDrive.currentAmount.toLocaleString()}</span>
-									<span className="text-gray-500"> ₱ {donationDrive.targetAmount.toLocaleString()}</span>
+									<span className="font-medium">₱ {donationDrive!.currentAmount.toLocaleString()}</span>
+									<span className="text-gray-500"> ₱ {donationDrive!.targetAmount.toLocaleString()}</span>
 								</div>
 							</div>
 							<div className="rounded-lg py-1 px-6">
