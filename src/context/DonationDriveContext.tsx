@@ -53,7 +53,7 @@ export function DonationDriveProvider({
   const [targetAmount, setTargetAmount] = useState(0);
   const [isEvent, setIsEvent] = useState(false);
   const [eventId, setEventId] = useState("");
-  const [endDate, setEndDate] = useState(new Date());
+  const [endDate, setEndDate] = useState<any>();
   const [status, setStatus] = useState("");
   const [oneBeneficiary, setOneBeneficiary] = useState("");
   const [beneficiary, setBeneficiary] = useState<string[]>([""]);
@@ -341,7 +341,7 @@ export function DonationDriveProvider({
       setBeneficiary([]);
       setTargetAmount(0);
       setEventId("");
-      setEndDate(new Date());
+      setEndDate(null);
       setStatus("active");
       setImage(null);
       setPreview(null);
@@ -363,7 +363,7 @@ export function DonationDriveProvider({
       setCampaignName(event.title);
       setImage(event.image);
       setDescription(event.description);
-      setEndDate(new Date(event.date));
+      setEndDate(event.date);
       router.push(`./donations/add`);
     }else{
       console.error("No event found");
@@ -455,13 +455,6 @@ export function DonationDriveProvider({
           console.error("Image upload failed");
         }
       }
-      setCreatorId("");
-      setCampaignName("");
-      setDescription("");
-      setOneBeneficiary("");
-      setBeneficiary([]);
-      setTargetAmount(0);
-      setEndDate(new Date());
       return { success: true, message: "Donation drive edited successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
