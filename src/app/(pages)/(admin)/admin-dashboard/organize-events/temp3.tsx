@@ -677,7 +677,7 @@ export default function EventPageAdmin() {
                   targetGuests,
                   stillAccepting: true,
                   needSponsorship: false,
-                  rsvps: [],
+                  rsvps: "",
                   eventId: "",
                   status: "Accepted",
                   creatorId: "",
