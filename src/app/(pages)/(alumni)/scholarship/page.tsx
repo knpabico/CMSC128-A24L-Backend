@@ -18,7 +18,7 @@ import { useBookmarks } from "@/context/BookmarkContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useFeatured } from "@/context/FeaturedStoryContext";
-import { Featured } from "@/models/models";
+import { Featured, Scholarship, ScholarshipStudent, Student } from "@/models/models";
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -264,7 +264,7 @@ const SortControlDropdown = ({
 };
 
 const ScholarshipPage: React.FC = () => {
-  const { scholarships, loading, error } = useScholarship();
+  const { scholarships, students, scholarshipStudents, loading, error } = useScholarship();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("all");
@@ -277,7 +277,15 @@ const ScholarshipPage: React.FC = () => {
   const router = useRouter();
 
   const { featuredItems, isLoading: featuredLoading } = useFeatured();
+  const [userScholarshipStudent, setUserScholarshipStudent]= useState<ScholarshipStudent[]>([]);
   const [scholarshipStories, setScholarshipStories] = useState<Featured[]>([]);
+  const [scholarshipMapping, setScholarshipMapping] = useState<
+    Record<string, string>
+  >({});
+  const [studentMapping, setStudentMapping] = useState<
+    Record<string, string>
+  >({});
+
 
   useEffect(() => {
     // Filter featured items with type "scholarship"
@@ -289,6 +297,69 @@ const ScholarshipPage: React.FC = () => {
       setScholarshipStories(filteredStories);
     }
   }, [featuredItems]);
+
+  useEffect(() => {
+  //function to fetch student while being mapped to studentId
+  const mapStudent = async () => {
+    if (students.length === 0) return;
+    if (!students) return;
+
+    try {
+      //intialize as empty record
+      const studentMap: Record<string, string> = {};
+      //fetch student
+      const fetchStudent = students.forEach((student: Student) => {
+        studentMap[student.studentId] = student.name;
+      });
+      //set scholarship student map
+      setStudentMapping(studentMap);
+    } catch (error) {
+      console.error("Error fetching scholarshipStudent:", error);
+      return [];
+    }
+  };
+
+  //function to fetch scholarship while being mapped to scholarshipId
+  const mapScholarship = async () => {
+    if (scholarshipStudents.length === 0) return;
+    if (!scholarshipStudents) return;
+
+    try {
+      //intialize as empty record
+      const scholarshipMap: Record<string, string> = {};
+      //fetch student
+      const fetchScholarship = scholarships.forEach((scholarships: Scholarship) => {
+        scholarshipMap[scholarships.scholarshipId] = scholarships.title;
+      });
+      //set scholarship student map
+      setScholarshipMapping(scholarshipMap);
+    } catch (error) {
+      console.error("Error fetching scholarshipStudent:", error);
+      return [];
+    }
+  };
+
+  const fetchUserScholarshipStudent = async () => {
+    if (scholarshipStudents.length === 0) return;
+    if (!scholarshipStudents) return;
+
+    try {
+      //fetch scholarshipStudent of user  
+      const scholarshipStudentList = scholarshipStudents.filter(
+        (scholarship: ScholarshipStudent) => scholarship.alumId === user?.uid
+      );
+      //set user scholarship student
+      setUserScholarshipStudent(scholarshipStudentList);
+    } catch (error) {
+      console.error("Error fetching scholarshipStudent:", error);
+      return [];
+    }
+  };
+
+  mapStudent();
+  mapScholarship();
+  fetchUserScholarshipStudent();
+}, [students, scholarships, scholarshipStudents]);
 
   const handleToggleBookmark = async (
     e: React.MouseEvent,
@@ -626,6 +697,7 @@ const ScholarshipPage: React.FC = () => {
           ) : activeTab === "myScholars" ? (
 						<div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
 							<div className="overflow-x-auto">
+                {userScholarshipStudent.length > 0 ?(
 									<table className="min-w-full divide-y divide-gray-200">
 										<thead className="bg-gray-100">
 											<tr>
@@ -643,25 +715,35 @@ const ScholarshipPage: React.FC = () => {
 												</th>
 											</tr>
 										</thead>
-										<tbody className="bg-white divide-y divide-gray-200">
-											<tr className="hover:bg-gray-50">
-												<td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-700">
-													Schoarship Name
-												</td>
-												<td className="px-4 py-3 text-left whitespace-nowrap text-sm font-medium text-gray-900">
-													Student Name
-												</td>
-												<td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
-													Status
-												</td>
-												<td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
-													<button className="text-blue-500 hover:underline text-sm">
-														View PDF
-													</button>
-												</td>
-											</tr>
-										</tbody>
-									</table>
+                    <tbody className="bg-white divide-y divide-gray-200">
+										{userScholarshipStudent.map((scholarshipStudent) => (
+                        <tr key={scholarshipStudent.ScholarshipStudentId} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-700">
+                            {scholarshipMapping[scholarshipStudent.scholarshipId]}
+                            {/* {'Loading campaign name...'} */}
+                          </td>
+                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm font-medium text-gray-900">
+                            {studentMapping[scholarshipStudent.studentId]}
+                          </td>
+                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
+                            {scholarshipStudent.status}
+                          </td>
+                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500">
+                            <button className="text-blue-500 hover:underline text-sm">
+                              View PDF
+                            </button>
+                          </td>
+                        </tr>
+                    ))}   
+                    </tbody>
+									</table>                                       
+                  ) : (
+                      <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+                        <h3 className="text-xl font-medium text-gray-600">No Sponsorship have been made yet. </h3>
+                        <p className="text-gray-500 mt-2">Waiting for your first Sponsor!</p>
+                      </div>
+                    )
+                  }
 								</div>
 						</div>
 					) : (
