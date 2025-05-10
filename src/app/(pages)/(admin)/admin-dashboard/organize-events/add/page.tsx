@@ -9,9 +9,11 @@ import Breadcrumb from "@/components/breadcrumb"
 import { useEvents } from "@/context/EventContext"
 import { Button } from "@mui/material"
 import ModalInput from "@/components/ModalInputForm"
+import { useAlums } from "@/context/AlumContext"
 
 export default function CreateEventPage() {
-  const router = useRouter()
+  const router = useRouter();
+  const { activeAlums } = useAlums();
 
   // Get event context values
   const {
@@ -79,18 +81,11 @@ export default function CreateEventPage() {
   const years = Array.from({ length: currentYear - 1925 + 1 }, (_, i) => (currentYear - i).toString())
 
   // Sample alumni emails for display
-  const alumniEmails = [
-    "johndoe@example.com",
-    "janedoe@example.com",
-    "robertsmith@example.com",
-    "sarahparker@example.com",
-    "michaeljohnson@example.com",
-    "emilywilson@example.com",
-    "jameslee@example.com",
-    "elizabethmiller@example.com",
-    "davidbrown@example.com",
-    "jenniferdavis@example.com",
-  ]
+  const alumniEmails = activeAlums
+    ? activeAlums
+        .filter(alum => alum.email && alum.activeStatus === true)
+        .map(alum => alum.email)
+    : []
 
   // Filtered years based on search term
   const filteredBatchYears = years.filter((year) => year.toLowerCase().includes(batchSearchTerm.toLowerCase()))
