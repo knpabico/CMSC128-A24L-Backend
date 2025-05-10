@@ -57,6 +57,8 @@ const AddWorkExperience: React.FC<{
   //current year for validation
   const currentYear = new Date().getFullYear();
 
+  const [loading, setLoading] = useState(false);
+
   //function for resetting fields after submission
   const resetFields = () => {
     setIndustry("");
@@ -71,10 +73,11 @@ const AddWorkExperience: React.FC<{
     });
     setCareerProof(null);
     setHasProof(true);
-    setPresentJob(endYear === "present" ? true : false);
+    setPresentJob(false);
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     if (!alumniId) {
       console.error("Missing alumniId. Cannot submit.");
       setMessage("Could not submit: missing alumni ID.");
@@ -121,19 +124,25 @@ const AddWorkExperience: React.FC<{
 
     const result = await addWorkExperience(newWork, alumniId);
 
-    setSuccess(result.success);
-    setMessage(result.message);
     if (result.success) {
       //if endyear is present, upload proof of employment
       if (endYear === "present" && careerProof) {
         //upload proof of employment to firebase
-        uploadDocToFirebase(careerProof, alumniId, result.workExperienceId);
+        await uploadDocToFirebase(
+          careerProof,
+          alumniId,
+          result.workExperienceId
+        );
       }
+
+      setSuccess(result.success);
+      setMessage(result.message);
 
       resetFields();
       onClose();
     }
     // setSnackbar(true);
+    setLoading(false);
   };
 
   //callback for image upload
@@ -322,6 +331,7 @@ const AddWorkExperience: React.FC<{
               <button
                 type="submit"
                 color="primary"
+                disabled={loading}
                 className="w-20 bg-[#0856ba] text-white py-2 px-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
               >
                 Save

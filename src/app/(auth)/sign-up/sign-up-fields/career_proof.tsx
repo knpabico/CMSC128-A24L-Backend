@@ -1,6 +1,5 @@
 "use client";
 import { uploadDocument } from "@/lib/upload";
-import { Button } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { Trash2Icon, UploadIcon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -53,18 +52,18 @@ export const AlumDocumentUpload = ({
   index: number;
   form: any;
 }) => {
-  const [document, setDocument] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [document, setDocument] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [documentType, setDocumentType] = useState("");
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
 
   //ref for resetting current value of the file input button
-  const fileInput = useRef(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
-  const handleDocumentChange = (e) => {
-    const file = e.target.files[0];
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
     if (file) {
       setDocument(file);
       setDocumentType(file.type);
@@ -184,16 +183,6 @@ export const AlumDocumentUpload = ({
           />
         </div>
       )}
-
-      {/* {message && (
-        <p
-          className={`mt-2 text-sm ${
-            isError ? "text-red-600" : "text-green-600"
-          }`}
-        >
-          {message}
-        </p>
-      )} */}
 
       {/*display validation message for document*/}
       {document === null && (
