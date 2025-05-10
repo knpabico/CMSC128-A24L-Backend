@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon, CalendarDaysIcon, HandHeartIcon, LibraryBigIcon, SchoolIcon, Rows3Icon, ArrowRightToLineIcon, ArrowRightIcon, FileUserIcon } from "lucide-react";
+import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon, CalendarDaysIcon, HandHeartIcon, LibraryBigIcon, SchoolIcon, Rows3Icon, ArrowRightToLineIcon, ArrowRightIcon, FileUserIcon, Calendar } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import EditWorkExperience from "@/components/ui/edit-experience-modal"
@@ -508,30 +508,48 @@ const UserProfile = () => {
   
 
   const [sortOrder, setSortOrder] = useState("latest");
-  const getBookmarkDetails = (bookmark:Bookmark) => {
+  const [sortField, setSortField] = useState("dateSaved"); // "dateSaved" or "datePosted"
+  const [sortedBookmarks, setSortedBookmarks] = useState<Bookmark[]>([]);
+
+  const getBookmarkDetails = (bookmark: Bookmark) => {
     if (bookmark.type.toString() === "announcement") {
-      return announces.find((a:Announcement) => a.announcementId === bookmark.entryId);
+      return announces.find((a: Announcement) => a.announcementId === bookmark.entryId);
     }
     if (bookmark.type.toString() === "event") {
-      return events.find((e:Event) => e.eventId === bookmark.entryId);
+      return events.find((e: Event) => e.eventId === bookmark.entryId);
     }
     if (bookmark.type.toString() === "donation_drive") {
-      return donationDrives.find((d:DonationDrive) => d.donationDriveId === bookmark.entryId);
+      return donationDrives.find((d: DonationDrive) => d.donationDriveId === bookmark.entryId);
     }
     if (bookmark.type.toString() === "scholarship") {
-      return scholarships.find((s:Scholarship) => s.scholarshipId === bookmark.entryId);
+      return scholarships.find((s: Scholarship) => s.scholarshipId === bookmark.entryId);
     }
     return null;
   };
-  const sortedBookmarks = [...bookmarks].sort((a, b) => {
-    const aDetails = getBookmarkDetails(a);
-    const bDetails = getBookmarkDetails(b);
-    const aDate = new Date(aDetails?.datePosted || 0).getTime();
-    const bDate = new Date(bDetails?.datePosted || 0).getTime();
-    return sortOrder === "latest" ? bDate - aDate : aDate - bDate;
-  });
-  console.log(sortedBookmarks)
 
+  useEffect(() => {
+    const sorted = [...bookmarks].sort((a, b) => {
+      let aTime = 0;
+      let bTime = 0;
+      
+      if (sortField === "dateSaved") {
+        aTime = a.timestamp?.toMillis ? a.timestamp.toMillis() : new Date(a.timestamp).getTime() || 0;
+        bTime = b.timestamp?.toMillis ? b.timestamp.toMillis() : new Date(b.timestamp).getTime() || 0;
+      } else {
+        const aDetails = getBookmarkDetails(a);
+        const bDetails = getBookmarkDetails(b);
+        
+        aTime = aDetails?.datePosted ? new Date(aDetails.datePosted).getTime() : 0;
+        bTime = bDetails?.datePosted ? new Date(bDetails.datePosted).getTime() : 0;
+      }
+      
+      return sortOrder === "latest" ? bTime - aTime : aTime - bTime;
+    });
+    
+    setSortedBookmarks(sorted);
+  }, [bookmarks, sortOrder, sortField, announces, events, donationDrives, scholarships]);
+
+  
   function formatEventDate(dateString: string) {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -553,8 +571,6 @@ const UserProfile = () => {
       setUploading(true)
     }
   }
-
-  
 
   //pagdagdag sa education
   const handleAddBachelor = () => {
@@ -612,18 +628,6 @@ const UserProfile = () => {
     setEditModalOpen(newEditModal);
   };
 
-  const openModal = (index:number) => {
-    const newDeleteModal = [...isDeleteModalOpen];
-    newDeleteModal[index] = true;
-    setDeleteModalOpen(newDeleteModal);
-  };
-
-  const closeModal = (index:number) => {
-    const newDeleteModal = [...isDeleteModalOpen];
-    newDeleteModal[index] = false;
-    setDeleteModalOpen(newDeleteModal);
-  };
-
   const openMap = (index:number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = true;
@@ -640,10 +644,6 @@ const UserProfile = () => {
   const router=useRouter();
   const alumniId = params.alumniId;
 
-  const goToAlumniDonations = () => {
-    router.push(`/alumni/my-profile/${alumniId}/alumni-donations`);
-  };
-
   if (loading || isLoading) {
     return <LoadingPage />;
   } else if (user?.uid !== alumniId) {
@@ -654,21 +654,6 @@ const UserProfile = () => {
   const currentWorkExperience = userWorkExperience.filter(
     (item: WorkExperience) => item.endYear === "present"
   );
-
-
-  // new (from fe)
-  function getFullMonthName(monthIndex: number) {
-    const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-    return monthNames[monthIndex];
-  }
-
-  const selectedMonth = selectedDate.getMonth();
-  const selectedDay = selectedDate.getDate();
-  const selectedYear = selectedDate.getFullYear();
-  //---------------------------
 
 
 
@@ -1307,6 +1292,42 @@ const UserProfile = () => {
       {seeJobpostings && <AlumniJobOffers/>}
 
       {seeBookmarks && (<div className="mx-50 my-15">
+        <div className="filter-controls flex space-x-4 mb-5 justify-end items-center text-sm">
+          <label htmlFor="sort-field" className="mr-2">Sort by:</label>
+          <div className="relative">
+            <select
+              id="sort-field"
+              value={sortField}
+              onChange={(e) => setSortField(e.target.value)}
+              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
+            >
+              <option value="dateSaved">Date Saved</option>
+              <option value="datePosted">Date Posted</option>
+            </select>
+
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <ChevronDown className="w-4 h-4" />
+            </div>
+          </div>
+
+          <label htmlFor="sort-order" className="mr-2">Order:</label>
+          <div className="relative">
+            <select 
+              id="sort-order" 
+              value={sortOrder} 
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
+            >
+              <option value="latest">Latest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <ChevronDown className="w-4 h-4" />
+            </div>
+          </div>
+        </div>
+
         <div className="flex space-x-7">
 
           <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
@@ -1363,8 +1384,8 @@ const UserProfile = () => {
           {/* all section */}
           {allView && (<div className="w-full">
             <div className="flex flex-col gap-5 w-full">
-              {bookmarks.length > 0 ? (
-                bookmarks.map((bookmark: Bookmark, index:number) => (
+              {sortedBookmarks.length > 0 ? (
+                sortedBookmarks.map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
                     className="bg-white flex flex-col px-5 py-4 rounded-xl max-h-fit space-y-1 w-full shadow-md cursor-pointer hover:bg-gray-50 transition-all duration-300 ease-in-out"
                     // onClick={}
@@ -1577,8 +1598,8 @@ const UserProfile = () => {
 
           {announcementsView && (<div className="w-full">
             <div className="flex flex-col gap-5 w-full">
-              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "announcement").length > 0 ? (
-                bookmarks
+              {sortedBookmarks.length > 0 && sortedBookmarks.filter(bookmark => bookmark.type.toString() === "announcement").length > 0 ? (
+                sortedBookmarks
                 .filter(bookmark => bookmark.type.toString() === "announcement")
                 .map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
@@ -1636,8 +1657,8 @@ const UserProfile = () => {
 
           {eventsView && (<div className="w-full">
             <div className="flex flex-col gap-5 w-full">
-              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "event").length > 0 ? (
-                bookmarks
+              {sortedBookmarks.length > 0 && sortedBookmarks.filter(bookmark => bookmark.type.toString() === "event").length > 0 ? (
+                sortedBookmarks
                 .filter(bookmark => bookmark.type.toString() === "event")
                 .map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
@@ -1700,8 +1721,8 @@ const UserProfile = () => {
 
           {drivesView && (<div className="w-full">
             <div className="flex flex-col gap-5 w-full">
-              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "donation_drive").length > 0 ? (
-                bookmarks
+              {sortedBookmarks.length > 0 && sortedBookmarks.filter(bookmark => bookmark.type.toString() === "donation_drive").length > 0 ? (
+                sortedBookmarks
                 .filter(bookmark => bookmark.type.toString() === "donation_drive")
                 .map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
@@ -1758,8 +1779,8 @@ const UserProfile = () => {
 
           {scholarshipsView && (<div className="w-full">
             <div className="flex flex-col gap-5 w-full">
-              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "scholarship").length > 0 ? (
-                bookmarks
+              {sortedBookmarks.length > 0 && sortedBookmarks.filter(bookmark => bookmark.type.toString() === "scholarship").length > 0 ? (
+                sortedBookmarks
                 .filter(bookmark => bookmark.type.toString() === "scholarship")
                 .map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
@@ -1814,8 +1835,8 @@ const UserProfile = () => {
 
           {jobsView && (<div className="w-full">
             <div className="flex flex-col gap-5 w-full">
-              {bookmarks.length > 0 && bookmarks.filter(bookmark => bookmark.type.toString() === "job_offering").length > 0 ? (
-                bookmarks
+              {sortedBookmarks.length > 0 && sortedBookmarks.filter(bookmark => bookmark.type.toString() === "job_offering").length > 0 ? (
+                sortedBookmarks
                 .filter(bookmark => bookmark.type.toString() === "job_offering")
                 .map((bookmark: Bookmark, index:number) => (
                     <div key={index} 
