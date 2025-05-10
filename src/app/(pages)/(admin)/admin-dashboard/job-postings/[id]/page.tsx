@@ -342,7 +342,21 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                 <button
                   type="button"
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
-                  onClick={() => goBackToList()}
+                  onClick={() => {
+                    // Reset all form states
+                    setPosition("");
+                    setCompany("");
+                    setLocation("");
+                    setJobDescription("");      
+                    setSalaryRange("");
+                    setExperienceLevel("");
+                    setEmploymentType("");
+                    setJobType("");
+                    // Clear skills array
+                    handleSkillChange({ target: { value: "" } });
+                    // Navigate back to list
+                    goBackToList();
+                  }}
                 >
                   Cancel
                 </button>

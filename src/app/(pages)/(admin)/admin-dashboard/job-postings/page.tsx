@@ -257,7 +257,9 @@ export default function Users() {
                 <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
                   <button
                     type="button"
-                    onClick={() => setIsEditing(false)}
+                    onClick={() => 
+                      setIsEditing(false)
+                      }
                     className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
                   >
                     Cancel
