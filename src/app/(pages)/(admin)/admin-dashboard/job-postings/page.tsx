@@ -48,7 +48,9 @@ export default function Users() {
 
   const filterJobs = (status: string) => {
     return jobOffers.filter((job: JobOffering) => {
-      const matchesStatus = job.status === status
+      const matchesStatus = status === "Accepted" 
+        ? job.status === "Accepted" || job.status === "Closed"
+        : job.status === status
       const matchesSearch =
         job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,7 +63,7 @@ export default function Users() {
 
   const stats = {
     pending: jobOffers.filter((job: { status: string }) => job.status === "Pending").length,
-    accepted: jobOffers.filter((job: { status: string }) => job.status === "Accepted").length,
+    accepted: jobOffers.filter((job: { status: string }) => job.status === "Accepted" || job.status === "Closed").length,
     rejected: jobOffers.filter((job: { status: string }) => job.status === "Rejected").length,
     drafts: jobOffers.filter((job: { status: string }) => job.status === "Draft").length,
     total: jobOffers.length,
@@ -343,7 +345,7 @@ export default function Users() {
                       {tab === "Pending"
                         ? stats.pending
                         : tab === "Accepted"
-                          ? stats.accepted
+                          ? stats.accepted 
                           : tab === "Rejected"
                             ? stats.rejected
                             : stats.drafts}
