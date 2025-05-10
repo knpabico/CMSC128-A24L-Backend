@@ -72,7 +72,6 @@ export default function CreateEventPage() {
     location.trim() !== "" &&
     date.trim() !== "" &&
     time.trim() !== "" &&
-    preview !== null &&
     (visibility !== "batch" || selectedBatches.length > 0) &&
     (visibility !== "alumni" || selectedAlumni.length > 0)
 
@@ -120,8 +119,8 @@ export default function CreateEventPage() {
   }
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (buttonType: "Create" | "Draft") => {
+    //e.preventDefault()
     setIsSubmitting(true)
     setErrorMessage("")
 
@@ -164,7 +163,7 @@ export default function CreateEventPage() {
     }
 
     // Handle creation based on selected button
-    if (selectedButton === "Create") {
+    if (buttonType === "Create") {
       const form = document.querySelector("form")
       if (!form || !form.checkValidity()) {
         form?.reportValidity()
@@ -195,9 +194,9 @@ export default function CreateEventPage() {
       }
 
       addEvent(newEvent, true)
-    } else {
+    } else if (buttonType === "Draft") {
       // If button is not "Create", save as draft
-      handleSave(e, image, targetGuests, visibility, "Draft")
+      handleSave(new Event("submit"), image, targetGuests, visibility, "Draft")
     }
 
     resetFormState()
@@ -358,7 +357,6 @@ export default function CreateEventPage() {
                 accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
                 className="sr-only"
                 onChange={handleFileUpload}
-                required
               />
             </label>
           </div>
@@ -374,7 +372,6 @@ export default function CreateEventPage() {
                 setPreview(null)
                 setEventImage("")
                 setFileName("")
-                document.getElementById("image").value = ""
               }}
             >
               <X className="h-5 w-5" />
@@ -565,22 +562,16 @@ export default function CreateEventPage() {
       </button>
 
       <button
-        type="button"
-        onClick={() => {
-          setButton("Draft")
-          handleSubmit(new Event("submit") as any)
-        }}
+        type="submit"
+        onClick={() => handleSubmit("Draft")}
         className="flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
       >
         Save as Draft
       </button>
 
       <button
-        type="button"
-        onClick={() => {
-          setButton("Create")
-          handleSubmit(new Event("submit") as any)
-        }}
+        type="submit"
+        onClick={() => handleSubmit("Create")}
         disabled={isSubmitting || !formComplete}
         className={`flex items-center justify-center gap-2 ${
           formComplete
@@ -607,7 +598,7 @@ export default function CreateEventPage() {
         <form
           ref={formContainerRef}
           className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative"
-          onSubmit={handleSubmit}
+          //onSubmit={handleSubmit}
         >
           <div className="flex flex-col gap-5">
             {/* Event Title */}
@@ -685,7 +676,13 @@ export default function CreateEventPage() {
                   onKeyDown={(e) => e.preventDefault()} // prevent manual typing
                   className="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
-                  min={new Date().toISOString().split("T")[0]}
+                  min={
+                    date
+                    ? new Date(date).toISOString().split("T")[0]
+                    : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                        .toISOString()
+                        .split("T")[0]
+                  }
                 />
               </div>
 
@@ -700,6 +697,8 @@ export default function CreateEventPage() {
                   onChange={(e) => setEventTime(e.target.value)}
                   className="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
+                  min="08:00"
+                  max="22:00"
                 />
               </div>
             </div>
