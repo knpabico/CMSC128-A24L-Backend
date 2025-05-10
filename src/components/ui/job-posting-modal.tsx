@@ -1,11 +1,12 @@
 "use client"
 import React, { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { JobOffering } from "@/models/models"; // Assuming the JobOffering model exists
 import { useJobOffer } from "@/context/JobOfferContext";
 import { useAuth } from "@/context/AuthContext";
-import { MapPin, DollarSign, Briefcase, Award, FileText, XIcon, ChevronDown, Check, FilePenLine, Trash2, Pencil } from "lucide-react";
+import { MapPin, DollarSign, Briefcase, Award, FileText, XIcon, ChevronDown, Check, FilePenLine, Trash2, Pencil, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -126,13 +127,78 @@ const AlumniJobOffers = () => {
     }
   }, []);
 
+  const [sortOrder, setSortOrder] = useState("latest");
+  const [sortedJobs, setSortedJobs] = useState<JobOffering[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("jobId");
+
+  useEffect(() => {
+    setIsSearching(searchQuery.trim().length > 0);
+    
+    const filteredJobs = jobOffers.filter((job:JobOffering) => {
+      if (!searchQuery.trim()) return true;
+      
+      return (
+        job.position?.toLowerCase().includes(searchQuery) || 
+        job.company?.toLowerCase().includes(searchQuery)
+      );
+    });
+
+    const sorted = [...filteredJobs].sort((a, b) => {
+      const aTime = a.datePosted?.toMillis ? a.datePosted.toMillis() : new Date(a.datePosted).getTime() || 0;
+      const bTime = b.datePosted?.toMillis ? b.datePosted.toMillis() : new Date(b.datePosted).getTime() || 0;
+      
+      return sortOrder === "latest" ? bTime - aTime : aTime - bTime;
+    });
+    
+    setSortedJobs(sorted);
+  }, [jobOffers, sortOrder, searchQuery]);
+
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearchQuery(e.target.value.toLowerCase());
+  }
 
 
   return (
-  <div className="mx-50 my-15">
+  <div className="mx-50 mt-10 mb-15">
+    <div className="filter-controls flex space-x-5 mb-5 justify-end items-center text-sm">
+      <div className="flex items-center p-2 pl-5 rounded-full bg-white shadow-sm appearance-none w-fit">
+        <Search className="w-4 h-4 text-gray-400 mr-3"/>
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="focus:outline-none"
+          // className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+          // className="p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
+        />
+      </div>
+
+      <label htmlFor="sort-order" className="mr-2">Order:</label>
+      <div className="relative">
+        <select 
+          id="sort-order" 
+          value={sortOrder} 
+          onChange={(e) => setSortOrder(e.target.value)}
+          className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none"
+        >
+          <option value="latest">Latest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <ChevronDown className="w-4 h-4" />
+        </div>
+      </div>
+    </div>
+
     <div className="flex">
-      <div className="mr-7">
-        <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7">
+      <div className="mr-7 w-content h-max md:sticky md:top-1/7">
+        <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px]">
           <div className="bg-white">
             <ul className="flex flex-col p-1 gap-[10px] rounded-[10px] w-50 h-max">
               <li className='flex gap-5 items-center justify-start cursor-pointer' onClick={handleCreatedView}>
@@ -170,8 +236,8 @@ const AlumniJobOffers = () => {
             selectedJob !== null ? 'w-1/2' : 'w-full'
           }`}
         >
-          {jobOffers.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status !== "Draft").length > 0 ? (
-            jobOffers.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status !== "Draft").map((jobOffer:JobOffering) => (
+          {sortedJobs.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status !== "Draft").length > 0 ? (
+            sortedJobs.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status !== "Draft").map((jobOffer:JobOffering) => (
               <div 
                 key={jobOffer.jobId} 
                 onClick={() => setSelectedJob(jobOffer)} 
@@ -272,7 +338,11 @@ const AlumniJobOffers = () => {
             ))
           ) : (
             <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
-              <p className="text-gray-700">No created job posts yet.</p>
+              {isSearching ? (
+                <p className="text-gray-700">No matches.</p>
+              ) : (
+                <p className="text-gray-700">No created job posts yet.</p>
+              )}
             </div>
           )}
         </div>
@@ -417,8 +487,8 @@ const AlumniJobOffers = () => {
             selectedJob !== null ? 'w-1/2' : 'w-full'
           }`}
         >
-          {jobOffers.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status === "Draft").length > 0 ? (
-            jobOffers.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status === "Draft").map((jobOffer:JobOffering) => (
+          {sortedJobs.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status === "Draft").length > 0 ? (
+            sortedJobs.filter((jobOffer:JobOffering) => jobOffer.alumniId == alumInfo?.alumniId).filter((jobOffer:JobOffering) => jobOffer.status === "Draft").map((jobOffer:JobOffering) => (
               <div 
                 key={jobOffer.jobId} 
                 onClick={() => setSelectedJob(jobOffer)} 
@@ -490,7 +560,11 @@ const AlumniJobOffers = () => {
             ))
           ) : (
             <div className="flex flex-col p-5 max-h-fit space-y-1 w-full justify-center items-center">
-              <p className="text-gray-700">No drafts yet.</p>
+              {isSearching ? (
+                <p className="text-gray-700">No matches.</p>
+              ) : (
+                <p className="text-gray-700">No drafts yet.</p>
+              )}
             </div>
           )}
         </div>

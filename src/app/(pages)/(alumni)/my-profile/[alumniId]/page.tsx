@@ -134,17 +134,6 @@ const UserProfile = () => {
   const { scholarships } = useScholarship();
   const { jobOffers } = useJobOffer();
 
-  // const SORT_TAGS = ["Earliest", "Latest"];
-  // const [latestFirst, setLatestFirst] = useState(true);
-  // const [selectedSort, setSelectedSort] = useState("Latest");
-  // // Sort announcements by date
-  // let filteredAnnounces = [...announces].sort((Button, b) => {
-  //   const dateA = Button.datePosted.seconds;
-  //   const dateB = b.datePosted.seconds;
-  //   return latestFirst ? dateB - dateA : dateA - dateB;
-  // });
-
-
 
   useEffect(() => {
     if (alumInfo) {
@@ -1291,7 +1280,7 @@ const UserProfile = () => {
 
       {seeJobpostings && <AlumniJobOffers/>}
 
-      {seeBookmarks && (<div className="mx-50 my-15">
+      {seeBookmarks && (<div className="mx-50 mt-10 mb-15">
         <div className="filter-controls flex space-x-4 mb-5 justify-end items-center text-sm">
           <label htmlFor="sort-field" className="mr-2">Sort by:</label>
           <div className="relative">
