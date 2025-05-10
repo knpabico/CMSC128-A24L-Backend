@@ -1281,7 +1281,7 @@ const UserProfile = () => {
       {seeJobpostings && <AlumniJobOffers/>}
 
       {seeBookmarks && (<div className="mx-50 mt-10 mb-15">
-        <div className="filter-controls flex space-x-4 mb-5 justify-end items-center text-sm">
+        <div className="filter-controls flex space-x-5 mb-5 justify-end items-center text-sm">
           <label htmlFor="sort-field" className="mr-2">Sort by:</label>
           <div className="relative">
             <select

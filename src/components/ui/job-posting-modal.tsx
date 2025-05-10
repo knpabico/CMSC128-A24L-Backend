@@ -169,12 +169,10 @@ const AlumniJobOffers = () => {
         <Search className="w-4 h-4 text-gray-400 mr-3"/>
         <input
           type="text"
-          placeholder="Search jobs..."
+          placeholder="Search jobs"
           value={searchQuery}
           onChange={handleSearchChange}
           className="focus:outline-none"
-          // className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
-          // className="p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
         />
       </div>
 

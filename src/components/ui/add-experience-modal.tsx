@@ -207,6 +207,12 @@ const AddWorkExperience: React.FC<{
                   </p>
                 </div>)}
               </div>
+              {presentJob === true && (
+              <div className="col-span-12">
+                <p className="text-xs font-light">Proof of Employment</p>
+                {/* palagay nalang dito ng for proof of employment salamatttttttttttttt */}
+              </div>
+              )}
             </div>
 
             <div className="flex justify-end">
