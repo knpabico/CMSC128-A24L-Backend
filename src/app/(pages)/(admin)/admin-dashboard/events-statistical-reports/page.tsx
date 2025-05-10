@@ -101,7 +101,6 @@ const Page = () => {
             <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
             Events Overview
           </h2>
-  
           <div className="flex flex-col lg:flex-row gap-4">
             <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
               <CardHeader className="pb-2">

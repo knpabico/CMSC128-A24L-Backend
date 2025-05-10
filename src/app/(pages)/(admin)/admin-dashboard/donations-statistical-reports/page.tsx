@@ -305,73 +305,81 @@ const DonationReportPage = () => {
         {driveType === "completed" ? (
           // COMPLETED DONATION DRIVES LAYOUT
           <div className="grid grid-cols-12 gap-4">
-            <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                  Users with the Highest Total Donated Amount
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center pt-0 h-[220px]">
-                <BarGraph
-                  labels={[...alumniDonations]
-                    .sort((a, b) => b.totalDonated - a.totalDonated)
-                    .map((user) => user.name)
-                    .slice(0, 5)}
-                  data={[...alumniDonations]
-                    .sort((a, b) => b.totalDonated - a.totalDonated)
-                    .map((donor) => donor.totalDonated)
-                    .slice(0, 5)}
-                  type="Total amount donated (in Php)"
-                />
-              </CardContent>
-            </Card>
-    
-            <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                  Top Completed Drives with Highest Donations
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center pt-0 h-[220px]">
-                <BarGraph
-                  type="Total amount donated (in Php)"
-                  labels={drivesData.map((drive: DonationDrive) => drive.campaignName).slice(0, 5)}
-                  data={drivesData.map((drive: DonationDrive) => drive.currentAmount).slice(0, 5)}
-                />
-              </CardContent>
-            </Card>
-    
-            {/* Report Summary */}
-            <Card className="col-span-4 row-span-2 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100">
-              <CardHeader className="pb-1 border-b border-gray-100">
-                <CardTitle className="flex items-center text-xl font-bold text-gray-800">
-                  <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-                  Report Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="overflow-y-auto h-200">
-                <div className="p-2 rounded-lg">
-                  <ReportSummaryCard data={prompt} />
-                </div>
-              </CardContent>
-            </Card>
-    
-            {/* Middle Row - Donation Trends */}
-            <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                  Completed Donation Trends (Last 5 Years)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center pt-0 h-full">
-                <LineGraph
-                  labels={fiveYearDonationData.map((item) => item.year)}
-                  data={fiveYearDonationData.map((item) => item.amount)}
-                  type="Total donations per year (in Php)"
-                />
-              </CardContent>
-            </Card>
-    
+          <div className="col-span-8 bg-white rounded-xl shadow-sm p-10 border border-gray-100">
+            <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 flex items-center">
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                Active Donations Overview
+              </h2>
+            <div className="grid grid-cols-8 gap-4">
+              <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                    Users with the Highest Total Donated Amount
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center pt-0 h-[220px]">
+                  <BarGraph
+                    labels={[...alumniDonations]
+                      .sort((a, b) => b.totalDonated - a.totalDonated)
+                      .map((user) => user.name)
+                      .slice(0, 5)}
+                    data={[...alumniDonations]
+                      .sort((a, b) => b.totalDonated - a.totalDonated)
+                      .map((donor) => donor.totalDonated)
+                      .slice(0, 5)}
+                    type="Total amount donated (in Php)"
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                    Top Completed Drives with Highest Donations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center pt-0 h-[220px]">
+                  <BarGraph
+                    type="Total amount donated (in Php)"
+                    labels={drivesData.map((drive: DonationDrive) => drive.campaignName).slice(0, 5)}
+                    data={drivesData.map((drive: DonationDrive) => drive.currentAmount).slice(0, 5)}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Bottom Row */}
+              <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                    Completed Donation Trends (Last 5 Years)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center pt-0 h-full">
+                  <LineGraph
+                    labels={fiveYearDonationData.map((item) => item.year)}
+                    data={fiveYearDonationData.map((item) => item.amount)}
+                    type="Total donations per year (in Php)"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Report Summary*/}
+          <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100">
+            <CardHeader className="pb-1 border-b border-gray-100">
+              <CardTitle className="flex items-center text-xl font-bold text-gray-800">
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                Report Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-y-auto h-220">
+              <div className="p-2 rounded-lg">
+                <ReportSummaryCard data={prompt} />
+              </div>
+            </CardContent>
+          </Card>
+
             {/* Bottom Row */}
             <div className="col-span-12 grid grid-cols-12 gap-4">
               <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
@@ -511,61 +519,65 @@ const DonationReportPage = () => {
         ) : (
           // ACTIVE DONATION DRIVES LAYOUT
           <div className="grid grid-cols-12 gap-4">
-            {/* Top Row */}
-            <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                  Users with the Highest Total Donated Amount
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center pt-0 h-full">
-                <BarGraph
-                  labels={[...alumniDonations]
-                    .sort((a, b) => b.totalDonated - a.totalDonated)
-                    .map((user) => user.name)
-                    .slice(0, 5)}
-                  data={[...alumniDonations]
-                    .sort((a, b) => b.totalDonated - a.totalDonated)
-                    .map((donor) => donor.totalDonated)
-                    .slice(0, 5)}
-                  type="Total amount donated (in Php)"
-                />
-              </CardContent>
-            </Card>
-    
-            {/* Report Summary */}
-            <Card className="col-span-4 row-span-2 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100">
-              <CardHeader className="pb-1 border-b border-gray-100">
-                <CardTitle className="flex items-center text-xl font-bold text-gray-800">
-                  <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-                  Report Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="overflow-y-auto h-200">
-                <div className="p-2 rounded-lg">
-                  <ReportSummaryCard data={prompt} />
-                </div>
-              </CardContent>
+            <div className="col-span-8 bg-white rounded-xl shadow-sm p-10 border border-gray-100">
+              <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 flex items-center">
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                Active Donations Overview
+              </h2>
+              <Card className="col-span-12 mb-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                    Users with the Highest Total Donated Amount
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center pt-0 h-full">
+                  <BarGraph
+                    labels={[...alumniDonations]
+                      .sort((a, b) => b.totalDonated - a.totalDonated)
+                      .map((user) => user.name)
+                      .slice(0, 5)}
+                    data={[...alumniDonations]
+                      .sort((a, b) => b.totalDonated - a.totalDonated)
+                      .map((donor) => donor.totalDonated)
+                      .slice(0, 5)}
+                    type="Total amount donated (in Php)"
+                  />
+                </CardContent>
               </Card>
 
-                  {/* Middle Row */}
-                  <Card className="col-span-8 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
-                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                    <CardTitle className="text-lg font-semibold text-gray-700 text-center w-full">
-                      Active Donation Drives' Current-Target Amount Ratio
-                    </CardTitle>
-                    <div className="ml-4 flex-shrink-0">
-                    </div>
-                    </CardHeader>
-                    <CardContent className="flex justify-center items-center h-full">
-                    <GroupedBarGraph
-                      labels={groupedBarData.labels}
-                      currentAmounts={groupedBarData.currentAmounts}
-                      targetAmounts={groupedBarData.targetAmounts}
-                      campaignNames={groupedBarData.campaignNames}
-                    />
-                    </CardContent>
-                  </Card>
+              <Card className="col-span-12 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+                <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-gray-700 text-center w-full">
+                    Active Donation Drives' Current-Target Amount Ratio
+                  </CardTitle>
+                  <div className="ml-4 flex-shrink-0">
+                  </div>
+                </CardHeader>
+                <CardContent className="flex justify-center items-center h-full">
+                  <GroupedBarGraph
+                    labels={groupedBarData.labels}
+                    currentAmounts={groupedBarData.currentAmounts}
+                    targetAmounts={groupedBarData.targetAmounts}
+                    campaignNames={groupedBarData.campaignNames}
+                  />
+                </CardContent>
+              </Card>
+              </div>
+              
+            {/* Report Summary */}
+            <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100">
+              <CardHeader className="pb-1 border-b border-gray-100">
+              <CardTitle className="flex items-center text-xl font-bold text-gray-800">
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                Report Summary
+              </CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-y-auto h-220">
+              <div className="p-2 rounded-lg">
+                <ReportSummaryCard data={prompt} />
+              </div>
+              </CardContent>
+            </Card>
     
             {/* Bottom Row */}
             <Card className="col-span-4 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
