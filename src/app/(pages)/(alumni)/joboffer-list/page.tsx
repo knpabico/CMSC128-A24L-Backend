@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Key, SetStateAction } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
-import { Bookmark } from "@/models/models";
+// Removed duplicate import of Bookmark
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
@@ -82,7 +82,7 @@ export default function JobOffers() {
   const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
   const [draftJobsCurrentPage, setDraftJobsCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
-  const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null as JobOffering | null);
   const [activeFilterCategory, setActiveFilterCategory] = useState<
     string | null
   >(null);
@@ -241,11 +241,11 @@ export default function JobOffers() {
 
   // Saved Jobs pagination
   const filteredSavedJobs = bookmarks
-    .filter((bookmark) => bookmark.type === "job_offering")
-    .map((bookmark) => jobOffers.find((job) => job.jobId === bookmark.entryId))
+    .filter((bookmark: { type: string; }) => bookmark.type === "job_offering")
+    .map((bookmark: { entryId: any; }) => jobOffers.find((job: { jobId: any; }) => job.jobId === bookmark.entryId))
     .filter(Boolean)
     .filter(
-      (job) =>
+      (job: { experienceLevel: string; jobType: string; employmentType: string; requiredSkill: string | string[]; }) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -255,7 +255,7 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
+    .sort((a: { timestamp: { seconds: any; }; datePosted: { seconds: any; }; }, b: { timestamp: { seconds: any; }; datePosted: { seconds: any; }; }) => {
       const dateA = a.timestamp ? a.timestamp.seconds : a.datePosted.seconds;
       const dateB = b.timestamp ? b.timestamp.seconds : b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -271,8 +271,8 @@ export default function JobOffers() {
 
   // Created Jobs pagination
   const filteredCreatedJobs = jobOffers
-    .filter((job) => job.alumniId === user?.uid && job.status !== "Draft") 
-    .filter((job) => {
+    .filter((job: { alumniId: string | undefined; status: string; }) => job.alumniId === user?.uid && job.status !== "Draft") 
+    .filter((job: { experienceLevel: any; jobType: any; employmentType: any; status: any; requiredSkill: string | string[]; }) => {
       if (activeFilters.length === 0) return true;
       return activeFilters.some(
         (filter) =>
@@ -284,7 +284,7 @@ export default function JobOffers() {
           ].includes(filter) || job.requiredSkill.includes(filter)
       );
     })
-    .sort((a, b) => {
+    .sort((a: { datePosted: { seconds: any; }; }, b: { datePosted: { seconds: any; }; }) => {
       const dateA = a.datePosted.seconds;
       const dateB = b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -302,9 +302,9 @@ export default function JobOffers() {
 
   // Draft Jobs pagination
   const filteredDraftJobs = jobOffers
-    .filter((job) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
+    .filter((job: { status: string; alumniId: string | undefined; }) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
     .filter(
-      (job) =>
+      (job: { experienceLevel: string; jobType: string; employmentType: string; requiredSkill: string | string[]; }) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -314,7 +314,7 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
+    .sort((a: { datePosted: { seconds: any; }; }, b: { datePosted: { seconds: any; }; }) => {
       const dateA = a.datePosted.seconds;
       const dateB = b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -425,7 +425,7 @@ export default function JobOffers() {
                     <div className="space-y-2">
                       {filterCategories[
                         activeFilterCategory as keyof typeof filterCategories
-                      ].map((filter) => (
+                      ]?.map((filter) => (
                         <div key={filter} className="flex items-center">
                           <input
                             type="checkbox"
@@ -571,7 +571,7 @@ export default function JobOffers() {
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
+                              job && selectedJob !== null && selectedJob.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
                             }`}
@@ -579,7 +579,7 @@ export default function JobOffers() {
                           >
                             <div className="flex">
                               <div className="mr-2">
-                                {job.image ? (
+                                {job && typeof job !== 'function' && job.image ? (
                                   <img
                                     src={job.image}
                                     alt={`${job.company} logo`}
@@ -587,25 +587,25 @@ export default function JobOffers() {
                                   />
                                 ) : (
                                   <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
+                                    {job && job.company ? job.company.charAt(0).toUpperCase() : ""}
                                   </div>
                                 )}
                               </div>
                               <div className="flex-1">
                                 <h2 className="font-semibold text-md">
-                                  {job.position}
+                                  {job ? job.position : "Unknown Position"}
                                 </h2>
                                 <p className="text-sm text-gray-600">
-                                  {job.company}
+                                  {typeof job !== 'function' && job?.company}
                                 </p>
                                 <p className="text-xs text-[#0856BA] flex items-center">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
+                                  {job && typeof job !== 'function' && job.location}
                                 </p>
                               </div>
                               <div className="ml-2">
                                 <BookmarkButton
-                                  entryId={job.jobId}
+                                  entryId={job?.jobId || ""}
                                   type="job_offering"
                                   size="sm"
                                 />
@@ -660,7 +660,7 @@ export default function JobOffers() {
               ) : sidebarFilter === "Saved Jobs" ? (
                 <div className="space-y-2">
                   {bookmarks.filter(
-                    (bookmark: Bookmark) => bookmark.type === "job_offering"
+                    (bookmark: { type: string }) => bookmark.type === "job_offering"
                   ).length === 0 ? (
                     <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
                       <p className="text-lg">No saved jobs found.</p>
@@ -668,11 +668,11 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentSavedJobs.map((job, index) => (
+                        {currentSavedJobs.map((job: SetStateAction<JobOffering | null>, index: Key | null | undefined) => (
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
+                              job && selectedJob && selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
                             }`}
@@ -680,7 +680,7 @@ export default function JobOffers() {
                           >
                             <div className="flex">
                               <div className="mr-3">
-                                {job.image ? (
+                                {job && typeof job !== 'function' && job.image ? (
                                   <img
                                     src={job.image}
                                     alt={`${job.company} logo`}
@@ -688,25 +688,25 @@ export default function JobOffers() {
                                   />
                                 ) : (
                                   <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
+                                    {typeof job !== 'function' && job?.company?.charAt(0).toUpperCase() || ""}
                                   </div>
                                 )}
                               </div>
                               <div className="flex-1">
                                 <h2 className="font-semibold text-md">
-                                  {job.position}
+                                  {typeof job !== 'function' && job?.position}
                                 </h2>
                                 <p className="text-sm text-gray-600">
-                                  {job.company}
+                                  {typeof job !== 'function' && job?.company}
                                 </p>
                                 <p className="text-xs text-[#0856BA] flex items-center">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
+                                  {job && typeof job !== 'function' && job.location}
                                 </p>
                               </div>
                               <div className="ml-2">
                                 <BookmarkButton
-                                  entryId={job.jobId}
+                                  entryId={typeof job === 'object' && job !== null ? job.jobId : ""}
                                   type="job_offering"
                                   size="sm"
                                 />
@@ -774,11 +774,11 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentCreatedJobs.map((job, index) => (
+                        {currentCreatedJobs.map((job: SetStateAction<JobOffering | null>, index: Key | null | undefined) => (
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
+                              typeof selectedJob !== 'function' && selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
                             }`}
@@ -845,9 +845,9 @@ export default function JobOffers() {
                               {/* Status label */}
                               <span
                                 className={`px-2 py-1 rounded text-xs font-medium ${
-                                  job.status === "Accepted"
+                                  job && typeof job !== 'function' && job.status === "Accepted"
                                     ? "bg-green-100 text-green-700"
-                                    : job.status === "Rejected"
+                                    : job && typeof job !== 'function' && job.status === "Rejected"
                                     ? "bg-red-100 text-red-700"
                                     : job.status === "Closed"
                                     ? "bg-red-100 text-red-700"
@@ -927,7 +927,7 @@ export default function JobOffers() {
                   ) : (
                   <>
                   <div className="space-y-2">
-                  {filteredDraftJobs.map((job, index) => (
+                  {filteredDraftJobs.map((job: SetStateAction<JobOffering | null>, index: Key | null | undefined) => (
                     <div
                       key={index}
                       className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${

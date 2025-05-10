@@ -290,9 +290,9 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                       value={salaryRange}
                       onChange={(e) => setSalaryRange(e.target.value)}
                       onInput={(e) => {
-                        const value = e.target.value
+                        const value = (e.target as HTMLInputElement).value
                         if (!/^[0-9-]*$/.test(value)) {
-                          e.target.value = value.replace(/[^0-9-]/g, "")
+                          (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "")
                         }
                       }}
                       pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
