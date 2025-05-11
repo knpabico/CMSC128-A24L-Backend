@@ -272,7 +272,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         setAlums(userList);
   
         const nonPendingAlums = userList.filter(
-          (user:Alumnus) => user.regStatus !== "pending"
+          (user:Alumnus) => user.regStatus !== "pending" && user.regStatus !== "rejected" 
         );
         console.log(nonPendingAlums.length, "non-pending total");
         setTotalAlums(nonPendingAlums.length);
@@ -333,8 +333,26 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       console.log(activeAlums, "this is activeAlums");
       return inactiveAlums;
     }
-}
+  }
 
+//use to handle approve and rejecion
+  const onUpdateRegStatus = async (alumniId: string, regStatus: RegStatus) => {
+    try {
+      const alumniRef = doc(db, "alumni", alumniId);
+      
+      const updateData = {
+        regStatus: regStatus
+      };
+      
+      await updateDoc(alumniRef, updateData);
+      console.log(alumniId, "HSDFGHJKJHGFDSDFGHJ");
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update alumni registration status:", error);
+      return { success: false, message: (error as Error).message };
+    }
+  };
 
 
     const getPendingAlums = (alums:Alumnus[])=>{
@@ -394,7 +412,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         getActiveAlums,
         getInactiveAlums,
         getPendingAlums,
-        updateAlumnusRegStatus
+        updateAlumnusRegStatus,
+        onUpdateRegStatus
       }}
     >
       {children}

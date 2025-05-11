@@ -12,25 +12,49 @@ import {
 } from '@/components/ui/dialog';
 import type { Timestamp } from 'firebase/firestore'; 
 import { RegStatus } from '@/types/alumni/regStatus';
+import { useAlums } from '@/context/AlumContext';
+
 
 interface AlumniDetailsModalProps {
   alumnus: Alumnus | null;
   isOpen: boolean;
   onClose: () => void;
-  onTogglePendingStatus: (alumniId: string, regStatus: RegStatus) => void;
+  onUpdateRegStatus: (alumniId: string, regStatus: RegStatus) => void;
 }
 
 const AlumniDetailsModal = ({
   alumnus,
   isOpen,
   onClose,
-  onTogglePendingStatus,
+  onUpdateRegStatus,
 }: AlumniDetailsModalProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   // Safety check
   if (!alumnus) return null;
-
-  const handleTogglePending = () => {
-    onTogglePendingStatus(alumnus.alumniId, 'approved');
+  
+  const handleApprove = async () => {
+    setIsSubmitting(true);
+    try {
+      await onUpdateRegStatus(alumnus.alumniId, 'approved');
+      onClose();
+    } catch (error) {
+      console.error("Error approving alumni:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleReject = async () => {
+    setIsSubmitting(true);
+    try {
+      await onUpdateRegStatus(alumnus.alumniId, 'rejected');
+      onClose();
+    } catch (error) {
+      console.error("Error rejecting alumni:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Helper function to format dates safely
@@ -65,8 +89,13 @@ const AlumniDetailsModal = ({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             {alumnus.firstName} {alumnus.middleName} {alumnus.lastName} {alumnus.suffix}
-            <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${alumnus.activeStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {alumnus.activeStatus ? 'Active' : 'Inactive'}
+            <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+              alumnus.regStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+              alumnus.regStatus === 'approved' ? 'bg-green-100 text-green-800' : 
+              'bg-red-100 text-red-800'
+            }`}>
+              {alumnus.regStatus === 'pending' ? 'Pending' : 
+               alumnus.regStatus === 'approved' ? 'Approved' : 'Rejected'}
             </span>
           </DialogTitle>
         </DialogHeader>
@@ -161,16 +190,30 @@ const AlumniDetailsModal = ({
               </div>
             </div>
           </div>
+
+
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between">
-          <Button 
-            onClick={handleTogglePending}
-            variant={alumnus.activeStatus ? "destructive" : "default"}
-            className={alumnus.activeStatus ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
-          >
-            {alumnus.regStatus ? "Approve Registration" : "Disapproved Registration"}
-          </Button>
+        <DialogFooter className="flex flex-wrap gap-2 justify-between sm:justify-end">
+          {alumnus.regStatus === 'pending' && (
+            <>
+              <Button 
+                onClick={handleApprove}
+                disabled={isSubmitting}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Approve Registration
+              </Button>
+              <Button 
+                onClick={handleReject}
+                disabled={isSubmitting}
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Reject Registration
+              </Button>
+            </>
+          )}
           <DialogClose asChild>
             <Button variant="outline">Close</Button>
           </DialogClose>

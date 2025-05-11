@@ -18,7 +18,7 @@ import { RegStatus } from "@/types/alumni/regStatus";
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
-  const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus, getPendingAlums, updateAlumnusRegStatus} = useAlums();
+  const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus, getPendingAlums, updateAlumnusRegStatus,onUpdateRegStatus} = useAlums();
   const {donationDrives} = useDonationDrives();
   const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
   const {scholarships} = useScholarship();
@@ -287,8 +287,8 @@ export default function AdminDashboard() {
           <AlumniDetailsModal
             alumnus={selectedAlumnus}
             isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            onTogglePendingStatus={handleTogglePendingStatus}
+            onClose={() => setIsModalOpen(false)}
+            onUpdateRegStatus={onUpdateRegStatus}
           />
         </Card>
 
