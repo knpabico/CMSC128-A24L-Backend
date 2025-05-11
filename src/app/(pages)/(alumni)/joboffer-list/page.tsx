@@ -34,6 +34,7 @@ import {
 import Banner from "@/components/Banner";
 import { set } from "zod";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
