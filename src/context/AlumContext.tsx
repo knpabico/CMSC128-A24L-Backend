@@ -261,8 +261,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   const subscribeToUsers = () => {
     setLoading(true);
     const q = query(collection(db, "alumni"));
-
-    //listener for any changes
+  
+    // Listener for any changes
     const unsubscribeUsers = onSnapshot(
       q,
       (querySnapshot: any) => {
@@ -270,8 +270,13 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setAlums(userList);
-        console.log(userList.length, "total");
-        setTotalAlums(userList.length);
+  
+        const nonPendingAlums = userList.filter(
+          (user:Alumnus) => user.regStatus !== "pending"
+        );
+        console.log(nonPendingAlums.length, "non-pending total");
+        setTotalAlums(nonPendingAlums.length);
+  
         setLoading(false);
       },
       (error) => {
@@ -279,9 +284,10 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     );
-
+  
     return unsubscribeUsers;
   };
+  
 
   const subscribeToActiveUsers = () => {
     setLoading(true);

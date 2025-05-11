@@ -7,7 +7,7 @@ import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience,Event, DonationDrive, Scholarship, JobOffering } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import DonutChart from "@/components/charts/DonutChart";
-import React, {useState} from "react";
+import React, {useState,useMemo} from "react";
 import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
@@ -54,6 +54,12 @@ export default function AdminDashboard() {
     // Here you would typically update your state or refetch data
   };
 
+    const inactiveAlums = useMemo(() => {
+      return alums.filter(
+        (alum: Alumnus) =>
+          alum.activeStatus === false && alum.regStatus === "approved"
+      );
+    }, [alums]);
 
   const fields = [
     "Artificial Intelligence (AI)",
@@ -234,7 +240,7 @@ export default function AdminDashboard() {
               </div>
               <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
                 <div className="text-sm text-gray-500 mb-1">Inactive</div>
-                <div className="text-2xl font-bold">{getInactiveAlums(alums).length}</div>
+                <div className="text-2xl font-bold">{inactiveAlums.length}</div>
               </div>
             </div>
           </div>
