@@ -411,7 +411,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         handleEdit,
         updateStatus,
         handleSaveDraft,
-        handleEditDraft
+        handleEditDraft,
+        setPreview,
+        setFileName
       }}
     >
       {children}

@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import ModalInput from "@/components/ModalInputForm"
 import { toastError, toastSuccess } from "@/components/ui/sonner"
 import { useRouter } from "next/navigation"
+import { set } from "zod"
 
 
 export default function PostJobPage({ goBackToList }: { goBackToList: () => void }) {
@@ -40,6 +41,9 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
     fileName,
     handleImageChange,
     handleSaveDraft,
+    setJobImage,
+    setPreview,
+    setFileName
   } = useJobOffer()
 
   const resetForm = () => {
@@ -51,7 +55,10 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
     setExperienceLevel("")
     setEmploymentType("")
     setJobType("")
-    handleSkillChange({ target: { value: "" } })
+    handleSkillChange({ target: { value: "" } }),
+    setJobImage(null),
+    setPreview(null),
+    setFileName("")
   }
 
 
@@ -119,7 +126,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                 await handleSubmit(e)
                 toastSuccess("Job submitted successfully.")
                 resetForm()
-                router.push('/admin-dashboard/job-postings')
+                goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings')
               } catch (error) {
                 console.error("Error submitting job:", error)
                 toastError("There was an error submitting the job. Please try again.")
@@ -364,7 +371,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
                   onClick={() => {
                     resetForm()
-                    router.push('/admin-dashboard/job-postings')
+                    goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings')
                   }}
                 >
                   Cancel
