@@ -10,6 +10,7 @@ import { useDonationDrives } from "@/context/DonationDriveContext";
 import { Calendar, Clock, ImageOff, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import { useEffect } from "react";
+import { useNewsLetters } from "@/context/NewsLetterContext";
 
 interface DonationDriveCardProps {
   drive: DonationDrive;
@@ -24,26 +25,9 @@ const DonationDriveCard = ({
 }: DonationDriveCardProps) => {
   const router = useRouter();
   const { user, alumInfo } = useAuth();
+  const { deleteNewsLetter } = useNewsLetters();
   const {
-    showForm,
-    setShowForm,
-    handleBenefiaryChange,
-    handleAddBeneficiary,
-    handleRemoveBeneficiary,
-    handleSave,
     handleEdit,
-    campaignName,
-    setCampaignName,
-    description,
-    setDescription,
-    oneBeneficiary,
-    setOneBeneficiary,
-    beneficiary,
-    setBeneficiary,
-    targetAmount,
-    setTargetAmount,
-    endDate,
-    setEndDate,
   } = useDonationDrives();
 
   // Format timestamp to readable date
@@ -111,11 +95,12 @@ const DonationDriveCard = ({
             `Drive ${drive.campaignName} marked as completed due to expiration`
           );
         }
+        await deleteNewsLetter(drive.donationDriveId);
       } catch (err) {
         console.error("Error checking drive expiration:", err);
       }
     };
-
+    
     checkAndUpdateExpiredDrive();
   }, [drive]);
 
@@ -134,6 +119,7 @@ const DonationDriveCard = ({
             `Drive ${drive.campaignName} marked as completed due to target amount acquired`
           );
         }
+        await deleteNewsLetter(drive.donationDriveId);
       } catch (err) {
         console.error("Error checking drive completion:", err);
       }
