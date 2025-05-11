@@ -48,7 +48,7 @@ const AddWorkExperience: React.FC<{
       console.error("Missing alumniId. Cannot submit.");
       setMessage("Could not submit: missing alumni ID.");
       setSuccess(false);
-      setSnackbar(true);
+      // setSnackbar(true);
       return;
     }
   
@@ -70,13 +70,13 @@ const AddWorkExperience: React.FC<{
     setSuccess(result.success);
     setMessage(result.message);
     if (result.success) onClose();
-    setSnackbar(true);
+    // setSnackbar(true);
   };
 
-  const [presentJob, setPresentJob] = useState(endYear === "Present" ? true : false);
+  const [presentJob, setPresentJob] = useState(endYear === "present" ? true : false);
   const handlePresentJob = (value: boolean) => {
     setPresentJob(value);
-    setEndYear(value === true ? "Present" : endYear)
+    setEndYear(value === true ? "present" : endYear)
   };
   
 
@@ -190,7 +190,7 @@ const AddWorkExperience: React.FC<{
                   />)}
                 {presentJob === true && (
                   <p className="cursor-not-allowed bg-gray-300 py-2 px-3 border border-gray-500 w-full text-gray-500 rounded-md">
-                    Present
+                    present
                   </p>
                 )}
                 {/* pag wala pang present job, tsaka lang lalabas yung checkbox ng present job */}

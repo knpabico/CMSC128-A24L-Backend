@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
+import { useAlums } from "@/context/AlumContext";
 
 const EventPageAdmin = () => {
   const {
@@ -49,10 +50,12 @@ const EventPageAdmin = () => {
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
 
-  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails(events);
+  const { rsvpDetails, alumniDetails } = useRsvpDetails();
   const [rsvpFilter, setRsvpFilter] = useState("All");
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { alums } = useAlums();
 
   useEffect(() => {
     // Properly show the selected filter when Editing the values
@@ -98,6 +101,21 @@ const EventPageAdmin = () => {
     date.trim() !== "" &&
     time.trim() !== "" &&
     location.trim() !== "";
+
+  const resetFormState = () => {
+    setEdit(false);
+    setEventTitle(""); 
+    setEventDescription("");
+    setEventDate("");
+    setEventTime("");
+    setEventLocation("");
+    setEventImage("");
+    setVisibility("all");
+    setSelectedBatches([]);
+    setSelectedAlumni([]);
+    setFileName("");
+    setErrorMessage("");
+  };
 
   return (
     <div className="p-4">
@@ -173,6 +191,8 @@ const EventPageAdmin = () => {
               const form = document.querySelector("form");
               if (form && form.checkValidity()) {
                 handleSave(e, targetGuests, visibility, "Pending"); // Pass the value entered in the current form
+                resetFormState(); // ← Reset the form
+                setShowForm(false); // Close the modal
               } else {
                 form?.reportValidity(); // Show browser's validation tooltips
               }
@@ -221,7 +241,6 @@ const EventPageAdmin = () => {
               mainTitle={title}
               subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
             />
-
             <div className="flex gap-4 mb-4">
               <div className="w-1/2">
                 <input
@@ -415,7 +434,10 @@ const EventPageAdmin = () => {
             <div className="flex justify-between">
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                      resetFormState();
+                      setShowForm(false);
+                    }}
                 className="text-gray-500"
               >
                 Cancel
@@ -444,45 +466,40 @@ const EventPageAdmin = () => {
             <p className="text-gray-700">{event.donationDriveId}</p>
           )}
           <h3>RSVPs:</h3>
-          {event.rsvps?.length > 0 ? (
+          {event.rsvps && event.rsvps.length > 0 ? (
             <div>
-              {event.rsvps.map((rsvpId, index) => {
-                const rsvp = rsvpDetails[rsvpId];
-                const alumni = rsvp?.alumniId
-                  ? alumniDetails[rsvp.alumniId]
-                  : null;
+              {rsvpDetails
+                .filter((rsvp) => rsvp.postId === event.eventId)
+                .flatMap((rsvp) =>
+                  Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
+                    const { status } = alumData as { status: string };
+                    const alumni = alums.find((a) => a.alumniId === alumniId);
 
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      border: "1px solid #eee",
-                      padding: "10px",
-                      marginBottom: "5px",
-                    }}
-                  >
-                    {rsvp ? (
-                      rsvp.error ? (
-                        <p>{rsvp.error}</p>
-                      ) : alumni ? (
-                        <>
-                          <p>
-                            <strong>Name:</strong> {alumni.firstName}{" "}
-                            {alumni.lastName}
-                          </p>
-                          <p>
-                            <strong>Status:</strong> {rsvp.status}
-                          </p>
-                        </>
-                      ) : (
-                        <p>Alumni details not found.</p>
-                      )
-                    ) : (
-                      <p>Loading RSVP details...</p>
-                    )}
-                  </div>
-                );
-              })}
+                    return (
+                      <div
+                        key={`${rsvp.rsvpId}-${alumniId}`}
+                        style={{
+                          border: "1px solid #eee",
+                          padding: "10px",
+                          marginBottom: "5px",
+                        }}
+                      >
+                        {alumni ? (
+                          <>
+                            <p>
+                              <strong>Name:</strong> {alumni.firstName} {alumni.lastName}
+                            </p>
+                            <p>
+                              <strong>Status:</strong> {status}
+                            </p>
+                          </>
+                        ) : (
+                          <p>Alumni details not found for ID: {alumniId}</p>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
             </div>
           ) : (
             <p>No RSVPs yet.</p>
@@ -492,7 +509,7 @@ const EventPageAdmin = () => {
             event.creatorType === "alumni" ? (
               <div className="flex flex-col gap-2 mt-4">
                 <button
-                  onClick={() => addEvent(event, true, false)}
+                  onClick={() => addEvent(event, true)}
                   className="px-4 py-2 bg-green-500 text-white rounded-md"
                 >
                   Accept Proposal
@@ -517,7 +534,7 @@ const EventPageAdmin = () => {
             ) : (
               <div className="flex flex-col gap-2 mt-4">
                 <button
-                  onClick={() => addEvent(event, true, false)}
+                  onClick={() => addEvent(event, true)}
                   className="px-4 py-2 bg-green-500 text-white rounded-md"
                 >
                   Finalize
@@ -543,18 +560,6 @@ const EventPageAdmin = () => {
                 </button>
               </div>
             )
-          ) : event.status === "Accepted" ? (
-            <div className="flex flex-col gap-2 mt-4">
-              <button
-                onClick={() => {
-                  handleDelete(event.eventId); // Deletes the event
-                  router.back(); // Navigates back after the delete
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded-md"
-              >
-                Delete
-              </button>
-            </div>
           ) : null}
         </div>
       ) : (

@@ -1,15 +1,15 @@
 "use client";
 
 // import { useState } from 'react';
-import { useRouter } from "next/navigation";
 import { DonationDrive, Event } from "@/models/models";
+import { useRouter } from "next/navigation";
 // import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from "@/components/ui/bookmark-button";
-import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useAuth } from "@/context/AuthContext";
-import { Users, Clock, MapPin, Calendar, ImageOff } from "lucide-react";
+import { useDonationDrives } from "@/context/DonationDriveContext";
+import { Calendar, Clock, ImageOff, MapPin, Users } from "lucide-react";
+import Image from "next/image";
 import { useEffect } from "react";
-import { Timestamp } from "firebase-admin/firestore";
 
 interface DonationDriveCardProps {
   drive: DonationDrive;
@@ -65,7 +65,7 @@ const DonationDriveCard = ({
   const getRemainingDays = (endDate: any) => {
     try {
       const today = new Date(); // Current date
-      const end = endDate.toDate(); // Firestore Timestamp to JS Date
+      const end = new Date(endDate); // Firestore Timestamp to JS Date
       const diffTime = end.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -82,7 +82,7 @@ const DonationDriveCard = ({
       const now = new Date();
 
       const todayOnly = new Date(); // Current date
-      const endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
+      const endDateOnly = new Date(endDate); // Firestore Timestamp to JS Date
 
       // Calculate difference in days
       const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
@@ -92,7 +92,8 @@ const DonationDriveCard = ({
       return differenceInDays;
       // Return 0 if ended or negative
     } catch (err) {
-      return "Not Available";
+      console.error("Not Available");
+      return 0;
     }
   }
   useEffect(() => {
@@ -104,7 +105,7 @@ const DonationDriveCard = ({
 
         const isExpired = getDaysRemaining(endDate);
 
-        if (isExpired && drive.status !== "completed") {
+        if (isExpired <= 0 && drive.status !== "completed") {
           await handleEdit(drive.donationDriveId, { status: "completed" });
           console.log(
             `Drive ${drive.campaignName} marked as completed due to expiration`
@@ -116,6 +117,29 @@ const DonationDriveCard = ({
     };
 
     checkAndUpdateExpiredDrive();
+  }, [drive]);
+
+  useEffect(() => {
+    const checkAndUpdateCompletedDrive = async () => {
+      try {
+        if (!drive) return;
+
+        const target = drive.targetAmount;
+
+        const current = drive.currentAmount;
+
+        if (target <= current && drive.status !== "completed") {
+          await handleEdit(drive.donationDriveId, { status: "completed" });
+          console.log(
+            `Drive ${drive.campaignName} marked as completed due to target amount acquired`
+          );
+        }
+      } catch (err) {
+        console.error("Error checking drive completion:", err);
+      }
+    };
+
+    checkAndUpdateCompletedDrive();
   }, [drive]);
 
   // Calculate progress percentage
@@ -138,62 +162,69 @@ const DonationDriveCard = ({
         onClick={() => handleViewDetails(drive.donationDriveId)}
       >
         {/* Image */}
-        <div
-          className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
-          style={{ backgroundImage: 'url("/ICS3.jpg")' }}
-        >
-          <span
-            className={`absolute bottom-2 right-2 px-3 py- text-sm rounded-full ${
-              drive.status === "active"
-                ? "bg-green-100 text-green-800 px-2 py-1 font-bold"
-                : drive.status === "completed"
-                ? "bg-blue-100 text-blue-800 px-2 py-1 font-bold"
-                : drive.status === "pending"
-                ? "bg-yellow-100 text-yellow-800 px-2 py-1 font-bold"
-                : "bg-gray-100 text-gray-800"
-            }`}
-          >
-            {drive.status === "completed"
-              ? "Closed"
-              : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-          </span>
-        </div>
-        {/* {event?.image || drive.image ? (
-				<div className="relative">
-					{drive.isEvent && event ? (
-						<img src={event.image} alt={event.title} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
-					) : (
-						<img src={drive.image} alt={drive.campaignName} className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover" />
-					)}
-					{!drive.isEvent && (
-						<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
-							drive.status === 'active' ? 'bg-green-100 text-green-800' :
-							drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-							drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-							'bg-gray-100 text-gray-800'
-						}`}>
-							{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-						</span>
-					)}
-				</div>
-			) : (
-				<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
-					{!drive.isEvent && (
-						<span className={`absolute top-2 right-2 px-3 py-1 text-sm rounded-full ${
-							drive.status === 'active' ? 'bg-green-100 text-green-800' :
-							drive.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-							drive.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-							'bg-gray-100 text-gray-800'
-						}`}>
-							{drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
-						</span>
-					)}
-					<span className="text-blue-500 font-medium">
-						<ImageOff className="size-[50px]" />
-					</span>
-				</div>
-			)} */}
-
+        {event?.image || drive.image ? (
+          <div className="relative">
+            {drive.isEvent && event ? (
+              <Image
+                sizes="100vw"
+                width={0}
+                height={0}
+                priority
+                src={event.image}
+                alt={event.title}
+                className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover"
+              />
+            ) : (
+              <Image
+                sizes="100vw"
+                width={0}
+                height={0}
+                priority
+                src={drive.image}
+                alt={drive.campaignName}
+                className="bg-cover bg-center rounded-t-[10px] h-[230px] w-full object-cover"
+              />
+            )}
+            {/* Status badge - always shown in bottom right */}
+            <span
+              className={`absolute bottom-2 right-2 px-2 py-1 text-sm rounded-full font-bold ${
+                drive.status === "active"
+                  ? "bg-green-100 text-green-800"
+                  : drive.status === "completed"
+                  ? "bg-blue-100 text-blue-800"
+                  : drive.status === "pending"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {drive.status === "completed"
+                ? "Closed"
+                : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+            </span>
+          </div>
+        ) : (
+          <div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
+            <span className="text-blue-500 font-medium">
+              <ImageOff className="size-[50px]" />
+            </span>
+            {/* Status badge - always shown in bottom right */}
+            <span
+              className={`absolute bottom-2 right-2 px-2 py-1 text-sm rounded-full font-bold ${
+                drive.status === "active"
+                  ? "bg-green-100 text-green-800"
+                  : drive.status === "completed"
+                  ? "bg-blue-100 text-blue-800"
+                  : drive.status === "pending"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {drive.status === "completed"
+                ? "Closed"
+                : drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+            </span>
+          </div>
+        )}
         {/* Content */}
         <div className="px-6 pt-3 pb-6">
           {/* Campaign Name */}
@@ -208,17 +239,23 @@ const DonationDriveCard = ({
             />
           </div>
           {/* Description */}
-          <div className="mb-5 text-sm h-10 overflow-hidden text-clip">
-            <p className="text-start">
-              {drive.isEvent && event
-                ? event.description.length > 100
+          {drive.isEvent && event ? (
+            <div className="mb-5 text-sm h-10 overflow-hidden text-clip">
+              <p className="text-start">
+                {event.description.length > 100
                   ? event.description.slice(0, 100) + "..."
-                  : event.description
-                : drive.description.length > 100
-                ? drive.description.slice(0, 100) + "..."
-                : drive.description}
-            </p>
-          </div>
+                  : event.description}
+              </p>
+            </div>
+          ) : (
+            <div className="mb-5 text-sm h-19 overflow-hidden text-clip">
+              <p className="text-start">
+                {drive.description.length > 200
+                  ? drive.description.slice(0, 200) + "..."
+                  : drive.description}
+              </p>
+            </div>
+          )}
           {/* Details */}
           {drive.isEvent && event ? (
             <div className="mt-5">

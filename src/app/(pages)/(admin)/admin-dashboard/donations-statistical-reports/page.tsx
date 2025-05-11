@@ -1,14 +1,17 @@
 "use client";
 import BarGraph from "@/components/charts/BarGraph";
+import LineGraph from "@/components/charts/LineGraph";
 import { useAlums } from "@/context/AlumContext";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { Alumnus, Donation, DonationDrive } from "@/models/models";
-import { Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Dropdown from "@/components/ui/dropdown";
+import ReportSummaryCard from "@/components/ReportSummaryCard";
+import GroupedBarGraph from "@/components/charts/GroupedBarGraph";
+
 const DonationReportPage = () => {
   const { alums } = useAlums();
   const { getAllDonations } = useDonationContext();
@@ -98,27 +101,175 @@ const DonationReportPage = () => {
     );
   }, [currentDrives]);
 
+  // Calculate donations by year based on selected drive type
+  const donationsByYear = useMemo(() => {
+    const yearlyTotals: Record<string, number> = {};
+
+    // Get relevant drive IDs based on selected type
+    const relevantDriveIds = new Set(
+      (driveType === "active"
+        ? activeDonationDrives
+        : completedDonationDrives
+      ).map((drive: DonationDrive) => drive.donationDriveId)
+    );
+
+    // Filter donations by drive type before calculating yearly totals
+    userDonations
+      .filter((donation: Donation) =>
+        relevantDriveIds.has(donation.donationDriveId)
+      )
+      .forEach((donation: Donation) => {
+        // Extract year from donation date
+        const donationYear = new Date(donation.date).getFullYear();
+        yearlyTotals[donationYear] =
+          (yearlyTotals[donationYear] || 0) + donation.amount;
+      });
+
+    // Sort years in descending order
+    const sortedYears = Object.keys(yearlyTotals).sort(
+      (a, b) => Number(b) - Number(a)
+    );
+
+    return sortedYears.map((year) => ({
+      year,
+      totalAmount: yearlyTotals[year],
+    }));
+  }, [userDonations, driveType, activeDonationDrives, completedDonationDrives]);
+
+  const overallTotal = useMemo(() => {
+    return donationsByYear.reduce(
+      (sum, donation) => sum + donation.totalAmount,
+      0
+    );
+  }, [donationsByYear]);
+
+  // Prepare data for the 5-year line graph based on selected drive type
+  const fiveYearDonationData = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 4; // 5 years including current year
+
+    // Initialize years with zero values
+    const years: Record<number, number> = {};
+    for (let year = startYear; year <= currentYear; year++) {
+      years[year] = 0;
+    }
+
+    // Get relevant drive IDs based on selected type
+    const relevantDriveIds = new Set(
+      (driveType === "active"
+        ? activeDonationDrives
+        : completedDonationDrives
+      ).map((drive: DonationDrive) => drive.donationDriveId)
+    );
+
+    // Filter donations by drive type before calculating yearly totals
+    userDonations
+      .filter((donation: Donation) =>
+        relevantDriveIds.has(donation.donationDriveId)
+      )
+      .forEach((donation: Donation) => {
+        const donationYear = new Date(donation.date).getFullYear();
+        if (donationYear >= startYear && donationYear <= currentYear) {
+          years[donationYear] = (years[donationYear] || 0) + donation.amount;
+        }
+      });
+
+    // Convert to array format for the graph
+    return Object.entries(years).map(([year, amount]) => ({
+      year,
+      amount,
+    }));
+  }, [userDonations, driveType, activeDonationDrives, completedDonationDrives]);
+
+  const groupedBarData = useMemo(() => {
+    const driveLabels = currentDrives.map((drive: DonationDrive) =>
+      drive.campaignName.length > 15
+        ? drive.campaignName.substring(0, 15) + "..."
+        : drive.campaignName
+    );
+    const currentAmounts = currentDrives.map(
+      (drive: DonationDrive) => drive.currentAmount
+    );
+    const targetAmounts = currentDrives.map(
+      (drive: DonationDrive) => drive.targetAmount
+    );
+    const originalNames = currentDrives.map(
+      (drive: DonationDrive) => drive.campaignName
+    );
+
+    return {
+      labels: driveLabels,
+      currentAmounts,
+      targetAmounts,
+      campaignNames: originalNames,
+    };
+  }, [currentDrives]);
+
   // Dropdown options
   const driveOptions = [
     { value: "active", label: "Active Donation Drives" },
     { value: "completed", label: "Completed Donation Drives" },
   ];
 
+  const prompt = useMemo(
+    () =>
+      driveType === "active"
+        ? `
+            Total Number of ${driveType} Donation Drives: ${
+            currentDrives.length
+          } \n
+            ${driveType} Donation Drives Current-Target Amount Ratio: ${drivesData
+            .map(
+              (drive: DonationDrive) =>
+                `${drive.campaignName} - Php${drive.currentAmount} (Current) - Php${drive.targetAmount} (Target Amount)`
+            )
+            .join("\n")} \n
+            Total Amount Donated for all the ${driveType} Donation Drives: Php${overallTotal} \n
+            `
+        : `
+            Total Number of ${driveType} Donation Drives: ${
+            currentDrives.length
+          } \n
+            ${driveType} Donation Drives with the highest amount: ${drivesData
+            .map(
+              (drive: DonationDrive) =>
+                `${drive.campaignName} - Php${drive.currentAmount}`
+            )
+            .join("\n")} \n
+            Total Amount Donated for all the ${driveType} Donation Drives: Php${overallTotal} \n
+            Donation Trend for the Last 5 years: ${fiveYearDonationData
+              .map((item) => `${item.year} - Php${item.amount}`)
+              .join("\n")}
+            `,
+    [
+      driveType,
+      currentDrives.length,
+      drivesData,
+      fiveYearDonationData,
+      overallTotal,
+    ]
+  );
   return (
     <div className="flex flex-col gap-4">
-          {/* Breadcrumb Navigation */}
-          <div className="flex items-center gap-2">
-            <div className="hover:text-[#0856BA] cursor-pointer transition-colors">Home</div>
-            <div>
-              <ChevronRight size={15} />
-            </div>
-            <div className="font-medium text-[#0856BA]">Donation Statistical Reports</div>
-          </div>
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center gap-2">
+        <div className="hover:text-[#0856BA] cursor-pointer transition-colors">
+          Home
+        </div>
+        <div>
+          <ChevronRight size={15} />
+        </div>
+        <div className="font-medium text-[#0856BA]">
+          Donation Statistical Reports
+        </div>
+      </div>
 
       {/* Page Title */}
       <div className="w-full">
         <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl text-gray-800">Donation Statistical Reports</div>
+          <div className="font-bold text-3xl text-gray-800">
+            Donation Statistical Reports
+          </div>
           <div className="text-sm bg-[#0856BA] text-white px-4 py-2 rounded-full font-medium">
             {!isLoading && `Total Donors: ${sortedAlumniDonations.length}`}
           </div>
@@ -137,7 +288,9 @@ const DonationReportPage = () => {
 
       {/* Charts Section */}
       <div className="mb-2 space-y-8 bg-white rounded-xl shadow-sm p-8 border border-gray-100">
-        <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 border-gray-100">Donation Charts</h2>
+        <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 border-gray-100">
+          Donation Charts
+        </h2>
 
         <div className="flex flex-col lg:flex-row gap-6">
           <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
@@ -164,27 +317,106 @@ const DonationReportPage = () => {
           <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
             <CardHeader className="pb-2">
               <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                {driveType === "active" ? "Active" : "Completed"} Donation Drives with Highest Donations
+                {driveType === "active"
+                  ? "Active  Donation Drives' Current-Target Amount Ratio"
+                  : "Top Completed Drives with Highest Donations"}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center pt-0">
-              <BarGraph
-                type="Total amount donated (in Php)"
-                labels={drivesData.map((drive: DonationDrive) => drive.campaignName).slice(0, 5)}
-                data={drivesData.map((drive: DonationDrive) => drive.currentAmount).slice(0, 5)}
-              />
+              {driveType === "completed" ? (
+                <BarGraph
+                  type="Total amount donated (in Php)"
+                  labels={drivesData
+                    .map((drive: DonationDrive) => drive.campaignName)
+                    .slice(0, 5)}
+                  data={drivesData
+                    .map((drive: DonationDrive) => drive.currentAmount)
+                    .slice(0, 5)}
+                />
+              ) : (
+                <GroupedBarGraph
+                  labels={groupedBarData.labels}
+                  currentAmounts={groupedBarData.currentAmounts}
+                  targetAmounts={groupedBarData.targetAmounts}
+                  campaignNames={groupedBarData.campaignNames}
+                />
+              )}
             </CardContent>
           </Card>
         </div>
+
+        {/* New Line Graph for 5-Year Donation History */}
+        {driveType === "completed" && (
+          <div className="mt-8">
+            <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                  Completed Donation Trends (Last 5 Years)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex justify-center pt-0">
+                <LineGraph
+                  labels={fiveYearDonationData.map((item) => item.year)}
+                  data={fiveYearDonationData.map((item) => item.amount)}
+                  type="Total donations per year (in Php)"
+                />
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
       {/* Lists Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
         <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
           <CardHeader className="pb-2 border-b border-gray-100">
-            <CardTitle className="text-xl font-bold text-gray-800">Top Donors</CardTitle>
+            <CardTitle className="text-xl font-bold text-gray-800">
+              Total Amount of {driveType === "active" ? "Active" : "Completed"}{" "}
+              Donations by Year
+            </CardTitle>
             {!isLoading && (
-              <div className="text-[#0856BA] font-medium text-sm">Total Donors: {sortedAlumniDonations.length}</div>
+              <div className="text-[#0856BA] font-medium text-sm">
+                Total Years: {donationsByYear.length}
+              </div>
+            )}
+          </CardHeader>
+          <CardContent className="pt-4">
+            {isLoading ? (
+              <p className="text-gray-500 py-3">Loading...</p>
+            ) : (
+              <>
+                <ul className="divide-y divide-gray-100">
+                  {donationsByYear.map((yearData, index) => (
+                    <li
+                      key={index}
+                      className="py-2 text-gray-700 flex items-center"
+                    >
+                      <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                      <span className="font-medium">{yearData.year}</span>
+                      <span className="ml-auto text-[#0856BA] font-semibold">
+                        ₱{yearData.totalAmount.toLocaleString()}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <br />
+                {overallTotal > 0 && (
+                  <h1>Amount Donated in Total: Php {overallTotal}</h1>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+          <CardHeader className="pb-2 border-b border-gray-100">
+            <CardTitle className="text-xl font-bold text-gray-800">
+              Top Donors
+            </CardTitle>
+            {!isLoading && (
+              <div className="text-[#0856BA] font-medium text-sm">
+                Total Donors: {sortedAlumniDonations.length}
+              </div>
             )}
           </CardHeader>
           <CardContent className="pt-4">
@@ -194,15 +426,23 @@ const DonationReportPage = () => {
               <ul className="divide-y divide-gray-100">
                 {sortedAlumniDonations
                   .slice(0, 10)
-                  .map((donation: { name: string; totalDonated: number }, index: number) => (
-                    <li key={index} className="py-2 text-gray-700 flex items-center">
-                      <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
-                      <span className="font-medium">{donation.name}</span>
-                      <span className="ml-auto text-[#0856BA] font-semibold">
-                        ₱{donation.totalDonated.toLocaleString()}
-                      </span>
-                    </li>
-                  ))}
+                  .map(
+                    (
+                      donation: { name: string; totalDonated: number },
+                      index: number
+                    ) => (
+                      <li
+                        key={index}
+                        className="py-2 text-gray-700 flex items-center"
+                      >
+                        <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                        <span className="font-medium">{donation.name}</span>
+                        <span className="ml-auto text-[#0856BA] font-semibold">
+                          ₱{donation.totalDonated.toLocaleString()}
+                        </span>
+                      </li>
+                    )
+                  )}
               </ul>
             )}
           </CardContent>
@@ -213,7 +453,11 @@ const DonationReportPage = () => {
             <CardTitle className="text-xl font-bold text-gray-800">
               {driveType === "active" ? "Active" : "Completed"} Donation Drives
             </CardTitle>
-            {!isLoading && <div className="text-[#0856BA] font-medium text-sm">Total: {currentDrives.length}</div>}
+            {!isLoading && (
+              <div className="text-[#0856BA] font-medium text-sm">
+                Total: {currentDrives.length}
+              </div>
+            )}
           </CardHeader>
           <CardContent className="pt-4">
             {isLoading ? (
@@ -222,26 +466,35 @@ const DonationReportPage = () => {
               <ul className="divide-y divide-gray-100">
                 {currentDrives.map((drive: DonationDrive, index: number) => {
                   const driveDonations = userDonations.filter(
-                    (donation) => donation.donationDriveId === drive.donationDriveId,
-                  )
-                  const totalDonated = driveDonations.reduce((sum, donation) => sum + donation.amount, 0)
+                    (donation) =>
+                      donation.donationDriveId === drive.donationDriveId
+                  );
+                  const totalDonated = driveDonations.reduce(
+                    (sum, donation) => sum + donation.amount,
+                    0
+                  );
 
                   return (
-                    <li key={index} className="py-2 text-gray-700 flex items-center">
+                    <li
+                      key={index}
+                      className="py-2 text-gray-700 flex items-center"
+                    >
                       <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
                       <span className="font-medium">{drive.campaignName}</span>
-                      <span className="ml-auto text-[#0856BA] font-semibold">₱{totalDonated.toLocaleString()}</span>
+                      <span className="ml-auto text-[#0856BA] font-semibold">
+                        ₱{totalDonated.toLocaleString()}
+                      </span>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             )}
           </CardContent>
         </Card>
       </div>
+      <ReportSummaryCard data={prompt} />
     </div>
-  )
-}
-
+  );
+};
 
 export default DonationReportPage;

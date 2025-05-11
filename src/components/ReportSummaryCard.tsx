@@ -46,7 +46,7 @@ const ReportSummaryCard = ({ data }: ReportSummaryCardProps) => {
 
   useEffect(() => {
     handleSend();
-  }, [activeAlums, alums, allWorkExperience]);
+  }, [data]);
 
   return (
     <>

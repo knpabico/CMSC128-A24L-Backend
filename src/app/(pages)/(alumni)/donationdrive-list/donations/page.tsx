@@ -234,7 +234,7 @@ const Donations: React.FC = () => {
 												</div>
 											</td>
 											<td>
-											<button onClick={() => { setSelectedDonationId(donation.donationId); setSelectedImage('/proof.jpg'); }} // Adjust with the correct image path
+											<button onClick={() => { setSelectedDonationId(donation.donationId); setSelectedImage(donation.imageProof); }} // Adjust with the correct image path
 												className="text-blue-500 hover:underline text-sm">
 												View Proof
 											</button>

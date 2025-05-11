@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRsvpDetails } from "@/context/RSVPContext"; 
 import BookmarkButton from "@/components/ui/bookmark-button";
 import Link from "next/link";
+import { useAlums } from "@/context/AlumContext";
 
 
 function formatPostedDate(timestamp: Timestamp | any) {
@@ -62,7 +63,9 @@ function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done
 export default function Invitations() {
   const { events, isLoading, userId, handleViewEventAlumni } = useEvents();
   const { user, loading, alumInfo } = useAuth();
-  const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject} = useRsvpDetails(events);
+  const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject} = useRsvpDetails();
+
+  const { alums } = useAlums();
 
   
   // State for invitation events
@@ -173,14 +176,15 @@ useEffect(() => {
     
     return sortedEvents.map((event, index) => {
       // Find the RSVP for this event and current alumni
+      const rsvps = rsvpDetails as RSVP[];
 
-      const rsvps = Object.values(rsvpDetails) as RSVP[];
-
-      const matchingRSVP = rsvps.find(
-        (rsvp) =>
-          rsvp.alumniId === alumInfo?.alumniId &&
-          rsvp.postId === event.eventId
-      );
+      const matchingRSVP = alumInfo?.alumniId
+      ? rsvps.find(
+          (rsvp) =>
+            rsvp.postId === event.eventId &&
+            rsvp.alums && Object.keys(rsvp.alums).includes(alumInfo.alumniId)
+        )
+      : undefined;
       
       return (
         <div 

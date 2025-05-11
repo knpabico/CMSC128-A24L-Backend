@@ -42,7 +42,6 @@ export const createDonation = async (donationData: {
   try {
     // Validate input using Zod
     const parsedData = donationDataSchema.parse(donationData);
-
     const donationRef = serverFirestoreDB.collection("donation").doc();
     const donationId = donationRef.id;
 

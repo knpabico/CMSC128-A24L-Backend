@@ -9,60 +9,38 @@ import {
   Edit,
   CirclePlus,
   Plus,
+  Asterisk,
+  Upload,
+  ArrowUpDown,
+  CircleX,
 } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function FeaturedStoriesPage() {
   const {
     featuredItems,
     isLoading,
-    isEdit,
-    handleSubmit,
-    handleEdit,
     handleDelete,
-    text,
-    title,
-    image,
-    type,
-    showForm,
-    setText,
-    setTitle,
-    setImage,
-    setType,
-    setShowForm,
-    setIsEdit,
-    setCurrentFeaturedId,
   } = useFeatured();
 
-  const [imageFile, setImageFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState({
-    message: "",
-    isError: false,
-    isUploaded: false,
-  });
-
   const [activeTab, setActiveTab] = useState("All Stories");
+  const [sortOption, setSortOption] = useState("newest");
   const tableRef = useRef(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
+  const [storyToDelete, setStoryToDelete] = useState(null)
 
   const tabs = ["All Stories", "Events", "Donations", "Scholarships"];
-
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setPreview(URL.createObjectURL(file));
-      setUploadStatus({
-        message: "Image selected, please click Upload Photo",
-        isError: false,
-        isUploaded: false,
-      });
-    }
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,99 +69,6 @@ export default function FeaturedStoriesPage() {
     };
   }, [isSticky]);
 
-  const handleUpload = async () => {
-    if (!imageFile) {
-      setUploadStatus({
-        message: "No image selected",
-        isError: true,
-        isUploaded: false,
-      });
-      return;
-    }
-
-    try {
-      // Upload to Firebase based on type - using type as folder path
-      const uploadPath = type ? `photos/${type}` : "photos/uploads";
-      setUploadStatus({
-        message: "Uploading...",
-        isError: false,
-        isUploaded: false,
-      });
-
-      const data = await uploadImage(imageFile, uploadPath);
-
-      if (data.success) {
-        // Set the uploaded image URL to the context
-        setImage(data.url);
-        setUploadStatus({
-          message: "Image uploaded successfully!",
-          isError: false,
-          isUploaded: true,
-        });
-      } else {
-        setUploadStatus({
-          message: data.result || "Upload failed",
-          isError: true,
-          isUploaded: false,
-        });
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      setUploadStatus({
-        message: "Unexpected error occurred during upload.",
-        isError: true,
-        isUploaded: false,
-      });
-    }
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-
-    if (!uploadStatus.isUploaded && !image && !isEdit) {
-      setUploadStatus({
-        message: "Please upload an image before submitting",
-        isError: true,
-        isUploaded: false,
-      });
-      return;
-    }
-
-    // For edit mode, make sure we have either a newly uploaded image or the existing one
-    if (!uploadStatus.isUploaded && !image && isEdit) {
-      setUploadStatus({
-        message: "Please upload an image before submitting",
-        isError: true,
-        isUploaded: false,
-      });
-      return;
-    }
-
-    if (isEdit) {
-      handleEdit(e);
-    } else {
-      handleSubmit(e);
-    }
-  };
-
-  const openForm = (isEditMode, item = null) => {
-    if (isEditMode && item) {
-      setText(item.text);
-      setTitle(item.title);
-      setImage(item.image);
-      setType(item.type);
-      setCurrentFeaturedId(item.featuredId);
-    } else {
-      setText("");
-      setTitle("");
-      setImage("");
-      setType("");
-      setCurrentFeaturedId(null);
-    }
-    setIsEdit(isEditMode);
-    setShowForm(true);
-  };
-
   // Filter items based on active tab
   const filteredItems =
     activeTab === "All Stories"
@@ -196,6 +81,18 @@ export default function FeaturedStoriesPage() {
           };
           return item.type === tabTypeMap[activeTab];
         });
+
+  // Sort filtered items based on date
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    const dateA = a.datePosted?.toDate?.() || new Date(a.datePosted);
+    const dateB = b.datePosted?.toDate?.() || new Date(b.datePosted);
+    
+    if (sortOption === "newest") {
+      return dateB.getTime() - dateA.getTime();
+    } else {
+      return dateA.getTime() - dateB.getTime();
+    }
+  });
 
   // Count items for each category
   const getCategoryCount = (category) => {
@@ -215,11 +112,19 @@ export default function FeaturedStoriesPage() {
   const router = useRouter(); // Initialize the router
 
   const navigateToDetail = (featuredId) => {
-    router.push(`/admin/create-story/${featuredId}`); // Navigate to the detail page
+    router.push(`/admin-dashboard/create-story/${featuredId}`); // Navigate to the detail page
+  };
+
+  const navigateToCreate = () => {
+    router.push(`/admin-dashboard/create-story/add`); // Navigate to create page
+  };
+
+  const toggleSortOption = () => {
+    setSortOption(prev => prev === "newest" ? "oldest" : "newest");
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <div>Home</div>
         <div>
@@ -233,7 +138,7 @@ export default function FeaturedStoriesPage() {
           <div className="font-bold text-3xl">Manage Featured Stories</div>
           <div
             className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
-            onClick={() => openForm()}
+            onClick={navigateToCreate}
           >
             <CirclePlus size={18} />
             Write featured story
@@ -241,7 +146,7 @@ export default function FeaturedStoriesPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+
         {/* Tabs */}
         <div className="w-full flex gap-2">
           {tabs.map((tab) => (
@@ -280,6 +185,19 @@ export default function FeaturedStoriesPage() {
           ))}
         </div>
 
+      <div className="flex flex-col gap-2">
+        {/* Sorting Filter */}
+        <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
+          <div className="text-sm font-medium">Sort by:</div>
+          <div 
+            className="pl-2 pr-3 py-1 rounded-md flex gap-2 items-center justify-between text-sm font-medium cursor-pointer bg-gray-300 hover:bg-gray-400"
+            onClick={toggleSortOption}
+          >
+            <div>{sortOption === "newest" ? "Newest" : "Oldest"}</div>
+            <ArrowUpDown size={14} />
+          </div>
+        </div>
+
         {/* Table Container with Fixed Height for Scrolling */}
         <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
           {isLoading ? (
@@ -315,8 +233,8 @@ export default function FeaturedStoriesPage() {
               {isSticky && <div style={{ height: "56px" }}></div>}
 
               {/* Featured Stories Rows */}
-              {filteredItems.length > 0 ? (
-                filteredItems.map((item, index) => (
+              {sortedItems.length > 0 ? (
+                sortedItems.map((item, index) => (
                   <div
                     key={index}
                     className={`w-full flex gap-4 border-t border-gray-300 ${
@@ -388,12 +306,15 @@ export default function FeaturedStoriesPage() {
 
                       <div
                         className="w-1/3 flex items-center justify-center gap-4"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setStoryToDelete(item)
+                          setIsConfirmationOpen(true)}}
                       >
                         <Trash2
                           size={18}
                           className="text-gray-500 hover:text-red-500 cursor-pointer"
-                          onClick={() => handleDelete(item.featuredId)}
+                          //onClick={() => handleDelete(item.featuredId)}
                         />
                       </div>
                     </div>
@@ -409,156 +330,38 @@ export default function FeaturedStoriesPage() {
         </div>
       </div>
 
-      {/* Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
-          <form
-            onSubmit={handleFormSubmit}
-            className="bg-white p-4 rounded-lg shadow-md w-full max-w-md mx-auto"
-          >
-            {/* Modal Header */}
-            <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-lg font-semibold">
-                {isEdit ? "Edit featured story" : "Write Featured Story"}
-              </h2>
+      {/* Confirmation Dialog */}
+      {isConfirmationOpen && (
+        <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+          <DialogContent className="w-96">
+            <DialogHeader className="text-red-500 flex items-center gap-5">
+              <CircleX className="size-15" />
+              <DialogTitle className="text-md text-center">
+                Are you sure you want to delete <br />{" "}
+                <strong>{storyToDelete?.title}</strong>?
+              </DialogTitle>
+            </DialogHeader>
+            <DialogFooter className="mt-5">
               <button
-                type="button"
+                className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer"
                 onClick={() => {
-                  setShowForm(false);
-                  setPreview(null); // Clear preview
-                  setImageFile(null); // Clear selected file
-                  setImage(""); // Optional: reset image if needed
-                  setUploadStatus({
-                    // Reset upload status
-                    isUploaded: false,
-                    isError: false,
-                    message: "",
-                  });
+                  if (storyToDelete) {
+                    handleDelete(storyToDelete.title);
+                    setIsConfirmationOpen(false);
+                  }
                 }}
-                className="text-gray-600 text-xl font-bold hover:text-black"
               >
-                ×
+                Delete
               </button>
-            </div>
-
-            {/* Title Input (Styled like placeholder) */}
-            <input
-              type="text"
-              placeholder="Title here"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-6 mb-2 pl-1 text-lg font-medium placeholder-gray-400 focus:outline-none"
-              required
-            />
-
-            {/* Description Input */}
-            <textarea
-              placeholder="Description here"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="w-full mb-4 text-sm pl-1 placeholder-gray-400 resize-none focus:outline-none"
-              rows={5}
-              required
-            />
-
-            {/* Type Dropdown */}
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full mb-4 text-sm placeholder-gray-400 resize-none focus:outline-none"
-              required
-            >
-              <option value="" disabled hidden>
-                Select Type
-              </option>
-              <option value="event">Event</option>
-              <option value="donation">Donation</option>
-              <option value="scholarship">Scholarship</option>
-            </select>
-
-            <hr className="border-t border-gray-200 my-1.5" />
-
-            {/* Image Upload Block */}
-            <div className="mb-4">
-              <label className="block mb-2 text-sm font-medium py-2">
-                Featured Image {uploadStatus.isUploaded && "✓"}
-              </label>
-
-              {/* Stylized Upload Box */}
-              <label
-                htmlFor="image-upload"
-                className="flex items-center justify-center w-24 h-24 bg-blue-50 text-blue-600 rounded-md border border-dashed border-blue-300 cursor-pointer hover:bg-blue-100"
-              >
-                <Plus size={24} />
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </label>
-
-              {/* Preview or Current Image */}
-              {(preview || (isEdit && image && !preview)) && (
-                <div className="mt-4 p-3 rounded-md border bg-gray-50 shadow-sm">
-                  <div className="w-full aspect-video overflow-hidden rounded-md border border-gray-300">
-                    <img
-                      src={preview || image}
-                      alt="Preview"
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600 mt-2 text-center">
-                    {preview
-                      ? "Preview of uploaded image"
-                      : "Currently saved image"}
-                  </p>
-                </div>
-              )}
-
-              {/* Upload button and messages */}
               <button
-                type="button"
-                onClick={handleUpload}
-                disabled={!imageFile || !type}
-                className={`px-4 py-1 rounded text-sm mt-2 ${
-                  !imageFile || !type
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-green-500 text-white hover:bg-green-600"
-                }`}
+                className="text-sm text-[#0856BA] w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-[#0856BA] border-2 hover:bg-gray-100"
+                onClick={() => setIsConfirmationOpen(false)}
               >
-                Upload Photo
+                Cancel
               </button>
-              {!type && imageFile && (
-                <p className="text-sm mt-1 text-yellow-600">
-                  Select a type before uploading
-                </p>
-              )}
-              {uploadStatus.message && (
-                <p
-                  className={`text-sm mt-1 ${
-                    uploadStatus.isError ? "text-red-500" : "text-green-600"
-                  }`}
-                >
-                  {uploadStatus.message}
-                </p>
-              )}
-            </div>
-
-            {/* Styled Post Button */}
-            <button
-              type="submit"
-              className={`w-full py-3 rounded-full mt-4 text-white text-sm font-semibold ${
-                !image && !preview
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-[#0856BA] hover:bg-blue-600"
-              }`}
-            >
-              {isEdit ? "Update" : "Post"}
-            </button>
-          </form>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

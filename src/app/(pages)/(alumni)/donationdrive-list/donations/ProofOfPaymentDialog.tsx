@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Image from "next/image";
 
 export function ProofOfPaymentDialog({
   selectedImage,
@@ -15,14 +16,25 @@ export function ProofOfPaymentDialog({
   setSelectedImage: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   return (
-    <Dialog open={!!selectedImage} onOpenChange={(isOpen) => !isOpen && setSelectedImage(null)}>
+    <Dialog
+      open={!!selectedImage}
+      onOpenChange={(isOpen) => !isOpen && setSelectedImage(null)}
+    >
       <DialogContent className="w-fit p-4 text-center">
         <DialogHeader>
           <DialogTitle>Proof of Payment</DialogTitle>
         </DialogHeader>
         {selectedImage && (
           <div className="mt-3">
-            <img src={selectedImage} alt="Payment Proof" className="w-auto h-100" />
+            <Image
+              width={0}
+              height={0}
+              sizes="100vw"
+              priority
+              src={selectedImage}
+              alt="Payment Proof"
+              className="w-auto h-100"
+            />
           </div>
         )}
         <DialogFooter className="mt-3">

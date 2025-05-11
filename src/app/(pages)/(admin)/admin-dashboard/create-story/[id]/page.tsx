@@ -186,40 +186,38 @@ const FeaturedStoryDetailPage: React.FC = () => {
 
               {/* Image */}
               <div className="space-y-2 text-start">
-                <div className="flex gap-3">
-                  <div className="text-sm font-medium flex items-center">
-                    <Asterisk size={16} className="text-red-600" /> Photo:
-                  </div>
+                <div className="text-sm font-medium flex items-center">
+                  <Asterisk size={16} className="text-red-600" /> Featured Image:
+                </div>
+                
+                <div className="mt-3">
+                  <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" disabled={!isEditing} />
                   <label
                     htmlFor="image-upload"
-                    className="text-sm font-medium flex items-center gap-2"
+                    className={`inline-flex items-center justify-center gap-2 ${
+                      isEditing 
+                      ? "bg-[#0856BA] text-white hover:bg-[#0645a0] cursor-pointer" 
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    } px-4 py-2 rounded-md transition-colors`}
                   >
                     <Upload className="size-4" />
-                    Upload Image
+                    Attach Photo
                   </label>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    disabled={!isEditing}
-                  />
                 </div>
+
                 {preview && (
-                  <div className="mt-2 pl-5">
-                    <p className="text-sm font-medium flex items-center">
-                      Preview:
-                    </p>
+                  <div className="mt-2">
+                    <p className="text-sm font-medium">Preview:</p>
                     <img
                       src={preview}
-                      alt="Uploaded Preview"
+                      alt="Uploaded Preview" 
                       style={{ width: "200px", borderRadius: "8px" }}
+                      className="mt-2"
                     />
                   </div>
                 )}
               </div>
-            </div>
+              </div>
 
             {/* Buttons */}
             {isEditing && (

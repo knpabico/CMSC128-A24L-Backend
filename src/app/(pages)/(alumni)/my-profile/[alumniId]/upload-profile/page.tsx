@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Alumnus } from "@/models/models";
 import Image from "next/image";
@@ -6,6 +8,7 @@ import { db, storage } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 // import {PhotoUpload} from "../../../upload-photo/";
 import { uploadImage } from "@/lib/upload";
+import { XIcon } from "lucide-react";
 
 interface AlumnusUploadPicProps {
     alumnus: Alumnus;
@@ -98,35 +101,68 @@ const AlumnusUploadPic: React.FC<AlumnusUploadPicProps> = ({ alumnus , uploading
     return (
         <>
           {uploading && (
-            <div className="fixed inset-0 flex items-center justify-center z-50  bg-opacity-50">
-              <div className="bg-green-500 w-[500px] h-auto p-8 rounded-lg shadow-lg flex flex-col items-center justify-center gap-4">
-                <input type="file" onChange={handleFileChange} />
+            <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+              <div className="flex flex-col w-full max-w-xl bg-white border-none shadow-2xl rounded-xl p-7 space-y-7">
+                <div className="flex items-center justify-between relative">
+                  <input
+                    type="file" 
+                    onChange={handleFileChange}
+                    className="mr-10 w-full bg-[#3675c5] text-white py-2 px-3 rounded-md hover:bg-[#92b2dc] cursor-pointer" />
+                  {uploadedUrl ? (
+                    <button onClick={() => {window.location.reload();}} className="absolute top-0 right-0">
+                      <XIcon className="cursor-pointer hover:text-red-500"/>
+                    </button>
+                  ) : (
+                    <button onClick={onClose} className="absolute top-0 right-0">
+                      <XIcon className="cursor-pointer hover:text-red-500"/>
+                    </button>
+                  )}
+                  
+                </div>
+                <div className="flex flex-col justify-center items-center space-y-7">
+                  {previewUrl ? (
+                    <div className="w-70 h-70">
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        className="object-cover w-full h-full rounded-full"
+                      />
+                    </div>
+                    
+                  ) : (<div className="w-70 h-70 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                    No file chosen
+                  </div>)}
+      
+                  
+
+                  {!imgUploading ? (
+                    <button 
+                    onClick={handleUpload} 
+                    className="w-50 bg-[#0856ba] text-white py-2 px-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                    >
+                      Upload Image
+                    </button>
+                  ) : (
+                    <button 
+                    onClick={handleUpload} 
+                    disabled
+                    className="w-50 bg-[#92b2dc] text-white py-2 px-3 rounded-full cursor-not-allowed"
+                    >
+                      Uploading...
+                    </button>
+                  )}
+
+                  {uploadedUrl && (
+                    <p>Successfully changed photo!</p>
+                  )}
+                </div>
+                
     
-                {previewUrl && (
-                  <Image
-                    src={previewUrl}
-                    alt="Preview"
-                    width={300}
-                    height={300}
-                    layout="responsive"
-                  />
-                )}
+                
     
-                <button onClick={handleUpload} disabled={imgUploading}>
-                  {imgUploading ? "Uploading..." : "Upload Image"}
-                </button>
-    
-                {uploadedUrl && (
-                  <Image
-                    src={uploadedUrl}
-                    alt="Uploaded"
-                    width={300}
-                    height={300}
-                    layout="responsive"
-                  />
-                )}
-    
-                <button onClick={onClose}>Close</button>
               </div>
             </div>
           )}

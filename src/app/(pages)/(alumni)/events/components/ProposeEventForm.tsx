@@ -46,7 +46,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       setEventImage,
       fileName, 
       setFileName, 
-      handleEdit
+      handleEdit,
+      preview,
+      setPreview
       } = useEvents();
 
   const { user, alumInfo } = useAuth();
@@ -76,6 +78,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
         setEventImage(eventToEdit.image);
         setEventDate(eventToEdit.date);
         setEventLocation(eventToEdit.location);
+        setPreview(eventToEdit.image);
         // Optional: handle image if you prefill it somehow
   
         // Properly set visibility and guests
@@ -111,6 +114,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
     setSelectedAlumni([]);
     setFileName("");
     setUserInput("");
+    setPreview(null);
   };
 
   const requiredSentence =
@@ -210,7 +214,15 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
           {fileName && (
             <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>
           )}
-
+          {preview && (
+            <div className="mt-2">
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-md"
+              />
+            </div>
+          )}
           <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
             {/* Open to All */}
             <label className="flex items-center space-x-2">
@@ -374,7 +386,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                     : [];
                 
                 if(isEditing && editingEventId){
-                  await handleEdit(editingEventId, {title, description, location, date, image, time, targetGuests, inviteType: visibility });
+                  await handleEdit(editingEventId, {title, description, location, date, time, targetGuests, inviteType: visibility }, image);
                 } else {
                   await handleSave(e, image, targetGuests, visibility, "Draft");
                 } 
@@ -455,7 +467,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                 [];
 
               if(isDetails){
-                await handleEdit(editingEventId, {title, description, location, date, image, time, targetGuests, status: "Pending", inviteType: visibility });
+                await handleEdit(editingEventId, {title, description, location, date, time, targetGuests, status: "Pending", inviteType: visibility }, image);
               } else {
                 await handleSave(e, image, targetGuests, visibility, "Pending");
               }
