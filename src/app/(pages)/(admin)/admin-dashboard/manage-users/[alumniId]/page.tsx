@@ -6,15 +6,17 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import MapComponent from "../../../../(alumni)/map/map";
-import { ChevronLeft, MapPin, Cake, PersonStanding, Heart, GraduationCap, BookOpenText, Award, UsersRound, Briefcase, XIcon } from "lucide-react";
+import { ChevronLeft, MapPin, Cake, PersonStanding, Heart, GraduationCap, BookOpenText, Award, UsersRound, Briefcase, XIcon, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { Education } from "@/models/models";
 import { useEducation } from "@/context/EducationContext";
 import { Affiliation } from "@/models/models";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { Dialog, DialogContent } from "@mui/material";
+import Link from 'next/link';
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
+import router from "next/router";
 
 
 export default function AlumPage() {
@@ -108,338 +110,347 @@ export default function AlumPage() {
 
 
   return (
-    <div className="m-6 flex">
-      <div className="h-screen space-x-15 fixed w-1/3">
-        <button
-          onClick={() => {window.history.back()}}
-          className="italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer pb-10"
-        >
-          <ChevronLeft />
-          <p>Back</p>
-        </button>
-        <div className="w-85 bg-white rounded-xl shadow-md p-10 flex flex-col justify-center items-center gap-5 max-h-fit">
-          <div className="relative group bg-gray-200 w-60 h-60 flex justify-center items-center mb-2 rounded-full cursor-pointer">
-            {alum?.image ? (
-              <Image
-                src={alum.image}
-                alt="Alumnus Image"
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="object-cover w-full h-full rounded-full"
-              />
-            ) : (
-              <span className="text-white"></span>
-            )}
-          </div>
+    <div>
+      <div className="space-y-10 md:sticky md:top-8 z-[10000] relative">
+        <div className="flex items-center gap-2 w-full top-0 left-0">
+          <Link href="/admin-dashboard" className="cursor-pointer">Home</Link>
+          <div><ChevronRight size={15} /></div>
+          <div onClick={() => {window.history.back()}} className="cursor-pointer">Manage Users</div>
+          <div><ChevronRight size={15} /></div>
           <div>
-            <p className="text-xl font-bold text-center break-words max-w-md">{alum.lastName}, {alum.firstName} {alum.middleName !== "" ? alum.middleName : ""}</p>
-            <p className="text-center">{alum.email}</p>
-            <p className="text-center">{alum.studentNumber}</p>
-          </div>
-          <div className="space-x-5">
-            <span
-              className={`px-2 py-1 rounded-full text-sm ${
-                alum.activeStatus
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
-              {alum.activeStatus ? "Active" : "Inactive"}
-            </span>
-            <span
-              className={`px-2 py-1 rounded-full text-sm ${
-                alum.regStatus === "approved"
-                  ? "bg-green-100 text-green-800"
-                  : alum.regStatus === "rejected"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
-            >
-              {alum.regStatus.charAt(0).toUpperCase() +
-                alum.regStatus.slice(1)}
-            </span>
+            {alum.lastName}, {alum.firstName} {alum.middleName !== "" ? alum.middleName : ""}
           </div>
         </div>
       </div>
+      
 
-      <div className="space-x-15 w-2/3 ml-[33.3333%]">
-        <div className="space-y-8">
-          <div className="space-y-5 mt-16 bg-white p-5 rounded-lg shadow-xs">
-            <div>
-              <p className="text-xl font-bold w-full pb-1.5">
-                Personal
-              </p>
-              <hr className="text-gray-300"></hr>
-            </div>
-            
-            <div className="grid grid-cols-10 gap-8">
-              <div className="col-span-5">
-                <div className="flex space-x-3 items-center">
-                  <Cake/>
-                  <p className="font-semibold">Birthday <span className="font-light">(YYYY/MM/DD)</span></p>
-                </div>
-                <p className="pl-9 pt-3">
-                  {alum.birthDate
-                    ? alum.birthDate
-                        .toDate()
-                        .toISOString()
-                        .slice(0, 10)
-                        .replaceAll("-", "/")
-                    : ""}
-                </p>
-              </div>
-              <div className="col-span-5">
-                <div className="flex space-x-3 items-center">
-                  <PersonStanding/>
-                  <p className="font-semibold">Current Age</p>
-                </div>
-                <p className="pl-9 pt-3">{calculateAge(alum.birthDate.toDate())}</p>
-              </div>
-              <div className="col-span-5">
-                <div className="flex space-x-3 items-center">
-                  <MapPin/>
-                  <p className="font-semibold">Current Location</p>
-                </div>
-                <p className="pl-9 pt-3">{alum.address[1]}, {alum.address[2]}, {alum.address[0]}</p>
-              </div>
-              <div className="col-span-5">
-                <div className="flex space-x-3 items-center">
-                  <Heart/>
-                  <p className="font-semibold">Fields of Interest</p>
-                </div>
-                <p className="pl-9 pt-3">
-                  {alum.fieldOfInterest.length > 0 ? (
-                    alum.fieldOfInterest.map((f, i) => (
-                      <span key={i}>
-                        {f}{i < alum.fieldOfInterest.length - 1 ? ', ' : ''}
-                      </span>
-                    ))
-                  ) : (
-                    <span>None</span>
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-5 bg-white p-5 rounded-lg shadow-xs">
-            <div>
-              <p className="text-xl font-bold w-full pb-1.5">
-                Education
-              </p>
-              <hr className="text-gray-300"></hr>
-            </div>
-
-            <div className="grid grid-cols-10 gap-8">
-              <div className="col-span-10">
-                <div className="flex space-x-3 items-center">
-                  <GraduationCap/>
-                  <p className="font-semibold">Bachelor's Degree</p>
-                </div>
-                {edu.filter((edu: { type: string }) => edu.type === "bachelors").length > 0 ? (
-                  <table className="w-full text-left border-separate pl-9 pt-3">
-                    <thead>
-                      <tr className="text-gray-500">
-                        <th className="py-1 w-3/8">Degree Program</th>
-                        <th className="py-1 w-4/8 px-3">University</th>
-                        <th className="py-1 w-1/9">Graduated</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {edu
-                        .filter((edu: { type: string }) => edu.type === "bachelors")
-                        .sort((a, b) => b.yearGraduated - a.yearGraduated)
-                        .map((edu: Education, index: number) => (
-                          <tr key={index}>
-                            <td className="py-1">{edu.major}</td>
-                            <td className="py-1 px-3">{edu.university}</td>
-                            <td className="py-1">{edu.yearGraduated}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="pl-9 pt-3">None</p>
-                )}
-              </div>
-
-              <div className="col-span-10">
-                <div className="flex space-x-3 items-center">
-                  <BookOpenText/>
-                  <p className="font-semibold">Master's Degree</p>
-                </div>
-                {edu.filter((edu: { type: string }) => edu.type === "masters").length > 0 ? (
-                  <table className="w-full text-left border-separate pl-9 pt-3">
-                    <thead>
-                      <tr className="text-gray-500">
-                        <th className="py-1 w-3/8">Degree Program</th>
-                        <th className="py-1 w-4/8 px-3">University</th>
-                        <th className="py-1 w-1/9">Graduated</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {edu
-                        .filter((edu: { type: string }) => edu.type === "masters")
-                        .sort((a, b) => b.yearGraduated - a.yearGraduated)
-                        .map((edu: Education, index: number) => (
-                          <tr key={index}>
-                            <td className="py-1">{edu.major}</td>
-                            <td className="py-1 px-3">{edu.university}</td>
-                            <td className="py-1">{edu.yearGraduated}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="pl-9 pt-3">None</p>
-                )}             
-              </div>
-
-              <div className="col-span-10">
-                <div className="flex space-x-3 items-center">
-                  <Award/>
-                  <p className="font-semibold">Doctoral Degree</p>
-                </div>
-                {edu.filter((edu: { type: string }) => edu.type === "doctoral").length > 0 ? (
-                  <table className="w-full text-left border-separate pl-9 pt-3">
-                    <thead>
-                      <tr className="text-gray-500">
-                        <th className="py-1 w-3/8">Degree Program</th>
-                        <th className="py-1 w-4/8 px-3">University</th>
-                        <th className="py-1 w-1/9">Graduated</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {edu
-                        .filter((edu: { type: string }) => edu.type === "doctoral")
-                        .sort((a, b) => b.yearGraduated - a.yearGraduated)
-                        .map((edu: Education, index: number) => (
-                          <tr key={index}>
-                            <td className="py-1">{edu.major}</td>
-                            <td className="py-1 px-3">{edu.university}</td>
-                            <td className="py-1">{edu.yearGraduated}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="pl-9 pt-3">None</p>
-                )}
-              </div>
-
-              <div className="col-span-10">
-                <div className="flex space-x-3 items-center">
-                  <UsersRound/>
-                  <p className="font-semibold">Affiliations</p>
-                </div>
-                {affil.length > 0 ? (
-                  <table className="w-full text-left border-separate pl-9 pt-3">
-                    <thead>
-                      <tr className="text-gray-500">
-                        <th className="py-1 w-3/8">Affiliation</th>
-                        <th className="py-1 w-4/8 px-3">University</th>
-                        <th className="py-1 w-1/9">Joined</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {affil
-                        .sort((a, b) => b.yearJoined - a.yearJoined)
-                        .map((affil: Affiliation, index: number) => (
-                          <tr key={index}>
-                            <td className="py-1">{affil.affiliationName}</td>
-                            <td className="py-1 px-3">{affil.university}</td>
-                            <td className="py-1">{affil.yearJoined}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="pl-9 pt-3">None</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-5 bg-white p-5 rounded-lg shadow-xs">
-            <div>
-              <p className="text-xl font-bold w-full pb-1.5">
-                Career
-              </p>
-              <hr className="text-gray-300"></hr>
-            </div>
-            
-            <div className="col-span-10">
-              <div className="flex space-x-3 items-center">
-                <Briefcase/>
-                <p className="font-semibold">Work Experience</p>
-              </div>
-              {work.length > 0 ? (
-                <table className="w-full text-left border-separate pl-9 pt-3">
-                  <thead>
-                    <tr className="text-gray-500">
-                      <th className="py-1 w-3/12">Job Title</th>
-                      <th className="py-1 w-3/12 px-3">Company</th>
-                      <th className="py-1 w-3/12">Industry</th>
-                      <th className="py-1 w-3/12 px-3">From - To</th>
-                      <th className="py-1 w-1/12">Loc</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {work
-                      .sort((a, b) => {
-                        const currentYear = new Date().getFullYear();
-                        const startA = a.startYear === "present" ? currentYear : parseInt(a.startYear);
-                        const startB = b.startYear === "present" ? currentYear : parseInt(b.startYear);
-                        return startB - startA;
-                      })
-                      .map((w: WorkExperience, index: number) => (
-                        <tr key={index}>
-                          <td className="py-1">{w.jobTitle}</td>
-                          <td className="py-1 px-3">{w.company}</td>
-                          <td className="py-1">{w.industry}</td>
-                          <td className="py-1 px-3">{w.startYear} - {w.endYear}</td>
-                          <td className="py-1"><MapPin className="text-[#3675c5] cursor-pointer" onClick={() => openMap(index)}/></td>
-                          
-                            <Dialog
-                              open={isMapOpenArray[index]}
-                              onClose={() => closeMap(index)}
-                            >
-                              <DialogContent className="w-150">
-                                <div className="flex items-center justify-between relative">
-                                  <p className="text-xl font-bold pb-3">{w.company} Location</p>
-                                  <button onClick={() => closeMap(index)} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
-                                </div>
-                                <div className="h-[400px] w-full">
-                                  {!isLoaded ? (
-                                    <div className="flex items-center justify-center h-full">
-                                      <p className="text-xl text-gray-600">Loading map...</p>
-                                    </div>
-                                  ) : (
-                                    <GoogleMap
-                                      mapContainerStyle={{ width: "100%", height: "100%" }}
-                                      center={{ lat: w.latitude, lng: w.longitude }}
-                                      zoom={15}
-                                    >
-                                      <Marker
-                                        position={{ lat: w.latitude, lng: w.longitude }}
-                                        title={w.company}
-                                      />
-                                    </GoogleMap>
-                                  )}
-                                  </div>
-                                  <div className="mt-4 text-center">
-                                    <p>{w.location}</p>
-                                  </div>
-                                </DialogContent>
-                            </Dialog>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
+      <div className="flex space-x-10 m-5 mt-15">
+        <div className="w-content h-max space-x-15 md:sticky md:top-29">
+          <div className="w-75 bg-white rounded-xl shadow-md p-10 flex flex-col justify-center items-center gap-5 max-h-fit">
+            <div className="relative group bg-gray-200 w-50 h-50 flex justify-center items-center mb-2 rounded-full">
+              {alum?.image ? (
+                <Image
+                  src={alum.image}
+                  alt="Alumnus Image"
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="object-cover w-full h-full rounded-full"
+                />
               ) : (
-                <p className="pl-9 pt-3">None</p>
+                <span className="text-white"></span>
               )}
+            </div>
+            <div>
+              <p className="text-xl font-bold text-center break-words max-w-md">{alum.lastName}, {alum.firstName} {alum.middleName !== "" ? alum.middleName : ""}</p>
+              <p className="text-center">{alum.email}</p>
+              <p className="text-center">{alum.studentNumber}</p>
+            </div>
+            <div className="space-x-5">
+              <span
+                className={`px-2 py-1 rounded-full text-sm ${
+                  alum.activeStatus
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {alum.activeStatus ? "Active" : "Inactive"}
+              </span>
+              <span
+                className={`px-2 py-1 rounded-full text-sm ${
+                  alum.regStatus === "approved"
+                    ? "bg-green-100 text-green-800"
+                    : alum.regStatus === "rejected"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-yellow-100 text-yellow-800"
+                }`}
+              >
+                {alum.regStatus.charAt(0).toUpperCase() +
+                  alum.regStatus.slice(1)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-x-15 w-full">
+          <div className="top-0 w-full fixed h-20 bg-[#eaeaea]"></div>
+          <div className="space-y-8">
+            <div className="space-y-5 bg-white p-5 rounded-lg">
+              <div>
+                <p className="text-xl font-bold w-full pb-1.5">
+                  Personal
+                </p>
+                <hr className="text-gray-300"></hr>
+              </div>
+              
+              <div className="grid grid-cols-10 gap-8">
+                <div className="col-span-5">
+                  <div className="flex space-x-3 items-center">
+                    <Cake/>
+                    <p className="font-semibold">Birthday <span className="font-light">(YYYY/MM/DD)</span></p>
+                  </div>
+                  <p className="pl-9 pt-3">
+                    {alum.birthDate
+                      ? alum.birthDate
+                          .toDate()
+                          .toISOString()
+                          .slice(0, 10)
+                          .replaceAll("-", "/")
+                      : ""}
+                  </p>
+                </div>
+                <div className="col-span-5">
+                  <div className="flex space-x-3 items-center">
+                    <PersonStanding/>
+                    <p className="font-semibold">Current Age</p>
+                  </div>
+                  <p className="pl-9 pt-3">{calculateAge(alum.birthDate.toDate())}</p>
+                </div>
+                <div className="col-span-5">
+                  <div className="flex space-x-3 items-center">
+                    <MapPin/>
+                    <p className="font-semibold">Current Location</p>
+                  </div>
+                  <p className="pl-9 pt-3">{alum.address[1]}, {alum.address[2]}, {alum.address[0]}</p>
+                </div>
+                <div className="col-span-5">
+                  <div className="flex space-x-3 items-center">
+                    <Heart/>
+                    <p className="font-semibold">Fields of Interest</p>
+                  </div>
+                  <p className="pl-9 pt-3">
+                    {alum.fieldOfInterest.length > 0 ? (
+                      alum.fieldOfInterest.map((f, i) => (
+                        <span key={i}>
+                          {f}{i < alum.fieldOfInterest.length - 1 ? ', ' : ''}
+                        </span>
+                      ))
+                    ) : (
+                      <span>None</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-5 bg-white p-5 rounded-lg">
+              <div>
+                <p className="text-xl font-bold w-full pb-1.5">
+                  Education
+                </p>
+                <hr className="text-gray-300"></hr>
+              </div>
+
+              <div className="grid grid-cols-10 gap-8">
+                <div className="col-span-10">
+                  <div className="flex space-x-3 items-center">
+                    <GraduationCap/>
+                    <p className="font-semibold">Bachelor's Degree</p>
+                  </div>
+                  {edu.filter((edu: { type: string }) => edu.type === "bachelors").length > 0 ? (
+                    <table className="w-full text-left border-separate pl-9 pt-3">
+                      <thead>
+                        <tr className="text-gray-500">
+                          <th className="py-1 w-3/8">Degree Program</th>
+                          <th className="py-1 w-4/8 px-3">University</th>
+                          <th className="py-1 w-1/9">Graduated</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {edu
+                          .filter((edu: { type: string }) => edu.type === "bachelors")
+                          .sort((a, b) => b.yearGraduated - a.yearGraduated)
+                          .map((edu: Education, index: number) => (
+                            <tr key={index}>
+                              <td className="py-1">{edu.major}</td>
+                              <td className="py-1 px-3">{edu.university}</td>
+                              <td className="py-1">{edu.yearGraduated}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="pl-9 pt-3">None</p>
+                  )}
+                </div>
+
+                <div className="col-span-10">
+                  <div className="flex space-x-3 items-center">
+                    <BookOpenText/>
+                    <p className="font-semibold">Master's Degree</p>
+                  </div>
+                  {edu.filter((edu: { type: string }) => edu.type === "masters").length > 0 ? (
+                    <table className="w-full text-left border-separate pl-9 pt-3">
+                      <thead>
+                        <tr className="text-gray-500">
+                          <th className="py-1 w-3/8">Degree Program</th>
+                          <th className="py-1 w-4/8 px-3">University</th>
+                          <th className="py-1 w-1/9">Graduated</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {edu
+                          .filter((edu: { type: string }) => edu.type === "masters")
+                          .sort((a, b) => b.yearGraduated - a.yearGraduated)
+                          .map((edu: Education, index: number) => (
+                            <tr key={index}>
+                              <td className="py-1">{edu.major}</td>
+                              <td className="py-1 px-3">{edu.university}</td>
+                              <td className="py-1">{edu.yearGraduated}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="pl-9 pt-3">None</p>
+                  )}             
+                </div>
+
+                <div className="col-span-10">
+                  <div className="flex space-x-3 items-center">
+                    <Award/>
+                    <p className="font-semibold">Doctoral Degree</p>
+                  </div>
+                  {edu.filter((edu: { type: string }) => edu.type === "doctoral").length > 0 ? (
+                    <table className="w-full text-left border-separate pl-9 pt-3">
+                      <thead>
+                        <tr className="text-gray-500">
+                          <th className="py-1 w-3/8">Degree Program</th>
+                          <th className="py-1 w-4/8 px-3">University</th>
+                          <th className="py-1 w-1/9">Graduated</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {edu
+                          .filter((edu: { type: string }) => edu.type === "doctoral")
+                          .sort((a, b) => b.yearGraduated - a.yearGraduated)
+                          .map((edu: Education, index: number) => (
+                            <tr key={index}>
+                              <td className="py-1">{edu.major}</td>
+                              <td className="py-1 px-3">{edu.university}</td>
+                              <td className="py-1">{edu.yearGraduated}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="pl-9 pt-3">None</p>
+                  )}
+                </div>
+
+                <div className="col-span-10">
+                  <div className="flex space-x-3 items-center">
+                    <UsersRound/>
+                    <p className="font-semibold">Affiliations</p>
+                  </div>
+                  {affil.length > 0 ? (
+                    <table className="w-full text-left border-separate pl-9 pt-3">
+                      <thead>
+                        <tr className="text-gray-500">
+                          <th className="py-1 w-3/8">Affiliation</th>
+                          <th className="py-1 w-4/8 px-3">University</th>
+                          <th className="py-1 w-1/9">Joined</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {affil
+                          .sort((a, b) => b.yearJoined - a.yearJoined)
+                          .map((affil: Affiliation, index: number) => (
+                            <tr key={index}>
+                              <td className="py-1">{affil.affiliationName}</td>
+                              <td className="py-1 px-3">{affil.university}</td>
+                              <td className="py-1">{affil.yearJoined}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="pl-9 pt-3">None</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-5 bg-white p-5 rounded-lg">
+              <div>
+                <p className="text-xl font-bold w-full pb-1.5">
+                  Career
+                </p>
+                <hr className="text-gray-300"></hr>
+              </div>
+              
+              <div className="col-span-10">
+                <div className="flex space-x-3 items-center">
+                  <Briefcase/>
+                  <p className="font-semibold">Work Experience</p>
+                </div>
+                {work.length > 0 ? (
+                  <table className="w-full text-left border-separate pl-9 pt-3">
+                    <thead>
+                      <tr className="text-gray-500">
+                        <th className="py-1 w-3/12">Job Title</th>
+                        <th className="py-1 w-3/12 px-3">Company</th>
+                        <th className="py-1 w-3/12">Industry</th>
+                        <th className="py-1 w-3/12 px-3">From - To</th>
+                        <th className="py-1 w-1/12">Loc</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {work
+                        .sort((a, b) => {
+                          const currentYear = new Date().getFullYear();
+                          const startA = a.startYear === "present" ? currentYear : parseInt(a.startYear);
+                          const startB = b.startYear === "present" ? currentYear : parseInt(b.startYear);
+                          return startB - startA;
+                        })
+                        .map((w: WorkExperience, index: number) => (
+                          <tr key={index}>
+                            <td className="py-1">{w.jobTitle}</td>
+                            <td className="py-1 px-3">{w.company}</td>
+                            <td className="py-1">{w.industry}</td>
+                            <td className="py-1 px-3">{w.startYear} - {w.endYear}</td>
+                            <td className="py-1"><MapPin className="text-[#3675c5] cursor-pointer" onClick={() => openMap(index)}/></td>
+                            
+                              <Dialog
+                                open={isMapOpenArray[index]}
+                                onClose={() => closeMap(index)}
+                              >
+                                <DialogContent className="w-150">
+                                  <div className="flex items-center justify-between relative">
+                                    <p className="text-xl font-bold pb-3">{w.company} Location</p>
+                                    <button onClick={() => closeMap(index)} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+                                  </div>
+                                  <div className="h-[400px] w-full">
+                                    {!isLoaded ? (
+                                      <div className="flex items-center justify-center h-full">
+                                        <p className="text-xl text-gray-600">Loading map...</p>
+                                      </div>
+                                    ) : (
+                                      <GoogleMap
+                                        mapContainerStyle={{ width: "100%", height: "100%" }}
+                                        center={{ lat: w.latitude, lng: w.longitude }}
+                                        zoom={15}
+                                      >
+                                        <Marker
+                                          position={{ lat: w.latitude, lng: w.longitude }}
+                                          title={w.company}
+                                        />
+                                      </GoogleMap>
+                                    )}
+                                    </div>
+                                    <div className="mt-4 text-center">
+                                      <p>{w.location}</p>
+                                    </div>
+                                  </DialogContent>
+                              </Dialog>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="pl-9 pt-3">None</p>
+                )}
+              </div>
             </div>
           </div>
         </div>

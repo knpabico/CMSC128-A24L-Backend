@@ -10,7 +10,8 @@ import {
 import { UserActionButtons } from "@/components/UserActionButtons";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus } from "@/models/models";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from 'next/link';
 import {
   Select,
   SelectContent,
@@ -18,26 +19,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronUp, ChevronDown, X, Loader2 } from "lucide-react";
+import { ChevronUp, ChevronDown, X, Loader2, ChevronRight, Trash2 } from "lucide-react";
 
 const Page = () => {
+  const tableRef = useRef(null);
+  const [isSticky, setIsSticky] = useState(false);
   const { alums, isLoading } = useAlums();
+  const [headerWidth, setHeaderWidth] = useState("100%");
   const [activeTab, setActiveTab] = useState("Pending");
-  const [activeStatus, setActiveStatus] = useState("");
+  const [activeStatus, setActiveStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
-
   const filterAlums = (regStatus: string, actStatus: string) => {
     let filtered = alums.filter(
       (alumni: Alumnus) => alumni.regStatus === regStatus
     );
 
-    // Apply active status filter if one is selected
-    if (actStatus === "Active") {
+    if (actStatus === "all") {
+      return filtered;
+    } else if (actStatus === "active") {
       filtered = filtered.filter(
         (alumni: Alumnus) => alumni.activeStatus === true
       );
-    } else if (actStatus === "Inactive") {
+    } else if (actStatus === "inactive") {
       filtered = filtered.filter(
         (alumni: Alumnus) => alumni.activeStatus === false
       );
@@ -45,15 +49,9 @@ const Page = () => {
 
     return filtered;
   };
-
-  const clearActiveStatusFilter = () => {
-    setActiveStatus("");
-  };
-
   const toggleSortDirection = () => {
     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
   };
-
   const sortAlums = (filteredAlums: Alumnus[]) => {
     return [...filteredAlums].sort((a, b) => {
       let comparison = 0;
@@ -79,146 +77,204 @@ const Page = () => {
       return sortDirection === "asc" ? comparison : -comparison;
     });
   };
-
   const filteredAlums = filterAlums(activeTab.toLowerCase(), activeStatus);
   const sortedAlums = sortAlums(filteredAlums);
+  const [statusCounts, setStatusCounts] = useState({Pending: 0, Approved: 0, Rejected: 0});
+
+
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!tableRef.current) return;
+      
+      const tableRect = tableRef.current.getBoundingClientRect();
+      
+      if (tableRect.top <= 0 && !isSticky) {
+        setIsSticky(true);
+        setHeaderWidth(tableRect.width);
+      } else if (tableRect.top > 0 && isSticky) {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    if (tableRef.current) {
+      setHeaderWidth(tableRef.current.offsetWidth);
+    }
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isSticky]);
+
+  useEffect(() => {
+    const counts = {
+      Pending: alums.filter((alum:Alumnus) => alum.regStatus === 'pending').length,
+      Approved: alums.filter((alum:Alumnus) => alum.regStatus === 'approved').length,
+      Rejected: alums.filter((alum:Alumnus) => alum.regStatus === 'rejected').length
+    };
+    setStatusCounts(counts);
+  }, [alums]);
+
+
+
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Alumni Management</h1>
-
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-        <div className="flex flex-wrap gap-2">
-          <div className="mr-4">
-            <p className="text-sm text-gray-600 mb-1">Registration Status</p>
-            <div className="flex gap-2">
-              {["Pending", "Approved", "Rejected"].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setActiveTab(status)}
-                  className={`px-4 py-2 rounded-md ${
-                    activeTab === status
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Active Status</p>
-            <div className="flex gap-2 items-center">
-              {["Active", "Inactive"].map((status) => (
-                <button
-                  key={status}
-                  onClick={() =>
-                    setActiveStatus(status === activeStatus ? "" : status)
-                  }
-                  className={`px-4 py-2 rounded-md ${
-                    activeStatus === status
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {status}
-                </button>
-              ))}
-              {activeStatus && (
-                <button
-                  onClick={clearActiveStatusFilter}
-                  className="p-1 rounded-full bg-gray-200 hover:bg-gray-300"
-                  title="Clear filter"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 mt-4 md:mt-0">
-          <span className="text-sm font-medium">Sort by:</span>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Select field" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="studentNumber">Student Number</SelectItem>
-              <SelectItem value="dateCreated">Date Created</SelectItem>
-            </SelectContent>
-          </Select>
-          <button
-            onClick={toggleSortDirection}
-            className="p-2 rounded-md bg-gray-100 hover:bg-gray-200"
-          >
-            {sortDirection === "asc" ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Display active filters */}
-      <div className="mb-4">
-        {activeStatus && (
-          <span className="inline-flex items-center bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full mr-2">
-            {activeStatus}
-            <button onClick={clearActiveStatusFilter} className="ml-1">
-              <X className="h-3 w-3" />
-            </button>
-          </span>
-        )}
-      </div>
-
-      {sortedAlums.length === 0 ? (
-        isLoading ? (
-          <div className=" justify-center py-12 rounded-md bg-gray-50">
-            <div className="text-center py-12 rounded-md">
-              <p className="text-gray-500">
-                <Loader2 className="animate-spin w-6 h-6 mx-auto" />
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-md">
-            <p className="text-gray-500">
-              No {activeStatus ? activeStatus.toLowerCase() + " " : ""}
-              {activeTab.toLowerCase()} alumni records found.
-            </p>
-          </div>
-        )
-      ) : (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-2">
+        <Link href="/admin-dashboard" className="cursor-pointer">Home</Link>
         <div>
-          <p className="text-sm text-gray-500 mb-2">
-            Showing {sortedAlums.length}{" "}
-            {activeStatus ? activeStatus.toLowerCase() + " " : ""}
-            {activeTab.toLowerCase()} alumni records
-          </p>
-          <div className="overflow-x-auto">
+          <ChevronRight size={15} />
+        </div>
+        <div>
+          Manage Users
+        </div>
+      </div>
+      <div className="w-full">
+        <div className="flex items-center justify-between">
+          <div className="font-bold text-3xl">
+            Alumni Management
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <div className="w-full flex gap-2">
+          {["Pending", "Approved", "Rejected"].map((status) => (
+            <div
+              key={status}
+              onClick={() => setActiveTab(status)}
+              className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
+                activeTab === status 
+                ? "bg-[var(--primary-blue)]" 
+                : "bg-white"
+              }`}
+            >
+              <div
+                className={`w-full h-1 transition-colors ${
+                  activeTab === status 
+                  ? "bg-[var(--primary-blue)]" 
+                  : "bg-transparent"
+                }`}
+              ></div>
+              <div
+                className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
+                  activeTab === status
+                    ? "text-[var(--primary-blue)] bg-white"
+                    : "text-blue-200 bg-white"
+                }`}
+              >
+                {status} 
+                <div
+                  className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                    activeTab === status
+                      ? "bg-amber-400"
+                      : "bg-blue-200"
+                  }`}
+                >
+                {statusCounts[status]}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+
+        <div className="bg-white rounded-xl flex p-2.5 px-4 items-center justify-between">
+          <div className="flex gap-6">
+            <div className="flex items-center gap-1">
+              <div className="text-sm font-medium">Filter by:</div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="appearance-none px-2 h-7 bg-gray-300 rounded-md flex items-center text-xs font-medium cursor-pointer hover:bg-gray-400 border-none">
+                  <SelectValue placeholder="Select field" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-none">
+                  <SelectItem value="name" className="text-xs hover:bg-gray-100 cursor-pointer">Name</SelectItem>
+                  <SelectItem value="studentNumber" className="text-xs hover:bg-gray-100 cursor-pointer">Student Number</SelectItem>
+                  <SelectItem value="dateCreated" className="text-xs hover:bg-gray-100 cursor-pointer">Date Created</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <div className="text-sm font-medium">Active Status:</div>
+              <Select value={activeStatus} onValueChange={setActiveStatus}>
+                <SelectTrigger className="appearance-none px-2 h-7 bg-gray-300 rounded-md flex items-center text-xs font-medium cursor-pointer hover:bg-gray-400 border-none">
+                  <SelectValue placeholder="Select field" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-none">
+                  <SelectItem value="all" className="text-xs hover:bg-gray-100 cursor-pointer">All</SelectItem>
+                  <SelectItem value="active" className="text-xs hover:bg-gray-100 cursor-pointer">Active</SelectItem>
+                  <SelectItem value="inactive" className="text-xs hover:bg-gray-100 cursor-pointer">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <div className="text-sm font-medium">Order:</div>
+              <button
+                onClick={toggleSortDirection}
+                className="px-2 h-7 bg-gray-300 rounded-md text-xs font-medium cursor-pointer hover:bg-gray-400"
+              >
+                {sortDirection === "asc" ? (
+                  <div>
+                    <p>Ascending</p>
+                  </div>  
+                ) : (
+                  <div>
+                    <p>Descending</p>
+                  </div>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {activeStatus.toLowerCase() === "all" && sortedAlums.length > 1 && (
+            <p className="text-sm text-gray-500">Showing all {sortedAlums.length} {activeTab.toLowerCase()} alumni records</p>
+          )}
+          {activeStatus.toLowerCase() !== "all" && sortedAlums.length > 1 && (
+            <p className="text-sm text-gray-500">Showing {sortedAlums.length} {activeStatus.toLowerCase()} and {activeTab.toLowerCase()} alumni records</p>
+          )}
+          {activeStatus.toLowerCase() !== "all" && sortedAlums.length === 1 && (
+            <p className="text-sm text-gray-500">Showing {sortedAlums.length} {activeStatus.toLowerCase()} and {activeTab.toLowerCase()} alumnus record</p>
+          )}
+          {activeStatus.toLowerCase() === "all" && sortedAlums.length === 1 && (
+            <p className="text-sm text-gray-500">Showing {sortedAlums.length} {activeTab.toLowerCase()} alumnus record</p>
+          )}
+          {sortedAlums.length === 0 && (
+            <p className="text-sm text-gray-500">No {activeTab.toLowerCase()} records found</p>
+          )}
+        </div>
+
+        <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+          <div className="rounded-xl overflow-hidden border border-gray-300 relative" ref={tableRef}>
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Student Number</TableHead>
-                  <TableHead>Active Status</TableHead>
-                  <TableHead>Registration Status</TableHead>
-                  <TableHead>Date Created</TableHead>
-                  <TableHead>Actions</TableHead>
+              <TableHeader 
+                // className={`bg-blue-100 text-xs z-10 shadow-sm ${isSticky ? 'fixed top-0' : ''}`}
+                className="bg-blue-100 text-xs z-10 shadow-sm"
+              >
+                <TableRow className="border-none">
+                  <TableHead className="font-semibold">Name</TableHead>
+                  <TableHead className="font-semibold">Email</TableHead>
+                  <TableHead className="font-semibold">Student Number</TableHead>
+                  <TableHead className="font-semibold">Active Status</TableHead>
+                  <TableHead className="font-semibold">Date Created</TableHead>
+                  <TableHead className="font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
+
+              {/* {isSticky && <div style={{ height: '42px' }}></div>} */}
+
               <TableBody>
-                {sortedAlums.map((alumni: Alumnus, index: number) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      {alumni.lastName}, {alumni.firstName}
-                    </TableCell>
+                {sortedAlums.map((alumni, index) => (
+                  <TableRow
+                    key={index}
+                    className={`border-t border-gray-300 text-sm ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50`}
+                  >
+                    <TableCell>{alumni.lastName}, {alumni.firstName}</TableCell>
                     <TableCell>{alumni.email}</TableCell>
                     <TableCell>{alumni.studentNumber}</TableCell>
                     <TableCell>
@@ -232,7 +288,7 @@ const Page = () => {
                         {alumni.activeStatus ? "Active" : "Inactive"}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${
                           alumni.regStatus === "approved"
@@ -245,7 +301,7 @@ const Page = () => {
                         {alumni.regStatus.charAt(0).toUpperCase() +
                           alumni.regStatus.slice(1)}
                       </span>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       {alumni.createdDate
                         ? alumni.createdDate
@@ -269,9 +325,9 @@ const Page = () => {
             </Table>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
-};
+}
 
 export default Page;
