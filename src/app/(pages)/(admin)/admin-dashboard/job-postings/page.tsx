@@ -20,7 +20,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/[id]/page";
+import PostJobPage from "./post/page";
+
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -72,7 +73,7 @@ export default function Users() {
     ],
   };
 
-  const [viewingJob, setViewingJob] = useState(null);
+  const [viewingJob, setViewingJob] = useState<JobOffering | null>(null);
   const [currentPage, setCurrentPage] = useState("list");
   const [activeTab, setActiveTab] = useState("Accepted");
   const tableRef = useRef<HTMLDivElement>(null);
