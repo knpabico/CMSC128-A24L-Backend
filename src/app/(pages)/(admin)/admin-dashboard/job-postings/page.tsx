@@ -6,7 +6,7 @@ import type { JobOffering } from "@/models/models"
 import { toastError } from "@/components/ui/sonner"
 import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, CirclePlus, Pencil, CircleX } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/[id]/page"
+import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page"
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date"
@@ -48,7 +48,9 @@ export default function Users() {
 
   const filterJobs = (status: string) => {
     return jobOffers.filter((job: JobOffering) => {
-      const matchesStatus = job.status === status
+      const matchesStatus = status === "Accepted" 
+        ? job.status === "Accepted" || job.status === "Closed"
+        : job.status === status
       const matchesSearch =
         job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,7 +63,7 @@ export default function Users() {
 
   const stats = {
     pending: jobOffers.filter((job: { status: string }) => job.status === "Pending").length,
-    accepted: jobOffers.filter((job: { status: string }) => job.status === "Accepted").length,
+    accepted: jobOffers.filter((job: { status: string }) => job.status === "Accepted" || job.status === "Closed").length,
     rejected: jobOffers.filter((job: { status: string }) => job.status === "Rejected").length,
     drafts: jobOffers.filter((job: { status: string }) => job.status === "Draft").length,
     total: jobOffers.length,
@@ -255,7 +257,9 @@ export default function Users() {
                 <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
                   <button
                     type="button"
-                    onClick={() => setIsEditing(false)}
+                    onClick={() => 
+                      setIsEditing(false)
+                      }
                     className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
                   >
                     Cancel
@@ -343,7 +347,7 @@ export default function Users() {
                       {tab === "Pending"
                         ? stats.pending
                         : tab === "Accepted"
-                          ? stats.accepted
+                          ? stats.accepted 
                           : tab === "Rejected"
                             ? stats.rejected
                             : stats.drafts}

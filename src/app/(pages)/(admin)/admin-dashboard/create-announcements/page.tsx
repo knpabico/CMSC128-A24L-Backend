@@ -101,7 +101,6 @@ export default function Users() {
             <CollapseText
               text={announcement.description + " "}
               maxChars={200}
-              className="text-gray-700 mb-2"
             />
           </div>
 

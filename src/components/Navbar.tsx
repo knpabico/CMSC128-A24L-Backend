@@ -123,14 +123,9 @@ export default function Navbar() {
         {
           id: "manage-jobs",
           label: "Manage Job Posting",
-          path: "/admin/jobs/manage",
+          path: "/admin-dashboard/job-postings",
         },
-        { id: "add-jobs", label: "Add Job Posting", path: "/admin/jobs/add" },
-        {
-          id: "view-jobs",
-          label: "View Job Posting",
-          path: "/admin/jobs/view",
-        },
+        { id: "add-jobs", label: "Add Job Posting", path: "/admin-dashboard/job-postings/post" },
       ],
     },
     {
