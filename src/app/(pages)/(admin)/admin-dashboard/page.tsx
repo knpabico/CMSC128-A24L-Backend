@@ -13,14 +13,18 @@ import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { CheckCircle, XCircle } from 'lucide-react';
+import { useDonationContext } from "@/context/DonationContext";
+
 import { RegStatus } from "@/types/alumni/regStatus";
+import ProEventDetailsModal from "@/components/ui/pro-event-modal"
 
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
   const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus, getPendingAlums, updateAlumnusRegStatus,onUpdateRegStatus} = useAlums();
   const {donationDrives} = useDonationDrives();
-  const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
+  const {getCampaignName} = useDonationContext();
+  const { events, getEventProposals, getUpcomingEvents, onUpdateEventStat } = useEvents(); 
   const {scholarships} = useScholarship();
   const {jobOffers, handleAccept, handleReject, handlePending} = useJobOffer();
   const [activeTab, setActiveTab] = useState('pending');
@@ -28,10 +32,7 @@ export default function AdminDashboard() {
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   // const { allDonations } = useDonationContext();
 
-  const openModal = (job) => {
-    setSelectedJob(job);
-    setIsModalOpen(true);
-  };
+
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -102,8 +103,6 @@ export default function AdminDashboard() {
   const getFieldInterestCounts = (alums: Alumnus[]) => {
     const counts: Record<string, number> = {}; //rereturn ito like this 
                                               // [<field> count]
-    
-    
     fields.forEach(field => {
       counts[field] = 0;
     });
@@ -135,6 +134,7 @@ export default function AdminDashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEventProposal, setSelectedEventProposal] = useState<Event | null>(null);
     const [isModalEventProOpen, setIsModalEventProOpen] = useState(false);
+    const [isCampaignName, setIsCampaignName] = useState("");
 
 
   
@@ -146,12 +146,10 @@ export default function AdminDashboard() {
 
     const handleOpenModalEventProposal = (event: Event) => {
       setSelectedEventProposal(event);
+      setIsCampaignName(getCampaignName(selectedEventProposal?.donationDriveId))
       setIsModalEventProOpen(true);
     };
-        // Function to handle closing the modal
-    const handleCloseEventProposalModal = () => {
-      setIsModalEventProOpen(false);
-    };
+
 
 
     //function to handle the job posting modal
@@ -294,6 +292,7 @@ export default function AdminDashboard() {
             onClose={() => setIsModalOpen(false)}
             onUpdateRegStatus={onUpdateRegStatus}
           />
+
         </Card>
 
           {/* Industries Card */}
@@ -341,8 +340,8 @@ export default function AdminDashboard() {
                   .sort((a, b) => b[1] - a[1]) // Sort descending by count
                   .map(([field, count], idx) => (
                     <div
-                      key={field}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
+                    key={field}
+                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
                     >
                       <div className="flex items-center">
                         <span
@@ -381,7 +380,7 @@ export default function AdminDashboard() {
                 - Event name
                 - Date
                 - Event venue
-              */}
+                */}
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {getEventProposals(events).map((event:Event, index:number)=>{
                   return (
@@ -396,7 +395,7 @@ export default function AdminDashboard() {
                           <span className="font-medium">Event: {event.title}</span>
                           <p className="text-sm text-black-500">Date: {event.date}</p>
                           <p className="text-sm text-black-500">Place: {event.location}</p>
-                          
+                          <p className="text-sm text-black-500">Status: {event.status}</p>
                         </div>
                       </div>
                   </div>
@@ -418,6 +417,13 @@ export default function AdminDashboard() {
               </Link>
             </div>
           </div>
+              <ProEventDetailsModal
+                proEvent={selectedEventProposal}
+                isEventProOpen={isModalEventProOpen}
+                onProEventClose={() => setIsModalEventProOpen(false)}
+                onUpdateEventStat={onUpdateEventStat}
+                getCampaignName= {isCampaignName}
+              />
         </Card>
 
         {/* Upcoming Events */}
