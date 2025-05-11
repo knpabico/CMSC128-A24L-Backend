@@ -483,35 +483,29 @@ export default function AdminDashboard() {
           <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
           </div>
-          <CardContent className="flex-1 overflow-y-auto">
-            <div className="max-h-60">
-              {/* Recent donation received. Maybe a routing na maoopen yung page nung mismong donation idk
-              Contents:
-                - amount
-                - Name of donator
-                - name of donation drive? basta kung san siya nagdonate lmao
-              */}
-             {donationDrives.map((donationDrive:DonationDrive, index:number)=>{
-              return (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                                    
-                <div 
-                  key={donationDrive.eventId}
-
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                >
-                  <div>
-                    <span className="font-medium">Donation Drive: {donationDrive.campaignName}</span>
-                    <p className="text-sm text-black-500">Beneficiary: {donationDrive.beneficiary}</p>
-                    
+          <CardContent className="flex-1 overflow-y-auto max-h-60 space-y-2">
+              {donationDrives.map((donationDrive: DonationDrive, index: number) => (
+                <div key={donationDrive.donationDriveId} className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer">
+                  <div className="mb-1">
+                    <span className="font-medium text-base">Donation Drive: {donationDrive.campaignName}</span>
+                    <p className="text-sm text-gray-600">Beneficiary: {donationDrive.beneficiary.join(', ')}</p>
                   </div>
+
+                  <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                    <div
+                      className="bg-green-500 h-3 rounded-full"
+                      style={{ width: `${(donationDrive.currentAmount / donationDrive.targetAmount) * 100}%` }}
+                    />
+                  </div>
+                  {/* para sa progress bar */}
+                  <p className="text-xs text-gray-700 mt-1">
+                    ₱{donationDrive.currentAmount.toLocaleString()} raised of ₱{donationDrive.targetAmount.toLocaleString()}
+                  </p>
                 </div>
-                </div>
-              )
-            })}                
-            </div>
-          </CardContent>
-          <div className="px-2 pt-0">
+              ))}
+            </CardContent>
+
+                   <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             <div className="text-center">
               <Link
