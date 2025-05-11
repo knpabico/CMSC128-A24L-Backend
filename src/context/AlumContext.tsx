@@ -343,9 +343,12 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       const updateData = {
         regStatus: regStatus
       };
-      
-      await updateDoc(alumniRef, updateData);
-      console.log(alumniId, "HSDFGHJKJHGFDSDFGHJ");
+      if (regStatus === "approved"){
+        await updateDoc(alumniRef,{ activeStatus: true });
+        console.log("TOTOO ANG HIMALA")
+
+      }
+      await updateDoc(alumniRef,{ regStatus: regStatus });
       
       return { success: true };
     } catch (error) {

@@ -293,34 +293,39 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Industries Card */}
-        <Card className="border-0 shadow-md bg-white">
-          <CardHeader>
-            <CardTitle>Industries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* summary stats, just like Alumni
-            <p>Total Fields: {Object.keys(fieldCounts).length}</p>
-            <p>Total Alumni Counted: {Object.entries(fieldCounts).reduce((sum, [, c]) => sum + c, 0)}</p>
-            <p>Distinct Industries: {Object.keys(fieldCounts).filter(f => fieldCounts[f] > 0).length}</p> */}
-
-            {/* inner chart card */}
-            <div className="w-full flex justify-center">
-              <div className="w-50 h-50">
-                <DonutChart
-                    labels={Object.entries(fieldCounts).map(([field]) => field)}
-                    data={Object.entries(fieldCounts).map(([_, count]) => count)}
-                    backgroundColor={Object.entries(fieldCounts).map(
-                      ([field], i) => getColorForField(field, i)
-                    )}
-                  />
-              </div>
+      <Card className="border-0 shadow-md bg-white">
+        <CardHeader>
+          <CardTitle>Industries</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* inner chart card */}
+          <div className="w-full flex justify-center">
+            <div className="w-50 h-50">
+              <DonutChart
+                labels={Object.entries(fieldCounts)
+                  .filter(([_, count]) => count > 0)
+                  .sort((a, b) => b[1] - a[1]) // Sort descending by count
+                  .map(([field]) => field)}
+                data={Object.entries(fieldCounts)
+                  .filter(([_, count]) => count > 0)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([_, count]) => count)}
+                backgroundColor={Object.entries(fieldCounts)
+                  .filter(([_, count]) => count > 0)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([field], i) => getColorForField(field, i))}
+              />
             </div>
+          </div>
 
-            {/* list of industries like Alumni List */}
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2">Industry Breakdown</h3>
-              <div className="space-y-2 max-h-70 overflow-y-auto">
-                {Object.entries(fieldCounts).map(([field, count], idx) => (
+          {/* list of industries like Alumni List */}
+          <div className="mt-6">
+            <h3 className="font-semibold mb-2">Industry Breakdown</h3>
+            <div className="space-y-2 max-h-70 overflow-y-auto">
+              {Object.entries(fieldCounts)
+                .filter(([_, count]) => count > 0)
+                .sort((a, b) => b[1] - a[1]) // Sort descending by count
+                .map(([field, count], idx) => (
                   <div
                     key={field}
                     className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
@@ -337,11 +342,10 @@ export default function AdminDashboard() {
                     </span>
                   </div>
                 ))}
-              </div>
             </div>
-          </CardContent>
-        </Card>
-
+          </div>
+        </CardContent>
+      </Card>
 
 
       </div>
