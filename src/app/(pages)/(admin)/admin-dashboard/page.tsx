@@ -100,6 +100,12 @@ export default function AdminDashboard() {
     return colorPalette[index % colorPalette.length];
   };
 
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  
   const getFieldInterestCounts = (alums: Alumnus[]) => {
     const counts: Record<string, number> = {}; //rereturn ito like this 
                                               // [<field> count]
@@ -438,16 +444,16 @@ export default function AdminDashboard() {
             <div className="max-h-60">
              {getUpcomingEvents(events).map((event:Event, index:number)=>{
               return (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
                     
                 <div 
-                  key={event.eventId}
+                  
                   onClick={() => handleOpenModalEventProposal(event)}
                   className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                 >
                   <div>
                     <span className="font-medium">Event: {event.title}</span>
-                    <p className="text-sm text-black-500">Date: {event.status}</p>
+                    <p className="text-sm text-black-500">Date: {formatter.format(new Date(event.date))}</p>
                     
                   </div>
                 </div>
