@@ -86,7 +86,7 @@ const DonationDriveDetailsPage: React.FC = () => {
 const getRemainingDays = (endDate: any) => {
 	try {
 		const today = new Date(); // Current date
-		const end = new Date(endDate); // Firestore Timestamp to JS Date
+      	const end = (typeof endDate === 'string')? new Date(endDate) : endDate.toDate(); // Firestore Timestamp to JS Date
 		const diffTime = end.getTime() - today.getTime();
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
