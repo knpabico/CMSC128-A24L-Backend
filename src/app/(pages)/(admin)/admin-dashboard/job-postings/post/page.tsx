@@ -88,7 +88,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
         <div>
           <ChevronRight size={15} />
         </div>
-        <div className="cursor-pointer hover:text-blue-600" onClick={goBackToList}>
+        <div className="cursor-pointer hover:text-blue-600" onClick={() => goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings')}>
           Manage Job Posting
         </div>
         <div>
