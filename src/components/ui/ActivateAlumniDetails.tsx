@@ -11,25 +11,26 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import type { Timestamp } from 'firebase/firestore'; 
+import { RegStatus } from '@/types/alumni/regStatus';
 
 interface AlumniDetailsModalProps {
   alumnus: Alumnus | null;
   isOpen: boolean;
   onClose: () => void;
-  onToggleActiveStatus: (alumniId: string, activeStatus: boolean) => void;
+  onTogglePendingStatus: (alumniId: string, regStatus: RegStatus) => void;
 }
 
 const AlumniDetailsModal = ({
   alumnus,
   isOpen,
   onClose,
-  onToggleActiveStatus,
+  onTogglePendingStatus,
 }: AlumniDetailsModalProps) => {
   // Safety check
   if (!alumnus) return null;
 
-  const handleToggleActive = () => {
-    onToggleActiveStatus(alumnus.alumniId, !alumnus.activeStatus);
+  const handleTogglePending = () => {
+    onTogglePendingStatus(alumnus.alumniId, 'approved');
   };
 
   // Helper function to format dates safely
@@ -164,11 +165,11 @@ const AlumniDetailsModal = ({
 
         <DialogFooter className="flex justify-between sm:justify-between">
           <Button 
-            onClick={handleToggleActive}
+            onClick={handleTogglePending}
             variant={alumnus.activeStatus ? "destructive" : "default"}
             className={alumnus.activeStatus ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
           >
-            {alumnus.activeStatus ? "Mark as Inactive" : "Mark as Active"}
+            {alumnus.regStatus ? "Approve Registration" : "Disapproved Registration"}
           </Button>
           <DialogClose asChild>
             <Button variant="outline">Close</Button>

@@ -3,16 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { DonationDrive } from "@/models/models";
-import Link from "next/link";
+// import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { useAuth } from "@/context/AuthContext";
-import { Calendar, ChevronRight, CircleX, Clock, MapPin, Trash2 } from "lucide-react";
+// import { useAuth } from "@/context/AuthContext";
+import { ChevronRight } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
-import { Dialog, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
-import { DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
+// import { Dialog, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
+// import { DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 // import { formatDistance } from "date-fns";
 
 export default function ManageDonationDrive() {
@@ -21,60 +21,23 @@ export default function ManageDonationDrive() {
     donationDrives,
     events,
     isLoading,
-    addDonationDrive,
-    showForm,
-    setShowForm,
-    handleImageChange,
-    handleBenefiaryChange,
-    handleAddBeneficiary,
-    handleRemoveBeneficiary,
-    handleSave,
-    handleEdit,
-    handleDelete,
-    campaignName,
     setCampaignName,
-    description,
     setDescription,
-    creatorId,
-    setCreatorId,
-    qrGcash, 
     setQrGcash, 
-    fileGcashName, 
     setFileGcashName, 
-    previewGcash, 
-    setPreviewGcash, 
-    qrPaymaya, 
+    setPreviewGcash,  
     setQrPaymaya, 
-    filePaymayaName, 
     setFilePaymayaName, 
-    previewPaymaya, 
     setPreviewPaymaya,
-    image,
     setImage,
-    fileName,
     setFileName,
-    preview,
     setPreview,
-    targetAmount,
     setTargetAmount,
-    isEvent,
-    setIsEvent,
-    eventId,
-    setEventId,
-    endDate,
-    setEndDate,
-    status,
     setStatus,
-    oneBeneficiary, 
-    setOneBeneficiary,
-    beneficiary,
     setBeneficiary,
-    getDonationDriveById,
-    getEventById,
     fetchAlumnusById,
   } = useDonationDrives();
 
-  const [editForm, setEditForm] = useState(false);
 	const [localDrives, setLocalDrives] = useState<DonationDrive[]>([]);
   const [creatorNames, setCreatorNames] = useState<{ [key: string]: string }>({});
   
@@ -253,15 +216,15 @@ export default function ManageDonationDrive() {
 	};
 	
 	//  Scholarship Deletion
-	const handleDeleteClick = (donationDrive : DonationDrive) => {
-		if (!donationDrive.donationDriveId) {
-			console.error("No scholarship ID provided.");
-			return;
-		}
-		handleDelete(donationDrive);
-		toastSuccess(`${donationDrive.campaignName} has been deleted successfully.`)
-	}
-	const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+	// const handleDeleteClick = (donationDrive : DonationDrive) => {
+	// 	if (!donationDrive.donationDriveId) {
+	// 		console.error("No scholarship ID provided.");
+	// 		return;
+	// 	}
+	// 	handleDelete(donationDrive);
+	// 	toastSuccess(`${donationDrive.campaignName} has been deleted successfully.`)
+	// }
+	// const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 	const [selectedDonationDrive, setSelectedDonationDrive] = useState<DonationDrive>();
 
 	const create = () => {
@@ -303,20 +266,32 @@ export default function ManageDonationDrive() {
         <div className="w-full flex gap-2">
 					<div onClick={() => setStatusFilter("all")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "all" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
 						<div className={`w-full h-1 transition-colors ${statusFilter === "all" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "all" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+						<div className={`w-full py-3 flex gap-1 items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "all" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
 							All Drives
+							<div
+								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "all" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{donationDrives.length}
+							</div>
 						</div>
 					</div>
 					<div onClick={() => setStatusFilter("active")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "active" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
 						<div className={`w-full h-1 transition-colors ${statusFilter === "active" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "active" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+						<div className={`w-full py-3 flex items-center gap-1 justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "active" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
 							Active
+							<div
+								className={`h-6 w-6 rounded-full flex  items-center justify-center text-[13px] text-white ${statusFilter === "active" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{donationDrives.filter((drive: DonationDrive) => drive.status === "active").length}
+							</div>
 						</div>
 					</div>
           <div onClick={() => setStatusFilter("completed")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
 						<div className={`w-full h-1 transition-colors ${statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "completed" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+						<div className={`w-full py-3 flex gap-1 items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "completed" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
 							Closed
+							<div
+								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "completed" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{donationDrives.filter((drive: DonationDrive) => drive.status === "completed").length}
+							</div>
 						</div>
 					</div>
         </div>
@@ -397,10 +372,10 @@ export default function ManageDonationDrive() {
 									<div className="text-[var(--primary-blue)] hover:underline cursor-pointer" onClick={() => navigateToDetails(drive.donationDriveId)}>View Details</div>
 								</div>
 								<div className="w-1/3 md:w-1/6 flex items-center justify-center">
-									<Trash2 size={20} className="text-gray-500 hover:text-red-500 cursor-pointer" onClick={() =>{
+									{/* <Trash2 size={20} className="text-gray-500 hover:text-red-500 cursor-pointer" onClick={() =>{
 										setSelectedDonationDrive(drive);
 										setIsConfirmationOpen(true);
-									}} />
+									}} /> */}
 								</div>
 							</div>
             </div>
@@ -410,7 +385,7 @@ export default function ManageDonationDrive() {
         )}
       </div>
 			{/* Confirmation Dialog */}
-			{isConfirmationOpen && (
+			{/* {isConfirmationOpen && (
 			<Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
 				<DialogContent className='w-96'>
 					<DialogHeader className='text-red-500 flex items-center gap-5'>
@@ -431,7 +406,7 @@ export default function ManageDonationDrive() {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		  )}
+		  )} */}
     </div>
   );
 }

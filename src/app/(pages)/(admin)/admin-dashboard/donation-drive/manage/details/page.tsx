@@ -139,7 +139,7 @@ export default function AddDonationDrive() {
   const getRemainingDays = (endDate: any) => {
     try {
       const today = new Date(); // Current date
-      const end = new Date(endDate); // Firestore Timestamp to JS Date
+      const end = (typeof endDate === 'string')? new Date(endDate) : endDate.toDate(); // Firestore Timestamp to JS Date
       const diffTime = end.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -271,9 +271,9 @@ export default function AddDonationDrive() {
           const enhancedDonations = await Promise.all(
             donationsData.map(async (donation) => {
               // Skip fetching details for anonymous donations
-              if (donation.isAnonymous) {
-                return { ...donation, displayName: 'Anonymous' };
-              }
+              // if (donation.isAnonymous) {
+              //   return { ...donation, displayName: 'Anonymous' };
+              // }
   
               try {
                 // Directly fetch donor details from Firestore using the alumniId from the donation
@@ -406,11 +406,11 @@ export default function AddDonationDrive() {
 									</div>
 								</div>
 								<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-									<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}></div>
+									<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(donationDrive!.currentAmount, donationDrive!.targetAmount)}%` }}></div>
 								</div>
 								<div className="flex justify-between my-1 text-sm">
-									<span className="font-medium">₱ {donationDrive.currentAmount.toLocaleString()}</span>
-									<span className="text-gray-500"> ₱ {donationDrive.targetAmount.toLocaleString()}</span>
+									<span className="font-medium">₱ {donationDrive!.currentAmount.toLocaleString()}</span>
+									<span className="text-gray-500"> ₱ {donationDrive!.targetAmount.toLocaleString()}</span>
 								</div>
 							</div>
 							<div className="rounded-lg py-1 px-6">

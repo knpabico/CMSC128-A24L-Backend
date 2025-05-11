@@ -126,7 +126,9 @@ export default function FeaturedStoriesPage() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
+        <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
         <div>Home</div>
+        </span>
         <div>
           <ChevronRight size={15} />
         </div>
@@ -210,24 +212,28 @@ export default function FeaturedStoriesPage() {
               ref={tableRef}
             >
               {/* Sticky header */}
-              <div
+                <div
                 className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
-                  isSticky ? "fixed top-0" : ""
+                  isSticky ? "fixed top-0 left-0" : ""
                 }`}
-                style={{ width: isSticky ? headerWidth : "100%" }}
-              >
-                <div className="w-2/3 flex items-center justify-baseline font-semibold">
+                style={{
+                  width: isSticky ? `${headerWidth}px` : "100%",
+                  position: isSticky ? "fixed" : "relative",
+                }}
+                >
+                <div className="flex-grow flex items-center font-semibold">
                   Featured Story Info
                 </div>
-                <div className="w-1/3 flex justify-end items-center">
-                  <div className="w-1/3 flex items-center justify-center font-semibold">
-                    Type
-                  </div>
-                  <div className="w-1/3 flex items-center justify-center font-semibold">
-                    Actions
-                  </div>
+                <div className="w-[270px] flex items-center justify-center font-semibold mr-7">
+                  Public
                 </div>
-              </div>
+                <div className="w-[80px] flex items-center justify-center font-semibold">
+                  Type
+                </div>
+                <div className="w-[120px] flex items-center justify-center font-semibold">
+                  Actions
+                </div>
+                </div>
 
               {/* Spacer div to prevent content jump when header becomes fixed */}
               {isSticky && <div style={{ height: "56px" }}></div>}
@@ -346,7 +352,7 @@ export default function FeaturedStoriesPage() {
                 className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer"
                 onClick={() => {
                   if (storyToDelete) {
-                    handleDelete(storyToDelete.title);
+                    handleDelete(storyToDelete?.featuredId);
                     setIsConfirmationOpen(false);
                   }
                 }}

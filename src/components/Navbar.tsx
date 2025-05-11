@@ -51,11 +51,6 @@ export default function Navbar() {
           path: "/admin-dashboard/manage-users",
         },
         {
-          id: "pending-alumni",
-          label: "View Pending Alumni",
-          path: "/admin-dashboard/manage-users",
-        },
-        {
           id: "stats-alumni",
           label: "Statistical Report",
           path: "/admin-dashboard/alum-statistical-reports",
@@ -72,12 +67,7 @@ export default function Navbar() {
           label: "Manage Events",
           path: "/admin-dashboard/organize-events",
         },
-        { id: "add-events", label: "Add Events", path: "/admin/events/add" },
-        {
-          id: "pending-events",
-          label: "View Pending Events",
-          path: "/admin-dashboard/organize-events",
-        },
+        { id: "add-events", label: "Add Events", path: "/admin-dashboard/organize-events/add" },
         {
           id: "stats-events",
           label: "Statistical Report",
@@ -156,15 +146,19 @@ export default function Navbar() {
     },
     {
       id: "featuredStory",
-      label: "featuredStory",
+      label: "Featured Story",
       initiallyCollapsed: true,
       subItems: [
         {
-          id: "manage-featuredStory",
-          label: "Write A Story",
+          id: "manage-stories",
+          label: "Manage Featured Stories",
           path: "/admin-dashboard/create-story",
         },
-        // { id: 'add-featuredStory', label: 'Add Feat', path: '/admin/announcements/add' },
+        {
+          id: "create-story",
+          label: "Write A Story",
+          path: "/admin-dashboard/create-story/add",
+        },
       ],
     },
   ];
@@ -465,7 +459,22 @@ export default function Navbar() {
           className="fixed top-0 left-0 w-20 md:w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
           style={{ paddingTop: "2%", paddingBottom: "2%" }}
         >
-          <div className="text-xl font-bold px-5">ICS-ARMS</div>
+          <div
+            className={`text-white text-lg ${oswald.className} px-7`}
+            onClick={() => router.push("/")}
+          >
+            <Link href="/" className="flex items-center cursor-pointer gap-2">
+              <Image
+                src={ICSARMSLogo}
+                alt="ICS ARMS Logo"
+                className=""
+                width={35}
+                height={35}
+              />
+              ICS-ARMS
+            </Link>
+          </div>
+
           <div className="flex-1 overflow-y-auto">
             {/* Dynamically generate menu sections */}
             {navConfig.map((section) => (

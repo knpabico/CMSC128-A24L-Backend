@@ -182,3 +182,4 @@ const AnnouncementPage = () => {
 };
 
 export default AnnouncementPage;
+
