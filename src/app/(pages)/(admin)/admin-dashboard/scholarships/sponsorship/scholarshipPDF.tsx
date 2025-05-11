@@ -1,28 +1,19 @@
-import React from "react";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  pdf,
-  Font,
-} from "@react-pdf/renderer";
-import { Alumnus, ScholarshipStudent, Student } from "@/models/models";
-import { uploadDocument } from "@/lib/upload";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer"
+import type { Alumnus, ScholarshipStudent, Student } from "@/models/models"
+import { uploadDocument } from "@/lib/upload"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
 // Define styles for the PDF
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
-    fontSize: 12,
+    padding: 72, // 1 inch margin (72 points = 1 inch)
+    fontSize: 11,
     fontFamily: "Times-Roman",
     lineHeight: 1.5,
   },
   section: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
   title: {
     fontSize: 18,
@@ -33,7 +24,69 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "justify",
   },
-});
+  headerContainer: {
+    position: "absolute",
+    top: 72, // 1 inch from top
+    left: 72, // 1 inch from left
+    right: 72, // 1 inch from right
+    height: 60,
+    marginBottom: 20,
+  },
+  grayRectangle: {
+    backgroundColor: "#D3D3D3",
+    width: "50%",
+    height: 15,
+    position: "absolute",
+    left: "25%",
+    top: 5
+  },
+  grayRectangle2: {
+    backgroundColor: "#D3D3D3",
+    width: "50%",
+    height: 15,
+    position: "absolute",
+    left: "25%",
+    top: 30
+  },
+  redCircle: {
+    position: "absolute",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#791C1F", // Darker red to match image
+    borderWidth: 10,
+    borderColor: "#124A2B",
+    top: 0,
+    left: 0,
+  },
+  blueCircle: {
+    position: "absolute",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#0856BA", // Darker blue to match image
+    top: 0,
+    right: 0,
+  },
+  contentContainer: {
+    marginTop: 80, // Add space for the header
+  },
+})
+
+// Helper function to get day suffix (st, nd, rd, th)
+const getDaySuffix = (day: number): string => {
+  if (day > 3 && day < 21) return "th"
+  switch (day % 10) {
+    case 1:
+      return "st"
+    case 2:
+      return "nd"
+    case 3:
+      return "rd"
+    default:
+      return "th"
+  }
+}
 
 // Auto-generated PDF for scholarshipStudent
 const ScholarshipStudentPDF = ({
@@ -41,155 +94,132 @@ const ScholarshipStudentPDF = ({
   student,
   alum,
 }: {
-  scholarshipStudent: ScholarshipStudent;
-  student: Student;
-  alum: Alumnus;
-}) => (
-  // <Document>
-  //   <Page size="A4" style={styles.page}>
-  //     {/* Title */}
-  //     <Text style={styles.title}>Scholarship Agreement Letter</Text>
+  scholarshipStudent: ScholarshipStudent
+  student: Student
+  alum: Alumnus
+}) => {
+  // Format current date
+  const currentDate = new Date()
+  const day = currentDate.getDate()
+  const month = currentDate.toLocaleString("default", { month: "long" })
+  const year = currentDate.getFullYear()
+  const formattedDate = `${day}${getDaySuffix(day)} of ${month}, ${year}`
 
-  //     <View style={styles.section}>
-  //       <Text style={styles.paragraph}>
-  //         This agreement is made between a willing alumnus and a student in-need
-  //         of a scholarship and has been made on{" "}
-  //         {new Date().toLocaleDateString()}. This letter serves as the formal
-  //         agreement between the alumnus providing the scholarship and the
-  //         student recipient with the administrator as the witness.
-  //       </Text>
-  //     </View>
+  return (
+    <Document>
+      <Page size="LEGAL" style={styles.page}>
+        {/* Header with gray rectangle and circles */}
+        <View style={styles.headerContainer}>
+          <View style={styles.grayRectangle} />
+          <View style={styles.grayRectangle2} />
+          <View style={styles.redCircle} />
+          <View style={styles.blueCircle} />
+        </View>
 
-  //     <Text style={{ fontWeight: "bold" }}>
-  //       Written below are the details of the two parties involved in this
-  //       scholarship agreement:
-  //     </Text>
+        <View style={styles.contentContainer}>
+          {/* Title */}
+          <Text style={[styles.title, { textAlign: "center", marginBottom: 20 }]}>SCHOLARSHIP AGREEMENT</Text>
 
-  //     {/* Student info */}
-  //     <View style={styles.section}>
-  //       <Text style={styles.paragraph}>Student Name: {student.name}</Text>
+          {/* Introduction */}
+          <View style={styles.section}>
+            <Text style={styles.paragraph}>
+              This Scholarship Agreement is entered into on the {formattedDate}, by and between {alum.firstName}{" "}
+              {alum.lastName}, a sponsor and alumnus of the Institute of Computer Science, and {student.name}, a student
+              of the same institute.
+            </Text>
 
-  //       <Text style={styles.paragraph}>
-  //         Student Number: {student.studentNumber}
-  //       </Text>
+            <Text style={styles.paragraph}>
+              {student.name}, with student number {student.studentNumber}, resides in {student.address} and may be
+              contacted via email at {student.emailAddress}. They are currently enrolled at the Institute of Computer
+              Science and have demonstrated both academic excellence and a strong commitment to the field of Computer
+              Science.
+            </Text>
 
-  //       <Text style={styles.paragraph}>Age: {student.age}</Text>
+            <Text style={styles.paragraph}>
+              {alum.firstName} {alum.lastName}, with student number {alum.studentNumber}, resides in {alum.address[0]},{" "}
+              {alum.address[1]}, {alum.address[2]} and may be contacted via email at {alum.email}. As a graduate of the
+              Institute of Computer Science, the Sponsor expresses their intention to support students who demonstrate
+              potential and dedication to their academic pursuits.
+            </Text>
+          </View>
 
-  //       <Text style={styles.paragraph}>Address: {student.address}</Text>
+          <View style={styles.section}>
+            <Text style={styles.paragraph}>
+              <Text style={{ fontWeight: "bold" }}>WHEREAS</Text>, the Sponsor/Alumnus desires to support the Student
+              for educational purposes in accordance with the terms outlined in this Agreement; and
+            </Text>
 
-  //       <Text style={styles.paragraph}>
-  //         Email Address: {student.emailAddress}
-  //       </Text>
+            <Text style={styles.paragraph}>
+              <Text style={{ fontWeight: "bold" }}>WHEREAS</Text>, the Student has shown academic promise and a sincere
+              commitment to the discipline of Computer Science;
+            </Text>
 
-  //       <Text style={styles.paragraph}>Address: {student.address}</Text>
+            <Text style={styles.paragraph}>
+              <Text style={{ fontWeight: "bold" }}>NOW, THEREFORE</Text>, in consideration of the mutual promises and
+              obligations set forth herein, the parties agree to the following terms:
+            </Text>
+          </View>
 
-  //       <Text style={styles.paragraph}>
-  //         Student's background:
-  //         {student.shortBackground}
-  //       </Text>
-  //     </View>
+          {/* Terms */}
+          <View style={styles.section}>
+            <Text style={[styles.paragraph, { fontWeight: "bold" }]}>1. Scholarship Support</Text>
+            <Text style={[styles.paragraph, { marginLeft: 20 }]}>
+              The Sponsor/Alumnus agrees to provide scholarship support to the Student to aid in the pursuit of
+              education at the Institute of Computer Science. The support may come in the form of educational resources
+              or financial assistance, as mutually agreed upon by both parties, and is intended solely for academic use.
+            </Text>
 
-  //     {/* Alum Info */}
-  //     <View>
-  //       <Text style={styles.paragraph}>
-  //         Sponsor: {alum.firstName} {alum.lastName}{" "}
-  //       </Text>
+            <Text style={[styles.paragraph, { fontWeight: "bold", marginTop: 10 }]}>
+              2. Academic Obligations of the Student
+            </Text>
+            <Text style={[styles.paragraph, { marginLeft: 20 }]}>
+              The Student agrees to maintain the minimum grade point average required by the Institute and to remain in
+              good academic standing throughout the duration of the scholarship. The Student further agrees to provide
+              the Sponsor with periodic updates regarding academic progress, including but not limited to grade reports
+              and notable achievements.
+            </Text>
 
-  //       <Text style={styles.paragraph}>
-  //         Student Number: {alum.studentNumber}
-  //       </Text>
+            <Text style={[styles.paragraph, { fontWeight: "bold", marginTop: 10 }]}>3. Duration of Agreement</Text>
+            <Text style={[styles.paragraph, { marginLeft: 20 }]}>
+              This Agreement shall remain in effect for the duration of the Student's enrollment at the Institute of
+              Computer Science, provided the Student continues to comply with the terms outlined herein.
+            </Text>
+          </View>
 
-  //       <Text style={styles.paragraph}>Age: {alum.age}</Text>
+          {/* Signature */}
+          <View style={[styles.section]}>
+            <Text style={styles.paragraph}>
+              <Text style={{ fontWeight: "bold" }}>IN WITNESS WHEREOF</Text>, the parties have executed this Agreement
+              on the date first written above.
+            </Text>
 
-  //       <Text style={styles.paragraph}>
-  //         Address: {alum.address[0]}, {alum.address[1]}, {alum.address[2]}
-  //       </Text>
-
-  //       <Text style={styles.paragraph}>Email Address: {alum.email}</Text>
-  //     </View>
-  //   </Page>
-  // </Document>
-	<Document>
-  <Page size="A4" style={styles.page}>
-    {/* Title */}
-    <Text style={styles.title}>Scholarship Agreement Letter</Text>
-
-    {/* Introduction */}
-    <View style={styles.section}>
-      <Text style={styles.paragraph}>
-        This Scholarship Agreement is entered into on {new Date().toLocaleDateString()} by and between:
-      </Text>
-      <Text style={styles.paragraph}>
-        <Text style={{ fontWeight: "bold" }}>The Sponsor</Text>, an alumnus extending financial support, and 
-        <Text style={{ fontWeight: "bold" }}> the Student</Text>, a recipient in need of scholarship assistance.
-        This agreement outlines the understanding between the two parties, with the program administrator acting as a witness.
-      </Text>
-    </View>
-
-    {/* Section Heading */}
-    <Text style={[styles.paragraph, { fontWeight: "bold", marginTop: 10 }]}>
-      Details of the Parties Involved
-    </Text>
-
-    {/* Student Details */}
-    <View style={[styles.section, { marginTop: 5 }]}>
-      <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Student Information</Text>
-      <Text style={styles.paragraph}>• Full Name: {student.name}</Text>
-      <Text style={styles.paragraph}>• Student Number: {student.studentNumber}</Text>
-      <Text style={styles.paragraph}>• Age: {student.age}</Text>
-      <Text style={styles.paragraph}>• Address: {student.address}</Text>
-      <Text style={styles.paragraph}>• Email: {student.emailAddress}</Text>
-      <Text style={styles.paragraph}>• Background: {student.shortBackground}</Text>
-    </View>
-
-    {/* Sponsor Details */}
-    <View style={[styles.section, { marginTop: 10 }]}>
-      <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Sponsor (Alumnus) Information</Text>
-      <Text style={styles.paragraph}>• Full Name: {alum.firstName} {alum.lastName}</Text>
-      <Text style={styles.paragraph}>• Student Number (as alumnus): {alum.studentNumber}</Text>
-      <Text style={styles.paragraph}>• Age: {alum.age}</Text>
-      <Text style={styles.paragraph}>
-        • Address: {alum.address[0]}, {alum.address[1]}, {alum.address[2]}
-      </Text>
-      <Text style={styles.paragraph}>• Email: {alum.email}</Text>
-    </View>
-
-    {/* Closing Note */}
-    <View style={[styles.section, { marginTop: 15 }]}>
-      <Text style={styles.paragraph}>
-        Both parties acknowledge that this agreement fosters educational opportunity and mutual responsibility. By signing, they commit to their roles in upholding the terms and intent of this scholarship support.
-      </Text>
-    </View>
-  </Page>
-</Document>
-
-);
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 45, marginLeft: 20, marginRight: 20 }}>
+              <Text>
+                {alum.firstName} {alum.lastName}
+              </Text>
+              <Text>{student.name}</Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+    </Document>
+  )
+}
 
 //generate and upload PDF to Firebase Storage
-export const uploadDocToFirebase = async (
-  scholarshipStudent: ScholarshipStudent,
-  student: Student,
-  alum: Alumnus
-) => {
+export const uploadDocToFirebase = async (scholarshipStudent: ScholarshipStudent, student: Student, alum: Alumnus) => {
   try {
     // Generate the PDF as a Blob
     const pdfBlob = await pdf(
-      <ScholarshipStudentPDF
-        scholarshipStudent={scholarshipStudent}
-        student={student}
-        alum={alum}
-      />
-    ).toBlob();
+      <ScholarshipStudentPDF scholarshipStudent={scholarshipStudent} student={student} alum={alum} />,
+    ).toBlob()
 
     // Upload the Blob to Firebase Storage
     const document = new File([pdfBlob], `scholarshipAgreement.pdf`, {
       type: "application/pdf",
-    });
+    })
 
-    const data = await uploadDocument(
-      document,
-      `scholarship/${scholarshipStudent.ScholarshipStudentId}`
-    ); //ITO YUNG PINAKAFUNCTION NA IUUTILIZE
+    const data = await uploadDocument(document, `scholarship/${scholarshipStudent.ScholarshipStudentId}`) //ITO YUNG PINAKAFUNCTION NA IUUTILIZE
     // 1st parameter is the actual document, 2nd is yung path sa firebase storage. Bale icustomize niyo na lang ito based sa klase ng image na iuupload niyo.
     // Kapag proof ng work exp ng alumni, magiging await uploadDocument(document, `alumni/${alumniId}`)"
     //(please take a look sa firebase console).
@@ -203,26 +233,22 @@ export const uploadDocToFirebase = async (
     if (data.success) {
       //setIsError(false);
       //setMessage("Document uploaded successfully!");
-      console.log("Document URL:", data.url);
-      const workRef = doc(
-        db,
-        "scholarship_student",
-        scholarshipStudent.ScholarshipStudentId
-      );
-      const workDoc = await getDoc(workRef);
+      console.log("Document URL:", data.url)
+      const workRef = doc(db, "scholarship_student", scholarshipStudent.ScholarshipStudentId)
+      const workDoc = await getDoc(workRef)
 
       //set image attribute as the alum photo url
       if (workDoc.exists()) {
-        await updateDoc(workRef, { pdf: data.url });
+        await updateDoc(workRef, { pdf: data.url })
       }
     } else {
       //setMessage(data.result);
       //setIsError(true);
-      console.log(data.result);
+      console.log(data.result)
     }
   } catch (error) {
-    console.error("Error uploading document:", error);
+    console.error("Error uploading document:", error)
     // setMessage("Error uploading document");
     // setIsError(true);
   }
-};
+}
