@@ -1,31 +1,16 @@
-"use client";
+"use client"
 
-import { useState, useRef, useEffect } from "react";
-import { useJobOffer } from "@/context/JobOfferContext";
-import type { JobOffering } from "@/models/models";
-import { toastError } from "@/components/ui/sonner";
-import {
-  ChevronRight,
-  Trash2,
-  ThumbsDown,
-  ThumbsUp,
-  CirclePlus,
-  Pencil,
-  CircleX,
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import PostJobPage from "./post/page";
-
+import { useState, useRef, useEffect } from "react"
+import { useJobOffer } from "@/context/JobOfferContext"
+import type { JobOffering } from "@/models/models"
+import { toastError } from "@/components/ui/sonner"
+import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, CirclePlus, Pencil, CircleX } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page"
 
 function formatDate(timestamp: any) {
-  if (!timestamp || !timestamp.seconds) return "Invalid Date";
-  const date = new Date(timestamp.seconds * 1000);
+  if (!timestamp || !timestamp.seconds) return "Invalid Date"
+  const date = new Date(timestamp.seconds * 1000)
   return date.toLocaleString("en-US", {
     month: "long",
     day: "numeric",
@@ -33,7 +18,7 @@ function formatDate(timestamp: any) {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-  });
+  })
 }
 
 export default function Users() {
@@ -45,33 +30,10 @@ export default function Users() {
     handleEdit,
     updateStatus,
     handleEditDraft,
-  } = useJobOffer();
+  } = useJobOffer()
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("")
 
-  const filterCategories = {
-    "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
-    "Job Type": [
-      "Cybersecurity",
-      "Software Development",
-      "Data Science",
-      "UX/UI Design",
-      "Project Management",
-      "Others",
-    ],
-    "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
-    Skills: [
-      "JavaScript",
-      "Python",
-      "Java",
-      "C++",
-      "React",
-      "Node.js",
-      "SQL",
-      "Figma",
-      "Canva",
-    ],
-  };
 
   const [viewingJob, setViewingJob] = useState<JobOffering | null>(null);
   const [currentPage, setCurrentPage] = useState("list");
@@ -92,12 +54,12 @@ export default function Users() {
       const matchesSearch =
         job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.location?.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesStatus && matchesSearch;
-    });
-  };
+        job.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      return matchesStatus && matchesSearch
+    })
+  }
 
-  const tabs = ["Accepted", "Pending", "Rejected", "Draft"];
+  const tabs = ["Accepted", "Pending", "Rejected", "Draft"]
 
   const stats = {
     pending: jobOffers.filter((job: { status: string }) => job.status === "Pending").length,
@@ -105,55 +67,55 @@ export default function Users() {
     rejected: jobOffers.filter((job: { status: string }) => job.status === "Rejected").length,
     drafts: jobOffers.filter((job: { status: string }) => job.status === "Draft").length,
     total: jobOffers.length,
-  };
+  }
 
   // INCORPORATED FROM SAMPLE PAGE FROM DAPHNE
   // Track scroll position and update header state
   useEffect(() => {
     const handleScroll = () => {
-      if (!tableRef.current) return;
+      if (!tableRef.current) return
 
-      const tableRect = tableRef.current.getBoundingClientRect();
+      const tableRect = tableRef.current.getBoundingClientRect()
 
       if (tableRect.top <= 0 && !isSticky) {
-        setIsSticky(true);
-        setHeaderWidth(tableRect.width.toString());
+        setIsSticky(true)
+        setHeaderWidth(tableRect.width.toString())
       } else if (tableRect.top > 0 && isSticky) {
-        setIsSticky(false);
+        setIsSticky(false)
       }
-    };
+    }
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll)
 
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth.toString());
+      setHeaderWidth(tableRef.current.offsetWidth.toString())
     }
 
     // Clean up
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [isSticky]);
+      window.removeEventListener("scroll", handleScroll)
+    }
+  }, [isSticky])
 
   // New function to handle viewing job details
   const handleViewJob = (jobId: string) => {
     const job = jobOffers.find((job: JobOffering) => job.jobId === jobId)
     if (job) {
-      setViewingJob(job);
-      setCurrentPage("view");
-      setEditedJob(job);
+      setViewingJob(job)
+      setCurrentPage("view")
+      setEditedJob(job)
     }
-  };
+  }
 
   const goBackToList = () => {
-    setCurrentPage("list");
-    setViewingJob(null);
-  };
+    setCurrentPage("list")
+    setViewingJob(null)
+  }
 
   // Render view page for a job posting
   const renderViewPage = () => {
-    if (!viewingJob) return null;
+    if (!viewingJob) return null
 
     return (
       <div className="flex flex-col gap-5">
@@ -162,18 +124,13 @@ export default function Users() {
           <div>
             <ChevronRight size={15} />
           </div>
-          <div
-            className="cursor-pointer hover:text-blue-600"
-            onClick={goBackToList}
-          >
+          <div className="cursor-pointer hover:text-blue-600" onClick={goBackToList}>
             Manage Job Posting
           </div>
           <div>
             <ChevronRight size={15} />
           </div>
-          <div className="font-bold text-[var(--primary-blue)]">
-            View Job Posting
-          </div>
+          <div className="font-bold text-[var(--primary-blue)]">View Job Posting</div>
         </div>
 
         <div className="w-full">
@@ -210,9 +167,7 @@ export default function Users() {
 
                   <div className="flex-1 space-y-3">
                     <div>
-                      <label className="block text-sm font-medium">
-                        Job Position
-                      </label>
+                      <label className="block text-sm font-medium">Job Position</label>
                       {isEditing ? (
                         <input
                           value={editedJob?.position || ""}
@@ -231,9 +186,7 @@ export default function Users() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium">
-                        Company Name
-                      </label>
+                      <label className="block text-sm font-medium">Company Name</label>
                       {isEditing ? (
                         <input
                           value={editedJob?.company || ""}
@@ -263,17 +216,13 @@ export default function Users() {
                 ].map(([label, value]) => (
                   <div key={label}>
                     <label className="block text-sm font-medium">{label}</label>
-                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                      {value}
-                    </div>
+                    <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">{value}</div>
                   </div>
                 ))}
 
                 {/* Required Skills */}
                 <div>
-                  <label className="block text-sm font-medium">
-                    Required Skills
-                  </label>
+                  <label className="block text-sm font-medium">Required Skills</label>
                   <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
                     {editedJob?.requiredSkill?.join(", ")}
                   </div>
@@ -281,9 +230,7 @@ export default function Users() {
 
                 {/* Job Description */}
                 <div>
-                  <label className="block text-sm font-medium">
-                    Job Description
-                  </label>
+                  <label className="block text-sm font-medium">Job Description</label>
                   {isEditing ? (
                     <textarea
                       value={editedJob?.jobDescription || ""}
@@ -298,9 +245,7 @@ export default function Users() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium">
-                    Date Posted
-                  </label>
+                  <label className="block text-sm font-medium">Date Posted</label>
                   <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
                     {formatDate(viewingJob.datePosted)}
                   </div>
@@ -323,8 +268,8 @@ export default function Users() {
                     type="submit"
                     className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                     onClick={() => {
-                      setIsEditing(false);
-                      handleEdit(editedJob);
+                      setIsEditing(false)
+                      handleEdit(editedJob)
                     }}
                   >
                     Save Changes
@@ -335,8 +280,8 @@ export default function Users() {
           </div>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -385,16 +330,12 @@ export default function Users() {
                 >
                   <div
                     className={`w-full h-1 transition-colors ${
-                      activeTab === tab
-                        ? "bg-[var(--primary-blue)]"
-                        : "bg-transparent"
+                      activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-transparent"
                     }`}
                   ></div>
                   <div
                     className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
-                      activeTab === tab
-                        ? "text-[var(--primary-blue)] bg-white"
-                        : "text-blue-200 bg-white"
+                      activeTab === tab ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"
                     }`}
                   >
                     {tab}
@@ -417,10 +358,7 @@ export default function Users() {
             </div>
 
             <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-              <div
-                className="rounded-xl overflow-hidden border border-gray-300 relative"
-                ref={tableRef}
-              >
+              <div className="rounded-xl overflow-hidden border border-gray-300 relative" ref={tableRef}>
                 {/* Sticky header */}
                 <div
                   className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
@@ -428,20 +366,12 @@ export default function Users() {
                   }`}
                   style={{ width: isSticky ? headerWidth : "100%" }}
                 >
-                  <div className="flex-grow flex items-center pl-20 font-semibold">
-                    Job Posting Info
-                  </div>
+                  <div className="flex-grow flex items-center pl-20 font-semibold">Job Posting Info</div>
                   {activeTab === "Accepted" && (
-                    <div className="w-[1px] flex items-center justify-center font-semibold">
-                      Availability
-                    </div>
+                    <div className="w-[1px] flex items-center justify-center font-semibold">Availability</div>
                   )}
-                  <div className="w-[120px] flex items-center justify-center font-semibold mr-9">
-                    Status
-                  </div>
-                  <div className="w-[280px] flex items-center justify-center font-semibold">
-                    Actions
-                  </div>
+                  <div className="w-[120px] flex items-center justify-center font-semibold mr-9">Status</div>
+                  <div className="w-[280px] flex items-center justify-center font-semibold">Actions</div>
                 </div>
 
                 {/* Spacer div to prevent content jump when header becomes fixed */}
@@ -481,9 +411,7 @@ export default function Users() {
                         {job.employmentType ? (
                           <>
                             {job.employmentType}
-                            {job.experienceLevel && (
-                              <> • {job.experienceLevel}</>
-                            )}
+                            {job.experienceLevel && <> • {job.experienceLevel}</>}
                             {job.salaryRange && <> • ₱{job.salaryRange}</>}
                           </>
                         ) : (
@@ -518,12 +446,12 @@ export default function Users() {
                                 onChange={async () => {
                                   try {
                                     if (job.status === "Accepted") {
-                                      await updateStatus("Closed", job.jobId);
+                                      await updateStatus("Closed", job.jobId)
                                     } else {
-                                      await updateStatus("Accepted", job.jobId);
+                                      await updateStatus("Accepted", job.jobId)
                                     }
                                   } catch (error) {
-                                    toastError("Failed to update job status");
+                                    toastError("Failed to update job status")
                                   }
                                 }}
                               />
@@ -539,8 +467,8 @@ export default function Users() {
                               job.status === "Accepted"
                                 ? "bg-green-100 text-green-800"
                                 : job.status === "Pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
                             }`}
                           >
                             {job.status}
@@ -554,9 +482,9 @@ export default function Users() {
                           <button
                             className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
                             onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditDraft(job);
-                              setCurrentPage("post");
+                              e.stopPropagation()
+                              handleEditDraft(job)
+                              setCurrentPage("post")
                             }}
                           >
                             Edit Draft
@@ -565,8 +493,8 @@ export default function Users() {
                           <button
                             className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
                             onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewJob(job.jobId);
+                              e.stopPropagation()
+                              handleViewJob(job.jobId)
                             }}
                           >
                             View Details
@@ -579,8 +507,8 @@ export default function Users() {
                           <div className="flex gap-2">
                             <button
                               onClick={(e) => {
-                                e.stopPropagation();
-                                handleReject(job.jobId);
+                                e.stopPropagation()
+                                handleReject(job.jobId)
                               }}
                               className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
                             >
@@ -589,8 +517,8 @@ export default function Users() {
                             </button>
                             <button
                               onClick={(e) => {
-                                e.stopPropagation();
-                                handleAccept(job.jobId);
+                                e.stopPropagation()
+                                handleAccept(job.jobId)
                               }}
                               className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
                             >
@@ -602,9 +530,9 @@ export default function Users() {
                           <div className="flex gap-2">
                             <button
                               onClick={(e) => {
-                                e.stopPropagation();
-                                setJobToDelete(job);
-                                setIsConfirmationOpen(true);
+                                e.stopPropagation()
+                                setJobToDelete(job)
+                                setIsConfirmationOpen(true)
                               }}
                               className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
                             >
@@ -618,9 +546,9 @@ export default function Users() {
                               size={18}
                               className="text-gray-500 hover:text-red-500 cursor-pointer"
                               onClick={(e) => {
-                                e.stopPropagation();
-                                setJobToDelete(job);
-                                setIsConfirmationOpen(true);
+                                e.stopPropagation()
+                                setJobToDelete(job)
+                                setIsConfirmationOpen(true)
                               }}
                             />
                           </div>
@@ -646,8 +574,7 @@ export default function Users() {
             <DialogHeader className="text-red-500 flex items-center gap-5">
               <CircleX className="size-15" />
               <DialogTitle className="text-md text-center">
-                Are you sure you want to delete <br />{" "}
-                <strong>{jobToDelete?.position}</strong>?
+                Are you sure you want to delete <br /> <strong>{jobToDelete?.position}</strong>?
               </DialogTitle>
             </DialogHeader>
             <DialogFooter className="mt-5">
@@ -655,8 +582,8 @@ export default function Users() {
                 className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer"
                 onClick={() => {
                   if (jobToDelete) {
-                    handleDelete(jobToDelete.jobId);
-                    setIsConfirmationOpen(false);
+                    handleDelete(jobToDelete.jobId)
+                    setIsConfirmationOpen(false)
                   }
                 }}
               >
@@ -673,5 +600,5 @@ export default function Users() {
         </Dialog>
       )}
     </>
-  );
+  )
 }
