@@ -328,9 +328,9 @@ export default function PostJobPage({
                       value={salaryRange}
                       onChange={(e) => setSalaryRange(e.target.value)}
                       onInput={(e) => {
-                        const value = e.target.value;
+                        const value = (e.target as HTMLInputElement).value
                         if (!/^[0-9-]*$/.test(value)) {
-                          e.target.value = value.replace(/[^0-9-]/g, "");
+                          (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "")
                         }
                       }}
                       pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
@@ -391,7 +391,21 @@ export default function PostJobPage({
                 <button
                   type="button"
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
-                  onClick={() => goBackToList()}
+                  onClick={() => {
+                    // Reset all form states
+                    setPosition("");
+                    setCompany("");
+                    setLocation("");
+                    setJobDescription("");      
+                    setSalaryRange("");
+                    setExperienceLevel("");
+                    setEmploymentType("");
+                    setJobType("");
+                    // Clear skills array
+                    handleSkillChange({ target: { value: "" } });
+                    // Navigate back to list
+                    goBackToList();
+                  }}
                 >
                   Cancel
                 </button>

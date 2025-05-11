@@ -38,42 +38,11 @@ function formatDate(timestamp: any) {
 export default function Users() {
   const {
     jobOffers,
-    isLoading,
     handleAccept,
     handleReject,
-    handleView,
-    selectedJob,
-    closeModal,
     handleDelete,
-    setShowForm,
-    showForm,
-    handleSubmit,
-    company,
-    setCompany,
-    employmentType,
-    setEmploymentType,
-    experienceLevel,
-    setExperienceLevel,
-    jobDescription,
-    setJobDescription,
-    jobType,
-    setJobType,
-    position,
-    setPosition,
-    requiredSkill,
-    handleSkillChange,
-    salaryRange,
-    setSalaryRange,
-    location,
-    setLocation,
-    image,
-    setJobImage,
-    preview,
-    fileName,
-    handleImageChange,
     handleEdit,
     updateStatus,
-    handleSaveDraft,
     handleEditDraft,
   } = useJobOffer();
 
@@ -106,21 +75,19 @@ export default function Users() {
   const [viewingJob, setViewingJob] = useState(null);
   const [currentPage, setCurrentPage] = useState("list");
   const [activeTab, setActiveTab] = useState("Accepted");
-  const tableRef = useRef(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [employmentTypeOpen, setEmploymentTypeOpen] = useState(false);
-  const [jobTypeOpen, setJobTypeOpen] = useState(false);
-  const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [jobToDelete, setJobToDelete] = useState(null);
+  const [jobToDelete, setJobToDelete] = useState<JobOffering | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedJob, setEditedJob] = useState(null);
+  const [editedJob, setEditedJob] = useState<JobOffering | null>(null);
 
   const filterJobs = (status: string) => {
     return jobOffers.filter((job: JobOffering) => {
-      const matchesStatus = job.status === status;
+      const matchesStatus = status === "Accepted" 
+        ? job.status === "Accepted" || job.status === "Closed"
+        : job.status === status
       const matchesSearch =
         job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -132,10 +99,10 @@ export default function Users() {
   const tabs = ["Accepted", "Pending", "Rejected", "Draft"];
 
   const stats = {
-    pending: jobOffers.filter((job) => job.status === "Pending").length,
-    accepted: jobOffers.filter((job) => job.status === "Accepted").length,
-    rejected: jobOffers.filter((job) => job.status === "Rejected").length,
-    drafts: jobOffers.filter((job) => job.status === "Draft").length,
+    pending: jobOffers.filter((job: { status: string }) => job.status === "Pending").length,
+    accepted: jobOffers.filter((job: { status: string }) => job.status === "Accepted" || job.status === "Closed").length,
+    rejected: jobOffers.filter((job: { status: string }) => job.status === "Rejected").length,
+    drafts: jobOffers.filter((job: { status: string }) => job.status === "Draft").length,
     total: jobOffers.length,
   };
 
@@ -149,7 +116,7 @@ export default function Users() {
 
       if (tableRect.top <= 0 && !isSticky) {
         setIsSticky(true);
-        setHeaderWidth(tableRect.width);
+        setHeaderWidth(tableRect.width.toString());
       } else if (tableRect.top > 0 && isSticky) {
         setIsSticky(false);
       }
@@ -159,7 +126,7 @@ export default function Users() {
 
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth);
+      setHeaderWidth(tableRef.current.offsetWidth.toString());
     }
 
     // Clean up
@@ -169,8 +136,8 @@ export default function Users() {
   }, [isSticky]);
 
   // New function to handle viewing job details
-  const handleViewJob = (jobId) => {
-    const job = jobOffers.find((job) => job.jobId === jobId);
+  const handleViewJob = (jobId: string) => {
+    const job = jobOffers.find((job: JobOffering) => job.jobId === jobId)
     if (job) {
       setViewingJob(job);
       setCurrentPage("view");
@@ -227,7 +194,7 @@ export default function Users() {
               <div className="flex flex-col gap-5">
                 <div className="flex items-start gap-4">
                   <div className="mr-2">
-                    {editedJob.image ? (
+                    {editedJob && editedJob.image ? (
                       <img
                         src={editedJob.image || "/placeholder.svg"}
                         alt={`${editedJob.company} logo`}
@@ -235,7 +202,7 @@ export default function Users() {
                       />
                     ) : (
                       <div className="w-35 h-35 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
-                        {editedJob.company?.charAt(0).toUpperCase()}
+                        {editedJob?.company?.charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
@@ -247,18 +214,17 @@ export default function Users() {
                       </label>
                       {isEditing ? (
                         <input
-                          value={editedJob.position}
-                          onChange={(e) =>
-                            setEditedJob({
-                              ...editedJob,
-                              position: e.target.value,
-                            })
-                          }
+                          value={editedJob?.position || ""}
+                          onChange={(e) => {
+                            if (editedJob) {
+                              setEditedJob({ ...editedJob, position: e.target.value });
+                            }
+                          }}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
                         <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                          {editedJob.position}
+                          {editedJob?.position || "N/A"}
                         </div>
                       )}
                     </div>
@@ -269,18 +235,17 @@ export default function Users() {
                       </label>
                       {isEditing ? (
                         <input
-                          value={editedJob.company}
-                          onChange={(e) =>
-                            setEditedJob({
-                              ...editedJob,
-                              company: e.target.value,
-                            })
-                          }
+                          value={editedJob?.company || ""}
+                          onChange={(e) => {
+                            if (editedJob) {
+                              setEditedJob({ ...editedJob, company: e.target.value } as JobOffering);
+                            }
+                          }}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
                         <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                          {editedJob.company}
+                          {editedJob?.company || "N/A"}
                         </div>
                       )}
                     </div>
@@ -289,11 +254,11 @@ export default function Users() {
 
                 {/* Other Fields */}
                 {[
-                  ["Location", editedJob.location],
-                  ["Employment Type", editedJob.employmentType],
-                  ["Job Type", editedJob.jobType],
-                  ["Experience Level", editedJob.experienceLevel],
-                  ["Salary Range", editedJob.salaryRange],
+                  ["Location", editedJob?.location || "N/A"],
+                  ["Employment Type", editedJob?.employmentType || "N/A"],
+                  ["Job Type", editedJob?.jobType || "N/A"],
+                  ["Experience Level", editedJob?.experienceLevel || "N/A"],
+                  ["Salary Range", editedJob?.salaryRange || "N/A"],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <label className="block text-sm font-medium">{label}</label>
@@ -309,7 +274,7 @@ export default function Users() {
                     Required Skills
                   </label>
                   <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                    {editedJob.requiredSkill?.join(", ")}
+                    {editedJob?.requiredSkill?.join(", ")}
                   </div>
                 </div>
 
@@ -320,18 +285,13 @@ export default function Users() {
                   </label>
                   {isEditing ? (
                     <textarea
-                      value={editedJob.jobDescription}
-                      onChange={(e) =>
-                        setEditedJob({
-                          ...editedJob,
-                          jobDescription: e.target.value,
-                        })
-                      }
+                      value={editedJob?.jobDescription || ""}
+                      onChange={(e) => setEditedJob({ ...editedJob, jobDescription: e.target.value } as JobOffering)}
                       className="px-3 py-2 border border-gray-300 rounded-md w-full min-h-[100px]"
                     />
                   ) : (
                     <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[100px]">
-                      {editedJob.jobDescription}
+                      {editedJob?.jobDescription || "N/A"}
                     </div>
                   )}
                 </div>
@@ -351,7 +311,9 @@ export default function Users() {
                 <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
                   <button
                     type="button"
-                    onClick={() => setIsEditing(false)}
+                    onClick={() => 
+                      setIsEditing(false)
+                      }
                     className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
                   >
                     Cancel
@@ -443,10 +405,10 @@ export default function Users() {
                       {tab === "Pending"
                         ? stats.pending
                         : tab === "Accepted"
-                        ? stats.accepted
-                        : tab === "Rejected"
-                        ? stats.rejected
-                        : stats.drafts}
+                          ? stats.accepted 
+                          : tab === "Rejected"
+                            ? stats.rejected
+                            : stats.drafts}
                     </div>
                   </div>
                 </div>
@@ -485,7 +447,7 @@ export default function Users() {
                 {isSticky && <div style={{ height: "56px" }}></div>}
 
                 {/* Dynamic rows */}
-                {filterJobs(activeTab).map((job, index) => (
+                {filterJobs(activeTab).map((job: any, index: number) => (
                   <div
                     key={index}
                     className={`w-full flex items-center border-t border-gray-300 ${

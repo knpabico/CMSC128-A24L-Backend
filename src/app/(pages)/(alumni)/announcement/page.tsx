@@ -206,7 +206,7 @@ export default function Announcements() {
                 {totalPages > 1 && (
                   <div className="flex justify-center mt-6 space-x-4 mb-10">
                     <Button
-                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 transition-all"
+                      className="text-[12px] font-semibold px-4 py-2 bg-gray-200 hover:bg-gray-300 hover:font-bold rounded-lg disabled:opacity-50 transition-all"
                       onClick={() =>
                         setCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
@@ -215,27 +215,26 @@ export default function Announcements() {
                       Previous
                     </Button>
 
-                    <span className="flex items-center text-lg font-medium">
-                      Page {currentPage} of {totalPages}
-                    </span>
+                  <span className="flex items-center text-[12px] font-medium">
+                    Page {currentPage} of {totalPages}
+                  </span>
 
-                    <Button
-                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 transition-all"
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex-1 flex justify-center items-center min-h-[400px]">
-                <h1 className="text-2xl font-bold text-gray-600">Loading...</h1>
-              </div>
-            )}
+
+                  <Button
+                    className="text-[12px] font-semibold px-4 py-2 bg-gray-200 hover:bg-gray-300 hover:font-bold rounded-lg disabled:opacity-50 transition-all"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex-1 flex justify-center items-center min-h-[400px]">
+              <h1 className="text-2xl font-bold text-gray-600">Loading...</h1>
+            </div>
+          )}
           </div>
         </div>
       </div>

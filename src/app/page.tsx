@@ -455,7 +455,7 @@ export default function Home() {
                 </i>
               </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-3">
                 {/* <p className="text-xs md:text-[14px]">
                   Std. No. {alumInfo!.studentNumber}
                 </p> */}
@@ -539,13 +539,31 @@ export default function Home() {
                   >
                     {/* user info */}
                     <div className="flex flex-row mb-[20px] px-4 md:px-[20px] mt-[20px] gap-2 items-center">
-                      <Image
-                        priority
-                        alt="pic"
-                        width={0}
-                        height={0}
-                        sizes="100vw"
-                        src={getImageSrc(newsLetter)}
+                      <img
+                        src={
+                          newsLetter.category === "announcement" ||
+                          newsLetter.category === "event" ||
+                          newsLetter.category === "scholarship" ||
+                          newsLetter.category === "donation_drive"
+                            ? "/ics-logo.jpg"
+                            : newsLetter.category === "job_offering"
+                            ? (() => {
+                              const jobOffering = jobOffers.find(
+                                (jobOffer: JobOffering) =>
+                                  jobOffer.jobId === newsLetter.referenceId
+                              );
+                             if (!jobOffering || jobOffering.alumniId === "Admin") {
+                                if (jobOffering.image) return jobOffering.image
+                                else return "/ics-logo.jpg";
+                              } else 
+                                if (jobOffering.image) return jobOffering.image 
+                                else return jobOffering
+                                && alums.find(
+                                    (alum: Alumnus) =>
+                                      alum.alumniId === jobOffering.alumniId
+                                  )?.image
+                            })()
+                          : ""}
                         className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
                       />
                       <p className="text-sm md:text-[16px]">
@@ -800,6 +818,7 @@ export default function Home() {
                                 ) : (
                                   <img src={jobOffering.image}></img>
                                 )} */}
+                                {jobOffering.status === 'Closed' ?
                                 <div className="flex gap-1">
                                   <button
                                     onClick={() =>
@@ -808,7 +827,20 @@ export default function Home() {
                                     className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                                   >
                                     View more job offers
+                                  </button> */}
+                                  <button
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
+                                  >
+                                    Apply
                                   </button>
+                                </div> : 
+                                <div className="flex gap-1">
+                                  {/* <button
+                                    onClick={() => router.push(`/joboffer-list`)}
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                  >
+                                    View more job offers
+                                  </button> */}
                                   <button
                                     onClick={() =>
                                       router.push(`/joboffer-list/`)
@@ -817,7 +849,7 @@ export default function Home() {
                                   >
                                     Apply
                                   </button>
-                                </div>
+                                </div>}
                               </div>
                             </div>
                           </div>

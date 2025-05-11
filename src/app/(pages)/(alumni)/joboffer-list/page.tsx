@@ -1,9 +1,9 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Key, SetStateAction } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { JobOffering } from "@/models/models";
+// Removed duplicate import of Bookmark
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
@@ -86,7 +86,7 @@ export default function JobOffers() {
   const [createdJobsCurrentPage, setCreatedJobsCurrentPage] = useState(1);
   const [draftJobsCurrentPage, setDraftJobsCurrentPage] = useState(1);
   const [latestFirst, setLatestFirst] = useState(true); // true = latest first, false = oldest first
-  const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null as JobOffering | null);
   const [activeFilterCategory, setActiveFilterCategory] = useState<
     string | null
   >(null);
@@ -257,11 +257,11 @@ export default function JobOffers() {
 
   // Saved Jobs pagination
   const filteredSavedJobs = bookmarks
-    .filter((bookmark) => bookmark.type === "job_offering")
-    .map((bookmark) => jobOffers.find((job) => job.jobId === bookmark.entryId))
+    .filter((bookmark: { type: string; }) => bookmark.type === "job_offering")
+    .map((bookmark: { entryId: any; }) => jobOffers.find((job: { jobId: any; }) => job.jobId === bookmark.entryId))
     .filter(Boolean)
     .filter(
-      (job) =>
+      (job: { experienceLevel: string; jobType: string; employmentType: string; requiredSkill: string | string[]; }) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -271,7 +271,7 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
+    .sort((a: { timestamp: { seconds: any; }; datePosted: { seconds: any; }; }, b: { timestamp: { seconds: any; }; datePosted: { seconds: any; }; }) => {
       const dateA = a.timestamp ? a.timestamp.seconds : a.datePosted.seconds;
       const dateB = b.timestamp ? b.timestamp.seconds : b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -287,8 +287,8 @@ export default function JobOffers() {
 
   // Created Jobs pagination
   const filteredCreatedJobs = jobOffers
-    .filter((job) => job.alumniId === user?.uid && job.status !== "Draft")
-    .filter((job) => {
+    .filter((job: { alumniId: string | undefined; status: string; }) => job.alumniId === user?.uid && job.status !== "Draft") 
+    .filter((job: { experienceLevel: any; jobType: any; employmentType: any; status: any; requiredSkill: string | string[]; }) => {
       if (activeFilters.length === 0) return true;
       return activeFilters.some(
         (filter) =>
@@ -300,7 +300,7 @@ export default function JobOffers() {
           ].includes(filter) || job.requiredSkill.includes(filter)
       );
     })
-    .sort((a, b) => {
+    .sort((a: { datePosted: { seconds: any; }; }, b: { datePosted: { seconds: any; }; }) => {
       const dateA = a.datePosted.seconds;
       const dateB = b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -318,9 +318,9 @@ export default function JobOffers() {
 
   // Draft Jobs pagination
   const filteredDraftJobs = jobOffers
-    .filter((job) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
+    .filter((job: { status: string; alumniId: string | undefined; }) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
     .filter(
-      (job) =>
+      (job: { experienceLevel: string; jobType: string; employmentType: string; requiredSkill: string | string[]; }) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -330,7 +330,7 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
+    .sort((a: { datePosted: { seconds: any; }; }, b: { datePosted: { seconds: any; }; }) => {
       const dateA = a.datePosted.seconds;
       const dateB = b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -430,7 +430,7 @@ export default function JobOffers() {
                     <div className="space-y-2">
                       {filterCategories[
                         activeFilterCategory as keyof typeof filterCategories
-                      ].map((filter) => (
+                      ]?.map((filter) => (
                         <div key={filter} className="flex items-center">
                           <input
                             type="checkbox"
@@ -582,7 +582,7 @@ export default function JobOffers() {
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
+                              job && selectedJob !== null && selectedJob.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
                             }`}
@@ -590,37 +590,33 @@ export default function JobOffers() {
                           >
                             <div className="flex">
                               <div className="mr-2">
-                                {job.image ? (
-                                  <Image
-                                    width={0}
-                                    height={0}
-                                    sizes="100vw"
-                                    priority
+                                {job && typeof job !== 'function' && job.image ? (
+                                  <img
                                     src={job.image}
                                     alt={`${job.company} logo`}
                                     className="w-15 h-15 object-contain rounded-md border border-gray-200"
                                   />
                                 ) : (
                                   <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
+                                    {job && job.company ? job.company.charAt(0).toUpperCase() : ""}
                                   </div>
                                 )}
                               </div>
                               <div className="flex-1">
                                 <h2 className="font-semibold text-md">
-                                  {job.position}
+                                  {job ? job.position : "Unknown Position"}
                                 </h2>
                                 <p className="text-sm text-gray-600">
-                                  {job.company}
+                                  {typeof job !== 'function' && job?.company}
                                 </p>
                                 <p className="text-xs text-[#0856BA] flex items-center">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
+                                  {job && typeof job !== 'function' && job.location}
                                 </p>
                               </div>
                               <div className="ml-2">
                                 <BookmarkButton
-                                  entryId={job.jobId}
+                                  entryId={job?.jobId || ""}
                                   type="job_offering"
                                   size="sm"
                                 />
@@ -675,7 +671,7 @@ export default function JobOffers() {
               ) : sidebarFilter === "Saved Jobs" ? (
                 <div className="space-y-2">
                   {bookmarks.filter(
-                    (bookmark: Bookmark) => bookmark.type === "job_offering"
+                    (bookmark: { type: string }) => bookmark.type === "job_offering"
                   ).length === 0 ? (
                     <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
                       <p className="text-lg">No saved jobs found.</p>
@@ -683,11 +679,11 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentSavedJobs.map((job, index) => (
+                        {currentSavedJobs.map((job: SetStateAction<JobOffering | null>, index: Key | null | undefined) => (
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
+                              job && selectedJob !== null && selectedJob.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
                             }`}
@@ -695,7 +691,7 @@ export default function JobOffers() {
                           >
                             <div className="flex">
                               <div className="mr-3">
-                                {job.image ? (
+                                {job && typeof job !== 'function' && job.image ? (
                                   <img
                                     src={job.image}
                                     alt={`${job.company} logo`}
@@ -703,25 +699,25 @@ export default function JobOffers() {
                                   />
                                 ) : (
                                   <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
+                                    {typeof job !== 'function' && job?.company?.charAt(0).toUpperCase() || ""}
                                   </div>
                                 )}
                               </div>
                               <div className="flex-1">
                                 <h2 className="font-semibold text-md">
-                                  {job.position}
+                                  {typeof job !== 'function' && job?.position}
                                 </h2>
                                 <p className="text-sm text-gray-600">
-                                  {job.company}
+                                  {typeof job !== 'function' && job?.company}
                                 </p>
                                 <p className="text-xs text-[#0856BA] flex items-center">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
+                                  {job && typeof job !== 'function' && job.location}
                                 </p>
                               </div>
                               <div className="ml-2">
                                 <BookmarkButton
-                                  entryId={job.jobId}
+                                  entryId={typeof job === 'object' && job !== null ? job.jobId : ""}
                                   type="job_offering"
                                   size="sm"
                                 />
@@ -789,113 +785,108 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentCreatedJobs.map((job, index) => (
+                        {currentCreatedJobs.map((job: SetStateAction<JobOffering | null>, index: Key | null | undefined) => (
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
+                              typeof selectedJob !== 'function' && selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
                             }`}
                             onClick={() => setSelectedJob(job)}
                           >
                             <div className="flex justify-between items-center">
-                              {/* Left side - Job details */}
-                              <div className="flex items-center">
-                                <div className="mr-3">
-                                  {job.image ? (
-                                    <img
-                                      src={job.image || "/placeholder.svg"}
-                                      alt={`${job.company} logo`}
-                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                            {/* Left side - Job details */}
+                            <div className="flex items-center">
+                              <div className="mr-3">
+                                {job && typeof job !== 'function' && job.image ? (
+                                  <img
+                                    src={job.image || "/placeholder.svg"}
+                                    alt={`${job.company} logo`}
+                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                    {typeof job === 'object' && job !== null && 'company' in job ? job.company.charAt(0).toUpperCase() : ""}
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <h2 className="font-semibold text-md">
+                                  {typeof job === 'object' && job !== null ? job.position : "Unknown Position"}
+                                </h2>
+                                <p className="text-sm text-gray-600">
+                                  {typeof job !== 'function' && job?.company}
+                                </p>
+                                <p className="text-xs text-[#0856BA] flex items-center">
+                                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                                  {typeof job !== 'function' && job?.location}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Right side - Status and trash icon with toggle moved here */}
+                            <div className="flex items-center space-x-3">
+                              {/* Toggle switch */}
+                              {typeof job === "object" && job !== null && "status" in job && job.status !== "Pending" && (
+                              <div className="w-12 flex justify-center">
+                                  <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      className="sr-only peer"
+                                      checked={job.status === "Accepted"}
+                                      onChange={async () => {
+                                        try {
+                                          if (job.status === "Accepted") {
+                                            await updateStatus("Closed", job.jobId);
+                                          } else {
+                                            await updateStatus("Accepted", job.jobId);
+                                          }
+                                        } catch (error) {
+                                          toastError("Failed to update job status");
+                                        }
+                                      }}
                                     />
-                                  ) : (
-                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                      {job.company.charAt(0).toUpperCase()}
-                                    </div>
-                                  )}
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                  </label>
+                              </div>
+                              )}
+                              {typeof job === "object" && job !== null && "status" in job && job.status === "Pending" && (
+                                <div className="w-11 h-6 opacity-0">
+                                  {/* Placeholder to prevent layout shift */}
                                 </div>
-                                <div>
-                                  <h2 className="font-semibold text-md">
-                                    {job.position}
-                                  </h2>
-                                  <p className="text-sm text-gray-600">
-                                    {job.company}
-                                  </p>
-                                  <p className="text-xs text-[#0856BA] flex items-center">
-                                    <MapPin className="w-3.5 h-3.5 mr-1" />
-                                    {job.location}
-                                  </p>
-                                </div>
+                              )}
+                              <div className="w-24 flex items-center justify-center">
+                              {/* Status label */}
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${
+                                  job && typeof job !== 'function' && job.status === "Accepted"
+                                    ? "bg-green-100 text-green-700"
+                                    : job && typeof job !== 'function' && job.status === "Rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : typeof job === "object" && job !== null && "status" in job && job.status === "Closed"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                                }`}
+                              >
+                                {typeof job === "object" && job !== null && "status" in job
+                                  ? job.status.charAt(0).toUpperCase() + job.status.slice(1)
+                                  : ""}
+                              </span>
                               </div>
 
-                              {/* Right side - Status and trash icon with toggle moved here */}
-                              <div className="flex items-center space-x-3">
-                                {/* Toggle switch */}
-                                {job.status !== "Pending" && (
-                                  <div className="w-12 flex justify-center">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                      <input
-                                        type="checkbox"
-                                        className="sr-only peer"
-                                        checked={job.status === "Accepted"}
-                                        onChange={async () => {
-                                          try {
-                                            if (job.status === "Accepted") {
-                                              await updateStatus(
-                                                "Closed",
-                                                job.jobId
-                                              );
-                                            } else {
-                                              await updateStatus(
-                                                "Accepted",
-                                                job.jobId
-                                              );
-                                            }
-                                          } catch (error) {
-                                            toastError(
-                                              "Failed to update job status"
-                                            );
-                                          }
-                                        }}
-                                      />
-                                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                    </label>
-                                  </div>
-                                )}
-                                {job.status === "Pending" && (
-                                  <div className="w-11 h-6 opacity-0">
-                                    {/* Placeholder to prevent layout shift */}
-                                  </div>
-                                )}
-                                <div className="w-24 flex items-center justify-center">
-                                  {/* Status label */}
-                                  <span
-                                    className={`px-2 py-1 rounded text-xs font-medium ${
-                                      job.status === "Accepted"
-                                        ? "bg-green-100 text-green-700"
-                                        : job.status === "Rejected"
-                                        ? "bg-red-100 text-red-700"
-                                        : job.status === "Closed"
-                                        ? "bg-red-100 text-red-700"
-                                        : "bg-yellow-100 text-yellow-700"
-                                    }`}
-                                  >
-                                    {job.status.charAt(0).toUpperCase() +
-                                      job.status.slice(1)}
-                                  </span>
-                                </div>
-
-                                {/* Trash button */}
-                                <button
-                                  className="text-gray-500 hover:text-red-500 transition-colors mr-3"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
+                              {/* Trash button */}
+                              <button
+                                className="text-gray-500 hover:text-red-500 transition-colors mr-3"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (typeof job === "object" && job !== null && "jobId" in job) {
                                     handleDelete(job.jobId);
-                                  }}
-                                >
-                                  <Trash2 className="w-5 h-5" />
-                                </button>
+                                  }
+                                }}
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
                               </div>
                             </div>
                           </div>
@@ -958,60 +949,61 @@ export default function JobOffers() {
                       <p className="text-lg">No draft jobs found.</p>
                     </div>
                   ) : (
-                    <>
-                      <div className="space-y-2">
-                        {filteredDraftJobs.map((job, index) => (
-                          <div
-                            key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
-                                : "border-gray-200"
-                            }`}
-                            onClick={() => setSelectedJob(job)}
-                          >
-                            <div className="flex justify-between items-center">
-                              {/* Left side - Job details */}
-                              <div className="flex items-center">
-                                <div className="mr-3">
-                                  {job.image ? (
-                                    <img
-                                      src={job.image || "/placeholder.svg"}
-                                      alt={`${job.company} logo`}
-                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
-                                    />
-                                  ) : (
-                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                      {job.company.charAt(0).toUpperCase()}
-                                    </div>
-                                  )}
-                                </div>
-                                {!job.company || !job.location ? (
-                                  <div>
-                                    <h2 className="font-semibold text-md">
-                                      {job.position}
-                                    </h2>
-                                    <p className="text-sm text-gray-500">
-                                      This draft can't be published yet.
-                                      <br /> Please complete all required
-                                      fields.
-                                    </p>
-                                  </div>
-                                ) : (
-                                  <div>
-                                    <h2 className="font-semibold text-md">
-                                      {job.position}
-                                    </h2>
-                                    <p className="text-sm text-gray-600">
-                                      {job.company}
-                                    </p>
-                                    <p className="text-xs text-[#0856BA] flex items-center">
-                                      <MapPin className="w-3.5 h-3.5 mr-1" />
-                                      {job.location || "No location added yet."}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
+                  <>
+                  <div className="space-y-2">
+                  {filteredDraftJobs.map((job: SetStateAction<JobOffering | null>, index: Key | null | undefined) => (
+                    <div
+                      key={index}
+                      className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              job && selectedJob !== null && selectedJob.jobId === job.jobId
+                      ? "border-blue-500"
+                      : "border-gray-200"
+                      }`}
+                      onClick={() => setSelectedJob(job)}
+                      >
+                      <div className="flex justify-between items-center">
+                        {/* Left side - Job details */}
+                        <div className="flex items-center">
+                          <div className="mr-3">
+                            {job && typeof job !== 'function' && job.image ? (
+                            <img
+                            src={job.image || "/placeholder.svg"}
+                            alt={`${job.company} logo`}
+                            className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                            />
+                            ) : (
+                            <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                            {typeof job === "object" && job !== null && "company" in job ? job.company.charAt(0).toUpperCase() : ""}
+                            </div>
+                            )}
+                          </div>
+                          {
+                          typeof job === "object" && job !== null && "company" in job && "location" in job && (!job.company || !job.location) ? (
+                            <div>
+                              <h2 className="font-semibold text-md">
+                                {typeof job === "object" && job !== null && "position" in job ? job.position : "Unknown Position"}
+                              </h2>
+                              <p className="text-sm text-gray-500">
+                                This draft can't be published yet.
+                                <br/> Please complete all required fields.
+                              </p>
+                            </div>
+                          ) : (
+                          <div>
+                            <h2 className="font-semibold text-md">
+                              {typeof job === "object" && job !== null && "position" in job ? job.position : "Unknown Position"}
+                            </h2>
+                            <p className="text-sm text-gray-600">
+                              {typeof job === "object" && job !== null && "company" in job ? job.company : ""}
+                            </p>
+                            <p className="text-xs text-[#0856BA] flex items-center">
+                            <MapPin className="w-3.5 h-3.5 mr-1" />
+                            {typeof job === "object" && job !== null && "location" in job ? job.location : "No location added yet."}
+                            </p>
+                          </div>
+                            )
+                          }
+                          </div>
 
                               {/* Right side */}
                               <div className="flex items-center space-x-3">
@@ -1429,30 +1421,30 @@ export default function JobOffers() {
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Salary Range<span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500">₱</span>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="e.g. 10000-30000"
-                        value={salaryRange}
-                        onChange={(e) => setSalaryRange(e.target.value)}
-                        onInput={(e) => {
-                          const value = e.target.value;
-                          if (!/^[0-9-]*$/.test(value)) {
-                            e.target.value = value.replace(/[^0-9-]/g, "");
-                          }
-                        }}
-                        pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
-                        className="w-full pl-8 p-1.5 border rounded text-sm"
-                        required
-                      />
+                  <label className="block text-sm font-medium mb-1">
+                    Salary Range<span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500">₱</span>
                     </div>
+                    <input
+                      type="text"
+                      placeholder="e.g. 10000-30000"
+                      value={salaryRange}
+                      onChange={(e) => setSalaryRange(e.target.value)}
+                      onInput={(e) => {
+                        const value = (e.target as HTMLInputElement).value;
+                        if (!/^[0-9-]*$/.test(value)) {
+                          (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "");
+                        }
+                      }}
+                      pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
+                      className="w-full pl-8 p-1.5 border rounded text-sm"
+                      required
+                    />
                   </div>
+                </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
