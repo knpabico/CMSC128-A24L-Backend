@@ -9,8 +9,12 @@ import { ChevronRight, Check, ChevronDown } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModalInput from "@/components/ModalInputForm"
 import { toastError, toastSuccess } from "@/components/ui/sonner"
+import { useRouter } from "next/navigation"
+
 
 export default function PostJobPage({ goBackToList }: { goBackToList: () => void }) {
+  const router = useRouter();
+
   const {
     handleSubmit,
     company,
@@ -37,6 +41,19 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
     handleImageChange,
     handleSaveDraft,
   } = useJobOffer()
+
+  const resetForm = () => {
+    setPosition("")
+    setCompany("")
+    setLocation("")
+    setJobDescription("")      
+    setSalaryRange("")
+    setExperienceLevel("")
+    setEmploymentType("")
+    setJobType("")
+    handleSkillChange({ target: { value: "" } })
+  }
+
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [employmentTypeOpen, setEmploymentTypeOpen] = useState(false)
@@ -92,6 +109,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                 !location ||
                 !experienceLevel ||
                 !salaryRange ||
+                !requiredSkill.length ||
                 !image
               ) {
                 toastError("Please fill in all required fields")
@@ -100,8 +118,10 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
               try {
                 await handleSubmit(e)
                 toastSuccess("Job submitted successfully.")
-                goBackToList()
+                resetForm()
+                router.push('/admin-dashboard/job-postings')
               } catch (error) {
+                console.error("Error submitting job:", error)
                 toastError("There was an error submitting the job. Please try again.")
               }
             }}
@@ -343,19 +363,8 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                   type="button"
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
                   onClick={() => {
-                    // Reset all form states
-                    setPosition("");
-                    setCompany("");
-                    setLocation("");
-                    setJobDescription("");      
-                    setSalaryRange("");
-                    setExperienceLevel("");
-                    setEmploymentType("");
-                    setJobType("");
-                    // Clear skills array
-                    handleSkillChange({ target: { value: "" } });
-                    // Navigate back to list
-                    goBackToList();
+                    resetForm()
+                    router.push('/admin-dashboard/job-postings')
                   }}
                 >
                   Cancel
@@ -371,7 +380,8 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                     try {
                       await handleSaveDraft(e)
                       toastSuccess("Draft saved successfully")
-                      goBackToList()
+                      resetForm()
+                      router.push('/admin-dashboard/job-postings')
                     } catch (error) {
                       toastError("Failed to save draft. Please try again.")
                       console.error("Error saving draft:", error)
