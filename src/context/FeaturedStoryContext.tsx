@@ -16,7 +16,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Featured } from "@/models/models";
 import { FirebaseError } from "firebase/app";
-import { set } from "zod";
+import { uploadImage } from "@/lib/upload";
 
 const FeaturedStoryContext = createContext<any>(null);
 
@@ -31,6 +31,8 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
   const [isPublic, setIsPublic] = useState(true); 
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const { user, isAdmin } = useAuth();
 
@@ -54,7 +56,6 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
       const docRef = doc(collection(db, "featured"));
       item.featuredId = docRef.id;
       item.datePosted = new Date();
-      item.image = image; // Use the image state
       item.text = text; // Use the text state
       item.title = title; // Use the title state
       item.type = type; // Use the type state
@@ -66,13 +67,36 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+
+    const handleUpload = async (newFeatured: Featured) => {
+      if (!image) {
+        setMessage("No image selected");
+        setIsError(true);
+        return;
+      }
+      try {
+        const data = await uploadImage(image, `featured/${newFeatured.featuredId}`); 
+        const result = await updateFeatured(newFeatured.featuredId, {image: data.url} );
+        if (data.success) {
+          setIsError(false);
+          setMessage("Image uploaded successfully!");
+          console.log("Image URL:", data.url); // URL of the uploaded image
+        } else {
+          setMessage(data.result);
+          setIsError(true);
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newItem: Featured = {
       featuredId: "",
       text,
-      image,
+      image: "",
       title,
       type,
       isPublic,
@@ -80,6 +104,8 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
     };
 
     const response = await addFeatured(newItem);
+
+    handleUpload(newItem);
 
     if (response.success) {
       setShowForm(false);
@@ -102,36 +128,6 @@ export function FeaturedProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // const handleEdit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   const updatedItem: Featured = {
-  //     featuredId: currentFeaturedId!,
-  //     text,
-  //     image,
-  //     title,
-  //     type,
-  //     isPublic,
-  //     datePosted: new Date(),
-  //   };
-
-  //   try {
-  //     if (currentFeaturedId) {
-  //       await updateDoc(doc(db, "featured", currentFeaturedId), updatedItem);
-  //       setShowForm(false);
-  //       setText("");
-  //       setImage("");
-  //       setTitle("");
-  //       setType("");
-  //       setIsPublic(true);
-  //       setIsEdit(false);
-  //     } else {
-  //       console.error("Error: featuredId is null");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating featured item:", error);
-  //   }
-  // };
 
   const updateFeatured = async (featuredId: string, updates: Partial<Featured>) => {
     try {
