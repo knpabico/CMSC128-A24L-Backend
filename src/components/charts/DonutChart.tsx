@@ -35,7 +35,10 @@ const DonutChart = ({ labels, data , backgroundColor}: DonutChartProps) => {
           },
           options: {
             responsive: true,
-            
+            animation: {
+              duration: 1000, 
+              easing: "easeInOutQuad", 
+            },
           },
         });
         chartRef.current.chart = newChart;

@@ -95,7 +95,7 @@ export default function Users() {
         >
           <div className="flex-1 pr-4">
             <p className="text-sm text-gray-500 mb-1">
-              Date Posted: {announcement.datePosted.toDateString()}
+              Date Posted: {announcement.datePosted.toLocaleString()}
             </p>
             <h2 className="text-lg font-semibold mb-2">{announcement.title}</h2>
             <CollapseText
