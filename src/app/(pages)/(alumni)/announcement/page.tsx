@@ -183,6 +183,7 @@ export default function Announcements() {
                     Page {currentPage} of {totalPages}
                   </span>
 
+
                   <Button
                     className="text-[12px] font-semibold px-4 py-2 bg-gray-200 hover:bg-gray-300 hover:font-bold rounded-lg disabled:opacity-50 transition-all"
                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
