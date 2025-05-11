@@ -72,7 +72,7 @@ export default function Navbar() {
           label: "Manage Events",
           path: "/admin-dashboard/organize-events",
         },
-        { id: "add-events", label: "Add Events", path: "/admin/events/add" },
+        { id: "add-events", label: "Add Events", path: "/admin-dashboard/organize-events/add" },
         {
           id: "pending-events",
           label: "View Pending Events",
@@ -461,7 +461,22 @@ export default function Navbar() {
           className="fixed top-0 left-0 w-20 md:w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
           style={{ paddingTop: "2%", paddingBottom: "2%" }}
         >
-          <div className="text-xl font-bold px-5">ICS-ARMS</div>
+          <div
+            className={`text-white text-lg ${oswald.className} px-7`}
+            onClick={() => router.push("/")}
+          >
+            <Link href="/" className="flex items-center cursor-pointer gap-2">
+              <Image
+                src={ICSARMSLogo}
+                alt="ICS ARMS Logo"
+                className=""
+                width={35}
+                height={35}
+              />
+              ICS-ARMS
+            </Link>
+          </div>
+
           <div className="flex-1 overflow-y-auto">
             {/* Dynamically generate menu sections */}
             {navConfig.map((section) => (

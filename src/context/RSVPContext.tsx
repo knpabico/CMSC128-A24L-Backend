@@ -6,9 +6,11 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc, 
   collection,
   onSnapshot,
+  increment,
   query} from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "./AuthContext";
+import { useEvents } from "./EventContext";
 import { RSVP } from "@/models/models";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 
@@ -23,6 +25,7 @@ export function RsvpProvider({ children }: { children: React.ReactNode }) {
   const [rsvpDetails, setRsvpDetails] = useState<any[]>([]);
   const [isLoadingRsvp, setIsLoadingRsvp] = useState<boolean>(false);
   const { user, isAdmin } = useAuth();
+  const { events } = useEvents();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -77,6 +80,18 @@ export function RsvpProvider({ children }: { children: React.ReactNode }) {
         });
         console.log(`RSVP ${rsvp.id} updated to Accepted`);
         toastSuccess("RSVP successfully accepted")
+
+        const event = events.find(
+          (e: any) => e.eventId === eventId && e.rsvps === rsvp.rsvpId
+        );
+  
+        if (event) {
+          const eventRef = doc(db, "event", event.eventId);
+          await updateDoc(eventRef, {
+            numofAttendees: increment(1)
+          });
+        }
+        
         return { success: true, message: "RSVP successfully accepted" };
       } else {
         toastError("RSVP not found")
