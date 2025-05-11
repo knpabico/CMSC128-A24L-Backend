@@ -337,6 +337,12 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const getAlumEmailById = async (alumniId: string) => {
+    const alumRef = doc(db, "alumni", alumniId);
+    const docSnap = await getDoc(alumRef);
+    return docSnap.data()?.email;
+  };
+
   return (
     <AlumContext.Provider
       value={{
@@ -354,6 +360,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         totalAlums,
         getActiveAlums,
         getInactiveAlums,
+        getAlumEmailById,
       }}
     >
       {children}

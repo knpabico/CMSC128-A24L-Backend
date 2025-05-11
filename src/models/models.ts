@@ -217,3 +217,12 @@ export interface Featured {
   datePosted: Date;
   isPublic: boolean;
 }
+
+export interface JobApplication {
+  jobApplicationId: string;
+  jobId: string;
+  applicantId: string;
+  dateApplied: Date;
+  status: string;
+  contactId: string;
+}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
-import type { JobOffering } from "@/models/models";
+import type { Alumnus, JobApplication, JobOffering } from "@/models/models";
 import { toastError } from "@/components/ui/sonner";
 import {
   ChevronRight,
@@ -21,6 +21,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/[id]/page";
+import { useJobApplicationContext } from "@/context/JobApplicationContext";
+import JobApplicationModalAdmin from "@/components/JobApplicationModalAdmin";
+import { useAlums } from "@/context/AlumContext";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -77,6 +80,18 @@ export default function Users() {
     handleEditDraft,
   } = useJobOffer();
 
+  const {
+    jobApplications,
+    updateApplicationStatus,
+  }: {
+    jobApplications: JobApplication[];
+    updateApplicationStatus: (
+      jobId: string,
+      newStatus: string
+    ) => Promise<void>;
+  } = useJobApplicationContext();
+  const [openApplications, setOpenApplications] = useState(false);
+  const { alums } = useAlums();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filterCategories = {
@@ -102,7 +117,7 @@ export default function Users() {
       "Canva",
     ],
   };
-
+  const [jobId, setJobId] = useState(null);
   const [viewingJob, setViewingJob] = useState(null);
   const [currentPage, setCurrentPage] = useState("list");
   const [activeTab, setActiveTab] = useState("Accepted");
@@ -129,15 +144,30 @@ export default function Users() {
     });
   };
 
-  const tabs = ["Accepted", "Pending", "Rejected", "Draft"];
+  const tabs = ["Accepted", "Pending", "Rejected", "Draft", "Applications"];
 
   const stats = {
     pending: jobOffers.filter((job) => job.status === "Pending").length,
     accepted: jobOffers.filter((job) => job.status === "Accepted").length,
     rejected: jobOffers.filter((job) => job.status === "Rejected").length,
     drafts: jobOffers.filter((job) => job.status === "Draft").length,
+    applications: jobOffers.filter((job) => {
+      return jobApplications.some(
+        (application: JobApplication) =>
+          application.jobId === job.jobId && application.contactId === "Admin"
+      );
+    }).length,
     total: jobOffers.length,
   };
+
+  const filteredApplications = useMemo(() => {
+    return jobOffers.filter((job: JobOffering) => {
+      return jobApplications.some(
+        (application: JobApplication) =>
+          application.jobId === job.jobId && application.contactId === "Admin"
+      );
+    });
+  }, [jobOffers, jobApplications]);
 
   // INCORPORATED FROM SAMPLE PAGE FROM DAPHNE
   // Track scroll position and update header state
@@ -446,6 +476,8 @@ export default function Users() {
                         ? stats.accepted
                         : tab === "Rejected"
                         ? stats.rejected
+                        : tab == "Applications"
+                        ? stats.applications
                         : stats.drafts}
                     </div>
                   </div>
@@ -485,187 +517,323 @@ export default function Users() {
                 {isSticky && <div style={{ height: "56px" }}></div>}
 
                 {/* Dynamic rows */}
-                {filterJobs(activeTab).map((job, index) => (
-                  <div
-                    key={index}
-                    className={`w-full flex items-center border-t border-gray-300 ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    } hover:bg-blue-50`}
-                  >
-                    {/* Company Logo */}
-                    <div className="flex-shrink-0 p-4">
-                      {job.image ? (
-                        <img
-                          src={job.image || "/placeholder.svg"}
-                          alt={`${job.company} logo`}
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
-                          {job.company.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
+                {activeTab === "Applications"
+                  ? filteredApplications.map(
+                      (jobApplication: JobApplication, index) => {
+                        const job = jobOffers.find(
+                          (job: JobOffering) =>
+                            job.jobId === jobApplication.jobId
+                        );
+                        return (
+                          <div
+                            key={index}
+                            className={`w-full flex items-center border-t border-gray-300 ${
+                              index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                            } hover:bg-blue-50`}
+                          >
+                            {/* Company Logo */}
+                            <div className="flex-shrink-0 p-4">
+                              {job.image ? (
+                                <img
+                                  src={job.image || "/placeholder.svg"}
+                                  alt={`${job.company} logo`}
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                              ) : (
+                                <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                                  {job.company.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </div>
 
-                    {/* Job Details */}
-                    <div
-                      className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
-                      onClick={() => handleViewJob(job.jobId)}
-                    >
-                      <div className="text-base font-bold">{job.position}</div>
-                      <div className="text-sm text-gray-600">{job.company}</div>
-                      <div className="text-sm text-gray-500">
-                        {job.employmentType ? (
-                          <>
-                            {job.employmentType}
-                            {job.experienceLevel && (
-                              <> • {job.experienceLevel}</>
-                            )}
-                            {job.salaryRange && <> • ₱{job.salaryRange}</>}
-                          </>
-                        ) : (
-                          <>
-                            {job.experienceLevel ? (
-                              <>
-                                {job.experienceLevel}
-                                {job.salaryRange && <> • ₱{job.salaryRange}</>}
-                              </>
-                            ) : job.salaryRange ? (
-                              `₱${job.salaryRange}`
-                            ) : (
-                              "This draft can't be published yet. Please complete all required fields."
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
+                            {/* Job Details */}
+                            <div
+                              className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
+                              onClick={() => handleViewJob(job.jobId)}
+                            >
+                              <div className="text-base font-bold">
+                                {job.position}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {job.company}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {job.employmentType ? (
+                                  <>
+                                    {job.employmentType}
+                                    {job.experienceLevel && (
+                                      <> • {job.experienceLevel}</>
+                                    )}
+                                    {job.salaryRange && (
+                                      <> • ₱{job.salaryRange}</>
+                                    )}
+                                  </>
+                                ) : (
+                                  <>
+                                    {job.experienceLevel ? (
+                                      <>
+                                        {job.experienceLevel}
+                                        {job.salaryRange && (
+                                          <> • ₱{job.salaryRange}</>
+                                        )}
+                                      </>
+                                    ) : job.salaryRange ? (
+                                      `₱${job.salaryRange}`
+                                    ) : (
+                                      "This draft can't be published yet. Please complete all required fields."
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            {/* Actions Section */}
+                            <div className="flex items-center gap-4 p-4">
+                              {/* Toggle and Status*/}
+                              <div className="flex items-center w-[220px]">
+                                {/* Toggle Switch */}
 
-                    {/* Actions Section */}
-                    <div className="flex items-center gap-4 p-4">
-                      {/* Toggle and Status*/}
-                      <div className="flex items-center w-[220px]">
-                        {/* Toggle Switch */}
-                        <div className="w-16 flex items-center justify-center">
-                          {activeTab === "Accepted" && (
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={job.status === "Accepted"}
-                                onChange={async () => {
-                                  try {
-                                    if (job.status === "Accepted") {
-                                      await updateStatus("Closed", job.jobId);
-                                    } else {
-                                      await updateStatus("Accepted", job.jobId);
-                                    }
-                                  } catch (error) {
-                                    toastError("Failed to update job status");
-                                  }
-                                }}
-                              />
-                              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                            </label>
+                                {/* Status Badge */}
+                                <div className="w-24 flex items-center justify-center">
+                                  <div
+                                    className={`px-2 py-1 text-xs rounded whitespace-nowrap `}
+                                  >
+                                    {
+                                      jobApplications.filter(
+                                        (application: JobApplication) =>
+                                          application.jobId === job.jobId &&
+                                          application.contactId === "Admin"
+                                      ).length
+                                    }{" "}
+                                    Applications
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* View/Edit Details Button */}
+                              <div className="w-28 flex items-center justify-center">
+                                <button
+                                  className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
+                                  onClick={(e) => {
+                                    setOpenApplications(true);
+                                    setJobId(job.jobId);
+                                  }}
+                                >
+                                  View Applications
+                                </button>
+                                <JobApplicationModalAdmin
+                                  jobId={jobId ?? ""}
+                                  alums={alums}
+                                  isOpen={openApplications}
+                                  onClose={() => setOpenApplications(false)}
+                                  applications={jobApplications}
+                                  onStatusChange={(id, newStatus) => {
+                                    updateApplicationStatus(id, newStatus);
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <div className="w-[140px] flex items-center justify-center">
+                              <Trash2 size={18} />
+                            </div>
+                          </div>
+                        );
+                      }
+                    )
+                  : filterJobs(activeTab).map((job, index) => (
+                      <div
+                        key={index}
+                        className={`w-full flex items-center border-t border-gray-300 ${
+                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        } hover:bg-blue-50`}
+                      >
+                        {/* Company Logo */}
+                        <div className="flex-shrink-0 p-4">
+                          {job.image ? (
+                            <img
+                              src={job.image || "/placeholder.svg"}
+                              alt={`${job.company} logo`}
+                              className="w-16 h-16 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                              {job.company.charAt(0).toUpperCase()}
+                            </div>
                           )}
                         </div>
 
-                        {/* Status Badge */}
-                        <div className="w-24 flex items-center justify-center">
-                          <div
-                            className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
-                              job.status === "Accepted"
-                                ? "bg-green-100 text-green-800"
-                                : job.status === "Pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {job.status}
+                        {/* Job Details */}
+                        <div
+                          className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
+                          onClick={() => handleViewJob(job.jobId)}
+                        >
+                          <div className="text-base font-bold">
+                            {job.position}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {job.company}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {job.employmentType ? (
+                              <>
+                                {job.employmentType}
+                                {job.experienceLevel && (
+                                  <> • {job.experienceLevel}</>
+                                )}
+                                {job.salaryRange && <> • ₱{job.salaryRange}</>}
+                              </>
+                            ) : (
+                              <>
+                                {job.experienceLevel ? (
+                                  <>
+                                    {job.experienceLevel}
+                                    {job.salaryRange && (
+                                      <> • ₱{job.salaryRange}</>
+                                    )}
+                                  </>
+                                ) : job.salaryRange ? (
+                                  `₱${job.salaryRange}`
+                                ) : (
+                                  "This draft can't be published yet. Please complete all required fields."
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Actions Section */}
+                        <div className="flex items-center gap-4 p-4">
+                          {/* Toggle and Status*/}
+                          <div className="flex items-center w-[220px]">
+                            {/* Toggle Switch */}
+                            <div className="w-16 flex items-center justify-center">
+                              {activeTab === "Accepted" && (
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={job.status === "Accepted"}
+                                    onChange={async () => {
+                                      try {
+                                        if (job.status === "Accepted") {
+                                          await updateStatus(
+                                            "Closed",
+                                            job.jobId
+                                          );
+                                        } else {
+                                          await updateStatus(
+                                            "Accepted",
+                                            job.jobId
+                                          );
+                                        }
+                                      } catch (error) {
+                                        toastError(
+                                          "Failed to update job status"
+                                        );
+                                      }
+                                    }}
+                                  />
+                                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                </label>
+                              )}
+                            </div>
+
+                            {/* Status Badge */}
+                            <div className="w-24 flex items-center justify-center">
+                              <div
+                                className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
+                                  job.status === "Accepted"
+                                    ? "bg-green-100 text-green-800"
+                                    : job.status === "Pending"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {job.status}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* View/Edit Details Button */}
+                          <div className="w-28 flex items-center justify-center">
+                            {activeTab === "Draft" ? (
+                              <button
+                                className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditDraft(job);
+                                  setCurrentPage("post");
+                                }}
+                              >
+                                Edit Draft
+                              </button>
+                            ) : (
+                              <button
+                                className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewJob(job.jobId);
+                                }}
+                              >
+                                View Details
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="w-[140px] flex items-center justify-center">
+                            {activeTab === "Pending" ? (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleReject(job.jobId);
+                                  }}
+                                  className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                                >
+                                  <ThumbsDown size={18} />
+                                  <span>Reject</span>
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAccept(job.jobId);
+                                  }}
+                                  className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
+                                >
+                                  <ThumbsUp size={18} />
+                                  <span>Accept</span>
+                                </button>
+                              </div>
+                            ) : activeTab === "Drafts" ? (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setJobToDelete(job);
+                                    setIsConfirmationOpen(true);
+                                  }}
+                                  className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                                >
+                                  <Trash2 size={18} />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center w-full">
+                                <Trash2
+                                  size={18}
+                                  className="text-gray-500 hover:text-red-500 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setJobToDelete(job);
+                                    setIsConfirmationOpen(true);
+                                  }}
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-
-                      {/* View/Edit Details Button */}
-                      <div className="w-28 flex items-center justify-center">
-                        {activeTab === "Draft" ? (
-                          <button
-                            className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditDraft(job);
-                              setCurrentPage("post");
-                            }}
-                          >
-                            Edit Draft
-                          </button>
-                        ) : (
-                          <button
-                            className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewJob(job.jobId);
-                            }}
-                          >
-                            View Details
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="w-[140px] flex items-center justify-center">
-                        {activeTab === "Pending" ? (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleReject(job.jobId);
-                              }}
-                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
-                            >
-                              <ThumbsDown size={18} />
-                              <span>Reject</span>
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAccept(job.jobId);
-                              }}
-                              className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
-                            >
-                              <ThumbsUp size={18} />
-                              <span>Accept</span>
-                            </button>
-                          </div>
-                        ) : activeTab === "Drafts" ? (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setJobToDelete(job);
-                                setIsConfirmationOpen(true);
-                              }}
-                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
-                            >
-                              <Trash2 size={18} />
-                              <span>Delete</span>
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center w-full">
-                            <Trash2
-                              size={18}
-                              className="text-gray-500 hover:text-red-500 cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setJobToDelete(job);
-                                setIsConfirmationOpen(true);
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    ))}
               </div>
             </div>
           </div>
