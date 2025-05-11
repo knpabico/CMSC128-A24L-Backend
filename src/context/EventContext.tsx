@@ -235,7 +235,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 //use to handle approve and rejecion
   const onUpdateEventStat = async (eventId: string, status: string) => {
     try {
-      console.log(eventId, "THIS IS THE ID");
       const alumniRef = doc(db, "event", eventId);
       await updateDoc(alumniRef,{ status: status });
       

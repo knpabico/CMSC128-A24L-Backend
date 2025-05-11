@@ -86,6 +86,7 @@ const AlumniDetailsModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
+        
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             {alumnus.firstName} {alumnus.middleName} {alumnus.lastName} {alumnus.suffix}
@@ -99,6 +100,11 @@ const AlumniDetailsModal = ({
             </span>
           </DialogTitle>
         </DialogHeader>
+        <img
+          src={alumnus.image}
+          alt={alumnus.title}
+          className="w-full h-40 object-cover rounded-md"
+        />
 
         <div className="space-y-4 my-4">
           {/* Personal Information */}
@@ -185,8 +191,8 @@ const AlumniDetailsModal = ({
                 <span className="font-medium">{formatDateSafe(alumnus.lastLogin)}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-gray-500">Alumni ID</span>
-                <span className="font-medium">{alumnus.alumniId}</span>
+                <span className="text-gray-500">Alumni Student Number:</span>
+                <span className="font-medium">{alumnus.studentNumber}</span>
               </div>
             </div>
           </div>
