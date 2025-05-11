@@ -655,6 +655,7 @@ export default function AdminDashboard() {
                   className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                   onClick={() => handleOpenJobModal(jobOffer)}
                 >
+                
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <span className="font-medium">{jobOffer.position}</span>
@@ -696,6 +697,11 @@ export default function AdminDashboard() {
                 </button>
               </div>
               
+              <img
+                src={selectedJob.image}
+                alt={selectedJob.position}
+                className="w-full h-40 object-cover rounded-md"
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <p className="text-lg font-semibold">{selectedJob.company}</p>
