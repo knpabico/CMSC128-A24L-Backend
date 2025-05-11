@@ -402,7 +402,7 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
 
             {/* Profile Panel */}
-            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA]">
+            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[600px] overflow-y-scroll">
               <img
                 src={
                   alumInfo!.image === ""
@@ -422,7 +422,7 @@ export default function Home() {
                 </i>
               </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-3">
                 {/* <p className="text-xs md:text-[14px]">
                   Std. No. {alumInfo!.studentNumber}
                 </p> */}
@@ -513,8 +513,15 @@ export default function Home() {
                                   jobOffer.jobId === newsLetter.referenceId
                               );
                              if (!jobOffering || jobOffering.alumniId === "Admin") {
-                                return "/ics-logo.jpg";
-                              }
+                                if (jobOffering.image) return jobOffering.image
+                                else return "/ics-logo.jpg";
+                              } else 
+                                if (jobOffering.image) return jobOffering.image 
+                                else return jobOffering
+                                && alums.find(
+                                    (alum: Alumnus) =>
+                                      alum.alumniId === jobOffering.alumniId
+                                  )?.image
                             })()
                           : ""}
                         className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
@@ -737,20 +744,34 @@ export default function Home() {
                                 ) : (
                                   <img src={jobOffering.image}></img>
                                 )} */}
+                                {jobOffering.status === 'Closed' ?
                                 <div className="flex gap-1">
-                                  <button
+                                  {/* <button
                                     onClick={() => router.push(`/joboffer-list`)}
                                     className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                                   >
                                     View more job offers
+                                  </button> */}
+                                  <button
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
+                                  >
+                                    Apply
                                   </button>
+                                </div> : 
+                                <div className="flex gap-1">
+                                  {/* <button
+                                    onClick={() => router.push(`/joboffer-list`)}
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                  >
+                                    View more job offers
+                                  </button> */}
                                   <button
                                     onClick={() => router.push(`/joboffer-list/`)}
                                     className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
                                   >
                                     Apply
                                   </button>
-                                </div>
+                                </div>}
                               </div>
                             </div>
                           </div>
@@ -799,29 +820,29 @@ export default function Home() {
                             <div className="flex justify-between mb-1">
                               <div className='flex gap-2 items-center'>
                                 <Users className='size-4 text-[#616161]'/>
-                                <span className="text-[13px] md:text-[15px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
+                                <span className="text-[13px] md:text-[15px] text-gray-500">{" "} {donationDrive.donorList?.length || 0} Patrons</span>
                               </div>
-                              {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                              {getDaysRemaining(donationDrive.endDate) === "Not Available" ? "" : (
                               <div className='flex gap-2 items-center'>
                                 <Clock className='size-4 text-[#616161]'/>
-                                <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                                <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrive.endDate)}</span>
                               </div>)}
                             </div>
 
                             {/* progress bar */}
                             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                              {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                              {donationDrive.currentAmount === 0 ? (
                                 <div 
                                 className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
                                 style={{
-                                  width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  width: `${Math.min( 0 / donationDrive.targetAmount * 100, 100)}%`
                                 }}
                               >
                               </div>) : 
                               <div 
                                 className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
                                 style={{
-                                  width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                  width: `${Math.min((donationDrive.currentAmount || 0) / donationDrive.targetAmount * 100, 100)}%`
                                 }}
                               >
                               </div>}
@@ -938,7 +959,7 @@ export default function Home() {
                           <div className="flex flex-col gap-[20px] px-4 md:px-[20px]">
                             <div>
                               <p className="text-xl md:text-[24px] font-semibold">{event.title}</p>
-                              <p className="text-[13px] md:text-[15px] mt-2">{event.description}</p>
+                              <CollapseText text={event.description} maxChars={500} className="text-[13px] md:text-[15px] mt-2">{event.description}</CollapseText>
                             </div>
                           </div>
                         
