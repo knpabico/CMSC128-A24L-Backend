@@ -264,8 +264,12 @@ export default function ViewPendingScholarships() {
             className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${statusFilter === "pending" ? "bg-[var(--primary-blue)]" : "bg-white"}`}
           >
             <div className={`w-full h-1 transition-colors ${statusFilter === "pending" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-            <div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "pending" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+            <div className={`w-full py-3 flex gap-1 items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "pending" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
               Pending
+							<div
+								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "pending" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{scholarshipStudents.filter((sponsorship: ScholarshipStudent) => sponsorship.status === "pending").length}
+							</div>
             </div>
           </div>
           <div 
@@ -273,8 +277,12 @@ export default function ViewPendingScholarships() {
             className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${statusFilter === "approved" ? "bg-[var(--primary-blue)]" : "bg-white"}`}
           >
             <div className={`w-full h-1 transition-colors ${statusFilter === "approved" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-            <div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "approved" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+            <div className={`w-full py-3 gap-1 flex items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "approved" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
               Approved
+							<div
+								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "approved" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{scholarshipStudents.filter((sponsorship: ScholarshipStudent) => sponsorship.status === "approved").length}
+							</div>
             </div>
           </div>
           <div 
@@ -282,8 +290,12 @@ export default function ViewPendingScholarships() {
             className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${statusFilter === "rejected" ? "bg-[var(--primary-blue)]" : "bg-white"}`}
           >
             <div className={`w-full h-1 transition-colors ${statusFilter === "rejected" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-            <div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "rejected" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+            <div className={`w-full py-3 gap-1 flex items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "rejected" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
               Rejected
+							<div
+								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "rejected" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{scholarshipStudents.filter((sponsorship: ScholarshipStudent) => sponsorship.status === "rejected").length}
+							</div>
             </div>
           </div>
         </div>
