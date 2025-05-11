@@ -271,9 +271,9 @@ export default function AddDonationDrive() {
           const enhancedDonations = await Promise.all(
             donationsData.map(async (donation) => {
               // Skip fetching details for anonymous donations
-              if (donation.isAnonymous) {
-                return { ...donation, displayName: 'Anonymous' };
-              }
+              // if (donation.isAnonymous) {
+              //   return { ...donation, displayName: 'Anonymous' };
+              // }
   
               try {
                 // Directly fetch donor details from Firestore using the alumniId from the donation

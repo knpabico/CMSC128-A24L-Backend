@@ -266,20 +266,32 @@ export default function ManageDonationDrive() {
         <div className="w-full flex gap-2">
 					<div onClick={() => setStatusFilter("all")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "all" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
 						<div className={`w-full h-1 transition-colors ${statusFilter === "all" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "all" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+						<div className={`w-full py-3 flex gap-1 items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "all" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
 							All Drives
+							<div
+								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "all" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{donationDrives.length}
+							</div>
 						</div>
 					</div>
 					<div onClick={() => setStatusFilter("active")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "active" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
 						<div className={`w-full h-1 transition-colors ${statusFilter === "active" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "active" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+						<div className={`w-full py-3 flex items-center gap-1 justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "active" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
 							Active
+							<div
+								className={`h-6 w-6 rounded-full flex  items-center justify-center text-[13px] text-white ${statusFilter === "active" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{donationDrives.filter((drive: DonationDrive) => drive.status === "active").length}
+							</div>
 						</div>
 					</div>
           <div onClick={() => setStatusFilter("completed")} className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${ statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-white" }`}>
 						<div className={`w-full h-1 transition-colors ${statusFilter === "completed" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-						<div className={`w-full py-3 flex items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "completed" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+						<div className={`w-full py-3 flex gap-1 items-center justify-center rounded-t-2xl font-semibold text-base ${ statusFilter === "completed" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
 							Closed
+							<div
+								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "completed" ? "bg-amber-400" : "bg-blue-200"}`}>
+								{donationDrives.filter((drive: DonationDrive) => drive.status === "completed").length}
+							</div>
 						</div>
 					</div>
         </div>
