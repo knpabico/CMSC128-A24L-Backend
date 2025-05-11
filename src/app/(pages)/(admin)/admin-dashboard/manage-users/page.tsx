@@ -168,8 +168,18 @@ const Page = () => {
                 {status} 
                 <div
                   className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
-                    activeTab === status
+                    (activeTab === status && status === "Pending")
                       ? "bg-amber-400"
+                      : (activeTab === status && status === "Approved")
+                      ? "bg-green-400"
+                      : (activeTab === status && status === "Rejected")
+                      ? "bg-red-400"
+                      : (activeTab !== status && status === "Pending")
+                      ? "bg-amber-100"
+                      : (activeTab !== status && status === "Approved")
+                      ? "bg-green-100"
+                      : (activeTab !== status && status === "Rejected")
+                      ? "bg-red-100"
                       : "bg-blue-200"
                   }`}
                 >
