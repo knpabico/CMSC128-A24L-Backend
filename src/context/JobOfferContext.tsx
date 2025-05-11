@@ -35,10 +35,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
-  const [image, setJobImage] = useState(null);
+  const [image, setJobImage] = useState<File | null>(null);
   const [location, setLocation] = useState("");
   const [fileName, setFileName] = useState<string>("");
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
