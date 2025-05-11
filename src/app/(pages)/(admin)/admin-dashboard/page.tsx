@@ -312,6 +312,7 @@ export default function AdminDashboard() {
                     data={sortedEntries.map(([_, count]) => count)}
                     backgroundColor={sortedEntries.map(([field], i) => getColorForField(field, i))}
                     options={false}
+
                   />
                 </div>
 
@@ -384,10 +385,10 @@ export default function AdminDashboard() {
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {getEventProposals(events).map((event:Event, index:number)=>{
                   return (
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                    <div  key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
                     
                       <div 
-                        key={event.eventId}
+                        
                         onClick={() => handleOpenModalEventProposal(event)}
                         className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                       >
