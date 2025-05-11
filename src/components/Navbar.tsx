@@ -51,11 +51,6 @@ export default function Navbar() {
           path: "/admin-dashboard/manage-users",
         },
         {
-          id: "pending-alumni",
-          label: "View Pending Alumni",
-          path: "/admin-dashboard/manage-users",
-        },
-        {
           id: "stats-alumni",
           label: "Statistical Report",
           path: "/admin-dashboard/alum-statistical-reports",
@@ -73,11 +68,6 @@ export default function Navbar() {
           path: "/admin-dashboard/organize-events",
         },
         { id: "add-events", label: "Add Events", path: "/admin-dashboard/organize-events/add" },
-        {
-          id: "pending-events",
-          label: "View Pending Events",
-          path: "/admin-dashboard/organize-events",
-        },
         {
           id: "stats-events",
           label: "Statistical Report",
