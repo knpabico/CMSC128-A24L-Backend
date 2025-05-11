@@ -24,6 +24,8 @@ import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/[id]
 import { useJobApplicationContext } from "@/context/JobApplicationContext";
 import JobApplicationModalAdmin from "@/components/JobApplicationModalAdmin";
 import { useAlums } from "@/context/AlumContext";
+import { sendEmailTemplateForJobApplicationStatus } from "@/lib/emailTemplate";
+import Image from "next/image";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -82,10 +84,10 @@ export default function Users() {
 
   const {
     jobApplications,
-    updateApplicationStatus,
+    updateApplicationStatusAdmin,
   }: {
     jobApplications: JobApplication[];
-    updateApplicationStatus: (
+    updateApplicationStatusAdmin: (
       jobId: string,
       newStatus: string
     ) => Promise<void>;
@@ -117,7 +119,9 @@ export default function Users() {
       "Canva",
     ],
   };
-  const [jobId, setJobId] = useState(null);
+  const [currentJobSelected, setCurrentJobSelected] =
+    useState<JobOffering | null>(null);
+
   const [viewingJob, setViewingJob] = useState(null);
   const [currentPage, setCurrentPage] = useState("list");
   const [activeTab, setActiveTab] = useState("Accepted");
@@ -160,7 +164,7 @@ export default function Users() {
     total: jobOffers.length,
   };
 
-  const filteredApplications = useMemo(() => {
+  const filteredJobs: JobOffering[] = useMemo(() => {
     return jobOffers.filter((job: JobOffering) => {
       return jobApplications.some(
         (application: JobApplication) =>
@@ -518,127 +522,110 @@ export default function Users() {
 
                 {/* Dynamic rows */}
                 {activeTab === "Applications"
-                  ? filteredApplications.map(
-                      (jobApplication: JobApplication, index) => {
-                        const job = jobOffers.find(
-                          (job: JobOffering) =>
-                            job.jobId === jobApplication.jobId
+                  ? filteredJobs.map((job: JobOffering, index) => {
+                      const applications: JobApplication[] =
+                        jobApplications.filter(
+                          (application: JobApplication) =>
+                            application.jobId === job.jobId &&
+                            application.contactId === "Admin"
                         );
-                        return (
+                      return (
+                        <div
+                          key={index}
+                          className={`w-full flex items-center border-t border-gray-300 ${
+                            index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                          } hover:bg-blue-50`}
+                        >
+                          {/* Company Logo */}
+                          <div className="flex-shrink-0 p-4">
+                            {job.image ? (
+                              <Image
+                                src={job.image || "/placeholder.svg"}
+                                alt={`${job.company} logo`}
+                                className="w-16 h-16 object-cover rounded"
+                                width={0}
+                                height={0}
+                                sizes="100vw"
+                                priority
+                              />
+                            ) : (
+                              <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                                {job.company.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          {/* Job Details */}
                           <div
-                            key={index}
-                            className={`w-full flex items-center border-t border-gray-300 ${
-                              index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                            } hover:bg-blue-50`}
+                            className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
+                            onClick={() => handleViewJob(job.jobId)}
                           >
-                            {/* Company Logo */}
-                            <div className="flex-shrink-0 p-4">
-                              {job.image ? (
-                                <img
-                                  src={job.image || "/placeholder.svg"}
-                                  alt={`${job.company} logo`}
-                                  className="w-16 h-16 object-cover rounded"
-                                />
+                            <div className="text-base font-bold">
+                              {job.position}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {job.company}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {job.employmentType ? (
+                                <>
+                                  {job.employmentType}
+                                  {job.experienceLevel && (
+                                    <> • {job.experienceLevel}</>
+                                  )}
+                                  {job.salaryRange && (
+                                    <> • ₱{job.salaryRange}</>
+                                  )}
+                                </>
                               ) : (
-                                <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
-                                  {job.company.charAt(0).toUpperCase()}
-                                </div>
+                                <>
+                                  {job.experienceLevel ? (
+                                    <>
+                                      {job.experienceLevel}
+                                      {job.salaryRange && (
+                                        <> • ₱{job.salaryRange}</>
+                                      )}
+                                    </>
+                                  ) : job.salaryRange ? (
+                                    `₱${job.salaryRange}`
+                                  ) : (
+                                    "This draft can't be published yet. Please complete all required fields."
+                                  )}
+                                </>
                               )}
                             </div>
+                          </div>
+                          {/* Actions Section */}
+                          <div className="flex items-center gap-4 p-4">
+                            {/* Toggle and Status*/}
+                            <div className="flex items-center w-[220px]">
+                              {/* Toggle Switch */}
 
-                            {/* Job Details */}
-                            <div
-                              className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
-                              onClick={() => handleViewJob(job.jobId)}
-                            >
-                              <div className="text-base font-bold">
-                                {job.position}
-                              </div>
-                              <div className="text-sm text-gray-600">
-                                {job.company}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {job.employmentType ? (
-                                  <>
-                                    {job.employmentType}
-                                    {job.experienceLevel && (
-                                      <> • {job.experienceLevel}</>
-                                    )}
-                                    {job.salaryRange && (
-                                      <> • ₱{job.salaryRange}</>
-                                    )}
-                                  </>
-                                ) : (
-                                  <>
-                                    {job.experienceLevel ? (
-                                      <>
-                                        {job.experienceLevel}
-                                        {job.salaryRange && (
-                                          <> • ₱{job.salaryRange}</>
-                                        )}
-                                      </>
-                                    ) : job.salaryRange ? (
-                                      `₱${job.salaryRange}`
-                                    ) : (
-                                      "This draft can't be published yet. Please complete all required fields."
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                            {/* Actions Section */}
-                            <div className="flex items-center gap-4 p-4">
-                              {/* Toggle and Status*/}
-                              <div className="flex items-center w-[220px]">
-                                {/* Toggle Switch */}
-
-                                {/* Status Badge */}
-                                <div className="w-24 flex items-center justify-center">
-                                  <div
-                                    className={`px-2 py-1 text-xs rounded whitespace-nowrap `}
-                                  >
-                                    {
-                                      jobApplications.filter(
-                                        (application: JobApplication) =>
-                                          application.jobId === job.jobId &&
-                                          application.contactId === "Admin"
-                                      ).length
-                                    }{" "}
-                                    Applications
-                                  </div>
+                              {/* Status Badge */}
+                              <div className="w-24 flex items-center justify-center">
+                                <div
+                                  className={`px-2 py-1 text-xs rounded whitespace-nowrap `}
+                                >
+                                  {applications.length} Applications
                                 </div>
                               </div>
-
-                              {/* View/Edit Details Button */}
-                              <div className="w-28 flex items-center justify-center">
-                                <button
-                                  className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
-                                  onClick={(e) => {
-                                    setOpenApplications(true);
-                                    setJobId(job.jobId);
-                                  }}
-                                >
-                                  View Applications
-                                </button>
-                                <JobApplicationModalAdmin
-                                  jobId={jobId ?? ""}
-                                  alums={alums}
-                                  isOpen={openApplications}
-                                  onClose={() => setOpenApplications(false)}
-                                  applications={jobApplications}
-                                  onStatusChange={(id, newStatus) => {
-                                    updateApplicationStatus(id, newStatus);
-                                  }}
-                                />
-                              </div>
                             </div>
-                            <div className="w-[140px] flex items-center justify-center">
-                              <Trash2 size={18} />
+
+                            {/* View/Edit Details Button */}
+                            <div className="w-28 flex items-center justify-center">
+                              <button
+                                className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
+                                onClick={(e) => {
+                                  setOpenApplications(true);
+                                  setCurrentJobSelected(job);
+                                }}
+                              >
+                                View Applications
+                              </button>
                             </div>
                           </div>
-                        );
-                      }
-                    )
+                        </div>
+                      );
+                    })
                   : filterJobs(activeTab).map((job, index) => (
                       <div
                         key={index}
@@ -876,6 +863,19 @@ export default function Users() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      )}
+      {openApplications && (
+        <JobApplicationModalAdmin
+          jobs={jobOffers}
+          isOpen={openApplications}
+          jobId={currentJobSelected!.jobId}
+          alums={alums}
+          onClose={() => setOpenApplications(false)}
+          applications={jobApplications}
+          onStatusChange={async (id, newStatus) => {
+            updateApplicationStatusAdmin(id, newStatus);
+          }}
+        />
       )}
     </>
   );

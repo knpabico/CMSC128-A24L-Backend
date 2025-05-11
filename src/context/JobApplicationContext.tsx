@@ -1,7 +1,7 @@
 "use client";
 
 import { db } from "@/lib/firebase";
-import { JobApplication } from "@/models/models";
+import { Alumnus, JobApplication, JobOffering } from "@/models/models";
 import {
   collection,
   doc,
@@ -9,10 +9,15 @@ import {
   updateDoc,
   deleteDoc,
   query,
+  getDoc,
 } from "firebase/firestore";
 import { onSnapshot } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
+import {
+  sendEmailTemplateForJobApplicationStatus,
+  sendEmailTemplateForNewsletterJobApplication,
+} from "@/lib/emailTemplate";
 
 export const JobApplicationContext = createContext<any>(null);
 
@@ -38,18 +43,67 @@ export function JobApplicationContextProvider({
     };
   }, [user, isAdmin]);
 
-  const addJobApplication = async (jobApplication: JobApplication) => {
+  const addJobApplication = async (
+    jobApplication: JobApplication,
+    job: JobOffering
+  ) => {
     try {
       const docRef = doc(collection(db, "job_applications"));
       jobApplication.jobApplicationId = docRef.id;
       jobApplication.applicantId = user?.uid ?? "";
       await setDoc(doc(db, "job_applications", docRef.id), jobApplication);
+      const applicant = await getDoc(
+        doc(db, "alumni", jobApplication.applicantId)
+      ).then((doc) => {
+        if (doc.exists()) {
+          return doc.data() as Alumnus;
+        }
+        return null;
+      });
+      let hiringManager;
+      if (jobApplication.contactId === "Admin") {
+        hiringManager = "cmsc128a24l@gmail.com";
+      } else {
+        hiringManager = await getDoc(doc(db, "alumni", job.alumniId)).then(
+          (doc) => {
+            if (doc.exists()) {
+              return doc.data().email as string;
+            }
+            return null;
+          }
+        );
+      }
+      if (applicant && hiringManager) {
+        await sendEmailTemplateForNewsletterJobApplication(
+          job,
+          applicant,
+          hiringManager
+        );
+      }
     } catch (error) {
       console.error("Error adding job application:", error);
     }
   };
 
-  const updateApplicationStatus = async (jobId: string, status: string) => {
+  const updateApplicationStatus = async (
+    jobId: string,
+    status: string,
+    applicant: Alumnus,
+    job: JobOffering
+  ) => {
+    try {
+      const jobApplicationRef = doc(db, "job_applications", jobId);
+      await updateDoc(jobApplicationRef, { status: status });
+      await sendEmailTemplateForJobApplicationStatus(applicant, job, status);
+    } catch (error) {
+      console.error("Error updating job application status:", error);
+    }
+  };
+
+  const updateApplicationStatusAdmin = async (
+    jobId: string,
+    status: string
+  ) => {
     try {
       const jobApplicationRef = doc(db, "job_applications", jobId);
       await updateDoc(jobApplicationRef, { status: status });
@@ -87,6 +141,7 @@ export function JobApplicationContextProvider({
         loading,
         addJobApplication,
         updateApplicationStatus,
+        updateApplicationStatusAdmin,
       }}
     >
       {children}

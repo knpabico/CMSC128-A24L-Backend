@@ -86,13 +86,16 @@ export default function JobApplicationModal({
               </p>
               <div className="bg-blue-50 border border-blue-100 p-4 rounded-md text-left w-full">
                 <p className="text-blue-800 text-sm">
-                  <span className="font-medium">What's next?</span>
+                  <span className="font-medium">What&apos;s next?</span>
                 </p>
                 <ul className="list-disc text-sm text-blue-800 pl-5 mt-2">
                   <li>
                     The hiring manager will be notified of your application
                   </li>
-                  <li>Your application status will be updated to "Pending"</li>
+                  <li>
+                    Your application status will be updated to
+                    &quot;Pending&quot;
+                  </li>
                   <li>
                     You may receive an email if your application is successful
                   </li>
@@ -129,8 +132,9 @@ export default function JobApplicationModal({
                       <span className="font-medium">Important:</span> Your
                       application will be notified to the hiring team. Please
                       wait for a possible email if your application is
-                      successful. Your status will be updated to "Pending",
-                      "Viewed", or "Rejected" as the hiring team reviews it.
+                      successful. Your status will be updated to
+                      &quot;Pending&quot;, &quot;Viewed&quot;, or
+                      &quot;Rejected&quot; as the hiring team reviews it.
                     </p>
                   </div>
                   <p className="text-xs text-gray-500">
@@ -184,7 +188,7 @@ export default function JobApplicationModal({
           ) : (
             <div>
               <p className="text-gray-600 mb-6">
-                You're about to apply for the {jobTitle} position at{" "}
+                You&apos;re about to apply for the {jobTitle} position at{" "}
                 {companyName}.
               </p>
               <div className="bg-blue-50 border border-blue-100 p-4 rounded-md mb-6">
@@ -196,7 +200,8 @@ export default function JobApplicationModal({
                     Your application will be sent directly to the hiring manager
                   </li>
                   <li>
-                    You'll receive status updates (Pending, Viewed, or Rejected)
+                    You&apos;ll receive status updates (Pending, Viewed, or
+                    Rejected)
                   </li>
                   <li>The employer will contact you by email if interested</li>
                 </ul>

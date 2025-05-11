@@ -1,4 +1,5 @@
-import { Alumnus, JobApplication } from "@/models/models";
+import { sendEmailTemplateForJobApplicationStatus } from "@/lib/emailTemplate";
+import { Alumnus, JobApplication, JobOffering } from "@/models/models";
 import { XIcon, Check, Mail, X } from "lucide-react";
 
 function formatDate(timestamp: any) {
@@ -14,12 +15,14 @@ export default function JobApplicationModalAdmin({
   applications,
   alums,
   jobId,
+  jobs,
 }: {
   isOpen: boolean;
   onClose: () => void;
   alums: Alumnus[];
   applications: JobApplication[];
   jobId: string;
+  jobs: JobOffering[];
   onStatusChange: (id: string, newStatus: "accepted" | "rejected") => void;
 }) {
   if (!isOpen) return null;
@@ -52,7 +55,6 @@ export default function JobApplicationModalAdmin({
             <X size={24} />
           </button>
         </div>
-
         <div className="p-4 overflow-auto max-h-96">
           {applications.length === 0 ? (
             <p className="text-center text-gray-500 py-8">
@@ -61,10 +63,13 @@ export default function JobApplicationModalAdmin({
           ) : (
             <div className="divide-y">
               {applications
-                .filter((a) => a.jobId == jobId)
+                .filter((app) => app.jobId === jobId)
                 .map((application: JobApplication, index: number) => {
                   const app = alums.find(
                     (alum: Alumnus) => alum.alumniId === application.applicantId
+                  );
+                  const job = jobs.find(
+                    (job: JobOffering) => job.jobId === application.jobId
                   );
                   if (!app) return null;
                   return (
@@ -93,24 +98,34 @@ export default function JobApplicationModalAdmin({
                         {application?.status === "pending" ? (
                           <div className="flex items-center space-x-2">
                             <button
-                              onClick={() =>
+                              onClick={async () => {
                                 onStatusChange(
                                   application?.jobApplicationId,
                                   "accepted"
-                                )
-                              }
+                                );
+                                await sendEmailTemplateForJobApplicationStatus(
+                                  app,
+                                  job!,
+                                  "accepted"
+                                );
+                              }}
                               className="p-1 bg-green-100 text-green-800 rounded-full hover:bg-green-200"
                               title="Accept application"
                             >
                               <Check size={16} />
                             </button>
                             <button
-                              onClick={() =>
+                              onClick={async () => {
                                 onStatusChange(
                                   application?.jobApplicationId,
                                   "rejected"
-                                )
-                              }
+                                );
+                                await sendEmailTemplateForJobApplicationStatus(
+                                  app,
+                                  job!,
+                                  "rejected"
+                                );
+                              }}
                               className="p-1 bg-red-100 text-red-800 rounded-full hover:bg-red-200"
                               title="Reject application"
                             >

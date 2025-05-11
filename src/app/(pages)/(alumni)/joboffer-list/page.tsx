@@ -1464,7 +1464,9 @@ export default function JobOffers() {
                                           // Add your accept logic here
                                           updateApplicationStatus(
                                             application.jobApplicationId,
-                                            "accepted"
+                                            "accepted",
+                                            applicant,
+                                            selectedJob
                                           );
                                         }}
                                         className="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transition-colors"
@@ -1476,7 +1478,9 @@ export default function JobOffers() {
                                           // Add your reject logic here
                                           updateApplicationStatus(
                                             application.jobApplicationId,
-                                            "rejected"
+                                            "rejected",
+                                            applicant,
+                                            selectedJob
                                           );
                                         }}
                                         className="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
@@ -1505,15 +1509,18 @@ export default function JobOffers() {
                     isOpen={applyModalOpen}
                     onClose={() => setApplyModalOpen(false)}
                     onSubmit={async () => {
-                      addJobApplication({
-                        jobApplicationId: crypto.randomUUID(),
-                        jobId: selectedJob.jobId,
-                        applicantId: user!.uid,
-                        status: "pending",
-                        dateApplied: new Date(),
-                        jobTitle: selectedJob.position,
-                        contactId: selectedJob.alumniId,
-                      } as JobApplication);
+                      addJobApplication(
+                        {
+                          jobApplicationId: crypto.randomUUID(),
+                          jobId: selectedJob.jobId,
+                          applicantId: user!.uid,
+                          status: "pending",
+                          dateApplied: new Date(),
+                          jobTitle: selectedJob.position,
+                          contactId: selectedJob.alumniId,
+                        } as JobApplication,
+                        selectedJob
+                      );
                     }}
                     jobTitle={selectedJob.position}
                     companyName={selectedJob.company}
