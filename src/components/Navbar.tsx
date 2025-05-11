@@ -72,7 +72,7 @@ export default function Navbar() {
           label: "Manage Events",
           path: "/admin-dashboard/organize-events",
         },
-        { id: "add-events", label: "Add Events", path: "/admin/events/add" },
+        { id: "add-events", label: "Add Events", path: "/admin-dashboard/organize-events/add" },
         {
           id: "pending-events",
           label: "View Pending Events",
