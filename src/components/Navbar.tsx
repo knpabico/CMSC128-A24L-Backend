@@ -156,15 +156,19 @@ export default function Navbar() {
     },
     {
       id: "featuredStory",
-      label: "featuredStory",
+      label: "Featured Story",
       initiallyCollapsed: true,
       subItems: [
         {
-          id: "manage-featuredStory",
-          label: "Write A Story",
+          id: "manage-stories",
+          label: "Manage Featured Stories",
           path: "/admin-dashboard/create-story",
         },
-        // { id: 'add-featuredStory', label: 'Add Feat', path: '/admin/announcements/add' },
+        {
+          id: "create-story",
+          label: "Write A Story",
+          path: "/admin-dashboard/create-story/add",
+        },
       ],
     },
   ];
