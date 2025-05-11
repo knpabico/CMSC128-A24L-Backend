@@ -18,6 +18,16 @@ import { useDonationContext } from "@/context/DonationContext";
 import { RegStatus } from "@/types/alumni/regStatus";
 import ProEventDetailsModal from "@/components/ui/pro-event-modal"
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+
+
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
@@ -154,6 +164,19 @@ export default function AdminDashboard() {
       setSelectedEventProposal(event);
       setIsCampaignName(getCampaignName(selectedEventProposal?.donationDriveId))
       setIsModalEventProOpen(true);
+    };
+
+    const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
+    const [isSchoModalOpen, setIsSchoModalOpen] = useState(false);
+
+    const handleSchoOpenModal = (scholarship: Scholarship) => {
+      setSelectedScholarship(scholarship);
+      setIsSchoModalOpen(true);
+    };
+
+    const handleSchoCloseModal = () => {
+      setSelectedScholarship(null);
+      setIsSchoModalOpen(false);
     };
 
 
@@ -535,13 +558,9 @@ export default function AdminDashboard() {
               */}
               {scholarships.map((scholarship:Scholarship, index:number)=>{
               return (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="space-y-2 max-h-96 overflow-y-auto" key={scholarship.scholarshipId} onClick={() => handleSchoOpenModal(scholarship)}>
                                     
-                <div 
-                  key={scholarship.scholarshipId}
-
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                >
+                <div className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center">
                   <div>
                     <span className="font-medium">Scholarships: {scholarship.title}</span>
                     <p className="text-sm text-black-500">Status: {scholarship.status}</p>
@@ -736,6 +755,44 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {selectedScholarship && (
+        <Dialog open={isSchoModalOpen} onOpenChange={handleSchoCloseModal}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">{selectedScholarship.title}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <img
+                src={selectedScholarship.image}
+                alt={selectedScholarship.title}
+                className="w-full h-40 object-cover rounded-md"
+              />
+              <div>
+                <p className="text-sm text-gray-700">
+                  <strong>Description:</strong> {selectedScholarship.description}
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Status:</strong> {selectedScholarship.status}
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Date Posted:</strong> {new Date(selectedScholarship.datePosted).toLocaleDateString()}
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Applicants:</strong> {selectedScholarship.alumList.length}
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <button className="px-4 py-2 border rounded hover:bg-gray-100">Close</button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
 
