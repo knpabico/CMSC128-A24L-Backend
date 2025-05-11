@@ -509,6 +509,11 @@ export default function AdminDashboard() {
           <CardContent className="flex-1 overflow-y-auto max-h-60 space-y-2">
               {donationDrives.map((donationDrive: DonationDrive, index: number) => (
                 <div key={donationDrive.donationDriveId} className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer">
+                  <img
+                  src={donationDrive.image}
+                  alt={donationDrive.campaignName}
+                  className="w-full h-40 object-cover rounded-md"
+                />
                   <div className="mb-1">
                     <span className="font-medium text-base">Donation Drive: {donationDrive.campaignName}</span>
                     <p className="text-sm text-gray-600">Beneficiary: {donationDrive.beneficiary.join(', ')}</p>
