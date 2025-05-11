@@ -106,13 +106,13 @@ const ProEventDetailsModal = ({
           {/* Personal Information */}
           <div className="bg-gray-50 p-4 rounded-md">
             <h3 className="font-semibold text-gray-700 mb-2">Proposal Event Information</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex flex-col">
-              <img
+            <img
                 src={proEvent.image}
                 alt={proEvent.title}
                 className="w-full h-40 object-cover rounded-md"
               />
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex flex-col">
                 <span className="text-gray-500">Proposed By: </span>
                 <span className="font-medium">{proEvent.creatorName || 'N/A'}</span>
               </div>
