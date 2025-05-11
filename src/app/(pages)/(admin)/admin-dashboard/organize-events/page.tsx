@@ -394,11 +394,6 @@ export default function EventPageAdmin() {
                             >
                               View Details
                             </button>
-                                                          <Trash2
-                                size={20}
-                                onClick={() => handleDelete(e.eventId)}
-                                className="text-gray-500 hover:text-red-400 cursor-pointer"
-                              />
                           </div>
                         ) : e.status === "Rejected" ? (
                           <button
