@@ -12,7 +12,14 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { stat } from "fs";
+import ICSARMSLogo from "../app/images/ICS_ARMS_logo_white.png";
 import Image from "next/image";
+import { Oswald } from "next/font/google";
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700"],
+});
 
 export default function Navbar() {
   const {
@@ -298,10 +305,19 @@ export default function Navbar() {
           >
             {/* Logo */}
             <div
-              className="text-white font-[800] text-xl"
+              className={`text-white text-lg ${oswald.className}`}
               onClick={() => router.push("/")}
             >
-              ICS-ARMS
+              <Link href="/" className="flex items-center cursor-pointer gap-2">
+                <Image
+                  src={ICSARMSLogo}
+                  alt="ICS ARMS Logo"
+                  className="shadow-xl"
+                  width={35}
+                  height={35}
+                />
+                ICS-ARMS
+              </Link>
             </div>
 
             {/* Navigation & Profile Menu for Logged-in User */}
@@ -445,7 +461,22 @@ export default function Navbar() {
           className="fixed top-0 left-0 w-20 md:w-64 h-screen flex flex-col justify-between gap-5 bg-gray-900 text-white"
           style={{ paddingTop: "2%", paddingBottom: "2%" }}
         >
-          <div className="text-xl font-bold px-5">ICS-ARMS</div>
+          <div
+            className={`text-white text-lg ${oswald.className} px-7`}
+            onClick={() => router.push("/")}
+          >
+            <Link href="/" className="flex items-center cursor-pointer gap-2">
+              <Image
+                src={ICSARMSLogo}
+                alt="ICS ARMS Logo"
+                className=""
+                width={35}
+                height={35}
+              />
+              ICS-ARMS
+            </Link>
+          </div>
+
           <div className="flex-1 overflow-y-auto">
             {/* Dynamically generate menu sections */}
             {navConfig.map((section) => (

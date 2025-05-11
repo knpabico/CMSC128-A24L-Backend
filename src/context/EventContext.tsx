@@ -240,11 +240,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   ) => {
     e.preventDefault();
 
-    if (!image) {
-      setMessage("No image uploaded.");
-      setIsError(true);
-      return;
-    }
+    // if (!image) {
+    //   setMessage("No image uploaded.");
+    //   setIsError(true);
+    //   return;
+    // }
 
     const newEvent: Event = {
       datePosted: new Date(),

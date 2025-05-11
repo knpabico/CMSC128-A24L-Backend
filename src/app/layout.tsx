@@ -17,16 +17,9 @@ import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { ScholarshipProvider } from "@/context/ScholarshipContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
-import { Affiliation } from "./(auth)/sign-up/sign-up-fields/affiliation";
 import { AffiliationProvider } from "@/context/AffiliationContext";
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
 import { FeaturedProvider } from "@/context/FeaturedStoryContext";
-
 import { Inter } from "next/font/google";
-
 const inter = Inter({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
