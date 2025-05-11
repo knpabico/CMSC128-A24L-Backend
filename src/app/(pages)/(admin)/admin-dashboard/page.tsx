@@ -93,6 +93,8 @@ export default function AdminDashboard() {
     "#8884D8", "#A28CFF", "#FF7F50", "#87CEEB", "#FFA07A", "#B0E0E6"
   ];
 
+  
+
   const getColorForField = (field: string, index: number): string => {
     return colorPalette[index % colorPalette.length];
   };
@@ -190,6 +192,8 @@ export default function AdminDashboard() {
           });
         }
       };
+
+      const sortedEntries = Object.entries(fieldCounts).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
   
   return (
     <div className="p-2 w-full">
@@ -292,60 +296,69 @@ export default function AdminDashboard() {
           />
         </Card>
 
-        {/* Industries Card */}
-      <Card className="border-0 shadow-md bg-white">
-        <CardHeader>
-          <CardTitle>Industries</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* inner chart card */}
-          <div className="w-full flex justify-center">
-            <div className="w-50 h-50">
-              <DonutChart
-                labels={Object.entries(fieldCounts)
-                  .filter(([_, count]) => count > 0)
-                  .sort((a, b) => b[1] - a[1]) // Sort descending by count
-                  .map(([field]) => field)}
-                data={Object.entries(fieldCounts)
-                  .filter(([_, count]) => count > 0)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([_, count]) => count)}
-                backgroundColor={Object.entries(fieldCounts)
-                  .filter(([_, count]) => count > 0)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([field], i) => getColorForField(field, i))}
-              />
-            </div>
-          </div>
+          {/* Industries Card */}
+        <Card className="border-0 shadow-md bg-white">
+          <CardHeader>
+            <CardTitle>Industries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* inner chart card */}
+            <div className="w-full flex justify-center">
+              <div className="flex space-x-6 items-center">
+                {/* Donut Chart */}
+                <div className="w-50 h-50">
+                  <DonutChart
+                    labels={sortedEntries.map(([field]) => field)}
+                    data={sortedEntries.map(([_, count]) => count)}
+                    backgroundColor={sortedEntries.map(([field], i) => getColorForField(field, i))}
+                    options={false}
+                  />
+                </div>
 
-          {/* list of industries like Alumni List */}
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2">Industry Breakdown</h3>
-            <div className="space-y-2 max-h-70 overflow-y-auto">
-              {Object.entries(fieldCounts)
-                .filter(([_, count]) => count > 0)
-                .sort((a, b) => b[1] - a[1]) // Sort descending by count
-                .map(([field, count], idx) => (
-                  <div
-                    key={field}
-                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
-                  >
-                    <div className="flex items-center">
+                {/* Labels Legend */}
+                <div className="space-y-2">
+                  {sortedEntries.map(([field, count], idx) => (
+                    <div key={field} className="flex items-center space-x-2 text-sm">
                       <span
-                        className="inline-block w-3 h-3 rounded-full mr-2"
+                        className="inline-block w-3 h-3 rounded-full"
                         style={{ backgroundColor: getColorForField(field, idx) }}
                       />
-                      <span className="font-medium">{field}</span>
+                      <span>{field} ({count})</span>
                     </div>
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
-                      {count}
-                    </span>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+
+
+            {/* list of industries like Alumni List */}
+            <div className="mt-6">
+              <h3 className="font-semibold mb-2">Industry Breakdown</h3>
+              <div className="space-y-2 max-h-70 overflow-y-auto">
+                {Object.entries(fieldCounts)
+                  .filter(([_, count]) => count > 0)
+                  .sort((a, b) => b[1] - a[1]) // Sort descending by count
+                  .map(([field, count], idx) => (
+                    <div
+                      key={field}
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
+                    >
+                      <div className="flex items-center">
+                        <span
+                          className="inline-block w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: getColorForField(field, idx) }}
+                        />
+                        <span className="font-medium">{field}</span>
+                      </div>
+                      <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
+                        {count}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
 
       </div>
