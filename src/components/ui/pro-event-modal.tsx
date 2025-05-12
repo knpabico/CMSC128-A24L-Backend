@@ -91,14 +91,22 @@ const ProEventDetailsModal = ({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
               {proEvent.title}
-            <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-              proEvent.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
-              proEvent.status === 'Approved' ? 'bg-green-100 text-green-800' : 
-              'bg-red-100 text-red-800'
-            }`}>
-              {proEvent.status === 'pending' ? 'Pending' : 
-               proEvent.status === 'approved' ? 'Approved' : 'Rejected'}
-            </span>
+              <span
+              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                  proEvent.status === 'Pending'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : proEvent.status === 'Accepted'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}
+              >
+                {proEvent.status === 'Accepted'
+                  ? 'Accepted'
+                  : proEvent.status === 'Pending'
+                  ? 'Pending'
+                  : 'Rejected'}
+              </span>
+
           </DialogTitle>
         </DialogHeader>
 
