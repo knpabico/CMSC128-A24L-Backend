@@ -9,7 +9,8 @@ import ModalInput from "@/components/ModalInputForm";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
 
-export default function PostJobPage({ goBackToList }: { goBackToList?: () => void }) {
+// In Next.js page components, you can't accept props directly
+export default function PostJobPage() {
   const router = useRouter();
 
   const {
@@ -76,6 +77,11 @@ export default function PostJobPage({ goBackToList }: { goBackToList?: () => voi
     Skills: ["JavaScript", "Python", "Java", "C++", "React", "Node.js", "SQL", "Figma", "Canva"],
   };
 
+  // Function to handle navigation back to list
+  const goBackToList = () => {
+    router.push('/admin-dashboard/job-postings');
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
@@ -83,7 +89,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList?: () => voi
         <div>
           <ChevronRight size={15} />
         </div>
-        <div className="cursor-pointer hover:text-blue-600" onClick={() => goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings')}>
+        <div className="cursor-pointer hover:text-blue-600" onClick={goBackToList}>
           Manage Job Posting
         </div>
         <div>
@@ -121,7 +127,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList?: () => voi
                 await handleSubmit(e);
                 toastSuccess("Job submitted successfully.");
                 resetForm();
-                goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings');
+                router.push('/admin-dashboard/job-postings');
               } catch (error) {
                 console.error("Error submitting job:", error);
                 toastError("There was an error submitting the job. Please try again.");
@@ -366,7 +372,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList?: () => voi
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
                   onClick={() => {
                     resetForm();
-                    goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings');
+                    router.push('/admin-dashboard/job-postings');
                   }}
                 >
                   Cancel
@@ -405,4 +411,4 @@ export default function PostJobPage({ goBackToList }: { goBackToList?: () => voi
       </div>
     </div>
   );
-};
+}
