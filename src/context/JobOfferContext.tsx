@@ -16,10 +16,10 @@ import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
 import { useNewsLetters } from "./NewsLetterContext";
-import { set } from "zod";
-const JobOfferContext = createContext<any>(null);
 import { uploadImage } from "@/lib/upload";
 import { toast } from "sonner";
+
+const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -75,10 +75,14 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
       jobOffer.alumniId = isAdmin ? "Admin" : user?.uid ?? "";
-      jobOffer.status = jobOffer.status? "Draft" : isAdmin ? "Accepted" : "Pending";
+      
+      // This was causing the issue - using an undefined status variable
+      // Setting appropriate status based on conditions
+      jobOffer.status = jobOffer.status === "Draft" ? "Draft" : (isAdmin ? "Accepted" : "Pending");
+      
       console.log(jobOffer);
       await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
-      if ( isAdmin && jobOffer.status === "Accepted") {
+      if (isAdmin && jobOffer.status === "Accepted") {
         addNewsLetter(jobOffer.jobId, "job_offering");
       }
       return { success: true, message: "success" };
@@ -107,9 +111,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       jobId: "",
       alumniId: isAdmin ? "Admin" : user?.uid || "",
       datePosted: new Date(),
-      status,
-      location, // Use the location state directly
-      image: "", // Keep empty string as initial value for image
+      status: isAdmin ? "Accepted" : "Pending", // Fixed status setting
+      location,
+      image: "",
     };
 
     if (image) {
@@ -171,7 +175,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       console.error("Error updating job:", error);
     }
   };
-
 
   const updateStatus = async (status: string, jobId: string) => {
     if (!status || !jobId) {

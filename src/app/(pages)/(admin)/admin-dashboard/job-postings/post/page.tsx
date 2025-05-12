@@ -1,19 +1,15 @@
-// POST A JOB FORM KO TO
+"use client";
 
-"use client"
+import { useState } from "react";
+import { useJobOffer } from "@/context/JobOfferContext";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, Check, ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ModalInput from "@/components/ModalInputForm";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { useRouter } from "next/navigation";
 
-import { useState } from "react"
-import { useJobOffer } from "@/context/JobOfferContext"
-import { Button } from "@/components/ui/button"
-import { ChevronRight, Check, ChevronDown } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import ModalInput from "@/components/ModalInputForm"
-import { toastError, toastSuccess } from "@/components/ui/sonner"
-import { useRouter } from "next/navigation"
-import { set } from "zod"
-
-
-export default function PostJobPage({ goBackToList }: { goBackToList: () => void }) {
+export default function PostJobPage({ goBackToList }: { goBackToList?: () => void }) {
   const router = useRouter();
 
   const {
@@ -44,28 +40,27 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
     setJobImage,
     setPreview,
     setFileName
-  } = useJobOffer()
+  } = useJobOffer();
 
   const resetForm = () => {
-    setPosition("")
-    setCompany("")
-    setLocation("")
-    setJobDescription("")      
-    setSalaryRange("")
-    setExperienceLevel("")
-    setEmploymentType("")
-    setJobType("")
-    handleSkillChange({ target: { value: "" } }),
-    setJobImage(null),
-    setPreview(null),
-    setFileName("")
-  }
+    setPosition("");
+    setCompany("");
+    setLocation("");
+    setJobDescription("");      
+    setSalaryRange("");
+    setExperienceLevel("");
+    setEmploymentType("");
+    setJobType("");
+    handleSkillChange({ target: { value: "" } });
+    setJobImage(null);
+    setPreview(null);
+    setFileName("");
+  };
 
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [employmentTypeOpen, setEmploymentTypeOpen] = useState(false)
-  const [jobTypeOpen, setJobTypeOpen] = useState(false)
-  const [experienceLevelOpen, setExperienceLevelOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [employmentTypeOpen, setEmploymentTypeOpen] = useState(false);
+  const [jobTypeOpen, setJobTypeOpen] = useState(false);
+  const [experienceLevelOpen, setExperienceLevelOpen] = useState(false);
 
   const filterCategories = {
     "Experience Level": ["Entry Level", "Mid Level", "Senior Level"],
@@ -79,7 +74,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
     ],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
     Skills: ["JavaScript", "Python", "Java", "C++", "React", "Node.js", "SQL", "Figma", "Canva"],
-  }
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -105,7 +100,7 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
         <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
           <form
             onSubmit={async (e) => {
-              e.preventDefault()
+              e.preventDefault();
               // Check all required fields
               if (
                 !position ||
@@ -119,17 +114,17 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                 !requiredSkill.length ||
                 !image
               ) {
-                toastError("Please fill in all required fields")
-                return
+                toastError("Please fill in all required fields");
+                return;
               }
               try {
-                await handleSubmit(e)
-                toastSuccess("Job submitted successfully.")
-                resetForm()
-                goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings')
+                await handleSubmit(e);
+                toastSuccess("Job submitted successfully.");
+                resetForm();
+                goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings');
               } catch (error) {
-                console.error("Error submitting job:", error)
-                toastError("There was an error submitting the job. Please try again.")
+                console.error("Error submitting job:", error);
+                toastError("There was an error submitting the job. Please try again.");
               }
             }}
           >
@@ -170,8 +165,8 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                           variant="ghost"
                           className="w-full justify-start p-2 text-left hover:bg-gray-100"
                           onClick={() => {
-                            setEmploymentType(type)
-                            setEmploymentTypeOpen(false)
+                            setEmploymentType(type);
+                            setEmploymentTypeOpen(false);
                           }}
                         >
                           {type}
@@ -202,8 +197,8 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                           variant="ghost"
                           className="w-full justify-start p-2 text-left hover:bg-gray-100"
                           onClick={() => {
-                            setJobType(type)
-                            setJobTypeOpen(false)
+                            setJobType(type);
+                            setJobTypeOpen(false);
                           }}
                         >
                           {type}
@@ -292,8 +287,8 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                           variant="ghost"
                           className="w-full justify-start p-1.5 text-left hover:bg-gray-100"
                           onClick={() => {
-                            setExperienceLevel(level)
-                            setExperienceLevelOpen(false)
+                            setExperienceLevel(level);
+                            setExperienceLevelOpen(false);
                           }}
                         >
                           {level}
@@ -317,9 +312,9 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                       value={salaryRange}
                       onChange={(e) => setSalaryRange(e.target.value)}
                       onInput={(e) => {
-                        const value = (e.target as HTMLInputElement).value
+                        const value = (e.target as HTMLInputElement).value;
                         if (!/^[0-9-]*$/.test(value)) {
-                          (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "")
+                          (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "");
                         }
                       }}
                       pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
@@ -370,8 +365,8 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                   type="button"
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
                   onClick={() => {
-                    resetForm()
-                    goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings')
+                    resetForm();
+                    goBackToList ? goBackToList() : router.push('/admin-dashboard/job-postings');
                   }}
                 >
                   Cancel
@@ -385,13 +380,13 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                   onClick={async (e) => {
                     try {
-                      await handleSaveDraft(e)
-                      toastSuccess("Draft saved successfully")
-                      resetForm()
-                      router.push('/admin-dashboard/job-postings')
+                      await handleSaveDraft(e);
+                      toastSuccess("Draft saved successfully");
+                      resetForm();
+                      router.push('/admin-dashboard/job-postings');
                     } catch (error) {
-                      toastError("Failed to save draft. Please try again.")
-                      console.error("Error saving draft:", error)
+                      toastError("Failed to save draft. Please try again.");
+                      console.error("Error saving draft:", error);
                     }
                   }}
                 >
@@ -409,5 +404,5 @@ export default function PostJobPage({ goBackToList }: { goBackToList: () => void
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
