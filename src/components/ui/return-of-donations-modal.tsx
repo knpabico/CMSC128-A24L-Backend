@@ -9,12 +9,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { ProofOfPaymentDialog } from "./proof-of-payment-dialog";
+import { ChevronDown } from "lucide-react";
 
 const sortTypes = [
-    "MOST RECENT FIRST",
-    "OLDEST DONATION FIRST",
-    "AMOUNT DONATED (ASC)",
-    "AMOUNT DONATED (DESC)",
+    "Latest First",
+    "Oldest First",
+    "Amount Donated (ASC)",
+    "Amount Donated (DESC)",
   ]; //sort types
 const sortValues = ["mrf", "odf", "asc", "desc"]; //sort values (query params)
 
@@ -153,19 +154,23 @@ const RecordOfDonations: React.FC = () => {
 
 
     return(
-    
-    <div className="mx-50 my-15">
+    <div className="mx-50 mt-10 mb-15">
         <div className='flex flex-col gap-[10px] w-full mb-10'>
             {/* Sort Tab */}
-            <div className="justify-end flex">
-              <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-end items-center shadow-md border border-gray-200 w-fit ">
-                <div className="flex items-center">
-                    <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                    <select id="sort" defaultValue={getDefaultSort()} onChange={(e) => { handleSortChange(e.target.value); }}>
-                        {sortTypes.map((sortType, index) => (
-                            <option key={index} value={sortValues[index]}>{sortType}</option>
-                        ))}
-                    </select>
+            <div className="filter-controls flex space-x-5 mb-2 justify-end items-center text-sm">
+              <label htmlFor="sort" className="mr-2">Sort by:</label>
+              <div className="relative">
+                <select 
+                id="sort" 
+                defaultValue={getDefaultSort()} 
+                onChange={(e) => { handleSortChange(e.target.value); }}
+                className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none">
+                  {sortTypes.map((sortType, index) => (
+                      <option key={index} value={sortValues[index]}>{sortType}</option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
             </div>
@@ -174,7 +179,7 @@ const RecordOfDonations: React.FC = () => {
             {showLoading && <p>Loading...</p>}
 
             {userDonations && userDonations.length > 0 ? (
-            <div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
+            <div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] shadow-md border border-gray-200">
               <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-100">

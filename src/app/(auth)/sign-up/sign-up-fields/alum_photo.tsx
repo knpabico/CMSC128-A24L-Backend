@@ -2,15 +2,12 @@
 
 "use client";
 import { uploadImage } from "@/lib/upload";
-import { Button } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
-import { set } from "zod";
 import { CameraIcon, Trash2Icon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
-import { toastSuccess } from "@/components/ui/sonner";
 
 export const resizeGoogleUserImage = (url: string | null | undefined) => {
   return url?.replace(/s\d+-c/, "s400-c") ?? null;
@@ -72,17 +69,17 @@ export const AlumPhotoUpload = ({
 }) => {
   const { user, isGoogleSignIn } = useAuth();
 
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
 
   //ref for resetting current value of the image input button
-  const imageInput = useRef(null);
+  const imageInput = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
     if (file) {
       setImage(file);
       setPreview(URL.createObjectURL(file)); //preview
@@ -129,7 +126,7 @@ export const AlumPhotoUpload = ({
       <div>
         {preview && !isGoogleSignIn && (
           <button
-            className="absolute text-gray-500 cursor-pointer text-red-500"
+            className="absolute text-gray-500 cursor-pointer"
             onClick={handleRemoval}
             type="button"
           >

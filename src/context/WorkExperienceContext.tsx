@@ -76,9 +76,9 @@ export function WorkExperienceProvider({
       const currentYear = new Date().getFullYear();
 
       const startA =
-        a.startYear === "present" ? currentYear : parseInt(a.startYear);
+        a.endYear === "present" ? currentYear : parseInt(a.endYear);
       const startB =
-        b.startYear === "present" ? currentYear : parseInt(b.startYear);
+        b.endYear === "present" ? currentYear : parseInt(b.endYear);
 
       return startB - startA;
     });
@@ -100,9 +100,12 @@ export function WorkExperienceProvider({
       await setDoc(newDocRef, workExperienceEntry);
 
       toast.success("Work added successfully!");
-      return { success: true, message: "success" };
+      return {
+        success: true,
+        message: "success",
+        workExperienceId: newDocRef.id,
+      };
     } catch (error) {
-
       toast.error((error as FirebaseError).message);
       return { success: false, message: (error as FirebaseError).message };
     }
@@ -153,8 +156,10 @@ export function WorkExperienceProvider({
         workExperienceEntry.workExperienceId
       );
       await updateDoc(workExpRef, workExperienceEntry);
+      toast.success("Work updated successfully!");
       return { success: true, message: "Edited Successfully" };
     } catch (error) {
+      toast.error((error as FirebaseError).message);
       return { success: false, message: (error as FirebaseError).message };
     }
   };

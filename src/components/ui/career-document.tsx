@@ -1,5 +1,6 @@
 "use client";
 import { uploadDocument } from "@/lib/upload";
+import { Button } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { Trash2Icon, UploadIcon } from "lucide-react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -45,32 +46,30 @@ export const uploadDocToFirebase = async (
   }
 };
 
-export const AlumDocumentUpload = ({
-  index,
-  form,
+export const CareerDocumentUpload = ({
+  documentSetter,
+  hasProof,
 }: {
-  index: number;
-  form: any;
+  documentSetter: (file: File | null) => void;
+  hasProof: boolean;
 }) => {
-  const [document, setDocument] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [document, setDocument] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [documentType, setDocumentType] = useState("");
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
 
   //ref for resetting current value of the file input button
-  const fileInput = useRef<HTMLInputElement>(null);
+  const fileInput = useRef(null);
 
-  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
+  const handleDocumentChange = (e) => {
+    const file = e.target.files[0];
     if (file) {
       setDocument(file);
       setDocumentType(file.type);
-      //update form file
-      form.setValue(`currentJob.${index}.proof`, file);
-      //update hasProof of currentJob[index]
-      form.setValue(`currentJob.${index}.hasProof`, true);
+      //update document setter
+      documentSetter(file);
       // Only create preview for image files
       if (file.type.startsWith("image/")) {
         setPreview(URL.createObjectURL(file));
@@ -86,10 +85,8 @@ export const AlumDocumentUpload = ({
     setDocumentType("");
     setPreview(null);
     setFirstClick(false); //reset firstClick
-    //update hasProof of currentJob[index]
-    form.setValue(`currentJob.${index}.hasProof`, false);
-    //update form file
-    form.setValue(`currentJob.${index}.proof`, null);
+    //update document setter
+    documentSetter(null);
     //reset current value of the file input button before choosing a file
     if (fileInput.current) {
       fileInput.current.value = "";
@@ -185,13 +182,9 @@ export const AlumDocumentUpload = ({
       )}
 
       {/*display validation message for document*/}
-      {document === null && (
+      {document === null && hasProof === false && (
         <>
-          {form.formState.errors.currentJob?.[index]?.hasProof && (
-            <p className="text-red-500 text-sm">
-              {form.formState.errors.currentJob[index].hasProof.message}
-            </p>
-          )}
+          <p className="text-red-500 text-sm">Please select a valid document</p>
         </>
       )}
     </div>

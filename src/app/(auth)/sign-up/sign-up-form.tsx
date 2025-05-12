@@ -963,7 +963,7 @@ export default function RegistrationForm() {
                           {/*PAST WORK EXPERIENCE*/}
                           <div className="mt-5">
                             <p className="text-sm font-semibold pb-2">
-                              Work Experience
+                              Past Work Experience
                             </p>
                             {career.map((car, index) => (
                               <div key={car.id} className="relative pb-5">
