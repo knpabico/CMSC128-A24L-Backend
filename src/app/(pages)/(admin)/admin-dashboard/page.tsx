@@ -711,12 +711,13 @@ export default function AdminDashboard() {
                   <XCircle size={24} />
                 </button>
               </div>
-              
+              {selectedJob.image &&
               <img
                 src={selectedJob.image}
                 alt={selectedJob.position}
                 className="w-full h-40 object-cover rounded-md"
               />
+              }
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <p className="text-lg font-semibold">{selectedJob.company}</p>
@@ -791,11 +792,13 @@ export default function AdminDashboard() {
             </DialogHeader>
 
             <div className="space-y-4">
+              {selectedScholarship && 
               <img
                 src={selectedScholarship.image}
                 alt={selectedScholarship.title}
                 className="w-full h-40 object-cover rounded-md"
               />
+              }
               <div>
                 <p className="text-sm text-gray-700">
                   <strong>Description:</strong> {selectedScholarship.description}
