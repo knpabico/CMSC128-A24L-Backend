@@ -572,8 +572,19 @@ export default function AdminDashboard() {
                 <div className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center">
                   <div>
                     <span className="font-medium">Scholarships: {scholarship.title}</span>
-                    <p className="text-sm text-black-500">Status: {scholarship.status}</p>
-                    
+                    <span
+                    className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                        scholarship.status
+                          ? 
+                          'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {scholarship.status
+                        ? 'Open'
+                        : 'Closed'}
+                    </span>
+                          
                   </div>
                 </div>
                 </div>
