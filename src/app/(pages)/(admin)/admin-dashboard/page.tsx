@@ -41,15 +41,15 @@ export default function AdminDashboard() {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   // const { allDonations } = useDonationContext();
-
-
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedJob(null);
-  };
   
-  const updateJobStatus = (jobId, newStatus) => {
+  const inactiveAlums = useMemo(() => {
+    return alums.filter(
+      (alum: Alumnus) =>
+        alum.activeStatus === false && alum.regStatus === "approved"
+    );
+  }, [alums]);
+
+  const updateJobStatus = (jobId:string, newStatus:string) => {
     // In a real application, this would make an API call to update the job status
     console.log(`Updating job ${jobId} to status: ${newStatus}`);
     if (newStatus === "Active") {
@@ -59,19 +59,12 @@ export default function AdminDashboard() {
     }else{
       handleReject(jobId);
     }
-  
-     
+    
     closeModal();
     // Here you would typically update your state or refetch data
   };
 
-    const inactiveAlums = useMemo(() => {
-      return alums.filter(
-        (alum: Alumnus) =>
-          alum.activeStatus === false && alum.regStatus === "approved"
-      );
-    }, [alums]);
-
+  
   const fields = [
     "Artificial Intelligence (AI)",
     "Machine Learning (ML)",
@@ -103,13 +96,13 @@ export default function AdminDashboard() {
     "#7C83FD", "#00C49F", "#FFBB28", "#FF8042", "#8DD1E1",
     "#8884D8", "#A28CFF", "#FF7F50", "#87CEEB", "#FFA07A", "#B0E0E6"
   ];
-
   
-
+  
+  
   const getColorForField = (field: string, index: number): string => {
     return colorPalette[index % colorPalette.length];
   };
-
+  
   const formatter = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
@@ -122,7 +115,7 @@ export default function AdminDashboard() {
     fields.forEach(field => {
       counts[field] = 0;
     });
-  
+    
     // Count occurrences
     alums.forEach(alum => {
       alum.fieldOfInterest?.forEach(field => {
@@ -144,86 +137,95 @@ export default function AdminDashboard() {
     (exp:WorkExperience) => exp.endYear === "present"
   );
 
+
+  //for modals
   //Activate Alum 
-    // Add these new states for the modal
-    const [selectedAlumnus, setSelectedAlumnus] = useState<Alumnus | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedEventProposal, setSelectedEventProposal] = useState<Event | null>(null);
-    const [isModalEventProOpen, setIsModalEventProOpen] = useState(false);
-    const [isCampaignName, setIsCampaignName] = useState("");
-
-
+  // Add these new states for the modal
+  const [selectedAlumnus, setSelectedAlumnus] = useState<Alumnus | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEventProposal, setSelectedEventProposal] = useState<Event | null>(null);
+  const [isModalEventProOpen, setIsModalEventProOpen] = useState(false);
+  const [isCampaignName, setIsCampaignName] = useState("None");
+  const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
+  const [isSchoModalOpen, setIsSchoModalOpen] = useState(false);
   
-    // Function to handle opening the modal
-    const handleOpenModal = (alumnus: Alumnus) => {
-      setSelectedAlumnus(alumnus);
-      setIsModalOpen(true);
-    };
-
-    const handleOpenModalEventProposal = (event: Event) => {
-      setSelectedEventProposal(event);
-      setIsCampaignName(getCampaignName(selectedEventProposal?.donationDriveId))
-      setIsModalEventProOpen(true);
-    };
-
-    const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
-    const [isSchoModalOpen, setIsSchoModalOpen] = useState(false);
-
-    const handleSchoOpenModal = (scholarship: Scholarship) => {
-      setSelectedScholarship(scholarship);
-      setIsSchoModalOpen(true);
-    };
-
-    const handleSchoCloseModal = () => {
-      setSelectedScholarship(null);
-      setIsSchoModalOpen(false);
-    };
-
-
-
-    //function to handle the job posting modal
-    const handleOpenJobModal = (job: JobOffering) => {
-      setSelectedJob(job);
-      setIsJobModalOpen(true);
-    };
+    
   
-    // Function to handle closing the modal
-    const handleCloseModal = () => {
-      setIsModalOpen(false);
-    };
+  // Function to handle opening the modal
+  const handleOpenModal = (alumnus: Alumnus) => {
+    setSelectedAlumnus(alumnus);
+    setIsModalOpen(true);
+  };
   
-    // Function to toggle active status
-    const handleToggleActiveStatus = (alumniId: string, newStatus: boolean) => {
-      // Call your context function to update the status
-      updateAlumnusActiveStatus(alumniId, newStatus);
-      
-      // Update the local state if needed
-      if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
-        setSelectedAlumnus({
-          ...selectedAlumnus,
-          activeStatus: newStatus
-        });
-      }
-    };
-
-        // Function to toggle active status
-      const handleTogglePendingStatus = (alumniId: string, newStatus: RegStatus) => {
-        // Call your context function to update the status
-        updateAlumnusRegStatus(alumniId, newStatus);
-        
-        // Update the local state if needed
-        if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
-          setSelectedAlumnus({
-            ...selectedAlumnus,
-            regStatus: newStatus
-          });
-        }
-      };
-
-      const sortedEntries = Object.entries(fieldCounts).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+  const handleOpenModalEventProposal = (event: Event) => {
+    setSelectedEventProposal(event);
+    const campaignName=getCampaignName(selectedEventProposal?.donationDriveId)
+    setIsCampaignName(campaignName)
+    setIsModalEventProOpen(true);
+  };
   
-  return (
-    <div className="p-2 w-full">
+  
+  const handleSchoOpenModal = (scholarship: Scholarship) => {
+    setSelectedScholarship(scholarship);
+    setIsSchoModalOpen(true);
+  };
+
+  const handleSchoCloseModal = () => {
+    setSelectedScholarship(null);
+    setIsSchoModalOpen(false);
+  };
+
+
+
+  //function to handle the job posting modal
+  const handleOpenJobModal = (job: JobOffering) => {
+    setSelectedJob(job);
+    setIsJobModalOpen(true);
+  };
+
+  // Function to handle closing the modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+  
+  // Function to toggle active status
+  const handleToggleActiveStatus = (alumniId: string, newStatus: boolean) => {
+    // Call your context function to update the status
+    updateAlumnusActiveStatus(alumniId, newStatus);
+    
+    // Update the local state if needed
+    if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
+      setSelectedAlumnus({
+        ...selectedAlumnus,
+        activeStatus: newStatus
+      });
+    }
+  };
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedJob(null);
+  };
+    
+  
+  // Function to toggle active status
+  const handleTogglePendingStatus = (alumniId: string, newStatus: RegStatus) => {
+    // Call your context function to update the status
+    updateAlumnusRegStatus(alumniId, newStatus);
+    
+    // Update the local state if needed
+    if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
+      setSelectedAlumnus({
+        ...selectedAlumnus,
+        regStatus: newStatus
+      });
+    }
+  };
+  
+  const sortedEntries = Object.entries(fieldCounts).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+    
+    return (
+      <div className="p-2 w-full">
       {/* Page title */}
       <h1 className="text-3xl font-bold my-6">Admin Dashboard</h1>
 
@@ -509,11 +511,13 @@ export default function AdminDashboard() {
           <CardContent className="flex-1 overflow-y-auto max-h-60 space-y-2">
               {donationDrives.map((donationDrive: DonationDrive, index: number) => (
                 <div key={donationDrive.donationDriveId} className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer">
-                  <img
-                  src={donationDrive.image}
-                  alt={donationDrive.campaignName}
-                  className="w-full h-40 object-cover rounded-md"
-                />
+                  {donationDrive.image ? (
+                    <img
+                      src={donationDrive.image}
+                      alt={donationDrive.campaignName}
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                  ) : null}
                   <div className="mb-1">
                     <span className="font-medium text-base">Donation Drive: {donationDrive.campaignName}</span>
                     <p className="text-sm text-gray-600">Beneficiary: {donationDrive.beneficiary.join(', ')}</p>
