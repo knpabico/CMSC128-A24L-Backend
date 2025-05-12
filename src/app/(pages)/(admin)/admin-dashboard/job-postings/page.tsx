@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, use } from "react"
 import { useJobOffer } from "@/context/JobOfferContext"
 import type { JobOffering } from "@/models/models"
 import { toastError } from "@/components/ui/sonner"
 import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, CirclePlus, Pencil, CircleX } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page"
+import { useRouter } from "next/navigation";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date"
@@ -22,6 +23,8 @@ function formatDate(timestamp: any) {
 }
 
 export default function Users() {
+  const router = useRouter();
+
   const {
     jobOffers,
     handleAccept,
@@ -109,8 +112,8 @@ export default function Users() {
   }
 
   const goBackToList = () => {
-    setCurrentPage("list")
     setViewingJob(null)
+    router.push('/admin-dashboard/job-postings');
   }
 
   // Render view page for a job posting
@@ -308,7 +311,7 @@ export default function Users() {
                 />
                 <div
                   className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
-                  onClick={() => setCurrentPage("post")}
+                  onClick={() => router.push("/admin-dashboard/job-postings/post")}
                 >
                   <CirclePlus size={18} />
                   Create a Job Post
