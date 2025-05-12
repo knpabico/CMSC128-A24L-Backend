@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { ChevronDown, Upload, X, Pencil, ChevronRight } from "lucide-react"
+import { Asterisk, ChevronDown, Upload, X, Pencil, ChevronRight } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useEvents } from "@/context/EventContext"
@@ -379,7 +379,7 @@ export default function EventPage() {
   const renderImageUpload = () => (
     <div className="space-y-2 w-100">
       <label htmlFor="image" className="block text-sm font-medium flex items-center">
-        Upload Image
+        <Asterisk size={16} className="text-red-600" /> Upload Image
       </label>
 
       {!preview ? (
@@ -408,7 +408,7 @@ export default function EventPage() {
         <div className="relative mt-2">
           <div className="relative h-64 overflow-hidden rounded-lg">
             <img src={preview || "/placeholder.svg"} alt="Preview" className="h-full w-full object-cover" />
-            {(
+            {isEditing && (
               <button
                 type="button"
                 className="absolute top-2 right-2 rounded-full bg-white p-1 text-gray-500 shadow-md hover:text-gray-700"
@@ -440,7 +440,7 @@ export default function EventPage() {
             {selectedBatches.map((year) => (
               <div key={year} className="flex items-center bg-blue-100 text-blue-800 rounded-md px-2 py-1 m-1">
                 <span>{year}</span>
-                {(
+                {isEditing && (
                   <X
                     size={16}
                     className="ml-1 cursor-pointer text-blue-600 hover:text-blue-800"
@@ -451,7 +451,7 @@ export default function EventPage() {
             ))}
           </>
         )}
-        {(
+        {isEditing && (
           <>
             <input
               ref={batchMainInputRef}
@@ -476,7 +476,7 @@ export default function EventPage() {
             />
             <div
               className="ml-auto cursor-pointer p-1"
-              onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}
+              onClick={() => isEditing && setIsBatchDropdownOpen(!isBatchDropdownOpen)}
             >
               <ChevronDown
                 size={20}
@@ -487,7 +487,7 @@ export default function EventPage() {
         )}
       </div>
 
-      {isBatchDropdownOpen && (
+      {isEditing && isBatchDropdownOpen && (
         <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
           <div className="overflow-y-auto max-h-72">
             {filteredBatchYears.length > 0 ? (
@@ -534,7 +534,7 @@ export default function EventPage() {
             {selectedAlumni.map((email) => (
               <div key={email} className="flex items-center bg-green-100 text-green-800 rounded-md px-2 py-1 m-1">
                 <span className="text-xs">{email}</span>
-                {(
+                {isEditing && (
                   <X
                     size={16}
                     className="ml-1 cursor-pointer text-green-600 hover:text-green-800"
@@ -545,7 +545,7 @@ export default function EventPage() {
             ))}
           </>
         )}
-        {(
+        {isEditing && (
           <>
             <input
               ref={alumniMainInputRef}
@@ -570,7 +570,7 @@ export default function EventPage() {
             />
             <div
               className="ml-auto cursor-pointer p-1"
-              onClick={() => setIsAlumniDropdownOpen(!isAlumniDropdownOpen)}
+              onClick={() => isEditing && setIsAlumniDropdownOpen(!isAlumniDropdownOpen)}
             >
               <ChevronDown
                 size={20}
@@ -581,7 +581,7 @@ export default function EventPage() {
         )}
       </div>
 
-      {isAlumniDropdownOpen && (
+      {isEditing && isAlumniDropdownOpen && (
         <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
           <div className="overflow-y-auto max-h-72">
             {filteredAlumniEmails.length > 0 ? (
@@ -618,6 +618,33 @@ export default function EventPage() {
     </div>
   )
 
+  const renderActionButtons = () => (
+    <>
+      <button
+        type="button"
+        onClick={handleCancelClick}
+        className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          setButton("Create")
+          handleSubmit(new Event("submit") as any)
+        }}
+        disabled={isSubmitting || !formComplete}
+        className={`flex items-center justify-center gap-2 ${
+          formComplete
+            ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
+            : "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)] cursor-not-allowed"
+        } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}
+      >
+        {isSubmitting ? "Saving Changes..." : "Save Changes"}
+      </button>
+    </>
+  )
+
   return (
     <div className="flex flex-col gap-5">
       <Breadcrumb items={breadcrumbItems} />
@@ -625,6 +652,14 @@ export default function EventPage() {
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Event Name</div>
+          {!isEditing && (
+            <div
+              onClick={handleEditClick}
+              className="text-[14px] flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+            >
+              <Pencil size={16} /> Edit Event
+            </div>
+          )}
         </div>
       </div>
 
@@ -638,7 +673,7 @@ export default function EventPage() {
             {/* Event Title */}
             <div className="space-y-2 text-[14px]">
               <label htmlFor="title" className="text-sm font-medium flex items-center">
-                Event Title
+                <Asterisk size={16} className="text-red-600" /> Event Title
               </label>
               <input
                 id="title"
@@ -656,7 +691,7 @@ export default function EventPage() {
               {/* Description */}
               <div className="space-y-2 text-[14px]">
                 <label htmlFor="description" className="text-sm font-medium flex items-center">
-                  Description
+                  <Asterisk size={16} className="text-red-600" /> Description
                 </label>
                 <textarea
                   id="description"
@@ -669,7 +704,7 @@ export default function EventPage() {
                 />
               </div>
 
-              {(
+              {isEditing && (
                 <Button onClick={() => setIsModalOpen(true)} className="mt-2">
                   Need AI help for description?
                 </Button>
@@ -688,7 +723,7 @@ export default function EventPage() {
             {/* Location */}
             <div className="space-y-2 text-[14px] w-1/2">
               <label htmlFor="location" className="text-sm font-medium flex items-center">
-                Location
+                <Asterisk size={16} className="text-red-600" /> Location
               </label>
               <input
                 id="location"
@@ -705,7 +740,7 @@ export default function EventPage() {
             <div className="flex gap-4 text-[14px]">
               <div className="space-y-2">
                 <label htmlFor="date" className="text-sm font-medium flex items-center">
-                  Date
+                  <Asterisk size={16} className="text-red-600" /> Date
                 </label>
                 <input
                   id="date"
@@ -722,7 +757,7 @@ export default function EventPage() {
 
               <div className="space-y-2">
                 <label htmlFor="time" className="text-sm font-medium flex items-center">
-                  Time
+                  <Asterisk size={16} className="text-red-600" /> Time
                 </label>
                 <input
                   id="time"
@@ -743,7 +778,7 @@ export default function EventPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm font-medium flex items-center">
-                  Target Audience
+                  <Asterisk size={16} className="text-red-600" /> Target Audience
                 </p>
 
                 <div className="flex flex-col gap-3">
@@ -893,7 +928,24 @@ export default function EventPage() {
             )}
           </div>
         </div>
+
+        {/* Action buttons - only show when in edit mode */}
+        {isEditing && (
+          <div ref={placeholderRef} className="text-sm bg-white rounded-2xl p-4 flex justify-end gap-2">
+            {renderActionButtons()}
+          </div>
+        )}
       </div>
+
+      {/* Fixed buttons container that appears when original is out of view */}
+      {isSticky && isEditing && (
+        <div
+          className="text-sm bg-[var(--primary-white)] fixed bottom-0 rounded-t-2xl gap-2 p-4 flex justify-end"
+          style={{ width: "calc(96% - 256px)", boxShadow: "0 -4px 6px -1px rgba(0,0,0,0.1)" }}
+        >
+          {renderActionButtons()}
+        </div>
+      )}
     </div>
   )
 }
