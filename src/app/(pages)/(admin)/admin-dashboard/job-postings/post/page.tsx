@@ -89,7 +89,9 @@ export default function PostJobPage() {
         <div>
           <ChevronRight size={15} />
         </div>
-        <div className="cursor-pointer hover:text-blue-600" onClick={goBackToList}>
+        <div className="cursor-pointer hover:text-blue-600" 
+        onClick={goBackToList}
+        >
           Manage Job Posting
         </div>
         <div>
@@ -389,7 +391,7 @@ export default function PostJobPage() {
                       await handleSaveDraft(e);
                       toastSuccess("Draft saved successfully");
                       resetForm();
-                      router.push('/admin-dashboard/job-postings');
+                      goBackToList();
                     } catch (error) {
                       toastError("Failed to save draft. Please try again.");
                       console.error("Error saving draft:", error);
