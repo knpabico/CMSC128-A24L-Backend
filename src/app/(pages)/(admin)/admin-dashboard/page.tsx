@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* List */}
-                <div className="mt-2 max-h-70 overflow-y-auto w-full">
+                <div className="mt-2 max-h-50 overflow-y-auto w-full">
                   {getPendingAlums(alums).map((alum: Alumnus) => (
                     <div
                       key={alum.alumniId}
@@ -346,10 +346,11 @@ export default function AdminDashboard() {
         <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Event Proposals</CardTitle>
+            <div className="pt-1">
+              <hr className="border-t border-black opacity-40 mx-auto" />
+            </div>
           </CardHeader>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-          </div>
+          
           <CardContent className="flex-1 overflow-y-auto">
             <div className="max-h-60">
               {/* Pending event proposals data palagay here tnx po. Dapat kaya maopen yung full details (overlay not page)
@@ -400,10 +401,10 @@ export default function AdminDashboard() {
         <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Upcoming Events</CardTitle>
+            <div className="pt-1">
+              <hr className="border-t border-black opacity-40 mx-auto" />
+            </div>
           </CardHeader>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-          </div>
           <CardContent className="flex-1 overflow-y-auto">
             <div className="max-h-60">
              {getUpcomingEvents(events).map((event:Event, index:number)=>{
@@ -443,10 +444,10 @@ export default function AdminDashboard() {
         <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Donations</CardTitle>
+            <div className="pt-1">
+              <hr className="border-t border-black opacity-40 mx-auto" />
+            </div>
           </CardHeader>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-          </div>
           <CardContent className="flex-1 overflow-y-auto">
             <div className="max-h-60">
               {/* Recent donation received. Maybe a routing na maoopen yung page nung mismong donation idk
@@ -492,10 +493,10 @@ export default function AdminDashboard() {
         <Card className="border-0 shadow-md flex flex-col bg-white">
           <CardHeader className="pb-0">
             <CardTitle>Scholarship Grants</CardTitle>
+            <div className="pt-1">
+              <hr className="border-t border-black opacity-40 mx-auto" />
+            </div>
           </CardHeader>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-          </div>
           <CardContent className="flex-1 overflow-y-auto">
             <div className="max-h-60">
               {/* List of recent applicants sa scholarship. Dapat kaya maopen yung full details like kasama contact info nila (overlay not page)
@@ -579,15 +580,13 @@ export default function AdminDashboard() {
               Pending
             </button>
           </div>
+            <div className="pt-1">
+              <hr className="border-t border-black opacity-40 mx-auto" />
+            </div>
         </CardHeader>
 
-        {/* divider */}
-        <div className="px-2 pt-0">
-          <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-        </div>
-
         {/* CardContent as a flex column */}
-        <CardContent className="flex flex-col flex-1 px-2">
+        <CardContent className="flex-1 overflow-y-auto">
           <div className="max-h-96 overflow-y-auto space-y-2">
             {jobOffers
               .filter((jobOffer:JobOffering) => 
