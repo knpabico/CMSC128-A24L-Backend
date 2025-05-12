@@ -169,7 +169,11 @@ const EditWorkExperience: React.FC<{
       <Card className="w-full max-w-xl bg-white border-none shadow-2xl">
         <CardHeader>
           <div className="flex items-center justify-between relative">
-            <p className="text-xl font-bold pb-3">Edit work experience</p>
+            <div className="pb-5">
+              <p className="text-xl font-bold">Edit work experience</p>
+              <p className="text-xs">You can edit the location and end year only.</p>
+            </div>
+            
             <button
               onClick={() => {
                 resetFields();
@@ -206,8 +210,8 @@ const EditWorkExperience: React.FC<{
                   placeholder="Web Development"
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  required
-                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                  disabled
+                  className="cursor-not-allowed appearance-none py-2 px-3 w-full border border-gray-500 bg-gray-300 text-gray-500 rounded-md"
                 />
               </div>
               <div className="col-span-6">
@@ -216,8 +220,8 @@ const EditWorkExperience: React.FC<{
                   placeholder="Programmer"
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
-                  required
-                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                  disabled
+                  className="cursor-not-allowed appearance-none py-2 px-3 w-full border border-gray-500 bg-gray-300 text-gray-500 rounded-md"
                 />
               </div>
               <div className="col-span-12">
@@ -226,8 +230,8 @@ const EditWorkExperience: React.FC<{
                   placeholder="Company X"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  required
-                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                  disabled
+                  className="cursor-not-allowed appearance-none py-2 px-3 w-full border border-gray-500 bg-gray-300 text-gray-500 rounded-md"
                 />
               </div>
               <div className="col-span-12">
@@ -279,8 +283,8 @@ const EditWorkExperience: React.FC<{
                   type="number"
                   value={startYear}
                   onChange={(e) => setStartYear(e.target.value)}
-                  required
-                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
+                  disabled
+                  className="cursor-not-allowed appearance-none py-2 px-3 w-full border border-gray-500 bg-gray-300 text-gray-500 rounded-md"
                 />
                 {!validYears && (
                   <p className="text-red-500 text-xs">
@@ -333,7 +337,7 @@ const EditWorkExperience: React.FC<{
               {/*kapag ginawang present job na wala pang uploaded document before */}
               {presentJob === true && !currentDocument && (
                 <div className="col-span-12">
-                  <p className="text-xs font-light">Proof of Employment</p>
+                  <p className="text-xs font-light">Proof of Employment*</p>
                   <CareerDocumentUpload
                     documentSetter={handleDocumentUpload}
                     hasProof={hasProof}

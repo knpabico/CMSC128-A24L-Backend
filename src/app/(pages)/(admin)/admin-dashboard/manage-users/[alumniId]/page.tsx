@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import MapComponent from "../../../../(alumni)/map/map";
-import { ChevronLeft, MapPin, Cake, PersonStanding, Heart, GraduationCap, BookOpenText, Award, UsersRound, Briefcase, XIcon, ChevronRight } from "lucide-react";
+import { ChevronLeft, MapPin, Cake, PersonStanding, Heart, GraduationCap, BookOpenText, Award, UsersRound, Briefcase, XIcon, ChevronRight, Eye, File } from "lucide-react";
 import Image from "next/image";
 import { Education } from "@/models/models";
 import { useEducation } from "@/context/EducationContext";
@@ -41,6 +41,7 @@ export default function AlumPage() {
   const [work, setWork] = useState<WorkExperience[]>([]);
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
   const { isLoaded } = useGoogleMaps();
+  const [showProof, setShowProof] = useState(false);
 
   const calculateAge = (birthDate: Date) => {
     //current date
@@ -108,10 +109,30 @@ export default function AlumPage() {
     setIsMapOpenArray(newIsMapOpenArray);
   };
 
+  const getFileType = (url: string) => {
+    try {
+      const pathname = new URL(url).pathname;
+      const filename = decodeURIComponent(pathname.split('/').pop() || '');
+      
+      if (/\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(filename)) {
+        return 'image';
+      } else if (/\.pdf$/i.test(filename)) {
+        return 'pdf';
+      } else if (/\.(doc|docx)$/i.test(filename)) {
+        return 'doc';
+      } else {
+        return 'unknown';
+      }
+    } catch (e) {
+      return 'unknown';
+    }
+  };
+  
+
 
   return (
     <div>
-      <div className="space-y-10 md:sticky md:top-8 z-[10000] relative">
+      <div className="space-y-10 md:sticky md:top-8 z-[100] relative">
         <div className="flex items-center gap-2 w-full top-0 left-0">
           <Link href="/admin-dashboard" className="cursor-pointer">Home</Link>
           <div><ChevronRight size={15} /></div>
@@ -388,19 +409,20 @@ export default function AlumPage() {
                   <table className="w-full text-left border-separate pl-9 pt-3">
                     <thead>
                       <tr className="text-gray-500">
-                        <th className="py-1 w-3/12">Job Title</th>
-                        <th className="py-1 w-3/12 px-3">Company</th>
-                        <th className="py-1 w-3/12">Industry</th>
-                        <th className="py-1 w-3/12 px-3">From - To</th>
-                        <th className="py-1 w-1/12">Loc</th>
+                        <th className="py-1 w-3/13">Job Title</th>
+                        <th className="py-1 w-3/13 px-3">Company</th>
+                        <th className="py-1 w-3/13">Industry</th>
+                        <th className="py-1 w-3/13 px-3">From - To</th>
+                        <th className="py-1 w-1/13">Loc</th>
+                        <th className="py-1 w-1/13 pl-1">Proof</th>
                       </tr>
                     </thead>
                     <tbody>
                       {work
                         .sort((a, b) => {
                           const currentYear = new Date().getFullYear();
-                          const startA = a.startYear === "present" ? currentYear : parseInt(a.startYear);
-                          const startB = b.startYear === "present" ? currentYear : parseInt(b.startYear);
+                          const startA = a.endYear === "present" ? currentYear : parseInt(a.endYear);
+                          const startB = b.endYear === "present" ? currentYear : parseInt(b.endYear);
                           return startB - startA;
                         })
                         .map((w: WorkExperience, index: number) => (
@@ -410,39 +432,79 @@ export default function AlumPage() {
                             <td className="py-1">{w.industry}</td>
                             <td className="py-1 px-3">{w.startYear} - {w.endYear}</td>
                             <td className="py-1"><MapPin className="text-[#3675c5] cursor-pointer" onClick={() => openMap(index)}/></td>
+                            <td className="py-1 pl-1">
+                              {w.proofOfEmployment !== "" && w.endYear === "present" ? (
+                                <a href={w.proofOfEmployment} target="_blank" rel="noopener noreferrer">
+                                  <File className="text-[#3675c5] cursor-pointer"/>
+                                </a>
+                              ) : (
+                                <p>N/A</p>
+                              )}
+                            </td>
                             
-                              <Dialog
-                                open={isMapOpenArray[index]}
-                                onClose={() => closeMap(index)}
-                              >
-                                <DialogContent className="w-150">
-                                  <div className="flex items-center justify-between relative">
-                                    <p className="text-xl font-bold pb-3">{w.company} Location</p>
-                                    <button onClick={() => closeMap(index)} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+                            <Dialog
+                              open={isMapOpenArray[index]}
+                              onClose={() => closeMap(index)}
+                            >
+                              <DialogContent className="w-150">
+                                <div className="flex items-center justify-between relative">
+                                  <p className="text-xl font-bold pb-3">{w.company} Location</p>
+                                  <button onClick={() => closeMap(index)} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+                                </div>
+                                <div className="h-[400px] w-full">
+                                  {!isLoaded ? (
+                                    <div className="flex items-center justify-center h-full">
+                                      <p className="text-xl text-gray-600">Loading map...</p>
+                                    </div>
+                                  ) : (
+                                    <GoogleMap
+                                      mapContainerStyle={{ width: "100%", height: "100%" }}
+                                      center={{ lat: w.latitude, lng: w.longitude }}
+                                      zoom={15}
+                                    >
+                                      <Marker
+                                        position={{ lat: w.latitude, lng: w.longitude }}
+                                        title={w.company}
+                                      />
+                                    </GoogleMap>
+                                  )}
                                   </div>
-                                  <div className="h-[400px] w-full">
-                                    {!isLoaded ? (
-                                      <div className="flex items-center justify-center h-full">
-                                        <p className="text-xl text-gray-600">Loading map...</p>
-                                      </div>
-                                    ) : (
-                                      <GoogleMap
-                                        mapContainerStyle={{ width: "100%", height: "100%" }}
-                                        center={{ lat: w.latitude, lng: w.longitude }}
-                                        zoom={15}
-                                      >
-                                        <Marker
-                                          position={{ lat: w.latitude, lng: w.longitude }}
-                                          title={w.company}
-                                        />
-                                      </GoogleMap>
-                                    )}
-                                    </div>
-                                    <div className="mt-4 text-center">
-                                      <p>{w.location}</p>
-                                    </div>
-                                  </DialogContent>
-                              </Dialog>
+                                  <div className="mt-4 text-center">
+                                    <p>{w.location}</p>
+                                  </div>
+                                </DialogContent>
+                            </Dialog>
+
+                            {/* <Dialog
+                              open={showProof}
+                              onClose={() => setShowProof(false)}
+                            >
+                              <DialogContent className="w-150">
+                                <div className="flex items-center justify-between relative">
+                                  <p className="text-xl font-bold pb-3">Proof of Employment</p>
+                                  <button onClick={() => setShowProof(false)} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+                                </div>
+                                {getFileType(w.proofOfEmployment) === 'image' ? (
+                                  <img
+                                    src={w.proofOfEmployment}
+                                    alt="Proof of Employment"
+                                    className="w-full h-auto object-cover rounded-lg border-2 border-gray-300"
+                                  />
+                                ) : getFileType(w.proofOfEmployment) === 'pdf' ? (
+                                  <iframe
+                                    src={w.proofOfEmployment}
+                                    title="Proof of Employment PDF"
+                                    className="w-full h-[600px] rounded-lg border-2 border-gray-300"
+                                  />
+                                ) : getFileType(w.proofOfEmployment) === 'doc' ? (
+                                  <a href={w.proofOfEmployment} target="_blank" rel="noopener noreferrer">
+                                    <p className="text-blue-500 underline">Download Document</p>
+                                  </a>
+                                ) : (
+                                  <p className="text-red-500">Unknown file type</p>
+                                )}
+                              </DialogContent>
+                            </Dialog> */}
                           </tr>
                         ))}
                     </tbody>

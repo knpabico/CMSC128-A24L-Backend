@@ -302,7 +302,7 @@ const AddWorkExperience: React.FC<{
                   </p>
                 )}
                 {/* pag wala pang present job, tsaka lang lalabas yung checkbox ng present job */}
-                {numOfPresentJobs == 0 && (
+                {numOfPresentJobs == 0 ? (
                   <div className="pt-1 flex gap-2 justify-start items-center">
                     <Checkbox
                       checked={presentJob}
@@ -313,11 +313,15 @@ const AddWorkExperience: React.FC<{
                     />
                     <p className="text-xs font-light">Present job?</p>
                   </div>
+                ) : (
+                  <div className="pt-1 flex gap-2 justify-start items-center">
+                    <p className="text-xs font-light">You can only have one active job marked as 'present.' Please update your current job's end year before adding a new position.</p>
+                  </div>
                 )}
               </div>
               {presentJob === true && (
                 <div className="col-span-12">
-                  <p className="text-xs font-light">Proof of Employment</p>
+                  <p className="text-xs font-light">Proof of Employment*</p>
                   {/* palagay nalang dito ng for proof of employment salamatttttttttttttt */}
                   <CareerDocumentUpload
                     documentSetter={handleDocumentUpload}
