@@ -16,6 +16,7 @@ import {
   Announcement,
   DonationDrive,
   Event,
+  JobApplication,
   JobOffering,
   Scholarship,
 } from "@/models/models";
@@ -534,6 +535,217 @@ export async function sendEmailTemplateForNewsletterScholarship(
     </p>
 </body>
 </html>`,
+      },
+    });
+  } catch (error) {
+    return { success: false, message: (error as FirebaseError).message };
+  }
+}
+
+export async function sendEmailTemplateForJobApplicationStatus(
+  alumni: Alumnus,
+  jobOffer: JobOffering,
+  status: string
+) {
+  console.log(
+    `Sent ${status} email to ${alumni.email} for the ${jobOffer.position} position at ${jobOffer.company}`
+  );
+  try {
+    await addDoc(collection(db, "mail"), {
+      to: alumni.email,
+      message: {
+        subject: "Job Application Status",
+        text: status,
+        html: `
+        <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .header {
+              text-align: center;
+              padding: 20px 0;
+              background-color: #f8f9fa;
+              border-radius: 5px;
+            }
+            .content {
+              padding: 20px;
+              background-color: #ffffff;
+              border-radius: 5px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .status-accepted {
+              color: #28a745;
+              font-weight: bold;
+            }
+            .status-rejected {
+              color: #dc3545;
+              font-weight: bold;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 20px;
+              font-size: 0.9em;
+              color: #666;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h2>ICS ARMS Job Application Status Update</h2>
+          </div>
+          <div class="content">
+            <p>Dear ${alumni.firstName} ${alumni.lastName},</p>
+            ${
+              status.toLowerCase() === "accepted"
+                ? `
+                <p>We are pleased to inform you that your application for the position of <strong>${jobOffer.position}</strong> at <strong>${jobOffer.company}</strong> has been <span class="status-accepted">ACCEPTED</span>!</p>
+                <p>This is a great opportunity to start your professional journey. We believe you will be a valuable addition to the team.</p>
+                <p>Please expect further communication regarding the next steps in the hiring process.</p>
+                `
+                : `
+                <p>We regret to inform you that your application for the position of <strong>${jobOffer.position}</strong> at <strong>${jobOffer.company}</strong> has been <span class="status-rejected">REJECTED</span>.</p>
+                <p>We appreciate your interest in the position and encourage you to apply for other opportunities that match your skills and experience.</p>
+                <p>We wish you the best in your job search and future endeavors.</p>
+                `
+            }
+            <p>Best regards,<br>ICS ARMS Team</p>
+          </div>
+          <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+          </div>
+        </body>
+      </html>
+        `,
+      },
+    });
+  } catch (error) {
+    return { success: false, message: (error as FirebaseError).message };
+  }
+}
+
+export async function sendEmailTemplateForNewsletterJobApplication(
+  jobApplication: JobOffering,
+  alumni: Alumnus,
+  hiringManager: string
+) {
+  try {
+    await addDoc(collection(db, "mail"), {
+      to: hiringManager,
+      message: {
+        subject:
+          "New Application for " +
+          jobApplication.position +
+          " at " +
+          jobApplication.company,
+        text: jobApplication.jobDescription,
+        html: `
+        <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Application Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background-color: #0066cc;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 5px 5px 0 0;
+    }
+    .content {
+      background-color: #ffffff;
+      padding: 20px;
+      border-left: 1px solid #dddddd;
+      border-right: 1px solid #dddddd;
+    }
+    .job-details {
+      background-color: #f9f9f9;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+      border-left: 4px solid #0066cc;
+    }
+    .footer {
+      background-color: #f5f5f5;
+      padding: 15px;
+      text-align: center;
+      font-size: 12px;
+      color: #666666;
+      border-radius: 0 0 5px 5px;
+      border: 1px solid #dddddd;
+    }
+    .button {
+      display: inline-block;
+      background-color: #0066cc;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+    h1, h2, h3 {
+      color: #0066cc;
+    }
+    .highlight {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>New Job Application</h1>
+    </div>
+    <div class="content">
+      <p>Hello,</p>
+      <p>You have received a new application for the <span class="highlight">${
+        jobApplication.position
+      }</span> position at <span class="highlight">${
+          jobApplication.company
+        }</span>.</p>
+      
+      <div class="job-details">
+        <h2>Applicant Details</h2>
+        <p><strong>Name:</strong> ${alumni.firstName} ${alumni.lastName}</p>
+        <p><strong>Email:</strong> ${alumni.email}</p>
+        <p><strong>Age:</strong> ${alumni.age}</p>
+        <p><strong>Location:</strong> ${alumni.address || "Not specified"}</p>
+        <p><strong>Application Date:</strong> ${new Date().toLocaleDateString()}</p>
+      </div>
+      
+      
+      <p>Please review this application at your earliest convenience.</p>
+      <p>Thank you,<br>ICS-ARMS Team</p>
+    </div>
+    <div class="footer">
+      <p>This is an automated notification. Please do not reply to this email.</p>
+      <p>© ${new Date().getFullYear()} Alumni Network - All rights reserved</p>
+    </div>
+  </div>
+</body>
+</html>
+        `,
       },
     });
   } catch (error) {

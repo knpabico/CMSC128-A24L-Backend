@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
-import { JobOffering } from "@/models/models";
+import { Alumnus, JobApplication, JobOffering } from "@/models/models";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
@@ -30,10 +30,15 @@ import {
   Trash2,
   CheckCircle,
   Bookmark,
+  Mail,
+  User,
 } from "lucide-react";
 import Banner from "@/components/Banner";
 import { set } from "zod";
 import Image from "next/image";
+import JobApplicationModal from "@/components/JobApplicationModal";
+import { useJobApplicationContext } from "@/context/JobApplicationContext";
+import { useAlums } from "@/context/AlumContext";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -78,6 +83,11 @@ export default function JobOffers() {
     updateStatus,
   } = useJobOffer();
 
+  const { addJobApplication } = useJobApplicationContext();
+  const { alums } = useAlums();
+  const { jobApplications, updateApplicationStatus } =
+    useJobApplicationContext();
+
   const searchParams = useSearchParams();
   const jobId = searchParams.get("jobId");
   const [searchQuery, setSearchQuery] = useState("");
@@ -110,6 +120,8 @@ export default function JobOffers() {
   );
 
   const jobsPerPage = 8;
+
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
 
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchQuery(e.target.value.toLowerCase());
@@ -525,6 +537,27 @@ export default function JobOffers() {
               </button>
               <button
                 onClick={() => {
+                  setSidebarFilter("Applied Jobs");
+                  setSelectedJob(null);
+                }}
+                className="flex items-center gap-3"
+              >
+                <Mail className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Applied Jobs"
+                      ? "font-semibold border-b-3 border-blue-500"
+                      : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Applied Jobs</span>
+                  {sidebarFilter !== "Applied Jobs" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
                   setSidebarFilter("Drafts");
                   setSelectedJob(null);
                 }}
@@ -793,121 +826,123 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentCreatedJobs.map((job, index) => (
-                          <div
-                            key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
-                                : "border-gray-200"
-                            }`}
-                            onClick={() => setSelectedJob(job)}
-                          >
-                            <div className="flex justify-between items-center">
-                              {/* Left side - Job details */}
-                              <div className="flex items-center">
-                                <div className="mr-3">
-                                  {job.image ? (
-                                    <Image
-                                      width={0}
-                                      height={0}
-                                      sizes="100vw"
-                                      priority
-                                      src={job.image || "/placeholder.svg"}
-                                      alt={`${job.company} logo`}
-                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
-                                    />
-                                  ) : (
-                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                      {job.company.charAt(0).toUpperCase()}
-                                    </div>
-                                  )}
+                        {currentCreatedJobs.map((job, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                                selectedJob?.jobId === job.jobId
+                                  ? "border-blue-500"
+                                  : "border-gray-200"
+                              }`}
+                              onClick={() => setSelectedJob(job)}
+                            >
+                              <div className="flex justify-between items-center">
+                                {/* Left side - Job details */}
+                                <div className="flex items-center">
+                                  <div className="mr-3">
+                                    {job.image ? (
+                                      <Image
+                                        width={0}
+                                        height={0}
+                                        sizes="100vw"
+                                        priority
+                                        src={job.image || "/placeholder.svg"}
+                                        alt={`${job.company} logo`}
+                                        className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                      />
+                                    ) : (
+                                      <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                        {job.company.charAt(0).toUpperCase()}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h2 className="font-semibold text-md">
+                                      {job.position}
+                                    </h2>
+                                    <p className="text-sm text-gray-600">
+                                      {job.company}
+                                    </p>
+                                    <p className="text-xs text-[#0856BA] flex items-center">
+                                      <MapPin className="w-3.5 h-3.5 mr-1" />
+                                      {job.location}
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <h2 className="font-semibold text-md">
-                                    {job.position}
-                                  </h2>
-                                  <p className="text-sm text-gray-600">
-                                    {job.company}
-                                  </p>
-                                  <p className="text-xs text-[#0856BA] flex items-center">
-                                    <MapPin className="w-3.5 h-3.5 mr-1" />
-                                    {job.location}
-                                  </p>
-                                </div>
-                              </div>
 
-                              {/* Right side - Status and trash icon with toggle moved here */}
-                              <div className="flex items-center space-x-3">
-                                {/* Toggle switch */}
-                                {job.status !== "Pending" && (
-                                  <div className="w-12 flex justify-center">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                      <input
-                                        type="checkbox"
-                                        className="sr-only peer"
-                                        checked={job.status === "Accepted"}
-                                        onChange={async () => {
-                                          try {
-                                            if (job.status === "Accepted") {
-                                              await updateStatus(
-                                                "Closed",
-                                                job.jobId
-                                              );
-                                            } else {
-                                              await updateStatus(
-                                                "Accepted",
-                                                job.jobId
+                                {/* Right side - Status and trash icon with toggle moved here */}
+                                <div className="flex items-center space-x-3">
+                                  {/* Toggle switch */}
+                                  {job.status !== "Pending" && (
+                                    <div className="w-12 flex justify-center">
+                                      <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          className="sr-only peer"
+                                          checked={job.status === "Accepted"}
+                                          onChange={async () => {
+                                            try {
+                                              if (job.status === "Accepted") {
+                                                await updateStatus(
+                                                  "Closed",
+                                                  job.jobId
+                                                );
+                                              } else {
+                                                await updateStatus(
+                                                  "Accepted",
+                                                  job.jobId
+                                                );
+                                              }
+                                            } catch (error) {
+                                              toastError(
+                                                "Failed to update job status"
                                               );
                                             }
-                                          } catch (error) {
-                                            toastError(
-                                              "Failed to update job status"
-                                            );
-                                          }
-                                        }}
-                                      />
-                                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                    </label>
+                                          }}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                      </label>
+                                    </div>
+                                  )}
+                                  {job.status === "Pending" && (
+                                    <div className="w-11 h-6 opacity-0">
+                                      {/* Placeholder to prevent layout shift */}
+                                    </div>
+                                  )}
+                                  <div className="w-24 flex items-center justify-center">
+                                    {/* Status label */}
+                                    <span
+                                      className={`px-2 py-1 rounded text-xs font-medium ${
+                                        job.status === "Accepted"
+                                          ? "bg-green-100 text-green-700"
+                                          : job.status === "Rejected"
+                                          ? "bg-red-100 text-red-700"
+                                          : job.status === "Closed"
+                                          ? "bg-red-100 text-red-700"
+                                          : "bg-yellow-100 text-yellow-700"
+                                      }`}
+                                    >
+                                      {job.status.charAt(0).toUpperCase() +
+                                        job.status.slice(1)}
+                                    </span>
                                   </div>
-                                )}
-                                {job.status === "Pending" && (
-                                  <div className="w-11 h-6 opacity-0">
-                                    {/* Placeholder to prevent layout shift */}
-                                  </div>
-                                )}
-                                <div className="w-24 flex items-center justify-center">
-                                  {/* Status label */}
-                                  <span
-                                    className={`px-2 py-1 rounded text-xs font-medium ${
-                                      job.status === "Accepted"
-                                        ? "bg-green-100 text-green-700"
-                                        : job.status === "Rejected"
-                                        ? "bg-red-100 text-red-700"
-                                        : job.status === "Closed"
-                                        ? "bg-red-100 text-red-700"
-                                        : "bg-yellow-100 text-yellow-700"
-                                    }`}
-                                  >
-                                    {job.status.charAt(0).toUpperCase() +
-                                      job.status.slice(1)}
-                                  </span>
-                                </div>
 
-                                {/* Trash button */}
-                                <button
-                                  className="text-gray-500 hover:text-red-500 transition-colors mr-3"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(job.jobId);
-                                  }}
-                                >
-                                  <Trash2 className="w-5 h-5" />
-                                </button>
+                                  {/* Trash button */}
+                                  <button
+                                    className="text-gray-500 hover:text-red-500 transition-colors mr-3"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDelete(job.jobId);
+                                    }}
+                                  >
+                                    <Trash2 className="w-5 h-5" />
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                         {currentCreatedJobs.length < jobsPerPage &&
                           [
                             ...Array(jobsPerPage - currentCreatedJobs.length),
@@ -959,6 +994,107 @@ export default function JobOffers() {
                     </>
                   )}
                 </div>
+              ) : sidebarFilter === "Applied Jobs" ? (
+                jobApplications.length === 0 ? (
+                  <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
+                    <p className="text-lg">No applied jobs found.</p>
+                  </div>
+                ) : (
+                  <div>
+                    {jobApplications
+                      .filter(
+                        (offer: JobApplication) =>
+                          offer.applicantId === user!.uid
+                      )
+                      .map((jobOffer: JobApplication, index: number) => {
+                        const job = jobOffers.find(
+                          (job: JobOffering) => job.jobId === jobOffer.jobId
+                        );
+                        if (!job) return null;
+                        return (
+                          <div
+                            key={index}
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              selectedJob?.jobId === job.jobId
+                                ? "border-blue-500"
+                                : "border-gray-200"
+                            }`}
+                            onClick={() => setSelectedJob(job)}
+                          >
+                            <div className="flex justify-between items-center">
+                              {/* Left side - Job details */}
+                              <div className="flex items-center">
+                                <div className="mr-3">
+                                  {job.image ? (
+                                    <Image
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
+                                      src={job.image || "/placeholder.svg"}
+                                      alt={`${job.company} logo`}
+                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                    />
+                                  ) : (
+                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                      {job.company?.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                </div>
+                                {!job.company || !job.location ? (
+                                  <div>
+                                    <h2 className="font-semibold text-md">
+                                      {job.position}
+                                    </h2>
+                                    <p className="text-sm text-gray-500">
+                                      Job Details not available
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <h2 className="font-semibold text-md">
+                                      {job.position}
+                                    </h2>
+                                    <p className="text-sm text-gray-600">
+                                      {job.company}
+                                    </p>
+                                    <p className="text-xs text-[#0856BA] flex items-center">
+                                      <MapPin className="w-3.5 h-3.5 mr-1" />
+                                      {job.location || "No location added yet."}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Right side */}
+                              <div className="flex items-center space-x-3">
+                                {/* Draft label */}
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                                    jobOffer.status === "pending"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : jobOffer.status === "accepted"
+                                      ? "bg-green-100 text-green-800"
+                                      : jobOffer.status === "rejected"
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {jobOffer.status === "pending"
+                                    ? "Pending"
+                                    : jobOffer.status === "accepted"
+                                    ? "Accepted"
+                                    : jobOffer.status === "rejected"
+                                    ? "Rejected"
+                                    : "Closed"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )
               ) : sidebarFilter === "Drafts" ? (
                 <div className="space-y-2">
                   {filteredDraftJobs.length === 0 ? (
@@ -1224,6 +1360,171 @@ export default function JobOffers() {
                   <p className="text-xs text-gray-400 mt-4">
                     Posted on {formatDate(selectedJob.datePosted)}
                   </p>
+                  {sidebarFilter !== "Create Jobs" &&
+                    sidebarFilter !== "Applied Jobs" &&
+                    sidebarFilter !== "Drafts" &&
+                    !jobApplications.find(
+                      (application: JobApplication) =>
+                        application.jobId === selectedJob.jobId &&
+                        application.applicantId === user!.uid
+                    ) &&
+                    !jobOffers.find(
+                      (job: JobOffering) =>
+                        selectedJob.jobId === job.jobId &&
+                        job.alumniId === user!.uid
+                    ) && (
+                      <Button
+                        variant={"outline"}
+                        className="w-full cursor-pointer hover:bg-[#0856BA] hover:text-white transition-colors duration-200"
+                        onClick={() => {
+                          setApplyModalOpen(true);
+                        }}
+                      >
+                        Apply
+                      </Button>
+                    )}
+
+                  {sidebarFilter === "Create Jobs" && (
+                    <div className="mt-4">
+                      <h3 className="font-semibold mb-2">Applicants</h3>
+                      {jobApplications.filter(
+                        (application: JobApplication) =>
+                          application.jobId === selectedJob.jobId
+                      ).length === 0 ? (
+                        <p className="text-gray-500 text-center py-4">
+                          No applicants yet
+                        </p>
+                      ) : (
+                        jobApplications
+                          .filter(
+                            (application: JobApplication) =>
+                              application.jobId === selectedJob.jobId
+                          )
+                          .map((application: JobApplication) => {
+                            const applicant: Alumnus = alums.find(
+                              (alumni: Alumnus) =>
+                                alumni.alumniId === application.applicantId
+                            );
+                            return (
+                              <div
+                                key={application.jobApplicationId}
+                                className="border rounded-lg p-4 mb-2"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    {applicant?.image ? (
+                                      <Image
+                                        src={applicant.image}
+                                        alt={`${applicant.firstName} ${applicant.lastName}`}
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full"
+                                      />
+                                    ) : (
+                                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <User className="w-5 h-5" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">
+                                      {applicant?.firstName}{" "}
+                                      {applicant?.lastName}
+                                    </h4>
+                                    <p className="text-sm text-gray-600">
+                                      {applicant?.email}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="mt-2">
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs ${
+                                      application.status === "pending"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : application.status === "accepted"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                    }`}
+                                  >
+                                    {application.status
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                      application.status.slice(1)}
+                                  </span>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Applied on{" "}
+                                    {formatDate(application.dateApplied)}
+                                  </p>
+                                </div>
+                                <div className="mt-3 flex gap-2">
+                                  {application.status === "pending" && (
+                                    <>
+                                      <button
+                                        onClick={() => {
+                                          // Add your accept logic here
+                                          updateApplicationStatus(
+                                            application.jobApplicationId,
+                                            "accepted",
+                                            applicant,
+                                            selectedJob
+                                          );
+                                        }}
+                                        className="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transition-colors"
+                                      >
+                                        Accept
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          // Add your reject logic here
+                                          updateApplicationStatus(
+                                            application.jobApplicationId,
+                                            "rejected",
+                                            applicant,
+                                            selectedJob
+                                          );
+                                        }}
+                                        className="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
+                                      >
+                                        Reject
+                                      </button>
+                                    </>
+                                  )}
+                                  <a
+                                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${applicant?.email}&su=Job Application Update for ${selectedJob.position} at ${selectedJob.company}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors flex items-center gap-1"
+                                  >
+                                    <Mail className="w-4 h-4" />
+                                    Email
+                                  </a>
+                                </div>
+                              </div>
+                            );
+                          })
+                      )}
+                    </div>
+                  )}
+                  <JobApplicationModal
+                    isOpen={applyModalOpen}
+                    onClose={() => setApplyModalOpen(false)}
+                    onSubmit={async () => {
+                      addJobApplication(
+                        {
+                          jobApplicationId: crypto.randomUUID(),
+                          jobId: selectedJob.jobId,
+                          applicantId: user!.uid,
+                          status: "pending",
+                          dateApplied: new Date(),
+                          jobTitle: selectedJob.position,
+                          contactId: selectedJob.alumniId,
+                        } as JobApplication,
+                        selectedJob
+                      );
+                    }}
+                    jobTitle={selectedJob.position}
+                    companyName={selectedJob.company}
+                  />
                 </div>
               ) : (
                 <div className="text-center text-gray-500 h-full flex items-center justify-center w-full">

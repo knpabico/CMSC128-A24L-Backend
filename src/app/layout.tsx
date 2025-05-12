@@ -20,6 +20,7 @@ import { NewsLetterProvider } from "@/context/NewsLetterContext";
 import { AffiliationProvider } from "@/context/AffiliationContext";
 import { FeaturedProvider } from "@/context/FeaturedStoryContext";
 import { Inter } from "next/font/google";
+import { JobApplicationContextProvider } from "@/context/JobApplicationContext";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -39,31 +40,33 @@ export default function RootLayout({
               <ScholarshipProvider>
                 <BookmarkProvider>
                   <JobOfferProvider>
-                    <AnnouncementProvider>
-                      <AlumProvider>
-                        <WorkExperienceProvider>
-                          <EventProvider>
-                            <RsvpProvider>
-                              <DonationContextProvider>
-                                <GoogleMapsProvider>
-                                  <MapProvider>
-                                    <EducationProvider>
-                                      <AffiliationProvider>
-                                        <body className={inter.className}>
-                                          <Navbar />
-                                          <div className="">{children}</div>
-                                          <Toaster />
-                                        </body>
-                                      </AffiliationProvider>
-                                    </EducationProvider>
-                                  </MapProvider>
-                                </GoogleMapsProvider>
-                              </DonationContextProvider>
-                            </RsvpProvider>
-                          </EventProvider>
-                        </WorkExperienceProvider>
-                      </AlumProvider>
-                    </AnnouncementProvider>
+                    <JobApplicationContextProvider>
+                      <AnnouncementProvider>
+                        <AlumProvider>
+                          <WorkExperienceProvider>
+                            <EventProvider>
+                              <RsvpProvider>
+                                <DonationContextProvider>
+                                  <GoogleMapsProvider>
+                                    <MapProvider>
+                                      <EducationProvider>
+                                        <AffiliationProvider>
+                                          <body className={inter.className}>
+                                            <Navbar />
+                                            <div className="">{children}</div>
+                                            <Toaster />
+                                          </body>
+                                        </AffiliationProvider>
+                                      </EducationProvider>
+                                    </MapProvider>
+                                  </GoogleMapsProvider>
+                                </DonationContextProvider>
+                              </RsvpProvider>
+                            </EventProvider>
+                          </WorkExperienceProvider>
+                        </AlumProvider>
+                      </AnnouncementProvider>
+                    </JobApplicationContextProvider>
                   </JobOfferProvider>
                 </BookmarkProvider>
               </ScholarshipProvider>
