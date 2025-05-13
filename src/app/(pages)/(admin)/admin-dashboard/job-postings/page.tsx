@@ -1,32 +1,12 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo, use } from "react";
-import { useJobOffer } from "@/context/JobOfferContext";
-import type { Alumnus, JobApplication, JobOffering } from "@/models/models";
-import { toastError } from "@/components/ui/sonner";
-import {
-  ChevronRight,
-  Trash2,
-  ThumbsDown,
-  ThumbsUp,
-  CirclePlus,
-  Pencil,
-  CircleX,
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page";
-import { useRouter } from "next/navigation";
-import { useJobApplicationContext } from "@/context/JobApplicationContext";
-import JobApplicationModalAdmin from "@/components/JobApplicationModalAdmin";
-import { useAlums } from "@/context/AlumContext";
-import { sendEmailTemplateForJobApplicationStatus } from "@/lib/emailTemplate";
-import Image from "next/image";
+import { useState, useRef, useEffect } from "react"
+import { useJobOffer } from "@/context/JobOfferContext"
+import type { JobOffering } from "@/models/models"
+import { toastError } from "@/components/ui/sonner"
+import { ChevronRight, Trash2, ThumbsDown, ThumbsUp, CirclePlus, Pencil, CircleX } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page"
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date"
@@ -42,8 +22,6 @@ function formatDate(timestamp: any) {
 }
 
 export default function Users() {
-  const router = useRouter();
-
   const {
     jobOffers,
     handleAccept,
@@ -61,22 +39,18 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState("list");
   const [activeTab, setActiveTab] = useState("Accepted");
   const tableRef = useRef<HTMLDivElement>(null);
-  const tableRef = useRef<HTMLDivElement>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<JobOffering | null>(null);
-  const [jobToDelete, setJobToDelete] = useState<JobOffering | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedJob, setEditedJob] = useState<JobOffering | null>(null);
   const [editedJob, setEditedJob] = useState<JobOffering | null>(null);
 
   const filterJobs = (status: string) => {
     return jobOffers.filter((job: JobOffering) => {
-      const matchesStatus =
-        status === "Accepted"
-          ? job.status === "Accepted" || job.status === "Closed"
-          : job.status === status;
+      const matchesStatus = status === "Accepted" 
+        ? job.status === "Accepted" || job.status === "Closed"
+        : job.status === status
       const matchesSearch =
         job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,25 +62,10 @@ export default function Users() {
   const tabs = ["Accepted", "Pending", "Rejected", "Draft"]
 
   const stats = {
-    pending: jobOffers.filter(
-      (job: { status: string }) => job.status === "Pending"
-    ).length,
-    accepted: jobOffers.filter(
-      (job: { status: string }) =>
-        job.status === "Accepted" || job.status === "Closed"
-    ).length,
-    rejected: jobOffers.filter(
-      (job: { status: string }) => job.status === "Rejected"
-    ).length,
-    drafts: jobOffers.filter(
-      (job: { status: string }) => job.status === "Draft"
-    ).length,
-    applications: jobOffers.filter((job: JobOffering) => {
-      return jobApplications.some(
-        (application: JobApplication) =>
-          application.jobId === job.jobId && application.contactId === "Admin"
-      );
-    }).length,
+    pending: jobOffers.filter((job: { status: string }) => job.status === "Pending").length,
+    accepted: jobOffers.filter((job: { status: string }) => job.status === "Accepted" || job.status === "Closed").length,
+    rejected: jobOffers.filter((job: { status: string }) => job.status === "Rejected").length,
+    drafts: jobOffers.filter((job: { status: string }) => job.status === "Draft").length,
     total: jobOffers.length,
   }
 
@@ -119,8 +78,8 @@ export default function Users() {
       const tableRect = tableRef.current.getBoundingClientRect()
 
       if (tableRect.top <= 0 && !isSticky) {
-        setIsSticky(true);
-        setHeaderWidth(tableRect.width.toString());
+        setIsSticky(true)
+        setHeaderWidth(tableRect.width.toString())
       } else if (tableRect.top > 0 && isSticky) {
         setIsSticky(false)
       }
@@ -130,7 +89,7 @@ export default function Users() {
 
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth.toString());
+      setHeaderWidth(tableRef.current.offsetWidth.toString())
     }
 
     // Clean up
@@ -141,7 +100,7 @@ export default function Users() {
 
   // New function to handle viewing job details
   const handleViewJob = (jobId: string) => {
-    const job = jobOffers.find((job: JobOffering) => job.jobId === jobId);
+    const job = jobOffers.find((job: JobOffering) => job.jobId === jobId)
     if (job) {
       setViewingJob(job)
       setCurrentPage("view")
@@ -150,9 +109,9 @@ export default function Users() {
   }
 
   const goBackToList = () => {
-    setViewingJob(null);
-    router.push("/admin-dashboard/job-postings");
-  };
+    setCurrentPage("list")
+    setViewingJob(null)
+  }
 
   // Render view page for a job posting
   const renderViewPage = () => {
@@ -194,7 +153,6 @@ export default function Users() {
                 <div className="flex items-start gap-4">
                   <div className="mr-2">
                     {editedJob && editedJob.image ? (
-                    {editedJob && editedJob.image ? (
                       <img
                         src={editedJob.image || "/placeholder.svg"}
                         alt={`${editedJob.company} logo`}
@@ -202,7 +160,6 @@ export default function Users() {
                       />
                     ) : (
                       <div className="w-35 h-35 bg-gray-100 rounded-md flex items-center justify-center text-xl font-semibold text-gray-500">
-                        {editedJob?.company?.charAt(0).toUpperCase()}
                         {editedJob?.company?.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -216,17 +173,13 @@ export default function Users() {
                           value={editedJob?.position || ""}
                           onChange={(e) => {
                             if (editedJob) {
-                              setEditedJob({
-                                ...editedJob,
-                                position: e.target.value,
-                              });
+                              setEditedJob({ ...editedJob, position: e.target.value });
                             }
                           }}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
                         <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                          {editedJob?.position || "N/A"}
                           {editedJob?.position || "N/A"}
                         </div>
                       )}
@@ -239,17 +192,13 @@ export default function Users() {
                           value={editedJob?.company || ""}
                           onChange={(e) => {
                             if (editedJob) {
-                              setEditedJob({
-                                ...editedJob,
-                                company: e.target.value,
-                              } as JobOffering);
+                              setEditedJob({ ...editedJob, company: e.target.value } as JobOffering);
                             }
                           }}
                           className="px-3 py-2 border border-gray-300 rounded-md w-full"
                         />
                       ) : (
                         <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                          {editedJob?.company || "N/A"}
                           {editedJob?.company || "N/A"}
                         </div>
                       )}
@@ -259,11 +208,6 @@ export default function Users() {
 
                 {/* Other Fields */}
                 {[
-                  ["Location", editedJob?.location || "N/A"],
-                  ["Employment Type", editedJob?.employmentType || "N/A"],
-                  ["Job Type", editedJob?.jobType || "N/A"],
-                  ["Experience Level", editedJob?.experienceLevel || "N/A"],
-                  ["Salary Range", editedJob?.salaryRange || "N/A"],
                   ["Location", editedJob?.location || "N/A"],
                   ["Employment Type", editedJob?.employmentType || "N/A"],
                   ["Job Type", editedJob?.jobType || "N/A"],
@@ -281,7 +225,6 @@ export default function Users() {
                   <label className="block text-sm font-medium">Required Skills</label>
                   <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
                     {editedJob?.requiredSkill?.join(", ")}
-                    {editedJob?.requiredSkill?.join(", ")}
                   </div>
                 </div>
 
@@ -291,17 +234,11 @@ export default function Users() {
                   {isEditing ? (
                     <textarea
                       value={editedJob?.jobDescription || ""}
-                      onChange={(e) =>
-                        setEditedJob({
-                          ...editedJob,
-                          jobDescription: e.target.value,
-                        } as JobOffering)
-                      }
+                      onChange={(e) => setEditedJob({ ...editedJob, jobDescription: e.target.value } as JobOffering)}
                       className="px-3 py-2 border border-gray-300 rounded-md w-full min-h-[100px]"
                     />
                   ) : (
                     <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 min-h-[100px]">
-                      {editedJob?.jobDescription || "N/A"}
                       {editedJob?.jobDescription || "N/A"}
                     </div>
                   )}
@@ -371,9 +308,7 @@ export default function Users() {
                 />
                 <div
                   className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
-                  onClick={() =>
-                    router.push("/admin-dashboard/job-postings/post")
-                  }
+                  onClick={() => setCurrentPage("post")}
                 >
                   <CirclePlus size={18} />
                   Create a Job Post
@@ -443,310 +378,185 @@ export default function Users() {
                 {isSticky && <div style={{ height: "56px" }}></div>}
 
                 {/* Dynamic rows */}
-                {activeTab === "Applications"
-                  ? filteredJobs.map((job: JobOffering, index) => {
-                      const applications: JobApplication[] =
-                        jobApplications.filter(
-                          (application: JobApplication) =>
-                            application.jobId === job.jobId &&
-                            application.contactId === "Admin"
-                        );
-                      return (
-                        <div
-                          key={index}
-                          className={`w-full flex items-center border-t border-gray-300 ${
-                            index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                          } hover:bg-blue-50`}
-                        >
-                          {/* Company Logo */}
-                          <div className="flex-shrink-0 p-4">
-                            {job.image ? (
-                              <Image
-                                src={job.image || "/placeholder.svg"}
-                                alt={`${job.company} logo`}
-                                className="w-16 h-16 object-cover rounded"
-                                width={0}
-                                height={0}
-                                sizes="100vw"
-                                priority
-                              />
+                {filterJobs(activeTab).map((job: any, index: number) => (
+                  <div
+                    key={index}
+                    className={`w-full flex items-center border-t border-gray-300 ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50`}
+                  >
+                    {/* Company Logo */}
+                    <div className="flex-shrink-0 p-4">
+                      {job.image ? (
+                        <img
+                          src={job.image || "/placeholder.svg"}
+                          alt={`${job.company} logo`}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
+                          {job.company.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Job Details */}
+                    <div
+                      className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
+                      onClick={() => handleViewJob(job.jobId)}
+                    >
+                      <div className="text-base font-bold">{job.position}</div>
+                      <div className="text-sm text-gray-600">{job.company}</div>
+                      <div className="text-sm text-gray-500">
+                        {job.employmentType ? (
+                          <>
+                            {job.employmentType}
+                            {job.experienceLevel && <> • {job.experienceLevel}</>}
+                            {job.salaryRange && <> • ₱{job.salaryRange}</>}
+                          </>
+                        ) : (
+                          <>
+                            {job.experienceLevel ? (
+                              <>
+                                {job.experienceLevel}
+                                {job.salaryRange && <> • ₱{job.salaryRange}</>}
+                              </>
+                            ) : job.salaryRange ? (
+                              `₱${job.salaryRange}`
                             ) : (
-                              <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
-                                {job.company.charAt(0).toUpperCase()}
-                              </div>
+                              "This draft can't be published yet. Please complete all required fields."
                             )}
-                          </div>
-                          {/* Job Details */}
-                          <div
-                            className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
-                            onClick={() => handleViewJob(job.jobId)}
-                          >
-                            <div className="text-base font-bold">
-                              {job.position}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              {job.company}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {job.employmentType ? (
-                                <>
-                                  {job.employmentType}
-                                  {job.experienceLevel && (
-                                    <> • {job.experienceLevel}</>
-                                  )}
-                                  {job.salaryRange && (
-                                    <> • ₱{job.salaryRange}</>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  {job.experienceLevel ? (
-                                    <>
-                                      {job.experienceLevel}
-                                      {job.salaryRange && (
-                                        <> • ₱{job.salaryRange}</>
-                                      )}
-                                    </>
-                                  ) : job.salaryRange ? (
-                                    `₱${job.salaryRange}`
-                                  ) : (
-                                    "This draft can't be published yet. Please complete all required fields."
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          {/* Actions Section */}
-                          <div className="flex items-center gap-4 p-4">
-                            {/* Toggle and Status*/}
-                            <div className="flex items-center w-[220px]">
-                              {/* Toggle Switch */}
+                          </>
+                        )}
+                      </div>
+                    </div>
 
-                              {/* Status Badge */}
-                              <div className="w-24 flex items-center justify-center">
-                                <div
-                                  className={`px-2 py-1 text-xs rounded whitespace-nowrap `}
-                                >
-                                  {applications.length} Applications
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* View/Edit Details Button */}
-                            <div className="w-28 flex items-center justify-center">
-                              <button
-                                className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
-                                onClick={() => {
-                                  setOpenApplications(true);
-                                  setCurrentJobSelected(job);
+                    {/* Actions Section */}
+                    <div className="flex items-center gap-4 p-4">
+                      {/* Toggle and Status*/}
+                      <div className="flex items-center w-[220px]">
+                        {/* Toggle Switch */}
+                        <div className="w-16 flex items-center justify-center">
+                          {activeTab === "Accepted" && (
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={job.status === "Accepted"}
+                                onChange={async () => {
+                                  try {
+                                    if (job.status === "Accepted") {
+                                      await updateStatus("Closed", job.jobId)
+                                    } else {
+                                      await updateStatus("Accepted", job.jobId)
+                                    }
+                                  } catch (error) {
+                                    toastError("Failed to update job status")
+                                  }
                                 }}
-                              >
-                                View Applications
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  : filterJobs(activeTab).map(
-                      (job: JobOffering, index: number) => (
-                        <div
-                          key={index}
-                          className={`w-full flex items-center border-t border-gray-300 ${
-                            index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                          } hover:bg-blue-50`}
-                        >
-                          {/* Company Logo */}
-                          <div className="flex-shrink-0 p-4">
-                            {job.image ? (
-                              <img
-                                src={job.image || "/placeholder.svg"}
-                                alt={`${job.company} logo`}
-                                className="w-16 h-16 object-cover rounded"
                               />
-                            ) : (
-                              <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xl font-semibold text-gray-500">
-                                {job.company.charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                          </div>
+                              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </label>
+                          )}
+                        </div>
 
-                          {/* Job Details */}
+                        {/* Status Badge */}
+                        <div className="w-24 flex items-center justify-center">
                           <div
-                            className="flex-grow flex flex-col p-4 gap-1 cursor-pointer"
-                            onClick={() => handleViewJob(job.jobId)}
+                            className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
+                              job.status === "Accepted"
+                                ? "bg-green-100 text-green-800"
+                                : job.status === "Pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                            }`}
                           >
-                            <div className="text-base font-bold">
-                              {job.position}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              {job.company}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {job.employmentType ? (
-                                <>
-                                  {job.employmentType}
-                                  {job.experienceLevel && (
-                                    <> • {job.experienceLevel}</>
-                                  )}
-                                  {job.salaryRange && (
-                                    <> • ₱{job.salaryRange}</>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  {job.experienceLevel ? (
-                                    <>
-                                      {job.experienceLevel}
-                                      {job.salaryRange && (
-                                        <> • ₱{job.salaryRange}</>
-                                      )}
-                                    </>
-                                  ) : job.salaryRange ? (
-                                    `₱${job.salaryRange}`
-                                  ) : (
-                                    "This draft can't be published yet. Please complete all required fields."
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Actions Section */}
-                          <div className="flex items-center gap-4 p-4">
-                            {/* Toggle and Status*/}
-                            <div className="flex items-center w-[220px]">
-                              {/* Toggle Switch */}
-                              <div className="w-16 flex items-center justify-center">
-                                {activeTab === "Accepted" && (
-                                  <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      className="sr-only peer"
-                                      checked={job.status === "Accepted"}
-                                      onChange={async () => {
-                                        try {
-                                          if (job.status === "Accepted") {
-                                            await updateStatus(
-                                              "Closed",
-                                              job.jobId
-                                            );
-                                          } else {
-                                            await updateStatus(
-                                              "Accepted",
-                                              job.jobId
-                                            );
-                                          }
-                                        } catch (error) {
-                                          toastError(
-                                            `Failed to update job status: ${error}`
-                                          );
-                                        }
-                                      }}
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                  </label>
-                                )}
-                              </div>
-
-                              {/* Status Badge */}
-                              <div className="w-24 flex items-center justify-center">
-                                <div
-                                  className={`px-2 py-1 text-xs rounded whitespace-nowrap ${
-                                    job.status === "Accepted"
-                                      ? "bg-green-100 text-green-800"
-                                      : job.status === "Pending"
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-red-100 text-red-800"
-                                  }`}
-                                >
-                                  {job.status}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* View/Edit Details Button */}
-                            <div className="w-28 flex items-center justify-center">
-                              {activeTab === "Draft" ? (
-                                <button
-                                  className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditDraft(job);
-                                    setCurrentPage("post");
-                                  }}
-                                >
-                                  Edit Draft
-                                </button>
-                              ) : (
-                                <button
-                                  className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleViewJob(job.jobId);
-                                  }}
-                                >
-                                  View Details
-                                </button>
-                              )}
-                            </div>
-
-                            <div className="w-[140px] flex items-center justify-center">
-                              {activeTab === "Pending" ? (
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleReject(job.jobId);
-                                    }}
-                                    className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
-                                  >
-                                    <ThumbsDown size={18} />
-                                    <span>Reject</span>
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAccept(job.jobId);
-                                    }}
-                                    className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
-                                  >
-                                    <ThumbsUp size={18} />
-                                    <span>Accept</span>
-                                  </button>
-                                </div>
-                              ) : activeTab === "Drafts" ? (
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setJobToDelete(job);
-                                      setIsConfirmationOpen(true);
-                                    }}
-                                    className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
-                                  >
-                                    <Trash2 size={18} />
-                                    <span>Delete</span>
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-center w-full">
-                                  <Trash2
-                                    size={18}
-                                    className="text-gray-500 hover:text-red-500 cursor-pointer"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setJobToDelete(job);
-                                      setIsConfirmationOpen(true);
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </div>
+                            {job.status}
                           </div>
                         </div>
-                      )
-                    )}
+                      </div>
+
+                      {/* View/Edit Details Button */}
+                      <div className="w-28 flex items-center justify-center">
+                        {activeTab === "Draft" ? (
+                          <button
+                            className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-8"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditDraft(job)
+                              setCurrentPage("post")
+                            }}
+                          >
+                            Edit Draft
+                          </button>
+                        ) : (
+                          <button
+                            className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleViewJob(job.jobId)
+                            }}
+                          >
+                            View Details
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="w-[140px] flex items-center justify-center">
+                        {activeTab === "Pending" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleReject(job.jobId)
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <ThumbsDown size={18} />
+                              <span>Reject</span>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleAccept(job.jobId)
+                              }}
+                              className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
+                            >
+                              <ThumbsUp size={18} />
+                              <span>Accept</span>
+                            </button>
+                          </div>
+                        ) : activeTab === "Drafts" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setJobToDelete(job)
+                                setIsConfirmationOpen(true)
+                              }}
+                              className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Trash2 size={18} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center w-full">
+                            <Trash2
+                              size={18}
+                              className="text-gray-500 hover:text-red-500 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setJobToDelete(job)
+                                setIsConfirmationOpen(true)
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -754,7 +564,7 @@ export default function Users() {
       ) : currentPage === "view" ? (
         renderViewPage()
       ) : (
-        <PostJobPage goBackToList={goBackToList} />
+        <PostJobPage />
       )}
 
       {/* Confirmation Dialog */}
