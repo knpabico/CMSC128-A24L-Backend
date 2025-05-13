@@ -17,7 +17,6 @@ interface AlumnusUploadPicProps {
 }
 
 //Note: yung uploading ay yung flag if magpapakita ba si modal
-<<<<<<< HEAD
 const AlumnusUploadPic = ({ alumnus, uploading, onClose }: AlumnusUploadPicProps) => {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [imgUploading, setImgUploading] = useState(false);
@@ -26,17 +25,6 @@ const AlumnusUploadPic = ({ alumnus, uploading, onClose }: AlumnusUploadPicProps
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-=======
-const AlumnusUploadPic: React.FC<AlumnusUploadPicProps> = ({ alumnus , uploading , onClose}) => {
-    const [uploadedUrl, setUploadedUrl] = useState(null);
-    const [imgUploading,setImgUploading]= useState(false);
-    const [image, setImage ] = useState<File |null > (null);
-    const [file, setFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null
-    );
-      const [message, setMessage] = useState("");
-      const [isError, setIsError] = useState(false);
->>>>>>> 55b063d (fix: invalid default error)
 
 
   // Getting the file (image uploaded)
@@ -53,48 +41,8 @@ const AlumnusUploadPic: React.FC<AlumnusUploadPicProps> = ({ alumnus , uploading
   };
 
 
-<<<<<<< HEAD
   const handleUpload = async () => {
     setImgUploading(true);
-=======
-    const handleUpload = async () => {
-      setImgUploading(true); 
-    
-      if (!file) {
-        setMessage("No image selected");
-        setIsError(true);
-        setImgUploading(false); 
-        return;
-      }
-    
-      try {
-        const data = await uploadImage(file, `alumni/${alumnus?.alumniId}`);
-        
-        if (data.success) {
-          setIsError(false);
-          setMessage("Image uploaded successfully!");
-          setUploadedUrl(data.url);
-    
-          // Save to Firestore
-          if (alumnus){
-            const alumnusDocRef = doc(db, "alumni", alumnus.alumniId);
-            await updateDoc(alumnusDocRef, { image: data.url });
-          }
-    
-        } else {
-          setMessage(data.result);
-          setIsError(true);
-        }
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        setIsError(true);
-        setMessage("Upload failed.");
-      } finally {
-        setImgUploading(false);
-        setPreviewUrl(null);
-      }
-    };
->>>>>>> 55b063d (fix: invalid default error)
 
     if (!file || !alumnus) {
       setMessage("No image selected or alumnus data missing");
