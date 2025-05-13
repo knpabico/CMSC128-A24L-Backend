@@ -45,7 +45,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
         mapContainerStyle={containerStyle}
         center={center}
         zoom={zoom}
-        onLoad={(map) => (mapRef.current = map)}
+        onLoad={(map) => {
+          mapRef.current = map;
+        }}
       >
         {workExperienceList.map((experience) => (
           <MarkerF
