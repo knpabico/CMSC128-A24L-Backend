@@ -57,6 +57,7 @@ export function DonationDriveProvider({
   const [status, setStatus] = useState("");
   const [oneBeneficiary, setOneBeneficiary] = useState("");
   const [beneficiary, setBeneficiary] = useState<string[]>([""]);
+  const [fromEvent, setFromEvent] = useState(false);
 
   const { user, isAdmin } = useAuth();
   const { addNewsLetter } = useNewsLetters(); 
@@ -341,12 +342,13 @@ export function DonationDriveProvider({
       setBeneficiary([]);
       setTargetAmount(0);
       setEventId("");
-      setEndDate(null);
+      setEndDate("");
       setStatus("active");
       setImage(null);
       setPreview(null);
       setPreviewGcash(null);
       setPreviewPaymaya(null);
+      setFromEvent(false);
     } else {
       console.error("Error adding donation drive:", response.message);
     }
@@ -364,7 +366,8 @@ export function DonationDriveProvider({
       setImage(event.image);
       setDescription(event.description);
       setEndDate(event.date);
-      router.push(`./donations/add`);
+      setFromEvent(true);
+      router.push(`./donation-drive/add`);
     }else{
       console.error("No event found");
     }
@@ -536,6 +539,8 @@ export function DonationDriveProvider({
         setOneBeneficiary,
         beneficiary,
         setBeneficiary,
+        fromEvent, 
+        setFromEvent,
         getDonationDriveById,
         getEventById,
         fetchAlumnusById,

@@ -11,12 +11,21 @@ const FeaturedStoryDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   const { getFeaturedById, updateFeatured } = useFeatured();
-  const [featured, setFeatured] = useState(null);
+  
+  interface Featured {
+    featuredId: string;
+    title: string;
+    text: string;
+    image: string;
+    type: string;
+  }
+  
+  const [featured, setFeatured] = useState<Featured | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const featuredId = params?.id as string;
 
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [image, setImage] = useState(null);
