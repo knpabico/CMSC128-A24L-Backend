@@ -298,6 +298,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
       {/* Alumni and Industry Information */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Alumni Card */}
@@ -318,15 +319,15 @@ export default function AdminDashboard() {
                     labels={["Active", "Inactive"]}
                     data={[getActiveAlums(alums).length, getInactiveAlums(alums).length]}
                     backgroundColor={["#4361EE", "#F72585"]}
-                    options={{
-                      cutout: '70%',
-                      plugins: {
-                        legend: {
-                          display: true,
-                          position: 'bottom'
-                        }
-                      }
-                    }}
+                    // options={{
+                    //   cutout: '70%',
+                    //   plugins: {
+                    //     legend: {
+                    //       display: true,
+                    //       position: 'bottom'
+                    //     }
+                    //   }
+                    // }}
                   />
                 </div>
               </div>
@@ -416,17 +417,10 @@ export default function AdminDashboard() {
                 {/* Donut Chart */}
                 <div className="w-48 h-48 md:w-64 md:h-64">
                   <DonutChart
-                    labels={sortedEntries.slice(0, 8).map(([field]) => field)}
-                    data={sortedEntries.slice(0, 8).map(([_, count]) => count)}
-                    backgroundColor={sortedEntries.slice(0, 8).map(([field], i) => getColorForField(field, i))}
-                    options={{
-                      cutout: '65%',
-                      plugins: {
-                        legend: {
-                          display: false
-                        }
-                      }
-                    }}
+                    labels={sortedEntries.map(([field]) => field)}
+                    data={sortedEntries.map(([_, count]) => count)}
+                    backgroundColor={sortedEntries.map(([field], i) => getColorForField(field, i))}
+                    options={false}
                   />
                 </div>
 
@@ -483,19 +477,18 @@ export default function AdminDashboard() {
         </Card>
       </div>
       
-      {/* Information Cards*/}
+      {/*       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {/* Alumni Card */}
         <Card className="border-0 shadow-md bg-white w-full">
           <CardHeader>
             <CardTitle>Alumni</CardTitle>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6 w-full px-4 py-6">
-          {/* Alumni Stats*/}
+
           <div className="w-full flex flex-col md:flex-row gap-6 items-start">
             
-            {/* Chart */}
+            //chart
             <div className="w-full md:w-2/3 flex justify-center items-center">
               <div className="w-60 h-60">
                 <DonutChart
@@ -515,7 +508,6 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Stats Column */}
             <div className="w-full md:w-1/3 flex flex-col gap-4">
               <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
                 <div className="text-sm text-gray-500 mb-1">Total</div>
@@ -533,14 +525,12 @@ export default function AdminDashboard() {
           </div>
 
             <div className="flex flex-col space-y-4 w-full">
-              {/* Pending section */}
               <div className="border-0 rounded-md shadow-md p-4 bg-white w-full">
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm text-gray-500">Pending Registration Alumnis</div>
                   <div className="text-xl font-bold">{getPendingAlums(alums).length}</div>
                 </div>
 
-                {/* List */}
                 <div className="mt-2 max-h-50 overflow-y-auto w-full">
                   {getPendingAlums(alums).map((alum: Alumnus) => (
                     <div
@@ -570,7 +560,6 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
 
-          {/* Modal */}
           <AlumniDetailsModal
             alumnus={selectedAlumnus}
             isOpen={isModalOpen}
@@ -580,16 +569,13 @@ export default function AdminDashboard() {
 
         </Card>
 
-          {/* Industries Card */}
         <Card className="border-0 shadow-md bg-white">
           <CardHeader>
             <CardTitle>Industries</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* inner chart card */}
             <div className="w-full flex justify-center">
               <div className="flex space-x-6 items-center">
-                {/* Donut Chart */}
                 <div className="w-50 h-50">
                   <DonutChart
                     labels={sortedEntries.map(([field]) => field)}
@@ -600,7 +586,6 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                {/* Labels Legend */}
                 <div className="space-y-2">
                   {sortedEntries.map(([field, count], idx) => (
                     <div key={field} className="flex items-center space-x-2 text-sm">
@@ -615,8 +600,6 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-
-            {/* list of industries like Alumni List */}
             <div className="mt-6">
               <h3 className="font-semibold mb-2">Industry Breakdown</h3>
               <div className="space-y-2 max-h-70 overflow-y-auto">
@@ -646,7 +629,7 @@ export default function AdminDashboard() {
         </Card>
 
 
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
         {/* Event Proposals
