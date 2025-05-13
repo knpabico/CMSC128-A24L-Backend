@@ -138,10 +138,6 @@ const AlumnusUploadPic = ({ alumnus, uploading, onClose }: AlumnusUploadPicProps
                 <p>Successfully changed photo!</p>
               )}
             </div>
-                
-    
-                
-    
           </div>
         </div>
       )}
