@@ -12,25 +12,49 @@ import {
 } from '@/components/ui/dialog';
 import type { Timestamp } from 'firebase/firestore'; 
 import { RegStatus } from '@/types/alumni/regStatus';
+import { useAlums } from '@/context/AlumContext';
+
 
 interface AlumniDetailsModalProps {
   alumnus: Alumnus | null;
   isOpen: boolean;
   onClose: () => void;
-  onTogglePendingStatus: (alumniId: string, regStatus: RegStatus) => void;
+  onUpdateRegStatus: (alumniId: string, regStatus: RegStatus) => void;
 }
 
 const AlumniDetailsModal = ({
   alumnus,
   isOpen,
   onClose,
-  onTogglePendingStatus,
+  onUpdateRegStatus,
 }: AlumniDetailsModalProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   // Safety check
   if (!alumnus) return null;
-
-  const handleTogglePending = () => {
-    onTogglePendingStatus(alumnus.alumniId, 'approved');
+  
+  const handleApprove = async () => {
+    setIsSubmitting(true);
+    try {
+      await onUpdateRegStatus(alumnus.alumniId, 'approved');
+      onClose();
+    } catch (error) {
+      console.error("Error approving alumni:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleReject = async () => {
+    setIsSubmitting(true);
+    try {
+      await onUpdateRegStatus(alumnus.alumniId, 'rejected');
+      onClose();
+    } catch (error) {
+      console.error("Error rejecting alumni:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Helper function to format dates safely
@@ -61,18 +85,29 @@ const AlumniDetailsModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+        
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             {alumnus.firstName} {alumnus.middleName} {alumnus.lastName} {alumnus.suffix}
-            <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${alumnus.activeStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {alumnus.activeStatus ? 'Active' : 'Inactive'}
+            <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+              alumnus.regStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+              alumnus.regStatus === 'approved' ? 'bg-green-100 text-green-800' : 
+              'bg-red-100 text-red-800'
+            }`}>
+              {alumnus.regStatus === 'pending' ? 'Pending' : 
+               alumnus.regStatus === 'approved' ? 'Approved' : 'Rejected'}
             </span>
           </DialogTitle>
         </DialogHeader>
+        <img
+          src={alumnus.image}
+          alt={alumnus.title}
+          className="w-full h-40 object-cover rounded-md"
+        />
 
-        <div className="space-y-4 my-4">
-          {/* Personal Information */}
+        <div className="overflow-auto px-1 py-2 space-y-4 my-4 flex-1">
+            {/* Personal Information */}
           <div className="bg-gray-50 p-4 rounded-md">
             <h3 className="font-semibold text-gray-700 mb-2">Personal Information</h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
@@ -156,21 +191,35 @@ const AlumniDetailsModal = ({
                 <span className="font-medium">{formatDateSafe(alumnus.lastLogin)}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-gray-500">Alumni ID</span>
-                <span className="font-medium">{alumnus.alumniId}</span>
+                <span className="text-gray-500">Alumni Student Number:</span>
+                <span className="font-medium">{alumnus.studentNumber}</span>
               </div>
             </div>
           </div>
+
+
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between">
-          <Button 
-            onClick={handleTogglePending}
-            variant={alumnus.activeStatus ? "destructive" : "default"}
-            className={alumnus.activeStatus ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
-          >
-            {alumnus.regStatus ? "Approve Registration" : "Disapproved Registration"}
-          </Button>
+        <DialogFooter className="flex flex-wrap gap-2 justify-between sm:justify-end">
+          {alumnus.regStatus === 'pending' && (
+            <>
+              <Button 
+                onClick={handleApprove}
+                disabled={isSubmitting}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Approve Registration
+              </Button>
+              <Button 
+                onClick={handleReject}
+                disabled={isSubmitting}
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Reject Registration
+              </Button>
+            </>
+          )}
           <DialogClose asChild>
             <Button variant="outline">Close</Button>
           </DialogClose>
