@@ -90,9 +90,10 @@ const EditProfile = () => {
   useEffect(() => {
     // Birthdate parsing
     if (alumInfo?.birthDate) {
-      const safeDate = new Date(alumInfo.birthDate.replaceAll("/", "-"));
+      const safeDate = new Date((alumInfo.birthDate as unknown as string).replaceAll("/", "-"));
       setSelectedDate(safeDate);
     }
+    
 
     // Address parsing
     if (
