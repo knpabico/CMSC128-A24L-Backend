@@ -142,10 +142,6 @@ export default function AlumnusUploadPic({
                     <p>Successfully changed photo!</p>
                   )}
                 </div>
-                
-    
-                
-    
               </div>
             </div>
           )}
