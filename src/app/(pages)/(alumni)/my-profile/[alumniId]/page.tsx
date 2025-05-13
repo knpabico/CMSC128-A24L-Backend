@@ -513,6 +513,9 @@ const UserProfile = () => {
     if (bookmark.type.toString() === "scholarship") {
       return scholarships.find((s: Scholarship) => s.scholarshipId === bookmark.entryId);
     }
+    if (bookmark.type.toString() === "job_offering") {
+      return jobOffers.find((j: JobOffering) => j.jobId === bookmark.entryId);
+    }
     return null;
   };
 
@@ -527,16 +530,15 @@ const UserProfile = () => {
       } else {
         const aDetails = getBookmarkDetails(a);
         const bDetails = getBookmarkDetails(b);
-        
-        aTime = aDetails?.datePosted ? new Date(aDetails.datePosted).getTime() : 0;
-        bTime = bDetails?.datePosted ? new Date(bDetails.datePosted).getTime() : 0;
+        aTime = aDetails.datePosted?.toMillis ? aDetails.datePosted.toMillis() : new Date(aDetails.datePosted).getTime() || 0;
+        bTime = bDetails.datePosted?.toMillis ? bDetails.datePosted.toMillis() : new Date(bDetails.datePosted).getTime() || 0;
       }
       
       return sortOrder === "latest" ? bTime - aTime : aTime - bTime;
     });
     
     setSortedBookmarks(sorted);
-  }, [bookmarks, sortOrder, sortField, announces, events, donationDrives, scholarships]);
+  }, [bookmarks, sortOrder, sortField, announces, events, donationDrives, scholarships, jobOffers]);
 
   
   function formatEventDate(dateString: string) {
