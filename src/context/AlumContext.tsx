@@ -428,7 +428,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AlumContext.Provider>
   );
-
+}
 
 export const useAlums = () => useContext(AlumContext);
 
