@@ -135,12 +135,12 @@ export default function Navbar() {
         {
           id: "manage-announcements",
           label: "Manage Posts",
-          path: "/admin-dashboard/create-announcements",
+          path: "/admin-dashboard/announcements/manage",
         },
         {
           id: "add-announcements",
           label: "Add Posts",
-          path: "/admin-dashboard/create-announcements",
+          path: "/admin-dashboard/announcements/add",
         },
       ],
     },
