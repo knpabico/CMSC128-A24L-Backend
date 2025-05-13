@@ -317,17 +317,8 @@ export default function AdminDashboard() {
                 <div className="w-60 h-60">
                   <DonutChart
                     labels={["Active", "Inactive"]}
-                    data={[getActiveAlums(alums).length, getInactiveAlums(alums).length]}
-                    backgroundColor={["#4361EE", "#F72585"]}
-                    // options={{
-                    //   cutout: '70%',
-                    //   plugins: {
-                    //     legend: {
-                    //       display: true,
-                    //       position: 'bottom'
-                    //     }
-                    //   }
-                    // }}
+                    data={[getActiveAlums(alums).length, inactiveAlums.length]}
+                    backgroundColor={["#36A2EB", "#FF6384"]}
                   />
                 </div>
               </div>
@@ -476,261 +467,115 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
-      
-      {/*       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <Card className="border-0 shadow-md bg-white w-full">
-          <CardHeader>
-            <CardTitle>Alumni</CardTitle>
-          </CardHeader>
-
-          <CardContent className="flex flex-col gap-6 w-full px-4 py-6">
-
-          <div className="w-full flex flex-col md:flex-row gap-6 items-start">
-            
-            //chart
-            <div className="w-full md:w-2/3 flex justify-center items-center">
-              <div className="w-60 h-60">
-                <DonutChart
-                  labels={["Active", "Inactive"]}
-                  data={[getActiveAlums(alums).length, getInactiveAlums(alums).length]}
-                  backgroundColor={["#87CEEB", "#B0E0E6"]}
-                  options={{
-                    cutout: '70%',
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom'
-                      }
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="w-full md:w-1/3 flex flex-col gap-4">
-              <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
-                <div className="text-sm text-gray-500 mb-1">Total</div>
-                <div className="text-2xl font-bold">{totalAlums}</div>
-              </div>
-              <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
-                <div className="text-sm text-gray-500 mb-1">Active</div>
-                <div className="text-2xl font-bold">{getActiveAlums(alums).length}</div>
-              </div>
-              <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
-                <div className="text-sm text-gray-500 mb-1">Inactive</div>
-                <div className="text-2xl font-bold">{inactiveAlums.length}</div>
-              </div>
-            </div>
-          </div>
-
-            <div className="flex flex-col space-y-4 w-full">
-              <div className="border-0 rounded-md shadow-md p-4 bg-white w-full">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm text-gray-500">Pending Registration Alumnis</div>
-                  <div className="text-xl font-bold">{getPendingAlums(alums).length}</div>
-                </div>
-
-                <div className="mt-2 max-h-50 overflow-y-auto w-full">
-                  {getPendingAlums(alums).map((alum: Alumnus) => (
-                    <div
-                      key={alum.alumniId}
-                      onClick={() => handleOpenModal(alum)}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center mb-2 w-full"
-                    >
-                      <div className="overflow-hidden">
-                        <span className="font-medium text-sm truncate block">
-                          {alum.lastName}, {alum.firstName} {alum.middleName || ''}
-                        </span>
-                        <p className="text-xs text-gray-500 truncate">
-                          {alum.studentNumber || 'No Student ID'}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ml-2 
-                            bg-yellow-500 text-yellow-800
-                      `}
-                      >
-                        {alum.regStatus == "pending" ? "Pending" : 'Approved'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-
-          <AlumniDetailsModal
-            alumnus={selectedAlumnus}
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onUpdateRegStatus={onUpdateRegStatus}
-          />
-
-        </Card>
-
-        <Card className="border-0 shadow-md bg-white">
-          <CardHeader>
-            <CardTitle>Industries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="w-full flex justify-center">
-              <div className="flex space-x-6 items-center">
-                <div className="w-50 h-50">
-                  <DonutChart
-                    labels={sortedEntries.map(([field]) => field)}
-                    data={sortedEntries.map(([_, count]) => count)}
-                    backgroundColor={sortedEntries.map(([field], i) => getColorForField(field, i))}
-                    options={false}
-
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  {sortedEntries.map(([field, count], idx) => (
-                    <div key={field} className="flex items-center space-x-2 text-sm">
-                      <span
-                        className="inline-block w-3 h-3 rounded-full"
-                        style={{ backgroundColor: getColorForField(field, idx) }}
-                      />
-                      <span>{field} ({count})</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2">Industry Breakdown</h3>
-              <div className="space-y-2 max-h-70 overflow-y-auto">
-                {Object.entries(fieldCounts)
-                  .filter(([_, count]) => count > 0)
-                  .sort((a, b) => b[1] - a[1]) // Sort descending by count
-                  .map(([field, count], idx) => (
-                    <div
-                    key={field}
-                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <span
-                          className="inline-block w-3 h-3 rounded-full mr-2"
-                          style={{ backgroundColor: getColorForField(field, idx) }}
-                        />
-                        <span className="font-medium">{field}</span>
-                      </div>
-                      <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
-                        {count}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-
-      </div> */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-        {/* Event Proposals
-        To Fix: border between the card title and the line seperator ay dapat mas malapit (chan gagawa)*/}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+    
+      {/* Secondary Cards Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Event Proposals 
+        To Fix: Ipagisahin ng card ang event proposal and upcoming events */}
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Event Proposals</CardTitle>
+            <CardTitle className="flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-purple-600" /> Event Proposals
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
-          
-          <CardContent className="flex-1 overflow-y-auto">
+
+          <CardContent className="flex-1 overflow-y-auto py-4">
             <div className="max-h-60">
-              {/* Pending event proposals data palagay here tnx po. Dapat kaya maopen yung full details (overlay not page)
-              Contents:
-                - Event name
-                - Date
-                - Event venue
-                */}
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {getEventProposals(events).map((event:Event, index:number)=>{
-                  return (
-                    <div  key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
-                    
-                      <div 
-                        
+              {getEventProposals(events).length > 0 ? (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {getEventProposals(events).map((event: Event) => (
+                    <div key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
+                      <div
                         onClick={() => handleOpenModalEventProposal(event)}
-                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
                       >
                         <div>
-                          <span className="font-medium">{event.title}</span>
-                          <p className="text-sm text-black-500">Date: {event.date}</p>
-                          <p className="text-sm text-black-500">Place: {event.location}</p>
-                          <p className="text-sm text-black-500">Status: {event.status}</p>
+                          <span className="font-medium text-sm line-clamp-1">{event.title}</span>
+                          <p className="text-xs text-gray-500">Date: {formatter.format(new Date(event.date))}</p>
+                          <p className="text-xs text-gray-500 line-clamp-1">Place: {event.location}</p>
+                          <span
+                            className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
+                              event.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-green-100 text-green-800'
+                            }`}
+                          >
+                            {event.status}
+                          </span>
                         </div>
                       </div>
-                  </div>
-                  )
-                })}
-
-              </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-500">No event proposals</div>
+              )}
             </div>
           </CardContent>
 
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/organize-events"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all event proposals
               </Link>
             </div>
           </div>
-              <ProEventDetailsModal
-                proEvent={selectedEventProposal}
-                isEventProOpen={isModalEventProOpen}
-                onProEventClose={() => setIsModalEventProOpen(false)}
-                onUpdateEventStat={onUpdateEventStat}
-                getCampaignName= {isCampaignName}
-              />
+
+          <ProEventDetailsModal
+            proEvent={selectedEventProposal}
+            isEventProOpen={isModalEventProOpen}
+            onProEventClose={() => setIsModalEventProOpen(false)}
+            onUpdateEventStat={onUpdateEventStat}
+            getCampaignName={isCampaignName}
+          />
         </Card>
 
         {/* Upcoming Events */}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Upcoming Events</CardTitle>
+            <CardTitle className="flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-green-600" /> Upcoming Events
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
+          
+          <CardContent className="flex-1 overflow-y-auto py-4">
             <div className="max-h-60">
-             {getUpcomingEvents(events).map((event:Event, index:number)=>{
-              return (
-                <div key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
-                    
-                <div 
-                  
-                  onClick={() => handleOpenModalEventProposal(event)}
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                >
-                  <div>
-                    <span className="font-medium">{event.title}</span>
-                    <p className="text-sm text-black-500">Date: {formatter.format(new Date(event.date))}</p>
-                    
+              {getUpcomingEvents(events).length > 0 ? (
+                getUpcomingEvents(events).map((event: Event) => (
+                  <div key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto mb-2">
+                    <div
+                      onClick={() => handleOpenModalEventProposal(event)}
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
+                    >
+                      <div className="w-full">
+                        <span className="font-medium text-sm line-clamp-1">{event.title}</span>
+                        <p className="text-xs text-gray-500">Date: {formatter.format(new Date(event.date))}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                </div>
-              )
-            })}             
+                ))
+              ) : (
+                <div className="text-center py-6 text-gray-500">No upcoming events</div>
+              )}
             </div>
           </CardContent>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+          
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/organize-events"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all events
               </Link>
@@ -739,48 +584,60 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Donations */}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Donations</CardTitle>
+            <CardTitle className="flex items-center">
+              <CreditCard className="h-5 w-5 mr-2 text-green-600" />  Donations
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto max-h-60 space-y-2">
-              {donationDrives.map((donationDrive: DonationDrive, index: number) => (
-                <div key={donationDrive.donationDriveId} className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer">
-                  {/* {donationDrive.image ? (
-                    <img
-                      src={donationDrive.image}
-                      alt={donationDrive.campaignName}
-                      className="w-full h-40 object-cover rounded-md"
-                    />
-                  ) : null} */}
+          
+          <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
+            {donationDrives.length > 0 ? (
+              donationDrives.map((donationDrive: DonationDrive) => (
+                <div 
+                  key={donationDrive.donationDriveId} 
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
+                >
                   <div className="mb-1">
-                    <span className="font-medium text-base">{donationDrive.campaignName}</span>
-                    <p className="text-sm text-gray-600">Beneficiary: {donationDrive.beneficiary.join(', ')}</p>
+                    <span className="font-medium text-sm line-clamp-1">{donationDrive.campaignName}</span>
+                    <p className="text-xs text-gray-600 line-clamp-1">Beneficiary: {donationDrive.beneficiary.join(', ')}</p>
                   </div>
 
-                  <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                     <div
-                      className="bg-green-500 h-3 rounded-full"
-                      style={{ width: `${(donationDrive.currentAmount / donationDrive.targetAmount) * 100}%` }}
+                      className="bg-green-500 h-2 rounded-full"
+                      style={{ width: `${Math.min((donationDrive.currentAmount / donationDrive.targetAmount) * 100, 100)}%` }}
                     />
                   </div>
-                  {/* para sa progress bar */}
-                  <p className="text-xs text-gray-700 mt-1">
-                    ₱{donationDrive.currentAmount.toLocaleString()} raised of ₱{donationDrive.targetAmount.toLocaleString()}
+                  
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xs text-gray-700">
+                      ₱{donationDrive.currentAmount.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      of ₱{donationDrive.targetAmount.toLocaleString()}
+                    </p>
+                  </div>
+                  
+                  <p className="text-xs text-right text-green-600 mt-1">
+                    {Math.round((donationDrive.currentAmount / donationDrive.targetAmount) * 100)}% of goal
                   </p>
                 </div>
-              ))}
-            </CardContent>
-
-                   <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+              ))
+            ) : (
+              <div className="text-center py-6 text-gray-500">No active donations</div>
+            )}
+          </CardContent>
+          
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/donation-drive"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all donations
               </Link>
@@ -788,28 +645,27 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        {/* Scholarship Grants */}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+        {/* Scholarship */}
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Scholarship Grants</CardTitle>
+            <CardTitle className="flex items-center">
+              <Award className="h-5 w-5 mr-2 text-yellow-600" /> Scholarships
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
-            <div className="max-h-60">
-              {/* List of recent applicants sa scholarship. Dapat kaya maopen yung full details like kasama contact info nila (overlay not page)
-              Contents:
-                - Alumni Name
-                - Scholarship title
-              */}
-              {scholarships.map((scholarship:Scholarship, index:number)=>{
-              return (
-                <div className="space-y-2 max-h-96 overflow-y-auto" key={scholarship.scholarshipId} onClick={() => handleSchoOpenModal(scholarship)}>
-                                    
-                <div className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center">
-                  <div>
-                    <span className="font-medium">{scholarship.title}</span>
+          
+          <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
+            {scholarships.length > 0 ? (
+              scholarships.map((scholarship: Scholarship) => (
+                <div 
+                  key={scholarship.scholarshipId} 
+                  onClick={() => handleSchoOpenModal(scholarship)}
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
+                >
+                  <div className="mb-1">
+                    <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
                     <span
                     className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
                         scholarship.status
@@ -822,20 +678,20 @@ export default function AdminDashboard() {
                         ? 'Open'
                         : 'Closed'}
                     </span>
-                          
                   </div>
                 </div>
-                </div>
-              )
-            })}  
-            </div>
+              ))
+            ) : (
+              <div className="text-center py-6 text-gray-500">No active scholarships</div>
+            )}
           </CardContent>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/manage-scholarships"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all scholarships
               </Link>
@@ -846,15 +702,22 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-10 gap-6 mt-6">
         <div className="md:col-span-7">
-          {/* Map */}
-          <Card className="border-0 shadow-md h-full bg-white">
-            <CardHeader>
-              <CardTitle>Map of Current Companies</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-0">
+            <CardTitle className="flex items-center">
+              <MapPin className="h-5 w-5 mr-2 text-red-600" /> Map of Current Companies
+            </CardTitle>
+            <div className="pt-1">
+              <hr className="border-t border-gray-200 mx-auto" />
+            </div>
+          </CardHeader>
+
+          <CardContent>
               <MapComponent workExperienceList={presentWorkExperiences}/>
             </CardContent>
           </Card>
+
+          {/* Map */}
         </div>
 
       {/* Job Posting */}
