@@ -67,7 +67,11 @@ export default function Navbar() {
           label: "Manage Events",
           path: "/admin-dashboard/organize-events",
         },
-        { id: "add-events", label: "Add Events", path: "/admin-dashboard/organize-events/add" },
+        {
+          id: "add-events",
+          label: "Add Events",
+          path: "/admin-dashboard/organize-events/add",
+        },
         {
           id: "stats-events",
           label: "Statistical Report",
@@ -125,6 +129,11 @@ export default function Navbar() {
           path: "/admin-dashboard/job-postings",
         },
         { id: "add-jobs", label: "Add Job Posting", path: "/admin/jobs/add" },
+        {
+          id: "stats-jobs",
+          label: "Statistical Report",
+          path: "/admin-dashboard/jobs-statistical-reports",
+        },
       ],
     },
     {
