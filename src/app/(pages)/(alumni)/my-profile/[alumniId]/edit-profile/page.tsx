@@ -126,23 +126,23 @@ const EditProfile = () => {
     "December",
   ];
 
-  const openMap = (index) => {
+  const openMap = (index:number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = true;
     setIsMapOpenArray(newIsMapOpenArray);
   };
-  const openWorkModal = (index) => {
+  const openWorkModal = (index:number) => {
     const newDeleteModal = [...isDeleteModalOpen];
     newDeleteModal[index] = true;
     setDeleteModalWorkOpen(newDeleteModal);
   };
 
-  const closeWorkModal = (index) => {
+  const closeWorkModal = (index:number) => {
     const newDeleteModal = [...isDeleteModalOpen];
     newDeleteModal[index] = false;
     setDeleteModalWorkOpen(newDeleteModal);
   };
-  const closeMap = (index) => {
+  const closeMap = (index:number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = false;
     setIsMapOpenArray(newIsMapOpenArray);

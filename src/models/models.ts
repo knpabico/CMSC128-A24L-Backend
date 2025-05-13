@@ -2,6 +2,7 @@
 import { RegStatus } from "@/types/alumni/regStatus";
 import { Timestamp } from "firebase-admin/firestore";
 import { StringFormat } from "firebase/storage";
+import { ReactNode } from "react";
 
 export interface Alumnus {
   graduationYear: ReactNode;
