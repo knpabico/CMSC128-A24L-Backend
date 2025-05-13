@@ -111,6 +111,7 @@ export async function UsersTable({
                   <TableCell>
                     {alumni.approvalDate
                       ? alumni.approvalDate
+                      // removed: toDate() to avoid error
                           .toISOString()
                           .slice(0, 10)
                           .replaceAll("-", "/")
