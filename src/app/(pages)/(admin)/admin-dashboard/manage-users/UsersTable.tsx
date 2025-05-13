@@ -111,7 +111,6 @@ export async function UsersTable({
                   <TableCell>
                     {alumni.approvalDate
                       ? alumni.approvalDate
-                          .toDate()
                           .toISOString()
                           .slice(0, 10)
                           .replaceAll("-", "/")
@@ -122,6 +121,7 @@ export async function UsersTable({
                       alumniEmail={alumni.email}
                       alumniId={alumni.alumniId}
                       alumniName={`${alumni.firstName} ${alumni.lastName}`}
+                      regStatus={alumni.regStatus}
                     ></UserActionButtons>
                   </TableCell>
                 </TableRow>
