@@ -231,6 +231,20 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+
+//use to handle approve and rejecion
+  const onUpdateEventStat = async (eventId: string, status: string) => {
+    try {
+      const alumniRef = doc(db, "event", eventId);
+      await updateDoc(alumniRef,{ status: status });
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update event status:", error);
+      return { success: false, message: (error as Error).message };
+    }
+  };
+
   const handleSave = async (
     e: React.FormEvent,
     image: File,
@@ -401,7 +415,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     if (!events) {
       return null;
     } else {
-      const proposals = events.filter((event) => event.status != "Accepted");
+      const proposals = events.filter((event) => event.status === "Pending");
       console.log(proposals, "this is proposing events");
       return proposals;
     }
@@ -458,6 +472,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setPreview,
         getEventProposals,
         getUpcomingEvents,
+        onUpdateEventStat
       }}
     >
       {children}

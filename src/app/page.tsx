@@ -216,7 +216,7 @@ export default function Home() {
   }, [images.length]);
 
   // Calculate positions for each image for endless carousel effect
-  const getImageStyle = (index) => {
+  const getImageStyle = (index:number) => {
     // Handle wrapping for endless effect
     const totalImages = images.length;
     if (totalImages <= 1) {

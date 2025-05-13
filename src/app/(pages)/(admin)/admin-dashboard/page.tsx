@@ -7,38 +7,49 @@ import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience,Event, DonationDrive, Scholarship, JobOffering } from "@/models/models";
 import { useEvents } from "@/context/EventContext";
 import DonutChart from "@/components/charts/DonutChart";
-import React, {useState} from "react";
+import React, {useState,useMemo} from "react";
 import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { CheckCircle, XCircle } from 'lucide-react';
+import { useDonationContext } from "@/context/DonationContext";
+
 import { RegStatus } from "@/types/alumni/regStatus";
+import ProEventDetailsModal from "@/components/ui/pro-event-modal"
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+
 
 export default function AdminDashboard() {
   // Get work experience list from context
   const { allWorkExperience, isLoading, fetchWorkExperience } = useWorkExperience();
-  const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus, getPendingAlums, updateAlumnusRegStatus} = useAlums();
+  const {totalAlums,alums, getActiveAlums, getInactiveAlums, updateAlumnusActiveStatus, getPendingAlums, updateAlumnusRegStatus,onUpdateRegStatus} = useAlums();
   const {donationDrives} = useDonationDrives();
-  const { events, getEventProposals, getUpcomingEvents } = useEvents(); 
+  const {getCampaignName} = useDonationContext();
+  const { events, getEventProposals, getUpcomingEvents, onUpdateEventStat } = useEvents(); 
   const {scholarships} = useScholarship();
   const {jobOffers, handleAccept, handleReject, handlePending} = useJobOffer();
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   // const { allDonations } = useDonationContext();
-
-  const openModal = (job) => {
-    setSelectedJob(job);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedJob(null);
-  };
   
-  const updateJobStatus = (jobId, newStatus) => {
+  const inactiveAlums = useMemo(() => {
+    return alums.filter(
+      (alum: Alumnus) =>
+        alum.activeStatus === false && alum.regStatus === "approved"
+    );
+  }, [alums]);
+
+  const updateJobStatus = (jobId:string, newStatus:string) => {
     // In a real application, this would make an API call to update the job status
     console.log(`Updating job ${jobId} to status: ${newStatus}`);
     if (newStatus === "Active") {
@@ -48,13 +59,12 @@ export default function AdminDashboard() {
     }else{
       handleReject(jobId);
     }
-  
-     
+    
     closeModal();
     // Here you would typically update your state or refetch data
   };
 
-
+  
   const fields = [
     "Artificial Intelligence (AI)",
     "Machine Learning (ML)",
@@ -86,20 +96,26 @@ export default function AdminDashboard() {
     "#7C83FD", "#00C49F", "#FFBB28", "#FF8042", "#8DD1E1",
     "#8884D8", "#A28CFF", "#FF7F50", "#87CEEB", "#FFA07A", "#B0E0E6"
   ];
-
+  
+  
+  
   const getColorForField = (field: string, index: number): string => {
     return colorPalette[index % colorPalette.length];
   };
-
+  
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  
   const getFieldInterestCounts = (alums: Alumnus[]) => {
     const counts: Record<string, number> = {}; //rereturn ito like this 
                                               // [<field> count]
-    
-    
     fields.forEach(field => {
       counts[field] = 0;
     });
-  
+    
     // Count occurrences
     alums.forEach(alum => {
       alum.fieldOfInterest?.forEach(field => {
@@ -121,72 +137,95 @@ export default function AdminDashboard() {
     (exp:WorkExperience) => exp.endYear === "present"
   );
 
+
+  //for modals
   //Activate Alum 
-    // Add these new states for the modal
-    const [selectedAlumnus, setSelectedAlumnus] = useState<Alumnus | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedEventProposal, setSelectedEventProposal] = useState<Event | null>(null);
-    const [isModalEventProOpen, setIsModalEventProOpen] = useState(false);
-
-
+  // Add these new states for the modal
+  const [selectedAlumnus, setSelectedAlumnus] = useState<Alumnus | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEventProposal, setSelectedEventProposal] = useState<Event | null>(null);
+  const [isModalEventProOpen, setIsModalEventProOpen] = useState(false);
+  const [isCampaignName, setIsCampaignName] = useState("None");
+  const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
+  const [isSchoModalOpen, setIsSchoModalOpen] = useState(false);
   
-    // Function to handle opening the modal
-    const handleOpenModal = (alumnus: Alumnus) => {
-      setSelectedAlumnus(alumnus);
-      setIsModalOpen(true);
-    };
-
-    const handleOpenModalEventProposal = (event: Event) => {
-      setSelectedEventProposal(event);
-      setIsModalEventProOpen(true);
-    };
-        // Function to handle closing the modal
-    const handleCloseEventProposalModal = () => {
-      setIsModalEventProOpen(false);
-    };
-
-
-    //function to handle the job posting modal
-    const handleOpenJobModal = (job: JobOffering) => {
-      setSelectedJob(job);
-      setIsJobModalOpen(true);
-    };
+    
   
-    // Function to handle closing the modal
-    const handleCloseModal = () => {
-      setIsModalOpen(false);
-    };
+  // Function to handle opening the modal
+  const handleOpenModal = (alumnus: Alumnus) => {
+    setSelectedAlumnus(alumnus);
+    setIsModalOpen(true);
+  };
   
-    // Function to toggle active status
-    const handleToggleActiveStatus = (alumniId: string, newStatus: boolean) => {
-      // Call your context function to update the status
-      updateAlumnusActiveStatus(alumniId, newStatus);
-      
-      // Update the local state if needed
-      if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
-        setSelectedAlumnus({
-          ...selectedAlumnus,
-          activeStatus: newStatus
-        });
-      }
-    };
+  const handleOpenModalEventProposal = (event: Event) => {
+    setSelectedEventProposal(event);
+    const campaignName=getCampaignName(selectedEventProposal?.donationDriveId)
+    setIsCampaignName(campaignName)
+    setIsModalEventProOpen(true);
+  };
+  
+  
+  const handleSchoOpenModal = (scholarship: Scholarship) => {
+    setSelectedScholarship(scholarship);
+    setIsSchoModalOpen(true);
+  };
 
-        // Function to toggle active status
-      const handleTogglePendingStatus = (alumniId: string, newStatus: RegStatus) => {
-        // Call your context function to update the status
-        updateAlumnusRegStatus(alumniId, newStatus);
-        
-        // Update the local state if needed
-        if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
-          setSelectedAlumnus({
-            ...selectedAlumnus,
-            regStatus: newStatus
-          });
-        }
-      };
+  const handleSchoCloseModal = () => {
+    setSelectedScholarship(null);
+    setIsSchoModalOpen(false);
+  };
+
+
+
+  //function to handle the job posting modal
+  const handleOpenJobModal = (job: JobOffering) => {
+    setSelectedJob(job);
+    setIsJobModalOpen(true);
+  };
+
+  // Function to handle closing the modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   
-  return (
-    <div className="p-2 w-full">
+  // Function to toggle active status
+  const handleToggleActiveStatus = (alumniId: string, newStatus: boolean) => {
+    // Call your context function to update the status
+    updateAlumnusActiveStatus(alumniId, newStatus);
+    
+    // Update the local state if needed
+    if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
+      setSelectedAlumnus({
+        ...selectedAlumnus,
+        activeStatus: newStatus
+      });
+    }
+  };
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedJob(null);
+  };
+    
+  
+  // Function to toggle active status
+  const handleTogglePendingStatus = (alumniId: string, newStatus: RegStatus) => {
+    // Call your context function to update the status
+    updateAlumnusRegStatus(alumniId, newStatus);
+    
+    // Update the local state if needed
+    if (selectedAlumnus && selectedAlumnus.alumniId === alumniId) {
+      setSelectedAlumnus({
+        ...selectedAlumnus,
+        regStatus: newStatus
+      });
+    }
+  };
+  
+  const sortedEntries = Object.entries(fieldCounts).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+    
+    return (
+      <div className="p-2 w-full">
       {/* Page title */}
       <h1 className="text-3xl font-bold my-6">Admin Dashboard</h1>
 
@@ -234,7 +273,7 @@ export default function AdminDashboard() {
               </div>
               <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
                 <div className="text-sm text-gray-500 mb-1">Inactive</div>
-                <div className="text-2xl font-bold">{getInactiveAlums(alums).length}</div>
+                <div className="text-2xl font-bold">{inactiveAlums.length}</div>
               </div>
             </div>
           </div>
@@ -281,61 +320,76 @@ export default function AdminDashboard() {
           <AlumniDetailsModal
             alumnus={selectedAlumnus}
             isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            onTogglePendingStatus={handleTogglePendingStatus}
+            onClose={() => setIsModalOpen(false)}
+            onUpdateRegStatus={onUpdateRegStatus}
           />
+
         </Card>
 
-        {/* Industries Card */}
+          {/* Industries Card */}
         <Card className="border-0 shadow-md bg-white">
           <CardHeader>
             <CardTitle>Industries</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* summary stats, just like Alumni
-            <p>Total Fields: {Object.keys(fieldCounts).length}</p>
-            <p>Total Alumni Counted: {Object.entries(fieldCounts).reduce((sum, [, c]) => sum + c, 0)}</p>
-            <p>Distinct Industries: {Object.keys(fieldCounts).filter(f => fieldCounts[f] > 0).length}</p> */}
-
             {/* inner chart card */}
             <div className="w-full flex justify-center">
-              <div className="w-50 h-50">
-                <DonutChart
-                    labels={Object.entries(fieldCounts).map(([field]) => field)}
-                    data={Object.entries(fieldCounts).map(([_, count]) => count)}
-                    backgroundColor={Object.entries(fieldCounts).map(
-                      ([field], i) => getColorForField(field, i)
-                    )}
+              <div className="flex space-x-6 items-center">
+                {/* Donut Chart */}
+                <div className="w-50 h-50">
+                  <DonutChart
+                    labels={sortedEntries.map(([field]) => field)}
+                    data={sortedEntries.map(([_, count]) => count)}
+                    backgroundColor={sortedEntries.map(([field], i) => getColorForField(field, i))}
+                    options={false}
+
                   />
+                </div>
+
+                {/* Labels Legend */}
+                <div className="space-y-2">
+                  {sortedEntries.map(([field, count], idx) => (
+                    <div key={field} className="flex items-center space-x-2 text-sm">
+                      <span
+                        className="inline-block w-3 h-3 rounded-full"
+                        style={{ backgroundColor: getColorForField(field, idx) }}
+                      />
+                      <span>{field} ({count})</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+
 
             {/* list of industries like Alumni List */}
             <div className="mt-6">
               <h3 className="font-semibold mb-2">Industry Breakdown</h3>
               <div className="space-y-2 max-h-70 overflow-y-auto">
-                {Object.entries(fieldCounts).map(([field, count], idx) => (
-                  <div
+                {Object.entries(fieldCounts)
+                  .filter(([_, count]) => count > 0)
+                  .sort((a, b) => b[1] - a[1]) // Sort descending by count
+                  .map(([field, count], idx) => (
+                    <div
                     key={field}
                     className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
-                  >
-                    <div className="flex items-center">
-                      <span
-                        className="inline-block w-3 h-3 rounded-full mr-2"
-                        style={{ backgroundColor: getColorForField(field, idx) }}
-                      />
-                      <span className="font-medium">{field}</span>
+                    >
+                      <div className="flex items-center">
+                        <span
+                          className="inline-block w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: getColorForField(field, idx) }}
+                        />
+                        <span className="font-medium">{field}</span>
+                      </div>
+                      <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
+                        {count}
+                      </span>
                     </div>
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
-                      {count}
-                    </span>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </CardContent>
         </Card>
-
 
 
       </div>
@@ -358,14 +412,14 @@ export default function AdminDashboard() {
                 - Event name
                 - Date
                 - Event venue
-              */}
+                */}
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {getEventProposals(events).map((event:Event, index:number)=>{
                   return (
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                    <div  key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
                     
                       <div 
-                        key={event.eventId}
+                        
                         onClick={() => handleOpenModalEventProposal(event)}
                         className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                       >
@@ -373,7 +427,7 @@ export default function AdminDashboard() {
                           <span className="font-medium">Event: {event.title}</span>
                           <p className="text-sm text-black-500">Date: {event.date}</p>
                           <p className="text-sm text-black-500">Place: {event.location}</p>
-                          
+                          <p className="text-sm text-black-500">Status: {event.status}</p>
                         </div>
                       </div>
                   </div>
@@ -395,6 +449,13 @@ export default function AdminDashboard() {
               </Link>
             </div>
           </div>
+              <ProEventDetailsModal
+                proEvent={selectedEventProposal}
+                isEventProOpen={isModalEventProOpen}
+                onProEventClose={() => setIsModalEventProOpen(false)}
+                onUpdateEventStat={onUpdateEventStat}
+                getCampaignName= {isCampaignName}
+              />
         </Card>
 
         {/* Upcoming Events */}
@@ -409,16 +470,16 @@ export default function AdminDashboard() {
             <div className="max-h-60">
              {getUpcomingEvents(events).map((event:Event, index:number)=>{
               return (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
                     
                 <div 
-                  key={event.eventId}
+                  
                   onClick={() => handleOpenModalEventProposal(event)}
                   className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                 >
                   <div>
                     <span className="font-medium">Event: {event.title}</span>
-                    <p className="text-sm text-black-500">Date: {event.status}</p>
+                    <p className="text-sm text-black-500">Date: {formatter.format(new Date(event.date))}</p>
                     
                   </div>
                 </div>
@@ -448,35 +509,39 @@ export default function AdminDashboard() {
               <hr className="border-t border-black opacity-40 mx-auto" />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
-            <div className="max-h-60">
-              {/* Recent donation received. Maybe a routing na maoopen yung page nung mismong donation idk
-              Contents:
-                - amount
-                - Name of donator
-                - name of donation drive? basta kung san siya nagdonate lmao
-              */}
-             {donationDrives.map((donationDrive:DonationDrive, index:number)=>{
-              return (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                                    
-                <div 
-                  key={donationDrive.eventId}
-
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                >
-                  <div>
-                    <span className="font-medium">Donation Drive: {donationDrive.campaignName}</span>
-                    <p className="text-sm text-black-500">Beneficiary: {donationDrive.beneficiary}</p>
-                    
-                  </div>
-                </div>
-                </div>
-              )
-            })}                
-            </div>
-          </CardContent>
           <div className="px-2 pt-0">
+            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
+          </div>
+          <CardContent className="flex-1 overflow-y-auto max-h-60 space-y-2">
+              {donationDrives.map((donationDrive: DonationDrive, index: number) => (
+                <div key={donationDrive.donationDriveId} className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer">
+                  {donationDrive.image ? (
+                    <img
+                      src={donationDrive.image}
+                      alt={donationDrive.campaignName}
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                  ) : null}
+                  <div className="mb-1">
+                    <span className="font-medium text-base">Donation Drive: {donationDrive.campaignName}</span>
+                    <p className="text-sm text-gray-600">Beneficiary: {donationDrive.beneficiary.join(', ')}</p>
+                  </div>
+
+                  <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                    <div
+                      className="bg-green-500 h-3 rounded-full"
+                      style={{ width: `${(donationDrive.currentAmount / donationDrive.targetAmount) * 100}%` }}
+                    />
+                  </div>
+                  {/* para sa progress bar */}
+                  <p className="text-xs text-gray-700 mt-1">
+                    ₱{donationDrive.currentAmount.toLocaleString()} raised of ₱{donationDrive.targetAmount.toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+
+                   <div className="px-2 pt-0">
             <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
             <div className="text-center">
               <Link
@@ -506,17 +571,24 @@ export default function AdminDashboard() {
               */}
               {scholarships.map((scholarship:Scholarship, index:number)=>{
               return (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="space-y-2 max-h-96 overflow-y-auto" key={scholarship.scholarshipId} onClick={() => handleSchoOpenModal(scholarship)}>
                                     
-                <div 
-                  key={scholarship.scholarshipId}
-
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                >
+                <div className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center">
                   <div>
                     <span className="font-medium">Scholarships: {scholarship.title}</span>
-                    <p className="text-sm text-black-500">Status: {scholarship.status}</p>
-                    
+                    <span
+                    className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                        scholarship.status
+                          ? 
+                          'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {scholarship.status
+                        ? 'Open'
+                        : 'Closed'}
+                    </span>
+                          
                   </div>
                 </div>
                 </div>
@@ -600,6 +672,7 @@ export default function AdminDashboard() {
                   className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                   onClick={() => handleOpenJobModal(jobOffer)}
                 >
+                
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <span className="font-medium">{jobOffer.position}</span>
@@ -640,7 +713,13 @@ export default function AdminDashboard() {
                   <XCircle size={24} />
                 </button>
               </div>
-              
+              {selectedJob.image &&
+              <img
+                src={selectedJob.image}
+                alt={selectedJob.position}
+                className="w-full h-40 object-cover rounded-md"
+              />
+              }
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <p className="text-lg font-semibold">{selectedJob.company}</p>
@@ -705,6 +784,46 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {selectedScholarship && (
+        <Dialog open={isSchoModalOpen} onOpenChange={handleSchoCloseModal}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">{selectedScholarship.title}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {selectedScholarship && 
+              <img
+                src={selectedScholarship.image}
+                alt={selectedScholarship.title}
+                className="w-full h-40 object-cover rounded-md"
+              />
+              }
+              <div>
+                <p className="text-sm text-gray-700">
+                  <strong>Description:</strong> {selectedScholarship.description}
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Status:</strong> {selectedScholarship.status}
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Date Posted:</strong> {new Date(selectedScholarship.datePosted).toLocaleDateString()}
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Applicants:</strong> {selectedScholarship.alumList.length}
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <button className="px-4 py-2 border rounded hover:bg-gray-100">Close</button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
 
