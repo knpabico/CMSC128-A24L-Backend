@@ -1,8 +1,5 @@
 "use client";
-import NotFound from "@/app/not-found";
-import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { useParams } from "next/navigation";
 import { Education } from "@/models/models";
 import {
   Button,
@@ -16,14 +13,11 @@ import {
 import React, { useEffect, useState } from "react";
 import EditEducationModal from "./edit-education-modal";
 import { useEducation } from "@/context/EducationContext";
-import { WorkExperienceModal } from "./add-work-experience";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-// import EditWorkExperience from "../edit-work-experience";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
-import { useRouter } from "next/navigation";
 
 const EditProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -60,7 +54,7 @@ const EditProfile = () => {
   const { isLoaded } = useGoogleMaps();
 
   //work experience
-  const handleWorkDelete = async (id) => {
+  const handleWorkDelete = async (id:string) => {
     const { success, message } = await deleteWorkExperience(id);
     setWorkMessage(message);
     setWorkSuccess(success);
