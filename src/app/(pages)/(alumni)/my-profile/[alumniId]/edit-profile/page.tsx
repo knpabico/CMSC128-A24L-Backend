@@ -50,7 +50,6 @@ const EditProfile = () => {
   const [isEditModalWorkOpen, setEditModalWorkOpen] = useState(
     new Array(userWorkExperience.length).fill(false)
   );
-  const [deleteWorkModal, setDeleteWorkModal] = useState(false);
   const { isLoaded } = useGoogleMaps();
 
   //work experience
@@ -58,7 +57,6 @@ const EditProfile = () => {
     const { success, message } = await deleteWorkExperience(id);
     setWorkMessage(message);
     setWorkSuccess(success);
-    setDeleteWorkModal(true);
   };
 
   const openEditModal = (index: number) => {

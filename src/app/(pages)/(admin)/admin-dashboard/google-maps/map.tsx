@@ -34,7 +34,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
 
   const handleMarkerClick = (experience: WorkExperience) => {
-    const alum = alums.find((a) => a.alumniId === experience.alumniId);
+    const alum = alums.find((a:Alumnus) => a.alumniId === experience.alumniId);
     setSelectedWork(experience);
     setSelectedAlum(alum ?? null);
   };
