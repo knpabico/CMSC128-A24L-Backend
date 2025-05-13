@@ -32,15 +32,15 @@ export default function FeaturedStoriesPage() {
     handleDelete,
   } = useFeatured();
 
-  const [activeTab, setActiveTab] = useState("All Stories");
+  const [activeTab, setActiveTab] = useState<"All Stories" | "Events" | "Donations" | "Scholarships">("All Stories");
   const [sortOption, setSortOption] = useState("newest");
-  const tableRef = useRef(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
-  const [storyToDelete, setStoryToDelete] = useState(null)
+  const [storyToDelete, setStoryToDelete] = useState<{ featuredId: string; title: string } | null>(null)
 
-  const tabs = ["All Stories", "Events", "Donations", "Scholarships"];
+  const tabs: Array<"All Stories" | "Events" | "Donations" | "Scholarships"> = ["All Stories", "Events", "Donations", "Scholarships"];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,7 +50,7 @@ export default function FeaturedStoriesPage() {
 
       if (tableRect.top <= 0 && !isSticky) {
         setIsSticky(true);
-        setHeaderWidth(tableRect.width);
+        setHeaderWidth(tableRect.width.toString());
       } else if (tableRect.top > 0 && isSticky) {
         setIsSticky(false);
       }
@@ -60,7 +60,7 @@ export default function FeaturedStoriesPage() {
 
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth);
+      setHeaderWidth(tableRef.current.offsetWidth.toString());
     }
 
     // Clean up
@@ -73,13 +73,13 @@ export default function FeaturedStoriesPage() {
   const filteredItems =
     activeTab === "All Stories"
       ? featuredItems
-      : featuredItems.filter((item) => {
+      : featuredItems.filter((item: { type: string; }) => {
           const tabTypeMap = {
             Events: "event",
             Donations: "donation",
             Scholarships: "scholarship",
           };
-          return item.type === tabTypeMap[activeTab];
+          return item.type === tabTypeMap[activeTab as keyof typeof tabTypeMap];
         });
 
   // Sort filtered items based on date
@@ -95,7 +95,7 @@ export default function FeaturedStoriesPage() {
   });
 
   // Count items for each category
-  const getCategoryCount = (category) => {
+  const getCategoryCount = (category: string) => {
     if (category === "All Stories") return featuredItems.length;
 
     const categoryTypeMap = {
@@ -105,13 +105,13 @@ export default function FeaturedStoriesPage() {
     };
 
     return featuredItems.filter(
-      (item) => item.type === categoryTypeMap[category]
+      (item: { type: any; }) => item.type === categoryTypeMap[category as keyof typeof categoryTypeMap]
     ).length;
   };
 
   const router = useRouter(); // Initialize the router
 
-  const navigateToDetail = (featuredId) => {
+  const navigateToDetail = (featuredId: any) => {
     router.push(`/admin-dashboard/create-story/${featuredId}`); // Navigate to the detail page
   };
 
