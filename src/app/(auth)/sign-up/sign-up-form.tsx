@@ -97,7 +97,7 @@ import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationCodeModal } from "./sign-up-fields/emailverify";
 import { TextField, Autocomplete } from "@mui/material";
-// import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
+import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
