@@ -11,7 +11,7 @@ import { uploadImage } from "@/lib/upload";
 import { XIcon } from "lucide-react";
 
 interface AlumnusUploadPicProps {
-    alumnus: Alumnus;
+    alumnus: Alumnus | null;
     uploading: boolean;
     onClose: () => void;
   }
@@ -39,28 +39,7 @@ const AlumnusUploadPic: React.FC<AlumnusUploadPicProps> = ({ alumnus , uploading
           setPreviewUrl(localPreview);
         }
       };
-      
-    // const handleUpload = async () => {
-    //     if (!file) return;
-    
-    //     setImgUploading(true);
-    //     const storageRef = ref(storage, `alumni/${alumnus.alumniId}/${file.name}`);
-    
-    //     try {
-    //         // Upload image to Firebase Storage
-    //         await uploadBytes(storageRef, file);
-    //         const url = await getDownloadURL(storageRef);
-    
-    //         // Save URL to Firestore
-    //         const alumnusDocRef = doc(db, "alumni", alumnus.alumniId);
-    //         await updateDoc(alumnusDocRef, { image: url });
 
-    //     } catch (error) {
-    //         console.error("Error uploading or saving image URL:", error);
-    //     } finally {
-    //         setImgUploading(false);
-    //     }
-    // };
 
     const handleUpload = async () => {
       setImgUploading(true); 

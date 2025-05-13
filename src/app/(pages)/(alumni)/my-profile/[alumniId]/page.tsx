@@ -963,7 +963,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "bachelors").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "bachelors").sort((a:any, b:any) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#b9e5fe]"></div>
@@ -1002,7 +1002,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "masters").sort((a:any, b:any) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#00bcfc]"></div>
@@ -1042,7 +1042,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "doctoral").sort((a:any, b:any) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#0282d2]"></div>
@@ -1083,7 +1083,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userAffiliation.sort((a, b) => b.yearJoined - a.yearJoined).map((affiliation:Affiliation, index:number)=> (
+                  {userAffiliation.sort((a:any, b:any) => b.yearJoined - a.yearJoined).map((affiliation:Affiliation, index:number)=> (
                     <div className="flex items-center space-x-5" key={index}>
                       <div className="w-6 h-6 rounded-full bg-gray-500"></div>
                       <div>
