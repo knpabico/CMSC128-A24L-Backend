@@ -23,6 +23,7 @@ export default function ManageDonationDrive() {
     isLoading,
     setCampaignName,
     setDescription,
+	setIsEvent,
     setQrGcash, 
     setFileGcashName, 
     setPreviewGcash,  
@@ -166,8 +167,9 @@ export default function ManageDonationDrive() {
 			setDescription("");
 			setBeneficiary([]);
 			setTargetAmount(0);
+			setIsEvent(false);
 			setStatus("active");
-      setQrGcash(null);  
+      		setQrGcash(null);  
 			setFileGcashName("");
 			setPreviewGcash(null); 
 			setQrPaymaya(null); 
