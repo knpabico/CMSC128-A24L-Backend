@@ -5,7 +5,6 @@ import {
   collection,
   onSnapshot,
   query,
-  addDoc,
   where,
   doc,
   getDocs,
@@ -147,7 +146,7 @@ export function WorkExperienceProvider({
     }
   };
 
-  const editWorkExperience = async (workExperienceEntry) => {
+  const editWorkExperience = async (workExperienceEntry:any) => {
     try {
       console.log(workExperienceEntry);
       const workExpRef = doc(
