@@ -148,7 +148,6 @@ export default function FeaturedStoriesPage() {
         </div>
       </div>
 
-
         {/* Tabs */}
         <div className="w-full flex gap-2">
           {tabs.map((tab) => (
