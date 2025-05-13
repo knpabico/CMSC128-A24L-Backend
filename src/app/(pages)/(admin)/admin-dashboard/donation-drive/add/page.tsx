@@ -62,6 +62,8 @@ export default function AddDonationDrive() {
 		setOneBeneficiary,
 		beneficiary,
 		setBeneficiary,
+		fromEvent, 
+        setFromEvent,
 		getDonationDriveById,
 		getEventById,
 		fetchAlumnusById,
@@ -93,22 +95,23 @@ export default function AddDonationDrive() {
 	};
 	useEffect(() => {
 		const setReset = () => {
-			setCampaignName("");
-			setDescription("");
-			setBeneficiary([]);
-			setTargetAmount(0);
-			setStatus("active");
-        	setQrGcash(null);  
-			setFileGcashName("");
-			setPreviewGcash(null); 
-			setQrPaymaya(null); 
-			setFilePaymayaName(""); 
-			setPreviewPaymaya(null); 
-			setImage(null); 
-			setFileName("");
-			setPreview(null); 
+			if(!fromEvent){
+				setCampaignName("");
+				setDescription("");
+				setBeneficiary([]);
+				setTargetAmount(0);
+				setStatus("active");
+				setQrGcash(null);  
+				setFileGcashName("");
+				setPreviewGcash(null); 
+				setQrPaymaya(null); 
+				setFilePaymayaName(""); 
+				setPreviewPaymaya(null); 
+				setImage(null); 
+				setFileName("");
+				setPreview(null); 				
+			}
 		}
-	
 		setReset();
 	}, []);
 

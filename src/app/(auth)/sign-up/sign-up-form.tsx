@@ -669,10 +669,12 @@ export default function RegistrationForm() {
                                         }
                                       }}
                                       renderInput={(params) => (
+
+                                        //may chinange ako here field.value?.length > 0 --> field.value?.length || 0 to avoid error
                                         <TextField
                                           {...params}
                                           placeholder={
-                                            field.value?.length > 0
+                                            field.value?.length || 0
                                               ? ""
                                               : "Select your fields of interest"
                                           }

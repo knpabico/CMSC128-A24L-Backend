@@ -23,7 +23,7 @@ export default function CreateFeaturedStoryPage() {
     setType,
   } = useFeatured();
 
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -35,7 +35,7 @@ export default function CreateFeaturedStoryPage() {
     }
 };
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -133,7 +133,6 @@ export default function CreateFeaturedStoryPage() {
             </div>
 
             
-
             <div className="space-y-2">
               <label htmlFor="type" className="text-sm font-medium flex items-center">
                 <Asterisk size={16} className="text-red-600" /> Type

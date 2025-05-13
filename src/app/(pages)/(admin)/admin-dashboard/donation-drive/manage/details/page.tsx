@@ -246,6 +246,7 @@ export default function AddDonationDrive() {
   
         if (eventSnap.exists()) {
           const eventData = eventSnap.data() as Event;
+		  setEvent(eventData);
           // setEvent({ ...eventData, eventId });
         } else {
           console.warn('Event not found for ID:', eventId);
@@ -490,19 +491,19 @@ export default function AddDonationDrive() {
 									<div className=' flex justify-between items-center gap-4'>
 										<div className='flex gap-1 items-center justify-center'>
 											<Calendar className='size-[20px]' />
-											<p className='text-sm'>{formatDate(event.datePosted)}</p>
+											<p className='text-sm'>{formatDate(events[donationDrive.eventId].datePosted)}</p>
 										</div>
 										<div className='flex gap-1 items-center justify-center'>
 											<Clock className='size-[20px]' />
-											<p className='text-sm'>{event.time}</p>
+											<p className='text-sm'>{events[donationDrive.eventId].time}</p>
 										</div>
 										<div className='flex gap-1 items-center justify-center'>
 											<MapPin className='size-[20px]' />
-											<p className='text-sm'>{event.location}</p>
+											<p className='text-sm'>{events[donationDrive.eventId].location}</p>
 										</div>
 										<div className='flex gap-1 items-center justify-center'>
 											<Users2 className='size-[20px]' />
-											<p className='text-sm'>{event.numofAttendees || 0} attendees</p>
+											<p className='text-sm'>{events[donationDrive.eventId].numofAttendees || 0} attendees</p>
 										</div>
 									</div>
 								</div>
