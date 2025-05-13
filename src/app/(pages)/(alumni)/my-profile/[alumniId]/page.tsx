@@ -1252,18 +1252,16 @@ const UserProfile = () => {
         <AddEducationModal
           open={addMasters}
           onClose={() => {setAddMasters(false); document.body.style.overflow = 'auto'}}
-          userId={alumInfo?.alumniId}
+          userId={alumInfo?.alumniId || ""}
           setSuccess={setSuccess}
-          degreeType={degreeType}
         />
       )}
       {addDoctoral && (
         <AddEducationModal
           open={addDoctoral}
           onClose={() => {setAddDoctoral(false); document.body.style.overflow = 'auto'}}
-          userId={alumInfo?.alumniId}
+          userId={alumInfo?.alumniId || ""}
           setSuccess={setSuccess}
-          degreeType={degreeType}
 
         />
       )}
@@ -1271,7 +1269,7 @@ const UserProfile = () => {
         <AddAffiliationModal
         open= {addAffiliation}
         onClose={()=> {setaddAffiliation(false); document.body.style.overflow = 'auto'}}
-        userId={alumInfo?.alumniId}
+        userId={alumInfo?.alumniId || ""}
         setSuccess={setSuccess}
         />
       )}
