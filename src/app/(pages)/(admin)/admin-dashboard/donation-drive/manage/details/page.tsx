@@ -5,7 +5,7 @@ import { toastSuccess } from "@/components/ui/sonner";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { db } from "@/lib/firebase";
-import { Donation, DonationDrive } from "@/models/models";
+import { Donation, DonationDrive, Event } from "@/models/models";
 import { doc, getDoc } from "firebase/firestore";
 import { Asterisk, Calendar, ChevronRight, CirclePlus, Clock, MapPin, Pencil, Trash2, Upload, Users2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -238,25 +238,24 @@ export default function AddDonationDrive() {
 	}, [donationDriveId]);
   
     // Fetch event details if this donation drive is related to an event
-    const fetchEventDetails = async (eventId: string) => {
-      try {
-        setEventLoading(true);
-        const eventRef = doc(db, "event", eventId);
-        const eventSnap = await getDoc(eventRef);
-  
-        if (eventSnap.exists()) {
-          const eventData = eventSnap.data() as Event;
-		  setEvent(eventData);
-          // setEvent({ ...eventData, eventId });
-        } else {
-          console.warn('Event not found for ID:', eventId);
-        }
-      } catch (err) {
-        console.error('Error fetching event details:', err);
-      } finally {
-        setEventLoading(false);
-      }
-    };
+  const fetchEventDetails = async (eventId: string) => {
+	try {
+	  setEventLoading(true);
+	  const eventRef = doc(db, "event", eventId);
+	  const eventSnap = await getDoc(eventRef);
+
+	  if (eventSnap.exists()) {
+		const eventData = eventSnap.data() as Event;
+		setEvent({ ...eventData, eventId });
+	  } else {
+		console.warn('Event not found for ID:', eventId);
+	  }
+	} catch (err) {
+	  console.error('Error fetching event details:', err);
+	} finally {
+	  setEventLoading(false);
+	}
+  };
   
     useEffect(() => {
       const fetchDonations = async () => {
@@ -491,19 +490,19 @@ export default function AddDonationDrive() {
 									<div className=' flex justify-between items-center gap-4'>
 										<div className='flex gap-1 items-center justify-center'>
 											<Calendar className='size-[20px]' />
-											<p className='text-sm'>{formatDate(events[donationDrive.eventId].datePosted)}</p>
+											<p className='text-sm'>{formatDate(event.datePosted)}</p>
 										</div>
 										<div className='flex gap-1 items-center justify-center'>
 											<Clock className='size-[20px]' />
-											<p className='text-sm'>{events[donationDrive.eventId].time}</p>
+											<p className='text-sm'>{event.time}</p>
 										</div>
 										<div className='flex gap-1 items-center justify-center'>
 											<MapPin className='size-[20px]' />
-											<p className='text-sm'>{events[donationDrive.eventId].location}</p>
+											<p className='text-sm'>{event.location}</p>
 										</div>
 										<div className='flex gap-1 items-center justify-center'>
 											<Users2 className='size-[20px]' />
-											<p className='text-sm'>{events[donationDrive.eventId].numofAttendees || 0} attendees</p>
+											<p className='text-sm'>{event.numofAttendees || 0} attendees</p>
 										</div>
 									</div>
 								</div>
