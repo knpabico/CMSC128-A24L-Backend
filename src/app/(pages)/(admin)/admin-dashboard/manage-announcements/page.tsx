@@ -39,7 +39,7 @@ export default function ManageAnnouncements() {
     router.push("/admin-dashboard/add-announcement");
   };
 
-  const handleEditClick = (announcement: Announcement) => {
+  const handleEditClick = (announcement) => {
     setTitle(announcement.title);
     setDescription(announcement.description);
     setIsEdit(true);
@@ -54,16 +54,16 @@ export default function ManageAnnouncements() {
 
   const [showFullTitle, setShowFullTitle] = useState(false);
   const [showFullContent, setShowFullContent] = useState(false);
-  const tableRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef(null);
   const [activeTab, setActiveTab] = useState("Posted");
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
-  const [showDropdown, setShowDropdown] = useState<boolean | null>(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
 
   // Function to truncate text with "See more" button
-  const truncateText = (text: string, limit: number) => {
+  const truncateText = (text, limit) => {
     if (!text) return "";
     if (text.length <= limit) return text;
     return text.substring(0, limit) + "...";
@@ -82,7 +82,7 @@ export default function ManageAnnouncements() {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: { target: any; }) => {
+    const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
@@ -103,7 +103,7 @@ export default function ManageAnnouncements() {
       
       if (tableRect.top <= 0 && !isSticky) {
         setIsSticky(true);
-        setHeaderWidth(`${tableRect.width}px`);
+        setHeaderWidth(tableRect.width);
       } else if (tableRect.top > 0 && isSticky) {
         setIsSticky(false);
       }
@@ -115,7 +115,7 @@ export default function ManageAnnouncements() {
     
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(`${tableRef.current.offsetWidth}px`);
+      setHeaderWidth(tableRef.current.offsetWidth);
     }
     
     // Clean up

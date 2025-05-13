@@ -36,9 +36,9 @@ export function AnnouncementProvider({
   const [type, setType] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const { user, isAdmin } = useAuth();
-  const [image, setAnnounceImage] = useState<File | null>(null);
+  const [image, setAnnounceImage] = useState(null);
   const [fileName, setFileName] = useState<string>("");
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false)
   const [currentAnnouncementId, setCurrentAnnouncementId] = useState<
@@ -154,7 +154,7 @@ export function AnnouncementProvider({
         }
       }
   
-      await updateDoc(doc(db, "Announcement", currentAnnouncementId!), { ...updatedAnnouncement });
+      await updateDoc(doc(db, "Announcement", currentAnnouncementId!), updatedAnnouncement);
   
       // Reset form state
       setShowForm(false);

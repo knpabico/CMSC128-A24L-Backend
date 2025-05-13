@@ -19,10 +19,10 @@ import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
 import { useNewsLetters } from "./NewsLetterContext";
+import { set } from "zod";
+const JobOfferContext = createContext<any>(null);
 import { uploadImage } from "@/lib/upload";
 import { toast } from "sonner";
-
-const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -39,10 +39,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
-  const [image, setJobImage] = useState<File | null>(null);
+  const [image, setJobImage] = useState(null);
   const [location, setLocation] = useState("");
   const [fileName, setFileName] = useState<string>("");
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
@@ -78,11 +78,11 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
       jobOffer.alumniId = isAdmin ? "Admin" : user?.uid ?? "";
-      
-      // This was causing the issue - using an undefined status variable
-      // Setting appropriate status based on conditions
-      jobOffer.status = jobOffer.status === "Draft" ? "Draft" : (isAdmin ? "Accepted" : "Pending");
-      
+      jobOffer.status = jobOffer.status
+        ? "Draft"
+        : isAdmin
+        ? "Accepted"
+        : "Pending";
       console.log(jobOffer);
       await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
       if (isAdmin && jobOffer.status === "Accepted") {
@@ -114,9 +114,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       jobId: "",
       alumniId: isAdmin ? "Admin" : user?.uid || "",
       datePosted: new Date(),
-      status: isAdmin ? "Accepted" : "Pending", // Fixed status setting
-      location,
-      image: "",
+      status,
+      location, // Use the location state directly
+      image: "", // Keep empty string as initial value for image
     };
 
     if (image) {
@@ -432,8 +432,6 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         updateStatus,
         handleSaveDraft,
         handleEditDraft,
-        setPreview,
-        setFileName
       }}
     >
       {children}
