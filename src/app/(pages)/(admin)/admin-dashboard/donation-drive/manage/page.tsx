@@ -216,7 +216,6 @@ export default function ManageDonationDrive() {
 		// Then update the status in the database
 		toggleStatus(drive.donationDriveId, drive.status);
 	};
-	
 	//  Scholarship Deletion
 	// const handleDeleteClick = (donationDrive : DonationDrive) => {
 	// 	if (!donationDrive.donationDriveId) {
