@@ -133,7 +133,6 @@ export default function CreateFeaturedStoryPage() {
             </div>
 
             
-
             <div className="space-y-2">
               <label htmlFor="type" className="text-sm font-medium flex items-center">
                 <Asterisk size={16} className="text-red-600" /> Type
