@@ -424,7 +424,7 @@ export default function AdminDashboard() {
                         className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                       >
                         <div>
-                          <span className="font-medium">Event: {event.title}</span>
+                          <span className="font-medium">{event.title}</span>
                           <p className="text-sm text-black-500">Date: {event.date}</p>
                           <p className="text-sm text-black-500">Place: {event.location}</p>
                           <p className="text-sm text-black-500">Status: {event.status}</p>
@@ -478,7 +478,7 @@ export default function AdminDashboard() {
                   className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                 >
                   <div>
-                    <span className="font-medium">Event: {event.title}</span>
+                    <span className="font-medium">{event.title}</span>
                     <p className="text-sm text-black-500">Date: {formatter.format(new Date(event.date))}</p>
                     
                   </div>
@@ -509,21 +509,18 @@ export default function AdminDashboard() {
               <hr className="border-t border-black opacity-40 mx-auto" />
             </div>
           </CardHeader>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-          </div>
           <CardContent className="flex-1 overflow-y-auto max-h-60 space-y-2">
               {donationDrives.map((donationDrive: DonationDrive, index: number) => (
                 <div key={donationDrive.donationDriveId} className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer">
-                  {donationDrive.image ? (
+                  {/* {donationDrive.image ? (
                     <img
                       src={donationDrive.image}
                       alt={donationDrive.campaignName}
                       className="w-full h-40 object-cover rounded-md"
                     />
-                  ) : null}
+                  ) : null} */}
                   <div className="mb-1">
-                    <span className="font-medium text-base">Donation Drive: {donationDrive.campaignName}</span>
+                    <span className="font-medium text-base">{donationDrive.campaignName}</span>
                     <p className="text-sm text-gray-600">Beneficiary: {donationDrive.beneficiary.join(', ')}</p>
                   </div>
 
@@ -575,7 +572,7 @@ export default function AdminDashboard() {
                                     
                 <div className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center">
                   <div>
-                    <span className="font-medium">Scholarships: {scholarship.title}</span>
+                    <span className="font-medium">{scholarship.title}</span>
                     <span
                     className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
                         scholarship.status
