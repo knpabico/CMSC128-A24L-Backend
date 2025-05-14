@@ -8,6 +8,7 @@ import { useBookmarks } from '@/context/BookmarkContext';
 import DonationDriveSidebar from '../components/Sidebar';
 import DonationDrivesList from '../components/DonationDrivesList';
 import { DonationDrive } from '@/models/models';
+import Banner from '@/components/Banner';
 
 export default function SavedDrivesPage() {
   const { donationDrives, events, isLoading } = useDonationDrives();
@@ -74,13 +75,10 @@ export default function SavedDrivesPage() {
   return (
 	<div className="bg-[#EAEAEA]">
 		{/*Page Title*/}
-		<div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
-			<div className="absolute inset-0 bg-blue-500/50" />
-				<div className="relative z-10">
-				<h1 className="text-5xl font-bold my-2 text-white">Donation Drives</h1>
-				<p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
-			</div>
-		</div>
+		<Banner 
+			title="Donation Drives" 
+			description="Support meaningful causes through ICS and alumni donation drives, helping create opportunities and making a lasting impact."
+		/>
 		{/* Body */}
 		<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
 			{/* Sidebar */}
