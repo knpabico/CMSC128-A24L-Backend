@@ -248,41 +248,12 @@ const DonationDriveCard = ({
             </div>
           )}
           {/* Details */}
-          {drive.isEvent && event ? (
-            <div className="mt-5">
-              <div className="mt-5 flex justify-between items-center gap-4">
-                <div className="flex gap-1 items-center w-1/3 justify-center">
-                  <Calendar className="size-[16px]" />
-                  <p className="text-xs">{formatDate(event.datePosted)}</p>
-                </div>
-                <div className="flex gap-1 items-center w-1/3 justify-center">
-                  <Clock className="size-[16px]" />
-                  <p className="text-xs">{event.time}</p>
-                </div>
-                <div className="flex gap-1 items-center w-1/3 justify-center">
-                  <MapPin className="size-[16px]" />
-                  <p className="text-xs">{event.location}</p>
-                </div>
-              </div>
-              <div className="mt-5 text-xs text-start">
-                <p>
-                  Donation Type:{" "}
-                  {drive.isEvent && event
-                    ? "Event-related Campaign"
-                    : "General Campaign"}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-5 text-xs text-start">
-              <p>
-                Donation Type:{" "}
-                {drive.isEvent && event
-                  ? " Event-related Campaign"
-                  : " General Campaign"}{" "}
-              </p>
-            </div>
-          )}
+					<div className="mt-5 text-xs text-start">
+						<p>
+							Donation Type:{" "}
+							{drive.isEvent ? " Event-related Campaign" : " General Campaign"}{" "}
+						</p>
+					</div>
           {/* Progress Bar */}
           <div className="my-5">
             {/* Patrons and Percentage */}
@@ -325,100 +296,6 @@ const DonationDriveCard = ({
           </div>
         </div>
       </div>
-      {/* Floating Action Button (FAB) */}
-      {/* <button className="fixed bottom-8 right-8 bg-blue-500 text-white p-5 rounded-full shadow-md hover:bg-blue-600 transition" onClick={() => setShowForm(true)}>
-				+
-			</button> */}
-      {/* Suggest Donation Drive Modal */}
-      {/* {showForm && (
-				<div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
-					<form
-					onSubmit={handleSave}
-					className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30"
-					>
-					<h2 className="text-xl bold mb-4">Suggest Donation Drive</h2>
-					<input
-						type="text"
-						placeholder="Campaign Name"
-						value={campaignName}
-						onChange={(e) => setCampaignName(e.target.value)}
-						className="w-full mb-4 p-2 border rounded"
-						required
-					/>
-					<textarea
-						placeholder="Description"
-						value={description}
-						onChange={(e) => setDescription(e.target.value)}
-						className="w-full mb-4 p-2 border rounded"
-						required
-					/>
-					{beneficiary.map( (beneficiaries: string, index: number) => (
-						<div key = {index} className="flex justify-between my-1">
-							<input
-								type="text"
-								placeholder="Beneficiary"
-								value={beneficiaries}
-								onChange={(e) => handleBenefiaryChange(e,index)}
-								className="w-full mb-4 p-2 border rounded"
-								required
-							/>
-							{beneficiary.length > 1 && (
-								<button 
-									type="button" 
-									className='px-4 py-2 bg-red-500 text-white rounded-md'
-									onClick={() => handleRemoveBeneficiary(index)}>
-									Remove
-								</button>
-                    		)}
-                		</div>						
-						))}
-						<button 
-							type="button" 
-							className='px-4 py-2 bg-green-500 text-white rounded-md'
-							onClick={handleAddBeneficiary}>
-                			Add Beneficiary
-            			</button>
-					<input
-						type="number"
-						placeholder="Target Amount"
-						value={targetAmount}
-						onChange={(e) => setTargetAmount(e.target.value)}
-						className="w-full mb-4 p-2 border rounded"
-						required
-					/>
-					<label htmlFor="">End Date</label>
-					<input
-						type="date"
-						value={endDate}
-						onChange={(e) => setEndDate(e.target.value)}
-						className="w-full mb-4 p-2 border rounded"
-						required
-						min={
-						new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-							.toISOString()
-							.split("T")[0]
-						}
-					/>
-					<div className="flex justify-between">
-						<button
-						type="button"
-						onClick={() => setShowForm(false)}
-						className="text-gray-500"
-						>
-						Cancel
-						</button>
-						<div className="flex gap-2">
-						<button
-							type="submit"
-							className="bg-[#0856BA] text-white p-2 rounded-[22px]"
-						>
-							Suggest
-						</button>
-						</div>
-					</div>
-					</form>
-				</div>
-				)} */}
     </div>
   );
 };
