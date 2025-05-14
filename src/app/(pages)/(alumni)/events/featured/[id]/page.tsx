@@ -109,9 +109,7 @@ const FeaturedDetailPage: React.FC = () => {
 
         <p className="text-sm text-gray-600 mt-10">
           Published:{" "}
-          {story?.datePosted instanceof Date
-            ? story.datePosted.toLocaleDateString()
-            : new Date(story?.datePosted?.seconds * 1000).toLocaleDateString()}
+          {formatDate(story?.datePosted)}
         </p>
       </div>
 

@@ -65,7 +65,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
 
   useEffect(() => {
     if (isEditing && events) {
-      const eventToEdit = events.find(event => event.eventId === editingEventId);
+      const eventToEdit = events.find((event: { eventId: string | null; }) => event.eventId === editingEventId);
       
       setVisibility("all");
       setSelectedAlumni([]);

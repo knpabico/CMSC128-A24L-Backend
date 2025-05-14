@@ -6,13 +6,11 @@ import { useRsvpDetails } from "@/context/RSVPContext"
 import type { Event, RSVP } from "@/models/models"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, HandHeart, ImageOff, X, Clock2, CircleX, Check, CircleAlert, Clock10 } from "lucide-react"
+import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, ImageOff, X, Clock2, CircleX,CircleAlert, Clock10 } from "lucide-react"
 import { useFeatured } from "@/context/FeaturedStoryContext"
 import ProposeEventForm from "../components/ProposeEventForm"
 import Link from "next/link"
 import BookmarkButton from "@/components/ui/bookmark-button"
-import { ThankYouDialog } from "@/components/ThankYouDialog"
-import { DonateDialog } from "../../donationdrive-list/DonateDialog"
 
 const EventPageAlumni = () => 
 {
@@ -21,23 +19,10 @@ const EventPageAlumni = () =>
     events,
     setShowForm,
     showForm,
-    handleSave,
-    handleImageChange,
-    date,
-    setEventDate,
-    description,
-    setEventDescription,
-    title,
-    setEventTitle,
-    location,
-    setEventLocation,
-    time,
-    setEventTime,
-    setEventImage,
     handleDelete,
   } = useEvents()
 
-  const { rsvpDetails, isLoadingRsvp, handleAlumAccept, handleAlumReject } = useRsvpDetails()
+  const { rsvpDetails,handleAlumAccept, handleAlumReject } = useRsvpDetails()
   const { alumInfo } = useAuth()
   const params = useParams()
   const router = useRouter()
