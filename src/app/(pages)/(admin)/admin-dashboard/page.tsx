@@ -50,6 +50,15 @@ export default function AdminDashboard() {
     );
   }, [alums]);
 
+
+  //getting the active donations
+  const activeDonations = useMemo(() => {
+    return donationDrives.filter(
+      (donationDrive: DonationDrive) =>
+        donationDrive.status === "active"
+    );
+  }, [donationDrives]);
+
   const updateJobStatus = (jobId:string, newStatus:string) => {
     // In a real application, this would make an API call to update the job status
     console.log(`Updating job ${jobId} to status: ${newStatus}`);
@@ -273,7 +282,7 @@ export default function AdminDashboard() {
             <div>
               <p className="text-sm text-gray-500">Active Donations</p>
               {/* Pafix lahat yata nakukuha hindi yung active lang */}
-              <p className="text-2xl font-bold">{donationDrives.length}</p>
+              <p className="text-2xl font-bold">{activeDonations.length}</p>
               <div className="flex items-center mt-1">
                 <span className="text-xs text-green-600">
                   {donationDrives.reduce((sum: number, drive: DonationDrive) => sum + drive.currentAmount, 0).toLocaleString()} PHP raised
