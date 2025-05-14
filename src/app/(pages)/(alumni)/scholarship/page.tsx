@@ -46,7 +46,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor} capitalize`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${bgColor} ${textColor} capitalize`}
     >
       {status}
     </span>
@@ -882,6 +882,9 @@ const ScholarshipPage: React.FC = () => {
                             className="object-cover object-center rounded-t-[10px]"
                             priority
                           />
+													<span className="absolute bottom-2 right-2 px-2 py-1 text-lg rounded-full font-bold ">
+															<StatusBadge status={status} />
+													</span>
                         </div>
                         {/* Body */}
                         <div className="px-6 pt-3 pb-6">
@@ -891,9 +894,6 @@ const ScholarshipPage: React.FC = () => {
                               <h2 className="text-xl font-semibold truncate">
                                 {scholarship.title}
                               </h2>
-                              <div className="flex items-center gap-2">
-                                <StatusBadge status={status} />
-                              </div>
                             </div>
                             <div
                               onClick={(e) =>
