@@ -299,7 +299,7 @@ const ScholarshipPage: React.FC = () => {
     if (featuredItems && featuredItems.length > 0) {
       const filteredStories = featuredItems.filter(
         (item: Featured) =>
-          item.type === "scholarship" && item.status !== "deleted"
+          item.type === "scholarship"
       );
       setScholarshipStories(filteredStories);
     }
@@ -486,14 +486,10 @@ const ScholarshipPage: React.FC = () => {
   // Sort the scholarship stories based on datePosted
   const sortedScholarshipStories = [...scholarshipStories].sort((a, b) => {
     const dateA =
-      a.datePosted && typeof a.datePosted.toDate === "function"
-        ? a.datePosted.toDate().getTime()
-        : new Date(a.datePosted).getTime();
+      a.datePosted && new Date(a.datePosted).getTime();
 
     const dateB =
-      b.datePosted && typeof b.datePosted.toDate === "function"
-        ? b.datePosted.toDate().getTime()
-        : new Date(b.datePosted).getTime();
+      b.datePosted && new Date(b.datePosted).getTime();
 
     return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
   });
@@ -675,16 +671,8 @@ const ScholarshipPage: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <Calendar size={16} />
                             <p className="text-sm text-gray-600">
-                              {story.datePosted &&
-                              typeof story.datePosted.toDate === "function"
-                                ? new Date(
-                                    story.datePosted.toDate()
-                                  ).toLocaleDateString("en-US", {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })
-                                : new Date(story.datePosted).toLocaleDateString(
+                              {story.datePosted  &&
+                              new Date(story.datePosted).toLocaleDateString(
                                     "en-US",
                                     {
                                       month: "long",
