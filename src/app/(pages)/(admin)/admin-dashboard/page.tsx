@@ -44,7 +44,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import Image from "next/image";
 
 export default function AdminDashboard() {
   // Get work experience list from context
@@ -966,11 +965,7 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                   {selectedJob.image && (
-                    <Image
-                      width={0}
-                      height={0}
-                      sizes="100vw"
-                      priority
+                    <img
                       src={selectedJob.image}
                       alt={selectedJob.position}
                       className="w-full h-40 object-cover rounded-md"
@@ -1086,11 +1081,7 @@ export default function AdminDashboard() {
 
                 <div className="space-y-4">
                   {selectedScholarship && (
-                    <Image
-                      width={0}
-                      height={0}
-                      sizes="100vw"
-                      priority
+                    <img
                       src={selectedScholarship.image}
                       alt={selectedScholarship.title}
                       className="w-full h-40 object-cover rounded-md"

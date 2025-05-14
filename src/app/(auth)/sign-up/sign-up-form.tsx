@@ -639,15 +639,27 @@ export default function RegistrationForm() {
                                       multiple
                                       id="field-of-interest"
                                       options={[
-                                        "Artificial Intelligence", "Machine Learning", "Data Science", 
-                                        "Cybersecurity", "Computer Vision", "Natural Language Processing", 
-                                        "Software Engineering", "Human-Computer Interaction", "Computer Graphics", 
-                                        "Robotics", "Quantum Computing", "Bioinformatics", "Theoretical Computer Science",
-                                        "Computer Networks", "Operating Systems", "Database Systems", "Cloud Computing",
-                                        "Distributed Systems", "Embedded Systems", "Game Development", "Web Development",
-                                        "Mobile Application Development", "Augmented Reality", "Virtual Reality", 
-                                        "Information Retrieval", "Big Data", "Internet of Things", "Blockchain",
-                                        "DevOps", "Digital Forensics", "Other"
+                                        "Artificial Intelligence (AI)",
+                                        "Machine Learning (ML)",
+                                        "Data Science",
+                                        "Cybersecurity",
+                                        "Software Engineering",
+                                        "Computer Networks",
+                                        "Computer Graphics and Visualization",
+                                        "Human-Computer Interaction (HCI)",
+                                        "Theoretical Computer Science",
+                                        "Operating Systems",
+                                        "Databases",
+                                        "Web Development",
+                                        "Mobile Development",
+                                        "Cloud Computing",
+                                        "Embedded Systems",
+                                        "Robotics",
+                                        "Game Development",
+                                        "Quantum Computing",
+                                        "DevOps and System Administration",
+                                        "Information Systems",
+                                        "Others",
                                       ]}
                                       value={field.value || []}
                                       onChange={(event, newValue) => {

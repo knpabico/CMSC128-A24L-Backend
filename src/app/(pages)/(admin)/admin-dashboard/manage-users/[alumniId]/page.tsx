@@ -460,11 +460,11 @@ export default function AlumPage() {
                           const currentYear = new Date().getFullYear();
                           const startA =
                             a.endYear === "present"
-                              ? 100000
+                              ? currentYear
                               : parseInt(a.endYear);
                           const startB =
                             b.endYear === "present"
-                              ? 100000
+                              ? currentYear
                               : parseInt(b.endYear);
                           return startB - startA;
                         })
