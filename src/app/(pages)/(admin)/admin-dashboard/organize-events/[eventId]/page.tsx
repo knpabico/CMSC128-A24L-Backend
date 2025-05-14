@@ -177,12 +177,19 @@ export default function EventPageAdmin() {
 
       // Properly check targetGuests for alumni and batches
       if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
-        // Check if the first item is a batch (e.g., a string of length 4)
-        if (eventToEdit.targetGuests[0].length === 4) {
-          setSelectedBatches(eventToEdit.targetGuests) // Set the batches
+        if (eventToEdit.inviteType === "batch") {
+          const selectedInfo = Array.from(new Set(
+            alums
+              .filter((alumni: { alumniId: any }) => eventToEdit.targetGuests.includes(alumni.alumniId))
+              .map((alumni: { studentNumber: string | any[] }) => alumni.studentNumber?.slice(0, 4))
+          )) as string[];// Set the batches
+          setSelectedBatches(selectedInfo)
           setVisibility("batch") // Set visibility to batches
-        } else {
-          setSelectedAlumni(eventToEdit.targetGuests) // Set the alumni
+        } else if (eventToEdit.inviteType === "alumni") {
+          const selectedInfo = alums
+            .filter((alumni: { alumniId: any }) => eventToEdit.targetGuests.includes(alumni.alumniId))
+            .map((alumni: { email: any }) => alumni.email);// Set the batches
+          setSelectedAlumni(selectedInfo) // Set the alumni
           setVisibility("alumni") // Set visibility to alumni
         }
       }
