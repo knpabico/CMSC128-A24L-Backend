@@ -10,36 +10,20 @@ import { useScholarship } from "@/context/ScholarshipContext";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toastSuccess } from "@/components/ui/sonner";
-import {
-  ChevronDown,
-  ChevronRight,
-  CircleAlert,
-  CircleCheck,
-  CircleX,
-  Trash2,
-} from "lucide-react";
-import { Dialog, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import {
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-} from "@/components/ui/dialog";
+import { ChevronRight, CircleCheck, CircleX } from "lucide-react";
 import { useAlums } from "@/context/AlumContext";
-import ScholarshipDetailPage from "../manage/[id]/page";
 import { uploadDocToFirebase } from "./scholarshipPDF";
 
 export default function ViewPendingScholarships() {
   const {
     scholarships,
-    updateScholarship,
     students,
     scholarshipStudents,
     updateScholarshipStudent,
   } = useScholarship();
 
   const { alums } = useAlums();
-  const [activeTab, setActiveTab] = useState("Posted");
-  const tableRef = useRef(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +31,9 @@ export default function ViewPendingScholarships() {
   const router = useRouter();
 
   const navigateToDetail = (scholarship_studentID: string) => {
-    router.push(`/admin-dashboard/scholarships/sponsorship/${scholarship_studentID}`);
+    router.push(
+      `/admin-dashboard/scholarships/sponsorship/${scholarship_studentID}`
+    );
   };
 
   //for retrieving each scholarshipStudent info per studentId
@@ -68,7 +54,7 @@ export default function ViewPendingScholarships() {
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingReject, setLoadingReject] = useState(false);
   const [statusFilter, setStatusFilter] = useState("pending");
-	const [currentProcessingId, setCurrentProcessingId] = useState("");
+  const [currentProcessingId, setCurrentProcessingId] = useState("");
 
   const [sortOption, setSortOption] = useState<
     | "newest"
@@ -172,7 +158,7 @@ export default function ViewPendingScholarships() {
 
       if (tableRect.top <= 0 && !isSticky) {
         setIsSticky(true);
-        setHeaderWidth(tableRect.width);
+        setHeaderWidth(tableRect.width.toString());
       } else if (tableRect.top > 0 && isSticky) {
         setIsSticky(false);
       }
@@ -182,7 +168,7 @@ export default function ViewPendingScholarships() {
 
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth);
+      setHeaderWidth(tableRef.current.offsetWidth.toString());
     }
 
     // Clean up
@@ -214,7 +200,7 @@ export default function ViewPendingScholarships() {
       setError("Failed to approve scholarship student.");
     } finally {
       setLoadingApprove(false);
-			setCurrentProcessingId("");
+      setCurrentProcessingId("");
     }
   };
 
@@ -231,7 +217,7 @@ export default function ViewPendingScholarships() {
       setError("Failed to reject scholarship student.");
     } finally {
       setLoadingReject(false);
-			setCurrentProcessingId("");
+      setCurrentProcessingId("");
     }
   };
 
@@ -246,56 +232,132 @@ export default function ViewPendingScholarships() {
         </div>
         <div className="font-bold text-[var(--primary-blue)]">
           {" "}
-         	Manage Sponsorship{" "}
+          Manage Sponsorship{" "}
         </div>
       </div>
       <div className="w-full">
         <div className="flex flex-col items-start gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="font-bold text-3xl">
-            Manage Sponsorship
-          </div>
+          <div className="font-bold text-3xl">Manage Sponsorship</div>
         </div>
       </div>
       {/* Filter Buttons */}
       <div className="flex flex-col gap-3">
         <div className="w-full flex gap-2">
-          <div 
-            onClick={() => setStatusFilter("pending")} 
-            className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${statusFilter === "pending" ? "bg-[var(--primary-blue)]" : "bg-white"}`}
+          <div
+            onClick={() => setStatusFilter("pending")}
+            className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
+              statusFilter === "pending"
+                ? "bg-[var(--primary-blue)]"
+                : "bg-white"
+            }`}
           >
-            <div className={`w-full h-1 transition-colors ${statusFilter === "pending" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-            <div className={`w-full py-3 flex gap-1 items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "pending" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+            <div
+              className={`w-full h-1 transition-colors ${
+                statusFilter === "pending"
+                  ? "bg-[var(--primary-blue)]"
+                  : "bg-transparent"
+              }`}
+            >
+              {" "}
+            </div>
+            <div
+              className={`w-full py-3 flex gap-1 items-center justify-center rounded-t-2xl font-semibold text-base ${
+                statusFilter === "pending"
+                  ? "text-[var(--primary-blue)] bg-white"
+                  : "text-blue-200 bg-white"
+              }`}
+            >
               Pending
-							<div
-								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "pending" ? "bg-amber-400" : "bg-blue-200"}`}>
-								{scholarshipStudents.filter((sponsorship: ScholarshipStudent) => sponsorship.status === "pending").length}
-							</div>
+              <div
+                className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                  statusFilter === "pending" ? "bg-amber-400" : "bg-blue-200"
+                }`}
+              >
+                {
+                  scholarshipStudents.filter(
+                    (sponsorship: ScholarshipStudent) =>
+                      sponsorship.status === "pending"
+                  ).length
+                }
+              </div>
             </div>
           </div>
-          <div 
-            onClick={() => setStatusFilter("approved")} 
-            className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${statusFilter === "approved" ? "bg-[var(--primary-blue)]" : "bg-white"}`}
+          <div
+            onClick={() => setStatusFilter("approved")}
+            className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
+              statusFilter === "approved"
+                ? "bg-[var(--primary-blue)]"
+                : "bg-white"
+            }`}
           >
-            <div className={`w-full h-1 transition-colors ${statusFilter === "approved" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-            <div className={`w-full py-3 gap-1 flex items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "approved" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+            <div
+              className={`w-full h-1 transition-colors ${
+                statusFilter === "approved"
+                  ? "bg-[var(--primary-blue)]"
+                  : "bg-transparent"
+              }`}
+            >
+              {" "}
+            </div>
+            <div
+              className={`w-full py-3 gap-1 flex items-center justify-center rounded-t-2xl font-semibold text-base ${
+                statusFilter === "approved"
+                  ? "text-[var(--primary-blue)] bg-white"
+                  : "text-blue-200 bg-white"
+              }`}
+            >
               Approved
-							<div
-								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "approved" ? "bg-amber-400" : "bg-blue-200"}`}>
-								{scholarshipStudents.filter((sponsorship: ScholarshipStudent) => sponsorship.status === "approved").length}
-							</div>
+              <div
+                className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                  statusFilter === "approved" ? "bg-amber-400" : "bg-blue-200"
+                }`}
+              >
+                {
+                  scholarshipStudents.filter(
+                    (sponsorship: ScholarshipStudent) =>
+                      sponsorship.status === "approved"
+                  ).length
+                }
+              </div>
             </div>
           </div>
-          <div 
-            onClick={() => setStatusFilter("rejected")} 
-            className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${statusFilter === "rejected" ? "bg-[var(--primary-blue)]" : "bg-white"}`}
+          <div
+            onClick={() => setStatusFilter("rejected")}
+            className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
+              statusFilter === "rejected"
+                ? "bg-[var(--primary-blue)]"
+                : "bg-white"
+            }`}
           >
-            <div className={`w-full h-1 transition-colors ${statusFilter === "rejected" ? "bg-[var(--primary-blue)]" : "bg-transparent"}`}> </div>
-            <div className={`w-full py-3 gap-1 flex items-center justify-center rounded-t-2xl font-semibold text-base ${statusFilter === "rejected" ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"}`}>
+            <div
+              className={`w-full h-1 transition-colors ${
+                statusFilter === "rejected"
+                  ? "bg-[var(--primary-blue)]"
+                  : "bg-transparent"
+              }`}
+            >
+              {" "}
+            </div>
+            <div
+              className={`w-full py-3 gap-1 flex items-center justify-center rounded-t-2xl font-semibold text-base ${
+                statusFilter === "rejected"
+                  ? "text-[var(--primary-blue)] bg-white"
+                  : "text-blue-200 bg-white"
+              }`}
+            >
               Rejected
-							<div
-								className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${statusFilter === "rejected" ? "bg-amber-400" : "bg-blue-200"}`}>
-								{scholarshipStudents.filter((sponsorship: ScholarshipStudent) => sponsorship.status === "rejected").length}
-							</div>
+              <div
+                className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                  statusFilter === "rejected" ? "bg-amber-400" : "bg-blue-200"
+                }`}
+              >
+                {
+                  scholarshipStudents.filter(
+                    (sponsorship: ScholarshipStudent) =>
+                      sponsorship.status === "rejected"
+                  ).length
+                }
+              </div>
             </div>
           </div>
         </div>
@@ -368,41 +430,71 @@ export default function ViewPendingScholarships() {
                         })
                         .map((scholarshipStudent: ScholarshipStudent) => {
                           // Skip rendering if student or alum data is missing
-                          if (!studentScholar[scholarshipStudent.ScholarshipStudentId] || 
-                              !sponsorAlum[scholarshipStudent.ScholarshipStudentId]) {
+                          if (
+                            !studentScholar[
+                              scholarshipStudent.ScholarshipStudentId
+                            ] ||
+                            !sponsorAlum[
+                              scholarshipStudent.ScholarshipStudentId
+                            ]
+                          ) {
                             return null;
                           }
 
                           return (
-                            <div 
+                            <div
                               key={scholarshipStudent.ScholarshipStudentId}
                               className="hover:bg-blue-50"
                             >
                               <div className="w-full flex items-center border-t border-gray-300 p-4">
                                 <div className="w-1/3">
                                   <div className="font-semibold">
-                                    {scholarship.title} <span className="font-normal">({scholarship.status})</span>
+                                    {scholarship.title}{" "}
+                                    <span className="font-normal">
+                                      ({scholarship.status})
+                                    </span>
                                   </div>
                                   <div className="text-xs text-gray-500">
-                                    Status: <span className={`font-medium ${
-                                      scholarshipStudent.status === "pending" ? "text-yellow-600" :
-                                      scholarshipStudent.status === "approved" ? "text-green-600" :
-                                      "text-red-600"
-                                    }`}>
-                                      {scholarshipStudent.status.charAt(0).toUpperCase() + scholarshipStudent.status.slice(1)}
+                                    Status:{" "}
+                                    <span
+                                      className={`font-medium ${
+                                        scholarshipStudent.status === "pending"
+                                          ? "text-yellow-600"
+                                          : scholarshipStudent.status ===
+                                            "approved"
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                      }`}
+                                    >
+                                      {scholarshipStudent.status
+                                        .charAt(0)
+                                        .toUpperCase() +
+                                        scholarshipStudent.status.slice(1)}
                                     </span>
                                   </div>
                                 </div>
-                                
+
                                 {/* Student Info */}
                                 <div className="w-1/6 text-sm text-gray-600">
-                                  {studentScholar[scholarshipStudent.ScholarshipStudentId].name}
+                                  {
+                                    studentScholar[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].name
+                                  }
                                 </div>
 
                                 {/* Sponsor Info */}
                                 <div className="w-1/6 text-sm text-gray-600">
-                                  {sponsorAlum[scholarshipStudent.ScholarshipStudentId].firstName}{" "}
-                                  {sponsorAlum[scholarshipStudent.ScholarshipStudentId].lastName}
+                                  {
+                                    sponsorAlum[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].firstName
+                                  }{" "}
+                                  {
+                                    sponsorAlum[
+                                      scholarshipStudent.ScholarshipStudentId
+                                    ].lastName
+                                  }
                                 </div>
 
                                 {/* Actions */}
@@ -412,36 +504,56 @@ export default function ViewPendingScholarships() {
                                       <button
                                         className="bg-green-600 text-white px-3 py-1 rounded-full cursor-pointer text-sm hover:bg-green-400 flex gap-1 items-center"
                                         onClick={() => {
-																					setCurrentProcessingId(scholarshipStudent.ScholarshipStudentId)
+                                          setCurrentProcessingId(
+                                            scholarshipStudent.ScholarshipStudentId
+                                          );
                                           handleApprove(
                                             scholarshipStudent,
-                                            studentScholar[scholarshipStudent.ScholarshipStudentId],
-                                            sponsorAlum[scholarshipStudent.ScholarshipStudentId]
+                                            studentScholar[
+                                              scholarshipStudent
+                                                .ScholarshipStudentId
+                                            ],
+                                            sponsorAlum[
+                                              scholarshipStudent
+                                                .ScholarshipStudentId
+                                            ]
                                           );
                                         }}
                                         disabled={loadingApprove}
                                       >
                                         <CircleCheck className="size-4.5" />
-                                        {(loadingApprove && currentProcessingId === scholarshipStudent.ScholarshipStudentId) ? "Approving..." : "Approve"}
+                                        {loadingApprove &&
+                                        currentProcessingId ===
+                                          scholarshipStudent.ScholarshipStudentId
+                                          ? "Approving..."
+                                          : "Approve"}
                                       </button>
                                       <button
                                         className="bg-red-500 text-white px-3 py-1 rounded-full cursor-pointer text-sm hover:bg-red-400 flex gap-1 items-center"
                                         onClick={() => {
-                                          handleReject(scholarshipStudent.ScholarshipStudentId);
+                                          handleReject(
+                                            scholarshipStudent.ScholarshipStudentId
+                                          );
                                         }}
                                         disabled={loadingReject}
-                                      >	
-                                        <CircleX className="size-4.5"/>
-																				{(loadingReject && currentProcessingId === scholarshipStudent.ScholarshipStudentId) ? "Processing..." : "Reject"}
+                                      >
+                                        <CircleX className="size-4.5" />
+                                        {loadingReject &&
+                                        currentProcessingId ===
+                                          scholarshipStudent.ScholarshipStudentId
+                                          ? "Processing..."
+                                          : "Reject"}
                                       </button>
                                     </>
                                   )}
                                   <button
                                     className="text-blue-500 cursor-pointer text-sm hover:text-blue-400 flex gap-1 items-center"
                                     onClick={() => {
-                                      navigateToDetail(scholarshipStudent.ScholarshipStudentId);
+                                      navigateToDetail(
+                                        scholarshipStudent.ScholarshipStudentId
+                                      );
                                     }}
-                                  >	
+                                  >
                                     View Details
                                   </button>
                                 </div>

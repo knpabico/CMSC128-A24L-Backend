@@ -4,11 +4,10 @@ import { Timestamp } from "firebase-admin/firestore";
 import { StringFormat } from "firebase/storage";
 
 export interface Alumnus {
-  graduationYear: ReactNode;
-  jobTitle: ReactNode;
   alumniId: string;
   regStatus: RegStatus; //accepted, pending, or rejected registration
   approvalDate: Date;
+  createdDate: Date;
   activeStatus: boolean; //active or not
   studentNumber: string;
   address: string[];
@@ -230,6 +229,5 @@ export interface ScholarshipStudent {
   alumId: string;
   scholarshipId: string;
   status: string; //accepted  or pending
-  pdf: string; 
+  pdf: string;
 }
-

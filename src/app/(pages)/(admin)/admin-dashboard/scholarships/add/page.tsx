@@ -10,14 +10,8 @@ import { AddStudent } from "../manage/[id]/add-student-form";
 import { useRouter } from "next/navigation";
 
 export default function AddScholarships() {
-  const {
-    scholarships,
-    loading,
-    error,
-    addScholarship,
-    updateScholarship,
-    addStudent,
-  } = useScholarship();
+  const { loading, addScholarship, updateScholarship, addStudent } =
+    useScholarship();
   const router = useRouter();
   // Input Data
   const [formData, setFormData] = useState({
@@ -25,7 +19,7 @@ export default function AddScholarships() {
     title: "",
     image: "",
   });
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [image, setImage] = useState(null);
@@ -89,7 +83,6 @@ export default function AddScholarships() {
           shortBackground: students[i].shortBackground,
           address: students[i].address,
           emailAddress: students[i].emailAddress,
-          background: students[i].background,
         };
 
         const response = await addStudent(newStudent);
@@ -163,7 +156,7 @@ export default function AddScholarships() {
   const handleUpload = async (newScholarship: Scholarship) => {
     if (!image) {
       setMessage("No image selected");
-			toastError("No Image selected")
+      toastError("No Image selected");
       setIsError(true);
       return;
     }
@@ -220,10 +213,10 @@ export default function AddScholarships() {
           onSubmit={handleSubmit}
         >
           <div className="flex flex-col gap-5">
-						<div className="text-lg font-medium flex items-center">
-							{/* <Asterisk size={16} className="text-red-600" />  */}
-							Scholarship Information:
-						</div>
+            <div className="text-lg font-medium flex items-center">
+              {/* <Asterisk size={16} className="text-red-600" />  */}
+              Scholarship Information:
+            </div>
             {/* Scholarship Name */}
             <div className="space-y-2">
               <label
@@ -270,12 +263,8 @@ export default function AddScholarships() {
                   htmlFor="image-upload"
                   className="text-sm font-medium flex items-center gap-2 cursor-pointer"
                 >
-									<Upload className="size-4" />
-									{preview ? (
-										<div>Change Photo</div>
-									) : (
-										<div>Upload Photo</div>
-									)}
+                  <Upload className="size-4" />
+                  {preview ? <div>Change Photo</div> : <div>Upload Photo</div>}
                 </label>
                 <input
                   id="image-upload"
@@ -301,10 +290,10 @@ export default function AddScholarships() {
             </div>
 
             <div>
-							<div className="text-lg font-medium flex items-center">
-								{/* <Asterisk size={16} className="text-red-600" />  */}
-								Student Details:
-							</div>
+              <div className="text-lg font-medium flex items-center">
+                {/* <Asterisk size={16} className="text-red-600" />  */}
+                Student Details:
+              </div>
               {studentForms.map((form, index) => (
                 <AddStudent
                   key={index}
@@ -321,7 +310,7 @@ export default function AddScholarships() {
                 onClick={addStudentForm}
                 className="flex items-center justify-center gap-2 text-[var(--primary-blue)] px-4 py-3 cursor-pointer hover:text-blue-500"
               >
-								<CirclePlus />
+                <CirclePlus />
                 Add Student
               </button>
             </div>

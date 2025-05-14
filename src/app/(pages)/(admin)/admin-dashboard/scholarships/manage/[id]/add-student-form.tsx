@@ -26,8 +26,8 @@ export const AddStudent = ({
     <div className="flex flex-col gap-5 ">
       {/* Form */}
       <div className="flex flex-col gap-3 bg-gray-100 px-3 py-5 rounded-lg my-2">
-				<div className="flex w-full justify-between gap-3">
-					{/* Student Name */}
+        <div className="flex w-full justify-between gap-3">
+          {/* Student Name */}
           <div className="space-y-2 w-2/3">
             <label
               htmlFor="name"
@@ -83,18 +83,18 @@ export const AddStudent = ({
               required
             />
           </div>
-					{!(type === "add" && index === 0) && (
+          {!(type === "add" && index === 0) && (
             <button
               onClick={onRemove}
               className="flex justify-center gap-2 cursor-pointer"
             >
-							<Trash2Icon className="hover:text-gray-500 text-gray-700"/>
+              <Trash2Icon className="hover:text-gray-500 text-gray-700" />
               {/* Remove */}
             </button>
           )}
-				</div>
-				<div className="flex w-full gap-3">
-					{/* Address */}
+        </div>
+        <div className="flex w-full gap-3">
+          {/* Address */}
           <div className="space-y-2 w-full">
             <label
               htmlFor="name"
@@ -129,7 +129,7 @@ export const AddStudent = ({
               required
             />
           </div>
-				</div>
+        </div>
         <div className="flex flex-col gap-5">
           {/* Short Background */}
           <div className="space-y-2">
@@ -147,23 +147,6 @@ export const AddStudent = ({
               required
             />
           </div>
-
-          {/* Background */}
-          {/* <div className="space-y-2">
-            <label
-              htmlFor="name"
-              className="text-sm font-medium flex items-center"
-            >
-              <Asterisk size={16} className="text-red-600" /> Background
-            </label>
-            <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Background"
-              value={formData.background}
-              onChange={(e) => setFormData("background", e.target.value)}
-              required
-            />
-          </div> */}
         </div>
       </div>
     </div>

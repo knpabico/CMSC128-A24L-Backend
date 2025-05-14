@@ -5,14 +5,8 @@ import { useScholarship } from "@/context/ScholarshipContext";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toastSuccess } from "@/components/ui/sonner";
-import {
-  ChevronDown,
-  ChevronRight,
-  CircleAlert,
-  CircleX,
-  Trash2,
-} from "lucide-react";
-import { Dialog, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { ChevronRight, CircleX, Trash2 } from "lucide-react";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import {
   DialogContent,
   DialogFooter,
@@ -20,17 +14,9 @@ import {
 } from "@/components/ui/dialog";
 
 export default function ManageScholarship() {
-  const {
-    scholarships,
-    loading,
-    error,
-    addScholarship,
-    updateScholarship,
-    deleteScholarship,
-    getScholarshipById,
-  } = useScholarship();
-  const [activeTab, setActiveTab] = useState("Posted");
-  const tableRef = useRef(null);
+  const { scholarships, updateScholarship, deleteScholarship } =
+    useScholarship();
+  const tableRef = useRef<HTMLDivElement>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
   const router = useRouter();
@@ -101,7 +87,7 @@ export default function ManageScholarship() {
 
       if (tableRect.top <= 0 && !isSticky) {
         setIsSticky(true);
-        setHeaderWidth(tableRect.width);
+        setHeaderWidth(tableRect.width.toString());
       } else if (tableRect.top > 0 && isSticky) {
         setIsSticky(false);
       }
@@ -111,7 +97,7 @@ export default function ManageScholarship() {
 
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth);
+      setHeaderWidth(tableRef.current.offsetWidth.toString());
     }
 
     // Clean up
@@ -124,21 +110,23 @@ export default function ManageScholarship() {
     router.push("/admin-dashboard/scholarships/add");
   };
 
-	const home = () => {
+  const home = () => {
     router.push("/admin-dashboard");
   };
-
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <div className="hover:text-blue-600 cursor-pointer" onClick={home}> 
-					Home 
-				</div>
+        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
+          Home
+        </div>
         <div>
           <ChevronRight size={15} />
         </div>
-        <div className="font-bold text-[var(--primary-blue)]"> Manage Scholarships </div>
+        <div className="font-bold text-[var(--primary-blue)]">
+          {" "}
+          Manage Scholarships{" "}
+        </div>
       </div>
       <div className="w-full">
         <div className="flex items-center justify-between">

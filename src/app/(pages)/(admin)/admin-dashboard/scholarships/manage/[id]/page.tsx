@@ -13,19 +13,14 @@ import {
   Asterisk,
   ChevronRight,
   CirclePlus,
-  MoveLeft,
-  Pen,
   Pencil,
-  Trash2,
   Upload,
 } from "lucide-react";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { uploadImage } from "@/lib/upload";
-import { useAlums } from "@/context/AlumContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { AddStudent } from "./add-student-form";
-import formatTimeString from "@/lib/timeFormatter";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
@@ -40,9 +35,8 @@ const ScholarshipDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const scholarshipId = params?.id as string;
-  const { alums, isLoading } = useAlums();
 
-	const navigateToDetail = (scholarshipId: string) => {
+  const navigateToDetail = (scholarshipId: string) => {
     router.push(`/admin-dashboard/scholarships/sponsorship/${scholarshipId}`);
   };
 
@@ -56,14 +50,15 @@ const ScholarshipDetailPage: React.FC = () => {
     Record<string, Alumnus | undefined>
   >({});
 
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alumList, setAlumniList] = useState<Alumnus[]>([]);
   const [isInformationOpen, setIsInformationOpen] = useState(false);
-	const [isStudentInformationOpen, setIsStudentInformationOpen] = useState(false);
+  const [isStudentInformationOpen, setIsStudentInformationOpen] =
+    useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [students, setStudents] = useState<any[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
@@ -261,7 +256,6 @@ const ScholarshipDetailPage: React.FC = () => {
           shortBackground: students[i].shortBackground,
           address: students[i].address,
           emailAddress: students[i].emailAddress,
-          background: students[i].background,
         };
 
         const response = await addStudent(newStudent);
@@ -449,127 +443,149 @@ const ScholarshipDetailPage: React.FC = () => {
               </div>
             )}
           </div>
-					{/* Student Section */}
-					<div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-						<div className="flex justify-between items-center">
+          {/* Student Section */}
+          <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+            <div className="flex justify-between items-center">
               <div className="text-sm font-medium flex items-center">
                 Students Infomation
               </div>
               <button
-                onClick={() => setIsStudentInformationOpen(!isStudentInformationOpen)}
+                onClick={() =>
+                  setIsStudentInformationOpen(!isStudentInformationOpen)
+                }
                 className="text-sm text-blue-600 hover:underline"
               >
                 {isStudentInformationOpen ? "Hide Details" : "Show Details"}
               </button>
             </div>
-						{isStudentInformationOpen && (
-							<div>
-								{loadingStudents ? (
-									<p>Loading students...</p>
-								) : students.length > 0 ? (
-									<div className="overflow-hidden border border-gray-300 rounded-lg shadow-sm mt-2">
-										<table className="min-w-full divide-y divide-gray-300">
-											<thead className="bg-gray-50">
-												<tr>
-													<th 
-														className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-													>
-														Student Information
-													</th>
-													<th 
-														className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-													>
-														Email
-													</th>
-													<th 
-														className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-													>
-														Student-Number
-													</th>
-													<th 
-														className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-													>
-														Scholarship Details
-													</th>
-												</tr>
-											</thead>
-											<tbody className="bg-white divide-y divide-gray-200">
-												{students.map((student) => {
-													const hasScholarships = scholarshipStudentMapping[student.studentId] && 
-																								scholarshipStudentMapping[student.studentId].length > 0;
-													
-													// If student has no scholarships, display a single row
-													if (!hasScholarships) {
-														return (
-															<tr key={student.studentId}>
-																<td className="px-6 py-2">
-																	<div className="font-medium text-gray-900">{student.name}</div>
-																	<div className="text-sm text-gray-500 max-w-xs">
-																		<div className="line-clamp-2 hover:line-clamp-none" title={student.shortBackground}>
-																			{student.shortBackground}
-																		</div>
-																	</div>
-																</td>
-																<td className="px-6 py-2 whitespace-nowrap text-center">
-																	{student.emailAddress}
-																</td>
-																<td className="px-6 py-2 whitespace-nowrap text-center">
-																	{student.studentNumber}
-																</td>
-																<td className="px-6 py-4 whitespace-nowrap text-center" colSpan={3}>
-																	<span className="text-sm text-gray-500">No scholarship yet</span>
-																</td>
-															</tr>
-														);
-													}
-													
-													// If student has scholarships, map through them
-													return scholarshipStudentMapping[student.studentId].map((scholarshipStudent, index) => (
-														<tr 
-															key={`${student.studentId}-${scholarshipStudent.ScholarshipStudentId}`}
-															className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-														>
-															{/* Only show student info in the first row of their scholarships */}
-															<td className="px-6 py-2">
-																{index === 0 && (
-																	<>
-																		<div className="font-medium text-gray-900">{student.name}</div>
-																		<div className="text-sm text-gray-500 max-w-xs">
-																			<div className="line-clamp-2 hover:line-clamp-none" title={student.shortBackground}>
-																				{student.shortBackground}
-																			</div>
-																		</div>
-																	</>
-																)}
-															</td>
-															
-															<td className="px-6 py-2 whitespace-nowrap text-center">
-																{student.emailAddress}
-															</td>
-															
-															<td className="px-6 py-2 whitespace-nowrap text-center">
-																{student.studentNumber}
-															</td>
+            {isStudentInformationOpen && (
+              <div>
+                {loadingStudents ? (
+                  <p>Loading students...</p>
+                ) : students.length > 0 ? (
+                  <div className="overflow-hidden border border-gray-300 rounded-lg shadow-sm mt-2">
+                    <table className="min-w-full divide-y divide-gray-300">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Student Information
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Email
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Student-Number
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Scholarship Details
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {students.map((student) => {
+                          const hasScholarships =
+                            scholarshipStudentMapping[student.studentId] &&
+                            scholarshipStudentMapping[student.studentId]
+                              .length > 0;
 
-															<td className="px-6 py-2 whitespace-nowrap text-center">
-																<button className="bg-blue-500 text-white px-5 py-1 rounded-full cursor-pointer text-sm hover:bg-blue-400"
-																	onClick={() => navigateToDetail(scholarshipStudent.ScholarshipStudentId)}
-																>
-																	View Details
-																</button>
-															</td>
-														</tr>
-													));
-												})}
-											</tbody>
-										</table>
-									</div>
-								) : (
-									<p>No students are currently associated with this scholarship.</p>
-								)}
-							</div>
-						)}
-					</div>
+                          // If student has no scholarships, display a single row
+                          if (!hasScholarships) {
+                            return (
+                              <tr key={student.studentId}>
+                                <td className="px-6 py-2">
+                                  <div className="font-medium text-gray-900">
+                                    {student.name}
+                                  </div>
+                                  <div className="text-sm text-gray-500 max-w-xs">
+                                    <div
+                                      className="line-clamp-2 hover:line-clamp-none"
+                                      title={student.shortBackground}
+                                    >
+                                      {student.shortBackground}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-2 whitespace-nowrap text-center">
+                                  {student.emailAddress}
+                                </td>
+                                <td className="px-6 py-2 whitespace-nowrap text-center">
+                                  {student.studentNumber}
+                                </td>
+                                <td
+                                  className="px-6 py-4 whitespace-nowrap text-center"
+                                  colSpan={3}
+                                >
+                                  <span className="text-sm text-gray-500">
+                                    No scholarship yet
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          }
+
+                          // If student has scholarships, map through them
+                          return scholarshipStudentMapping[
+                            student.studentId
+                          ].map((scholarshipStudent, index) => (
+                            <tr
+                              key={`${student.studentId}-${scholarshipStudent.ScholarshipStudentId}`}
+                              className={
+                                index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                              }
+                            >
+                              {/* Only show student info in the first row of their scholarships */}
+                              <td className="px-6 py-2">
+                                {index === 0 && (
+                                  <>
+                                    <div className="font-medium text-gray-900">
+                                      {student.name}
+                                    </div>
+                                    <div className="text-sm text-gray-500 max-w-xs">
+                                      <div
+                                        className="line-clamp-2 hover:line-clamp-none"
+                                        title={student.shortBackground}
+                                      >
+                                        {student.shortBackground}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              </td>
+
+                              <td className="px-6 py-2 whitespace-nowrap text-center">
+                                {student.emailAddress}
+                              </td>
+
+                              <td className="px-6 py-2 whitespace-nowrap text-center">
+                                {student.studentNumber}
+                              </td>
+
+                              <td className="px-6 py-2 whitespace-nowrap text-center">
+                                <button
+                                  className="bg-blue-500 text-white px-5 py-1 rounded-full cursor-pointer text-sm hover:bg-blue-400"
+                                  onClick={() =>
+                                    navigateToDetail(
+                                      scholarshipStudent.ScholarshipStudentId
+                                    )
+                                  }
+                                >
+                                  View Details
+                                </button>
+                              </td>
+                            </tr>
+                          ));
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p>
+                    No students are currently associated with this scholarship.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
           {/* Editable Details */}
           <form
             className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4"
@@ -577,9 +593,9 @@ const ScholarshipDetailPage: React.FC = () => {
           >
             <div className="flex w-full gap-5">
               <div className="w-2/3 flex flex-col gap-5">
-								<div className="text-lg font-medium flex items-center">
-									Scholarship Details:
-								</div>
+                <div className="text-lg font-medium flex items-center">
+                  Scholarship Details:
+                </div>
                 {/* Scholarship Name */}
                 <div className="space-y-2">
                   <label
@@ -661,29 +677,29 @@ const ScholarshipDetailPage: React.FC = () => {
               </div>
             </div>
 
-						{isEditing && (
-							<div>
-								{studentForms.map((form, index) => (
-									<AddStudent
-										key={index}
-										formData={form}
-										onUpdate={(updatedData) =>
-											updateStudentForm(index, updatedData)
-										}
-										onRemove={() => removeStudentForm(index)}
-										type="edit"
-										index={index}
-									/>
-								))}
-								<button
-									onClick={addStudentForm}
-									className="flex items-center justify-center gap-2 text-[var(--primary-blue)] px-1 mt-3 cursor-pointer hover:text-blue-500"
-									>
-										<CirclePlus />
-										Add Student
-								</button>
-							</div>
-						)}
+            {isEditing && (
+              <div>
+                {studentForms.map((form, index) => (
+                  <AddStudent
+                    key={index}
+                    formData={form}
+                    onUpdate={(updatedData) =>
+                      updateStudentForm(index, updatedData)
+                    }
+                    onRemove={() => removeStudentForm(index)}
+                    type="edit"
+                    index={index}
+                  />
+                ))}
+                <button
+                  onClick={addStudentForm}
+                  className="flex items-center justify-center gap-2 text-[var(--primary-blue)] px-1 mt-3 cursor-pointer hover:text-blue-500"
+                >
+                  <CirclePlus />
+                  Add Student
+                </button>
+              </div>
+            )}
 
             {/* Button */}
             {isEditing && (
