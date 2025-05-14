@@ -53,7 +53,6 @@ export default function EditEventPage() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [currentEvent, setCurrentEvent] = useState(null)
-  const [isEditMode, setIsEditMode] = useState(false)
   const [isSticky, setIsSticky] = useState(false)
 
   // Refs
@@ -94,7 +93,7 @@ export default function EditEventPage() {
   const breadcrumbItems = [
     { label: "Home", href: "/admin-dashboard" },
     { label: "Manage Events", href: "/admin-dashboard/organize-events" },
-    { label: "Edit Event", href: "#", active: true },
+    { label: `Pending: ${title}`, href: "#", active: true },
   ]
 
   // Check if form is complete
@@ -217,7 +216,6 @@ export default function EditEventPage() {
     setErrorMessage("")
     setButton("")
     setPreview(null)
-    setIsEditMode(false)
   }
 
   const handleSubmit = async (e: React.FormEvent, buttonType: "Update" | "Finalize") => {
@@ -419,7 +417,6 @@ export default function EditEventPage() {
                 accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
                 className="sr-only"
                 onChange={handleFileUpload}
-                disabled={!isEditMode}
               />
             </label>
           </div>
@@ -428,7 +425,7 @@ export default function EditEventPage() {
         <div className="relative mt-2">
           <div className="relative h-64 overflow-hidden rounded-lg">
             <img src={preview || "/placeholder.svg"} alt="Preview" className="h-full w-full object-cover" />
-            {isEditMode && (
+            {(
               <button
                 type="button"
                 className="absolute top-2 right-2 rounded-full bg-white p-1 text-gray-500 shadow-md hover:text-gray-700"
@@ -457,7 +454,7 @@ export default function EditEventPage() {
             {selectedBatches.map((year) => (
               <div key={year} className="flex items-center bg-blue-100 text-blue-800 rounded-md px-2 py-1 m-1">
                 <span>{year}</span>
-                {isEditMode && (
+                {(
                   <X
                     size={16}
                     className="ml-1 cursor-pointer text-blue-600 hover:text-blue-800"
@@ -468,7 +465,7 @@ export default function EditEventPage() {
             ))}
           </>
         )}
-        {isEditMode && (
+        {(
           <input
             ref={batchMainInputRef}
             type="text"
@@ -490,7 +487,7 @@ export default function EditEventPage() {
             className="flex-grow outline-none text-sm min-w-20 px-2 py-1"
           />
         )}
-        {isEditMode && (
+        {(
           <div className="ml-auto cursor-pointer p-1" onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}>
             <ChevronDown
               size={20}
@@ -500,7 +497,7 @@ export default function EditEventPage() {
         )}
       </div>
 
-      {isEditMode && isBatchDropdownOpen && (
+      {isBatchDropdownOpen && (
         <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
           <div className="overflow-y-auto max-h-72">
             {filteredBatchYears.length > 0 ? (
@@ -545,7 +542,7 @@ export default function EditEventPage() {
             {selectedAlumni.map((email) => (
               <div key={email} className="flex items-center bg-green-100 text-green-800 rounded-md px-2 py-1 m-1">
                 <span className="text-xs">{email}</span>
-                {isEditMode && (
+                {(
                   <X
                     size={16}
                     className="ml-1 cursor-pointer text-green-600 hover:text-green-800"
@@ -556,7 +553,7 @@ export default function EditEventPage() {
             ))}
           </>
         )}
-        {isEditMode && (
+        {(
           <input
             ref={alumniMainInputRef}
             type="text"
@@ -578,7 +575,7 @@ export default function EditEventPage() {
             className="flex-grow outline-none text-sm min-w-20 px-2 py-1"
           />
         )}
-        {isEditMode && (
+        {(
           <div className="ml-auto cursor-pointer p-1" onClick={() => setIsAlumniDropdownOpen(!isAlumniDropdownOpen)}>
             <ChevronDown
               size={20}
@@ -588,7 +585,7 @@ export default function EditEventPage() {
         )}
       </div>
 
-      {isEditMode && isAlumniDropdownOpen && (
+      {isAlumniDropdownOpen && (
         <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
           <div className="overflow-y-auto max-h-72">
             {filteredAlumniEmails.length > 0 ? (
@@ -630,7 +627,7 @@ export default function EditEventPage() {
       <button
         type="button"
         onClick={() => {
-          resetFormState()
+          setIsSticky(false)
           router.push("/admin-dashboard/organize-events")
         }}
         className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
@@ -641,22 +638,25 @@ export default function EditEventPage() {
       <button
         type="submit"
         onClick={(e) => handleSubmit(e, "Update")}
-        disabled={isUpdating || !isEditMode}
-        className={`flex items-center justify-center gap-2 ${
-          isEditMode
-            ? "bg-[var(--primary-white)] text-[var(--primary-blue)] hover:bg-[var(--gray-600)] hover:border-[var(--gray-600)]"
-            : "bg-[var(--primary-white)] text-[var(--primary-blue)] opacity-50 cursor-not-allowed"
-        } border-2 border-[var(--primary-gray)] px-4 py-2 rounded-full`}
+        disabled={isUpdating || !formComplete}
+        className={`w-30 flex items-center justify-center gap-2 ${
+          formComplete
+            ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
+            : "bg-[var(--primary-blue)] text-[var(--primary-white)] opacity-50 cursor-not-allowed"
+        } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}
       >
         {isUpdating ? "Updating..." : "Update"}
       </button>
 
       <button
         type="submit"
-        onClick={(e) => handleSubmit(e, "Finalize")}
-        disabled={isSubmitting || !formComplete || !isEditMode}
-        className={`flex items-center justify-center gap-2 ${
-          formComplete && isEditMode
+        onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {
+          await handleSubmit(e, "Update");
+          await handleSubmit(e, "Finalize");
+        }}
+        disabled={isSubmitting || !formComplete}
+        className={`w-30 flex items-center justify-center gap-2 ${
+          formComplete
             ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
             : "bg-[var(--primary-blue)] text-[var(--primary-white)] opacity-50 cursor-not-allowed"
         } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}
@@ -672,14 +672,8 @@ export default function EditEventPage() {
 
       <div className="w-full">
         <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl">Edit Event</div>
-          <button
-            onClick={() => setIsEditMode(!isEditMode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg ${isEditMode ? "bg-blue-100 text-blue-700" : "bg-blue-500 text-white hover:bg-blue-600"}`}
-          >
-            {isEditMode ? <Eye size={20} /> : <Edit size={20} />}
-            {isEditMode ? "View Mode" : "Edit Mode"}
-          </button>
+          <div className="font-bold text-3xl">Pending: {title}</div>
+          
         </div>
       </div>
 
@@ -699,7 +693,6 @@ export default function EditEventPage() {
                 onChange={(e) => setEventTitle(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 required
-                disabled={!isEditMode}
               />
             </div>
 
@@ -716,11 +709,10 @@ export default function EditEventPage() {
                   value={description}
                   onChange={(e) => setEventDescription(e.target.value)}
                   required
-                  disabled={!isEditMode}
                 />
               </div>
 
-              {isEditMode && (
+              {(
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(true)}
@@ -752,7 +744,6 @@ export default function EditEventPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Location"
                 required
-                disabled={!isEditMode}
               />
             </div>
 
@@ -775,7 +766,6 @@ export default function EditEventPage() {
                       ? new Date(date).toISOString().split("T")[0]
                       : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
                   }
-                  disabled={!isEditMode}
                 />
               </div>
 
@@ -792,7 +782,6 @@ export default function EditEventPage() {
                   required
                   min="08:00"
                   max="22:00"
-                  disabled={!isEditMode}
                 />
               </div>
             </div>
@@ -817,18 +806,15 @@ export default function EditEventPage() {
                       value="all"
                       checked={visibility === "all"}
                       onChange={() => {
-                        if (isEditMode) {
-                          setVisibility("all")
-                          setSelectedAlumni([])
-                          setSelectedBatches([])
-                        }
+                        setVisibility("all");
+                        setSelectedAlumni([]);
+                        setSelectedBatches([]);
                       }}
-                      className={`h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 ${isEditMode ? "cursor-pointer" : "cursor-not-allowed"}`}
-                      disabled={!isEditMode}
+                      className={`h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 "cursor-pointer"`}
                     />
                     <label
                       htmlFor="visibility-all"
-                      className={`ml-2 text-sm ${isEditMode ? "cursor-pointer" : "cursor-not-allowed"}`}
+                      className={`ml-2 text-sm "cursor-pointer"`}
                     >
                       Open to All
                     </label>
@@ -844,17 +830,14 @@ export default function EditEventPage() {
                         value="batch"
                         checked={visibility === "batch"}
                         onChange={() => {
-                          if (isEditMode) {
-                            setVisibility("batch")
-                            setSelectedAlumni([])
-                          }
+                          setVisibility("batch");
+                          setSelectedAlumni([]);
                         }}
-                        className={`h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 ${isEditMode ? "cursor-pointer" : "cursor-not-allowed"}`}
-                        disabled={!isEditMode}
+                        className={`h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 "cursor-pointer"`}
                       />
                       <label
                         htmlFor="visibility-batch"
-                        className={`ml-2 text-sm ${isEditMode ? "cursor-pointer" : "cursor-not-allowed"}`}
+                        className={`ml-2 text-sm "cursor-pointer"`}
                       >
                         By Graduation Year
                       </label>
@@ -873,17 +856,14 @@ export default function EditEventPage() {
                         value="alumni"
                         checked={visibility === "alumni"}
                         onChange={() => {
-                          if (isEditMode) {
-                            setVisibility("alumni")
-                            setSelectedBatches([])
-                          }
+                          setVisibility("alumni");
+                          setSelectedBatches([]);
                         }}
-                        className={`h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 ${isEditMode ? "cursor-pointer" : "cursor-not-allowed"}`}
-                        disabled={!isEditMode}
+                        className={`h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 "cursor-pointer"`}
                       />
                       <label
                         htmlFor="visibility-alumni"
-                        className={`ml-2 text-sm ${isEditMode ? "cursor-pointer" : "cursor-not-allowed"}`}
+                        className={`ml-2 text-sm "cursor-pointer"`}
                       >
                         Specific Alumni
                       </label>

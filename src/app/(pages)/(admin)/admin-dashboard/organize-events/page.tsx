@@ -5,7 +5,7 @@ import { useEvents } from "@/context/EventContext"
 import type { Event } from "@/models/models"
 import Link from "next/link"
 import { useMemo } from "react"
-import { Calendar, ChevronRight, Clock, SquarePen, Eye, MapPin, Trash2, UserCheck } from "lucide-react"
+import { Calendar, ChevronRight, CircleCheck, CircleX, Clock, MapPin, Trash2, UserCheck } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useRsvpDetails } from "@/context/RSVPContext"
 import { useDonationDrives } from "@/context/DonationDriveContext"
@@ -268,12 +268,11 @@ export default function EventPageAdmin() {
             {/* Table with proper HTML table elements */}
             <table className="w-full border-collapse">
               {/* Table Header - Using position: sticky */}
-              <thead className="sticky top-0 z-50 bg-blue-100 shadow-sm">
+              <thead className="sticky top-0 z-50 bg-blue-100 shadow-sm text-sm text-gray-600">
                 <tr>
-                  <th className="text-left p-4 font-semibold w-1/3">Event Title</th>
-                  <th className="text-left p-4 font-semibold w-1/3">Details</th>
-                  <th className="text-left p-4 font-semibold w-1/6">Status</th>
-                  <th className="text-right p-4 font-semibold w-1/6">Actions</th>
+                  <th className="text-left p-4 font-semibold w-2/6">Event Title</th>
+                  <th className="text-left p-4 font-semibold w-1/6">Details</th>
+                  <th className="text-right p-4 font-semibold w-3/6">Actions</th>
                 </tr>
               </thead>
 
@@ -292,99 +291,81 @@ export default function EventPageAdmin() {
                       className={`border-t border-gray-300 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-blue-50`}
                     >
                       {/* Title + description */}
-                      <td className="p-4">
+                      <td className="p-4 w-2/5">
                         <div className="flex flex-col gap-1">
                           <div className="text-base font-bold">{e.title}</div>
                           <div className="text-sm text-gray-600">
-                            <p className="font-normal">
-                              {e.description.split(" ").slice(0, 5).join(" ")}
-                              {e.description.split(" ").length > 4 ? "..." : ""}
-                            </p>
                             <p className="text-xs font-light">Proposed by: {e.creatorName ?? "Admin"}</p>
                           </div>
                         </div>
                       </td>
 
                       {/* Event Details */}
-                      <td className="p-4">
-                        <div className="flex flex-wrap gap-4 text-gray-600">
-                          {/* Event Date */}
-                          <div className="flex gap-1 items-center">
-                            <Calendar size={16} />
-                            <p className="text-xs">{e.date}</p>
+                      <td className="p-4  w-2/7">
+                        <div className="flex gap-15 text-gray-600">
+                          <div className="flex flex-col gap-5">
+                            {/* Event Date */}
+                            <div className="flex gap-1 items-center">
+                              <Calendar size={16} />
+                              <p className="text-xs">{e.date}</p>
+                            </div>
+
+                            {/* Event Time */}
+                            <div className="flex gap-1 items-center">
+                              <Clock size={16} />
+                              <p className="text-xs">{e.time}</p>
+                            </div>
                           </div>
 
-                          {/* Event Time */}
-                          <div className="flex gap-1 items-center">
-                            <Clock size={16} />
-                            <p className="text-xs">{e.time}</p>
+                          <div className="flex flex-col gap-5">
+                            {/* Where */}
+                            <div className="flex gap-1 items-center">
+                              <MapPin size={16} />
+                              <p className="text-xs truncate max-w-[150px]">{e.location}</p>
+                            </div>
+
+                            {/* Num of attendees */}
+                            <div className="flex gap-1 items-center bg">
+                              <UserCheck size={16} />
+                              <p className="text-xs">{e.numofAttendees} Going</p>
+                            </div>
                           </div>
 
-                          {/* Where */}
-                          <div className="flex gap-1 items-center">
-                            <MapPin size={16} />
-                            <p className="text-xs truncate max-w-[150px]">{e.location}</p>
-                          </div>
-
-                          {/* Num of attendees */}
-                          <div className="flex gap-1 items-center">
-                            <UserCheck size={16} />
-                            <p className="text-xs">{e.numofAttendees} Going</p>
-                          </div>
+                          
                         </div>
                       </td>
 
-                      {/* Status Badge */}
-                      <td className="p-4">
-                        <span
-                          className={`px-5 py-2 text-xs font-medium border rounded-full inline-block ${
-                            e.status === "Accepted"
-                              ? "bg-green-100 text-green-800 border-green-600"
-                              : e.status === "Pending"
-                                ? "bg-yellow-100 text-yellow-800 border-yellow-600"
-                                : e.status === "Rejected"
-                                  ? "bg-red-100 text-red-800 border-red-600"
-                                  : "bg-gray-100 text-gray-800 border-gray-600"
-                          }`}
-                        >
-                          {e.status === "Accepted" ? "Approved" : e.status.charAt(0).toUpperCase() + e.status.slice(1)}
-                        </span>
-                      </td>
-
                       {/* Actions */}
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right pr-5">
                         {e.status === "Pending" ? (
                           <div className="flex items-center justify-end gap-4">
-                            <div className="flex items-center gap-2">
-                              <Eye
-                                size={20}
-                                onClick={() => router.push(`/admin-dashboard/organize-events/edit/${e.eventId}`)}
-                                className="text-gray-500 hover:text-yellow-400 cursor-pointer"
-                              />
-                              <SquarePen size={20} className="text-gray-500 hover:text-blue-400 cursor-pointer" />
-                              <Trash2
-                                size={20}
-                                onClick={() => handleDelete(e.eventId)}
-                                className="text-gray-500 hover:text-red-400 cursor-pointer"
-                              />
+                            <div className="flex items-center justify-end gap-10 pr-5">
+                              <div className="flex items-center justify-end gap-10 text-[14px]">
+                                <button
+                                  onClick={() => router.push(`/admin-dashboard/organize-events/edit/${e.eventId}`)}
+                                  className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                                >
+                                  View Details
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-sm">
                               <button
                                 onClick={() => addEvent(e, true)}
-                                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-300"
+                                className="px-3 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 cursor-pointer flex gap-1 items-center"
                               >
-                                Approve
+                                <CircleCheck size={18} />Approve
                               </button>
                               <button
                                 onClick={() => handleReject(e.eventId)}
-                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-300"
+                                className="px-3 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 cursor-pointer flex gap-1 items-center"
                               >
-                                Reject
+                                <CircleX size={18}/> Reject
                               </button>
                             </div>
                           </div>
                         ) : e.status === "Accepted" && e.donationDriveId === "" ? (
-                          <div className="flex items-center justify-end gap-4">
+                          <div className="flex items-center justify-end gap-10 text-[14px]">
                             <button
                               onClick={() => handleAddEventRelated(e)}
                               className="text-gray-600 hover:underline cursor-pointer"
@@ -397,27 +378,39 @@ export default function EventPageAdmin() {
                             >
                               View Details
                             </button>
+                            <Trash2
+                              size={20}
+                              onClick={() => handleDelete(e.eventId)}
+                              className="text-gray-500 hover:text-red-400 cursor-pointer"
+                            />
                           </div>
                         ) : e.status === "Accepted" || e.status === "Rejected" ? (
-                          <div className="flex items-center justify-end gap-4">
-                            <button
-                              onClick={() => handleViewEventAdmin(e)}
-                              className="text-[var(--primary-blue)] hover:underline cursor-pointer"
-                            >
-                              View Details
-                            </button>
+                          <div className="flex items-center justify-end gap-10 pr-5">
+                            <div className="flex items-center justify-end gap-10 text-[14px]">
+                              <button
+                                onClick={() => handleViewEventAdmin(e)}
+                                className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                              >
+                                View Details
+                              </button>
+                              <Trash2
+                                size={20}
+                                onClick={() => handleDelete(e.eventId)}
+                                className="text-gray-500 hover:text-red-400 cursor-pointer"
+                              />
+                            </div>
                           </div>
                         ) : (
                           e.status === "Draft" &&
                           e.creatorType === "admin" && (
-                            <div className="flex items-center justify-end gap-4">
-                              <div className="flex items-center gap-2">
-                                <Eye
-                                  size={20}
+                            <div className="flex items-center justify-end gap-10 pr-5">
+                              <div className="flex items-center justify-end gap-10 text-[14px]">
+                                <button
                                   onClick={() => router.push(`/admin-dashboard/organize-events/edit/${e.eventId}`)}
-                                  className="text-gray-500 hover:text-yellow-400 cursor-pointer"
-                                />
-                                <SquarePen size={20} className="text-gray-500 hover:text-blue-400 cursor-pointer" />
+                                  className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                                >
+                                  View Details
+                                </button>
                                 <Trash2
                                   size={20}
                                   onClick={() => handleDelete(e.eventId)}
