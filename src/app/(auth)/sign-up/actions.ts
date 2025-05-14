@@ -49,36 +49,30 @@ const calculateAge = (birthDate: Date) => {
 //function for saving career to the work_experience collection
 const saveCareer = async (
   career:
-    | (
-        | {
-            industry: string;
-            jobTitle: string;
-            company: string;
-            startYear: string;
-            endYear: string;
-            location: string;
-            latitude: number;
-            longitude: number;
-          }
-        | undefined
-      )[]
+    | {
+        industry?: string;
+        jobTitle?: string;
+        company?: string;
+        startYear?: string;
+        endYear?: string;
+        location?: string;
+        latitude?: number;
+        longitude?: number;
+      }[]
     | undefined,
   currentJob:
-    | (
-        | {
-            industry: string;
-            jobTitle: string;
-            company: string;
-            startYear: string;
-            endYear: string;
-            location: string;
-            latitude: number;
-            longitude: number;
-            hasProof: boolean;
-            proof?: any;
-          }
-        | undefined
-      )[]
+    | {
+        industry?: string;
+        jobTitle?: string;
+        company?: string;
+        startYear?: string;
+        endYear?: string;
+        location?: string;
+        latitude?: number;
+        longitude?: number;
+        hasProof?: boolean;
+        proof?: any;
+      }[]
     | undefined,
   alumniId: string
 ) => {
@@ -145,18 +139,12 @@ const saveCareer = async (
 
 //function for saving bachelors, masters, and doctoral to the education collection
 const saveEducation = async (
-  bachelors: { university: string; major: string; yearGraduated: string }[],
+  bachelors: { university?: string; major?: string; yearGraduated?: string }[],
   masters:
-    | (
-        | { university: string; major: string; yearGraduated: string }
-        | undefined
-      )[]
+    | { university?: string; major?: string; yearGraduated?: string }[]
     | undefined,
   doctoral:
-    | (
-        | { university: string; major: string; yearGraduated: string }
-        | undefined
-      )[]
+    | { university?: string; major?: string; yearGraduated?: string }[]
     | undefined,
   alumniId: string
 ) => {
@@ -225,14 +213,11 @@ const saveEducation = async (
 //function for saving affiliations to the affiliation collection
 const saveAffiliation = async (
   affiliation:
-    | (
-        | {
-            affiliationName: string;
-            yearJoined: string;
-            university: string;
-          }
-        | undefined
-      )[]
+    | {
+        affiliationName?: string;
+        yearJoined?: string;
+        university?: string;
+      }[]
     | undefined,
   alumniId: string
 ) => {
