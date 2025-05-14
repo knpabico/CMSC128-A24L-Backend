@@ -7,8 +7,6 @@ import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Users, Clock, MapPin, Calendar } from "lucide-react";
-import { useEffect } from "react";
-import { Timestamp } from "firebase-admin/firestore";
 import Image from "next/image";
 
 interface EventCardProps {

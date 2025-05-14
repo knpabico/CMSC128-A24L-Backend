@@ -19,8 +19,8 @@ export default function FeaturedStoryPage() {
       if (!date) return 0; // Default to epoch if date is missing
       
       // Handle Firestore timestamp object
-      if (date?.seconds) {
-        return new Date(date.seconds * 1000).getTime();
+      if (typeof date === "object" && date !== null && "seconds" in date && typeof (date as any).seconds === "number") {
+        return new Date((date as any).seconds * 1000).getTime();
       }
       
       // Handle Date object

@@ -81,8 +81,8 @@ export default function CreateEventPage() {
   // Sample alumni emails for display
   const alumniEmails = activeAlums
     ? activeAlums
-        .filter((alum: { email: any; activeStatus: boolean; }) => alum.email && alum.activeStatus === true)
-        .map((alum: { email: any; }) => alum.email)
+        .filter((alum: { email: string; activeStatus: boolean; }) => alum.email && alum.activeStatus === true)
+        .map((alum: { email: string; }) => alum.email)
     : [];
 
   // Filtered years based on search term
@@ -230,13 +230,13 @@ export default function CreateEventPage() {
   }, [isAlumniDropdownOpen]);
 
   useEffect(() => {
-    const handleClickOutside = (event: { target: any; }) => {
-      if (batchDropdownRef.current && !batchDropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (batchDropdownRef.current && !batchDropdownRef.current.contains(event.target as Node)) {
         setIsBatchDropdownOpen(false);
         setBatchSearchTerm("");
         setBatchInputValue("");
       }
-      if (alumniDropdownRef.current && !alumniDropdownRef.current.contains(event.target)) {
+      if (alumniDropdownRef.current && !alumniDropdownRef.current.contains(event.target as Node)) {
         setIsAlumniDropdownOpen(false);
         setAlumniSearchTerm("");
         setAlumniInputValue("");
