@@ -156,6 +156,8 @@ export default function AdminDashboard() {
     (exp:WorkExperience) => exp.endYear === "present"
   );
 
+  {console.log(activeDonations ,"Active Donations")}
+
 
   //for modals
   //Activate Alum 
@@ -478,21 +480,21 @@ export default function AdminDashboard() {
               <h3 className="font-semibold text-sm mb-3">Top Active Donation Drives</h3>
               <div className="w-full flex justify-center">
                 <div className="w-full h-60">
-                  {donationDrives.length > 0 ? (
+                  {activeDonations.length > 0 ? (
                     <BarGraph 
-                      labels={donationDrives
-                        .filter(drive => drive.currentAmount > 0)
-                        .sort((a, b) => b.currentAmount - a.currentAmount)
+                      labels={activeDonations
+                        .filter((drive:DonationDrive )=> drive.currentAmount >= 0)
+                        .sort((a:DonationDrive, b:DonationDrive) => b.currentAmount - a.currentAmount)
                         .slice(0, 6)
-                        .map((drive) => {
+                        .map((drive : DonationDrive) => {
                           const name = drive.campaignName;
-                          return name.length > 12 ? name.substring(0, 10) + '...' : name;
+                          return name.length > 12 ? name.substring(0, 50) + '...' : name;
                         })}
-                      data={donationDrives
-                        .filter(drive => drive.currentAmount > 0)
-                        .sort((a, b) => b.currentAmount - a.currentAmount)
+                      data={activeDonations
+                        .filter((drive: DonationDrive) => drive.currentAmount >=0)
+                        .sort((a:DonationDrive, b:DonationDrive) => b.currentAmount - a.currentAmount)
                         .slice(0, 6)
-                        .map(drive => drive.currentAmount)}
+                        .map((drive:DonationDrive) => drive.currentAmount)}
                       type="Donations (PHP)"
                     />
                   ) : (
