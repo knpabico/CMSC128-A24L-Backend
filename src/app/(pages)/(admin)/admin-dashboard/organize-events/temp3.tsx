@@ -477,13 +477,13 @@ export default function EventPageAdmin() {
                             <div className="flex items-center gap-x-2 ml-5">
                               <button
                                 onClick={() => addEvent(e, true)}
-                                className="px-4 py-2 bg-green-500 text-white rounded-md text-black hover:bg-green-300"
+                                className="px-4 py-2 bg-green-500 rounded-md text-black hover:bg-green-300"
                               >
                                 Approve
                               </button>
                               <button
                                 onClick={() => handleReject(e.eventId)}
-                                className="px-4 py-2 bg-red-500 text-white rounded-md text-black hover:bg-red-300"
+                                className="px-4 py-2 bg-red-500 rounded-md text-black hover:bg-red-300"
                               >
                                 Reject
                               </button>

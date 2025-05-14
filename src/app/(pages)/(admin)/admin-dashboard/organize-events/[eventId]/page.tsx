@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useRef, useMemo } from "react"
 import { useEvents } from "@/context/EventContext"
-import { Asterisk, ChevronDown, Upload, X, Pencil, Pencil } from "lucide-react"
+import { Asterisk, ChevronDown, Upload, X, Pencil } from "lucide-react"
 import type { Event } from "@/models/models"
 import { useRouter, useParams } from "next/navigation"
 import ModalInput from "@/components/ModalInputForm"
@@ -136,7 +136,7 @@ export default function EventPageAdmin() {
   const breadcrumbItems = [
     { label: "Home", href: "/admin-dashboard" },
     { label: "Manage Events", href: "/admin-dashboard/organize-events" },
-    { label: "Edit Event", href: "#", active: true },
+    { label: `${title}`, href: "#", active: true },
   ]
 
   // Check if form is complete

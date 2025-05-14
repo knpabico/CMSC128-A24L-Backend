@@ -396,7 +396,7 @@ export default function EditEventPage() {
   // Render components
   const renderImageUpload = () => (
     <div className="space-y-2 w-100">
-      <label htmlFor="image" className="block text-sm font-medium flex items-center">
+      <label htmlFor="image" className="text-sm font-medium flex items-center">
         <Asterisk size={16} className="text-red-600" /> Upload Image
       </label>
 
@@ -637,21 +637,10 @@ export default function EditEventPage() {
       <button
         type="submit"
         onClick={(e) => handleSubmit(e, "Update")}
-<<<<<<< HEAD
-        disabled={isUpdating || !formComplete}
-        className={`w-30 flex items-center justify-center gap-2 ${
-          formComplete
-            ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
-            : "bg-[var(--primary-blue)] text-[var(--primary-white)] opacity-50 cursor-not-allowed"
-        } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}
-=======
-        disabled={isUpdating || !isEditMode}
-        className={`flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-200 ${
-          isEditMode
-            ? "bg-[var(--primary-white)] text-[var(--primary-blue)] hover:bg-[var(--gray-600)] hover:border-[var(--gray-600)]"
-            : "bg-[var(--primary-white)] text-[var(--primary-blue)] opacity-50 cursor-not-allowed"
+        disabled={isUpdating}
+        className={`w-30 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-200 ${
+          "bg-[var(--primary-white)] text-[var(--primary-blue)] hover:bg-[var(--gray-600)] hover:border-[var(--gray-600)]"
         } border-2 border-[var(--primary-gray)] px-4 py-2 rounded-full `}
->>>>>>> d357160f4de6c6d1eb2f18e051e70b45dd71e36a
       >
         {isUpdating ? "Updating..." : "Update"}
       </button>
@@ -678,27 +667,11 @@ export default function EditEventPage() {
     <div className="flex flex-col gap-5">
       <Breadcrumb items={breadcrumbItems} />
 
-<<<<<<< HEAD
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Pending: {title}</div>
-          
-=======
-        <div className="w-full">
-          <div className="flex items-center justify-between">
-            <div className="font-bold text-3xl">View Event</div>
-            {!isEditMode && (
-              <div
-                onClick={() => setIsEditMode(!isEditMode)}
-                className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-              >
-                <Pencil size={18} /> Edit Event
-              </div>
-            )}
-          </div>
->>>>>>> d357160f4de6c6d1eb2f18e051e70b45dd71e36a
         </div>
-
+      </div>
 
       <div className="flex flex-col gap-3">
         <form ref={formContainerRef} className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">
