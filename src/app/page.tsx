@@ -425,7 +425,7 @@ export default function Home() {
     else if (status === "rejected") return <RejectedPage />;
     else
       return (
-        <div className="w-full px-4 md:px-6 lg:px-[50px]">
+        <div className="w-full px-[10%]">
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
             <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA]">
@@ -437,7 +437,7 @@ export default function Home() {
                 alt={alumInfo!.lastName}
                 src={
                   alumInfo!.image === ""
-                    ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
+                    ? "/default-profile.jpg"
                     : alumInfo!.image
                 }
                 className="w-20 h-20 md:w-40 md:h-40 lg:w-50 lg:h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"

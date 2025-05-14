@@ -6,7 +6,7 @@ import BookmarkButton from "@/components/ui/bookmark-button";
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRsvpDetails } from "@/context/RSVPContext";
-import { Users, Clock, MapPin, Calendar, ImageOff } from "lucide-react";
+import { Users, Clock, MapPin, Calendar } from "lucide-react";
 import { useEffect } from "react";
 import { Timestamp } from "firebase-admin/firestore";
 import Image from "next/image";
@@ -60,7 +60,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
         {/* Image */}
         <div className="relative bg-cover bg-center rounded-t-[10px] h-[230px]">
           <Image
-            src={event.image || "/ICS3.jpg"}
+            src={event.image || "/default-image.jpg"}
             alt={event.title}
             priority
             layout="fill"

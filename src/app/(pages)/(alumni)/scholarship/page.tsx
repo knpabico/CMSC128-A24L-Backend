@@ -647,7 +647,7 @@ const ScholarshipPage: React.FC = () => {
                         className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
                         style={{
                           backgroundImage: `url("${
-                            story.image || "/ICS3.jpg"
+                            story.image || "/default-image.jpg"
                           }")`,
                         }}
                       />
@@ -876,7 +876,7 @@ const ScholarshipPage: React.FC = () => {
                           className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
                           style={{
                             backgroundImage: `url("${
-                              scholarship.image || "/ICS3.jpg"
+                              scholarship.image || "/default-image.jpg"
                             }")`,
                           }}
                         />

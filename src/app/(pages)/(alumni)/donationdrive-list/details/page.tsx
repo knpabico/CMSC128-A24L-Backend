@@ -11,8 +11,9 @@ import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from '@/components/ui/bookmark-button';
-import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck, ImageOff } from 'lucide-react';
+import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
 import { ThankYouDialog } from '../../../../../components/ThankYouDialog';
+import Image from "next/image";
 
 
 const DonationDriveDetailsPage: React.FC = () => {
@@ -288,9 +289,14 @@ const getRemainingDays = (endDate: any) => {
 						</div>
 					) : (
 						<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
-							<span className="text-blue-500 font-medium">
-								<ImageOff className="size-[50px]" />
-							</span>
+							<Image
+								width={0}
+								height={0}
+								sizes="100vw"
+								src="/default-image.jpg"
+								alt="Default alumni image"
+								className="w-full h-full object-cover"
+							/>
 						</div>
 					)}
 					{/* Event details */}
