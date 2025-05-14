@@ -1,7 +1,5 @@
 // this file contains the type of an Alumni document
 import { RegStatus } from "@/types/alumni/regStatus";
-import { Timestamp } from "firebase-admin/firestore";
-import { StringFormat } from "firebase/storage";
 
 export interface Alumnus {
   alumniId: string;
@@ -90,7 +88,7 @@ export interface Event {
   location: string;
   image: string;
   numofAttendees: number;
-  targetGuests: String[];
+  targetGuests: string[];
   stillAccepting: boolean;
   needSponsorship: boolean;
   donationDriveId: string;

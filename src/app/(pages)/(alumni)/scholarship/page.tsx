@@ -29,6 +29,7 @@ import {
 } from "@/models/models";
 import Banner from "@/components/Banner";
 import { PdfPreviewDialog } from "./PdfPreviewDialog";
+import Image from "next/image";
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -643,14 +644,15 @@ const ScholarshipPage: React.FC = () => {
                       onClick={() => navigateToFeaturedDetail(story.featuredId)}
                     >
                       {/* Image */}
-                      <div
-                        className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
-                        style={{
-                          backgroundImage: `url("${
-                            story.image || "/default-image.jpg"
-                          }")`,
-                        }}
-                      />
+                      <div className="relative rounded-t-[10px] h-[230px]">
+                        <Image
+                          src={story.image || "/default-image.jpg"}
+                          alt={story.title || "Scholarship story"}
+                          fill
+                          className="object-cover object-center rounded-t-[10px]"
+                          priority
+                        />
+                      </div>
                       {/* Body */}
                       <div className="px-6 pt-3 pb-6">
                         {/* Title */}
@@ -872,14 +874,15 @@ const ScholarshipPage: React.FC = () => {
                         }
                       >
                         {/* Image */}
-                        <div
-                          className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
-                          style={{
-                            backgroundImage: `url("${
-                              scholarship.image || "/default-image.jpg"
-                            }")`,
-                          }}
-                        />
+                        <div className="relative rounded-t-[10px] h-[230px]">
+                          <Image
+                            src={scholarship.image || "/default-image.jpg"}
+                            alt={scholarship.title || "Scholarship"}
+                            fill
+                            className="object-cover object-center rounded-t-[10px]"
+                            priority
+                          />
+                        </div>
                         {/* Body */}
                         <div className="px-6 pt-3 pb-6">
                           {/* Name */}
