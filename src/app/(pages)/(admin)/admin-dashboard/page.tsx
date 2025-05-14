@@ -418,7 +418,7 @@ export default function AdminDashboard() {
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-green-50 to-green-100">
                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Active</div>
                  {/* palagay here yung count nung active donations */}
-                <div className="text-lg sm:text-2xl font-bold text-green-700">{donationDrives.length}</div>
+                <div className="text-lg sm:text-2xl font-bold text-green-700">{activeDonations.length}</div>
               </div>
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-blue-50 to-blue-100">
                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Total Raised</div>
