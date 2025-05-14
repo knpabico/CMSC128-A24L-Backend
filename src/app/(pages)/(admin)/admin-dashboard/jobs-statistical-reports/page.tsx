@@ -7,6 +7,7 @@ import { useJobOffer } from "@/context/JobOfferContext";
 import { useJobApplicationContext } from "@/context/JobApplicationContext";
 import { JobApplication, JobOffering } from "@/models/models";
 import ReportSummaryCard from "@/components/ReportSummaryCard";
+import { BarChart, ChevronRight } from "lucide-react";
 
 export default function JobStatisticsReport() {
   // State for all of our statistical data
@@ -241,334 +242,382 @@ export default function JobStatisticsReport() {
   }, [offers, jobApplications]);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">
-          Job Market Analytics Dashboard
-        </h1>
-        <p className="text-gray-600 mt-2">
-          A comprehensive analysis of current job offerings and applications
-        </p>
+    <div className="flex flex-col gap-4 p-4 max-w-7xl mx-auto">
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center gap-2">
+        <div className="hover:text-[#0856BA] cursor-pointer transition-colors">Home</div>
+        <div>
+          <ChevronRight size={15} />
+        </div>
+        <div className="font-medium text-[#0856BA]">Job Market Analytics</div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Job Offerings Distribution
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Job Type Distribution */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
-              Job Types
-            </h3>
-            <div className="h-64">
-              <DonutChart
-                labels={jobTypeDistribution.labels}
-                data={jobTypeDistribution.data}
-                backgroundColor={jobTypeColors}
-                options={true}
-              />
-            </div>
-            <div className="mt-4">
-              <p className="text-sm text-gray-600">
-                {jobTypeDistribution.data.length > 0 && (
-                  <>
-                    {
-                      jobTypeDistribution.labels[
-                        jobTypeDistribution.data.indexOf(
-                          Math.max(...jobTypeDistribution.data)
-                        )
-                      ]
-                    }{" "}
-                    positions dominate the current job market .
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
-
-          {/* Employment Type Distribution */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
-              Employment Types
-            </h3>
-            <div className="h-64">
-              <DonutChart
-                labels={employmentTypeDistribution.labels}
-                data={employmentTypeDistribution.data}
-                backgroundColor={employmentTypeColors}
-                options={true}
-              />
-            </div>
-            <div className="mt-4">
-              <p className="text-sm text-gray-600">
-                {employmentTypeDistribution.data.length > 0 && (
-                  <>
-                    {
-                      employmentTypeDistribution.labels[
-                        employmentTypeDistribution.data.indexOf(
-                          Math.max(...employmentTypeDistribution.data)
-                        )
-                      ]
-                    }{" "}
-                    positions account for the majority of job offerings, with
-                    other employment types making up a smaller portion.
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
-
-          {/* Experience Level Distribution */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
-              Experience Levels
-            </h3>
-            <div className="h-64">
-              <DonutChart
-                labels={experienceLevelDistribution.labels}
-                data={experienceLevelDistribution.data}
-                backgroundColor={experienceLevelColors}
-                options={true}
-              />
-            </div>
-            <div className="mt-4">
-              <p className="text-sm text-gray-600">
-                {experienceLevelDistribution.data.length > 0 && (
-                  <>
-                    {
-                      experienceLevelDistribution.labels[
-                        experienceLevelDistribution.data.indexOf(
-                          Math.max(...experienceLevelDistribution.data)
-                        )
-                      ]
-                    }{" "}
-                    positions are the most common
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
+      {/* Page Title */}
+      <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2">
+          <BarChart className="w-8 h-8 text-[#0856BA]" />
+          <h1 className="font-bold text-3xl text-gray-800">Job Market Analytics Dashboard</h1>
+        </div>
+        <div className="bg-[#0856BA] text-white px-6 py-2 rounded-full text-sm font-medium shadow-sm">
+          Total Jobs: {offers.filter((offer: JobOffering) => offer.status === "Accepted").length}
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Application Analytics
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Application Status Distribution */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
-              Application Status
-            </h3>
-            <div className="h-100">
-              <DonutChart
-                labels={applicationStatusDistribution.labels}
-                data={applicationStatusDistribution.data}
-                backgroundColor={applicationStatusColors}
-                options={true}
-              />
-            </div>
-            <div className="mt-4">
-              <p className="text-sm font-medium mt-2 text-gray-800">
-                Total Applications:{" "}
-                {applicationStatusDistribution.data.reduce(
-                  (sum, count) => sum + count,
-                  0
-                )}
-              </p>
-              <p className="text-sm text-gray-600 mt-1">
-                Accepted:{" "}
-                {applicationStatusDistribution.labels.includes("accepted")
-                  ? applicationStatusDistribution.data[
-                      applicationStatusDistribution.labels.indexOf("accepted")
-                    ]
-                  : 0}{" "}
-                | Rejected:{" "}
-                {applicationStatusDistribution.labels.includes("rejected")
-                  ? applicationStatusDistribution.data[
-                      applicationStatusDistribution.labels.indexOf("rejected")
-                    ]
-                  : 0}{" "}
-                | Pending:{" "}
-                {applicationStatusDistribution.labels.includes("pending")
-                  ? applicationStatusDistribution.data[
-                      applicationStatusDistribution.labels.indexOf("pending")
-                    ]
-                  : 0}
-              </p>
+      {/* Top Section - Report Summary (60%) and Application Status (40%) */}
+      <div className="flex flex-col lg:flex-row gap-3">
+        {/* Left Side - Report Summary (60%) */}
+        <div className="w-full lg:w-[60%]">
+          <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="pb-1 border-b border-gray-100 p-4">
+          <div className="flex items-center text-xl font-bold text-gray-800">
+            <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+            Report Summary
+          </div>
+        </div>
+        <div className="p-4 flex-1 flex flex-col justify-center">
+          <div className="p-2 rounded-lg h-100 overflow-auto">
+            <ReportSummaryCard
+          data={`
+        // Job Market Overview
+        Total job offerings: ${
+      offers.filter((offer: JobOffering) => offer.status === "Accepted").length
+        }
+        Total applications submitted: ${applicationStatusDistribution.data.reduce(
+      (sum, count) => sum + count,
+      0
+        )}
+        
+        // Application Status Metrics
+        Applications accepted: ${
+      applicationStatusDistribution.labels.includes("accepted")
+        ? applicationStatusDistribution.data[
+        applicationStatusDistribution.labels.indexOf("accepted")
+          ]
+        : 0
+        }
+        Applications rejected: ${
+      applicationStatusDistribution.labels.includes("rejected")
+        ? applicationStatusDistribution.data[
+        applicationStatusDistribution.labels.indexOf("rejected")
+          ]
+        : 0
+        }
+        Applications pending: ${
+      applicationStatusDistribution.labels.includes("pending")
+        ? applicationStatusDistribution.data[
+        applicationStatusDistribution.labels.indexOf("pending")
+          ]
+        : 0
+        }
+        
+        // Job Type Distribution
+        Job types breakdown: ${jobTypeDistribution.labels
+      .map((label, index) => `${label}: ${jobTypeDistribution.data[index]}`)
+      .join(", ")}
+        Most common job type: ${
+      jobTypeDistribution.labels[
+        jobTypeDistribution.data.indexOf(Math.max(...jobTypeDistribution.data))
+      ]
+        }
+        
+        // Employment Type Distribution
+        Employment types breakdown: ${employmentTypeDistribution.labels
+      .map(
+        (label, index) => `${label}: ${employmentTypeDistribution.data[index]}`
+      )
+      .join(", ")}
+        Most common employment type: ${
+      employmentTypeDistribution.labels[
+        employmentTypeDistribution.data.indexOf(
+          Math.max(...employmentTypeDistribution.data)
+        )
+      ]
+        }
+        
+        // Experience Level Distribution
+        Experience levels breakdown: ${experienceLevelDistribution.labels
+      .map(
+        (label, index) => `${label}: ${experienceLevelDistribution.data[index]}`
+      )
+      .join(", ")}
+        Most common experience level: ${
+      experienceLevelDistribution.labels[
+        experienceLevelDistribution.data.indexOf(
+          Math.max(...experienceLevelDistribution.data)
+        )
+      ]
+        }
+        
+        // Application Metrics
+        Average applications per job: ${Math.round(
+      applicationsPerJob.data.reduce((sum, count) => sum + count, 0) /
+        applicationsPerJob.data.length
+        )}
+        Job with most applications: ${
+      applicationsPerJob.labels[
+        applicationsPerJob.data.indexOf(Math.max(...applicationsPerJob.data))
+      ]
+        } (${Math.max(...applicationsPerJob.data)} applications)
+        
+        // Top Skills
+        Top 5 in-demand skills: ${topSkills.labels
+      .map((label, index) => `${label} (${topSkills.data[index]})`)
+      .join(", ")}
+        Most requested skill: ${
+      topSkills.labels[topSkills.data.indexOf(Math.max(...topSkills.data))]
+        }
+        
+        // Salary Distribution
+        Salary range breakdown: ${salaryRangeDistribution.labels
+      .map((label, index) => `${label}: ${salaryRangeDistribution.data[index]}`)
+      .join(", ")}
+        Most common salary range: ${
+      salaryRangeDistribution.labels[
+        salaryRangeDistribution.data.indexOf(
+          Math.max(...salaryRangeDistribution.data)
+        )
+      ]
+        }
+        
+        // Market Trends
+        Weekly job posting trend: ${weeklyJobPostings.labels
+      .map((label, index) => `${label}: ${weeklyJobPostings.data[index]}`)
+      .join(", ")}
+        Week with highest postings: ${
+      weeklyJobPostings.labels[
+        weeklyJobPostings.data.indexOf(Math.max(...weeklyJobPostings.data))
+      ]
+        } (${Math.max(...weeklyJobPostings.data)} postings)
+        Job posting trend: ${
+      weeklyJobPostings.data.every(
+        (val, i, arr) => i === 0 || val >= arr[i - 1]
+      )
+        ? "Increasing"
+        : weeklyJobPostings.data.every(
+        (val, i, arr) => i === 0 || val <= arr[i - 1]
+          )
+        ? "Decreasing"
+        : "Fluctuating"
+        }
+        
+        // Application Success Rate
+        Application success rate: ${
+      applicationStatusDistribution.labels.includes("accepted")
+        ? Math.round(
+        (applicationStatusDistribution.data[
+          applicationStatusDistribution.labels.indexOf("accepted")
+        ] /
+          applicationStatusDistribution.data.reduce(
+            (sum, count) => sum + count,
+            0
+          )) *
+          100
+          )
+        : 0
+        }%
+        Application rejection rate: ${
+      applicationStatusDistribution.labels.includes("rejected")
+        ? Math.round(
+        (applicationStatusDistribution.data[
+          applicationStatusDistribution.labels.indexOf("rejected")
+        ] /
+          applicationStatusDistribution.data.reduce(
+            (sum, count) => sum + count,
+            0
+          )) *
+          100
+          )
+        : 0
+        }%
+        
+        // Date Context
+        Current date: ${new Date().toLocaleDateString()}
+        Report generated on: ${new Date().toLocaleString()}
+        
+        `}
+            />
+          </div>
             </div>
           </div>
+        </div>
 
-          {/* Applications Per Job */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
-              Applications Per Job
-            </h3>
-            <div className="h-64">
-              <BarGraph
-                labels={applicationsPerJob.labels}
-                data={applicationsPerJob.data}
-                type="Applications"
-              />
+        {/* Right Side - Application Status (40%) */}
+        <div className="w-full lg:w-[40%]">
+          <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 h-full flex flex-col">
+            <div className="pb-2 border-b border-gray-100 p-4">
+              <div className="text-lg font-bold text-gray-800 flex items-center">
+                <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+                Application Status
+              </div>
             </div>
-            <div className="mt-4">
-              <div className="text-sm text-gray-600">
-                {applicationsPerJob.data.length > 0 && (
-                  <p>
-                    {
-                      applicationsPerJob.labels[
-                        applicationsPerJob.data.indexOf(
-                          Math.max(...applicationsPerJob.data)
-                        )
-                      ]
-                    }{" "}
-                    positions received the highest number of applications,
-                    followed by{" "}
-                    {applicationsPerJob.data.length > 1 &&
-                      applicationsPerJob.labels
-                        .map((label, index) => ({
-                          label,
-                          value: applicationsPerJob.data[index],
-                        }))
-                        .sort((a, b) => b.value - a.value)
-                        .slice(1)
-                        .map((item, idx, arr) =>
-                          idx === arr.length - 1
-                            ? `and ${item.label}`
-                            : `${item.label}`
-                        )
-                        .join(", ")}
-                    .
-                  </p>
-                )}
-                {applicationsPerJob.data.length > 0 && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    The average number of applications per job is{" "}
-                    {Math.round(
-                      applicationsPerJob.data.reduce(
-                        (sum, count) => sum + count,
-                        0
-                      ) / applicationsPerJob.data.length
-                    )}
-                    , with a{" "}
-                    {Math.round(
-                      (Math.max(...applicationsPerJob.data) /
-                        Math.min(
-                          ...applicationsPerJob.data.filter((n) => n > 0)
-                        )) *
-                        100
-                    ) / 100}
-                    x difference between the most and least applied-to
-                    positions. This suggests
-                    {Math.max(...applicationsPerJob.data) >
-                    3 *
-                      (applicationsPerJob.data.reduce(
-                        (sum, count) => sum + count,
-                        0
-                      ) /
-                        applicationsPerJob.data.length)
-                      ? " significant candidate preference for certain roles."
-                      : " relatively balanced interest across available positions."}
-                  </p>
-                )}
+            <div className="flex-1 flex flex-col justify-center items-center p-4">
+              <div className="w-full flex justify-center items-center flex-1">
+                <div className="w-full max-w-[200px] aspect-square flex items-center justify-center mx-auto">
+                  <DonutChart
+                    labels={applicationStatusDistribution.labels}
+                    data={applicationStatusDistribution.data}
+                    backgroundColor={applicationStatusColors}
+                    options={true}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 text-center w-full">
+                <p className="text-sm font-medium mt-2 text-gray-800">
+                  Total Applications: {applicationStatusDistribution.data.reduce((sum, count) => sum + count, 0)}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Accepted:{" "}
+                  {applicationStatusDistribution.labels.includes("accepted")
+                    ? applicationStatusDistribution.data[applicationStatusDistribution.labels.indexOf("accepted")]
+                    : 0}{" "}
+                  | Rejected:{" "}
+                  {applicationStatusDistribution.labels.includes("rejected")
+                    ? applicationStatusDistribution.data[applicationStatusDistribution.labels.indexOf("rejected")]
+                    : 0}{" "}
+                  | Pending:{" "}
+                  {applicationStatusDistribution.labels.includes("pending")
+                    ? applicationStatusDistribution.data[applicationStatusDistribution.labels.indexOf("pending")]
+                    : 0}
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Market Trends
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Weekly Job Postings */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
-              Weekly Job Postings
-            </h3>
-            <div className="h-64">
-              <BarGraph
-                labels={weeklyJobPostings.labels}
-                data={weeklyJobPostings.data}
-                type="Job Postings"
-              />
-            </div>
-            <div className="mt-4">
-              <p className="text-sm text-gray-600">
-                {weeklyJobPostings.data.length > 0 ? (
-                  <>
-                    Job postings have{" "}
-                    {weeklyJobPostings.data.every(
-                      (val, i, arr) => i === 0 || val >= arr[i - 1]
-                    )
-                      ? "increased steadily"
-                      : weeklyJobPostings.data.every(
-                          (val, i, arr) => i === 0 || val <= arr[i - 1]
-                        )
-                      ? "decreased steadily"
-                      : "fluctuated"}{" "}
-                    throughout the period, with a peak in{" "}
-                    {weeklyJobPostings.data.indexOf(
-                      Math.max(...weeklyJobPostings.data)
-                    ) !== -1
-                      ? ` ${
-                          weeklyJobPostings.labels[
-                            weeklyJobPostings.data.indexOf(
-                              Math.max(...weeklyJobPostings.data)
-                            )
-                          ]
-                        }`
-                      : "the reporting period"}
-                    .
-                  </>
-                ) : (
-                  "No job posting data available for this period."
-                )}
-              </p>
+      {/* Middle Section - Job Offerings Distribution charts row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+        {/* Employment Type Distribution */}
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="pb-1 border-b border-gray-100 p-3">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              Employment Types
             </div>
           </div>
-
-          {/* Top Required Skills */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
-              Top Required Skills
-            </h3>
-            <div className="h-64">
-              <BarGraph
-                labels={topSkills.labels}
-                data={topSkills.data}
-                type="Job Postings"
-              />
+          <div className="flex-1 flex items-center justify-center p-3">
+            <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
+                <DonutChart
+                  labels={employmentTypeDistribution.labels}
+                  data={employmentTypeDistribution.data}
+                  backgroundColor={employmentTypeColors}
+                  options={true}
+                />
+              </div>
             </div>
-            <div className="mt-4">
-              <p className="text-sm text-gray-600">
+          {employmentTypeDistribution.data.length > 0 && (
+            <div className="px-3 py-3 mt-auto mb-2 mx-2 bg-gray-50 rounded-lg border-l-4 border-[#0856BA]">
+              <p className="text-sm font-medium text-gray-800">
+                <span className="font-semibold text-[#0856BA]">
+                  {employmentTypeDistribution.labels[
+                    employmentTypeDistribution.data.indexOf(Math.max(...employmentTypeDistribution.data))
+                  ]}
+                </span>{" "}
+                positions account for the majority of job offerings, with other employment types making up a smaller portion.
+              </p>
+            </div>
+          )}
+        </div>
+        {/* Job Type Distribution */}
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="pb-1 border-b border-gray-100 p-3">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              Job Types
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center p-3">
+            <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
+                <DonutChart
+                  labels={jobTypeDistribution.labels}
+                  data={jobTypeDistribution.data}
+                  backgroundColor={jobTypeColors}
+                  options={true}
+                />
+              </div>
+            </div>
+          {jobTypeDistribution.data.length > 0 && (
+            <div className="px-3 py-3 mt-auto mb-2 mx-2 bg-gray-50 rounded-lg border-l-4 border-[#0856BA]">
+              <p className="text-sm font-medium text-gray-800">
+                <span className="font-semibold text-[#0856BA]">
+                  {jobTypeDistribution.labels[
+                    jobTypeDistribution.data.indexOf(Math.max(...jobTypeDistribution.data))
+                  ]}
+                </span>{" "}
+                positions dominate the current job market.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Experience Level Distribution */}
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="pb-1 border-b border-gray-100 p-3">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              Experience Levels
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center p-3">
+            <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
+                <DonutChart
+                  labels={experienceLevelDistribution.labels}
+                  data={experienceLevelDistribution.data}
+                  backgroundColor={experienceLevelColors}
+                  options={true}
+                />
+              </div>
+            </div>
+          {experienceLevelDistribution.data.length > 0 && (
+            <div className="px-3 py-3 mt-auto mb-2 mx-2 bg-gray-50 rounded-lg border-l-4 border-[#0856BA]">
+              <p className="text-sm font-medium text-gray-800">
+                <span className="font-semibold text-[#0856BA]">
+                  {experienceLevelDistribution.labels[
+                    experienceLevelDistribution.data.indexOf(Math.max(...experienceLevelDistribution.data))
+                  ]}
+                </span>{" "}
+                positions are the most common
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Top Skills */}
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="pb-1 border-b border-gray-100 p-3">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              Top Required Skills
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center p-3">
+            <BarGraph labels={topSkills.labels} data={topSkills.data} type="Job Postings" />
+          </div>
+          {topSkills.data.length > 0 && (
+            <div className="px-3 py-3 mt-auto mb-2 mx-2 bg-gray-50 rounded-lg border-l-4 border-[#0856BA]">
+              <p className="text-sm text-gray-800">
                 {topSkills.data.length > 0 ? (
                   <>
-                    {
-                      topSkills.labels[
-                        topSkills.data.indexOf(Math.max(...topSkills.data))
-                      ]
-                    }{" "}
+                    <span className="font-semibold text-[#0856BA]">
+                      {topSkills.labels[topSkills.data.indexOf(Math.max(...topSkills.data))]}
+                    </span>{" "}
                     is the most in-demand skill across all job types
-                    {topSkills.data.length > 1 &&
-                      topSkills.labels.length > 1 && (
-                        <>
-                          , followed by{" "}
+                    {topSkills.data.length > 1 && topSkills.labels.length > 1 && (
+                      <>
+                        , followed by{" "}
+                        <span className="font-medium">
                           {topSkills.labels
-                            .filter(
-                              (_, i) =>
-                                i !==
-                                topSkills.data.indexOf(
-                                  Math.max(...topSkills.data)
-                                )
-                            )
+                            .filter((_, i) => i !== topSkills.data.indexOf(Math.max(...topSkills.data)))
                             .slice(0, 2)
                             .join(" and ")}
-                        </>
-                      )}
+                        </span>
+                      </>
+                    )}
                     .
                   </>
                 ) : (
@@ -576,209 +625,156 @@ export default function JobStatisticsReport() {
                 )}
               </p>
             </div>
-          </div>
+          )}
         </div>
-      </div>
 
-      {/* Salary Range Distribution */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Salary Analysis
-        </h2>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium mb-4 text-gray-700">
-            Salary Range Distribution
-          </h3>
-          <div className="h-64">
-            <BarGraph
-              labels={salaryRangeDistribution.labels}
-              data={salaryRangeDistribution.data}
-              type="Number of Jobs"
-            />
+        {/* Applications Per Job */}
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="pb-1 border-b border-gray-100 p-3">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              Applications Per Job
+            </div>
           </div>
-          <div className="mt-4">
-            <p className="text-sm text-gray-600">
-              {salaryRangeDistribution.data.length > 0 ? (
+          <div className="flex-1 flex items-center justify-center p-3">
+            <div className="w-full flex items-center justify-center" style={{ minHeight: 180 }}>
+          <BarGraph labels={applicationsPerJob.labels} data={applicationsPerJob.data} type="Applications" />
+              </div>
+            </div>
+          {applicationsPerJob.data.length > 0 && (
+            <div className="px-3 py-3 mt-auto mb-2 mx-2 bg-gray-50 rounded-lg border-l-4 border-[#0856BA]">
+              <p className="text-sm font-medium text-gray-800">
+          <span className="font-semibold text-[#0856BA]">
+            {
+              applicationsPerJob.labels[
+                applicationsPerJob.data.indexOf(Math.max(...applicationsPerJob.data))
+              ]
+            }
+          </span>{" "}
+          received the highest number of applications
+          {applicationsPerJob.data.length > 1 && (
+            <>
+              , followed by{" "}
+              <span className="font-medium">
+                {applicationsPerJob.labels
+            .map((label, index) => ({
+              label,
+              value: applicationsPerJob.data[index],
+            }))
+            .sort((a, b) => b.value - a.value)
+            .slice(1)
+            .map((item, idx, arr) =>
+              idx === arr.length - 1 && arr.length > 1
+                ? `and ${item.label}`
+                : `${item.label}`
+            )
+            .join(", ")}
+              </span>
+            </>
+          )}
+          .
+              </p>
+              <p className="mt-2 text-sm text-gray-800">
+          The average number of applications per job is{" "}
+          <span className="font-semibold text-[#0856BA]">
+            {Math.round(
+              applicationsPerJob.data.reduce((sum, count) => sum + count, 0) /
+                applicationsPerJob.data.length
+            )}
+          </span>
+          , with a{" "}
+          <span className="font-semibold text-[#0856BA]">
+            {applicationsPerJob.data.length > 1
+              ? (
+            Math.max(...applicationsPerJob.data) /
+            Math.min(...applicationsPerJob.data.filter((n) => n > 0))
+                ).toFixed(2)
+              : "1.00"}
+            x
+          </span>{" "}
+          difference between the most and least applied-to positions. This suggests
+          <span className="font-semibold text-[#0856BA]">
+            {Math.max(...applicationsPerJob.data) >
+            3 *
+              (applicationsPerJob.data.reduce((sum, count) => sum + count, 0) /
+                applicationsPerJob.data.length)
+              ? " significant candidate preference for certain roles."
+              : " relatively balanced interest across available positions."}
+          </span>
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Weekly Job Postings */}
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="pb-1 border-b border-gray-100 p-3">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              Weekly Job Postings
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center p-3">
+            <BarGraph labels={weeklyJobPostings.labels} data={weeklyJobPostings.data} type="Job Postings" />
+          </div>
+          <div className="px-3 py-3 mt-auto mb-2 mx-2 bg-gray-50 rounded-lg border-l-4 border-[#0856BA]">
+            <p className="text-sm font-medium text-gray-800">
+              {weeklyJobPostings.data.length > 0 ? (
                 <>
-                  Most positions offer salaries in the{" "}
-                  {
-                    salaryRangeDistribution.labels[
-                      salaryRangeDistribution.data.indexOf(
-                        Math.max(...salaryRangeDistribution.data)
-                      )
-                    ]
-                  }{" "}
-                  range, with senior roles commanding higher compensation.
+                  Job postings have{" "}
+                  <span className="font-semibold text-[#0856BA]">
+                    {weeklyJobPostings.data.every((val, i, arr) => i === 0 || val >= arr[i - 1])
+                      ? "increased steadily"
+                      : weeklyJobPostings.data.every((val, i, arr) => i === 0 || val <= arr[i - 1])
+                      ? "decreased steadily"
+                      : "fluctuated"}
+                  </span>{" "}
+                  throughout the period, with peak in{" "}
+                  <span className="font-medium">
+                    {weeklyJobPostings.labels[weeklyJobPostings.data.indexOf(Math.max(...weeklyJobPostings.data))]
+                      ? ` ${
+                          weeklyJobPostings.labels[weeklyJobPostings.data.indexOf(Math.max(...weeklyJobPostings.data))]
+                        }`
+                      : "the reporting period"}
+                    .
+                  </span>
                 </>
               ) : (
-                "No salary data available for this period."
+                "No job posting data available for this period."
               )}
             </p>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <ReportSummaryCard
-          data={`
-        // Job Market Overview
-    Total job offerings: ${
-      offers.filter((offer: JobOffering) => offer.status === "Accepted").length
-    }
-    Total applications submitted: ${applicationStatusDistribution.data.reduce(
-      (sum, count) => sum + count,
-      0
-    )}
-    
-    // Application Status Metrics
-    Applications accepted: ${
-      applicationStatusDistribution.labels.includes("accepted")
-        ? applicationStatusDistribution.data[
-            applicationStatusDistribution.labels.indexOf("accepted")
-          ]
-        : 0
-    }
-    Applications rejected: ${
-      applicationStatusDistribution.labels.includes("rejected")
-        ? applicationStatusDistribution.data[
-            applicationStatusDistribution.labels.indexOf("rejected")
-          ]
-        : 0
-    }
-    Applications pending: ${
-      applicationStatusDistribution.labels.includes("pending")
-        ? applicationStatusDistribution.data[
-            applicationStatusDistribution.labels.indexOf("pending")
-          ]
-        : 0
-    }
-    
-    // Job Type Distribution
-    Job types breakdown: ${jobTypeDistribution.labels
-      .map((label, index) => `${label}: ${jobTypeDistribution.data[index]}`)
-      .join(", ")}
-    Most common job type: ${
-      jobTypeDistribution.labels[
-        jobTypeDistribution.data.indexOf(Math.max(...jobTypeDistribution.data))
-      ]
-    }
-    
-    // Employment Type Distribution
-    Employment types breakdown: ${employmentTypeDistribution.labels
-      .map(
-        (label, index) => `${label}: ${employmentTypeDistribution.data[index]}`
-      )
-      .join(", ")}
-    Most common employment type: ${
-      employmentTypeDistribution.labels[
-        employmentTypeDistribution.data.indexOf(
-          Math.max(...employmentTypeDistribution.data)
-        )
-      ]
-    }
-    
-    // Experience Level Distribution
-    Experience levels breakdown: ${experienceLevelDistribution.labels
-      .map(
-        (label, index) => `${label}: ${experienceLevelDistribution.data[index]}`
-      )
-      .join(", ")}
-    Most common experience level: ${
-      experienceLevelDistribution.labels[
-        experienceLevelDistribution.data.indexOf(
-          Math.max(...experienceLevelDistribution.data)
-        )
-      ]
-    }
-    
-    // Application Metrics
-    Average applications per job: ${Math.round(
-      applicationsPerJob.data.reduce((sum, count) => sum + count, 0) /
-        applicationsPerJob.data.length
-    )}
-    Job with most applications: ${
-      applicationsPerJob.labels[
-        applicationsPerJob.data.indexOf(Math.max(...applicationsPerJob.data))
-      ]
-    } (${Math.max(...applicationsPerJob.data)} applications)
-    
-    // Top Skills
-    Top 5 in-demand skills: ${topSkills.labels
-      .map((label, index) => `${label} (${topSkills.data[index]})`)
-      .join(", ")}
-    Most requested skill: ${
-      topSkills.labels[topSkills.data.indexOf(Math.max(...topSkills.data))]
-    }
-    
-    // Salary Distribution
-    Salary range breakdown: ${salaryRangeDistribution.labels
-      .map((label, index) => `${label}: ${salaryRangeDistribution.data[index]}`)
-      .join(", ")}
-    Most common salary range: ${
-      salaryRangeDistribution.labels[
-        salaryRangeDistribution.data.indexOf(
-          Math.max(...salaryRangeDistribution.data)
-        )
-      ]
-    }
-    
-    // Market Trends
-    Weekly job posting trend: ${weeklyJobPostings.labels
-      .map((label, index) => `${label}: ${weeklyJobPostings.data[index]}`)
-      .join(", ")}
-    Week with highest postings: ${
-      weeklyJobPostings.labels[
-        weeklyJobPostings.data.indexOf(Math.max(...weeklyJobPostings.data))
-      ]
-    } (${Math.max(...weeklyJobPostings.data)} postings)
-    Job posting trend: ${
-      weeklyJobPostings.data.every(
-        (val, i, arr) => i === 0 || val >= arr[i - 1]
-      )
-        ? "Increasing"
-        : weeklyJobPostings.data.every(
-            (val, i, arr) => i === 0 || val <= arr[i - 1]
-          )
-        ? "Decreasing"
-        : "Fluctuating"
-    }
-    
-    // Application Success Rate
-    Application success rate: ${
-      applicationStatusDistribution.labels.includes("accepted")
-        ? Math.round(
-            (applicationStatusDistribution.data[
-              applicationStatusDistribution.labels.indexOf("accepted")
-            ] /
-              applicationStatusDistribution.data.reduce(
-                (sum, count) => sum + count,
-                0
-              )) *
-              100
-          )
-        : 0
-    }%
-    Application rejection rate: ${
-      applicationStatusDistribution.labels.includes("rejected")
-        ? Math.round(
-            (applicationStatusDistribution.data[
-              applicationStatusDistribution.labels.indexOf("rejected")
-            ] /
-              applicationStatusDistribution.data.reduce(
-                (sum, count) => sum + count,
-                0
-              )) *
-              100
-          )
-        : 0
-    }%
-    
-    // Date Context
-    Current date: ${new Date().toLocaleDateString()}
-    Report generated on: ${new Date().toLocaleString()}
-        
-        `}
-        />
+        {/* Salary Range Distribution */}
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="pb-1 border-b border-gray-100 p-3">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              Salary Range Distribution
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center p-3">
+            <BarGraph
+                labels={salaryRangeDistribution.labels}
+                data={salaryRangeDistribution.data}
+                type="Number of Jobs"
+              />
+            </div>
+          {salaryRangeDistribution.data.length > 0 && (
+            <div className="px-3 py-3 mt-auto mb-2 mx-2 bg-gray-50 rounded-lg border-l-4 border-[#0856BA]">
+              <p className="text-sm font-medium text-gray-800">
+                Most positions offer salaries in the{" "}
+                <span className="font-semibold text-[#0856BA]">
+                  {salaryRangeDistribution.labels[
+                    salaryRangeDistribution.data.indexOf(Math.max(...salaryRangeDistribution.data))
+                  ]}
+                </span>{" "}
+                range, with senior roles commanding higher compensation.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
