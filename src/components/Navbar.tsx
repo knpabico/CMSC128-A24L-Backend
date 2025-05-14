@@ -128,7 +128,7 @@ export default function Navbar() {
           label: "Manage Job Posting",
           path: "/admin-dashboard/job-postings",
         },
-        { id: "add-jobs", label: "Add Job Posting", path: "/admin/jobs/add" },
+        { id: "add-jobs", label: "Add Job Posting", path: "/admin-dashboard/job-postings/post" },
         {
           id: "stats-jobs",
           label: "Statistical Report",
@@ -144,12 +144,12 @@ export default function Navbar() {
         {
           id: "manage-announcements",
           label: "Manage Posts",
-          path: "/admin-dashboard/create-announcements",
+          path: "/admin-dashboard/announcements/manage",
         },
         {
           id: "add-announcements",
           label: "Add Posts",
-          path: "/admin-dashboard/create-announcements",
+          path: "/admin-dashboard/announcements/add",
         },
       ],
     },

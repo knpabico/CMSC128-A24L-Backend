@@ -7,7 +7,7 @@ export default function FeaturedStoryPage() {
   const { featuredItems, isLoading } = useFeatured();
   const router = useRouter();
 
-  const eventStories = featuredItems.filter(story => story.type === "event");
+  const eventStories = featuredItems.filter((story: { type: string; }) => story.type === "event");
 
   const sortedStories = [...eventStories].sort((a, b) => {
     const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
@@ -15,20 +15,17 @@ export default function FeaturedStoryPage() {
     return dateB.getTime() - dateA.getTime();
   });
 
-  const formatDate = (date) => {
+  const formatDate = (date: string | number | Date) => {
     if (!date) return "Unknown date";
 
     const dateObj = date instanceof Date ? date : new Date(date);
 
     if (isNaN(dateObj.getTime())) {
-      if (date?.toDate && typeof date.toDate === 'function') {
-        return date.toDate().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric"
-        });
-      }
-      return "Invalid date";
+      return new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
     }
 
     return dateObj.toLocaleDateString("en-US", {

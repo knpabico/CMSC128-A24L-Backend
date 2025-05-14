@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Key } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
-import { Alumnus, JobApplication, JobOffering } from "@/models/models";
+import { Alumnus, JobApplication, JobOffering, Bookmark } from "@/models/models";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
@@ -29,7 +29,7 @@ import {
   Pencil,
   Trash2,
   CheckCircle,
-  Bookmark,
+  Bookmark as BookmarkIcon,
   Mail,
   User,
 } from "lucide-react";
@@ -81,6 +81,8 @@ export default function JobOffers() {
     handleEditDraft,
     handleDelete,
     updateStatus,
+    setPreview,
+    setFileName,
   } = useJobOffer();
 
   const { addJobApplication } = useJobApplicationContext();
@@ -269,11 +271,11 @@ export default function JobOffers() {
 
   // Saved Jobs pagination
   const filteredSavedJobs = bookmarks
-    .filter((bookmark) => bookmark.type === "job_offering")
-    .map((bookmark) => jobOffers.find((job) => job.jobId === bookmark.entryId))
+    .filter((bookmark: Bookmark) => bookmark.type === "job_offering")
+    .map((bookmark: Bookmark) => jobOffers.find((job: JobOffering) => job.jobId === bookmark.entryId))
     .filter(Boolean)
     .filter(
-      (job) =>
+      (job: JobOffering) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -283,7 +285,7 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
+    .sort((a: { timestamp: { seconds: any; }; datePosted: { seconds: any; }; }, b: { timestamp: { seconds: any; }; datePosted: { seconds: any; }; }) => {
       const dateA = a.timestamp ? a.timestamp.seconds : a.datePosted.seconds;
       const dateB = b.timestamp ? b.timestamp.seconds : b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -299,8 +301,8 @@ export default function JobOffers() {
 
   // Created Jobs pagination
   const filteredCreatedJobs = jobOffers
-    .filter((job) => job.alumniId === user?.uid && job.status !== "Draft")
-    .filter((job) => {
+    .filter((job: JobOffering) => job.alumniId === user?.uid && job.status !== "Draft")
+    .filter((job: JobOffering) => {
       if (activeFilters.length === 0) return true;
       return activeFilters.some(
         (filter) =>
@@ -312,7 +314,7 @@ export default function JobOffers() {
           ].includes(filter) || job.requiredSkill.includes(filter)
       );
     })
-    .sort((a, b) => {
+    .sort((a: { datePosted: { seconds: any; }; }, b: { datePosted: { seconds: any; }; }) => {
       const dateA = a.datePosted.seconds;
       const dateB = b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -330,9 +332,9 @@ export default function JobOffers() {
 
   // Draft Jobs pagination
   const filteredDraftJobs = jobOffers
-    .filter((job) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
+    .filter((job: JobOffering) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
     .filter(
-      (job) =>
+      (job: JobOffering) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -342,7 +344,7 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
+    .sort((a: { datePosted: { seconds: any; }; }, b: { datePosted: { seconds: any; }; }) => {
       const dateA = a.datePosted.seconds;
       const dateB = b.datePosted.seconds;
       return latestFirst ? dateB - dateA : dateA - dateB;
@@ -440,9 +442,9 @@ export default function JobOffers() {
                       {activeFilterCategory}
                     </h3>
                     <div className="space-y-2">
-                      {filterCategories[
+                      {activeFilterCategory && filterCategories[
                         activeFilterCategory as keyof typeof filterCategories
-                      ].map((filter) => (
+                      ]?.map((filter) => (
                         <div key={filter} className="flex items-center">
                           <input
                             type="checkbox"
@@ -500,7 +502,7 @@ export default function JobOffers() {
                 }}
                 className="flex items-center gap-3"
               >
-                <Bookmark className="w-5 h-5" />
+                <BookmarkIcon className="w-5 h-5" />
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Saved Jobs"
@@ -716,7 +718,7 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentSavedJobs.map((job, index) => (
+                        {currentSavedJobs.map((job: JobOffering, index: Key | null | undefined) => (
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
@@ -826,7 +828,7 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentCreatedJobs.map((job, index) => {
+                        {currentCreatedJobs.map((job: JobOffering, index: Key | null | undefined) => {
                           return (
                             <div
                               key={index}
@@ -1104,7 +1106,7 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {filteredDraftJobs.map((job, index) => (
+                        {filteredDraftJobs.map((job: JobOffering, index: Key | null | undefined) => (
                           <div
                             key={index}
                             className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
@@ -1759,9 +1761,9 @@ export default function JobOffers() {
                         value={salaryRange}
                         onChange={(e) => setSalaryRange(e.target.value)}
                         onInput={(e) => {
-                          const value = e.target.value;
+                          const value = (e.target as HTMLInputElement).value;
                           if (!/^[0-9-]*$/.test(value)) {
-                            e.target.value = value.replace(/[^0-9-]/g, "");
+                            (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "");
                           }
                         }}
                         pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
@@ -1842,6 +1844,8 @@ export default function JobOffers() {
                       setExperienceLevel("");
                       setSalaryRange("");
                       setJobImage(null);
+                      setPreview(null);
+                      setFileName("");
                     }}
                   >
                     Cancel

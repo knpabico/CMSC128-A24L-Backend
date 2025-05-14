@@ -342,7 +342,7 @@ export default function CreateEventPage() {
   // Render components
   const renderImageUpload = () => (
     <div className="space-y-2 w-100">
-      <label htmlFor="image" className="block text-sm font-medium flex items-center">
+      <label htmlFor="image" className="text-sm font-medium flex items-center">
         <Asterisk size={16} className="text-red-600" /> Upload Image
       </label>
 

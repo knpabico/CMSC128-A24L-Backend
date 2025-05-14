@@ -23,9 +23,9 @@ export const UserCredentials = ({ form }: { form: any }) => {
             <FormLabel>Email</FormLabel>
             <FormControl>
               <Input
-                disabled={isGoogleSignIn}
                 placeholder="juandelacruz@example.com"
                 {...field}
+                disabled={isGoogleSignIn}
               />
             </FormControl>
             <FormMessage />
