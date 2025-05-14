@@ -34,7 +34,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
 
   const handleMarkerClick = (experience: WorkExperience) => {
-    const alum = alums.find((a) => a.alumniId === experience.alumniId);
+    const alum = alums.find((a:Alumnus) => a.alumniId === experience.alumniId);
     setSelectedWork(experience);
     setSelectedAlum(alum ?? null);
   };
@@ -45,7 +45,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
         mapContainerStyle={containerStyle}
         center={center}
         zoom={zoom}
-        onLoad={(map) => (mapRef.current = map)}
+        onLoad={(map) => {
+          mapRef.current = map;
+        }}
       >
         {workExperienceList.map((experience) => (
           <MarkerF

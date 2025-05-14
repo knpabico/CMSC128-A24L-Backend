@@ -9,6 +9,9 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  getDoc,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
@@ -16,10 +19,10 @@ import { JobOffering } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { useBookmarks } from "./BookmarkContext";
 import { useNewsLetters } from "./NewsLetterContext";
-import { set } from "zod";
-const JobOfferContext = createContext<any>(null);
 import { uploadImage } from "@/lib/upload";
 import { toast } from "sonner";
+
+const JobOfferContext = createContext<any>(null);
 
 export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [jobOffers, setJobOffers] = useState<any[]>([]);
@@ -36,10 +39,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const { user, isAdmin } = useAuth();
   const { bookmarks } = useBookmarks();
-  const [image, setJobImage] = useState(null);
+  const [image, setJobImage] = useState<File | null>(null);
   const [location, setLocation] = useState("");
   const [fileName, setFileName] = useState<string>("");
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
@@ -75,10 +78,14 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       const docRef = doc(collection(db, "job_offering"));
       jobOffer.jobId = docRef.id;
       jobOffer.alumniId = isAdmin ? "Admin" : user?.uid ?? "";
-      jobOffer.status = jobOffer.status? "Draft" : isAdmin ? "Accepted" : "Pending";
+      
+      // This was causing the issue - using an undefined status variable
+      // Setting appropriate status based on conditions
+      jobOffer.status = jobOffer.status === "Draft" ? "Draft" : (isAdmin ? "Accepted" : "Pending");
+      
       console.log(jobOffer);
       await setDoc(doc(db, "job_offering", docRef.id), jobOffer);
-      if ( isAdmin && jobOffer.status === "Accepted") {
+      if (isAdmin && jobOffer.status === "Accepted") {
         addNewsLetter(jobOffer.jobId, "job_offering");
       }
       return { success: true, message: "success" };
@@ -92,7 +99,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = "auto";
     e.preventDefault();
 
     const newJobOffering: JobOffering = {
@@ -107,9 +114,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       jobId: "",
       alumniId: isAdmin ? "Admin" : user?.uid || "",
       datePosted: new Date(),
-      status,
-      location, // Use the location state directly
-      image: "", // Keep empty string as initial value for image
+      status: isAdmin ? "Accepted" : "Pending", // Fixed status setting
+      location,
+      image: "",
     };
 
     if (image) {
@@ -157,13 +164,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       console.error("Required fields are missing");
       return;
     }
-  
+
     const updatedFields = {
       position: editedJob.position,
       jobDescription: editedJob.jobDescription,
       status: editedJob.status,
     };
-  
+
     try {
       await updateDoc(doc(db, "job_offering", editedJob.jobId), updatedFields);
       console.log("Job updated successfully!");
@@ -172,13 +179,12 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-
   const updateStatus = async (status: string, jobId: string) => {
     if (!status || !jobId) {
       console.error("Status or Job ID is missing");
       return;
     }
-  
+
     try {
       const jobRef = doc(db, "job_offering", jobId);
       await updateDoc(jobRef, { status });
@@ -231,7 +237,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       console.error("Error updating job:", error);
     }
   };
-  
+
   const handlePending = async (jobId: string) => {
     try {
       await updateDoc(doc(db, "job_offering", jobId), {
@@ -259,7 +265,15 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       );
 
       await deleteNewsLetter(jobId);
-
+      const jobApplicationsQuery = query(
+        collection(db, "job_applications"),
+        where("jobId", "==", jobId)
+      );
+      const jobApplicationsSnapshot = await getDocs(jobApplicationsQuery);
+      const deletePromises = jobApplicationsSnapshot.docs.map((doc) =>
+        deleteDoc(doc.ref)
+      );
+      await Promise.all(deletePromises);
       console.log("Succesfully deleted job with id of:", jobId);
     } catch (error) {
       console.error("Error deleting job:", error);
@@ -268,7 +282,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
 
   const handleSaveDraft = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     const draftJobOffering: JobOffering = {
       company,
       employmentType,
@@ -285,10 +299,13 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       location,
       image: preview || "", // Use existing preview if available
     };
-  
+
     try {
       if (image) {
-        const uploadResult = await uploadImage(image, `job_offers/${Date.now()}`);
+        const uploadResult = await uploadImage(
+          image,
+          `job_offers/${Date.now()}`
+        );
         if (uploadResult.success) {
           draftJobOffering.image = uploadResult.url;
         } else {
@@ -297,9 +314,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-  
+
       let response;
-      
+
       if (editingDraftId) {
         // Update existing draft
         const updateFields = {
@@ -321,7 +338,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         // Create new draft
         response = await addJobOffer(draftJobOffering, user?.uid || "Admin");
       }
-  
+
       if (response.success) {
         // Reset form and states
         setShowForm(false);
@@ -338,7 +355,10 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         setPreview(null);
         setEditingDraftId(null); // Reset the editing draft ID
         toast.success("Draft saved successfully");
-        return { success: true, message: editingDraftId ? "Draft updated" : "Draft saved" };
+        return {
+          success: true,
+          message: editingDraftId ? "Draft updated" : "Draft saved",
+        };
       } else {
         toast.error(response.message);
         console.error("Error saving draft:", response.message);
@@ -350,7 +370,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: "Failed to save draft" };
     }
   };
-  
+
   const handleEditDraft = (draft: JobOffering) => {
     setCompany(draft.company);
     setEmploymentType(draft.employmentType);
@@ -358,7 +378,7 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
     setJobDescription(draft.jobDescription);
     setJobType(draft.jobType);
     setPosition(draft.position);
-    setRequiredSkill(draft.requiredSkill || []); 
+    setRequiredSkill(draft.requiredSkill || []);
     setSalaryRange(draft.salaryRange);
     setLocation(draft.location);
     if (draft.image) {
@@ -411,7 +431,9 @@ export function JobOfferProvider({ children }: { children: React.ReactNode }) {
         handleEdit,
         updateStatus,
         handleSaveDraft,
-        handleEditDraft
+        handleEditDraft,
+        setPreview,
+        setFileName
       }}
     >
       {children}

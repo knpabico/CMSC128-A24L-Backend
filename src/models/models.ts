@@ -1,11 +1,7 @@
 // this file contains the type of an Alumni document
 import { RegStatus } from "@/types/alumni/regStatus";
-import { Timestamp } from "firebase-admin/firestore";
-import { StringFormat } from "firebase/storage";
 
 export interface Alumnus {
-  graduationYear: ReactNode;
-  jobTitle: ReactNode;
   alumniId: string;
   regStatus: RegStatus; //accepted, pending, or rejected registration
   approvalDate: Date;
@@ -24,6 +20,7 @@ export interface Alumnus {
   contactPrivacy: boolean;
   lastLogin: Date;
   subscribeToNewsletter: boolean;
+  createdDate: Date;
 }
 
 export interface Affiliation {
@@ -72,6 +69,7 @@ export interface Scholarship {
   datePosted: Date;
   image: string;
   status: string;
+  studentList: string[];
 }
 
 export interface Event {
@@ -90,7 +88,7 @@ export interface Event {
   location: string;
   image: string;
   numofAttendees: number;
-  targetGuests: String[];
+  targetGuests: string[];
   stillAccepting: boolean;
   needSponsorship: boolean;
   donationDriveId: string;
@@ -216,4 +214,32 @@ export interface Featured {
   type: string;
   datePosted: Date;
   isPublic: boolean;
+}
+
+export interface JobApplication {
+  jobApplicationId: string;
+  jobId: string;
+  applicantId: string;
+  dateApplied: Date;
+  status: string;
+  contactId: string;
+}
+
+export interface Student {
+  studentId: string;
+  name: string;
+  studentNumber: string;
+  age: number;
+  shortBackground: string;
+  address: string;
+  emailAddress: string;
+}
+
+export interface ScholarshipStudent {
+  ScholarshipStudentId: string;
+  studentId: string;
+  alumId: string;
+  scholarshipId: string;
+  status: string; //accepted  or pending
+  pdf: string;
 }

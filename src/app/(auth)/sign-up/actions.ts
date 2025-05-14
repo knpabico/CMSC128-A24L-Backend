@@ -1,14 +1,8 @@
 "use server";
 
 import { serverAuth, serverFirestoreDB } from "@/lib/firebase/serverSDK";
-import { Education, WorkExperience } from "@/models/models";
 import { signUpFormSchema } from "@/validation/auth/sign-up-form-schema";
-import { ErrorBoundaryHandler } from "next/dist/client/components/error-boundary";
-import { UserRecord } from "firebase-admin/auth";
-import { User } from "firebase/auth";
 import { z } from "zod";
-import { uploadToFirebase } from "./sign-up-fields/alum_photo";
-import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 
 //for checking if the email used in sign-up already exists in firebase auth
 export const validateFirebaseEmail = async (email: string) => {

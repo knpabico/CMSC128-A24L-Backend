@@ -1,9 +1,7 @@
 "use client";
 
 // components
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Button, TextField, Typography, Snackbar } from "@mui/material";
 import {
   FormControl,
   FormField,
@@ -11,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 import { AlumDocumentUpload } from "./career_proof";
 import { MapPin, PencilIcon } from "lucide-react";

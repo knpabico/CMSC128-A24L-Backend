@@ -97,7 +97,7 @@ import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationCodeModal } from "./sign-up-fields/emailverify";
 import { TextField, Autocomplete } from "@mui/material";
-import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
+// import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
@@ -669,10 +669,12 @@ export default function RegistrationForm() {
                                         }
                                       }}
                                       renderInput={(params) => (
+
+                                        //may chinange ako here field.value?.length > 0 --> field.value?.length || 0 to avoid error
                                         <TextField
                                           {...params}
                                           placeholder={
-                                            field.value?.length > 0
+                                            field.value?.length || 0
                                               ? ""
                                               : "Select your fields of interest"
                                           }
@@ -963,7 +965,7 @@ export default function RegistrationForm() {
                           {/*PAST WORK EXPERIENCE*/}
                           <div className="mt-5">
                             <p className="text-sm font-semibold pb-2">
-                              Work Experience
+                              Past Work Experience
                             </p>
                             {career.map((car, index) => (
                               <div key={car.id} className="relative pb-5">

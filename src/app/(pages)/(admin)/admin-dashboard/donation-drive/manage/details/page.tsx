@@ -5,7 +5,7 @@ import { toastSuccess } from "@/components/ui/sonner";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { db } from "@/lib/firebase";
-import { Donation, DonationDrive } from "@/models/models";
+import { Donation, DonationDrive, Event } from "@/models/models";
 import { doc, getDoc } from "firebase/firestore";
 import { Asterisk, Calendar, ChevronRight, CirclePlus, Clock, MapPin, Pencil, Trash2, Upload, Users2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -238,24 +238,24 @@ export default function AddDonationDrive() {
 	}, [donationDriveId]);
   
     // Fetch event details if this donation drive is related to an event
-    const fetchEventDetails = async (eventId: string) => {
-      try {
-        setEventLoading(true);
-        const eventRef = doc(db, "event", eventId);
-        const eventSnap = await getDoc(eventRef);
-  
-        if (eventSnap.exists()) {
-          const eventData = eventSnap.data() as Event;
-          // setEvent({ ...eventData, eventId });
-        } else {
-          console.warn('Event not found for ID:', eventId);
-        }
-      } catch (err) {
-        console.error('Error fetching event details:', err);
-      } finally {
-        setEventLoading(false);
-      }
-    };
+  const fetchEventDetails = async (eventId: string) => {
+	try {
+	  setEventLoading(true);
+	  const eventRef = doc(db, "event", eventId);
+	  const eventSnap = await getDoc(eventRef);
+
+	  if (eventSnap.exists()) {
+		const eventData = eventSnap.data() as Event;
+		setEvent({ ...eventData, eventId });
+	  } else {
+		console.warn('Event not found for ID:', eventId);
+	  }
+	} catch (err) {
+	  console.error('Error fetching event details:', err);
+	} finally {
+	  setEventLoading(false);
+	}
+  };
   
     useEffect(() => {
       const fetchDonations = async () => {

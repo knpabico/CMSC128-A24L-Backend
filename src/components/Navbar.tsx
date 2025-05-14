@@ -51,11 +51,6 @@ export default function Navbar() {
           path: "/admin-dashboard/manage-users",
         },
         {
-          id: "pending-alumni",
-          label: "View Pending Alumni",
-          path: "/admin-dashboard/manage-users",
-        },
-        {
           id: "stats-alumni",
           label: "Statistical Report",
           path: "/admin-dashboard/alum-statistical-reports",
@@ -72,11 +67,10 @@ export default function Navbar() {
           label: "Manage Events",
           path: "/admin-dashboard/organize-events",
         },
-        { id: "add-events", label: "Add Events", path: "/admin-dashboard/organize-events/add" },
         {
-          id: "pending-events",
-          label: "View Pending Events",
-          path: "/admin-dashboard/organize-events",
+          id: "add-events",
+          label: "Add Events",
+          path: "/admin-dashboard/organize-events/add",
         },
         {
           id: "stats-events",
@@ -134,7 +128,12 @@ export default function Navbar() {
           label: "Manage Job Posting",
           path: "/admin-dashboard/job-postings",
         },
-        { id: "add-jobs", label: "Add Job Posting", path: "/admin/jobs/add" },
+        { id: "add-jobs", label: "Add Job Posting", path: "/admin-dashboard/job-postings/post" },
+        {
+          id: "stats-jobs",
+          label: "Statistical Report",
+          path: "/admin-dashboard/jobs-statistical-reports",
+        },
       ],
     },
     {
@@ -145,12 +144,12 @@ export default function Navbar() {
         {
           id: "manage-announcements",
           label: "Manage Posts",
-          path: "/admin-dashboard/create-announcements",
+          path: "/admin-dashboard/announcements/manage",
         },
         {
           id: "add-announcements",
           label: "Add Posts",
-          path: "/admin-dashboard/create-announcements",
+          path: "/admin-dashboard/announcements/add",
         },
       ],
     },
@@ -360,21 +359,25 @@ export default function Navbar() {
                     onClick={handleProfileClick}
                   >
                     <div className="h-10 w-10 flex rounded-full">
-                      <Image
-                        alt="Pic"
-                        priority
-                        width={0}
-                        height={0}
-                        sizes="100vw"
-                        src={
-                          alumInfo &&
-                          alumInfo!.image !== "" &&
-                          alumInfo!.image !== null
-                            ? alumInfo!.image
-                            : "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
-                        }
-                        className="w-10 h-10 mb-5 object-cover object-top rounded-full border-2 group-hover:border-[var(--blue-200)] transition-colors"
-                      />
+                      {loading ? (
+                        <></>
+                      ) : (
+                        <Image
+                          alt="Pic"
+                          priority
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          src={
+                            alumInfo &&
+                            alumInfo!.image !== "" &&
+                            alumInfo!.image !== null
+                              ? alumInfo!.image
+                              : "https://i.pinimg.com/736x/14/e3/d5/14e3d56a83bb18a397a73c9b6e63741a.jpg"
+                          }
+                          className="w-10 h-10 mb-5 object-cover object-top rounded-full border-2 group-hover:border-[var(--blue-200)] transition-colors"
+                        />
+                      )}
                     </div>
                     <ChevronDown className="ml-1 group-hover:text-[var(--blue-200)]" />
                   </div>

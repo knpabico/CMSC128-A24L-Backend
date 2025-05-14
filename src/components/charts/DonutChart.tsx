@@ -6,9 +6,10 @@ interface DonutChartProps {
   labels: string[];
   data: number[];
   backgroundColor?: string[];
+  options?: boolean;
 }
 
-const DonutChart = ({ labels, data , backgroundColor}: DonutChartProps) => {
+const DonutChart = ({ labels, data , backgroundColor,options}: DonutChartProps) => {
   const chartRef = useRef<(HTMLCanvasElement & { chart?: Chart }) | null>(null);
 
   useEffect(() => {
@@ -38,6 +39,12 @@ const DonutChart = ({ labels, data , backgroundColor}: DonutChartProps) => {
             animation: {
               duration: 1000, 
               easing: "easeInOutQuad", 
+            },
+            plugins: {
+              legend: {
+                display: options === false? options: true
+                , 
+              },
             },
           },
         });

@@ -4,6 +4,8 @@ import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { sendEmailTemplate } from "@/lib/emailTemplate";
 import { db } from "@/lib/firebase";
 import { uploadImage } from "@/lib/upload";
+import { Alumnus, Career, Education } from "@/models/models";
+import { RegStatus } from "@/types/alumni/regStatus";
 import { FirebaseError } from "firebase-admin/app";
 import {
   collection,
@@ -17,12 +19,8 @@ import {
   where,
 } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./AuthContext";
-import { Alumnus, Career, Education } from "@/models/models";
-import { messaging } from "firebase-admin";
-import { RegStatus } from "@/types/alumni/regStatus";
 import { toast } from "sonner";
-
+import { useAuth } from "./AuthContext";
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -261,8 +259,8 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
   const subscribeToUsers = () => {
     setLoading(true);
     const q = query(collection(db, "alumni"));
-
-    //listener for any changes
+  
+    // Listener for any changes
     const unsubscribeUsers = onSnapshot(
       q,
       (querySnapshot: any) => {
@@ -270,8 +268,13 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setAlums(userList);
-        console.log(userList.length, "total");
-        setTotalAlums(userList.length);
+  
+        const nonPendingAlums = userList.filter(
+          (user:Alumnus) => user.regStatus !== "pending" && user.regStatus !== "rejected" 
+        );
+        console.log(nonPendingAlums.length, "non-pending total");
+        setTotalAlums(nonPendingAlums.length);
+  
         setLoading(false);
       },
       (error) => {
@@ -279,9 +282,10 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     );
-
+  
     return unsubscribeUsers;
   };
+  
 
   const subscribeToActiveUsers = () => {
     setLoading(true);
@@ -327,8 +331,29 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
       console.log(activeAlums, "this is activeAlums");
       return inactiveAlums;
     }
-}
+  }
 
+//use to handle approve and rejecion
+  const onUpdateRegStatus = async (alumniId: string, regStatus: RegStatus) => {
+    try {
+      const alumniRef = doc(db, "alumni", alumniId);
+      
+      const updateData = {
+        regStatus: regStatus
+      };
+      if (regStatus === "approved"){
+        await updateDoc(alumniRef,{ activeStatus: true });
+        console.log("TOTOO ANG HIMALA")
+
+      }
+      await updateDoc(alumniRef,{ regStatus: regStatus });
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update alumni registration status:", error);
+      return { success: false, message: (error as Error).message };
+    }
+  };
 
 
     const getPendingAlums = (alums:Alumnus[])=>{
@@ -350,25 +375,32 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     };
 
 
-    //update the registration status from pending to approved
-      const updateAlumnusRegStatus = async (alumniId: string, newStatus: RegStatus) => {
-        try {
-          const alumnusRef = doc(db, 'alumni', alumniId); 
-          await updateDoc(alumnusRef, { regStatus: newStatus });
+  //update the registration status from pending to approved
+  const updateAlumnusRegStatus = async (
+    alumniId: string,
+    newStatus: RegStatus
+  ) => {
+    try {
+      const alumnusRef = doc(db, "alumni", alumniId);
+      await updateDoc(alumnusRef, { regStatus: newStatus });
 
-          setAlums(prevAlums =>
-            prevAlums.map(alum =>
-              alum.alumniId === alumniId ? { ...alum, regStatus: newStatus } : alum
-            )
-          );
+      setAlums((prevAlums) =>
+        prevAlums.map((alum) =>
+          alum.alumniId === alumniId ? { ...alum, regStatus: newStatus } : alum
+        )
+      );
 
-          console.log(`Updated regStatus for ${alumniId} to ${newStatus}`);
-        } catch (error) {
-          console.error('Failed to update regStatus in Firebase:', error);
-        }
-      };
+      console.log(`Updated regStatus for ${alumniId} to ${newStatus}`);
+    } catch (error) {
+      console.error("Failed to update regStatus in Firebase:", error);
+    }
+  };
 
-
+  const getAlumEmailById = async (alumniId: string) => {
+    const alumRef = doc(db, "alumni", alumniId);
+    const docSnap = await getDoc(alumRef);
+    return docSnap.data()?.email;
+  };
 
   return (
     <AlumContext.Provider
@@ -388,7 +420,9 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         getActiveAlums,
         getInactiveAlums,
         getPendingAlums,
-        updateAlumnusRegStatus
+        updateAlumnusRegStatus,
+        onUpdateRegStatus,
+        getAlumEmailById,
       }}
     >
       {children}

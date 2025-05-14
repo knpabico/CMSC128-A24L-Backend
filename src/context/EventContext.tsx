@@ -122,7 +122,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
         if (!image) {
           newEvent.image =
-            "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Ftemp_event_image.jpg?alt=media&token=49ed44c0-225c-45d3-9bd2-e7e44d0fb2d0";
+            "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Fdefault-image.jpg?alt=media&token=5835562a-d7a0-48a0-9b07-0b2151c949fb";
         } else {
           const uploadResult = await uploadImage(
             image,
@@ -228,6 +228,20 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       setEventImage(file);
       setFileName(file.name); // Store the filename
       setPreview(URL.createObjectURL(file)); //preview
+    }
+  };
+
+
+//use to handle approve and rejecion
+  const onUpdateEventStat = async (eventId: string, status: string) => {
+    try {
+      const alumniRef = doc(db, "event", eventId);
+      await updateDoc(alumniRef,{ status: status });
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update event status:", error);
+      return { success: false, message: (error as Error).message };
     }
   };
 
@@ -401,7 +415,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     if (!events) {
       return null;
     } else {
-      const proposals = events.filter((event) => event.status != "Accepted");
+      const proposals = events.filter((event) => event.status === "Pending");
       console.log(proposals, "this is proposing events");
       return proposals;
     }
@@ -458,6 +472,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setPreview,
         getEventProposals,
         getUpcomingEvents,
+        onUpdateEventStat
       }}
     >
       {children}

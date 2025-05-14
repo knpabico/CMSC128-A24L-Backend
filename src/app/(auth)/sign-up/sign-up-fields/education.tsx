@@ -9,12 +9,6 @@ import {
 } from "@/components/ui/form";
 import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
 
-const types = {
-  bachelors: "Bachelor's",
-  masters: "Master's",
-  doctoral: "Doctoral",
-};
-
 export const Education = ({
   index,
   form,
