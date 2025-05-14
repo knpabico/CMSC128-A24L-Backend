@@ -53,15 +53,12 @@ export default function AdminDashboard() {
 
 
   function formatDate(date: Date | Timestamp): string {
-    // Convert Firebase Timestamp to Date if needed
     const dateObj = date instanceof Timestamp ? date.toDate() : date;
   
-    // Now, dateObj is guaranteed to be a Date
-    const month = (dateObj.getMonth() + 1).toString().padStart(2, "0"); // Month is 0-based
-    const day = dateObj.getDate().toString().padStart(2, "0"); // Day is 1-based
-    const year = dateObj.getFullYear().toString().slice(-2); // Get the last 2 digits of the year
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, "0");
+    const day = dateObj.getDate().toString().padStart(2, "0");
+    const year = dateObj.getFullYear().toString().slice(-2);
   
-    // Return the formatted date in "MM/DD/YY" format
     return `${month}/${day}/${year}`;
   }
 
@@ -361,9 +358,9 @@ const recentActiveDonations = useMemo(() => {
               <p className="text-sm text-gray-500">Job Postings</p>
               <p className="text-2xl font-bold">{jobOffers.length}</p>
               <div className="flex items-center mt-1">
-                <span className="text-xs text-green-600">Active: {jobOffers.filter(job => job.status === 'Accepted').length}</span>
+                <span className="text-xs text-green-600">Active: {jobOffers.filter((job:JobOffering) => job.status === 'Accepted').length}</span>
                 <span className="text-xs text-gray-400 mx-1">|</span>
-                <span className="text-xs text-yellow-600">Pending: {jobOffers.filter(job => job.status === 'Pending').length}</span>
+                <span className="text-xs text-yellow-600">Pending: {jobOffers.filter((job:JobOffering) => job.status === 'Pending').length}</span>
               </div>
             </div>
           </CardContent>
