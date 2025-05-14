@@ -1,22 +1,20 @@
 "use client";
 
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button, TextField, Typography, Snackbar, Alert } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Donation } from "@/models/models";
 import { useDonationContext } from "@/context/DonationContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { ProofOfPaymentDialog } from "./proof-of-payment-dialog";
 import { ChevronDown } from "lucide-react";
+import { ProofOfPaymentDialog } from "./proof-of-payment-dialog";
 import SearchParamsWrapper from "@/components/SearchParamsWrapper";
 
 const sortTypes = [
-  "Latest First",
-  "Oldest First",
-  "Amount Donated (ASC)",
-  "Amount Donated (DESC)",
+  "MOST RECENT FIRST",
+  "OLDEST DONATION FIRST",
+  "AMOUNT DONATED (ASC)",
+  "AMOUNT DONATED (DESC)",
 ]; //sort types
 const sortValues = ["mrf", "odf", "asc", "desc"]; //sort values (query params)
 
@@ -116,7 +114,7 @@ const RecordOfDonations: React.FC = () => {
 
   //function for handling change on sort type
   function handleSortChange(sortType: string) {
-    let sorting = sortType ? `?sort=${sortType}` : "";
+    const sorting = sortType ? `?sort=${sortType}` : "";
     //will push the parameters to the url
     router.push(`${sorting}`);
   }
@@ -177,11 +175,11 @@ const RecordOfDonations: React.FC = () => {
           <div className="relative">
             <select
               id="sort"
+              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none"
               defaultValue={getDefaultSort()}
               onChange={(e) => {
                 handleSortChange(e.target.value);
               }}
-              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none"
             >
               {sortTypes.map((sortType, index) => (
                 <option key={index} value={sortValues[index]}>
