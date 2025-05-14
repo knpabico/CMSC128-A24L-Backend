@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useEvents } from "@/context/EventContext"
 import { useRsvpDetails } from "@/context/RSVPContext"
 import type { Event, RSVP } from "@/models/models"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, HandHeart, ImageOff, X, Clock2, CircleX, Check, CircleAlert, Clock10 } from "lucide-react"
 import { useFeatured } from "@/context/FeaturedStoryContext"
@@ -53,21 +53,31 @@ const EventPageAlumni = () =>
 
   const eventStories = featuredItems.filter((story: { type: string }) => story.type === "event")
 
-  const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(() => 
+const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(undefined);
+
+  useEffect(() => 
   {
     if (alumInfo?.alumniId && matchingRSVP?.alums) 
     {
-      return matchingRSVP.alums[alumInfo.alumniId]?.status;
+      const status = matchingRSVP.alums[alumInfo.alumniId]?.status;
+      setAlumniRsvpStatus(status);
     }
-    return undefined;
-  });
+  }, [alumInfo?.alumniId, matchingRSVP]);
 
   const handleAccept = async () => 
   {
     if (event.eventId && alumInfo?.alumniId) 
     {
-      await handleAlumAccept(event.eventId, alumInfo.alumniId); // still call the hook’s backend function
-      setAlumniRsvpStatus('Accepted'); // update UI immediately
+      try 
+      {
+        await handleAlumAccept(event.eventId, alumInfo.alumniId); // updates DB via hook
+        setAlumniRsvpStatus('Accepted'); // immediately reflect in UI
+      } 
+      
+      catch (error) 
+      {
+        console.error("RSVP accept failed", error);
+      }
     }
   };
 
@@ -75,11 +85,18 @@ const EventPageAlumni = () =>
   {
     if (event.eventId && alumInfo?.alumniId) 
     {
-      await handleAlumReject(event.eventId, alumInfo.alumniId);
-      setAlumniRsvpStatus('Rejected');
+      try 
+      {
+        await handleAlumReject(event.eventId, alumInfo.alumniId);
+        setAlumniRsvpStatus('Rejected');
+      } 
+      
+      catch (error) 
+      {
+        console.error("RSVP reject failed", error);
+      }
     }
   };
-
 
   const sortedStories = [...eventStories].sort((a, b) => 
   {
@@ -127,7 +144,7 @@ const EventPageAlumni = () =>
 
       <div className="flex justify-between items-center p-3">
         <h1 className="text-3xl lg:text-5xl font-bold text-gray-800">{event?.title || "Event Details"}</h1>
-        {event.status === "Accepted" && (
+        {event?.status === "Accepted" && (
          <BookmarkButton entryId={event.eventId} type="event" size="lg" />
         )}
       </div>
@@ -151,7 +168,7 @@ const EventPageAlumni = () =>
             </div>
           )}
           {/* Accepted */}
-          {event && event.status === "Accepted" && (
+          {event && event?.status === "Accepted" && (
             <div className='mt-5 px-5'>
               <div className=' flex justify-between items-center gap-4'>
                 <div className='flex gap-1 items-center justify-center'>
@@ -174,7 +191,7 @@ const EventPageAlumni = () =>
             </div>
           )}
           {/* Pending */}
-          {event && (event.status === "Pending" || event.status === "Draft" || event.status === "Rejected") && (
+          {event && (event?.status === "Pending" || event?.status === "Draft" || event?.status === "Rejected") && (
             <div className='mt-5 px-5'>
               <div className=' flex justify-between items-center gap-4'>
                 <div className='flex gap-1 items-center justify-center'>
@@ -202,7 +219,7 @@ const EventPageAlumni = () =>
           <div className='flex flex-col gap-[10px] w-full'>
             {/* Invitation Status */}
             <div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex flex-col gap-2 w-full shadow-md border border-gray-200'>
-              {event && event.status === "Accepted" && (
+              {event && event?.status === "Accepted" && (
                 <>
                   {/* Event Status */}
                   <div>
@@ -248,7 +265,7 @@ const EventPageAlumni = () =>
                     <div className="w-full">
                       <p>RSVP Status: </p>
                     </div>
-                    {alumniRsvpStatus === undefined ? (
+                    {alumniRsvpStatus === "Pending" ? (
                       <div className="flex items-center justify-end text-yellow-600 font-medium gap-2 w-full">
                         Pending
                         <Clock2 />
@@ -267,7 +284,7 @@ const EventPageAlumni = () =>
                   </div>
 
                   {/* RSVP Buttons */}
-                  {alumniRsvpStatus === undefined && (
+                  {alumniRsvpStatus === "Pending" && (
                     <div className="flex gap-2 p-2">
                       <button
                         onClick={handleAccept}
@@ -287,7 +304,7 @@ const EventPageAlumni = () =>
                 </>
               )}
 
-              {event && (event.status === "Rejected") && (
+              {event && (event?.status === "Rejected") && (
                 <>
                   {/* Event Status */}
                   <div>
@@ -304,7 +321,7 @@ const EventPageAlumni = () =>
                 </>
               )}
 
-              {event && (event.status === "Draft") && (
+              {event && (event?.status === "Draft") && (
                 <>
                   {/* Event Status */}
                   <div>
@@ -340,10 +357,20 @@ const EventPageAlumni = () =>
                       Delete
                     </button>
                   </div>
+                  {/* Propose Event Form */}
+                  <ProposeEventForm
+                    isOpen={showForm}
+                    onClose={() => setShowForm(false)}
+                    isEditing={isEditing}
+                    isDetails={true}
+                    setDetailsPage={setDetailsPage}
+                    editingEventId={event.eventId}
+                    setEdit={setEdit}
+                  />
                 </>
               )}
 
-              {event && (event.status === "Pending") && (
+              {event && (event?.status === "Pending") && (
                 <>
                   {/* Event Status */}
                   <div>
@@ -363,7 +390,7 @@ const EventPageAlumni = () =>
             </div>
           </div>
           {/* Placeholder */}
-          {event.status === "Accepted" && (
+          {event?.status === "Accepted" && (
             <button
               onClick={handleAccept}
               className="text-sm mt-4 bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
