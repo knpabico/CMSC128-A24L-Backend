@@ -6,7 +6,7 @@ import { useRsvpDetails } from "@/context/RSVPContext"
 import type { Event, RSVP } from "@/models/models"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, ImageOff, X, Clock2, CircleX,CircleAlert, Clock10 } from "lucide-react"
+import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, ImageOff, X, Clock2, CircleX,CircleAlert, Clock10, ChevronLeft, ChevronRight } from "lucide-react"
 import { useFeatured } from "@/context/FeaturedStoryContext"
 import ProposeEventForm from "../components/ProposeEventForm"
 import Link from "next/link"
@@ -38,7 +38,30 @@ const EventPageAlumni = () =>
 
   const eventStories = featuredItems.filter((story: { type: string }) => story.type === "event")
 
-const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(undefined);
+
+  const sortedStories = [...eventStories].sort((a, b) => {
+    const dateA =
+      a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
+    const dateB =
+      b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const maxIndex = Math.max(0, sortedStories.length - 3);
+  const nextSlide = () => {
+    if (currentIndex < maxIndex) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+  const prevSlide = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+  const visibleStories = sortedStories.slice(currentIndex, currentIndex + 3);
+
+  const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(undefined);
 
   useEffect(() => 
   {
@@ -82,13 +105,6 @@ const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(und
       }
     }
   };
-
-  const sortedStories = [...eventStories].sort((a, b) => 
-  {
-    const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted)
-    const dateB = b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted)
-    return dateB.getTime() - dateA.getTime()
-  })
 
   const formatDate = (date: any) => 
   {
@@ -394,53 +410,106 @@ const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(und
           )}
         </div>
       </div>
-          {/* Featured Stories Section */}
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-6">Featured Stories</h2>
+      {/* Featured Stories Section - Carousel */}
+      <div className="mt-16">
+        <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">
+          Featured Stories
+        </h2>
 
-            {isLoading ? (
-              <p className="text-gray-500">Loading featured stories...</p>
-            ) : sortedStories.length === 0 ? (
-              <p className="text-gray-500">No featured stories found.</p>
-            ) : (
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {sortedStories.slice(0, 4).map((story) => (
-                  <div
-                    key={story.featuredId}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-                    onClick={() => router.push(`/events/featured/${story.featuredId}`)}
-                  >
-                    {story.image && (
-                      <div className="h-40 bg-cover bg-center" style={{ backgroundImage: `url(${story.image})` }} />
-                    )}
-                    <div className="p-4">
-                      <p className="text-xs text-gray-500 mb-1">{formatDate(story.datePosted) || "01/31/2024"}</p>
-                      <h3 className="font-semibold text-lg text-gray-800 truncate">
-                        {story.title || "How to become a wizard and stop the time"}
-                      </h3>
-                      <div className="flex items-center mt-4">
-                        <span className="text-sm text-gray-700">Read more</span>
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M5 12H19M19 12L12 5M19 12L12 19"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </div>
-                    </div>
+        {isLoading ? (
+          <p className="text-gray-500 text-center">
+            Loading featured stories...
+          </p>
+        ) : sortedStories.length === 0 ? (
+          <p className="text-gray-500 text-center">
+            No featured stories found.
+          </p>
+        ) : (
+          <div className="relative">
+            {/* Previous button */}
+            <button
+              onClick={prevSlide}
+              disabled={currentIndex === 0}
+              className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
+                    ${
+                      currentIndex === 0
+                        ? "opacity-30 cursor-not-allowed"
+                        : "opacity-70 hover:opacity-100"
+                    }`}
+              aria-label="Previous stories"
+            >
+              <ChevronLeft size={24} />
+            </button>
+
+            {/* Stories grid - always 3 columns on larger screens */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
+              {visibleStories.length === 0 && (
+                <div className="col-span-3 text-center text-gray-500">
+                  No other stories available at this time.
+                </div>
+              )}
+              {visibleStories.map((story) => (
+                <div
+                  key={story.featuredId}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                  onClick={() =>
+                    router.push(`/scholarship/featured/${story.featuredId}`)
+                  }
+                >
+                  {story.image && (
+                    <div
+                      className="h-40 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${story.image})` }}
+                    />
+                  )}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg text-gray-800 truncate">
+                      {story.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {formatDate(story.datePosted)}
+                    </p>
+                    <p className="text-sm text-gray-700 mt-2 line-clamp-3">
+                      {story.text}
+                    </p>
                   </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Next button */}
+            <button
+              onClick={nextSlide}
+              disabled={currentIndex >= maxIndex}
+              className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
+                    ${
+                      currentIndex >= maxIndex
+                        ? "opacity-30 cursor-not-allowed"
+                        : "opacity-70 hover:opacity-100"
+                    }`}
+              aria-label="Next stories"
+            >
+              <ChevronRight size={24} />
+            </button>
+
+            {/* Pagination dots */}
+            {sortedStories.length > 3 && (
+              <div className="flex justify-center mt-6 gap-2">
+                {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    className={`h-2 w-2 rounded-full ${
+                      idx === currentIndex ? "bg-blue-500" : "bg-gray-300"
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
                 ))}
               </div>
             )}
           </div>
+        )}
+      </div>
     </div>
   )
 }
