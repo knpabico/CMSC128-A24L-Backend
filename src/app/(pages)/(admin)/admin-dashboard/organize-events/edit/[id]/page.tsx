@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import { useEvents } from "@/context/EventContext"
-import { Asterisk, ChevronDown, Upload, X, Edit, Eye } from "lucide-react"
+import { Asterisk, ChevronDown, Upload, X, Edit, Eye, Pencil } from "lucide-react"
 import type { Event } from "@/models/models"
 import { useRouter, useParams } from "next/navigation"
 import ModalInput from "@/components/ModalInputForm"
@@ -19,7 +19,6 @@ export default function EditEventPage() {
 
   const {
     events,
-    updateEvent,
     image,
     setEventImage,
     setEventTitle,
@@ -27,13 +26,11 @@ export default function EditEventPage() {
     setEventLocation,
     setEventDate,
     setEventTime,
-    handleSave,
     title,
     description,
     date,
     time,
     location,
-    fileName,
     setFileName,
     handleImageChange,
     preview,
@@ -59,10 +56,10 @@ export default function EditEventPage() {
   // Refs
   const placeholderRef = useRef(null)
   const formContainerRef = useRef(null)
-  const batchDropdownRef = useRef(null)
-  const batchMainInputRef = useRef(null)
-  const alumniDropdownRef = useRef(null)
-  const alumniMainInputRef = useRef(null)
+  const batchDropdownRef = useRef<HTMLDivElement | null>(null)
+  const batchMainInputRef = useRef<HTMLInputElement | null>(null)
+  const alumniDropdownRef = useRef<HTMLDivElement | null>(null)
+  const alumniMainInputRef = useRef<HTMLInputElement | null>(null)
 
   // Dropdown state
   const [isBatchDropdownOpen, setIsBatchDropdownOpen] = useState(false)
@@ -79,14 +76,14 @@ export default function EditEventPage() {
 
   // Sample alumni emails for display
   const alumniEmails = activeAlums
-    ? activeAlums.filter((alum) => alum.email && alum.activeStatus === true).map((alum) => alum.email)
+    ? activeAlums.filter((alum: { email: string; activeStatus: boolean }) => alum.email && alum.activeStatus === true).map((alum: { email: any }) => alum.email)
     : []
 
   // Filtered years based on search term
   const filteredBatchYears = years.filter((year) => year.toLowerCase().includes(batchSearchTerm.toLowerCase()))
 
   // Filtered alumni emails based on search term
-  const filteredAlumniEmails = alumniEmails.filter((email) =>
+  const filteredAlumniEmails = alumniEmails.filter((email: string) =>
     email.toLowerCase().includes(alumniSearchTerm.toLowerCase()),
   )
 
@@ -184,7 +181,7 @@ export default function EditEventPage() {
   }, [isAlumniDropdownOpen])
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: { target: any }) => {
       if (batchDropdownRef.current && !batchDropdownRef.current.contains(event.target)) {
         setIsBatchDropdownOpen(false)
         setBatchSearchTerm("")
@@ -311,7 +308,7 @@ export default function EditEventPage() {
   }
 
   // Batch selection handlers
-  const toggleBatchYear = (year) => {
+  const toggleBatchYear = (year: string) => {
     if (selectedBatches.includes(year)) {
       setSelectedBatches(selectedBatches.filter((item) => item !== year))
     } else {
@@ -319,7 +316,7 @@ export default function EditEventPage() {
     }
   }
 
-  const removeBatchYear = (year, e) => {
+  const removeBatchYear = (year: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     e.stopPropagation()
     setSelectedBatches(selectedBatches.filter((item) => item !== year))
   }
@@ -339,7 +336,7 @@ export default function EditEventPage() {
   }
 
   // Alumni selection handlers
-  const toggleAlumniEmail = (email) => {
+  const toggleAlumniEmail = (email: string) => {
     if (selectedAlumni.includes(email)) {
       setSelectedAlumni(selectedAlumni.filter((item) => item !== email))
     } else {
@@ -347,7 +344,7 @@ export default function EditEventPage() {
     }
   }
 
-  const removeAlumniEmail = (email, e) => {
+  const removeAlumniEmail = (email: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     e.stopPropagation()
     setSelectedAlumni(selectedAlumni.filter((item) => item !== email))
   }
@@ -368,8 +365,8 @@ export default function EditEventPage() {
   }
 
   // Handle file upload
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0]
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0]
     if (file) {
       // Set the file name in the context
       setFileName(file.name)
@@ -592,30 +589,32 @@ export default function EditEventPage() {
         <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
           <div className="overflow-y-auto max-h-72">
             {filteredAlumniEmails.length > 0 ? (
-              filteredAlumniEmails.map((email) => (
-                <div
-                  key={email}
-                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
-                    selectedAlumni.includes(email) ? "bg-gray-50" : ""
-                  }`}
-                  onClick={() => toggleAlumniEmail(email)}
-                >
-                  <div className="flex items-center">
-                    <div
-                      className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
-                        selectedAlumni.includes(email) ? "bg-green-500 border-green-500" : "border-gray-300"
-                      }`}
-                    >
-                      {selectedAlumni.includes(email) && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                        </svg>
-                      )}
+              filteredAlumniEmails
+                .filter((email: string): email is string => typeof email === "string")
+                .map((email: string) => (
+                  <div
+                    key={email}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
+                      selectedAlumni.includes(email) ? "bg-gray-50" : ""
+                    }`}
+                    onClick={() => toggleAlumniEmail(email)}
+                  >
+                    <div className="flex items-center">
+                      <div
+                        className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
+                          selectedAlumni.includes(email) ? "bg-green-500 border-green-500" : "border-gray-300"
+                        }`}
+                      >
+                        {selectedAlumni.includes(email) && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
+                          </svg>
+                        )}
+                      </div>
+                      {email}
                     </div>
-                    {email}
                   </div>
-                </div>
-              ))
+                ))
             ) : (
               <div className="px-4 py-3 text-sm text-gray-500">No results found</div>
             )}
@@ -642,11 +641,11 @@ export default function EditEventPage() {
         type="submit"
         onClick={(e) => handleSubmit(e, "Update")}
         disabled={isUpdating || !isEditMode}
-        className={`flex items-center justify-center gap-2 ${
+        className={`flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-200 ${
           isEditMode
             ? "bg-[var(--primary-white)] text-[var(--primary-blue)] hover:bg-[var(--gray-600)] hover:border-[var(--gray-600)]"
             : "bg-[var(--primary-white)] text-[var(--primary-blue)] opacity-50 cursor-not-allowed"
-        } border-2 border-[var(--primary-gray)] px-4 py-2 rounded-full`}
+        } border-2 border-[var(--primary-gray)] px-4 py-2 rounded-full `}
       >
         {isUpdating ? "Updating..." : "Update"}
       </button>
@@ -670,18 +669,20 @@ export default function EditEventPage() {
     <div className="flex flex-col gap-5">
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl">Edit Event</div>
-          <button
-            onClick={() => setIsEditMode(!isEditMode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg ${isEditMode ? "bg-blue-100 text-blue-700" : "bg-blue-500 text-white hover:bg-blue-600"}`}
-          >
-            {isEditMode ? <Eye size={20} /> : <Edit size={20} />}
-            {isEditMode ? "View Mode" : "Edit Mode"}
-          </button>
+        <div className="w-full">
+          <div className="flex items-center justify-between">
+            <div className="font-bold text-3xl">View Event</div>
+            {!isEditMode && (
+              <div
+                onClick={() => setIsEditMode(!isEditMode)}
+                className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+              >
+                <Pencil size={18} /> Edit Event
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+
 
       <div className="flex flex-col gap-3">
         <form ref={formContainerRef} className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">

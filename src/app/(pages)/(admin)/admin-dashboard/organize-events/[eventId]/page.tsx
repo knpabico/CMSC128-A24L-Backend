@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useRef, useMemo } from "react"
 import { useEvents } from "@/context/EventContext"
-import { Asterisk, ChevronDown, Upload, X, Edit, Eye } from "lucide-react"
+import { Asterisk, ChevronDown, Upload, X, Pencil } from "lucide-react"
 import type { Event } from "@/models/models"
 import { useRouter, useParams } from "next/navigation"
 import ModalInput from "@/components/ModalInputForm"
@@ -15,7 +15,6 @@ import Breadcrumb from "@/components/breadcrumb"
 export default function EventPageAdmin() {
   const {
     events,
-    updateEvent,
     image,
     setEventImage,
     setEventTitle,
@@ -24,14 +23,11 @@ export default function EventPageAdmin() {
     setEventDate,
     setEventTime,
     setEventStatus,
-    handleSave,
     title,
     description,
     date,
     time,
     location,
-    status,
-    fileName,
     setFileName,
     handleImageChange,
     preview,
@@ -63,10 +59,10 @@ export default function EventPageAdmin() {
   // Refs
   const placeholderRef = useRef(null)
   const formContainerRef = useRef(null)
-  const batchDropdownRef = useRef(null)
-  const batchMainInputRef = useRef(null)
-  const alumniDropdownRef = useRef(null)
-  const alumniMainInputRef = useRef(null)
+  const batchDropdownRef = useRef<HTMLDivElement | null>(null)
+  const batchMainInputRef = useRef<HTMLInputElement | null>(null)
+  const alumniDropdownRef = useRef<HTMLDivElement | null>(null)
+  const alumniMainInputRef = useRef<HTMLInputElement | null>(null)
 
   // Dropdown state
   const [isBatchDropdownOpen, setIsBatchDropdownOpen] = useState(false)
@@ -88,14 +84,14 @@ export default function EventPageAdmin() {
 
   // Sample alumni emails for display
   const alumniEmails = activeAlums
-    ? activeAlums.filter((alum) => alum.email && alum.activeStatus === true).map((alum) => alum.email)
+    ? activeAlums.filter((alum: { email: string; activeStatus: boolean }) => alum.email && alum.activeStatus === true).map((alum: { email: any }) => alum.email)
     : []
 
   // Filtered years based on search term
   const filteredBatchYears = years.filter((year) => year.toLowerCase().includes(batchSearchTerm.toLowerCase()))
 
   // Filtered alumni emails based on search term
-  const filteredAlumniEmails = alumniEmails.filter((email) =>
+  const filteredAlumniEmails = alumniEmails.filter((email: string) =>
     email.toLowerCase().includes(alumniSearchTerm.toLowerCase()),
   )
 
@@ -104,11 +100,11 @@ export default function EventPageAdmin() {
 
     // Filter RSVPs
     const filteredRsvps = rsvpDetails
-      .filter((rsvp) => rsvp.postId === event.eventId)
-      .flatMap((rsvp) =>
+      .filter((rsvp: { postId: any }) => rsvp.postId === event.eventId)
+      .flatMap((rsvp: { alums: any; rsvpId: any }) =>
         Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
           const { status } = alumData as { status: string };
-          const alumni = alums.find((a) => a.alumniId === alumniId);
+          const alumni = alums.find((a: { alumniId: string }) => a.alumniId === alumniId);
 
           return {
             alumniId,
@@ -119,11 +115,11 @@ export default function EventPageAdmin() {
         })
       )
       // Apply status filter
-      .filter((rsvpItem) => 
+      .filter((rsvpItem: { status: string }) => 
         rsvpFilter === "All" || rsvpItem.status === rsvpFilter
       )
       // Sort by name
-      .sort((a, b) => {
+      .sort((a: { alumni: { firstName: any; lastName: any } }, b: { alumni: { firstName: any; lastName: any } }) => {
         if (!a.alumni || !b.alumni) return 0;
         const nameA = `${a.alumni.firstName} ${a.alumni.lastName}`.toLowerCase();
         const nameB = `${b.alumni.firstName} ${b.alumni.lastName}`.toLowerCase();
@@ -185,15 +181,15 @@ export default function EventPageAdmin() {
         if (eventToEdit.inviteType === "batch") {
           const selectedInfo = Array.from(new Set(
             alums
-              .filter(alumni => eventToEdit.targetGuests.includes(alumni.alumniId))
-              .map(alumni => alumni.studentNumber?.slice(0, 4))
+              .filter((alumni: { alumniId: any }) => eventToEdit.targetGuests.includes(alumni.alumniId))
+              .map((alumni: { studentNumber: string | any[] }) => alumni.studentNumber?.slice(0, 4))
           )) as string[];// Set the batches
           setSelectedBatches(selectedInfo)
           setVisibility("batch") // Set visibility to batches
         } else if (eventToEdit.inviteType === "alumni") {
           const selectedInfo = alums
-            .filter(alumni => eventToEdit.targetGuests.includes(alumni.alumniId))
-            .map(alumni => alumni.email);// Set the batches
+            .filter((alumni: { alumniId: any }) => eventToEdit.targetGuests.includes(alumni.alumniId))
+            .map((alumni: { email: any }) => alumni.email);// Set the batches
           setSelectedAlumni(selectedInfo) // Set the alumni
           setVisibility("alumni") // Set visibility to alumni
         }
@@ -238,7 +234,7 @@ export default function EventPageAdmin() {
   }, [isAlumniDropdownOpen])
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: { target: any }) => {
       if (batchDropdownRef.current && !batchDropdownRef.current.contains(event.target)) {
         setIsBatchDropdownOpen(false)
         setBatchSearchTerm("")
@@ -352,7 +348,7 @@ export default function EventPageAdmin() {
   }
 
   // Batch selection handlers
-  const toggleBatchYear = (year) => {
+  const toggleBatchYear = (year: string) => {
     if (selectedBatches.includes(year)) {
       setSelectedBatches(selectedBatches.filter((item) => item !== year))
     } else {
@@ -360,7 +356,7 @@ export default function EventPageAdmin() {
     }
   }
 
-  const removeBatchYear = (year, e) => {
+  const removeBatchYear = (year: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     e.stopPropagation()
     setSelectedBatches(selectedBatches.filter((item) => item !== year))
   }
@@ -380,7 +376,7 @@ export default function EventPageAdmin() {
   }
 
   // Alumni selection handlers
-  const toggleAlumniEmail = (email) => {
+  const toggleAlumniEmail = (email: string) => {
     if (selectedAlumni.includes(email)) {
       setSelectedAlumni(selectedAlumni.filter((item) => item !== email))
     } else {
@@ -388,7 +384,7 @@ export default function EventPageAdmin() {
     }
   }
 
-  const removeAlumniEmail = (email, e) => {
+  const removeAlumniEmail = (email: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     e.stopPropagation()
     setSelectedAlumni(selectedAlumni.filter((item) => item !== email))
   }
@@ -409,8 +405,8 @@ export default function EventPageAdmin() {
   }
 
   // Handle file upload
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0]
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0]
     if (file) {
       // Set the file name in the context
       setFileName(file.name)
@@ -633,7 +629,7 @@ export default function EventPageAdmin() {
         <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
           <div className="overflow-y-auto max-h-72">
             {filteredAlumniEmails.length > 0 ? (
-              filteredAlumniEmails.map((email) => (
+              filteredAlumniEmails.map((email : string) => (
                 <div
                   key={email}
                   className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
@@ -698,18 +694,19 @@ export default function EventPageAdmin() {
     <div className="flex flex-col gap-5">
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl">Event Details</div>
-          <button
-            onClick={() => setIsEditMode(!isEditMode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg ${isEditMode ? "bg-blue-100 text-blue-700" : "bg-blue-500 text-white hover:bg-blue-600"}`}
-          >
-            {isEditMode ? <Eye size={20} /> : <Edit size={20} />}
-            {isEditMode ? "View Mode" : "Edit Mode"}
-          </button>
+        <div className="w-full">
+          <div className="flex items-center justify-between">
+            <div className="font-bold text-3xl">{event?.title}</div>
+            {!isEditMode && (
+              <div
+                onClick={() => setIsEditMode(!isEditMode)}
+                className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+              >
+                <Pencil size={18} /> Edit Event
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
       <div className="flex flex-col gap-3">
         <form ref={formContainerRef} className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">
@@ -958,9 +955,9 @@ export default function EventPageAdmin() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Attendees</h3>
-              {filteredAndSortedRsvps.filter(rsvpItem => rsvpItem.status === "Accepted").length > 0 && (
+              {filteredAndSortedRsvps.filter((rsvpItem: { status: string }) => rsvpItem.status === "Accepted").length > 0 && (
                 <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                  {filteredAndSortedRsvps.filter(rsvpItem => rsvpItem.status === "Accepted").length} {filteredAndSortedRsvps.filter(rsvpItem => rsvpItem.status === "Accepted").length === 1 ? "alumnus" : "alumni"} going
+                  {filteredAndSortedRsvps.filter((rsvpItem: { status: string }) => rsvpItem.status === "Accepted").length} {filteredAndSortedRsvps.filter((rsvpItem: { status: string }) => rsvpItem.status === "Accepted").length === 1 ? "alumnus" : "alumni"} going
                 </span>
               )}
             </div>
@@ -991,7 +988,7 @@ export default function EventPageAdmin() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredAndSortedRsvps.map((rsvpItem, index) => {
+                    {filteredAndSortedRsvps.map((rsvpItem: { rsvpId: any; alumniId: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; alumni: { firstName: any; middleName: any; lastName: any; email: any }; status: any }, index: number) => {
                       const isEven = index % 2 === 0;
 
                       return (
