@@ -419,7 +419,7 @@ const ScholarshipPage: React.FC = () => {
   };
 
   // Function to determine if scholarship is active based on deadline
-  const isScholarshipActive = (scholarship: any) => {
+  const isScholarshipActive = (scholarship: Scholarship) => {
     if (scholarship.status === "deleted") return false;
 
     if (scholarship.status) {
@@ -431,7 +431,7 @@ const ScholarshipPage: React.FC = () => {
   };
 
   // Get scholarship status
-  const getScholarshipStatus = (scholarship: any) => {
+  const getScholarshipStatus = (scholarship: Scholarship) => {
     if (scholarship.status === "deleted") return "deleted";
 
     if (scholarship.status) {
@@ -455,18 +455,18 @@ const ScholarshipPage: React.FC = () => {
   const tabFilteredScholarships = (() => {
     // Remove all scholarships with status "deleted"
     const nonDeletedScholarships = scholarships.filter(
-      (scholarship: any) => getScholarshipStatus(scholarship) !== "deleted"
+      (scholarship: Scholarship) => getScholarshipStatus(scholarship) !== "deleted"
     );
 
     switch (activeTab) {
       case "saved":
-        return nonDeletedScholarships.filter((scholarship: any) =>
+        return nonDeletedScholarships.filter((scholarship: Scholarship) =>
           isBookmarked(scholarship.scholarshipId)
         );
       case "myScholars":
         // Only show scholarships where the current user is in the alumList
         return user
-          ? nonDeletedScholarships.filter((scholarship: any) =>
+          ? nonDeletedScholarships.filter((scholarship: Scholarship) =>
               scholarship.alumList.includes(user.uid)
             )
           : [];
@@ -482,13 +482,13 @@ const ScholarshipPage: React.FC = () => {
     if (statusFilter === "all") {
       return tabFilteredScholarships;
     } else if (statusFilter === "active") {
-      return tabFilteredScholarships.filter((scholarship: any) =>
+      return tabFilteredScholarships.filter((scholarship: Scholarship) =>
         isScholarshipActive(scholarship)
       );
     } else {
       // closed
       return tabFilteredScholarships.filter(
-        (scholarship: any) => !isScholarshipActive(scholarship)
+        (scholarship: Scholarship) => !isScholarshipActive(scholarship)
       );
     }
   })();
@@ -863,7 +863,7 @@ const ScholarshipPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-                  {sortedScholarships.map((scholarship: any) => {
+                  {sortedScholarships.map((scholarship: Scholarship) => {
                     const status = getScholarshipStatus(scholarship);
                     return (
                       <div
