@@ -11,6 +11,7 @@ export default function EventRelatedDrivesPage() {
   const { donationDrives, events, isLoading } = useDonationDrives();
   const [eventDrives, setEventDrives] = useState<DonationDrive[]>([]);
   const [sortOption, setSortOption] = useState<string>('newest');
+  const [statusOption, setStatusOption] = useState<string>('all');
 
   useEffect(() => {
     if (donationDrives.length > 0) {
@@ -18,7 +19,7 @@ export default function EventRelatedDrivesPage() {
       const eventRelated = donationDrives.filter((drive: { isEvent: boolean; }) => drive.isEvent);
 	//   Filter active and completed 
 	  const filteredDrives = eventRelated.filter(
-		(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed' || drive.status === 'Accepted'));
+		(drive: { status: string }) => (statusOption ==="all"? drive.status === 'active' || drive.status === 'completed':drive.status === statusOption));
       
       // Apply sorting
       const sorted = [...filteredDrives].sort((a, b) => {
@@ -48,11 +49,15 @@ export default function EventRelatedDrivesPage() {
     } else {
       setEventDrives([]);
     }
-  }, [donationDrives, sortOption]);
+  }, [donationDrives, sortOption, statusOption]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOption(e.target.value);
   };
+
+  const handleStatusSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+	setStatusOption(e.target.value);
+ };
 
 return (
 	<div className="bg-[#EAEAEA]">
@@ -75,15 +80,26 @@ return (
 				{/* Filter tabs */}
 				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
 					<h2 className="text-lg font-semibold">Event Related Drives</h2>
-					<div className="flex items-center">
-						<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-						<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
-							<option value="newest">Newest</option>
-							<option value="oldest">Oldest</option>
-							<option value="amount-high">Amount (High to Low)</option>
-							<option value="amount-low">Amount (Low to High)</option>
-							<option value="progress">Progress</option>
-						</select>
+					<div className="flex justify-between items-center gap-2">
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="flex items-center text-sm" >
+								<option value="all">All</option>
+								<option value="active">Active</option>
+								<option value="completed">Closed </option>
+							</select>
+						</div>
+						<div>|</div>					
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+								<option value="newest">Newest</option>
+								<option value="oldest">Oldest</option>
+								<option value="amount-high">Amount (High to Low)</option>
+								<option value="amount-low">Amount (Low to High)</option>
+								<option value="progress">Progress</option>
+							</select>
+						</div>
 					</div>
 				</div>
 				{eventDrives.length > 0 ? (

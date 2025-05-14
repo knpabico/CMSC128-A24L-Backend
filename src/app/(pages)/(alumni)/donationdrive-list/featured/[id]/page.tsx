@@ -21,7 +21,7 @@ const FeaturedDetailPage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Filter stories by type and exclude the current story
-  const eventStories = featuredItems.filter((story : any) => 
+  const eventStories = featuredItems.filter((story : Featured) => 
 	story.type === "donation" && story.featuredId !== featuredId
   );
 

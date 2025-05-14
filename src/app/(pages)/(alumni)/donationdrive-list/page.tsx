@@ -6,17 +6,19 @@ import DonationDriveSidebar from './components/Sidebar';
 import DonationDrivesList from './components/DonationDrivesList';
 import { DonationDrive } from '@/models/models';
 import Banner from "@/components/Banner";
+import { ChevronDown } from 'lucide-react';
 
 export default function AllDonationDrivesPage() {
 const { donationDrives, events, isLoading } = useDonationDrives();
 const [sortedDrives, setSortedDrives] = useState<DonationDrive[]>([]);
 const [sortOption, setSortOption] = useState<string>('newest');
+const [statusOption, setStatusOption] = useState<string>('all');
 
 useEffect(() => {
 	if (donationDrives.length > 0) {
-
+	
 	const filteredDrives = donationDrives.filter(
-		(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed'));
+		(drive: { status: string }) => (statusOption ==="all"? drive.status === 'active' || drive.status === 'completed':drive.status === statusOption));
 	const sorted = [...filteredDrives].sort((a, b) => {
 		switch (sortOption) {
 		case 'newest':
@@ -44,10 +46,14 @@ useEffect(() => {
 	} else {
 	setSortedDrives([]);
 	}
-}, [donationDrives, sortOption]);
+}, [donationDrives, sortOption, statusOption]);
 
 const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 	setSortOption(e.target.value);
+};
+
+const handleStatusSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+	setStatusOption(e.target.value);
 };
 
 return (
@@ -68,15 +74,26 @@ return (
 				{/* Filter tabs */}
 				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
 					<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
-					<div className="flex items-center">
-						<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-						<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
-							<option value="newest">Newest</option>
-							<option value="oldest">Oldest</option>
-							<option value="amount-high">Amount (High to Low)</option>
-							<option value="amount-low">Amount (Low to High)</option>
-							<option value="progress">Progress</option>
-						</select>
+					<div className="flex justify-between items-center gap-2">
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="flex items-center text-sm" >
+								<option value="all">All</option>
+								<option value="active">Active</option>
+								<option value="completed">Closed </option>
+							</select>
+						</div>
+						<div>|</div>
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+								<option value="newest">Newest</option>
+								<option value="oldest">Oldest</option>
+								<option value="amount-high">Amount (High to Low)</option>
+								<option value="amount-low">Amount (Low to High)</option>
+								<option value="progress">Progress</option>
+							</select>
+						</div>						
 					</div>
 				</div>
 				{sortedDrives.length > 0 ? (
