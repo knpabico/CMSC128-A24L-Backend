@@ -33,7 +33,6 @@ export default function EventPageAdmin() {
     preview,
     setPreview,
     addEvent,
-    handleEdit,
   } = useEvents()
 
   const router = useRouter()
@@ -101,7 +100,7 @@ export default function EventPageAdmin() {
 
     // Filter RSVPs
     const filteredRsvps = rsvpDetails
-      .filter((rsvp: { postId: any }) => rsvp.postId === event.eventId)
+      .filter((rsvp: { rsvpId: any, postId: any }) => rsvp.postId === event.eventId && rsvp.rsvpId === event.rsvps)
       .flatMap((rsvp: { alums: any; rsvpId: any }) =>
         Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
           const { status } = alumData as { status: string };
@@ -287,11 +286,11 @@ export default function EventPageAdmin() {
     setIsEditing(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent, buttonType: "Update") => {
+  const handleSubmit = async (e: React.FormEvent, buttonType: "Finalize") => {
     e.preventDefault()
 
-    if (buttonType === "Update") {
-      setIsUpdating(true)
+    if (buttonType === "Finalize") {
+      setIsSubmitting(true)
     }
 
     setErrorMessage("")
@@ -299,23 +298,20 @@ export default function EventPageAdmin() {
     // Validate form completion
     if (!formComplete) {
       setErrorMessage("Please fill out all required fields before updating the event.")
-      setIsUpdating(false)
+      setIsSubmitting(false)
       return
     }
-
-    // Prepare the targetGuests based on visibility
-    const targetGuests = visibility === "batch" ? selectedBatches : visibility === "alumni" ? selectedAlumni : []
 
     // Validate batch inputs if batch visibility is selected
     if (visibility === "batch") {
       if (selectedBatches.length === 0) {
         setErrorMessage("Please add at least one batch.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
       if (selectedBatches.some((batch) => !/^\d+$/.test(batch))) {
         setErrorMessage("Batch inputs must contain only numbers.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
     }
@@ -324,30 +320,37 @@ export default function EventPageAdmin() {
     if (visibility === "alumni") {
       if (selectedAlumni.length === 0) {
         setErrorMessage("Please add at least one alumni email.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
       if (selectedAlumni.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
         setErrorMessage("Please ensure all alumni inputs are valid email addresses.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
     }
 
+    // Prepare the targetGuests based on visibility
+    const targetGuests = visibility === "batch" ? selectedBatches : visibility === "alumni" ? selectedAlumni : []
+
+    const updatedEvent = {
+      eventId: currentEvent.eventId,
+      title,
+      description,
+      image,
+      date,
+      time,
+      location,
+      rsvps: currentEvent.rsvps,
+      inviteType: visibility,
+      targetGuests,
+    };
+
     try {
-      if (buttonType === "Update") {
-        const result = await handleEdit(
-          eventId,
-          {
-            title,
-            description,
-            location,
-            date,
-            targetGuests,
-            inviteType: visibility,
-          },
-          image,
-        )
+      if (buttonType === "Finalize") {
+        // Finalize the event (set status to Accepted)
+        console.log(currentEvent.inviteType)
+        const result = await addEvent(updatedEvent, true)
 
         if (result.success) {
           resetFormState()
@@ -725,15 +728,15 @@ export default function EventPageAdmin() {
 
       <button
         type="submit"
-        onClick={(e) => handleSubmit(e, "Update")}
-        disabled={isUpdating || !formComplete || !isEditMode || !isEditing}
+        onClick={(e) => handleSubmit(e, "Finalize")}
+        disabled={isSubmitting || !formComplete || !isEditMode || !isEditing}
         className={`w-30 flex items-center justify-center gap-2 ${
           formComplete && isEditMode && isEditing
             ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
             : "bg-[var(--primary-blue)] text-[var(--primary-white)] opacity-50 cursor-not-allowed"
         } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}
       >
-        {isUpdating ? "Updating..." : "Update"}
+        {isSubmitting ? "Finalizing..." : "Finalize"}
       </button>
     </>
   )

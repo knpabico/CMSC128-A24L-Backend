@@ -141,6 +141,24 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         await setDoc(docRef, newEvent);
       }
 
+     
+      if (typeof newEvent.rsvps === "string" && newEvent.rsvps.trim() !== "") {
+        try {
+          const rsvps = rsvpDetails as RSVP[];
+          for (const rsvp of rsvps) {
+            if (rsvp.postId === newEvent.eventId) {
+              console.log("Deleting RSVP:", rsvp.rsvpId);
+              await deleteDoc(doc(db, "RSVP", rsvp.rsvpId));
+              console.log("RSVP Deleted:", rsvp.rsvpId);
+            }
+          }
+
+          await deleteNewsLetter(newEvent.eventId);
+        } catch (error) {
+          console.error("Failed to delete RSVP or newsletter:", error);
+        }
+      }
+
       // If finalizing, embed the RSVP and event update logic here
       if (finalize) {
         docRef = doc(db, "event", newEvent.eventId);
@@ -194,10 +212,13 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
         // Update the event document
         const updateData: any = {
+          ...newEvent,
           rsvps: rsvpId,
           status: "Accepted",
           datePosted: new Date(),
         };
+
+        console.log(newEvent.inviteType)
 
         if (newEvent.inviteType !== "all") {
           updateData.targetGuests = updatedTargetGuests;
