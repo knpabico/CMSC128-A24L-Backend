@@ -60,9 +60,13 @@ export default function ManageDonationDrive() {
       case "descending":
         return b.targetAmount - a.targetAmount;
       case "oldest":
-        return a.datePosted.toDate().getTime() - b.datePosted.toDate().getTime();
+  			const dateA2 = a.datePosted?.toDate?.() || new Date(0);
+			const dateB2 = b.datePosted?.toDate?.() || new Date(0);
+			return dateA2.getTime() - dateB2.getTime();
       case "latest":
-        return b.datePosted.toDate().getTime() - a.datePosted.toDate().getTime();
+   			const dateA = a.datePosted?.toDate?.() || new Date(0);
+			const dateB = b.datePosted?.toDate?.() || new Date(0);
+			return dateB.getTime() - dateA.getTime();
       case "alphabetical": {
         const aName = (a.isEvent && events[a.eventId])
           ? events[a.eventId]!.title
@@ -100,20 +104,6 @@ export default function ManageDonationDrive() {
 
   const navigateToDetails = (id: string) => {
     router.push(`manage/details?id=${id}`);
-  };
-
-  const formatDate = (timestamp: any) => {
-    try {
-      if (!timestamp) return "N/A";
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch (err) {
-      return "Invalid Date";
-    }
   };
 
   // Fixed useEffect to prevent hanging when changing filters
