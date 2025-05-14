@@ -13,6 +13,8 @@ import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@mui/material";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { useRouter } from "next/navigation";
+import { useDonationDrives } from "@/context/DonationDriveContext"
+
 
 export default function EventPageAdmin() {
   const router = useRouter();
@@ -50,6 +52,7 @@ export default function EventPageAdmin() {
   const ev = events.find((e: Event) => e.eventId === evId);
   //const defaultImageUrl = "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Fdefault-image.jpg?alt=media&token=5835562a-d7a0-48a0-9b07-0b2151c949fb"
 
+  const { handleAddEventRelated } = useDonationDrives()
 
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails();
   const [isEditing, setEdit] = useState(false);
@@ -526,7 +529,22 @@ export default function EventPageAdmin() {
                           View More
                         </button>
                       </div>
-                    ) : e.status === "Accepted" || e.status === "Rejected" ? (
+                    ) : e.status === "Accepted" && e.donationDriveId === "" ? (
+                          <div className="flex items-center justify-end gap-4">
+                            <button
+                              onClick={() => handleAddEventRelated(e)}
+                              className="text-gray-600 hover:underline cursor-pointer"
+                            >
+                              Create Donation Drive
+                            </button>
+                            <button
+                              onClick={() => handleViewEventAdmin(e)}
+                              className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                            >
+                              View Details
+                            </button>
+                          </div>
+                    ): e.status === "Accepted" || e.status === "Rejected" ? (
                       <div className="flex flex-col gap-2 mt-4">
                         <button
                           onClick={() => handleViewEventAdmin(e)}
