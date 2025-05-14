@@ -368,6 +368,29 @@ const ScholarshipPage: React.FC = () => {
   fetchUserScholarshipStudent();
 }, [students, scholarships, scholarshipStudents]);
 
+    const formatDate = (date: any) => {
+    if (!date) return "Unknown date";
+
+    const dateObj = date instanceof Date ? date : new Date(date);
+
+    if (isNaN(dateObj.getTime())) {
+      if (date?.toDate && typeof date.toDate === 'function') {
+        return date.toDate().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        });
+      }
+      return "Invalid date";
+    }
+
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  };
+
   const handleToggleBookmark = async (
     e: React.MouseEvent,
     scholarshipId: string
@@ -671,15 +694,7 @@ const ScholarshipPage: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <Calendar size={16} />
                             <p className="text-sm text-gray-600">
-                              {story.datePosted  &&
-                              new Date(story.datePosted).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "long",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    }
-                                  )}
+                              {formatDate(story.datePosted)}
                             </p>
                           </div>
                         </div>
