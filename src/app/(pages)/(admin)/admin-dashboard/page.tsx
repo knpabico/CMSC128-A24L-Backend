@@ -19,7 +19,18 @@ import AlumniDetailsModal from "@/components/ui/ActivateAlumniDetails";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { useJobOffer } from "@/context/JobOfferContext";
-import { CheckCircle, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Activity,
+  Users,
+  Briefcase,
+  Calendar,
+  Award,
+  MapPin,
+  CreditCard,
+  Filter,
+} from "lucide-react";
 import { useDonationContext } from "@/context/DonationContext";
 
 import { RegStatus } from "@/types/alumni/regStatus";
@@ -259,16 +270,109 @@ export default function AdminDashboard() {
     .sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="p-2 w-full">
-      {/* Page title */}
-      <h1 className="text-3xl font-bold my-6">Admin Dashboard</h1>
+    <div className="p-2 md:p-6 w-full bg-gray-10 min-h-screen">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <div className="text-sm text-gray-500 mt-2 md:mt-0">
+          Last updated: {new Date().toLocaleDateString()}{" "}
+          {new Date().toLocaleTimeString()}
+        </div>
+      </div>
 
-      {/* Information Cards*/}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      {/* Quick Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-lg transition-shadow">
+          <CardContent className="p-6 flex items-center">
+            <div className="bg-blue-500 rounded-full p-3 mr-4">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Total Alumni</p>
+              <p className="text-2xl font-bold">{totalAlums}</p>
+              <div className="flex items-center mt-1">
+                <span className="text-xs text-green-600">
+                  Active: {getActiveAlums(alums).length}
+                </span>
+                <span className="text-xs text-gray-400 mx-1">|</span>
+                <span className="text-xs text-yellow-600">
+                  Pending: {getPendingAlums(alums).length}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-lg transition-shadow">
+          <CardContent className="p-6 flex items-center">
+            <div className="bg-purple-500 rounded-full p-3 mr-4">
+              <Calendar className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Upcoming Events</p>
+              <p className="text-2xl font-bold">
+                {getUpcomingEvents(events).length}
+              </p>
+              <div className="flex items-center mt-1">
+                <span className="text-xs text-yellow-600">
+                  Proposals: {getEventProposals(events).length}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 hover:shadow-lg transition-shadow">
+          <CardContent className="p-6 flex items-center">
+            <div className="bg-green-500 rounded-full p-3 mr-4">
+              <CreditCard className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Active Donations</p>
+              <p className="text-2xl font-bold">{donationDrives.length}</p>
+              <div className="flex items-center mt-1">
+                <span className="text-xs text-green-600">
+                  {donationDrives
+                    .reduce((sum, drive) => sum + drive.currentAmount, 0)
+                    .toLocaleString()}{" "}
+                  PHP raised
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-md bg-gradient-to-br from-amber-50 to-amber-100 hover:shadow-lg transition-shadow">
+          <CardContent className="p-6 flex items-center">
+            <div className="bg-amber-500 rounded-full p-3 mr-4">
+              <Briefcase className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Job Postings</p>
+              <p className="text-2xl font-bold">{jobOffers.length}</p>
+              <div className="flex items-center mt-1">
+                <span className="text-xs text-yellow-600">
+                  Pending:{" "}
+                  {jobOffers.filter((job) => job.status === "Pending").length}
+                </span>
+                <span className="text-xs text-gray-400 mx-1">|</span>
+                <span className="text-xs text-green-600">
+                  Active:{" "}
+                  {jobOffers.filter((job) => job.status === "Accepted").length}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Alumni and Industry Information */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Alumni Card */}
-        <Card className="border-0 shadow-md bg-white w-full">
-          <CardHeader>
-            <CardTitle>Alumni</CardTitle>
+        <Card className="border-0 shadow-md bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-0 pt-5">
+            <CardTitle className="flex items-center text-xl font-bold">
+              <Users className="h-5 w-5 mr-2 text-blue-600" /> Alumni Status
+            </CardTitle>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6 w-full px-4 py-6">
@@ -279,39 +383,29 @@ export default function AdminDashboard() {
                 <div className="w-60 h-60">
                   <DonutChart
                     labels={["Active", "Inactive"]}
-                    data={[
-                      getActiveAlums(alums).length,
-                      getInactiveAlums(alums).length,
-                    ]}
-                    backgroundColor={["#87CEEB", "#B0E0E6"]}
-                    options={{
-                      cutout: "70%",
-                      plugins: {
-                        legend: {
-                          display: true,
-                          position: "bottom",
-                        },
-                      },
-                    }}
+                    data={[getActiveAlums(alums).length, inactiveAlums.length]}
+                    backgroundColor={["#36A2EB", "#FF6384"]}
                   />
                 </div>
               </div>
 
               {/* Stats Column */}
               <div className="w-full md:w-1/3 flex flex-col gap-4">
-                <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
+                <div className="rounded-lg shadow-md p-4 text-center bg-gradient-to-r from-blue-50 to-blue-100 w-full">
                   <div className="text-sm text-gray-500 mb-1">Total</div>
-                  <div className="text-2xl font-bold">{totalAlums}</div>
+                  <div className="text-2xl font-bold text-blue-700">
+                    {totalAlums}
+                  </div>
                 </div>
-                <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
+                <div className="rounded-lg shadow-md p-4 text-center bg-gradient-to-r from-green-50 to-green-100 w-full">
                   <div className="text-sm text-gray-500 mb-1">Active</div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl font-bold text-green-700">
                     {getActiveAlums(alums).length}
                   </div>
                 </div>
-                <div className="rounded-md shadow-md p-4 text-center bg-white w-full">
+                <div className="rounded-lg shadow-md p-4 text-center bg-gradient-to-r from-red-50 to-red-100 w-full">
                   <div className="text-sm text-gray-500 mb-1">Inactive</div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl font-bold text-red-700">
                     {inactiveAlums.length}
                   </div>
                 </div>
@@ -320,42 +414,45 @@ export default function AdminDashboard() {
 
             <div className="flex flex-col space-y-4 w-full">
               {/* Pending section */}
-              <div className="border-0 rounded-md shadow-md p-4 bg-white w-full">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm text-gray-500">
-                    Pending Registration Alumnis
+              <div className="border-0 rounded-lg shadow-md p-4 bg-white w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="text-lg font-medium flex items-center">
+                    <Activity className="h-5 w-5 mr-2 text-yellow-500" />
+                    <span>Pending Registration</span>
                   </div>
-                  <div className="text-xl font-bold">
+                  <div className="text-xl font-bold bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
                     {getPendingAlums(alums).length}
                   </div>
                 </div>
 
                 {/* List */}
-                <div className="mt-2 max-h-50 overflow-y-auto w-full">
-                  {getPendingAlums(alums).map((alum: Alumnus) => (
-                    <div
-                      key={alum.alumniId}
-                      onClick={() => handleOpenModal(alum)}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center mb-2 w-full"
-                    >
-                      <div className="overflow-hidden">
-                        <span className="font-medium text-sm truncate block">
-                          {alum.lastName}, {alum.firstName}{" "}
-                          {alum.middleName || ""}
-                        </span>
-                        <p className="text-xs text-gray-500 truncate">
-                          {alum.studentNumber || "No Student ID"}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ml-2 
-                            bg-yellow-500 text-yellow-800
-                      `}
+                <div className="mt-2 max-h-60 overflow-y-auto w-full">
+                  {getPendingAlums(alums).length > 0 ? (
+                    getPendingAlums(alums).map((alum: Alumnus) => (
+                      <div
+                        key={alum.alumniId}
+                        onClick={() => handleOpenModal(alum)}
+                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center mb-2 w-full transition-all duration-200 transform hover:translate-x-1"
                       >
-                        {alum.regStatus == "pending" ? "Pending" : "Approved"}
-                      </span>
+                        <div className="overflow-hidden">
+                          <span className="font-medium text-sm truncate block">
+                            {alum.lastName}, {alum.firstName}{" "}
+                            {alum.middleName || ""}
+                          </span>
+                          <p className="text-xs text-gray-500 truncate">
+                            {alum.studentNumber || "No Student ID"}
+                          </p>
+                        </div>
+                        <span className="px-2 py-0.5 text-xs rounded-full flex-shrink-0 ml-2 bg-yellow-100 text-yellow-800">
+                          Pending
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      No pending registrations
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
@@ -371,16 +468,19 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Industries Card */}
-        <Card className="border-0 shadow-md bg-white">
-          <CardHeader>
-            <CardTitle>Industries</CardTitle>
+        <Card className="border-0 shadow-md bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-0 pt-5">
+            <CardTitle className="flex items-center text-xl font-bold">
+              <Briefcase className="h-5 w-5 mr-2 text-purple-600" /> Industry
+              Distribution
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {/* inner chart card */}
-            <div className="w-full flex justify-center">
-              <div className="flex space-x-6 items-center">
+            <div className="w-full flex flex-col lg:flex-row justify-center mt-2">
+              <div className="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6 items-center">
                 {/* Donut Chart */}
-                <div className="w-50 h-50">
+                <div className="w-48 h-48 md:w-64 md:h-64">
                   <DonutChart
                     labels={sortedEntries.map(([field]) => field)}
                     data={sortedEntries.map(([_, count]) => count)}
@@ -391,12 +491,12 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                {/* Labels Legend */}
-                <div className="space-y-2">
-                  {sortedEntries.map(([field, count], idx) => (
+                {/* Labels Legend - Limited to top 8 for cleaner display */}
+                <div className="space-y-2 max-h-64 overflow-y-auto w-full lg:w-1/2">
+                  {sortedEntries.slice(0, 8).map(([field, count], idx) => (
                     <div
                       key={field}
-                      className="flex items-center space-x-2 text-sm"
+                      className="flex items-center space-x-2 text-sm p-2 hover:bg-gray-50 rounded-md"
                     >
                       <span
                         className="inline-block w-3 h-3 rounded-full"
@@ -404,110 +504,128 @@ export default function AdminDashboard() {
                           backgroundColor: getColorForField(field, idx),
                         }}
                       />
-                      <span>
-                        {field} ({count})
-                      </span>
+                      <span className="flex-1">{field}</span>
+                      <span className="font-medium">{count}</span>
                     </div>
                   ))}
+                  {sortedEntries.length > 8 && (
+                    <div className="text-center text-sm text-blue-600 cursor-pointer hover:underline mt-2">
+                      +{sortedEntries.length - 8} more fields
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* list of industries like Alumni List */}
+            {/* Top industries compact view */}
             <div className="mt-6">
-              <h3 className="font-semibold mb-2">Industry Breakdown</h3>
-              <div className="space-y-2 max-h-70 overflow-y-auto">
-                {Object.entries(fieldCounts)
-                  .filter(([_, count]) => count > 0)
-                  .sort((a, b) => b[1] - a[1]) // Sort descending by count
-                  .map(([field, count], idx) => (
-                    <div
-                      key={field}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-default flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <span
-                          className="inline-block w-3 h-3 rounded-full mr-2"
-                          style={{
-                            backgroundColor: getColorForField(field, idx),
-                          }}
-                        />
-                        <span className="font-medium">{field}</span>
-                      </div>
-                      <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
-                        {count}
-                      </span>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold flex items-center">
+                  <Filter className="h-4 w-4 mr-1 text-gray-500" /> Top
+                  Industries
+                </h3>
+                <span className="text-xs text-gray-500">
+                  Based on alumni interests
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                {sortedEntries.slice(0, 6).map(([field, count], idx) => (
+                  <div
+                    key={field}
+                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 flex items-center justify-between transition-all duration-200"
+                  >
+                    <div className="flex items-center">
+                      <span
+                        className="inline-block w-3 h-3 rounded-full mr-2"
+                        style={{
+                          backgroundColor: getColorForField(field, idx),
+                        }}
+                      />
+                      <span className="font-medium text-sm">{field}</span>
                     </div>
-                  ))}
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
+                      {count}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-        {/* Event Proposals
-        To Fix: border between the card title and the line seperator ay dapat mas malapit (chan gagawa)*/}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+      {/* Secondary Cards Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Event Proposals 
+        To Fix: Ipagisahin ng card ang event proposal and upcoming events */}
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Event Proposals</CardTitle>
+            <CardTitle className="flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-purple-600" /> Event
+              Proposals
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto">
+          <CardContent className="flex-1 overflow-y-auto py-4">
             <div className="max-h-60">
-              {/* Pending event proposals data palagay here tnx po. Dapat kaya maopen yung full details (overlay not page)
-              Contents:
-                - Event name
-                - Date
-                - Event venue
-                */}
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {getEventProposals(events).map(
-                  (event: Event, index: number) => {
-                    return (
+              {getEventProposals(events).length > 0 ? (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {getEventProposals(events).map((event: Event) => (
+                    <div
+                      key={event.eventId}
+                      className="space-y-2 max-h-96 overflow-y-auto"
+                    >
                       <div
-                        key={event.eventId}
-                        className="space-y-2 max-h-96 overflow-y-auto"
+                        onClick={() => handleOpenModalEventProposal(event)}
+                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
                       >
-                        <div
-                          onClick={() => handleOpenModalEventProposal(event)}
-                          className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-                        >
-                          <div>
-                            <span className="font-medium">{event.title}</span>
-                            <p className="text-sm text-black-500">
-                              Date: {event.date}
-                            </p>
-                            <p className="text-sm text-black-500">
-                              Place: {event.location}
-                            </p>
-                            <p className="text-sm text-black-500">
-                              Status: {event.status}
-                            </p>
-                          </div>
+                        <div>
+                          <span className="font-medium text-sm line-clamp-1">
+                            {event.title}
+                          </span>
+                          <p className="text-xs text-gray-500">
+                            Date: {formatter.format(new Date(event.date))}
+                          </p>
+                          <p className="text-xs text-gray-500 line-clamp-1">
+                            Place: {event.location}
+                          </p>
+                          <span
+                            className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
+                              event.status === "pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-green-100 text-green-800"
+                            }`}
+                          >
+                            {event.status}
+                          </span>
                         </div>
                       </div>
-                    );
-                  }
-                )}
-              </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  No event proposals
+                </div>
+              )}
             </div>
           </CardContent>
 
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/organize-events"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all event proposals
               </Link>
             </div>
           </div>
+
           <ProEventDetailsModal
             proEvent={selectedEventProposal}
             isEventProOpen={isModalEventProOpen}
@@ -518,43 +636,54 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Upcoming Events */}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Upcoming Events</CardTitle>
+            <CardTitle className="flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-green-600" /> Upcoming
+              Events
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
+
+          <CardContent className="flex-1 overflow-y-auto py-4">
             <div className="max-h-60">
-              {getUpcomingEvents(events).map((event: Event, index: number) => {
-                return (
+              {getUpcomingEvents(events).length > 0 ? (
+                getUpcomingEvents(events).map((event: Event) => (
                   <div
                     key={event.eventId}
-                    className="space-y-2 max-h-96 overflow-y-auto"
+                    className="space-y-2 max-h-96 overflow-y-auto mb-2"
                   >
                     <div
                       onClick={() => handleOpenModalEventProposal(event)}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
                     >
-                      <div>
-                        <span className="font-medium">{event.title}</span>
-                        <p className="text-sm text-black-500">
+                      <div className="w-full">
+                        <span className="font-medium text-sm line-clamp-1">
+                          {event.title}
+                        </span>
+                        <p className="text-xs text-gray-500">
                           Date: {formatter.format(new Date(event.date))}
                         </p>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ))
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  No upcoming events
+                </div>
+              )}
             </div>
           </CardContent>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/organize-events"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all events
               </Link>
@@ -563,64 +692,78 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Donations */}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Donations</CardTitle>
+            <CardTitle className="flex items-center">
+              <CreditCard className="h-5 w-5 mr-2 text-green-600" /> Donations
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto max-h-60 space-y-2">
-            {donationDrives.map(
-              (donationDrive: DonationDrive, index: number) => (
+
+          <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
+            {donationDrives.length > 0 ? (
+              donationDrives.map((donationDrive: DonationDrive) => (
                 <div
                   key={donationDrive.donationDriveId}
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer"
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
                 >
-                  {/* {donationDrive.image ? (
-                    <img
-                      src={donationDrive.image}
-                      alt={donationDrive.campaignName}
-                      className="w-full h-40 object-cover rounded-md"
-                    />
-                  ) : null} */}
                   <div className="mb-1">
-                    <span className="font-medium text-base">
+                    <span className="font-medium text-sm line-clamp-1">
                       {donationDrive.campaignName}
                     </span>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600 line-clamp-1">
                       Beneficiary: {donationDrive.beneficiary.join(", ")}
                     </p>
                   </div>
 
-                  <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                     <div
-                      className="bg-green-500 h-3 rounded-full"
+                      className="bg-green-500 h-2 rounded-full"
                       style={{
-                        width: `${
+                        width: `${Math.min(
                           (donationDrive.currentAmount /
                             donationDrive.targetAmount) *
+                            100,
                           100
-                        }%`,
+                        )}%`,
                       }}
                     />
                   </div>
-                  {/* para sa progress bar */}
-                  <p className="text-xs text-gray-700 mt-1">
-                    ₱{donationDrive.currentAmount.toLocaleString()} raised of ₱
-                    {donationDrive.targetAmount.toLocaleString()}
+
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xs text-gray-700">
+                      ₱{donationDrive.currentAmount.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      of ₱{donationDrive.targetAmount.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-right text-green-600 mt-1">
+                    {Math.round(
+                      (donationDrive.currentAmount /
+                        donationDrive.targetAmount) *
+                        100
+                    )}
+                    % of goal
                   </p>
                 </div>
-              )
+              ))
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                No active donations
+              </div>
             )}
           </CardContent>
 
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/donation-drive"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all donations
               </Link>
@@ -628,53 +771,54 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        {/* Scholarship Grants */}
-        <Card className="border-0 shadow-md flex flex-col bg-white">
+        {/* Scholarship */}
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle>Scholarship Grants</CardTitle>
+            <CardTitle className="flex items-center">
+              <Award className="h-5 w-5 mr-2 text-yellow-600" /> Scholarships
+            </CardTitle>
             <div className="pt-1">
-              <hr className="border-t border-black opacity-40 mx-auto" />
+              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
-            <div className="max-h-60">
-              {/* List of recent applicants sa scholarship. Dapat kaya maopen yung full details like kasama contact info nila (overlay not page)
-              Contents:
-                - Alumni Name
-                - Scholarship title
-              */}
-              {scholarships.map((scholarship: Scholarship, index: number) => {
-                return (
-                  <div
-                    className="space-y-2 max-h-96 overflow-y-auto"
-                    key={scholarship.scholarshipId}
-                    onClick={() => handleSchoOpenModal(scholarship)}
-                  >
-                    <div className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center">
-                      <div>
-                        <span className="font-medium">{scholarship.title}</span>
-                        <span
-                          className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                            scholarship.status
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {scholarship.status ? "Open" : "Closed"}
-                        </span>
-                      </div>
-                    </div>
+
+          <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
+            {scholarships.length > 0 ? (
+              scholarships.map((scholarship: Scholarship) => (
+                <div
+                  key={scholarship.scholarshipId}
+                  onClick={() => handleSchoOpenModal(scholarship)}
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
+                >
+                  <div className="mb-1">
+                    <span className="font-medium text-sm line-clamp-1">
+                      {scholarship.title}
+                    </span>
+                    <span
+                      className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                        scholarship.status
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {scholarship.status ? "Open" : "Closed"}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                No active scholarships
+              </div>
+            )}
           </CardContent>
-          <div className="px-2 pt-0">
-            <hr className="border-t border-black opacity-40 w-11/12 mx-auto" />
-            <div className="text-center">
+
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
               <Link
                 href="/admin-dashboard/manage-scholarships"
-                className="text-black-600 hover:underline text-sm"
+                className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all scholarships
               </Link>
@@ -685,15 +829,23 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-10 gap-6 mt-6">
         <div className="md:col-span-7">
-          {/* Map */}
-          <Card className="border-0 shadow-md h-full bg-white">
-            <CardHeader>
-              <CardTitle>Map of Current Companies</CardTitle>
+          <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-0">
+              <CardTitle className="flex items-center">
+                <MapPin className="h-5 w-5 mr-2 text-red-600" /> Map of Current
+                Companies
+              </CardTitle>
+              <div className="pt-1">
+                <hr className="border-t border-gray-200 mx-auto" />
+              </div>
             </CardHeader>
+
             <CardContent>
               <MapComponent workExperienceList={presentWorkExperiences} />
             </CardContent>
           </Card>
+
+          {/* Map */}
         </div>
 
         {/* Job Posting */}

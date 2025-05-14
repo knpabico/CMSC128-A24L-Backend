@@ -40,11 +40,11 @@ export default function SampleAdminPage() {
     setIsSticky(false);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    console.log("Form submitted");
-  };
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Handle form submission logic here
+  //   console.log("Form submitted");
+  // };
 
   return (
     <div className="flex flex-col gap-5">
