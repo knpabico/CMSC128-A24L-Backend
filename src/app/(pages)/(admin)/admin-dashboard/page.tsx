@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   const {scholarships} = useScholarship();
   const {jobOffers, handleAccept, handleReject, handlePending} = useJobOffer();
   const [activeTab, setActiveTab] = useState('pending');
+  const [activeEventsTab, setActiveEventsTab] = useState('proposals');
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   // const { allDonations } = useDonationContext();
@@ -335,7 +336,6 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-gray-500">Active Donations</p>
-              {/* Pafix lahat yata nakukuha hindi yung active lang */}
               <p className="text-2xl font-bold">{activeDonations.length}</p>
               <div className="flex items-center mt-1">
                 <span className="text-xs text-green-600">
@@ -471,7 +471,6 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-green-50 to-green-100">
                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Active</div>
-                 {/* palagay here yung count nung active donations */}
                 <div className="text-lg sm:text-2xl font-bold text-green-700">{activeDonations.length}</div>
               </div>
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-blue-50 to-blue-100">
@@ -480,12 +479,11 @@ export default function AdminDashboard() {
               </div>
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-purple-50 to-purple-100">
                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Completed</div>
-                 {/* palagay here yung count nung completed donations */}
                 <div className="text-lg sm:text-2xl font-bold text-purple-700">{completedDonations.length}</div>
               </div>
             </div>
 
-            {/* Recent Donations To fix: recent active donations lang dapat to hindi yung lahat,,*/}
+            {/* Recent Donations */}
             <h3 className="font-semibold text-sm mb-3">Recent Active Donations</h3>
             <div className="space-y-3 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {recentActiveDonations.length > 0 ? (
@@ -521,8 +519,7 @@ export default function AdminDashboard() {
                 <div className="text-center py-4 text-gray-500">No active donations</div>
               )}
             </div>
-            {/* Top Active Donations 
-            to fix: dapat active donations lang magsshow hindi lahat*/}
+            {/* Top Active Donations */}
             <div className="mt-6">
               <h3 className="font-semibold text-sm mb-3">Top Active Donation Drives</h3>
               <div className="w-full flex justify-center">
@@ -558,100 +555,85 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Event Proposals 
         To Fix: Ipagisahin ng card ang event proposal and upcoming events (k gagawa)*/}
-        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
+        {/* Combined Events Card */}
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow col-span-2">
           <CardHeader className="pb-0">
             <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-purple-600" /> Event Proposals
+              <Calendar className="h-5 w-5 mr-2 text-purple-600" /> Events
             </CardTitle>
-            <div className="pt-1">
-              <hr className="border-t border-gray-200 mx-auto" />
-            </div>
-          </CardHeader>
-
-          <CardContent className="flex-1 overflow-y-auto py-4">
-            <div className="max-h-60">
-              {getEventProposals(events).length > 0 ? (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {getEventProposals(events).map((event: Event) => (
-                    <div key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto">
-                      <div
-                        onClick={() => handleOpenModalEventProposal(event)}
-                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
-                      >
-                        <div>
-                          <span className="font-medium text-sm line-clamp-1">{event.title}</span>
-                          <p className="text-xs text-gray-500">Date: {formatter.format(new Date(event.date))}</p>
-                          <p className="text-xs text-gray-500 line-clamp-1">Place: {event.location}</p>
-                          <span
-                            className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
-                              event.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-green-100 text-green-800'
-                            }`}
-                          >
-                            {event.status}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6 text-gray-500">No event proposals</div>
-              )}
-            </div>
-          </CardContent>
-
-          <div className="px-2 mt-auto">
-            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
-            <div className="text-center py-3">
-              <Link
-                href="/admin-dashboard/organize-events"
-                className="text-blue-600 hover:underline text-sm font-medium"
+            
+            {/* Tabs */}
+            <div className="flex w-full mt-2 border-b border-gray-200">
+              <button
+                onClick={() => setActiveEventsTab('proposals')}
+                className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
+                  activeEventsTab === 'proposals'
+                    ? 'border-b-2 border-purple-500 text-purple-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
               >
-                View all event proposals
-              </Link>
-            </div>
-          </div>
-
-          <ProEventDetailsModal
-            proEvent={selectedEventProposal}
-            isEventProOpen={isModalEventProOpen}
-            onProEventClose={() => setIsModalEventProOpen(false)}
-            onUpdateEventStat={onUpdateEventStat}
-            getCampaignName={isCampaignName}
-          />
-        </Card>
-
-        {/* Upcoming Events */}
-        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-0">
-            <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-green-600" /> Upcoming Events
-            </CardTitle>
-            <div className="pt-1">
-              <hr className="border-t border-gray-200 mx-auto" />
+                Proposals
+              </button>
+              <button
+                onClick={() => setActiveEventsTab('upcoming')}
+                className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
+                  activeEventsTab === 'upcoming'
+                    ? 'border-b-2 border-green-500 text-green-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Upcoming
+              </button>
             </div>
           </CardHeader>
           
           <CardContent className="flex-1 overflow-y-auto py-4">
-            <div className="max-h-60">
-              {getUpcomingEvents(events).length > 0 ? (
-                getUpcomingEvents(events).map((event: Event) => (
-                  <div key={event.eventId} className="space-y-2 max-h-96 overflow-y-auto mb-2">
+            <div className="space-y-2 max-h-72 overflow-y-auto">
+              {activeEventsTab === 'proposals' ? (
+                getEventProposals(events).length > 0 ? (
+                  getEventProposals(events).map((event: Event) => (
                     <div
+                      key={event.eventId}
+                      onClick={() => handleOpenModalEventProposal(event)}
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
+                    >
+                      <div>
+                        <span className="font-medium text-sm line-clamp-1">{event.title}</span>
+                        <p className="text-xs text-gray-500">Date: {formatter.format(new Date(event.date))}</p>
+                        <p className="text-xs text-gray-500 line-clamp-1">Place: {event.location}</p>
+                        <span
+                          className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
+                            event.status === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}
+                        >
+                          {event.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-500">No event proposals</div>
+                )
+              ) : (
+                getUpcomingEvents(events).length > 0 ? (
+                  getUpcomingEvents(events).map((event: Event) => (
+                    <div
+                      key={event.eventId}
                       onClick={() => handleOpenModalEventProposal(event)}
                       className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
                     >
                       <div className="w-full">
                         <span className="font-medium text-sm line-clamp-1">{event.title}</span>
                         <p className="text-xs text-gray-500">Date: {formatter.format(new Date(event.date))}</p>
+                        <p className="text-xs text-gray-500 line-clamp-1">Place: {event.location}</p>
                       </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-6 text-gray-500">No upcoming events</div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-500">No upcoming events</div>
+                )
               )}
             </div>
           </CardContent>
@@ -667,6 +649,14 @@ export default function AdminDashboard() {
               </Link>
             </div>
           </div>
+
+          <ProEventDetailsModal
+            proEvent={selectedEventProposal}
+            isEventProOpen={isModalEventProOpen}
+            onProEventClose={() => setIsModalEventProOpen(false)}
+            onUpdateEventStat={onUpdateEventStat}
+            getCampaignName={isCampaignName}
+          />
         </Card>
 
         {/* Job Postings */}
@@ -677,10 +667,10 @@ export default function AdminDashboard() {
             </CardTitle>
             
             {/* Tabs */}
-            <div className="flex space-x-2 mt-2 items-center">
+            <div className="flex space-x-2 mt-2 border-b border-gray-200">
               <button
                 onClick={() => setActiveTab('active')}
-                className={`px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
+                className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
                   activeTab === 'active'
                     ? 'bg-gray-100 border-b-2 border-blue-500'
                     : 'text-gray-500 hover:text-gray-700'
@@ -690,7 +680,7 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={() => setActiveTab('pending')}
-                className={`px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
+                className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
                   activeTab === 'pending'
                     ? 'bg-gray-100 border-b-2 border-blue-500'
                     : 'text-gray-500 hover:text-gray-700'
@@ -698,9 +688,6 @@ export default function AdminDashboard() {
               >
                 Pending
               </button>
-            </div>
-            <div className="pt-1">
-              <hr className="border-t border-gray-200 mx-auto" />
             </div>
           </CardHeader>
           
