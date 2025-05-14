@@ -333,7 +333,7 @@ const Page = () => {
   
           {/* Report Summary - Right Side */}
           <div className="lg:w-1/3 lg:min-w-[320px]">
-            <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 h-full">
+            <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
               <CardHeader className="pb-1 border-b border-gray-100">
                 <CardTitle className="flex items-center text-xl font-bold text-gray-800">
                   <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>

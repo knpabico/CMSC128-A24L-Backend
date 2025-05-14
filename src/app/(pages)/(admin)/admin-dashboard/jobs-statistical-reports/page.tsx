@@ -253,7 +253,7 @@ export default function JobStatisticsReport() {
       </div>
 
       {/* Page Title */}
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <BarChart className="w-8 h-8 text-[#0856BA]" />
           <h1 className="font-bold text-3xl text-gray-800">Job Market Analytics Dashboard</h1>
@@ -267,7 +267,7 @@ export default function JobStatisticsReport() {
       <div className="flex flex-col lg:flex-row gap-3">
         {/* Left Side - Report Summary (60%) */}
         <div className="w-full lg:w-[60%]">
-          <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+          <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
         <div className="pb-1 border-b border-gray-100 p-4">
           <div className="flex items-center text-xl font-bold text-gray-800">
             <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
@@ -443,10 +443,10 @@ export default function JobStatisticsReport() {
 
         {/* Right Side - Application Status (40%) */}
         <div className="w-full lg:w-[40%]">
-          <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 h-full flex flex-col">
+          <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all h-full flex flex-col">
             <div className="pb-2 border-b border-gray-100 p-4">
               <div className="text-lg font-bold text-gray-800 flex items-center">
-                <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
                 Application Status
               </div>
             </div>
@@ -490,10 +490,10 @@ export default function JobStatisticsReport() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 
         {/* Employment Type Distribution */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
             <div className="text-lg font-bold text-gray-800 flex items-center">
-              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Employment Types
             </div>
           </div>
@@ -521,10 +521,10 @@ export default function JobStatisticsReport() {
           )}
         </div>
         {/* Job Type Distribution */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
             <div className="text-lg font-bold text-gray-800 flex items-center">
-              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Job Types
             </div>
           </div>
@@ -553,10 +553,10 @@ export default function JobStatisticsReport() {
         </div>
 
         {/* Experience Level Distribution */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
             <div className="text-lg font-bold text-gray-800 flex items-center">
-              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Experience Levels
             </div>
           </div>
@@ -588,10 +588,10 @@ export default function JobStatisticsReport() {
       {/* Bottom Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Top Skills */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
             <div className="text-lg font-bold text-gray-800 flex items-center">
-              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Top Required Skills
             </div>
           </div>
@@ -629,10 +629,10 @@ export default function JobStatisticsReport() {
         </div>
 
         {/* Applications Per Job */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
             <div className="text-lg font-bold text-gray-800 flex items-center">
-              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Applications Per Job
             </div>
           </div>
@@ -707,10 +707,10 @@ export default function JobStatisticsReport() {
         </div>
 
         {/* Weekly Job Postings */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
             <div className="text-lg font-bold text-gray-800 flex items-center">
-              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Weekly Job Postings
             </div>
           </div>
@@ -747,10 +747,10 @@ export default function JobStatisticsReport() {
         </div>
 
         {/* Salary Range Distribution */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 flex flex-col">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
             <div className="text-lg font-bold text-gray-800 flex items-center">
-              <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Salary Range Distribution
             </div>
           </div>
