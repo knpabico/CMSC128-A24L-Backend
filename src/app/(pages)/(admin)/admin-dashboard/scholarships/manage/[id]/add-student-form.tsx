@@ -3,6 +3,7 @@
 import React from "react";
 import { Asterisk, Trash2Icon } from "lucide-react";
 import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
+import { StudentFormData } from "../../add/page";
 
 export const AddStudent = ({
   formData,
@@ -11,8 +12,8 @@ export const AddStudent = ({
   type,
   index,
 }: {
-  formData: any;
-  onUpdate: (updatedData: any) => void;
+  formData: StudentFormData;
+  onUpdate: (updatedData: StudentFormData) => void;
   onRemove: () => void;
   type: string;
   index: number;

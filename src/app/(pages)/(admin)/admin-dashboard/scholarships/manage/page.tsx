@@ -146,7 +146,7 @@ export default function ManageScholarship() {
           <select
             id="sort"
             value={sortOption}
-            onChange={(e) => setSortOption(e.target.value as any)}
+            onChange={(e) => setSortOption(e.target.value as typeof sortOption)}
             className="flex items-center text-sm"
           >
             <option value="newest">Newest</option>
