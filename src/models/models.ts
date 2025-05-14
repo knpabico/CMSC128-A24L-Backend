@@ -24,6 +24,7 @@ export interface Alumnus {
   contactPrivacy: boolean;
   lastLogin: Date;
   subscribeToNewsletter: boolean;
+  createdDate: Date;
 }
 
 export interface Affiliation {

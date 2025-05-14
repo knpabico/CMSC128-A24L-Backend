@@ -11,7 +11,7 @@ import { UserActionButtons } from "@/components/UserActionButtons";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus } from "@/models/models";
 import { useEffect, useRef, useState } from "react";
-import Link from 'next/link';
+import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -19,13 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronUp, ChevronDown, X, Loader2, ChevronRight, Trash2 } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { formatDate } from "@/utils/formatDate";
 
 const Page = () => {
   const tableRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
-  const { alums, isLoading } = useAlums();
-  const [headerWidth, setHeaderWidth] = useState("100%");
+  const { alums } = useAlums();
   const [activeTab, setActiveTab] = useState("Pending");
   const [activeStatus, setActiveStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
@@ -66,9 +66,28 @@ const Page = () => {
           break;
         case "dateCreated":
           if (a.createdDate && b.createdDate) {
-            comparison =
-              a.createdDate.toDate().getTime() -
-              b.createdDate.toDate().getTime();
+            // Check if createdDate is a Firestore timestamp or a Date object
+            const aTime =
+              a.createdDate instanceof Date
+                ? a.createdDate.getTime()
+                : typeof a.createdDate === "object" &&
+                  a.createdDate !== null &&
+                  "seconds" in a.createdDate
+                ? new Date(
+                    (a.createdDate as { seconds: number }).seconds * 1000
+                  ).getTime()
+                : new Date(a.createdDate).getTime();
+            const bTime =
+              b.createdDate instanceof Date
+                ? b.createdDate.getTime()
+                : typeof b.createdDate === "object" &&
+                  b.createdDate !== null &&
+                  "seconds" in b.createdDate
+                ? new Date(
+                    (b.createdDate as { seconds: number }).seconds * 1000
+                  ).getTime()
+                : new Date(b.createdDate).getTime();
+            comparison = aTime - bTime;
           }
           break;
         default:
@@ -79,63 +98,59 @@ const Page = () => {
   };
   const filteredAlums = filterAlums(activeTab.toLowerCase(), activeStatus);
   const sortedAlums = sortAlums(filteredAlums);
-  const [statusCounts, setStatusCounts] = useState({Pending: 0, Approved: 0, Rejected: 0});
-
-
+  const [statusCounts, setStatusCounts] = useState({
+    Pending: 0,
+    Approved: 0,
+    Rejected: 0,
+  });
 
   useEffect(() => {
     const handleScroll = () => {
       if (!tableRef.current) return;
-      
-      const tableRect = tableRef.current.getBoundingClientRect();
-      
-      if (tableRect.top <= 0 && !isSticky) {
+
+      const tableRect = tableRef.current as HTMLElement;
+      const rect = tableRect.getBoundingClientRect();
+
+      if (rect.top <= 0 && !isSticky) {
         setIsSticky(true);
-        setHeaderWidth(tableRect.width);
-      } else if (tableRect.top > 0 && isSticky) {
+      } else if (rect.top > 0 && isSticky) {
         setIsSticky(false);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    
-    if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth);
-    }
-    
+    window.addEventListener("scroll", handleScroll);
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [isSticky]);
 
   useEffect(() => {
     const counts = {
-      Pending: alums.filter((alum:Alumnus) => alum.regStatus === 'pending').length,
-      Approved: alums.filter((alum:Alumnus) => alum.regStatus === 'approved').length,
-      Rejected: alums.filter((alum:Alumnus) => alum.regStatus === 'rejected').length
+      Pending: alums.filter((alum: Alumnus) => alum.regStatus === "pending")
+        .length,
+      Approved: alums.filter((alum: Alumnus) => alum.regStatus === "approved")
+        .length,
+      Rejected: alums.filter((alum: Alumnus) => alum.regStatus === "rejected")
+        .length,
     };
     setStatusCounts(counts);
   }, [alums]);
 
-
-
-
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
-        <Link href="/admin-dashboard" className="cursor-pointer">Home</Link>
+        <Link href="/admin-dashboard" className="cursor-pointer">
+          Home
+        </Link>
         <div>
           <ChevronRight size={15} />
         </div>
-        <div>
-          Manage Users
-        </div>
+        <div>Manage Users</div>
       </div>
       <div className="w-full">
         <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl">
-            Alumni Management
-          </div>
+          <div className="font-bold text-3xl">Alumni Management</div>
         </div>
       </div>
 
@@ -146,16 +161,14 @@ const Page = () => {
               key={status}
               onClick={() => setActiveTab(status)}
               className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
-                activeTab === status 
-                ? "bg-[var(--primary-blue)]" 
-                : "bg-white"
+                activeTab === status ? "bg-[var(--primary-blue)]" : "bg-white"
               }`}
             >
               <div
                 className={`w-full h-1 transition-colors ${
-                  activeTab === status 
-                  ? "bg-[var(--primary-blue)]" 
-                  : "bg-transparent"
+                  activeTab === status
+                    ? "bg-[var(--primary-blue)]"
+                    : "bg-transparent"
                 }`}
               ></div>
               <div
@@ -165,31 +178,30 @@ const Page = () => {
                     : "text-blue-200 bg-white"
                 }`}
               >
-                {status} 
+                {status}
                 <div
                   className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
-                    (activeTab === status && status === "Pending")
+                    activeTab === status && status === "Pending"
                       ? "bg-amber-400"
-                      : (activeTab === status && status === "Approved")
+                      : activeTab === status && status === "Approved"
                       ? "bg-green-400"
-                      : (activeTab === status && status === "Rejected")
+                      : activeTab === status && status === "Rejected"
                       ? "bg-red-400"
-                      : (activeTab !== status && status === "Pending")
+                      : activeTab !== status && status === "Pending"
                       ? "bg-amber-100"
-                      : (activeTab !== status && status === "Approved")
+                      : activeTab !== status && status === "Approved"
                       ? "bg-green-100"
-                      : (activeTab !== status && status === "Rejected")
+                      : activeTab !== status && status === "Rejected"
                       ? "bg-red-100"
                       : "bg-blue-200"
                   }`}
                 >
-                {statusCounts[status]}
+                  {statusCounts[status as keyof typeof statusCounts]}
                 </div>
               </div>
             </div>
           ))}
         </div>
-
 
         <div className="bg-white rounded-xl flex p-2.5 px-4 items-center justify-between">
           <div className="flex gap-6">
@@ -200,13 +212,28 @@ const Page = () => {
                   <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-none">
-                  <SelectItem value="name" className="text-xs hover:bg-gray-100 cursor-pointer">Name</SelectItem>
-                  <SelectItem value="studentNumber" className="text-xs hover:bg-gray-100 cursor-pointer">Student Number</SelectItem>
-                  <SelectItem value="dateCreated" className="text-xs hover:bg-gray-100 cursor-pointer">Date Created</SelectItem>
+                  <SelectItem
+                    value="name"
+                    className="text-xs hover:bg-gray-100 cursor-pointer"
+                  >
+                    Name
+                  </SelectItem>
+                  <SelectItem
+                    value="studentNumber"
+                    className="text-xs hover:bg-gray-100 cursor-pointer"
+                  >
+                    Student Number
+                  </SelectItem>
+                  <SelectItem
+                    value="dateCreated"
+                    className="text-xs hover:bg-gray-100 cursor-pointer"
+                  >
+                    Date Created
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="flex items-center gap-1">
               <div className="text-sm font-medium">Active Status:</div>
               <Select value={activeStatus} onValueChange={setActiveStatus}>
@@ -214,9 +241,24 @@ const Page = () => {
                   <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-none">
-                  <SelectItem value="all" className="text-xs hover:bg-gray-100 cursor-pointer">All</SelectItem>
-                  <SelectItem value="active" className="text-xs hover:bg-gray-100 cursor-pointer">Active</SelectItem>
-                  <SelectItem value="inactive" className="text-xs hover:bg-gray-100 cursor-pointer">Inactive</SelectItem>
+                  <SelectItem
+                    value="all"
+                    className="text-xs hover:bg-gray-100 cursor-pointer"
+                  >
+                    All
+                  </SelectItem>
+                  <SelectItem
+                    value="active"
+                    className="text-xs hover:bg-gray-100 cursor-pointer"
+                  >
+                    Active
+                  </SelectItem>
+                  <SelectItem
+                    value="inactive"
+                    className="text-xs hover:bg-gray-100 cursor-pointer"
+                  >
+                    Inactive
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -230,7 +272,7 @@ const Page = () => {
                 {sortDirection === "asc" ? (
                   <div>
                     <p>Ascending</p>
-                  </div>  
+                  </div>
                 ) : (
                   <div>
                     <p>Descending</p>
@@ -241,33 +283,52 @@ const Page = () => {
           </div>
 
           {activeStatus.toLowerCase() === "all" && sortedAlums.length > 1 && (
-            <p className="text-sm text-gray-500">Showing all {sortedAlums.length} {activeTab.toLowerCase()} alumni records</p>
+            <p className="text-sm text-gray-500">
+              Showing all {sortedAlums.length} {activeTab.toLowerCase()} alumni
+              records
+            </p>
           )}
           {activeStatus.toLowerCase() !== "all" && sortedAlums.length > 1 && (
-            <p className="text-sm text-gray-500">Showing {sortedAlums.length} {activeStatus.toLowerCase()} and {activeTab.toLowerCase()} alumni records</p>
+            <p className="text-sm text-gray-500">
+              Showing {sortedAlums.length} {activeStatus.toLowerCase()} and{" "}
+              {activeTab.toLowerCase()} alumni records
+            </p>
           )}
           {activeStatus.toLowerCase() !== "all" && sortedAlums.length === 1 && (
-            <p className="text-sm text-gray-500">Showing {sortedAlums.length} {activeStatus.toLowerCase()} and {activeTab.toLowerCase()} alumnus record</p>
+            <p className="text-sm text-gray-500">
+              Showing {sortedAlums.length} {activeStatus.toLowerCase()} and{" "}
+              {activeTab.toLowerCase()} alumnus record
+            </p>
           )}
           {activeStatus.toLowerCase() === "all" && sortedAlums.length === 1 && (
-            <p className="text-sm text-gray-500">Showing {sortedAlums.length} {activeTab.toLowerCase()} alumnus record</p>
+            <p className="text-sm text-gray-500">
+              Showing {sortedAlums.length} {activeTab.toLowerCase()} alumnus
+              record
+            </p>
           )}
           {sortedAlums.length === 0 && (
-            <p className="text-sm text-gray-500">No {activeTab.toLowerCase()} records found</p>
+            <p className="text-sm text-gray-500">
+              No {activeTab.toLowerCase()} records found
+            </p>
           )}
         </div>
 
         <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-          <div className="rounded-xl overflow-hidden border border-gray-300 relative" ref={tableRef}>
+          <div
+            className="rounded-xl overflow-hidden border border-gray-300 relative"
+            ref={tableRef}
+          >
             <Table>
-              <TableHeader 
+              <TableHeader
                 // className={`bg-blue-100 text-xs z-10 shadow-sm ${isSticky ? 'fixed top-0' : ''}`}
                 className="bg-blue-100 text-xs z-10 shadow-sm"
               >
                 <TableRow className="border-none">
                   <TableHead className="font-semibold">Name</TableHead>
                   <TableHead className="font-semibold">Email</TableHead>
-                  <TableHead className="font-semibold">Student Number</TableHead>
+                  <TableHead className="font-semibold">
+                    Student Number
+                  </TableHead>
                   <TableHead className="font-semibold">Active Status</TableHead>
                   <TableHead className="font-semibold">Date Created</TableHead>
                   <TableHead className="font-semibold">Actions</TableHead>
@@ -284,7 +345,9 @@ const Page = () => {
                       index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:bg-blue-50`}
                   >
-                    <TableCell>{alumni.lastName}, {alumni.firstName}</TableCell>
+                    <TableCell>
+                      {alumni.lastName}, {alumni.firstName}
+                    </TableCell>
                     <TableCell>{alumni.email}</TableCell>
                     <TableCell>{alumni.studentNumber}</TableCell>
                     <TableCell>
@@ -312,15 +375,7 @@ const Page = () => {
                           alumni.regStatus.slice(1)}
                       </span>
                     </TableCell> */}
-                    <TableCell>
-                      {alumni.createdDate
-                        ? alumni.createdDate
-                            .toDate()
-                            .toISOString()
-                            .slice(0, 10)
-                            .replaceAll("-", "/")
-                        : ""}
-                    </TableCell>
+                    <TableCell>{formatDate(alumni.createdDate)}</TableCell>
                     <TableCell>
                       <UserActionButtons
                         alumniEmail={alumni.email}
@@ -338,6 +393,6 @@ const Page = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Page;

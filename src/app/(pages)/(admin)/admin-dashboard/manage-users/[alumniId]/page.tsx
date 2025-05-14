@@ -5,34 +5,37 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
-import MapComponent from "../../../../(alumni)/map/map";
-import { ChevronLeft, MapPin, Cake, PersonStanding, Heart, GraduationCap, BookOpenText, Award, UsersRound, Briefcase, XIcon, ChevronRight, Eye, File } from "lucide-react";
+import {
+  MapPin,
+  Cake,
+  PersonStanding,
+  Heart,
+  GraduationCap,
+  BookOpenText,
+  Award,
+  UsersRound,
+  Briefcase,
+  XIcon,
+  ChevronRight,
+  File,
+} from "lucide-react";
 import Image from "next/image";
 import { Education } from "@/models/models";
 import { useEducation } from "@/context/EducationContext";
 import { Affiliation } from "@/models/models";
 import { useAffiliation } from "@/context/AffiliationContext";
 import { Dialog, DialogContent } from "@mui/material";
-import Link from 'next/link';
+import Link from "next/link";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
-import router from "next/router";
-
+import { formatDate } from "@/utils/formatDate";
 
 export default function AlumPage() {
   const { alums, loading: alumsloading } = useAlums();
   const { loading: authloading } = useAuth();
-  const { fetchWorkExperience, isLoading: workLoading } = useWorkExperience();
   const params = useParams();
-  const [selectedAlumWorkExperience, setSelectedAlumWorkExperience] = useState<WorkExperience[]>([]);
-  const [showWorkExperience, setShowWorkExperience] = useState(false);
   const alumniId = params?.alumniId;
   const [alum, setAlum] = useState<Alumnus | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
-  const [activeMarker, setActiveMarker] = useState(0);
   const { allEducation } = useEducation();
   const [edu, setEdu] = useState<Education[]>([]);
   const { allAffiliation } = useAffiliation();
@@ -41,7 +44,6 @@ export default function AlumPage() {
   const [work, setWork] = useState<WorkExperience[]>([]);
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
   const { isLoaded } = useGoogleMaps();
-  const [showProof, setShowProof] = useState(false);
 
   const calculateAge = (birthDate: Date) => {
     //current date
@@ -49,23 +51,25 @@ export default function AlumPage() {
     const current_day = current_date.getDate();
     const current_month = current_date.getMonth();
     const current_year = current_date.getFullYear();
-  
+
     //birthDate
     const day = birthDate.getDate();
     const month = birthDate.getMonth();
     const year = birthDate.getFullYear();
-  
+
     //student number
-  
+
     let age = current_year - year;
     //if current day < day or current month < month
-    if ((current_month === month && current_day < day) || current_month < month) {
+    if (
+      (current_month === month && current_day < day) ||
+      current_month < month
+    ) {
       age = age - 1; //subtract 1 from age
     }
-  
+
     return age;
   };
-
 
   useEffect(() => {
     if (alumniId) {
@@ -75,16 +79,19 @@ export default function AlumPage() {
         ) || null;
       setAlum(foundAlum);
 
-      const foundEdu =
-        allEducation.filter((edu: Education) => String(edu.alumniId) === String(alumniId));
+      const foundEdu = allEducation.filter(
+        (edu: Education) => String(edu.alumniId) === String(alumniId)
+      );
       setEdu(foundEdu);
 
-      const foundAffil =
-        allAffiliation.filter((affil: Affiliation) => String(affil.alumniId) === String(alumniId));
+      const foundAffil = allAffiliation.filter(
+        (affil: Affiliation) => String(affil.alumniId) === String(alumniId)
+      );
       setAffil(foundAffil);
 
-      const foundWork =
-        allWorkExperience.filter((work: WorkExperience) => String(work.alumniId) === String(alumniId));
+      const foundWork = allWorkExperience.filter(
+        (work: WorkExperience) => String(work.alumniId) === String(alumniId)
+      );
       setWork(foundWork);
     }
   }, [alumniId, alums, allEducation, allAffiliation, allWorkExperience]);
@@ -93,57 +100,47 @@ export default function AlumPage() {
     setIsMapOpenArray(new Array(work.length).fill(false));
   }, [work]);
 
-
-
   if (alumsloading || authloading) return <h1>Loading...</h1>;
   if (!alum) return <h1>Alum not found...</h1>;
 
-  const openMap = (index:number) => {
+  const openMap = (index: number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = true;
     setIsMapOpenArray(newIsMapOpenArray);
   };
-  const closeMap = (index:number) => {
+  const closeMap = (index: number) => {
     const newIsMapOpenArray = [...isMapOpenArray];
     newIsMapOpenArray[index] = false;
     setIsMapOpenArray(newIsMapOpenArray);
   };
 
-  const getFileType = (url: string) => {
-    try {
-      const pathname = new URL(url).pathname;
-      const filename = decodeURIComponent(pathname.split('/').pop() || '');
-      
-      if (/\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(filename)) {
-        return 'image';
-      } else if (/\.pdf$/i.test(filename)) {
-        return 'pdf';
-      } else if (/\.(doc|docx)$/i.test(filename)) {
-        return 'doc';
-      } else {
-        return 'unknown';
-      }
-    } catch (e) {
-      return 'unknown';
-    }
-  };
-  
-
-
   return (
     <div>
       <div className="space-y-10 md:sticky md:top-8 z-[100] relative">
         <div className="flex items-center gap-2 w-full top-0 left-0">
-          <Link href="/admin-dashboard" className="cursor-pointer">Home</Link>
-          <div><ChevronRight size={15} /></div>
-          <div onClick={() => {window.history.back()}} className="cursor-pointer">Manage Users</div>
-          <div><ChevronRight size={15} /></div>
+          <Link href="/admin-dashboard" className="cursor-pointer">
+            Home
+          </Link>
           <div>
-            {alum.lastName}, {alum.firstName} {alum.middleName !== "" ? alum.middleName : ""}
+            <ChevronRight size={15} />
+          </div>
+          <div
+            onClick={() => {
+              window.history.back();
+            }}
+            className="cursor-pointer"
+          >
+            Manage Users
+          </div>
+          <div>
+            <ChevronRight size={15} />
+          </div>
+          <div>
+            {alum.lastName}, {alum.firstName}{" "}
+            {alum.middleName !== "" ? alum.middleName : ""}
           </div>
         </div>
       </div>
-      
 
       <div className="flex space-x-10 m-5 mt-15">
         <div className="w-content h-max space-x-15 md:sticky md:top-29">
@@ -163,7 +160,10 @@ export default function AlumPage() {
               )}
             </div>
             <div>
-              <p className="text-xl font-bold text-center break-words max-w-md">{alum.lastName}, {alum.firstName} {alum.middleName !== "" ? alum.middleName : ""}</p>
+              <p className="text-xl font-bold text-center break-words max-w-md">
+                {alum.lastName}, {alum.firstName}{" "}
+                {alum.middleName !== "" ? alum.middleName : ""}
+              </p>
               <p className="text-center">{alum.email}</p>
               <p className="text-center">{alum.studentNumber}</p>
             </div>
@@ -198,52 +198,62 @@ export default function AlumPage() {
           <div className="space-y-8">
             <div className="space-y-5 bg-white p-5 rounded-lg">
               <div>
-                <p className="text-xl font-bold w-full pb-1.5">
-                  Personal
-                </p>
+                <p className="text-xl font-bold w-full pb-1.5">Personal</p>
                 <hr className="text-gray-300"></hr>
               </div>
-              
+
               <div className="grid grid-cols-10 gap-8">
                 <div className="col-span-5">
                   <div className="flex space-x-3 items-center">
-                    <Cake/>
-                    <p className="font-semibold">Birthday <span className="font-light">(YYYY/MM/DD)</span></p>
+                    <Cake />
+                    <p className="font-semibold">
+                      Birthday <span className="font-light">(YYYY/MM/DD)</span>
+                    </p>
                   </div>
                   <p className="pl-9 pt-3">
                     {alum.birthDate
-                      ? alum.birthDate
-                          .toDate()
-                          .toISOString()
-                          .slice(0, 10)
-                          .replaceAll("-", "/")
+                      ? formatDate(alum.birthDate).replaceAll("-", "/")
                       : ""}
                   </p>
                 </div>
                 <div className="col-span-5">
                   <div className="flex space-x-3 items-center">
-                    <PersonStanding/>
+                    <PersonStanding />
                     <p className="font-semibold">Current Age</p>
                   </div>
-                  <p className="pl-9 pt-3">{calculateAge(alum.birthDate.toDate())}</p>
+                  <p className="pl-9 pt-3">
+                    {calculateAge(
+                      alum.birthDate instanceof Date
+                        ? alum.birthDate
+                        : alum.birthDate &&
+                          typeof alum.birthDate === "object" &&
+                          alum.birthDate !== null &&
+                          "toDate" in alum.birthDate
+                        ? (alum.birthDate as { toDate(): Date }).toDate()
+                        : new Date() // Provide a default date instead of null
+                    )}
+                  </p>
                 </div>
                 <div className="col-span-5">
                   <div className="flex space-x-3 items-center">
-                    <MapPin/>
+                    <MapPin />
                     <p className="font-semibold">Current Location</p>
                   </div>
-                  <p className="pl-9 pt-3">{alum.address[1]}, {alum.address[2]}, {alum.address[0]}</p>
+                  <p className="pl-9 pt-3">
+                    {alum.address[1]}, {alum.address[2]}, {alum.address[0]}
+                  </p>
                 </div>
                 <div className="col-span-5">
                   <div className="flex space-x-3 items-center">
-                    <Heart/>
+                    <Heart />
                     <p className="font-semibold">Fields of Interest</p>
                   </div>
                   <p className="pl-9 pt-3">
                     {alum.fieldOfInterest.length > 0 ? (
                       alum.fieldOfInterest.map((f, i) => (
                         <span key={i}>
-                          {f}{i < alum.fieldOfInterest.length - 1 ? ', ' : ''}
+                          {f}
+                          {i < alum.fieldOfInterest.length - 1 ? ", " : ""}
                         </span>
                       ))
                     ) : (
@@ -253,22 +263,22 @@ export default function AlumPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-5 bg-white p-5 rounded-lg">
               <div>
-                <p className="text-xl font-bold w-full pb-1.5">
-                  Education
-                </p>
+                <p className="text-xl font-bold w-full pb-1.5">Education</p>
                 <hr className="text-gray-300"></hr>
               </div>
 
               <div className="grid grid-cols-10 gap-8">
                 <div className="col-span-10">
                   <div className="flex space-x-3 items-center">
-                    <GraduationCap/>
-                    <p className="font-semibold">Bachelor's Degree</p>
+                    <GraduationCap />
+                    <p className="font-semibold">Bachelor&apos;s Degree</p>
                   </div>
-                  {edu.filter((edu: { type: string }) => edu.type === "bachelors").length > 0 ? (
+                  {edu.filter(
+                    (edu: { type: string }) => edu.type === "bachelors"
+                  ).length > 0 ? (
                     <table className="w-full text-left border-separate pl-9 pt-3">
                       <thead>
                         <tr className="text-gray-500">
@@ -279,8 +289,15 @@ export default function AlumPage() {
                       </thead>
                       <tbody>
                         {edu
-                          .filter((edu: { type: string }) => edu.type === "bachelors")
-                          .sort((a, b) => b.yearGraduated - a.yearGraduated)
+                          .filter(
+                            (edu: { type: string }) => edu.type === "bachelors"
+                          )
+                          .sort((a, b) => {
+                            // Convert to string before comparison to avoid type errors
+                            const yearA = String(b.yearGraduated);
+                            const yearB = String(a.yearGraduated);
+                            return yearA.localeCompare(yearB);
+                          })
                           .map((edu: Education, index: number) => (
                             <tr key={index}>
                               <td className="py-1">{edu.major}</td>
@@ -297,10 +314,11 @@ export default function AlumPage() {
 
                 <div className="col-span-10">
                   <div className="flex space-x-3 items-center">
-                    <BookOpenText/>
-                    <p className="font-semibold">Master's Degree</p>
+                    <BookOpenText />
+                    <p className="font-semibold">Master&apos;s Degree</p>
                   </div>
-                  {edu.filter((edu: { type: string }) => edu.type === "masters").length > 0 ? (
+                  {edu.filter((edu: { type: string }) => edu.type === "masters")
+                    .length > 0 ? (
                     <table className="w-full text-left border-separate pl-9 pt-3">
                       <thead>
                         <tr className="text-gray-500">
@@ -311,8 +329,15 @@ export default function AlumPage() {
                       </thead>
                       <tbody>
                         {edu
-                          .filter((edu: { type: string }) => edu.type === "masters")
-                          .sort((a, b) => b.yearGraduated - a.yearGraduated)
+                          .filter(
+                            (edu: { type: string }) => edu.type === "masters"
+                          )
+                          .sort((a, b) => {
+                            // Convert to string before comparison to avoid type errors
+                            const yearA = String(b.yearGraduated);
+                            const yearB = String(a.yearGraduated);
+                            return yearA.localeCompare(yearB);
+                          })
                           .map((edu: Education, index: number) => (
                             <tr key={index}>
                               <td className="py-1">{edu.major}</td>
@@ -324,15 +349,17 @@ export default function AlumPage() {
                     </table>
                   ) : (
                     <p className="pl-9 pt-3">None</p>
-                  )}             
+                  )}
                 </div>
 
                 <div className="col-span-10">
                   <div className="flex space-x-3 items-center">
-                    <Award/>
+                    <Award />
                     <p className="font-semibold">Doctoral Degree</p>
                   </div>
-                  {edu.filter((edu: { type: string }) => edu.type === "doctoral").length > 0 ? (
+                  {edu.filter(
+                    (edu: { type: string }) => edu.type === "doctoral"
+                  ).length > 0 ? (
                     <table className="w-full text-left border-separate pl-9 pt-3">
                       <thead>
                         <tr className="text-gray-500">
@@ -343,8 +370,15 @@ export default function AlumPage() {
                       </thead>
                       <tbody>
                         {edu
-                          .filter((edu: { type: string }) => edu.type === "doctoral")
-                          .sort((a, b) => b.yearGraduated - a.yearGraduated)
+                          .filter(
+                            (edu: { type: string }) => edu.type === "doctoral"
+                          )
+                          .sort((a, b) => {
+                            // Convert to string before comparison to avoid type errors
+                            const yearA = String(b.yearGraduated);
+                            const yearB = String(a.yearGraduated);
+                            return yearA.localeCompare(yearB);
+                          })
                           .map((edu: Education, index: number) => (
                             <tr key={index}>
                               <td className="py-1">{edu.major}</td>
@@ -361,7 +395,7 @@ export default function AlumPage() {
 
                 <div className="col-span-10">
                   <div className="flex space-x-3 items-center">
-                    <UsersRound/>
+                    <UsersRound />
                     <p className="font-semibold">Affiliations</p>
                   </div>
                   {affil.length > 0 ? (
@@ -375,7 +409,12 @@ export default function AlumPage() {
                       </thead>
                       <tbody>
                         {affil
-                          .sort((a, b) => b.yearJoined - a.yearJoined)
+                          .sort((a, b) => {
+                            // Convert to string before comparison to avoid type errors
+                            const yearA = String(b.yearJoined);
+                            const yearB = String(a.yearJoined);
+                            return yearA.localeCompare(yearB);
+                          })
                           .map((affil: Affiliation, index: number) => (
                             <tr key={index}>
                               <td className="py-1">{affil.affiliationName}</td>
@@ -394,15 +433,13 @@ export default function AlumPage() {
 
             <div className="space-y-5 bg-white p-5 rounded-lg">
               <div>
-                <p className="text-xl font-bold w-full pb-1.5">
-                  Career
-                </p>
+                <p className="text-xl font-bold w-full pb-1.5">Career</p>
                 <hr className="text-gray-300"></hr>
               </div>
-              
+
               <div className="col-span-10">
                 <div className="flex space-x-3 items-center">
-                  <Briefcase/>
+                  <Briefcase />
                   <p className="font-semibold">Work Experience</p>
                 </div>
                 {work.length > 0 ? (
@@ -421,8 +458,14 @@ export default function AlumPage() {
                       {work
                         .sort((a, b) => {
                           const currentYear = new Date().getFullYear();
-                          const startA = a.endYear === "present" ? currentYear : parseInt(a.endYear);
-                          const startB = b.endYear === "present" ? currentYear : parseInt(b.endYear);
+                          const startA =
+                            a.endYear === "present"
+                              ? currentYear
+                              : parseInt(a.endYear);
+                          const startB =
+                            b.endYear === "present"
+                              ? currentYear
+                              : parseInt(b.endYear);
                           return startB - startA;
                         })
                         .map((w: WorkExperience, index: number) => (
@@ -430,49 +473,79 @@ export default function AlumPage() {
                             <td className="py-1">{w.jobTitle}</td>
                             <td className="py-1 px-3">{w.company}</td>
                             <td className="py-1">{w.industry}</td>
-                            <td className="py-1 px-3">{w.startYear} - {w.endYear}</td>
-                            <td className="py-1"><MapPin className="text-[#3675c5] cursor-pointer" onClick={() => openMap(index)}/></td>
+                            <td className="py-1 px-3">
+                              {w.startYear} - {w.endYear}
+                            </td>
+                            <td className="py-1">
+                              <MapPin
+                                className="text-[#3675c5] cursor-pointer"
+                                onClick={() => openMap(index)}
+                              />
+                            </td>
                             <td className="py-1 pl-1">
-                              {w.proofOfEmployment !== "" && w.endYear === "present" ? (
-                                <a href={w.proofOfEmployment} target="_blank" rel="noopener noreferrer">
-                                  <File className="text-[#3675c5] cursor-pointer"/>
+                              {w.proofOfEmployment !== "" &&
+                              w.endYear === "present" ? (
+                                <a
+                                  href={w.proofOfEmployment}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <File className="text-[#3675c5] cursor-pointer" />
                                 </a>
                               ) : (
                                 <p>N/A</p>
                               )}
                             </td>
-                            
+
                             <Dialog
                               open={isMapOpenArray[index]}
                               onClose={() => closeMap(index)}
                             >
                               <DialogContent className="w-150">
                                 <div className="flex items-center justify-between relative">
-                                  <p className="text-xl font-bold pb-3">{w.company} Location</p>
-                                  <button onClick={() => closeMap(index)} className="absolute top-0 right-0"><XIcon className="cursor-pointer hover:text-red-500"/></button>
+                                  <p className="text-xl font-bold pb-3">
+                                    {w.company} Location
+                                  </p>
+                                  <button
+                                    onClick={() => closeMap(index)}
+                                    className="absolute top-0 right-0"
+                                  >
+                                    <XIcon className="cursor-pointer hover:text-red-500" />
+                                  </button>
                                 </div>
                                 <div className="h-[400px] w-full">
                                   {!isLoaded ? (
                                     <div className="flex items-center justify-center h-full">
-                                      <p className="text-xl text-gray-600">Loading map...</p>
+                                      <p className="text-xl text-gray-600">
+                                        Loading map...
+                                      </p>
                                     </div>
                                   ) : (
                                     <GoogleMap
-                                      mapContainerStyle={{ width: "100%", height: "100%" }}
-                                      center={{ lat: w.latitude, lng: w.longitude }}
+                                      mapContainerStyle={{
+                                        width: "100%",
+                                        height: "100%",
+                                      }}
+                                      center={{
+                                        lat: w.latitude,
+                                        lng: w.longitude,
+                                      }}
                                       zoom={15}
                                     >
                                       <Marker
-                                        position={{ lat: w.latitude, lng: w.longitude }}
+                                        position={{
+                                          lat: w.latitude,
+                                          lng: w.longitude,
+                                        }}
                                         title={w.company}
                                       />
                                     </GoogleMap>
                                   )}
-                                  </div>
-                                  <div className="mt-4 text-center">
-                                    <p>{w.location}</p>
-                                  </div>
-                                </DialogContent>
+                                </div>
+                                <div className="mt-4 text-center">
+                                  <p>{w.location}</p>
+                                </div>
+                              </DialogContent>
                             </Dialog>
 
                             {/* <Dialog
