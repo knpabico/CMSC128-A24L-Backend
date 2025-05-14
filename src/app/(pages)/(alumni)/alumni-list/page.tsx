@@ -177,6 +177,7 @@ export default function Users() {
                   {isLoading ? (
                     <div className="w-full h-full animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
                   ) : alum.image ? (
+
                     <Image
                       width={0}
                       height={0}
@@ -190,7 +191,7 @@ export default function Users() {
                       width={0}
                       height={0}
                       sizes="100vw"
-                      src="/ICS2.jpg"
+                      src="/default-profile.jpg"
                       alt="Default alumni image"
                       className="w-full h-full object-cover"
                     />

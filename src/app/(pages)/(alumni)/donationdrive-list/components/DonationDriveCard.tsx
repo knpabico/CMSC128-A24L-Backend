@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { useAuth } from "@/context/AuthContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
-import { Calendar, Clock, ImageOff, MapPin, Users } from "lucide-react";
+import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import { useEffect } from "react";
 
@@ -204,9 +204,14 @@ const DonationDriveCard = ({
           </div>
         ) : (
           <div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center rounded-t-[10px] h-[230px]">
-            <span className="text-blue-500 font-medium">
-              <ImageOff className="size-[50px]" />
-            </span>
+            <Image
+              width={0}
+              height={0}
+              sizes="100vw"
+              src="/default-image.jpg"
+              alt="Default"
+              className="w-full h-full object-cover"
+            />
             {/* Status badge - always shown in bottom right */}
             <span
               className={`absolute bottom-2 right-2 px-2 py-1 text-sm rounded-full font-bold ${

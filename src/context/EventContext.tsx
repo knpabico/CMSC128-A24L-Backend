@@ -122,7 +122,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
         if (!image) {
           newEvent.image =
-            "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Ftemp_event_image.jpg?alt=media&token=49ed44c0-225c-45d3-9bd2-e7e44d0fb2d0";
+            "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Fdefault-image.jpg?alt=media&token=5835562a-d7a0-48a0-9b07-0b2151c949fb";
         } else {
           const uploadResult = await uploadImage(
             image,
