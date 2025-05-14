@@ -78,7 +78,7 @@ const ScholarshipDetailPage: React.FC = () => {
 	return <div style={{ margin: '20px' }}>Loading...</div>;
   }
 
-  const isAlreadySponsoring = scholarship?.alumList?.includes(user?.uid);
+  const isAlreadySponsoring = scholarship?.alumList?.includes(user!.uid);
 
   return (
 	<div style={{ padding: '30px', maxWidth: '800px', margin: '0 auto' }}>
