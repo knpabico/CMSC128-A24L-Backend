@@ -307,8 +307,7 @@ const ScholarshipPage: React.FC = () => {
     // Filter featured items with type "scholarship"
     if (featuredItems && featuredItems.length > 0) {
       const filteredStories = featuredItems.filter(
-        (item: Featured) =>
-          item.type === "scholarship"
+        (item: Featured) => item.type === "scholarship"
       );
       setScholarshipStories(filteredStories);
     }
@@ -324,9 +323,9 @@ const ScholarshipPage: React.FC = () => {
         //intialize as empty record
         const studentMap: Record<string, string> = {};
         //fetch student
-        const fetchStudent = students.forEach((student: Student) => {
-          studentMap[student.studentId] = student.name;
-        });
+        // const fetchStudent = students.forEach((student: Student) => {
+        //   studentMap[student.studentId] = student.name;
+        // });
         //set scholarship student map
         setStudentMapping(studentMap);
       } catch (error) {
@@ -344,11 +343,11 @@ const ScholarshipPage: React.FC = () => {
         //intialize as empty record
         const scholarshipMap: Record<string, string> = {};
         //fetch student
-        const fetchScholarship = scholarships.forEach(
-          (scholarships: Scholarship) => {
-            scholarshipMap[scholarships.scholarshipId] = scholarships.title;
-          }
-        );
+        // const fetchScholarship = scholarships.forEach(
+        //   (scholarships: Scholarship) => {
+        //     scholarshipMap[scholarships.scholarshipId] = scholarships.title;
+        //   }
+        // );
         //set scholarship student map
         setScholarshipMapping(scholarshipMap);
       } catch (error) {
@@ -379,17 +378,17 @@ const ScholarshipPage: React.FC = () => {
     fetchUserScholarshipStudent();
   }, [students, scholarships, scholarshipStudents]);
 
-    const formatDate = (date: any) => {
+  const formatDate = (date: any) => {
     if (!date) return "Unknown date";
 
     const dateObj = date instanceof Date ? date : new Date(date);
 
     if (isNaN(dateObj.getTime())) {
-      if (date?.toDate && typeof date.toDate === 'function') {
+      if (date?.toDate && typeof date.toDate === "function") {
         return date.toDate().toLocaleDateString("en-US", {
           year: "numeric",
           month: "long",
-          day: "numeric"
+          day: "numeric",
         });
       }
       return "Invalid date";
@@ -398,7 +397,7 @@ const ScholarshipPage: React.FC = () => {
     return dateObj.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
-      day: "numeric"
+      day: "numeric",
     });
   };
 
@@ -519,11 +518,9 @@ const ScholarshipPage: React.FC = () => {
 
   // Sort the scholarship stories based on datePosted
   const sortedScholarshipStories = [...scholarshipStories].sort((a, b) => {
-    const dateA =
-      a.datePosted && new Date(a.datePosted).getTime();
+    const dateA = a.datePosted && new Date(a.datePosted).getTime();
 
-    const dateB =
-      b.datePosted && new Date(b.datePosted).getTime();
+    const dateB = b.datePosted && new Date(b.datePosted).getTime();
 
     return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
   });
