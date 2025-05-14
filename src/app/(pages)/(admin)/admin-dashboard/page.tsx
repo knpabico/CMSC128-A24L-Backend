@@ -55,9 +55,54 @@ export default function AdminDashboard() {
   const activeDonations = useMemo(() => {
     return donationDrives.filter(
       (donationDrive: DonationDrive) =>
-        donationDrive.status === "active"
+        donationDrive.status === "active" 
+
     );
   }, [donationDrives]);
+
+// Convert all necessary fields and get the most recent 4 donation drives based on datePosted
+const recentActiveDonations = useMemo(() => {
+  return activeDonations
+    .map((drive: DonationDrive) => {
+      // Convert startDate and datePosted if they are Firebase Timestamps
+      const startDate = drive.startDate instanceof Date ? drive.startDate : drive.startDate.toDate();
+      const datePosted = drive.datePosted instanceof Date ? drive.datePosted : drive.datePosted.toDate();
+      
+      // Convert endDate from string to Date
+      const endDate = new Date(drive.endDate); // Convert endDate (string) to Date
+
+      return {
+        ...drive,
+        startDate,
+        datePosted,
+        endDate
+      };
+    })
+    .filter((drive) => {
+      // We want to filter active donations that are still ongoing
+      const today = new Date();
+      // Ensure endDate is a Date object and compare with today
+      return drive.startDate <= today && today <= drive.endDate;
+    })
+    .sort((a, b) => {
+      // Sort by datePosted (most recent first)
+      const dateA = a.datePosted instanceof Date ? a.datePosted.getTime() : a.datePosted.toDate().getTime();
+      const dateB = b.datePosted instanceof Date ? b.datePosted.getTime() : b.datePosted.toDate().getTime();
+      return dateB - dateA;  // Most recent first
+    })
+    .slice(0, 4);  // Get the top 4 most recent donations
+}, [donationDrives]);
+
+  // const today = new Date();
+
+  // const recentActiveDrives = donationDrives
+  //   .filter((drive) => 
+  //     drive.status === "active" && 
+  //     new Date(drive.startDate) <= today
+  //   )
+  //   .sort((a, b) => new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime())
+  //   .slice(0, 6);
+  
 
 
     //getting the completed donations
@@ -121,7 +166,9 @@ export default function AdminDashboard() {
   const getColorForField = (field: string, index: number): string => {
     return colorPalette[index % colorPalette.length];
   };
-  
+
+
+
   const formatter = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
@@ -157,7 +204,8 @@ export default function AdminDashboard() {
   );
 
   {console.log(activeDonations ,"Active Donations")}
-
+  
+  
 
   //for modals
   //Activate Alum 
@@ -169,9 +217,7 @@ export default function AdminDashboard() {
   const [isCampaignName, setIsCampaignName] = useState("None");
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
   const [isSchoModalOpen, setIsSchoModalOpen] = useState(false);
-  
-    
-  
+
   // Function to handle opening the modal
   const handleOpenModal = (alumnus: Alumnus) => {
     setSelectedAlumnus(alumnus);
@@ -445,8 +491,8 @@ export default function AdminDashboard() {
             {/* Recent Donations To fix: recent active donations lang dapat to hindi yung lahat,,*/}
             <h3 className="font-semibold text-sm mb-3">Recent Active Donations</h3>
             <div className="space-y-3 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              {donationDrives.length > 0 ? (
-                donationDrives.slice(0, 5).map((drive: DonationDrive) => (
+              {recentActiveDonations.length > 0 ? (
+                recentActiveDonations.map((drive: DonationDrive) => (
                   <div key={drive.donationDriveId} className="p-3 border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 transition-all">
                     <div className="flex justify-between mb-1">
                       <span className="font-medium text-sm truncate">{drive.campaignName}</span>
@@ -463,9 +509,15 @@ export default function AdminDashboard() {
                       />
                     </div>
                     
+                    {/* Donation Amount and Target */}
                     <div className="flex justify-between mt-1 text-xs">
                       <span>₱{drive.currentAmount.toLocaleString()}</span>
                       <span className="text-gray-500">of ₱{drive.targetAmount.toLocaleString()}</span>
+                    </div>
+                    
+                    {/* Date Posted */}
+                    <div className="mt-2 text-xs text-gray-500">
+                      <span>Posted on: {new Date(drive.datePosted).toLocaleDateString()}</span>
                     </div>
                   </div>
                 ))
@@ -473,7 +525,6 @@ export default function AdminDashboard() {
                 <div className="text-center py-4 text-gray-500">No active donations</div>
               )}
             </div>
-
             {/* Top Active Donations 
             to fix: dapat active donations lang magsshow hindi lahat*/}
             <div className="mt-6">

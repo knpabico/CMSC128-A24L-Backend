@@ -15,13 +15,9 @@ import { ReactNode } from "react";
 import { FirebaseError } from "firebase/app";
 import { Alumnus } from "@/models/models";
 import {
-  collection,
   deleteDoc,
   doc,
   getDoc,
-  onSnapshot,
-  query,
-  where,
 } from "firebase/firestore";
 import { getRegStatus, getUserRole } from "@/lib/auth";
 import { useRouter } from "next/navigation";
