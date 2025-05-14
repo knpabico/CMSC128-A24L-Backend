@@ -31,7 +31,6 @@ export default function CreateEventPage() {
     date,
     time,
     location,
-    fileName,
     setFileName,
     handleImageChange,
     preview,
@@ -51,10 +50,10 @@ export default function CreateEventPage() {
   // Refs
   const placeholderRef = useRef(null);
   const formContainerRef = useRef(null);
-  const batchDropdownRef = useRef(null);
-  const batchMainInputRef = useRef(null);
-  const alumniDropdownRef = useRef(null);
-  const alumniMainInputRef = useRef(null);
+  const batchDropdownRef = useRef<HTMLDivElement>(null);
+  const batchMainInputRef = useRef<HTMLInputElement>(null);
+  const alumniDropdownRef = useRef<HTMLDivElement>(null);
+  const alumniMainInputRef = useRef<HTMLInputElement>(null);
 
   // Dropdown state
   const [isBatchDropdownOpen, setIsBatchDropdownOpen] = useState(false);
@@ -82,15 +81,15 @@ export default function CreateEventPage() {
   // Sample alumni emails for display
   const alumniEmails = activeAlums
     ? activeAlums
-        .filter(alum => alum.email && alum.activeStatus === true)
-        .map(alum => alum.email)
+        .filter((alum: { email: any; activeStatus: boolean; }) => alum.email && alum.activeStatus === true)
+        .map((alum: { email: any; }) => alum.email)
     : [];
 
   // Filtered years based on search term
   const filteredBatchYears = years.filter((year) => year.toLowerCase().includes(batchSearchTerm.toLowerCase()));
 
   // Filtered alumni emails based on search term
-  const filteredAlumniEmails = alumniEmails.filter((email) =>
+  const filteredAlumniEmails = alumniEmails.filter((email: string) =>
     email.toLowerCase().includes(alumniSearchTerm.toLowerCase()),
   );
 
@@ -231,7 +230,7 @@ export default function CreateEventPage() {
   }, [isAlumniDropdownOpen]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: { target: any; }) => {
       if (batchDropdownRef.current && !batchDropdownRef.current.contains(event.target)) {
         setIsBatchDropdownOpen(false);
         setBatchSearchTerm("");
@@ -268,7 +267,7 @@ export default function CreateEventPage() {
   }, [])
 
   // Batch selection handlers
-  const toggleBatchYear = (year) => {
+  const toggleBatchYear = (year: string) => {
     if (selectedBatches.includes(year)) {
       setSelectedBatches(selectedBatches.filter((item) => item !== year));
     } else {
@@ -276,7 +275,7 @@ export default function CreateEventPage() {
     }
   };
 
-  const removeBatchYear = (year, e) => {
+  const removeBatchYear = (year: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     e.stopPropagation();
     setSelectedBatches(selectedBatches.filter((item) => item !== year));
   };
@@ -296,7 +295,7 @@ export default function CreateEventPage() {
   };
 
   // Alumni selection handlers
-  const toggleAlumniEmail = (email) => {
+  const toggleAlumniEmail = (email: string) => {
     if (selectedAlumni.includes(email)) {
       setSelectedAlumni(selectedAlumni.filter((item) => item !== email));
     } else {
@@ -304,7 +303,7 @@ export default function CreateEventPage() {
     }
   };
 
-  const removeAlumniEmail = (email, e) => {
+  const removeAlumniEmail = (email: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     e.stopPropagation()
     setSelectedAlumni(selectedAlumni.filter((item) => item !== email));
   };
@@ -325,8 +324,12 @@ export default function CreateEventPage() {
   };
 
   // Handle file upload
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0]
+  interface FileUploadEvent extends React.ChangeEvent<HTMLInputElement> {
+    target: HTMLInputElement & EventTarget & { files: FileList };
+  }
+
+  const handleFileUpload = (e: FileUploadEvent) => {
+    const file = e.target.files[0];
     if (file) {
       // Set the file name in the context
       setFileName(file.name);
@@ -515,29 +518,29 @@ export default function CreateEventPage() {
         <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
           <div className="overflow-y-auto max-h-72">
             {filteredAlumniEmails.length > 0 ? (
-              filteredAlumniEmails.map((email) => (
+              filteredAlumniEmails.map((email: string) => (
+              <div
+                key={email}
+                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
+                selectedAlumni.includes(email) ? "bg-gray-50" : ""
+                }`}
+                onClick={() => toggleAlumniEmail(email)}
+              >
+                <div className="flex items-center">
                 <div
-                  key={email}
-                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
-                    selectedAlumni.includes(email) ? "bg-gray-50" : ""
+                  className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
+                  selectedAlumni.includes(email) ? "bg-green-500 border-green-500" : "border-gray-300"
                   }`}
-                  onClick={() => toggleAlumniEmail(email)}
                 >
-                  <div className="flex items-center">
-                    <div
-                      className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
-                        selectedAlumni.includes(email) ? "bg-green-500 border-green-500" : "border-gray-300"
-                      }`}
-                    >
-                      {selectedAlumni.includes(email) && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                        </svg>
-                      )}
-                    </div>
-                    {email}
-                  </div>
+                  {selectedAlumni.includes(email) && (
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
+                  </svg>
+                  )}
                 </div>
+                {email}
+                </div>
+              </div>
               ))
             ) : (
               <div className="px-4 py-3 text-sm text-gray-500">No results found</div>
