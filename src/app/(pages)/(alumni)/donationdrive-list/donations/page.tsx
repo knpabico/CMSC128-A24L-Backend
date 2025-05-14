@@ -11,10 +11,10 @@ import { ProofOfPaymentDialog } from "./ProofOfPaymentDialog";
 import Banner from "@/components/Banner";
 
 const sortTypes = [
-  "MOST RECENT FIRST",
-  "OLDEST DONATION FIRST",
-  "AMOUNT DONATED (ASC)",
-  "AMOUNT DONATED (DESC)",
+  "Most recent first",
+  "Oldest donation first",
+  "Amount donated (ASC)",
+  "Amount donated (DESC)",
 ]; //sort types
 const sortValues = ["mrf", "odf", "asc", "desc"]; //sort values (query params)
 
