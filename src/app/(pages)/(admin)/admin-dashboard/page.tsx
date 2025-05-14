@@ -27,6 +27,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Timestamp } from "firebase/firestore";
 
 
 export default function AdminDashboard() {
@@ -50,6 +51,19 @@ export default function AdminDashboard() {
     );
   }, [alums]);
 
+
+  function formatDate(date: Date | Timestamp): string {
+    // Convert Firebase Timestamp to Date if needed
+    const dateObj = date instanceof Timestamp ? date.toDate() : date;
+  
+    // Now, dateObj is guaranteed to be a Date
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, "0"); // Month is 0-based
+    const day = dateObj.getDate().toString().padStart(2, "0"); // Day is 1-based
+    const year = dateObj.getFullYear().toString().slice(-2); // Get the last 2 digits of the year
+  
+    // Return the formatted date in "MM/DD/YY" format
+    return `${month}/${day}/${year}`;
+  }
 
   //getting the active donations
   const activeDonations = useMemo(() => {
@@ -204,6 +218,8 @@ const recentActiveDonations = useMemo(() => {
   );
 
   {console.log(activeDonations ,"Active Donations")}
+
+  
   
   
 
@@ -517,8 +533,7 @@ const recentActiveDonations = useMemo(() => {
                     
                     {/* Date Posted */}
                     <div className="mt-2 text-xs text-gray-500">
-                      <span>Posted on: {new Date(drive.datePosted).toLocaleDateString()}</span>
-                    </div>
+                    <span>Posted on: {formatDate(drive.datePosted)}</span>                    </div>
                   </div>
                 ))
               ) : (

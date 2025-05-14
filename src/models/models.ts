@@ -118,7 +118,7 @@ export interface DonationDrive {
   donationDriveId: string;
   creatorId: string;
   creatorType: string;
-  datePosted: Date | FirebaseFirestore.Timestamp;  
+  datePosted: Date | Timestamp;  
   campaignName: string;
   description: string;
   beneficiary: string[];
