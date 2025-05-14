@@ -12,6 +12,7 @@ import { useFeatured } from '@/context/FeaturedStoryContext';
 import { useRouter } from "next/navigation";
 import { Calendar, ChevronDown } from 'lucide-react';
 import { error } from 'console';
+import { formatDate } from '@/utils/formatDate';
 
 export default function DonationFeaturedDonationPage() {
 	const router = useRouter();
@@ -126,15 +127,9 @@ export default function DonationFeaturedDonationPage() {
 		if (error) return <div className="text-red-500 text-center p-8">{error}</div>;
 
 		const sorteddonationDriveStories = [...donationDriveStories].sort((a, b) => {
-			const dateA =
-				a.datePosted && typeof a.datePosted.toDate === "function"
-					? a.datePosted.toDate().getTime()
-					: new Date(a.datePosted).getTime();
+			const dateA = new Date(a.datePosted).getTime();
 	
-			const dateB =
-				b.datePosted && typeof b.datePosted.toDate === "function"
-					? b.datePosted.toDate().getTime()
-					: new Date(b.datePosted).getTime();
+			const dateB = new Date(b.datePosted).getTime();
 	
 			return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
 		});
@@ -207,23 +202,7 @@ export default function DonationFeaturedDonationPage() {
                           <div className="flex items-center gap-1">
                             <Calendar size={16} />
                             <p className="text-sm text-gray-600">
-                              {story.datePosted &&
-                              typeof story.datePosted.toDate === "function"
-                                ? new Date(
-                                    story.datePosted.toDate()
-                                  ).toLocaleDateString("en-US", {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })
-                                : new Date(story.datePosted).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "long",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    }
-                                  )}
+                              {formatDate(story.datePosted)}
                             </p>
                           </div>
                         </div>
