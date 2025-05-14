@@ -86,7 +86,6 @@ export async function UsersTable({
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Student Number</TableHead>
-              <TableHead>Graduation Year</TableHead>
               <TableHead>Active Status</TableHead>
               <TableHead>Registration Status</TableHead>
               <TableHead>Approval Date</TableHead>
@@ -103,7 +102,6 @@ export async function UsersTable({
                   </TableCell>
                   <TableCell>{alumni.email}</TableCell>
                   <TableCell>{alumni.studentNumber}</TableCell>
-                  <TableCell>{alumni.graduationYear}</TableCell>
                   <TableCell>
                     {alumni.activeStatus ? "active" : "inactive"}
                   </TableCell>
@@ -111,7 +109,7 @@ export async function UsersTable({
                   <TableCell>
                     {alumni.approvalDate
                       ? alumni.approvalDate
-                      // removed: toDate() to avoid error
+                          // removed: toDate() to avoid error
                           .toISOString()
                           .slice(0, 10)
                           .replaceAll("-", "/")
