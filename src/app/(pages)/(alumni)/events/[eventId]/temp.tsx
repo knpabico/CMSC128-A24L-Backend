@@ -390,17 +390,26 @@ const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(und
             </div>
           </div>
           {/* Placeholder */}
-          {event?.status === "Accepted" && (
-            <button
-              onClick={handleAccept}
-              className="text-sm mt-4 bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
-            >
-              View Donation Drive
-            </button>
+          {event.needSponsorship && event?.status === "Accepted" && (
+            <div className="bg-white py-4 px-6 rounded-[10px] shadow-md border border-gray-200">
+              <p className="text-sm text-gray-700 mb-2">
+                This event needs sponsorship.
+              </p>
+              <button
+                onClick={() =>
+                  router.push(
+                    `/donationdrive-list/details?id=${event.donationDriveId}`
+                  )
+                }
+                className="text-sm mt-4 bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
+              >
+                View Donation Drive
+              </button>
+            </div>
           )}
         </div>
       </div>
-                {/* Featured Stories Section */}
+          {/* Featured Stories Section */}
           <div className="mt-16">
             <h2 className="text-2xl font-bold mb-6">Featured Stories</h2>
 
