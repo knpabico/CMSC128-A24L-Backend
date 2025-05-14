@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
@@ -52,6 +52,7 @@ const EventPageAdmin = () => {
 
   const { rsvpDetails, alumniDetails } = useRsvpDetails();
   const [rsvpFilter, setRsvpFilter] = useState("All");
+  const [rsvpSort, setRsvpSort] = useState<"asc" | "desc">("asc");
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -90,6 +91,43 @@ const EventPageAdmin = () => {
       }
     }
   }, [isEditing, events, editingEventId]);
+
+
+   const filteredAndSortedRsvps = useMemo(() => {
+    if (!event) return [];
+
+    // Filter RSVPs
+    const filteredRsvps = rsvpDetails
+      .filter((rsvp) => rsvp.postId === event.eventId)
+      .flatMap((rsvp) =>
+        Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
+          const { status } = alumData as { status: string };
+          const alumni = alums.find((a) => a.alumniId === alumniId);
+
+          return {
+            alumniId,
+            alumni,
+            status,
+            rsvpId: rsvp.rsvpId,
+          };
+        })
+      )
+      // Apply status filter
+      .filter((rsvpItem) => 
+        rsvpFilter === "All" || rsvpItem.status === rsvpFilter
+      )
+      // Sort by name
+      .sort((a, b) => {
+        if (!a.alumni || !b.alumni) return 0;
+        const nameA = `${a.alumni.firstName} ${a.alumni.lastName}`.toLowerCase();
+        const nameB = `${b.alumni.firstName} ${b.alumni.lastName}`.toLowerCase();
+        return rsvpSort === "asc" 
+          ? nameA.localeCompare(nameB) 
+          : nameB.localeCompare(nameA);
+      });
+
+    return filteredRsvps;
+  }, [event, rsvpDetails, alums, rsvpFilter, rsvpSort]);
 
   if (!eventId || events.length === 0) {
     return <p>Loading...</p>;
@@ -466,43 +504,56 @@ const EventPageAdmin = () => {
             <p className="text-gray-700">{event.donationDriveId}</p>
           )}
           <h3>RSVPs:</h3>
-          {event.rsvps && event.rsvps.length > 0 ? (
-            <div>
-              {rsvpDetails
-                .filter((rsvp) => rsvp.postId === event.eventId)
-                .flatMap((rsvp) =>
-                  Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
-                    const { status } = alumData as { status: string };
-                    const alumni = alums.find((a) => a.alumniId === alumniId);
 
-                    return (
-                      <div
-                        key={`${rsvp.rsvpId}-${alumniId}`}
-                        style={{
-                          border: "1px solid #eee",
-                          padding: "10px",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        {alumni ? (
-                          <>
-                            <p>
-                              <strong>Name:</strong> {alumni.firstName} {alumni.lastName}
-                            </p>
-                            <p>
-                              <strong>Status:</strong> {status}
-                            </p>
-                          </>
-                        ) : (
-                          <p>Alumni details not found for ID: {alumniId}</p>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
+           <div className="flex space-x-4 mb-4">
+            {/* Status Filter */}
+            <select 
+              value={rsvpFilter}
+              onChange={(e) => setRsvpFilter(e.target.value)}
+              className="p-2 border rounded"
+            >
+              <option value="All">All Status</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Pending">Pending</option>
+            </select>
+
+            {/* Name Sorting */}
+            <button 
+              onClick={() => setRsvpSort(rsvpSort === "asc" ? "desc" : "asc")}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Sort {rsvpSort === "asc" ? "A-Z" : "Z-A"}
+            </button>
+          </div>
+
+          {filteredAndSortedRsvps.length > 0 ? (
+            <div>
+              {filteredAndSortedRsvps.map((rsvpItem) => (
+                <div
+                  key={`${rsvpItem.rsvpId}-${rsvpItem.alumniId}`}
+                  style={{
+                    border: "1px solid #eee",
+                    padding: "10px",
+                    marginBottom: "5px",
+                  }}
+                >
+                  {rsvpItem.alumni ? (
+                    <>
+                      <p>
+                        <strong>Name:</strong> {rsvpItem.alumni.firstName} {rsvpItem.alumni.lastName}
+                      </p>
+                      <p>
+                        <strong>Status:</strong> {rsvpItem.status}
+                      </p>
+                    </>
+                  ) : (
+                    <p>Alumni details not found for ID: {rsvpItem.alumniId}</p>
+                  )}
+                </div>
+              ))}
             </div>
           ) : (
-            <p>No RSVPs yet.</p>
+            <p>No RSVPs matching the selected filter.</p>
           )}
           {/* Buttons */}
           {event.status === "Pending" ? (
