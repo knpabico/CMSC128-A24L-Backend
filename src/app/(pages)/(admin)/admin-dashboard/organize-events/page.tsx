@@ -8,6 +8,7 @@ import { useMemo } from "react"
 import { Calendar, ChevronRight, Clock, SquarePen, Eye, MapPin, Trash2, UserCheck } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useRsvpDetails } from "@/context/RSVPContext"
+import { useDonationDrives } from "@/context/DonationDriveContext"
 
 export default function EventPageAdmin() {
   const router = useRouter()
@@ -40,6 +41,8 @@ export default function EventPageAdmin() {
     fileName,
     setFileName,
   } = useEvents()
+
+  const { handleAddEventRelated } = useDonationDrives()
 
   const evId = params?.eventId as string
   const ev = events.find((e: Event) => e.eventId === evId)
@@ -380,10 +383,10 @@ export default function EventPageAdmin() {
                               </button>
                             </div>
                           </div>
-                        ) : e.status === "Accepted" ? (
+                        ) : e.status === "Accepted" && e.donationDriveId === "" ? (
                           <div className="flex items-center justify-end gap-4">
                             <button
-                              onClick={() => alert(`Placeholder: Create donation drive for event ID ${e.eventId}`)}
+                              onClick={() => handleAddEventRelated(e)}
                               className="text-gray-600 hover:underline cursor-pointer"
                             >
                               Create Donation Drive
