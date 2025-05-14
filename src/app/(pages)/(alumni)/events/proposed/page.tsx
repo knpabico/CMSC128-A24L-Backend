@@ -17,20 +17,6 @@ export default function ProposedEventsPage()
         isLoading, 
         setShowForm,
         showForm,
-        handleSave,
-        handleImageChange,
-        date,
-        setEventDate,
-        description,
-        setEventDescription,
-        title,
-        setEventTitle,
-        location,
-        setEventLocation,
-        time,
-        setEventTime,
-        image,
-        setEventImage
     } = useEvents();
     const { user, alumInfo } = useAuth();
 

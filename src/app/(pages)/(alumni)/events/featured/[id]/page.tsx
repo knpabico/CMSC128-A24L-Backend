@@ -18,7 +18,7 @@ const FeaturedDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { featuredItems} = useFeatured();
 
-  const eventStories = featuredItems.filter(story => story.type === "event");
+  const eventStories = featuredItems.filter((story: { type: string; }) => story.type === "event");
 
 
   const sortedStories = [...eventStories].sort((a, b) => {
@@ -109,9 +109,7 @@ const FeaturedDetailPage: React.FC = () => {
 
         <p className="text-sm text-gray-600 mt-10">
           Published:{" "}
-          {story?.datePosted instanceof Date
-            ? story.datePosted.toLocaleDateString()
-            : new Date(story?.datePosted?.seconds * 1000).toLocaleDateString()}
+          {formatDate(story?.datePosted)}
         </p>
       </div>
 

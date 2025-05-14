@@ -34,6 +34,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [description, setEventDescription] = useState("");
   const [date, setEventDate] = useState("");
   const [time, setEventTime] = useState("");
+  const [status, setEventStatus] = useState("");
   const [location, setEventLocation] = useState("");
   const [numofAttendees, setnumofAttendees] = useState(0);
   const [targetGuests, setTargetGuests] = useState<string[]>([]);
@@ -273,7 +274,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       targetGuests: selectedGuests,
       stillAccepting: true,
       needSponsorship: false,
-      rsvps: [],
+      rsvps: "",
       eventId: "",
       status,
       creatorId: "",
@@ -448,6 +449,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         handleImageChange,
         title,
         setEventTitle,
+        status,
+        setEventStatus,
         description,
         setEventDescription,
         date,

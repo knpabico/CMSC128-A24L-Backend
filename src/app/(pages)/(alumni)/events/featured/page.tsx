@@ -12,18 +12,16 @@ export default function FeaturedStoryPage() {
 
   const [sortOption, setSortOption] = useState<string>("newest");
 
-  const eventStories = featuredItems.filter(
-    (story: any) => story.type === "event"
-  );
+  const eventStories = featuredItems.filter((story: { type: string; }) => story.type === "event");
 
   const sortedStories = [...eventStories].sort((a, b) => {
     // Handle different date formats (string date, Date object, or Firestore timestamp)
-    const getDateValue = (date: any) => {
+    const getDateValue = (date: string | number | Date) => {
       if (!date) return 0; // Default to epoch if date is missing
 
       // Handle Firestore timestamp object
-      if (date?.seconds) {
-        return new Date(date.seconds * 1000).getTime();
+      if (typeof date === "object" && date !== null && "seconds" in date && typeof (date as any).seconds === "number") {
+        return new Date((date as any).seconds * 1000).getTime();
       }
 
       // Handle Date object
@@ -47,11 +45,11 @@ export default function FeaturedStoryPage() {
     return 0;
   });
 
-  const formatDate = (date: any) => {
+  const formatDate = (date: string | number | Date) => {
     if (!date) return "Unknown date";
 
     // Handle Firestore timestamp
-    if (date?.toDate && typeof date.toDate === "function") {
+    if (typeof date === "object" && "toDate" in date && typeof date.toDate === "function") {
       return date.toDate().toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
