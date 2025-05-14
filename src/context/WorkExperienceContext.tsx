@@ -75,9 +75,9 @@ export function WorkExperienceProvider({
       const currentYear = new Date().getFullYear();
 
       const startA =
-        a.endYear === "present" ? currentYear : parseInt(a.endYear);
+        a.endYear === "present" ? 100000 : parseInt(a.endYear);
       const startB =
-        b.endYear === "present" ? currentYear : parseInt(b.endYear);
+        b.endYear === "present" ? 100000 : parseInt(b.endYear);
 
       return startB - startA;
     });
