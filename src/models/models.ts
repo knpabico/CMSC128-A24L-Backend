@@ -129,7 +129,7 @@ export interface DonationDrive {
   status: string;
   isEvent: boolean;
   eventId: string;
-  startDate: Date | FirebaseFirestore.Timestamp;  
+  startDate: Date | Timestamp;  
   endDate: string;
   donorList: string[];
   image: string;

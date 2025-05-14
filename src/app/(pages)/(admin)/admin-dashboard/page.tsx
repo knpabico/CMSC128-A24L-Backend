@@ -82,8 +82,8 @@ const recentActiveDonations = useMemo(() => {
       const startDate = drive.startDate instanceof Date ? drive.startDate : drive.startDate.toDate();
       const datePosted = drive.datePosted instanceof Date ? drive.datePosted : drive.datePosted.toDate();
       
-      // Convert endDate from string to Date
-      const endDate = new Date(drive.endDate); // Convert endDate (string) to Date
+      // Convert endDate from string (e.g., "2025-05-23") to Date
+      const endDate = new Date(drive.endDate); // The endDate is already in "YYYY-MM-DD" format
 
       return {
         ...drive,
@@ -92,32 +92,18 @@ const recentActiveDonations = useMemo(() => {
         endDate
       };
     })
-    .filter((drive) => {
-      // We want to filter active donations that are still ongoing
+    .filter((drive: DonationDrive) => {
       const today = new Date();
-      // Ensure endDate is a Date object and compare with today
-      return drive.startDate <= today && today <= drive.endDate;
+      const endDate = new Date(drive.endDate); 
+      return drive.startDate <= today && today <= endDate;
     })
-    .sort((a, b) => {
-      // Sort by datePosted (most recent first)
+    .sort((a: DonationDrive, b: DonationDrive) => {
       const dateA = a.datePosted instanceof Date ? a.datePosted.getTime() : a.datePosted.toDate().getTime();
       const dateB = b.datePosted instanceof Date ? b.datePosted.getTime() : b.datePosted.toDate().getTime();
       return dateB - dateA;  // Most recent first
     })
-    .slice(0, 4);  // Get the top 4 most recent donations
-}, [donationDrives]);
-
-  // const today = new Date();
-
-  // const recentActiveDrives = donationDrives
-  //   .filter((drive) => 
-  //     drive.status === "active" && 
-  //     new Date(drive.startDate) <= today
-  //   )
-  //   .sort((a, b) => new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime())
-  //   .slice(0, 6);
-  
-
+    .slice(0, 4);  
+}, [activeDonations]);
 
     //getting the completed donations
     const completedDonations = useMemo(() => {
@@ -128,10 +114,9 @@ const recentActiveDonations = useMemo(() => {
     }, [donationDrives]);
 
   const updateJobStatus = (jobId:string, newStatus:string) => {
-    // In a real application, this would make an API call to update the job status
     console.log(`Updating job ${jobId} to status: ${newStatus}`);
     if (newStatus === "Active") {
-      handleAccept(jobId); // or just handleAccept() depending on your function signature
+      handleAccept(jobId); 
     }else if (newStatus === "Pending"){
       handlePending(jobId);
     }else{
@@ -139,7 +124,7 @@ const recentActiveDonations = useMemo(() => {
     }
     
     closeModal();
-    // Here you would typically update your state or refetch data
+
   };
 
   
@@ -240,10 +225,10 @@ const recentActiveDonations = useMemo(() => {
     setIsModalOpen(true);
   };
   
-  const handleOpenModalEventProposal = (event: Event) => {
+  const handleOpenModalEventProposal = async (event: Event) => {
     setSelectedEventProposal(event);
     const campaignName=getCampaignName(selectedEventProposal?.donationDriveId)
-    setIsCampaignName(campaignName)
+    setIsCampaignName(await campaignName)
     setIsModalEventProOpen(true);
   };
   
