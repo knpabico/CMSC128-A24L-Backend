@@ -40,6 +40,7 @@ export default function EventPageAdmin() {
     setEventTime,
     fileName,
     setFileName,
+    setPreview
   } = useEvents()
 
   const { handleAddEventRelated } = useDonationDrives()
@@ -169,6 +170,7 @@ export default function EventPageAdmin() {
     setFileName("")
     setErrorMessage("")
     setButton("")
+    setPreview(null)
   }
 
   return (
@@ -184,7 +186,9 @@ export default function EventPageAdmin() {
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Manage Events</div>
           <button
-            onClick={() => router.push("/admin-dashboard/organize-events/add")}
+            onClick={() => {router.push("/admin-dashboard/organize-events/add")
+              resetFormState()
+            }}
             className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
           >
             + Create Event
