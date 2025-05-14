@@ -398,13 +398,15 @@ export default function EventPageAdmin() {
                               View Details
                             </button>
                           </div>
-                        ) : e.status === "Rejected" ? (
-                          <button
-                            onClick={() => handleViewEventAdmin(e)}
-                            className="text-[var(--primary-blue)] hover:underline cursor-pointer"
-                          >
-                            View Details
-                          </button>
+                        ) : e.status === "Accepted" || e.status === "Rejected" ? (
+                          <div className="flex items-center justify-end gap-4">
+                            <button
+                              onClick={() => handleViewEventAdmin(e)}
+                              className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                            >
+                              View Details
+                            </button>
+                          </div>
                         ) : (
                           e.status === "Draft" &&
                           e.creatorType === "admin" && (

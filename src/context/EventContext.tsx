@@ -259,7 +259,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       targetGuests: selectedGuests,
       stillAccepting: true,
       needSponsorship: false,
-      rsvps: [],
+      rsvps: "",
       eventId: "",
       status,
       creatorId: "",

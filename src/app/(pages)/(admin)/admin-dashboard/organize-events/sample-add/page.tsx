@@ -138,7 +138,7 @@ export default function CreateEventPage() {
         targetGuests,
         stillAccepting: true,
         needSponsorship: false,
-        rsvps: [],
+        rsvps: "",
         eventId: "",
         status: "Accepted",
         creatorId: "",

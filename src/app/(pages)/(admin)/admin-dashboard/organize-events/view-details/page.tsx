@@ -200,7 +200,7 @@ export default function EventPage() {
         targetGuests,
         stillAccepting: true,
         needSponsorship: false,
-        rsvps: [],
+        rsvps: "",
         eventId: "",
         status: "Accepted",
         creatorId: "",
