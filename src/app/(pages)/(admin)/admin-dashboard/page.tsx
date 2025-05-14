@@ -59,6 +59,15 @@ export default function AdminDashboard() {
     );
   }, [donationDrives]);
 
+
+    //getting the completed donations
+    const completedDonations = useMemo(() => {
+      return donationDrives.filter(
+        (donationDrive: DonationDrive) =>
+          donationDrive.status === "completed"
+      );
+    }, [donationDrives]);
+
   const updateJobStatus = (jobId:string, newStatus:string) => {
     // In a real application, this would make an API call to update the job status
     console.log(`Updating job ${jobId} to status: ${newStatus}`);
@@ -427,7 +436,7 @@ export default function AdminDashboard() {
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-purple-50 to-purple-100">
                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Completed</div>
                  {/* palagay here yung count nung completed donations */}
-                <div className="text-lg sm:text-2xl font-bold text-purple-700">{donationDrives.length}</div>
+                <div className="text-lg sm:text-2xl font-bold text-purple-700">{completedDonations.length}</div>
               </div>
             </div>
 
