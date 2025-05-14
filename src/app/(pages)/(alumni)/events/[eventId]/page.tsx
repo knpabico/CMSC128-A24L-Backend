@@ -24,19 +24,6 @@ const EventPageAlumni = () => {
     events,
     setShowForm,
     showForm,
-    handleSave,
-    handleImageChange,
-    date,
-    setEventDate,
-    description,
-    setEventDescription,
-    title,
-    setEventTitle,
-    location,
-    setEventLocation,
-    time,
-    setEventTime,
-    setEventImage,
     handleDelete,
   } = useEvents();
 
@@ -56,7 +43,7 @@ const EventPageAlumni = () => {
   const rsvps = rsvpDetails as RSVP[];
   const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
 
-  const eventStories = featuredItems.filter((story) => story.type === "event");
+  const eventStories = featuredItems.filter((story: { type: string; }) => story.type === "event");
 
   const sortedStories = [...eventStories].sort((a, b) => {
     const dateA =

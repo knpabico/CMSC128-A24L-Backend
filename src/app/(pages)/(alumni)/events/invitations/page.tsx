@@ -6,8 +6,7 @@ import { Event } from "@/models/models";
 import { useAuth } from "@/context/AuthContext";
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
-import BookmarkButton from "@/components/ui/bookmark-button";
-import Link from "next/link";
+
 import ProposeEventForm from "../components/ProposeEventForm";
 import { FilePlus2 } from "lucide-react";
 

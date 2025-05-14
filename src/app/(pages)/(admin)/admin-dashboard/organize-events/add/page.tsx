@@ -31,7 +31,6 @@ export default function CreateEventPage() {
     date,
     time,
     location,
-    fileName,
     setFileName,
     handleImageChange,
     preview,

@@ -18,7 +18,7 @@ const FeaturedDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { featuredItems} = useFeatured();
 
-  const eventStories = featuredItems.filter(story => story.type === "event");
+  const eventStories = featuredItems.filter((story: { type: string; }) => story.type === "event");
 
 
   const sortedStories = [...eventStories].sort((a, b) => {
