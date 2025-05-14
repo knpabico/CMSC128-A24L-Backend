@@ -81,6 +81,8 @@ export default function JobOffers() {
     handleEditDraft,
     handleDelete,
     updateStatus,
+    setPreview,
+    setFileName,
   } = useJobOffer();
 
   const { addJobApplication } = useJobApplicationContext();
@@ -1842,6 +1844,8 @@ export default function JobOffers() {
                       setExperienceLevel("");
                       setSalaryRange("");
                       setJobImage(null);
+                      setPreview(null);
+                      setFileName("");
                     }}
                   >
                     Cancel
