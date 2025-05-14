@@ -1001,11 +1001,11 @@ export default function Home() {
                             </div>
                           </div>
                         
-                          {event.image === "" ? "" :
+                          {event.image === "" ? <hr className="w-[95%] text-gray-300 place-self-center"></hr> :
                             <img src={event.image}></img>
                           }
 
-                            <div className="flex justify-between text-[15px] gap-[30px] my-[20px] mx-[20px]">
+                            <div className="flex justify-between mx-[30px] text-[15px] gap-[30px] my-[5px] ">
                               <div className='flex gap-2 items-center'>
                                 <Calendar className="size-5 text-[#616161]"/>
                                 <span className="text-[15px] text-gray-500">{new Date(event.date).toLocaleDateString()}</span>
