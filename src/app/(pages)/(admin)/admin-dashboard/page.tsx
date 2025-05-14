@@ -227,8 +227,10 @@ const recentActiveDonations = useMemo(() => {
   
   const handleOpenModalEventProposal = async (event: Event) => {
     setSelectedEventProposal(event);
-    const campaignName=getCampaignName(selectedEventProposal?.donationDriveId)
-    setIsCampaignName(await campaignName)
+    if(selectedEventProposal){
+      const campaignName=getCampaignName(selectedEventProposal?.donationDriveId)
+      setIsCampaignName(await campaignName)
+    }
     setIsModalEventProOpen(true);
   };
   
