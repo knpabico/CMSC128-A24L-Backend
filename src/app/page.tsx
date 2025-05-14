@@ -849,42 +849,42 @@ export default function Home() {
                                 />
                               </div>
 
-                      {donationDrive.image === "" ? "" :
-                        <img src={donationDrive.image} className="w-full" alt="Donation drive" /> 
-                      }
+                            {donationDrive.image === "" ? "" :
+                              <img src={donationDrive.image} className="w-full" alt="Donation drive" /> 
+                            }
                         
-                        <div className="flex flex-col px-4 md:px-[20px]">
-                          <div className="w-full">
-                            <div className="flex justify-between mb-1">
-                              <div className='flex gap-2 items-center'>
-                                <Users className='size-4 text-[#616161]'/>
-                                <span className="text-[13px] md:text-[15px] text-gray-500">{" "} {donationDrive.donorList?.length || 0} Patrons</span>
+                          <div className="flex flex-col px-4 md:px-[20px]">
+                            <div className="w-full">
+                              <div className="flex justify-between mb-1">
+                                <div className='flex gap-2 items-center'>
+                                  <Users className='size-4 text-[#616161]'/>
+                                  <span className="text-[13px] md:text-[15px] text-gray-500">{" "} {donationDrive.donorList?.length || 0} Patrons</span>
+                                </div>
+                                {getDaysRemaining(donationDrive.endDate) === "Not Available" ? "" : (
+                                <div className='flex gap-2 items-center'>
+                                  <Clock className='size-4 text-[#616161]'/>
+                                  <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrive.endDate)}</span>
+                                </div>)}
                               </div>
-                              {getDaysRemaining(donationDrive.endDate) === "Not Available" ? "" : (
-                              <div className='flex gap-2 items-center'>
-                                <Clock className='size-4 text-[#616161]'/>
-                                <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrive.endDate)}</span>
-                              </div>)}
-                            </div>
 
-                            {/* progress bar */}
-                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                              {donationDrive.currentAmount === 0 ? (
-                                <div 
-                                className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
-                                style={{
-                                  width: `${Math.min( 0 / donationDrive.targetAmount * 100, 100)}%`
-                                }}
-                              >
-                              </div>) : 
-                              <div 
-                                className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
-                                style={{
-                                  width: `${Math.min((donationDrive.currentAmount || 0) / donationDrive.targetAmount * 100, 100)}%`
-                                }}
-                              >
-                              </div>}
-                            </div>
+                              {/* progress bar */}
+                              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
+                                {donationDrive.currentAmount === 0 ? (
+                                  <div 
+                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
+                                  style={{
+                                    width: `${Math.min( 0 / donationDrive.targetAmount * 100, 100)}%`
+                                  }}
+                                >
+                                </div>) : 
+                                  <div 
+                                    className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                                    style={{
+                                      width: `${Math.min((donationDrive.currentAmount || 0) / donationDrive.targetAmount * 100, 100)}%`
+                                    }}
+                                  >
+                                  </div>}
+                                </div>
 
                                   <div className="flex justify-between my-1 text-[13px] md:text-[15px]">
                                     <span className="font-medium">
@@ -963,9 +963,9 @@ export default function Home() {
                             <div className="flex gap-1">
                             <button
                               onClick={() => router.push(`/scholarship`)}
-                              className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                              className="w-full h-[30px] cursor-pointer rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                               >
-                              View more sponsorships
+                              View more scholarships
                             </button>
                             <button
                               onClick={() => router.push(`/scholarship/${scholarship.scholarshipId}`)}
@@ -1001,55 +1001,74 @@ export default function Home() {
                             </div>
                           </div>
                         
-                          {event.image === "" || event.image === null? "" :
+                          {event.image === "" ? "" :
                             <img src={event.image}></img>
                           }
-                          <>
-                          
-                          {event.needSponsorship === true && (
-                          <>
 
-                          {/* TODO: edit sponsorship details according to events */}
-                          <div className="flex flex-col px-4 md:px-[20px]">
-                            <div className="w-full">
-                              <div className="flex justify-between mb-1">
-                                <div className='flex gap-2 items-center'>
-                                  <Users className='size-4 text-[#616161]'/>
-                                  <span className="text-[13px] md:text-[15px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
-                                </div>
-                                {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
-                                  <div className='flex gap-2 items-center'>
-                                  <Clock className='size-4 text-[#616161]'/>
-                                  <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
-                                </div>)}
+                            <div className="flex justify-between text-[15px] gap-[30px] my-[20px] mx-[20px]">
+                              <div className='flex gap-2 items-center'>
+                                <Calendar className="size-5 text-[#616161]"/>
+                                <span className="text-[15px] text-gray-500">{new Date(event.date).toLocaleDateString()}</span>
+                              </div>
+                              
+                              <div className='flex gap-2  items-center'>
+                                <Clock className='size-5 text-[#616161]'/>
+                                <span className="text-[15px] text-gray-500">{new Date(event.date).toLocaleTimeString([], {
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}</span>
                               </div>
 
-                              {/* progress bar */}
-                              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                                {donationDrives[currentDonationIndex].currentAmount === 0 ? (
-                                  <div 
-                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
-                                  style={{
-                                    width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
-                                  }}
-                                >
-                                </div>) : <div 
-                                  className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
-                                  style={{
-                                    width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
-                                  }}
-                                >
-                                </div>}
-                              </div>
-
-                              <div className="flex justify-between my-1 text-[13px] md:text-[15px]">
-                                <span className="font-medium">₱ {donationDrives[currentDonationIndex].currentAmount}</span>
-                                <span className="text-gray-500">of ₱ {donationDrives[currentDonationIndex].targetAmount || 0}</span>
-                              </div>
+                            <div className="flex flex-row text-[15px] gap-[3px] items-center place-self-start">
+                              <MapPin className="size-5 text-[#616161] "/>
+                              <span className="text-[15px] text-gray-500">{event.location}</span>
                             </div>
                           </div>
-                          </>)}
-                          </>
+                          <>
+                          
+                            {event.needSponsorship === true && (
+                              <>
+                                {/* TODO: edit sponsorship details according to events */}
+                                <div className="flex flex-col px-4 md:px-[20px]">
+                                  <div className="w-full">
+                                    <div className="flex justify-between mb-1">
+                                      <div className='flex gap-2 items-center'>
+                                        <Users className='size-4 text-[#616161]'/>
+                                        <span className="text-[13px] md:text-[15px] text-gray-500">{donationDrives[currentDonationIndex].donorList?.length || 0} Patrons</span>
+                                      </div>
+                                      {getDaysRemaining(donationDrives[currentDonationIndex].endDate) === "Not Available" ? "" : (
+                                        <div className='flex gap-2 items-center'>
+                                        <Clock className='size-4 text-[#616161]'/>
+                                        <span className="text-[13px] md:text-[15px] text-gray-500">{getDaysRemaining(donationDrives[currentDonationIndex].endDate)}</span>
+                                      </div>)}
+                                    </div>
+
+                                    {/* progress bar */}
+                                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
+                                      {donationDrives[currentDonationIndex].currentAmount === 0 ? (
+                                        <div 
+                                        className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full" 
+                                        style={{
+                                          width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                        }}
+                                      >
+                                      </div>) : <div 
+                                        className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                                        style={{
+                                          width: `${Math.min((donationDrives[currentDonationIndex].currentAmount || 0) / donationDrives[currentDonationIndex].targetAmount * 100, 100)}%`
+                                        }}
+                                      >
+                                      </div>}
+                                    </div>
+
+                                    <div className="flex justify-between my-1 text-[13px] md:text-[15px]">
+                                      <span className="font-medium">₱ {donationDrives[currentDonationIndex].currentAmount}</span>
+                                      <span className="text-gray-500">of ₱ {donationDrives[currentDonationIndex].targetAmount || 0}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                </>)}
+                                </>
 
                                   <div className="px-4 md:px-[20px] flex gap-1">
                                     <button

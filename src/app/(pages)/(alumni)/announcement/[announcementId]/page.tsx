@@ -58,11 +58,13 @@ const AnnouncementPage = () => {
       
       {/* Main */}
       <div className="rounded-[10px] bg-[#FFFFFF]">
+        {announcement?.image === "" ? 
+        ""
+        : 
         <img
-          src={announcement?.image === "" ? "/ICS2.jpg" : announcement?.image}
-          alt={announcement?.title}
+          src={announcement?.image}
           className="h-full w-full"
-        />
+        />}
         <div className="p-10 flex flex-col gap-[20px] ">
           <div>
             <p className="text-2xl md:text-4xl font-bold uppercase">{announcement?.title}</p>
@@ -90,7 +92,6 @@ const AnnouncementPage = () => {
                   <img 
                     src={item.image || "/ICS2.jpg"} 
                     className="w-full h-[150px] object-cover"
-                    alt={item.title}
                   />
                   <div className="flex flex-col gap-1">
                     {item.title.length > 50 

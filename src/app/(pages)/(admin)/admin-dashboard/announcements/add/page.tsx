@@ -61,17 +61,22 @@ export default function AddAnnouncement() {
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     if (imageFile) {
       const localUrl = URL.createObjectURL(imageFile);
       setAnnounceImage(localUrl);
-    } else {
-      toastError(`Error uploading image`)
+    } 
+
+    if (!type || type.length === 0) {
+      toastError("Please select at least one announcement type.");
+      return;
     }
     
     try {
       await handleSubmit(e);
       setImageFile(null);
       setImagePreview(null);
+      toastSuccess("You have successfully created announcement.");
       router.push("/admin-dashboard/announcements/manage");
     } catch (error) {
       toastError(`Error creating announcement.`);
@@ -153,7 +158,6 @@ export default function AddAnnouncement() {
                     {imagePreview ? (
                       <img
                         src={imagePreview}
-                        alt="Preview"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -269,9 +273,6 @@ export default function AddAnnouncement() {
               </button>
               <button
                 type="submit"
-                onClick={() => {
-                  toastSuccess(`You have successfully created announcement.`);
-                }}
                 className="bg-blue-600 text-white px-8 py-2 rounded-full hover:bg-blue-700 transition"
               >
                 Post

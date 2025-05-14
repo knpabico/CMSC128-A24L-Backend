@@ -21,10 +21,15 @@ import Banner from "@/components/Banner";
 import Image from "next/image";
 
 function formatDate(timestamp: any) {
-  if (!timestamp || !timestamp.seconds) return "Invalid Date";
-  const date = new Date(timestamp.seconds * 1000);
-  return date.toISOString().split("T")[0];
+  if (!timestamp) return "Invalid Date";
+  const date = new Date(timestamp?.seconds ? timestamp.seconds * 1000 : timestamp);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
+
 
 const FILTER_TAGS = ["Donation Update", "Event Update", "General Announcement"];
 const SORT_TAGS = ["Earliest", "Latest"];
@@ -49,10 +54,11 @@ export default function Announcements() {
 
   // Sort announcements by date
   let filteredAnnounces = [...announces].sort((a, b) => {
-    const dateA = a.datePosted.seconds;
-    const dateB = b.datePosted.seconds;
-    return latestFirst ? dateB - dateA : dateA - dateB;
+    const dateA = new Date(a.datePosted?.seconds ? a.datePosted.seconds * 1000 : a.datePosted);
+    const dateB = new Date(b.datePosted?.seconds ? b.datePosted.seconds * 1000 : b.datePosted);
+    return latestFirst ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
   });
+
 
   // Apply active filter (if any)
   if (activeFilter === "Saved Announcements") {
@@ -163,8 +169,9 @@ export default function Announcements() {
                             </div>
 
                             <p className="text-gray-400 text-sm mb-[20px]">
-                              {user.datePosted.toDateString()}
+                              {formatDate(user.datePosted)}
                             </p>
+
                             {user.description.length > 700 ? (
                               <p className="text-justify">
                                 {user.description.slice(0, 700) + "..."}
@@ -206,7 +213,7 @@ export default function Announcements() {
                 {totalPages > 1 && (
                   <div className="flex justify-center mt-6 space-x-4 mb-10">
                     <Button
-                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 transition-all"
+                      className="px-4 py-2 bg-white hover:bg-gray-300 rounded disabled:opacity-50 transition-all"
                       onClick={() =>
                         setCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
@@ -215,12 +222,12 @@ export default function Announcements() {
                       Previous
                     </Button>
 
-                    <span className="flex items-center text-lg font-medium">
+                    <span className="flex items-center text-sm">
                       Page {currentPage} of {totalPages}
                     </span>
 
                     <Button
-                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 transition-all"
+                      className="px-4 py-2 bg-white hover:bg-gray-300 rounded disabled:opacity-50 transition-all"
                       onClick={() =>
                         setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                       }

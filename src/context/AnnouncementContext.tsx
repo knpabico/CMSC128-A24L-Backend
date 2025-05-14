@@ -118,55 +118,57 @@ export function AnnouncementProvider({
     }
   };
 
-  const handleEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
-    const updatedAnnouncement: Announcement = {
-      title,
-      description,
-      datePosted: new Date(),
-      type,
-      announcementId: currentAnnouncementId!,
-      image: "", // will be set conditionally
-      isPublic,
-    };
-  
-    try {
-      if (image) {
-        // A new image was uploaded
-        const uploadResult = await uploadImage(image, `announcement/${Date.now()}`);
-        if (uploadResult.success) {
-          updatedAnnouncement.image = uploadResult.url;
-        } else {
-          console.error("Image upload failed:", uploadResult.result);
-          return;
-        }
-      } else {
-        // No new image; fetch and preserve existing image
-        const docRef = doc(db, "Announcement", currentAnnouncementId!);
-        const existingDoc = await getDoc(docRef);
-  
-        if (existingDoc.exists()) {
-          const oldData = existingDoc.data() as Announcement;
-          updatedAnnouncement.image = oldData.image || "";
-        } else {
-          console.warn("No previous document found to retain image.");
-        }
-      }
-  
-      await updateDoc(doc(db, "Announcement", currentAnnouncementId!), updatedAnnouncement);
-  
-      // Reset form state
-      setShowForm(false);
-      setTitle("");
-      setDescription("");
-      setAnnounceImage(null);
-      setPreview(null);
-      setIsEdit(false);
-    } catch (error) {
-      console.error("Error updating announcement:", error);
-    }
+const handleEdit = async (e: React.FormEvent, removeImage = false) => {
+  e.preventDefault();
+
+  const updatedAnnouncement: Announcement = {
+    title,
+    description,
+    datePosted: new Date(),
+    type,
+    announcementId: currentAnnouncementId!,
+    image: "", // will be updated below
+    isPublic,
   };
+
+  try {
+    const docRef = doc(db, "Announcement", currentAnnouncementId!);
+    const existingDoc = await getDoc(docRef);
+
+    if (removeImage) {
+      // Image is being removed
+      updatedAnnouncement.image = "";
+    } else if (image) {
+      // New image is being uploaded
+      const uploadResult = await uploadImage(image, `announcement/${Date.now()}`);
+      if (uploadResult.success) {
+        updatedAnnouncement.image = uploadResult.url;
+      } else if (existingDoc.exists()) {
+        const oldData = existingDoc.data() as Announcement;
+        updatedAnnouncement.image = oldData.image || "";
+      }
+    } else {
+      // Preserve existing image
+      if (existingDoc.exists()) {
+        const oldData = existingDoc.data() as Announcement;
+        updatedAnnouncement.image = oldData.image || "";
+      }
+    }
+
+    await updateDoc(docRef, updatedAnnouncement);
+
+    // Reset form state
+    setShowForm(false);
+    setTitle("");
+    setDescription("");
+    setAnnounceImage(null);
+    setPreview(null);
+    setIsEdit(false);
+  } catch (error) {
+    console.error("Error updating announcement:", error);
+  }
+};
+
   
 
   const subscribeToUsers = () => {

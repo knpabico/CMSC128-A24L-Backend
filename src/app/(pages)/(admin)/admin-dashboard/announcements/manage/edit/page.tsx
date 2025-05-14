@@ -27,50 +27,56 @@ export default function AddAnnouncement() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [removeImage, setRemoveImage] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const syncImagePreview = async () => {
-      const contextImage = await getImageFromContext();
-      if (contextImage) {
-        setImagePreview(contextImage);
-      }
-    };
-    
-    syncImagePreview();
-  }, []);
+    if (imageFile) {
+      const localUrl = URL.createObjectURL(imageFile);
+      setImagePreview(localUrl);
+    } else if (typeof image === "string" && image) {
+      setImagePreview(image);
+    } else {
+      setImagePreview(null);
+    }
+  }, [image, imageFile]);
+
 
   const getImageFromContext = async () => {
+    if (imageFile) return imageFile;
     if (image) return image;
-    else return null;
+    else {
+      return null
+    };
   };
 
   const handleImageChangeLocal = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setImageFile(file);
+      setAnnounceImage(file); // important for context
 
-    const localUrl = URL.createObjectURL(file);
+      const localUrl = URL.createObjectURL(file);
       setImagePreview(localUrl);
-      handleImageChange(e);
+      handleImageChange(e); // calls context version if needed
     }
   };
+
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if (imagePreview) {
-      setAnnounceImage(imagePreview);
-    } else {
-      toastError(`Error uploading image`)
-    }    
+    if (!type || type.length === 0) {
+      toastError("Please select at least one announcement type.");
+      return;
+    }
+
     try {
-      await handleEdit(e);
-      
+      await handleEdit(e, removeImage);
       setIsEditing(false);
       router.push("/admin-dashboard/announcements/manage");
     } catch (error) {
-      toastError("Error submitting announcement");
+      toastError("Error updating announcement");
     }
   };
 
@@ -87,8 +93,11 @@ export default function AddAnnouncement() {
   const handleRemoveImage = () => {
     setImagePreview(null);
     setImageFile(null);
-    setAnnounceImage(null);
+    setAnnounceImage(null); // Set context image to null
+    setRemoveImage(true);   // Mark image as removed
+
   };
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -177,7 +186,6 @@ export default function AddAnnouncement() {
                       {imagePreview ? (
                         <img
                           src={imagePreview}
-                          alt="Announcement image"
                           className="w-full h-full object-cover"
                         />
                       ) : (
