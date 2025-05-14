@@ -1,8 +1,7 @@
 "use client";
 
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const title = "Manage Users";
 
@@ -34,7 +33,7 @@ export default function ManageUsersClient({
 
   //function for handling change on sort type
   function handleSortChange(sortType: string) {
-    let sorting = sortType && sortType !== "d" ? `&sort=${sortType}` : "";
+    const sorting = sortType && sortType !== "d" ? `&sort=${sortType}` : "";
 
     //will push the parameters to the url
     router.push(
@@ -62,7 +61,7 @@ export default function ManageUsersClient({
 
   //function for handling year filter
   function handleYearFilter(year: string) {
-    let sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
+    const sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
 
     //will push the parameters to the url
     router.push(
@@ -77,7 +76,7 @@ export default function ManageUsersClient({
 
   //function for handling student number filter
   function handleSearchSN(sn: string) {
-    let sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
+    const sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
 
     //will push the parameters to the url
     router.push(
