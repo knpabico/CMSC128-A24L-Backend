@@ -1070,7 +1070,15 @@ export default function Home() {
                                   </div>
 
                                   {event.image === "" ? (
-                                    ""
+                                    <Image
+                                      alt="Event"
+                                      src="/default-image.jpg"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
+                                      className="w-full h-auto object-cover"
+                                    />
                                   ) : (
                                     <Image
                                       alt="Event"
@@ -1079,6 +1087,7 @@ export default function Home() {
                                       height={0}
                                       sizes="100vw"
                                       priority
+                                      className="w-full h-auto object-cover"
                                     />
                                   )}
                                   <>
