@@ -62,13 +62,13 @@ export default function ManageDonationDrive() {
       case "descending":
         return b.targetAmount - a.targetAmount;
       case "oldest":
-        return (
-          a.datePosted.toDate().getTime() - b.datePosted.toDate().getTime()
-        );
+        const dateA2 = a.datePosted?.toDate?.() || new Date(0);
+        const dateB2 = b.datePosted?.toDate?.() || new Date(0);
+        return dateA2.getTime() - dateB2.getTime();
       case "latest":
-        return (
-          b.datePosted.toDate().getTime() - a.datePosted.toDate().getTime()
-        );
+        const dateA = a.datePosted?.toDate?.() || new Date(0);
+        const dateB = b.datePosted?.toDate?.() || new Date(0);
+        return dateB.getTime() - dateA.getTime();
       case "alphabetical": {
         const aName =
           a.isEvent && events[a.eventId]

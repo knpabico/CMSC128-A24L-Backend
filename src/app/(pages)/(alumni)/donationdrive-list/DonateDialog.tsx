@@ -63,7 +63,7 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
   const { user, alumInfo } = useAuth();
 
 	//Calculate Days Remaining
-	const getRemainingDays = (endDate: any) => {
+	const getRemainingDays = (endDate: Date) => {
 		try {
 			const today = new Date(); // Current date
 			const end = new Date(endDate); // Firestore Timestamp to JS Date

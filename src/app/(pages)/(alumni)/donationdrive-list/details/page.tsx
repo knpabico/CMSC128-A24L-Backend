@@ -1,23 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+// import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useDonationDrives } from '@/context/DonationDriveContext';
 import { useDonationContext } from '@/context/DonationContext';
-import { useAuth } from '@/context/AuthContext';
+// import { useAuth } from '@/context/AuthContext';
 import { DonationDrive, Donation, Event } from '@/models/models';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from '@/components/ui/bookmark-button';
-import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
+import { Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
 import { ThankYouDialog } from '../../../../../components/ThankYouDialog';
 import Image from "next/image";
 
 
 const DonationDriveDetailsPage: React.FC = () => {
-  const router = useRouter();
+//   const router = useRouter();
   const searchParams = useSearchParams();
   const donationDriveId = searchParams.get('id');
   const { getDonationDriveById } = useDonationDrives();
@@ -34,60 +35,81 @@ const DonationDriveDetailsPage: React.FC = () => {
 
 
   // Format date function with improved type safety
-  const formatDate = (timestamp: any): string => {
-    try {
-      if (!timestamp) return 'N/A';
-      const date = timestamp.toDate?.() || new Date(timestamp);
-      return isNaN(date.getTime()) 
-        ? 'Invalid Date' 
-        : date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          });
-    } catch (err) {
-      console.error('Date formatting error:', err);
-      return 'Invalid Date';
-    }
+  const formatDate = (timestamp: Timestamp | string | number | Date | null | undefined): string => {
+	try {
+		if (!timestamp) return 'N/A';
+
+		let date: Date;
+
+		if (timestamp instanceof Timestamp) {
+		date = timestamp.toDate();
+		} else {
+		date = new Date(timestamp);
+		}
+
+		return isNaN(date.getTime())
+		? 'Invalid Date'
+		: date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			});
+	} catch (err) {
+		console.error('Date formatting error:', err);
+		return 'Invalid Date';
+	}
   };
 
   // Format time ago
-  const formatTimeAgo = (timestamp: any) => {
+  const formatTimeAgo = (timestamp: Timestamp | string | number | Date | null | undefined) => {
     try {
-      if (!timestamp) return '';
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      const now = new Date();
-      const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+		if (!timestamp) return '';
 
-      if (diffInSeconds < 60) return 'just now';
-      if (diffInSeconds < 3600) {
-        const minutes = Math.floor(diffInSeconds / 60);
-        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-      }
-      if (diffInSeconds < 86400) {
-        const hours = Math.floor(diffInSeconds / 3600);
-        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-      }
-      if (diffInSeconds < 2592000) {
-        const days = Math.floor(diffInSeconds / 86400);
-        return `${days} day${days > 1 ? 's' : ''} ago`;
-      }
-      if (diffInSeconds < 31536000) {
-        const months = Math.floor(diffInSeconds / 2592000);
-        return `${months} month${months > 1 ? 's' : ''} ago`;
-      }
-      const years = Math.floor(diffInSeconds / 31536000);
-      return `${years} year${years > 1 ? 's' : ''} ago`;
-    } catch (err) {
-      return '';
-    }
-  };
+		let date: Date;
+
+		if (timestamp instanceof Timestamp) {
+		date = timestamp.toDate();
+		} else {
+		date = new Date(timestamp);
+		}
+
+		if (isNaN(date.getTime())) return '';
+
+		const now = new Date();
+		const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+		if (diffInSeconds < 60) return 'just now';
+		if (diffInSeconds < 3600) {
+		const minutes = Math.floor(diffInSeconds / 60);
+		return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+		}
+		if (diffInSeconds < 86400) {
+		const hours = Math.floor(diffInSeconds / 3600);
+		return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+		}
+		if (diffInSeconds < 2592000) {
+		const days = Math.floor(diffInSeconds / 86400);
+		return `${days} day${days !== 1 ? 's' : ''} ago`;
+		}
+		if (diffInSeconds < 31536000) {
+		const months = Math.floor(diffInSeconds / 2592000);
+		return `${months} month${months !== 1 ? 's' : ''} ago`;
+		}
+
+		const years = Math.floor(diffInSeconds / 31536000);
+		return `${years} year${years !== 1 ? 's' : ''} ago`;
+
+	} catch (err) {
+		console.error('Time formatting error:', err);
+		return '';
+	}
+	};
 
 //Calculate Days Remaining
-const getRemainingDays = (endDate: any) => {
+const getRemainingDays = (endDate: Date) => {
 	try {
 		const today = new Date(); // Current date
-      	const end = (typeof endDate === 'string')? new Date(endDate) : endDate.toDate(); // Firestore Timestamp to JS Date
+      	const end = (typeof endDate === 'string')? new Date(endDate) : endDate; // Firestore Timestamp to JS Date
 		const diffTime = end.getTime() - today.getTime();
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 

@@ -8,6 +8,7 @@ import { useBookmarks } from '@/context/BookmarkContext';
 import DonationDriveSidebar from '../components/Sidebar';
 import DonationDrivesList from '../components/DonationDrivesList';
 import { DonationDrive } from '@/models/models';
+import Banner from '@/components/Banner';
 
 export default function SavedDrivesPage() {
   const { donationDrives, events, isLoading } = useDonationDrives();
@@ -15,6 +16,7 @@ export default function SavedDrivesPage() {
   const { bookmarks, entries, isLoading: isLoadingBookmarks } = useBookmarks();
   const [savedDrives, setSavedDrives] = useState<DonationDrive[]>([]);
   const [sortOption, setSortOption] = useState<string>('newest');
+  const [statusOption, setStatusOption] = useState<string>('all');
 
   // Filter donation drives based on bookmarks
   useEffect(() => {
@@ -29,8 +31,11 @@ export default function SavedDrivesPage() {
       const savedDriveIds = donationDriveBookmarks.map(bookmark => bookmark.entryId);
       
       // Filter for saved drives
-      const filteredDrives = donationDrives.filter((drive: { donationDriveId: string; }) => 
-        savedDriveIds.includes(drive.donationDriveId)
+      const filteredDrives = donationDrives.filter(
+		(drive: { donationDriveId: string; status: string;}) => (
+			statusOption ==="all"? drive.status === 'active' || drive.status === 'completed':drive.status === statusOption &&
+			savedDriveIds.includes(drive.donationDriveId)
+		)
       );
       
       // Apply sorting
@@ -57,22 +62,23 @@ export default function SavedDrivesPage() {
     } else {
       setSavedDrives([]);
     }
-  }, [donationDrives, bookmarks, sortOption]);
+  }, [donationDrives, bookmarks, sortOption, statusOption]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOption(e.target.value);
   };
 
+  const handleStatusSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+	setStatusOption(e.target.value);
+  };
+
   return (
 	<div className="bg-[#EAEAEA]">
 		{/*Page Title*/}
-		<div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
-			<div className="absolute inset-0 bg-blue-500/50" />
-				<div className="relative z-10">
-				<h1 className="text-5xl font-bold my-2 text-white">Donation Drives</h1>
-				<p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
-			</div>
-		</div>
+		<Banner 
+			title="Donation Drives" 
+			description="Support meaningful causes through ICS and alumni donation drives, helping create opportunities and making a lasting impact."
+		/>
 		{/* Body */}
 		<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
 			{/* Sidebar */}
@@ -84,15 +90,26 @@ export default function SavedDrivesPage() {
 				{/* Filter tabs */}
 				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
 					<h2 className="text-lg font-semibold">Saved Drives</h2>
-					<div className="flex items-center">
-						<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-						<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
-							<option value="newest">Newest</option>
-							<option value="oldest">Oldest</option>
-							<option value="amount-high">Amount (High to Low)</option>
-							<option value="amount-low">Amount (Low to High)</option>
-							<option value="progress">Progress</option>
-						</select>
+					<div className="flex justify-between items-center gap-2">
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="flex items-center text-sm" >
+								<option value="all">All</option>
+								<option value="active">Active</option>
+								<option value="completed">Closed </option>
+							</select>
+						</div>
+						<div>|</div>
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+								<option value="newest">Newest</option>
+								<option value="oldest">Oldest</option>
+								<option value="amount-high">Amount (High to Low)</option>
+								<option value="amount-low">Amount (Low to High)</option>
+								<option value="progress">Progress</option>
+							</select>
+						</div>						
 					</div>
 				</div>
 				{savedDrives.length > 0 ? (
