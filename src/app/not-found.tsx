@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense } from "react";
+import SearchParamsWrapper from "@/components/SearchParamsWrapper";
 import NotFoundContent from "@/components/NotFoundContent";
 
 export default function NotFound() {
   return (
-    <Suspense
+    <SearchParamsWrapper
       fallback={
         <div className="flex justify-center items-center h-screen text-xl">
           Loading...
@@ -13,6 +13,6 @@ export default function NotFound() {
       }
     >
       <NotFoundContent />
-    </Suspense>
+    </SearchParamsWrapper>
   );
 }
