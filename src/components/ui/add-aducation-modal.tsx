@@ -19,6 +19,7 @@ const AddEducationModal = ({
   onClose: () => void;
   userId: string;
   setSuccess: (success: boolean) => void;
+  degreeType: string;
 }) => {
   const [university, setUniversity] = useState<string>("");
   const [type, setType] = useState<string>("");

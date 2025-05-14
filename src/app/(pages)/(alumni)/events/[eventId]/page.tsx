@@ -101,10 +101,10 @@ const EventPageAlumni = () => {
 
   return (
     <div className="w-full px-6 md:px-10 lg:px-20 pt-6 pb-10">
-      <Link href="/events" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
+      <span onClick={() => window.history.back()} className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
         <MoveLeft className='size-[17px]'/>
         Back to Events
-      </Link>
+      </span>
 
       {event ? (
         <div className="space-y-4">
