@@ -71,58 +71,55 @@ export default function AdminDashboard() {
     );
   }, [donationDrives]);
 
-// Convert all necessary fields and get the most recent 4 donation drives based on datePosted
-const recentActiveDonations = useMemo(() => {
-  return activeDonations
-    .map((drive: DonationDrive) => {
-      // Convert startDate and datePosted if they are Firebase Timestamps
-      const startDate = drive.startDate instanceof Date ? drive.startDate : drive.startDate.toDate();
-      const datePosted = drive.datePosted instanceof Date ? drive.datePosted : drive.datePosted.toDate();
+  const recentActiveDonations = useMemo(() => {
+    return activeDonations
+      .map((drive: DonationDrive) => {
+        const startDate = drive.startDate instanceof Date ? drive.startDate : drive.startDate.toDate();
+        const datePosted = drive.datePosted instanceof Date ? drive.datePosted : drive.datePosted.toDate();
+        
+        const endDate = new Date(drive.endDate); 
+
+        return {
+          ...drive,
+          startDate,
+          datePosted,
+          endDate
+        };
+      })
+      .filter((drive: DonationDrive) => {
+        const today = new Date();
+        const endDate = new Date(drive.endDate); 
+        return drive.startDate <= today && today <= endDate;
+      })
+      .sort((a: DonationDrive, b: DonationDrive) => {
+        const dateA = a.datePosted instanceof Date ? a.datePosted.getTime() : a.datePosted.toDate().getTime();
+        const dateB = b.datePosted instanceof Date ? b.datePosted.getTime() : b.datePosted.toDate().getTime();
+        return dateB - dateA;  // Most recent first
+      })
+      .slice(0, 4);  
+  }, [activeDonations]);
+
+      //getting the completed donations
+      const completedDonations = useMemo(() => {
+        return donationDrives.filter(
+          (donationDrive: DonationDrive) =>
+            donationDrive.status === "completed"
+        );
+      }, [donationDrives]);
+
+    const updateJobStatus = (jobId:string, newStatus:string) => {
+      console.log(`Updating job ${jobId} to status: ${newStatus}`);
+      if (newStatus === "Active") {
+        handleAccept(jobId); 
+      }else if (newStatus === "Pending"){
+        handlePending(jobId);
+      }else{
+        handleReject(jobId);
+      }
       
-      // Convert endDate from string (e.g., "2025-05-23") to Date
-      const endDate = new Date(drive.endDate); // The endDate is already in "YYYY-MM-DD" format
+      closeModal();
 
-      return {
-        ...drive,
-        startDate,
-        datePosted,
-        endDate
-      };
-    })
-    .filter((drive: DonationDrive) => {
-      const today = new Date();
-      const endDate = new Date(drive.endDate); 
-      return drive.startDate <= today && today <= endDate;
-    })
-    .sort((a: DonationDrive, b: DonationDrive) => {
-      const dateA = a.datePosted instanceof Date ? a.datePosted.getTime() : a.datePosted.toDate().getTime();
-      const dateB = b.datePosted instanceof Date ? b.datePosted.getTime() : b.datePosted.toDate().getTime();
-      return dateB - dateA;  // Most recent first
-    })
-    .slice(0, 4);  
-}, [activeDonations]);
-
-    //getting the completed donations
-    const completedDonations = useMemo(() => {
-      return donationDrives.filter(
-        (donationDrive: DonationDrive) =>
-          donationDrive.status === "completed"
-      );
-    }, [donationDrives]);
-
-  const updateJobStatus = (jobId:string, newStatus:string) => {
-    console.log(`Updating job ${jobId} to status: ${newStatus}`);
-    if (newStatus === "Active") {
-      handleAccept(jobId); 
-    }else if (newStatus === "Pending"){
-      handlePending(jobId);
-    }else{
-      handleReject(jobId);
-    }
-    
-    closeModal();
-
-  };
+    };
 
   
   const fields = [
