@@ -9,6 +9,16 @@ import { Asterisk, ChevronRight, CirclePlus, Upload } from "lucide-react";
 import { AddStudent } from "../manage/[id]/add-student-form";
 import { useRouter } from "next/navigation";
 
+//type for student form data
+export type StudentFormData = {
+  name: string;
+  studentNumber: string;
+  age: string;
+  shortBackground: string;
+  address: string;
+  emailAddress: string;
+};
+
 export default function AddScholarships() {
   const { loading, addScholarship, updateScholarship, addStudent } =
     useScholarship();
@@ -22,7 +32,7 @@ export default function AddScholarships() {
   const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [isSticky, setIsSticky] = useState(false);
   const buttonsContainerRef = useRef(null);
   const placeholderRef = useRef(null);
@@ -37,7 +47,6 @@ export default function AddScholarships() {
       shortBackground: "",
       address: "",
       emailAddress: "",
-      background: "",
     },
   ]);
 
@@ -52,7 +61,6 @@ export default function AddScholarships() {
         shortBackground: "",
         address: "",
         emailAddress: "",
-        background: "",
       },
     ]);
   };
@@ -63,14 +71,20 @@ export default function AddScholarships() {
   };
 
   //for updating student form
-  const updateStudentForm = (index: number, updatedStudentData: any) => {
+  const updateStudentForm = (
+    index: number,
+    updatedStudentData: StudentFormData
+  ) => {
     const updatedStudentForms = [...studentForms];
     updatedStudentForms[index] = updatedStudentData;
     setStudentForms(updatedStudentForms);
   };
 
   //function for saving the new students to firestore
-  const saveStudents = async (students: any[], scholarshipId: string) => {
+  const saveStudents = async (
+    students: StudentFormData[],
+    scholarshipId: string
+  ) => {
     let newStudentList = [];
     for (let i = 0; i < students.length; i++) {
       //ensure students[i] is not empty
@@ -145,8 +159,8 @@ export default function AddScholarships() {
     }
   };
 
-  const handleImageChange = (e: any) => {
-    const file = e.target.files[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
     if (file) {
       setImage(file);
       setPreview(URL.createObjectURL(file)); //preview

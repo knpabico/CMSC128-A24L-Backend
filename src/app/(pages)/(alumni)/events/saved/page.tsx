@@ -14,7 +14,7 @@ export default function SavedEventsPage()
 {
     const { events, isLoading, showForm, setShowForm } = useEvents();
     const { user, alumInfo } = useAuth();
-    const { bookmarks, entries, isLoading: isLoadingBookmarks } = useBookmarks();
+    const { bookmarks} = useBookmarks();
     const [savedEvents, setSavedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
     const [isEditing, setEdit] = useState<boolean>(false);

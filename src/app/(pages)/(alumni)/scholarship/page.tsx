@@ -46,7 +46,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor} capitalize`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${bgColor} ${textColor} capitalize`}
     >
       {status}
     </span>
@@ -54,16 +54,24 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 // Status Filter Component
-type FilterOption = "all" | "active" | "closed";
+type FilterOption =
+  | "all"
+  | "active"
+  | "closed"
+  | "approved"
+  | "pending"
+  | "rejected";
 
 interface StatusFilterProps {
   activeFilter: FilterOption;
   setActiveFilter: (filter: FilterOption) => void;
+  options?: FilterOption[];
 }
 
 const StatusFilterDropdown = ({
   activeFilter = "all",
   setActiveFilter,
+  options = ["all", "active", "closed"],
 }: StatusFilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -82,6 +90,12 @@ const StatusFilterDropdown = ({
         return "Active";
       case "closed":
         return "Closed";
+      case "approved":
+        return "Approved";
+      case "pending":
+        return "Pending";
+      case "rejected":
+        return "Rejected";
       default:
         return "All";
     }
@@ -108,42 +122,20 @@ const StatusFilterDropdown = ({
         {isOpen && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
             <ul className="py-1" role="listbox">
-              <li role="option" aria-selected={activeFilter === "all"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    activeFilter === "all"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("all")}
-                >
-                  All
-                </button>
-              </li>
-              <li role="option" aria-selected={activeFilter === "active"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    activeFilter === "active"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("active")}
-                >
-                  Active
-                </button>
-              </li>
-              <li role="option" aria-selected={activeFilter === "closed"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    activeFilter === "closed"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("closed")}
-                >
-                  Closed
-                </button>
-              </li>
+              {options.map((option) => (
+                <li key={option} role="option" aria-selected={activeFilter === option}>
+                  <button
+                    className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                      activeFilter === option
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-gray-700"
+                    }`}
+                    onClick={() => selectOption(option)}
+                  >
+                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
         )}
@@ -280,9 +272,7 @@ const ScholarshipPage: React.FC = () => {
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "closed">(
-    "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<FilterOption>("all");
   const [sortOrder, setSortOrder] = useState<
     "latest" | "oldest" | "most-sponsors" | "least-sponsors"
   >("latest");
@@ -323,9 +313,9 @@ const ScholarshipPage: React.FC = () => {
         //intialize as empty record
         const studentMap: Record<string, string> = {};
         //fetch student
-        // const fetchStudent = students.forEach((student: Student) => {
-        //   studentMap[student.studentId] = student.name;
-        // });
+        const fetchStudent = students.forEach((student: Student) => {
+          studentMap[student.studentId] = student.name;
+        });
         //set scholarship student map
         setStudentMapping(studentMap);
       } catch (error) {
@@ -343,11 +333,11 @@ const ScholarshipPage: React.FC = () => {
         //intialize as empty record
         const scholarshipMap: Record<string, string> = {};
         //fetch student
-        // const fetchScholarship = scholarships.forEach(
-        //   (scholarships: Scholarship) => {
-        //     scholarshipMap[scholarships.scholarshipId] = scholarships.title;
-        //   }
-        // );
+        const fetchScholarship = scholarships.forEach(
+          (scholarships: Scholarship) => {
+            scholarshipMap[scholarships.scholarshipId] = scholarships.title;
+          }
+        );
         //set scholarship student map
         setScholarshipMapping(scholarshipMap);
       } catch (error) {
@@ -419,7 +409,7 @@ const ScholarshipPage: React.FC = () => {
   };
 
   // Function to determine if scholarship is active based on deadline
-  const isScholarshipActive = (scholarship: any) => {
+  const isScholarshipActive = (scholarship: Scholarship) => {
     if (scholarship.status === "deleted") return false;
 
     if (scholarship.status) {
@@ -431,7 +421,7 @@ const ScholarshipPage: React.FC = () => {
   };
 
   // Get scholarship status
-  const getScholarshipStatus = (scholarship: any) => {
+  const getScholarshipStatus = (scholarship: Scholarship) => {
     if (scholarship.status === "deleted") return "deleted";
 
     if (scholarship.status) {
@@ -455,18 +445,18 @@ const ScholarshipPage: React.FC = () => {
   const tabFilteredScholarships = (() => {
     // Remove all scholarships with status "deleted"
     const nonDeletedScholarships = scholarships.filter(
-      (scholarship: any) => getScholarshipStatus(scholarship) !== "deleted"
+      (scholarship: Scholarship) => getScholarshipStatus(scholarship) !== "deleted"
     );
 
     switch (activeTab) {
       case "saved":
-        return nonDeletedScholarships.filter((scholarship: any) =>
+        return nonDeletedScholarships.filter((scholarship: Scholarship) =>
           isBookmarked(scholarship.scholarshipId)
         );
       case "myScholars":
         // Only show scholarships where the current user is in the alumList
         return user
-          ? nonDeletedScholarships.filter((scholarship: any) =>
+          ? nonDeletedScholarships.filter((scholarship: Scholarship) =>
               scholarship.alumList.includes(user.uid)
             )
           : [];
@@ -482,13 +472,13 @@ const ScholarshipPage: React.FC = () => {
     if (statusFilter === "all") {
       return tabFilteredScholarships;
     } else if (statusFilter === "active") {
-      return tabFilteredScholarships.filter((scholarship: any) =>
+      return tabFilteredScholarships.filter((scholarship: Scholarship) =>
         isScholarshipActive(scholarship)
       );
     } else {
       // closed
       return tabFilteredScholarships.filter(
-        (scholarship: any) => !isScholarshipActive(scholarship)
+        (scholarship: Scholarship) => !isScholarshipActive(scholarship)
       );
     }
   })();
@@ -524,6 +514,25 @@ const ScholarshipPage: React.FC = () => {
 
     return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
   });
+
+  // Filtering and sorting for myScholars tab
+const filteredUserScholarshipStudent = [...userScholarshipStudent]
+  .filter((scholarshipStudent) => {
+    const status = scholarshipStudent.status?.toLowerCase();
+    if (activeTab === "myScholars") {
+      if (statusFilter === "all") {
+        return ["approved", "pending", "rejected"].includes(status);
+      }
+      return status === statusFilter;
+    }
+    return true;
+  });
+
+  // Status filter options based on tab
+  const statusFilterOptions: FilterOption[] =
+    activeTab === "myScholars"
+      ? ["all", "approved", "pending", "rejected"]
+      : ["all", "active", "closed"];
 
   return (
     <div className="bg-[#EAEAEA] h-full">
@@ -629,6 +638,7 @@ const ScholarshipPage: React.FC = () => {
                   <StatusFilterDropdown
                     activeFilter={statusFilter}
                     setActiveFilter={setStatusFilter}
+                    options={statusFilterOptions}
                   />
                   <div>|</div>
                 </div>
@@ -636,11 +646,13 @@ const ScholarshipPage: React.FC = () => {
                 <div></div> /* Empty div as placeholder for layout when filter is not shown */
               )}
               {/* Simple Sort Control - Show on all tabs */}
+              {activeTab !== "myScholars" && (
               <SortControlDropdown
                 sortOrder={sortOrder}
                 setSortOrder={setSortOrder}
                 activeTab={activeTab}
               />
+              )}
             </div>
           </div>
 
@@ -703,7 +715,7 @@ const ScholarshipPage: React.FC = () => {
           ) : activeTab === "myScholars" ? (
             <div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
               <div className="overflow-x-auto">
-                {userScholarshipStudent.length > 0 ? (
+                {filteredUserScholarshipStudent.length > 0 ? (
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-100">
                       <tr>
@@ -734,7 +746,7 @@ const ScholarshipPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {userScholarshipStudent.map((scholarshipStudent) => (
+                      {filteredUserScholarshipStudent.map((scholarshipStudent) => (
                         <tr
                           key={scholarshipStudent.ScholarshipStudentId}
                           className="hover:bg-gray-50"
@@ -755,7 +767,7 @@ const ScholarshipPage: React.FC = () => {
                             <div className="flex justify-center items-center">
                               <button
                                 className={`flex text-sm rounded-full px-3 py-1 shadow-lg transition-colors justify-center items-center gap-2
-																		${(() => {
+                                                                        ${(() => {
                                       const status =
                                         scholarshipStudent.status?.toLowerCase();
 
@@ -863,7 +875,7 @@ const ScholarshipPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-                  {sortedScholarships.map((scholarship: any) => {
+                  {sortedScholarships.map((scholarship: Scholarship) => {
                     const status = getScholarshipStatus(scholarship);
                     return (
                       <div
@@ -882,6 +894,9 @@ const ScholarshipPage: React.FC = () => {
                             className="object-cover object-center rounded-t-[10px]"
                             priority
                           />
+                                                    <span className="absolute bottom-2 right-2 px-2 py-1 text-lg rounded-full font-bold ">
+                                                            <StatusBadge status={status} />
+                                                    </span>
                         </div>
                         {/* Body */}
                         <div className="px-6 pt-3 pb-6">
@@ -891,9 +906,6 @@ const ScholarshipPage: React.FC = () => {
                               <h2 className="text-xl font-semibold truncate">
                                 {scholarship.title}
                               </h2>
-                              <div className="flex items-center gap-2">
-                                <StatusBadge status={status} />
-                              </div>
                             </div>
                             <div
                               onClick={(e) =>

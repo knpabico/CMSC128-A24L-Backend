@@ -807,7 +807,7 @@ export default function Home() {
                                     onClick={() =>
                                       router.push(`/joboffer-list`)
                                     }
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                                   >
                                     View more job offers
                                   </button>
@@ -815,7 +815,7 @@ export default function Home() {
                                     onClick={() =>
                                       router.push(`/joboffer-list/`)
                                     }
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
                                   >
                                     Apply
                                   </button>
@@ -1087,7 +1087,7 @@ export default function Home() {
                                       height={0}
                                       sizes="100vw"
                                       priority
-                                      className="w-full h-auto object-cover"
+                                      className="w-full"
                                     />
                                   )}
                                   <>

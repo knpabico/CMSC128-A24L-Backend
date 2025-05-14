@@ -25,6 +25,7 @@ import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@mui/material";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { useRouter } from "next/navigation";
+import { useDonationDrives } from "@/context/DonationDriveContext"
 
 export default function EventPageAdmin() {
   const params = useParams();
@@ -64,6 +65,8 @@ export default function EventPageAdmin() {
   const [toggles, setToggles] = useState(
     events.map(() => false) // initialize all to false
   );
+
+  const { handleAddEventRelated } = useDonationDrives()
 
   const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails();
   const [isEditing, setEdit] = useState(false);
@@ -474,48 +477,41 @@ export default function EventPageAdmin() {
                             <div className="flex items-center gap-x-2 ml-5">
                               <button
                                 onClick={() => addEvent(e, true)}
-                                className="px-4 py-2 bg-green-500 text-white rounded-md text-black hover:bg-green-300"
+                                className="px-4 py-2 bg-green-500 rounded-md text-black hover:bg-green-300"
                               >
                                 Approve
                               </button>
                               <button
                                 onClick={() => handleReject(e.eventId)}
-                                className="px-4 py-2 bg-red-500 text-white rounded-md text-black hover:bg-red-300"
+                                className="px-4 py-2 bg-red-500 rounded-md text-black hover:bg-red-300"
                               >
                                 Reject
                               </button>
                             </div>
                           </>
-                        ) : e.status === "Accepted" ? (
-                          <>
-                            <div className="w-[380px] flex items-center justify-center gap-x-4">
-                              <button
-                                onClick={() =>
-                                  alert(
-                                    `Placeholder: Create donation drive for event ID ${events.eventId}`
-                                  )
-                                }
-                                className="text-gray-600 hover:underline cursor-pointer"
-                              >
-                                Create Donation Drive
-                              </button>
-
-                              <div
-                                onClick={() => handleViewEventAdmin(e)}
-                                className="text-[var(--primary-blue)] hover:underline cursor-pointer"
-                              >
-                                View Details
-                              </div>
-                            </div>
-                          </>
-                        ) : e.status === "Rejected" ? (
-                          <div className="w-[550px] flex items-center justify-center">
-                            <div
+                        ) : e.status === "Accepted" && e.donationDriveId === "" ? (
+                          <div className="flex items-center justify-end gap-4">
+                            <button
+                              onClick={() => handleAddEventRelated(e)}
+                              className="text-gray-600 hover:underline cursor-pointer"
+                            >
+                              Create Donation Drive
+                            </button>
+                            <button
                               onClick={() => handleViewEventAdmin(e)}
                               className="text-[var(--primary-blue)] hover:underline cursor-pointer"
                             >
                               View Details
-                            </div>
+                            </button>
+                          </div>
+                        ) : e.status === "Accepted" || e.status === "Rejected" ? (
+                          <div className="flex items-center justify-end gap-4">
+                            <button
+                              onClick={() => handleViewEventAdmin(e)}
+                              className="text-[var(--primary-blue)] hover:underline cursor-pointer"
+                            >
+                              View Details
+                            </button>
                           </div>
                         ) : (
                           e.status === "Draft" &&

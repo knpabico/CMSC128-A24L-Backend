@@ -21,6 +21,12 @@ import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import {
+  Alumnus,
+  Scholarship,
+  ScholarshipStudent,
+  Student,
+} from "@/models/models";
 
 export default function SponsorshipDetails() {
   const router = useRouter();
@@ -32,10 +38,12 @@ export default function SponsorshipDetails() {
     getScholarshipStudentById,
   } = useScholarship();
 
-  const [student, setStudent] = useState<any | null>(null);
-  const [alumni, setAlumni] = useState<any | null>(null);
-  const [scholarship, setScholarship] = useState<any | null>(null);
-  const [sponsorship, setSponsorship] = useState<any | null>(null);
+  const [student, setStudent] = useState<Student | null>(null);
+  const [alumni, setAlumni] = useState<Alumnus | null>(null);
+  const [scholarship, setScholarship] = useState<Scholarship | null>(null);
+  const [sponsorship, setSponsorship] = useState<ScholarshipStudent | null>(
+    null
+  );
   const [isPreview, setPreview] = useState(true);
   const [loading, setLoading] = useState(true);
   const [pdfUrl, setPdfUrl] = useState<string | undefined>(undefined);
@@ -244,8 +252,10 @@ export default function SponsorshipDetails() {
                         return <HelpCircle className="size-4" />;
                     }
                   })()}
-                  {sponsorship?.status.charAt(0).toUpperCase() +
-                    sponsorship?.status.slice(1)}
+                  {sponsorship?.status
+                    ? sponsorship.status.charAt(0).toUpperCase() +
+                      sponsorship.status.slice(1)
+                    : "Unknown"}
                 </button>
               </div>
             </div>

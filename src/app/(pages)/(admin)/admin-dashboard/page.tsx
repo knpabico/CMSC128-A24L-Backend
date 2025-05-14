@@ -917,7 +917,7 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  {/* Labels Legend - Limited to top 6 for cleaner display */}
+                  {/* Labels Legend */}
                   <div className="space-y-1 max-h-55 overflow-y-auto w-full">
                     {sortedEntries.slice(0, 6).map(([field, count], idx) => (
                       <div

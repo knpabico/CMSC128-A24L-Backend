@@ -7,8 +7,6 @@ import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Users, Clock, MapPin, Calendar } from "lucide-react";
-import { useEffect } from "react";
-import { Timestamp } from "firebase-admin/firestore";
 import Image from "next/image";
 
 interface EventCardProps {
@@ -117,22 +115,18 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
             <BookmarkButton entryId={event.eventId} type="event" size="md" />
           </div>
           {/* Details */}
-          <div className="flex items-center gap-6 text-xs text-gray-700 mb-3">
-            <div className="flex items-center gap-1">
+          <div className="grid grid-cols-6 gap-6 text-xs text-gray-700 mb-3">
+            <div className="flex items-center gap-1 col-span-2">
               <Calendar className="size-[16px]" />
               <span>{event.date}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 col-span-2">
               <Clock className="size-[16px]" />
               <span>{event.time}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 col-span-2">
               <MapPin className="size-[16px]" />
               <span>{event.location}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              {event.status === "Accepted" ? "Posted on" : "Proposed on"}
-              <span>{formatDate(event.datePosted)}</span>
             </div>
           </div>
           {/* Description with View More */}
