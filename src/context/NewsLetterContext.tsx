@@ -20,7 +20,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { useSearchParams } from "next/navigation";
 import { NewsletterItem } from "@/models/models";
-import { FirebaseError } from "firebase-admin";
+import { FirebaseError } from "firebase/app";
 import { emailNewsLettertoAlums } from "@/lib/emailTemplate";
 
 const NewsLetterContext = createContext<any>(null);
