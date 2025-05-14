@@ -6,9 +6,7 @@ import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useEducation } from "@/context/EducationContext";
 import AlumnusUploadPic from "./upload-profile/page";
 import Image from "next/image";
-import { Alumnus } from "@/models/models";
 import BookmarkButton from "@/components/ui/bookmark-button";
-import Link from 'next/link';
 
 import {
   Button,
@@ -21,18 +19,17 @@ import {
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, MapPin, PencilIcon, MapIcon, XIcon, CalendarDaysIcon, HandHeartIcon, LibraryBigIcon, SchoolIcon, Rows3Icon, ArrowRightToLineIcon, ArrowRightIcon, FileUserIcon, Calendar } from "lucide-react";
-import { DialogHeader } from "@/components/ui/dialog";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { ChevronDown, MapPin, PencilIcon, XIcon, CalendarDaysIcon, HandHeartIcon, SchoolIcon, Rows3Icon } from "lucide-react";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import EditWorkExperience from "@/components/ui/edit-experience-modal"
-import PhotoUpload from "../../upload-photo/page";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { useRouter } from "next/navigation";
 import AddEducationModal from "@/components/ui/add-aducation-modal";
 import { WorkExperience,Education, Affiliation } from "@/models/models";
 import AddAffiliationModal from "@/components/ui/add-affiliation-modal";
+import EventsProfile from "@/components/ui/events-profile";
+import ScholarshipsProfile from "@/components/ui/scholarships-profile-modal";
 import RecordOfDonations from "@/components/ui/return-of-donations-modal";
-import AlumniBookmarks from "@/components/ui/bookmarks-alumni-modal";
 import AddWorkExperience from "@/components/ui/add-experience-modal";
 import AlumniJobOffers from "@/components/ui/job-posting-modal";
 import { useAffiliation } from "@/context/AffiliationContext";
@@ -55,14 +52,12 @@ const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
   const { userWorkExperience, isLoading, deleteWorkExperience } =
     useWorkExperience();
-    const { userEducation, isLoadingEducation, deleteEducation} = useEducation();
+    const { userEducation } = useEducation();
     const { userAffiliation } = useAffiliation();
     const {updateAlumniDetails} = useAlums();
 
     
   const [uploading, setUploading] =useState(false);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [deleteModal, setDeleteModal] = useState(false);
@@ -78,6 +73,8 @@ const UserProfile = () => {
 
   //for tabs
   const [seeProfile, setSeeProfile]= useState(true)
+  const [seeEventsProfile, setSeeEventsProfile]= useState(false)
+  const [seeScholarshipsProfile, setSeeScholarshipsProfile]= useState(false)
   const [seeDonations, setSeeDonations]= useState(false)
   const [seeBookmarks, setSeeBookmarks]= useState(false)
   const [seeJobpostings, setSeeJobPosting]= useState(false)
@@ -85,7 +82,6 @@ const UserProfile = () => {
   const [addBachelor,setAddBachelor]= useState(false); 
   const [addMasters,setAddMasters]= useState(false); 
   const [addDoctoral,setAddDoctoral]= useState(false);
-  const [showUploader, setShowUploader] = useState(false);
 
   //Edit the personal field information
   const [privacy, setPrivacy] = useState(alumInfo?.contactPrivacy);
@@ -229,21 +225,10 @@ const UserProfile = () => {
 
     return age;
   };
-  const age = calculateAge(new Date(alumInfo.birthDate));
+  const age = alumInfo ? calculateAge(new Date(alumInfo.birthDate)) : "";
 
   //function when save changes was clicked
   const handleTheSaveChages = () => {
-    // let updatedAlumnus = {
-    //   firstName: firstName,
-    //   middleName:middleName,
-    //   lastName: lastName,
-    //   suffix:suffix,
-    //   email: email,
-    //   studentNumber: studentNumber,
-    //   address: [country, province, city],
-    //   birthDate: new Date(`${month} ${day}, ${year}`),
-    //   fieldOfInterest: selectedFields,
-    // }
     updateAlumniDetails(
       alumInfo,
       firstName,
@@ -256,26 +241,16 @@ const UserProfile = () => {
       selectedFields,
       privacy
     );
-    // console.log(updatedAlumnus);
   }
   
-  // GAWA NI MAYBELLE
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [openAddModal, setOpenAddModal] = useState(false);
-
-  // -----------------
-
-  const handleDelete = async (id: any) => {
-    const { success, message } = await deleteWorkExperience(id);
-    setMessage(message);
-    setSuccess(success);
-    setDeleteModal(true);
-  };
 
   //pagpindot sa buttons and tabs
   const handleProfileClick = () => {
     setSeeProfile(true);
     setSeeBookmarks(false);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(true);
@@ -289,6 +264,8 @@ const UserProfile = () => {
     setEducationView(false);
     setCareerView(false);
     setSeeBookmarks(false);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(true);
@@ -296,6 +273,8 @@ const UserProfile = () => {
   const handleEducationClick = () => {
     setSeeProfile(true);
     setSeeBookmarks(false);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -306,6 +285,8 @@ const UserProfile = () => {
     setSeeProfile(true);
     setEducationView(false);
     setSeeBookmarks(false);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -313,10 +294,34 @@ const UserProfile = () => {
   };
   //-------------------------
 
+  const handleEventsProfileClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(false);
+    setSeeEventsProfile(true);
+    setSeeScholarshipsProfile(false);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+  }
+  const handleScholarshipsProfileClick =() => {
+    setSeeProfile(false);
+    setEducationView(false);
+    setSeeBookmarks(false);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(true);
+    setSeeDonations(false);
+    setSeeJobPosting(false);
+    setPersonalView(false);
+    setCareerView(false);
+  }
   const handleDonationsClick =() => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(false);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(true);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -326,6 +331,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(false);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(true);
     setPersonalView(false);
@@ -335,6 +342,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -353,6 +362,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -369,6 +380,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -385,6 +398,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -401,6 +416,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -417,6 +434,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -433,6 +452,8 @@ const UserProfile = () => {
     setSeeProfile(false);
     setEducationView(false);
     setSeeBookmarks(true);
+    setSeeEventsProfile(false);
+    setSeeScholarshipsProfile(false);
     setSeeDonations(false);
     setSeeJobPosting(false);
     setPersonalView(false);
@@ -447,11 +468,7 @@ const UserProfile = () => {
   }
   //-------------------------
 
-  // function formatDate(timestamp: any) {
-  //   if (!timestamp || !timestamp.seconds) return "Invalid Date";
-  //   const date = new Date(timestamp.seconds * 1000);
-  //   return date.toISOString().split("T")[0];
-  // }
+
   function formatDate(timestamp: any): string {
     if (!timestamp) return "Invalid Date";
   
@@ -540,15 +557,6 @@ const UserProfile = () => {
     setSortedBookmarks(sorted);
   }, [bookmarks, sortOrder, sortField, announces, events, donationDrives, scholarships, jobOffers]);
 
-  
-  function formatEventDate(dateString: string) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
   //===========================
 
 
@@ -687,9 +695,17 @@ const UserProfile = () => {
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeProfile ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
               onClick={handleProfileClick}>Profile</button>
           </div>
+          <div className={`${seeEventsProfile ? "border-b-5 border-[#EAEAEA]" : ""}`}>
+            <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeEventsProfile ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
+              onClick={handleEventsProfileClick}>Events</button>
+          </div>
           <div className={`${seeDonations ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeDonations ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
               onClick={handleDonationsClick}>Record of Donations</button>
+          </div>
+          <div className={`${seeScholarshipsProfile ? "border-b-5 border-[#EAEAEA]" : ""}`}>
+            <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeScholarshipsProfile ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
+              onClick={handleScholarshipsProfileClick}>Record of Scholars</button>
           </div>
           <div className={`${seeJobpostings ? "border-b-5 border-[#EAEAEA]" : ""}`}>
             <button className={`whitespace-nowrap mb-1 mt-2 py-3 px-3 w-fit cursor-pointer rounded-md text-sm ${seeJobpostings ? "rounded-b-none font-bold" : "hover:bg-white/20 transition"}`}
@@ -965,7 +981,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "bachelors").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number) => (
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "bachelors").sort((a:Education, b:Education) => Number(b.yearGraduated) - Number(a.yearGraduated)).map((edu:Education, index:number) => (
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#b9e5fe]"></div>
@@ -1004,7 +1020,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "masters").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "masters").sort((a:Education, b:Education) => Number(b.yearGraduated) - Number(a.yearGraduated)).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#00bcfc]"></div>
@@ -1044,7 +1060,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userEducation.filter((edu: { type: string; }) => edu.type === "doctoral").sort((a, b) => b.yearGraduated - a.yearGraduated).map((edu:Education, index:number)=>(
+                  {userEducation.filter((edu: { type: string; }) => edu.type === "doctoral").sort((a:Education, b:Education) => Number(b.yearGraduated) - Number(a.yearGraduated)).map((edu:Education, index:number)=>(
 
                   <div className="flex items-center space-x-5" key={index}>
                     <div className="w-6 h-6 rounded-full bg-[#0282d2]"></div>
@@ -1085,7 +1101,7 @@ const UserProfile = () => {
                 <div className="space-y-5">
 
                   {/* INDIVIDUAL BULLET */}
-                  {userAffiliation.sort((a, b) => b.yearJoined - a.yearJoined).map((affiliation:Affiliation, index:number)=> (
+                  {userAffiliation.sort((a:Affiliation, b:Affiliation) => Number(b.yearJoined) - Number(a.yearJoined)).map((affiliation:Affiliation, index:number)=> (
                     <div className="flex items-center space-x-5" key={index}>
                       <div className="w-6 h-6 rounded-full bg-gray-500"></div>
                       <div>
@@ -1245,7 +1261,7 @@ const UserProfile = () => {
         <AddEducationModal
           open={addBachelor}
           onClose={() => {setAddBachelor(false); document.body.style.overflow = 'auto'}}
-          userId={alumInfo?.alumniId}
+          userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
           degreeType={degreeType}
         />
@@ -1254,7 +1270,7 @@ const UserProfile = () => {
         <AddEducationModal
           open={addMasters}
           onClose={() => {setAddMasters(false); document.body.style.overflow = 'auto'}}
-          userId={alumInfo?.alumniId}
+          userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
           degreeType={degreeType}
         />
@@ -1263,7 +1279,7 @@ const UserProfile = () => {
         <AddEducationModal
           open={addDoctoral}
           onClose={() => {setAddDoctoral(false); document.body.style.overflow = 'auto'}}
-          userId={alumInfo?.alumniId}
+          userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
           degreeType={degreeType}
 
@@ -1273,11 +1289,14 @@ const UserProfile = () => {
         <AddAffiliationModal
         open= {addAffiliation}
         onClose={()=> {setaddAffiliation(false); document.body.style.overflow = 'auto'}}
-        userId={alumInfo?.alumniId}
+        userId={alumInfo?.alumniId ?? ""}
         setSuccess={setSuccess}
         />
       )}
 
+      {seeEventsProfile && <EventsProfile/>}
+
+      {seeScholarshipsProfile && <ScholarshipsProfile/>}
 
       {seeDonations && <RecordOfDonations/>}
 
@@ -1291,7 +1310,7 @@ const UserProfile = () => {
               id="sort-field"
               value={sortField}
               onChange={(e) => setSortField(e.target.value)}
-              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
+              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none"
             >
               <option value="dateSaved">Date Saved</option>
               <option value="datePosted">Date Posted</option>
@@ -1308,7 +1327,7 @@ const UserProfile = () => {
               id="sort-order" 
               value={sortOrder} 
               onChange={(e) => setSortOrder(e.target.value)}
-              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
+              className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none"
             >
               <option value="latest">Latest First</option>
               <option value="oldest">Oldest First</option>
@@ -1892,7 +1911,16 @@ const UserProfile = () => {
 
 
 
-      {uploading &&  <AlumnusUploadPic alumnus={alumInfo} uploading={uploading} onClose={() => {setUploading(false); document.body.style.overflow = 'auto';}}/>}
+      {uploading && alumInfo && (
+        <AlumnusUploadPic
+          alumnus={alumInfo}
+          uploading={uploading}
+          onClose={() => {
+            setUploading(false);
+            document.body.style.overflow = 'auto';
+          }}
+        />
+      )}
 
     </div>
   );

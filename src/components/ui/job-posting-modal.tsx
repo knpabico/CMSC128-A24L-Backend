@@ -176,7 +176,7 @@ const AlumniJobOffers = () => {
     setRejected(true);
   }
 
-  const handleStatusChange = (e) => {
+  const handleStatusChange = (e: { target: { value: any; }; }) => {
     const status = e.target.value;
     setSortStatus(status);
   };
@@ -355,10 +355,10 @@ const AlumniJobOffers = () => {
       </div>
 
       {createdView && (
-      <div className="flex w-full min-w-0">
+      <div className="flex items-start w-full min-w-0">
         {/* Left: List */}
         <div
-          className={`transition-all ease-in-out duration-500 overflow-auto ${
+          className={`transition-all ease-in-out duration-500 overflow-hidden self-start ${
             selectedJob !== null ? 'w-0' : 'w-full'
           }`}
         >
@@ -483,9 +483,9 @@ const AlumniJobOffers = () => {
 
         {/* Right: Detail View */}
         <div
-          className={`transition-all ease-in-out duration-500 ${
-            selectedJob !== null ? 'w-full opacity-100 ml-4' : 'w-0 opacity-0'
-          } bg-white h-full rounded-lg` }
+          className={`transition-all ease-in-out duration-500 self-start ${
+            selectedJob !== null ? 'w-full opacity-100' : 'w-0 opacity-0'
+          } bg-white rounded-lg` }
         >
           {selectedJob !== null && (
             <div className="p-5">
@@ -685,7 +685,7 @@ const AlumniJobOffers = () => {
                           .filter((application: JobApplication) => application.status === "pending"
                         ).length === 0 ? (
                           <p className="text-gray-500 text-center py-4">
-                            No pending applicantions.
+                            No pending applications.
                           </p>
                         ) : (
                           sortedApps
@@ -713,7 +713,7 @@ const AlumniJobOffers = () => {
                                             alt={`${applicant.firstName} ${applicant.lastName}`}
                                             width={40}
                                             height={40}
-                                            className="rounded-full"
+                                            className="rounded-full object-cover object-center w-full h-full"
                                           />
                                         ) : (
                                           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -820,7 +820,7 @@ const AlumniJobOffers = () => {
                                             alt={`${applicant.firstName} ${applicant.lastName}`}
                                             width={40}
                                             height={40}
-                                            className="rounded-full"
+                                            className="rounded-full object-cover object-center w-full h-full"
                                           />
                                         ) : (
                                           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -927,7 +927,7 @@ const AlumniJobOffers = () => {
                                             alt={`${applicant.firstName} ${applicant.lastName}`}
                                             width={40}
                                             height={40}
-                                            className="rounded-full"
+                                            className="rounded-full object-cover object-center w-full h-full"
                                           />
                                         ) : (
                                           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -1014,10 +1014,10 @@ const AlumniJobOffers = () => {
       </div>)}
 
       {applicationView && (
-      <div className="flex w-full min-w-0">
+      <div className="flex items-start w-full min-w-0">
         {/* Left: List */}
         <div
-          className={`transition-all ease-in-out duration-500 overflow-auto ${
+          className={`transition-all ease-in-out duration-500 overflow-hidden self-start ${
             selectedJob !== null ? 'w-1/2' : 'w-full'
           }`}
         >
@@ -1132,9 +1132,9 @@ const AlumniJobOffers = () => {
 
         {/* Right: Detail View */}
         <div
-          className={`transition-all ease-in-out duration-500 overflow-auto  ${
+          className={`transition-all ease-in-out duration-500 overflow-auto self-start ${
             selectedJob !== null ? 'w-1/2 opacity-100 ml-4' : 'w-0 opacity-0'
-          } bg-white h-full rounded-lg` }
+          } bg-white rounded-lg` }
         >
           {selectedJob !== null && (
             <div className="p-6">
@@ -1266,10 +1266,10 @@ const AlumniJobOffers = () => {
       )}
 
       {draftView && (
-      <div className="flex w-full min-w-0">
+      <div className="flex items-start w-full min-w-0">
         {/* Left: List */}
         <div
-          className={`transition-all ease-in-out duration-500 overflow-auto ${
+          className={`transition-all ease-in-out duration-500 overflow-hidden self-start ${
             selectedJob !== null ? 'w-1/2' : 'w-full'
           }`}
         >
@@ -1357,9 +1357,9 @@ const AlumniJobOffers = () => {
 
         {/* Right: Detail View */}
         <div
-          className={`transition-all ease-in-out duration-500 overflow-auto  ${
+          className={`transition-all ease-in-out duration-500 overflow-auto self-start ${
             selectedJob !== null ? 'w-1/2 opacity-100 ml-4' : 'w-0 opacity-0'
-          } bg-white h-full rounded-lg` }
+          } bg-white rounded-lg` }
         >
           {selectedJob !== null && (
             <div className="p-6">
