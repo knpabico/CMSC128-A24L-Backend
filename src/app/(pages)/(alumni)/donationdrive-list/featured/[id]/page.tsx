@@ -7,6 +7,7 @@ import { MoveLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFeatured } from "@/context/FeaturedStoryContext"; // make sure this exists
 import { Featured } from "@/models/models"; // your featured story model
 import Link from 'next/link';
+import { Timestamp } from "firebase-admin/firestore";
 
 const FeaturedDetailPage: React.FC = () => {
   const params = useParams();
@@ -74,27 +75,29 @@ const FeaturedDetailPage: React.FC = () => {
 	}
   }, [featuredId, getFeaturedById]);
 
-  const formatDate = (date: any) => {
-	if (!date) return "Unknown date";
-
-	const dateObj = date instanceof Date ? date : new Date(date);
-
-	if (isNaN(dateObj.getTime())) {
-	  if (date?.toDate && typeof date.toDate === 'function') {
-		return date.toDate().toLocaleDateString("en-US", {
-		  year: "numeric",
-		  month: "long",
-		  day: "numeric"
-		});
-	  }
-	  return "Invalid date";
+  const formatDate = (timestamp: Timestamp | string | number | Date | null | undefined): string => {
+	try {
+		if (!timestamp) return 'N/A';
+  
+		let date: Date;
+  
+		if (timestamp instanceof Timestamp) {
+		date = timestamp.toDate();
+		} else {
+		date = new Date(timestamp);
+		}
+  
+		return isNaN(date.getTime())
+		? 'Invalid Date'
+		: date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			});
+	} catch (err) {
+		console.error('Date formatting error:', err);
+		return 'Invalid Date';
 	}
-
-	return dateObj.toLocaleDateString("en-US", {
-	  year: "numeric",
-	  month: "long",
-	  day: "numeric"
-	});
   };
 
   if (loading) {

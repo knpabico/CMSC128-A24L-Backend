@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CalendarDays, Bookmark, HandHeart, BookOpen, FileText, LucideIcon, Heart} from "lucide-react"
+import { CalendarDays, Bookmark, HandHeart, BookOpen, LucideIcon, Heart} from "lucide-react"
 
 type SidebarItem = {
 	id: string;

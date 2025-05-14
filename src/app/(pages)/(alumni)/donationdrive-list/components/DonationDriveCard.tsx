@@ -5,9 +5,10 @@ import { DonationDrive, Event } from "@/models/models";
 import { useRouter } from "next/navigation";
 // import { DonateDialog } from '../DonateDialog';
 import BookmarkButton from "@/components/ui/bookmark-button";
-import { useAuth } from "@/context/AuthContext";
+// import { useAuth } from "@/context/AuthContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
-import { Calendar, Clock, MapPin, Users } from "lucide-react";
+// import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { Clock, Users } from "lucide-react";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useNewsLetters } from "@/context/NewsLetterContext";
@@ -20,36 +21,46 @@ interface DonationDriveCardProps {
 
 const DonationDriveCard = ({
   drive,
-  event,
-  showBookmark = false,
+  event
 }: DonationDriveCardProps) => {
   const router = useRouter();
-  const { user, alumInfo } = useAuth();
+  // const { user, alumInfo } = useAuth();
   const { deleteNewsLetter } = useNewsLetters();
   const {
     handleEdit,
   } = useDonationDrives();
 
   // Format timestamp to readable date
-  const formatDate = (timestamp: any) => {
-    try {
-      if (!timestamp) return "N/A";
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch (err) {
-      return "Invalid Date";
-    }
-  };
+  // const formatDate = (timestamp: Timestamp | string | number | Date | null | undefined): string => {
+  //   try {
+  //     if (!timestamp) return 'N/A';
+  
+  //     let date: Date;
+  
+  //     if (timestamp instanceof Timestamp) {
+  //     date = timestamp.toDate();
+  //     } else {
+  //     date = new Date(timestamp);
+  //     }
+  
+  //     return isNaN(date.getTime())
+  //     ? 'Invalid Date'
+  //     : date.toLocaleDateString('en-US', {
+  //       year: 'numeric',
+  //       month: 'short',
+  //       day: 'numeric',
+  //       });
+  //   } catch (err) {
+  //     console.error('Date formatting error:', err);
+  //     return 'Invalid Date';
+  //   }
+  // };
 
   //Calculate Days Remaining
-  const getRemainingDays = (endDate: any) => {
+  const getRemainingDays = (endDate: Date) => {
     try {
       const today = new Date(); // Current date
-      const end = (typeof endDate === 'string')? new Date(endDate) : endDate.toDate(); // Firestore Timestamp to JS Date
+      const end = (typeof endDate === 'string')? new Date(endDate) : endDate; // Firestore Timestamp to JS Date
       const diffTime = end.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -61,7 +72,7 @@ const DonationDriveCard = ({
     }
   };
 
-  function getDaysRemaining(endDate: any) {
+  function getDaysRemaining(endDate: Date) {
     try {
       const now = new Date();
 
