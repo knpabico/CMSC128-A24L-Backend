@@ -41,7 +41,8 @@ export default function AddAnnouncement() {
   }, []);
 
   const getImageFromContext = async () => {
-    return null;
+    if (image) return image;
+    else return null;
   };
 
   const handleImageChangeLocal = (e: React.ChangeEvent<HTMLInputElement>) => {
