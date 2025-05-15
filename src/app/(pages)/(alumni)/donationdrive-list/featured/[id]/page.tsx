@@ -2,11 +2,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { MoveLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFeatured } from "@/context/FeaturedStoryContext"; // make sure this exists
 import { Featured } from "@/models/models"; // your featured story model
 import Link from "next/link";
+import Breadcrumb from "@/components/breadcrumb";
 import { Timestamp } from "firebase/firestore";
 
 const FeaturedDetailPage: React.FC = () => {
@@ -113,30 +115,50 @@ const FeaturedDetailPage: React.FC = () => {
     return <div className="p-4 text-red-500">{error}</div>;
   }
 
+  const breadcrumbItems = [
+    { label: "Donation Drives", href: "/donationdrive-list" },
+    { label: `${story.title}`, href: "#", active: true },
+  ];
+
   return (
-    <div className="bg-[#F8F8F8] pb-20 mx-auto px-10 py-8 min-h-screen">
-      <Link
-        href="/donationdrive-list/featured"
-        className="text-sm mb-4 inline-flex gap-2 items-center hover:underline"
-      >
-        <MoveLeft className="size-[17px]" />
-        Back to Featured Stories
-      </Link>
-      <div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[200px]">
-        <h1 className="text-4xl font-bold text-gray-800">{story?.title}</h1>
+    <div className="px-[20%] pt-10 pb-30 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+      <div className="bg-white shadow-md h-full rounded-2xl flex flex-col gap-4 overflow-hidden">
+        <div className="w-full h-[50vh] overflow-hidden">
+          {story?.image ? (
+            <img
+              src={story.image}
+              alt={story.title}
+              className="object-cover w-full h-full bg-center"
+            />
+          ) : (
+            <Image
+              src="/default-image.jpg"
+              alt={story.title}
+              width={800}
+              height={400}
+              className="object-cover w-full h-full"
+            />
+          )}
+        </div>
 
-        {story?.image && (
-          <div
-            className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px] rounded-md"
-            style={{ backgroundImage: `url(${story.image})` }}
-          />
-        )}
+        {/* Event Title */}
+        <div className="w-full px-8 pt-3 flex flex-col gap-1">
+          <div className="flex items-start justify-between">
+            <h1 className="text-4xl font-bold">{story?.title}</h1>
+          </div>
 
-        <p className="mt-5 text-lg">{story?.text}</p>
+          <div className="text-[14px] text-gray-500">
+            Posted on {formatDate(story?.datePosted)}
+          </div>
+        </div>
 
-        <p className="text-sm text-gray-600 mt-10">
-          Published: {formatDate(story?.datePosted)}
-        </p>
+        {/* Event Description */}
+        <div className="w-full px-8 pb-8">
+          <h1 className="text-sm">{story?.text}</h1>
+        </div>
       </div>
 
       {/* Featured Stories Section - Carousel */}
@@ -160,11 +182,11 @@ const FeaturedDetailPage: React.FC = () => {
               onClick={prevSlide}
               disabled={currentIndex === 0}
               className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
-						${
-              currentIndex === 0
-                ? "opacity-30 cursor-not-allowed"
-                : "opacity-70 hover:opacity-100"
-            }`}
+							${
+                currentIndex === 0
+                  ? "opacity-30 cursor-not-allowed"
+                  : "opacity-70 hover:opacity-100"
+              }`}
               aria-label="Previous stories"
             >
               <ChevronLeft size={24} />
@@ -213,11 +235,11 @@ const FeaturedDetailPage: React.FC = () => {
               onClick={nextSlide}
               disabled={currentIndex >= maxIndex}
               className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
-						${
-              currentIndex >= maxIndex
-                ? "opacity-30 cursor-not-allowed"
-                : "opacity-70 hover:opacity-100"
-            }`}
+							${
+                currentIndex >= maxIndex
+                  ? "opacity-30 cursor-not-allowed"
+                  : "opacity-70 hover:opacity-100"
+              }`}
               aria-label="Next stories"
             >
               <ChevronRight size={24} />

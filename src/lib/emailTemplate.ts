@@ -1087,7 +1087,7 @@ export const emailNewsLettertoAlums = async (
           )
       );
     } else if (category === "scholarship") {
-      const scholarshipDoc = await getDoc(doc(db, "scholarships", referenceId));
+      const scholarshipDoc = await getDoc(doc(db, "scholarship", referenceId));
       if (!scholarshipDoc.exists()) {
         throw new Error("Scholarship not found");
       }
