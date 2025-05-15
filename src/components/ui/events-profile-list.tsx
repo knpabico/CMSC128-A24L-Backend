@@ -416,7 +416,7 @@ const EventsProfileList = (
                         <CollapsibleContent>
                             <div className="w-full space-y-4 bg-gray-50 p-5 rounded-lg rounded-t-none">
 
-                                {(selectedEvent.inviteType !== "all" && selectedEvent.status !== "Draft") ? (<>
+                                {(selectedEvent.inviteType !== "all" && selectedEvent.status !== "Draft" && selectedEvent.status !== "Pending") ? (<>
                                     <div className="flex justify-between items-center">
                                         <div className="space-x-2">
                                             <Button className={`cursor-pointer ${pending ? `bg-amber-200` : `text-gray-500 font-light border border-gray-200`}`} onClick={() => handleActiveProposedStatus("pending")}>Pending</Button>
@@ -474,7 +474,9 @@ const EventsProfileList = (
                                         )
                                     )}
                                 </>) : selectedEvent.status === "Draft" ? (
-                                    <p className="pl-5">This event is still a draft. Please wait for the admin's feedback.</p>
+                                    <p className="pl-5">This event is still a draft. Submit it first for admin evaluation.</p>
+                                ) : selectedEvent.status === "Pending" ? (
+                                    <p className="pl-5">Please wait for the admin's feedback of your event.</p>
                                 ) : selectedEvent.inviteType === "all" && (
                                     <p className="pl-5">This event is open to all.</p>
                                 )}

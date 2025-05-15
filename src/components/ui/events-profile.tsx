@@ -236,7 +236,7 @@ export default function EventsProfile()
                         id="filter"
                         value={filterOption}
                         onChange={(e) => setFilterOption(e.target.value)}
-                        className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
+                        className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none"
                     >
                         <option value="All">All</option>
                         <option value="Upcoming">Upcoming</option>
@@ -255,7 +255,7 @@ export default function EventsProfile()
                         id="sort-inv"
                         value={sortOptionInv}
                         onChange={handleSortChangeInv}
-                        className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full"
+                        className="sort-select p-2 pl-5 pr-10 rounded-full bg-white shadow-sm appearance-none w-full focus:outline-none"
                     >
                         <option value="event-closest">Event Date (Closest First)</option>
                         <option value="event-farthest">Event Date (Farthest First)</option>

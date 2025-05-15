@@ -166,7 +166,7 @@ const EditWorkExperience: React.FC<{
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <Card className="w-full max-w-xl bg-white border-none shadow-2xl">
+      <Card className="w-full max-w-xl bg-white border-none shadow-2xl overflow-y-auto max-h-[90vh]">
         <CardHeader>
           <div className="flex items-center justify-between relative">
             <div className="pb-5">
