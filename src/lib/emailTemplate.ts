@@ -20,6 +20,7 @@ import {
   JobOffering,
   Scholarship,
 } from "@/models/models";
+import { toastSuccess } from "@/components/ui/sonner";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -935,11 +936,13 @@ export async function sendEmailTemplateForNewsletterEvent(
     const querySnapshot = await getDocs(alumRef);
     const alum = querySnapshot.docs[0].data() as Alumnus;
 
-    if (!event.targetGuests.includes(alum.alumniId)) {
-      return {
-        success: false,
-        message: "Alumni not in target guests",
-      };
+    if (event.inviteType !== "all") {
+      if (!event.targetGuests.includes(alum.alumniId)) {
+        return {
+          success: false,
+          message: "Alumni not in target guests",
+        };
+      }
     }
 
     await addDoc(collection(db, "mail"), {
@@ -1039,6 +1042,12 @@ export const emailNewsLettertoAlums = async (
     );
     const querySnapshot = await getDocs(q);
 
+    console.log(
+      "querySnapshot.docs: " +
+        JSON.stringify(querySnapshot.docs.map((doc) => doc.data().email))
+    );
+    console.log("category: " + category);
+
     if (category === "event") {
       const eventDoc = await getDoc(doc(db, "event", referenceId));
       if (!eventDoc.exists()) {
@@ -1078,7 +1087,7 @@ export const emailNewsLettertoAlums = async (
           )
       );
     } else if (category === "scholarship") {
-      const scholarshipDoc = await getDoc(doc(db, "scholarships", referenceId));
+      const scholarshipDoc = await getDoc(doc(db, "scholarship", referenceId));
       if (!scholarshipDoc.exists()) {
         throw new Error("Scholarship not found");
       }

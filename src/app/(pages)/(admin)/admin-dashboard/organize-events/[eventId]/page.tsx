@@ -33,7 +33,6 @@ export default function EventPageAdmin() {
     preview,
     setPreview,
     addEvent,
-    handleEdit,
   } = useEvents()
 
   const router = useRouter()
@@ -81,7 +80,13 @@ export default function EventPageAdmin() {
 
   // Generate years from 1925 to current year
   const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 1925 + 1 }, (_, i) => (currentYear - i).toString())
+  const years = Array.from(
+    new Set(
+      activeAlums
+        .map(alum => alum.studentNumber?.slice(0, 4))
+        .filter((year): year is string => !!year) // filter out undefined/null
+    )
+  );
 
   // Sample alumni emails for display
   const alumniEmails = activeAlums
@@ -101,7 +106,7 @@ export default function EventPageAdmin() {
 
     // Filter RSVPs
     const filteredRsvps = rsvpDetails
-      .filter((rsvp: { postId: any }) => rsvp.postId === event.eventId)
+      .filter((rsvp: { rsvpId: any, postId: any }) => rsvp.postId === event.eventId && rsvp.rsvpId === event.rsvps)
       .flatMap((rsvp: { alums: any; rsvpId: any }) =>
         Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
           const { status } = alumData as { status: string };
@@ -178,13 +183,21 @@ export default function EventPageAdmin() {
        // Properly check targetGuests for alumni and batches
        if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
          // Check if the first item is a batch (e.g., a string of length 4)
-         if (eventToEdit.targetGuests[0].length === 4) {
-           setSelectedBatches(eventToEdit.targetGuests) // Set the batches
-           setVisibility("batch") // Set visibility to batches
-         } else {
-           setSelectedAlumni(eventToEdit.targetGuests) // Set the alumni
-           setVisibility("alumni") // Set visibility to alumni
-         }
+         if (eventToEdit.inviteType === "batch") {
+          const selectedInfo = Array.from(new Set(
+            alums
+              .filter(alumni => eventToEdit.targetGuests.includes(alumni.alumniId))
+              .map(alumni => alumni.studentNumber?.slice(0, 4))
+          )) as string[];// Set the batches
+          setSelectedBatches(selectedInfo)
+          setVisibility("batch") // Set visibility to batches
+        } else if (eventToEdit.inviteType === "alumni") {
+          const selectedInfo = alums
+            .filter(alumni => eventToEdit.targetGuests.includes(alumni.alumniId))
+            .map(alumni => alumni.email);// Set the batches
+          setSelectedAlumni(selectedInfo) // Set the alumni
+          setVisibility("alumni") // Set visibility to alumni
+        }
        }
        setIsLoading(false)
      } else {
@@ -280,11 +293,11 @@ export default function EventPageAdmin() {
     setIsEditing(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent, buttonType: "Update") => {
+  const handleSubmit = async (e: React.FormEvent, buttonType: "Finalize") => {
     e.preventDefault()
 
-    if (buttonType === "Update") {
-      setIsUpdating(true)
+    if (buttonType === "Finalize") {
+      setIsSubmitting(true)
     }
 
     setErrorMessage("")
@@ -292,23 +305,20 @@ export default function EventPageAdmin() {
     // Validate form completion
     if (!formComplete) {
       setErrorMessage("Please fill out all required fields before updating the event.")
-      setIsUpdating(false)
+      setIsSubmitting(false)
       return
     }
-
-    // Prepare the targetGuests based on visibility
-    const targetGuests = visibility === "batch" ? selectedBatches : visibility === "alumni" ? selectedAlumni : []
 
     // Validate batch inputs if batch visibility is selected
     if (visibility === "batch") {
       if (selectedBatches.length === 0) {
         setErrorMessage("Please add at least one batch.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
       if (selectedBatches.some((batch) => !/^\d+$/.test(batch))) {
         setErrorMessage("Batch inputs must contain only numbers.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
     }
@@ -317,30 +327,36 @@ export default function EventPageAdmin() {
     if (visibility === "alumni") {
       if (selectedAlumni.length === 0) {
         setErrorMessage("Please add at least one alumni email.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
       if (selectedAlumni.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
         setErrorMessage("Please ensure all alumni inputs are valid email addresses.")
-        setIsUpdating(false)
+        setIsSubmitting(false)
         return
       }
     }
 
+    const targetGuests = visibility === "batch" ? selectedBatches : visibility === "alumni" ? selectedAlumni : []
+
+    const updatedEvent = {
+      eventId: currentEvent.eventId,
+      title,
+      description,
+      image,
+      date,
+      time,
+      location,
+      rsvps: currentEvent.rsvps,
+      inviteType: visibility,
+      targetGuests,
+    };
+
     try {
-      if (buttonType === "Update") {
-        const result = await handleEdit(
-          eventId,
-          {
-            title,
-            description,
-            location,
-            date,
-            targetGuests,
-            inviteType: visibility,
-          },
-          image,
-        )
+      if (buttonType === "Finalize") {
+        // Finalize the event (set status to Accepted)
+        console.log(currentEvent.inviteType)
+        const result = await addEvent(updatedEvent, true)
 
         if (result.success) {
           resetFormState()
@@ -718,15 +734,15 @@ export default function EventPageAdmin() {
 
       <button
         type="submit"
-        onClick={(e) => handleSubmit(e, "Update")}
-        disabled={isUpdating || !formComplete || !isEditMode || !isEditing}
+        onClick={(e) => handleSubmit(e, "Finalize")}
+        disabled={isSubmitting || !formComplete || !isEditMode || !isEditing}
         className={`w-30 flex items-center justify-center gap-2 ${
           formComplete && isEditMode && isEditing
             ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
             : "bg-[var(--primary-blue)] text-[var(--primary-white)] opacity-50 cursor-not-allowed"
         } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}
       >
-        {isUpdating ? "Updating..." : "Update"}
+        {isSubmitting ? "Finalizing..." : "Finalize"}
       </button>
     </>
   )

@@ -22,6 +22,7 @@ import { useSearchParams } from "next/navigation";
 import { NewsletterItem } from "@/models/models";
 import { FirebaseError } from "firebase/app";
 import { emailNewsLettertoAlums } from "@/lib/emailTemplate";
+import Loading from "@/components/Loading";
 
 const NewsLetterContext = createContext<any>(null);
 
@@ -136,7 +137,7 @@ export function NewsLetterProvider({
   children: React.ReactNode;
 }) {
   return (
-    <Suspense fallback={<div>Loading newsletter data...</div>}>
+    <Suspense fallback={<Loading />}>
       <NewsLetterContextProvider>{children}</NewsLetterContextProvider>
     </Suspense>
   );
