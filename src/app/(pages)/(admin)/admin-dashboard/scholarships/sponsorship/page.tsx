@@ -59,8 +59,6 @@ export default function ViewPendingScholarships() {
   const [sortOption, setSortOption] = useState<
     | "newest"
     | "oldest"
-    | "number of sponsors (asc)"
-    | "number of sponsors (dsc)"
   >("newest");
   const sortScholarships = (scholarships: Scholarship[]) =>
     [...scholarships].sort((a, b) => {
@@ -73,10 +71,6 @@ export default function ViewPendingScholarships() {
           return (
             new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime()
           );
-        case "number of sponsors (asc)":
-          return a.alumList.length - b.alumList.length; // ascending = small to big
-        case "number of sponsors (dsc)":
-          return b.alumList.length - a.alumList.length; // descending = big to small
         default:
           return 0;
       }
