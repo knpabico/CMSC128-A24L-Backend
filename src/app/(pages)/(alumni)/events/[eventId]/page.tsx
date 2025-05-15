@@ -11,6 +11,9 @@ import { useFeatured } from "@/context/FeaturedStoryContext"
 import ProposeEventForm from "../components/ProposeEventForm"
 import Link from "next/link"
 import BookmarkButton from "@/components/ui/bookmark-button"
+import Breadcrumb from "@/components/breadcrumb"
+import Image from "next/image"
+import { Button } from "@mui/material"
 
 const EventPageAlumni = () => 
 {
@@ -134,383 +137,674 @@ const EventPageAlumni = () =>
     })
   }
 
+  const breadcrumbItems = [
+    { label: "Events", href: "/events" },
+    { label: `${event?.title}`, href: "#", active: true },
+  ]
+
   if (!eventId || events.length === 0) return <p>Loading...</p>  
 
   return (
-    <div className="w-full px-6 md:px-10 lg:px-20 pt-6 pb-10">
-      <Link href="/events" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
-        <MoveLeft className="size-[17px]" />
-        Back to Events
-      </Link>
+    <div className="px-[10%] pt-10 pb-30">
+      <div className="flex flex-col gap-3">
+        
+        <Breadcrumb items={breadcrumbItems} />
 
-      <div className="flex justify-between items-center p-3">
-        <h1 className="text-3xl lg:text-5xl font-bold text-gray-800">{event?.title || "Event Details"}</h1>
-        {event?.status === "Accepted" && (
-         <BookmarkButton entryId={event.eventId} type="event" size="lg" />
-        )}
-      </div>
+        {/* Main content area with relative positioning for proper layout */}
+        <div className="w-full flex gap-5 relative">
+          {/* Main content - reduced width to accommodate sidebar */}
+          <div className="bg-white shadow-md w-2/3 h-full rounded-2xl flex flex-col gap-4 overflow-hidden">
+            {/* Event image section */}
+            <div className="bg-pink-500 w-full h-[50vh] overflow-hidden">
+              {event?.image ? (
+                <img
+                  src={event.image}
+                  alt={event.title}
+                  className="object-cover w-full h-full bg-center"
+                />
+              ) : (
+                <Image
+                  src="/default-image.jpg"
+                  alt={event.title}
+                  width={800}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
+              )}
+            </div>
 
-      {/* Event Body */}
-      <div className='flex flex-col xl:flex-row xl:gap-10 w-full'>
-        {/* Body */}
-        <div className='flex flex-col gap-[10px] w-full'>
-          {/* Image */}
-          {event?.image ? (
-            <div className="relative">
-              {event ? (
-                <img src={event.image} alt={event.title} className="object-fit w-full bg-center h-[230px] md:h-[350px] lg:h-[400px]" />
-              ) : null}
-            </div>
-          ) : (
-            <div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
-              <span className="text-blue-500 font-medium">
-                <ImageOff className="size-[50px]" />
-              </span>
-            </div>
-          )}
-          {/* Accepted */}
-          {event && event?.status === "Accepted" && (
-            <div className='mt-5 px-5'>
-              <div className=' flex justify-between items-center gap-4'>
-                <div className='flex gap-1 items-center justify-center'>
-                  <Calendar className='size-[20px]' />
-                  <p className='text-sm'>{formatDate(event.datePosted)}</p>
+            {/* Event Title */}
+            <div className="w-full px-8 pt-3 flex flex-col gap-1">
+              
+              <div className="flex items-start justify-between">
+                <h1 className="text-4xl font-bold">
+                  {event?.title}
+                </h1>
+                <BookmarkButton entryId={event.eventId} type="event" size="lg" className="cursor-pointer"/>
+              </div>
+
+              <div className="text-[14px] text-gray-500">
+                Posted on {formatDate(event.datePosted)}
+              </div>
+
+              {/* Event Details */}
+              <div className="flex gap-5 text-sm pt-3 text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Calendar size={20}/> {formatDate(event.datePosted)}
                 </div>
-                <div className='flex gap-1 items-center justify-center'>
-                  <Clock className='size-[20px]' />
-                  <p className='text-sm'>{event.time}</p>
+                <div className="flex items-center gap-2">
+                  <Clock size={20}/> {event.time}
                 </div>
-                <div className='flex gap-1 items-center justify-center'>
-                  <MapPin className='size-[20px]' />
-                  <p className='text-sm'>{event.location}</p>
+                <div className="flex items-center gap-2">
+                  <MapPin size={20}/> {event.location}
                 </div>
-                <div className='flex gap-1 items-center justify-center'>
-                  <Users className='size-[20px]' />
-                  <p className='text-sm'>{event.numofAttendees || 0} attendees</p>
-                </div>
+
               </div>
             </div>
-          )}
-          {/* Pending */}
-          {event && (event?.status === "Pending" || event?.status === "Draft" || event?.status === "Rejected") && (
-            <div className='mt-5 px-5'>
-              <div className=' flex justify-between items-center gap-4'>
-                <div className='flex gap-1 items-center justify-center'>
-                  <Calendar className='size-[20px]' />
-                  <p className='text-sm'>{formatDate(event.datePosted)}</p>
-                </div>
-                <div className='flex gap-1 items-center justify-center'>
-                  <Clock className='size-[20px]' />
-                  <p className='text-sm'>{event.time}</p>
-                </div>
-                <div className='flex gap-1 items-center justify-center'>
-                  <MapPin className='size-[20px]' />
-                  <p className='text-sm'>{event.location}</p>
-                </div>
-              </div>
+
+            {/* Event Description */}
+            <div className="w-full px-8 pb-8">
+              <h1 className="text-sm">{event?.description}</h1>
             </div>
-          )}
-          {/* Event description */}
-          <p className="mb-6">{event ? event.description : "No description added."}</p>
-        </div>
 
-        {/* Action Bar */}
-        <div className='self-start min-w-[390px] sticky top-1/8'>
-          {/* Side bar */}
-          <div className='flex flex-col gap-[10px] w-full'>
-            {/* Invitation Status */}
-            <div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex flex-col gap-2 w-full shadow-md border border-gray-200'>
-              {event && event?.status === "Accepted" && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-green-600 font-medium gap-2 w-full">
-                        Approved
-                        <CircleCheck />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Registration Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Availability:</p>
-                      </div>
-                      <div className="flex items-center justify-end font-medium gap-2 w-full">
-                        {event?.stillAccepting ? (
-                          <>
-                            <span className="text-green-600 flex items-center gap-2">
-                              Still accepting guests
-                              <CircleCheck />
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-red-600 flex items-center gap-2">
-                              Registration closed
-                              <X />
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* RSVP status */}
-                  <div className="w-full flex justify-between">
-                    <div className="w-full">
-                      <p>RSVP Status: </p>
-                    </div>
-                    {alumniRsvpStatus === "Pending" ? (
-                      <div className="flex items-center justify-end text-yellow-600 font-medium gap-2 w-full">
-                        Pending
-                        <Clock2 />
-                      </div>
-                    ) : alumniRsvpStatus === "Accepted" ? (
-                      <div className="flex items-center justify-end text-green-600 font-medium gap-2 w-full">
-                        Going
-                        <CircleCheck />
-                      </div>
-                    ) : alumniRsvpStatus === "Rejected" ? (
-                      <div className="flex items-center justify-end text-red-600 font-medium gap-2 w-full">
-                        Not Going
-                        <CircleX />
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {/* RSVP Buttons */}
-                  {alumniRsvpStatus === "Pending" && (
-                    <div className="flex gap-2 p-2">
-                      <button
-                        onClick={handleAccept}
-                        className="text-sm bg-[#0856BA] w-1/2 px-1 py-[5px] rounded-full text-white font-semibold hover:bg-blue-400 hover:cursor-pointer"
-                      >
-                        Going
-                      </button>
-
-                      <button
-                        className="text-sm bg-[#FFFF] w-1/2 px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
-                        onClick={handleReject}
-                      >
-                        Not Going
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {event && (event?.status === "Rejected") && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-red-600 font-medium gap-2 w-full">
-                        {event.status}
-                        <CircleX />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {event && (event?.status === "Draft") && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-grey-600 font-medium gap-2 w-full">
-                        {event.status}
-                        <CircleAlert />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 p-2">
-                    <button
-                      onClick={() => 
-                      {
-                        setEdit(true)
-                        setShowForm(true)
-                      }}
-                      className="text-sm bg-[#0856BA] w-1/2 px-1 py-[5px] rounded-full text-white font-semibold hover:bg-blue-400 hover:cursor-pointer"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => 
-                      {
-                        handleDelete(event.eventId)
-                        router.back()
-                      }}
-                      className="text-sm bg-[#FFFF] w-1/2 px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                  {/* Propose Event Form */}
-                  <ProposeEventForm
-                    isOpen={showForm}
-                    onClose={() => setShowForm(false)}
-                    isEditing={isEditing}
-                    isDetails={true}
-                    setDetailsPage={setDetailsPage}
-                    editingEventId={event.eventId}
-                    setEdit={setEdit}
-                  />
-                </>
-              )}
-
-              {event && (event?.status === "Pending") && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-yellow-600 font-medium gap-2 w-full">
-                        {event.status}
-                        <Clock10 />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-            </div>
           </div>
-          {/* Placeholder */}
-          {event.needSponsorship && event?.status === "Accepted" && (
-            <div className="bg-white py-4 px-6 rounded-[10px] shadow-md border border-gray-200">
-              <p className="text-sm text-gray-700 mb-2">
-                This event needs sponsorship.
-              </p>
-              <button
-                onClick={() =>
-                  router.push(
-                    `/donationdrive-list/details?id=${event.donationDriveId}`
-                  )
-                }
-                className="text-sm mt-4 bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
-              >
-                View Donation Drive
-              </button>
+
+          {/* Sidebar - now using sticky positioning instead of fixed */}
+          <div className="w-1/3 sticky top-4 self-start flex flex-col gap-3 pl-5">
+            {/* First sidebar card */}
+            <div className="bg-white shadow-md rounded-2xl px-6 py-4 flex flex-col gap-3 text-sm">
+              <div className="flex gap-2 items-center">
+                <p className="font-semibold">Event Status:</p>
+                {event?.stillAccepting ? (
+                  <p className="bg-amber-200 px-3 py-1 rounded-full text-amber-900">
+                    Still accepting guests
+                  </p>
+                ) : (
+                  <p className="bg-red-200 px-3 py-1 rounded-full text-red-900">
+                    Registration closed
+                  </p>
+                )}
+                
+              </div>
             </div>
-          )}
-        </div>
-      </div>
-      {/* Featured Stories Section - Carousel */}
-      <div className="mt-16">
-        <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">
-          Featured Stories
-        </h2>
 
-        {isLoading ? (
-          <p className="text-gray-500 text-center">
-            Loading featured stories...
-          </p>
-        ) : sortedStories.length === 0 ? (
-          <p className="text-gray-500 text-center">
-            No featured stories found.
-          </p>
-        ) : (
-          <div className="relative">
-            {/* Previous button */}
-            <button
-              onClick={prevSlide}
-              disabled={currentIndex === 0}
-              className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
-                    ${
-                      currentIndex === 0
-                        ? "opacity-30 cursor-not-allowed"
-                        : "opacity-70 hover:opacity-100"
-                    }`}
-              aria-label="Previous stories"
-            >
-              <ChevronLeft size={24} />
-            </button>
-
-            {/* Stories grid - always 3 columns on larger screens */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
-              {visibleStories.length === 0 && (
-                <div className="col-span-3 text-center text-gray-500">
-                  No other stories available at this time.
-                </div>
-              )}
-              {visibleStories.map((story) => (
-                <div
-                  key={story.featuredId}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-                  onClick={() =>
-                    router.push(`/scholarship/featured/${story.featuredId}`)
-                  }
-                >
-                  {story.image && (
-                    <div
-                      className="h-40 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${story.image})` }}
+            {/* RSVP card */}
+            <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-sm">
+              
+              {event.inviteType === "all" ? (
+                <div className="flex flex-col items-center gap-1">
+                  <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">This event is open to all.</h2>
+                  <p className="text-gray-500 text-center px-10">Respond early if you’d like to secure your spot in advance.</p>
+                </div> 
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-center">
+                    <Image 
+                      src="/rsvp-icon.png"
+                      alt="RSVP"
+                      width={60}
+                      height={100}
                     />
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg text-gray-800 truncate">
-                      {story.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {formatDate(story.datePosted)}
-                    </p>
-                    <p className="text-sm text-gray-700 mt-2 line-clamp-3">
-                      {story.text}
-                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-1">
+                    <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">You have been invited to this event.</h2>
+                    <p className="text-gray-500">Please respond to the invitation.</p>
                   </div>
                 </div>
-              ))}
+              )}
+              
+              <div>
+                {alumniRsvpStatus === "Pending" ? (
+                  <div className="flex justify-between gap-2">
+                    <button
+                      onClick={handleAccept}
+                      className="w-full bg-green-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                    >
+                      {event.inviteType === "all" ? (
+                        <p>Going</p>
+                      ) : (
+                        <p>Accept</p>
+                      )}
+                      
+                    </button>
+                    <button
+                      onClick={handleReject}
+                      className="w-full bg-red-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                    >
+                      {event.inviteType === "all" ? (
+                        <p>Not Going</p>
+                      ) : (
+                        <p>Decline</p>
+                      )}
+                    </button>
+                  </div>
+                ) : alumniRsvpStatus === "Accepted" ? (
+                  <div className="w-full bg-green-300 text-green-600 flex items-center justify-center p-2 rounded-full font-semibold">
+                    {event.inviteType === "all" ? (
+                      <p>Going</p>
+                    ) : (
+                      <p>You accepted the invitation.</p>
+                    )}
+                  </div>
+                ) : alumniRsvpStatus === "Rejected" ? (
+                  <div className="w-full bg-gray-300 text-gray-600 flex items-center justify-center p-2 rounded-full font-semibold">
+                    {event.inviteType === "all" ? (
+                      <p>Not Going</p>
+                    ) : (
+                      <p>You declined the invitation.</p>
+                    )}
+                  </div>
+                ) : null }
+              </div>
             </div>
 
-            {/* Next button */}
-            <button
-              onClick={nextSlide}
-              disabled={currentIndex >= maxIndex}
-              className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
-                    ${
-                      currentIndex >= maxIndex
-                        ? "opacity-30 cursor-not-allowed"
-                        : "opacity-70 hover:opacity-100"
-                    }`}
-              aria-label="Next stories"
-            >
-              <ChevronRight size={24} />
-            </button>
-
-            {/* Pagination dots */}
-            {sortedStories.length > 3 && (
-              <div className="flex justify-center mt-6 gap-2">
-                {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`h-2 w-2 rounded-full ${
-                      idx === currentIndex ? "bg-blue-500" : "bg-gray-300"
-                    }`}
-                    aria-label={`Go to slide ${idx + 1}`}
+            {/* Donation card */}
+            {event.needSponsorship && event?.status === "Accepted" && (
+              <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-[14px]">
+                <div className="flex justify-center">
+                  <Image 
+                    src="/donate-icon.png"
+                    alt="RSVP"
+                    width={60}
+                    height={100}
                   />
-                ))}
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <h2 className="text-lg font-semibold text-[var(--blue-700)]">Support this event by donating.</h2>
+                  <p className="text-center text-gray-500 px-10">Every contribution counts and helps us reach our goal.</p>
+                </div>
+                <Link 
+                  href={`/donationdrive-list/details?id=${event?.donationDriveId}`}
+                  className="w-full bg-[var(--primary-blue)] flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                >
+                  Donate Here 
+                </Link>
               </div>
             )}
           </div>
-        )}
+        </div>
+
+        {/* Featured Stories section - now will appear below main content properly */}
+        <div className="mt-10">
+          <div className="pt-5 pb-10 flex items-center justify-center text-2xl font-bold">
+            Featured Stories
+          </div>
+
+          {isLoading ? (
+            <p className="text-gray-500 text-center">
+              Loading featured stories...
+            </p>
+          ) : sortedStories.length === 0 ? (
+            <p className="text-gray-500 text-center">
+              No featured stories found.
+            </p>
+          ) : (
+            <div className="relative">
+              {/* Previous button */}
+              <button
+                onClick={prevSlide}
+                disabled={currentIndex === 0}
+                className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
+                      ${
+                        currentIndex === 0
+                          ? "opacity-30 cursor-not-allowed"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                aria-label="Previous stories"
+              >
+                <ChevronLeft size={24} />
+              </button>
+
+              {/* Stories grid - always 3 columns on larger screens */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
+                {visibleStories.length === 0 && (
+                  <div className="col-span-3 text-center text-gray-500">
+                    No other stories available at this time.
+                  </div>
+                )}
+                {visibleStories.map((story) => (
+                  <div
+                    key={story.featuredId}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                    onClick={() =>
+                      router.push(`/scholarship/featured/${story.featuredId}`)
+                    }
+                  >
+                    {story.image && (
+                      <div
+                        className="h-40 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${story.image})` }}
+                      />
+                    )}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-lg text-gray-800 truncate">
+                        {story.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {formatDate(story.datePosted)}
+                      </p>
+                      <p className="text-sm text-gray-700 mt-2 line-clamp-3">
+                        {story.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Next button */}
+              <button
+                onClick={nextSlide}
+                disabled={currentIndex >= maxIndex}
+                className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
+                      ${
+                        currentIndex >= maxIndex
+                          ? "opacity-30 cursor-not-allowed"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                aria-label="Next stories"
+              >
+                <ChevronRight size={24} />
+              </button>
+
+              {/* Pagination dots */}
+              {sortedStories.length > 3 && (
+                <div className="flex justify-center mt-6 gap-2">
+                  {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`h-2 w-2 rounded-full ${
+                        idx === currentIndex ? "bg-blue-500" : "bg-gray-300"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
+
+
+    // <>
+    // <div className="w-full px-[10%] pt-10 pb-20">
+    //   <Link href="/events" className="text-sm mb-4 inline-flex gap-2 items-center hover:underline">
+    //     <MoveLeft className="size-[17px]" />
+    //     Back to Events
+    //   </Link>
+
+    //   <div className="flex justify-between items-center">
+    //     <h1 className="text-3xl lg:text-5xl font-bold text-gray-800">{event?.title || "Event Details"}</h1>
+    //     {event?.status === "Accepted" && (
+    //      <BookmarkButton entryId={event.eventId} type="event" size="lg" />
+    //     )}
+    //   </div>
+
+    //   {/* Event Body */}
+    //   <div className='flex flex-col xl:flex-row xl:gap-10 w-full'>
+    //     {/* Body */}
+    //     <div className='flex flex-col gap-[10px] w-full'>
+    //       {/* Image */}
+    //       {event?.image ? (
+    //         <div className="relative">
+    //           {event ? (
+    //             <img src={event.image} alt={event.title} className="object-fit w-full bg-center h-[230px] md:h-[350px] lg:h-[400px]" />
+    //           ) : null}
+    //         </div>
+    //       ) : (
+    //         <div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
+    //           <span className="text-blue-500 font-medium">
+    //             <ImageOff className="size-[50px]" />
+    //           </span>
+    //         </div>
+    //       )}
+    //       {/* Accepted */}
+    //       {event && event?.status === "Accepted" && (
+    //         <div className='mt-5 px-5'>
+    //           <div className=' flex items-center gap-8'>
+    //             <div className='flex gap-1 items-center justify-center'>
+    //               <Calendar className='size-[20px]' />
+    //               <p className='text-sm'>{formatDate(event.datePosted)}</p>
+    //             </div>
+    //             <div className='flex gap-1 items-center justify-center'>
+    //               <Clock className='size-[20px]' />
+    //               <p className='text-sm'>{event.time}</p>
+    //             </div>
+    //             <div className='flex gap-1 items-center justify-center'>
+    //               <MapPin className='size-[20px]' />
+    //               <p className='text-sm'>{event.location}</p>
+    //             </div>
+    //             <div className='flex gap-1 items-center justify-center'>
+    //               <Users className='size-[20px]' />
+    //               <p className='text-sm'>{event.numofAttendees || 0} attendees</p>
+    //             </div>
+    //           </div>
+    //         </div>
+    //       )}
+    //       {/* Pending */}
+    //       {event && (event?.status === "Pending" || event?.status === "Draft" || event?.status === "Rejected") && (
+    //         <div className='mt-5 px-5'>
+    //           <div className=' flex justify-between items-center gap-4'>
+    //             <div className='flex gap-1 items-center justify-center'>
+    //               <Calendar className='size-[20px]' />
+    //               <p className='text-sm'>{formatDate(event.datePosted)}</p>
+    //             </div>
+    //             <div className='flex gap-1 items-center justify-center'>
+    //               <Clock className='size-[20px]' />
+    //               <p className='text-sm'>{event.time}</p>
+    //             </div>
+    //             <div className='flex gap-1 items-center justify-center'>
+    //               <MapPin className='size-[20px]' />
+    //               <p className='text-sm'>{event.location}</p>
+    //             </div>
+    //           </div>
+    //         </div>
+    //       )}
+    //       {/* Event description */}
+    //       <p className="mb-6">{event ? event.description : "No description added."}</p>
+    //     </div>
+
+    //     {/* Action Bar */}
+    //     <div className='self-start min-w-[390px] sticky top-1/8'>
+    //       {/* Side bar */}
+    //       <div className='flex flex-col gap-[10px] w-full'>
+    //         {/* Invitation Status */}
+    //         <div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex flex-col gap-2 w-full shadow-md border border-gray-200'>
+    //           {event && event?.status === "Accepted" && (
+    //             <>
+    //               {/* Event Status */}
+    //               <div>
+    //                 <div className="w-full flex justify-between">
+    //                   <div className="w-1/2">
+    //                     <p>Event Status: </p>
+    //                   </div>
+    //                   <div className="flex items-center justify-end text-green-600 font-medium gap-2 w-full">
+    //                     Approved
+    //                     <CircleCheck />
+    //                   </div>
+    //                 </div>
+    //               </div>
+
+    //               {/* Registration Status */}
+    //               <div>
+    //                 <div className="w-full flex justify-between">
+    //                   <div className="w-1/2">
+    //                     <p>Availability:</p>
+    //                   </div>
+    //                   <div className="flex items-center justify-end font-medium gap-2 w-full">
+    //                     {event?.stillAccepting ? (
+    //                       <>
+    //                         <span className="text-green-600 flex items-center gap-2">
+    //                           Still accepting guests
+    //                           <CircleCheck />
+    //                         </span>
+    //                       </>
+    //                     ) : (
+    //                       <>
+    //                         <span className="text-red-600 flex items-center gap-2">
+    //                           Registration closed
+    //                           <X />
+    //                         </span>
+    //                       </>
+    //                     )}
+    //                   </div>
+    //                 </div>
+    //               </div>
+
+    //               {/* RSVP status */}
+    //               <div className="w-full flex justify-between">
+    //                 <div className="w-full">
+    //                   <p>RSVP Status: </p>
+    //                 </div>
+    //                 {alumniRsvpStatus === "Pending" ? (
+    //                   <div className="flex items-center justify-end text-yellow-600 font-medium gap-2 w-full">
+    //                     Pending
+    //                     <Clock2 />
+    //                   </div>
+    //                 ) : alumniRsvpStatus === "Accepted" ? (
+    //                   <div className="flex items-center justify-end text-green-600 font-medium gap-2 w-full">
+    //                     Going
+    //                     <CircleCheck />
+    //                   </div>
+    //                 ) : alumniRsvpStatus === "Rejected" ? (
+    //                   <div className="flex items-center justify-end text-red-600 font-medium gap-2 w-full">
+    //                     Not Going
+    //                     <CircleX />
+    //                   </div>
+    //                 ) : null}
+    //               </div>
+
+    //               {/* RSVP Buttons */}
+    //               {alumniRsvpStatus === "Pending" && (
+    //                 <div className="flex gap-2 p-2">
+    //                   <button
+    //                     onClick={handleAccept}
+    //                     className="text-sm bg-[#0856BA] w-1/2 px-1 py-[5px] rounded-full text-white font-semibold hover:bg-blue-400 hover:cursor-pointer"
+    //                   >
+    //                     Going
+    //                   </button>
+
+    //                   <button
+    //                     className="text-sm bg-[#FFFF] w-1/2 px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
+    //                     onClick={handleReject}
+    //                   >
+    //                     Not Going
+    //                   </button>
+    //                 </div>
+    //               )}
+    //             </>
+    //           )}
+
+    //           {event && (event?.status === "Rejected") && (
+    //             <>
+    //               {/* Event Status */}
+    //               <div>
+    //                 <div className="w-full flex justify-between">
+    //                   <div className="w-1/2">
+    //                     <p>Event Status: </p>
+    //                   </div>
+    //                   <div className="flex items-center justify-end text-red-600 font-medium gap-2 w-full">
+    //                     {event.status}
+    //                     <CircleX />
+    //                   </div>
+    //                 </div>
+    //               </div>
+    //             </>
+    //           )}
+
+    //           {event && (event?.status === "Draft") && (
+    //             <>
+    //               {/* Event Status */}
+    //               <div>
+    //                 <div className="w-full flex justify-between">
+    //                   <div className="w-1/2">
+    //                     <p>Event Status: </p>
+    //                   </div>
+    //                   <div className="flex items-center justify-end text-grey-600 font-medium gap-2 w-full">
+    //                     {event.status}
+    //                     <CircleAlert />
+    //                   </div>
+    //                 </div>
+    //               </div>
+    //               <div className="flex gap-2 p-2">
+    //                 <button
+    //                   onClick={() => 
+    //                   {
+    //                     setEdit(true)
+    //                     setShowForm(true)
+    //                   }}
+    //                   className="text-sm bg-[#0856BA] w-1/2 px-1 py-[5px] rounded-full text-white font-semibold hover:bg-blue-400 hover:cursor-pointer"
+    //                 >
+    //                   Edit
+    //                 </button>
+    //                 <button
+    //                   onClick={() => 
+    //                   {
+    //                     handleDelete(event.eventId)
+    //                     router.back()
+    //                   }}
+    //                   className="text-sm bg-[#FFFF] w-1/2 px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
+    //                 >
+    //                   Delete
+    //                 </button>
+    //               </div>
+    //               {/* Propose Event Form */}
+    //               <ProposeEventForm
+    //                 isOpen={showForm}
+    //                 onClose={() => setShowForm(false)}
+    //                 isEditing={isEditing}
+    //                 isDetails={true}
+    //                 setDetailsPage={setDetailsPage}
+    //                 editingEventId={event.eventId}
+    //                 setEdit={setEdit}
+    //               />
+    //             </>
+    //           )}
+
+    //           {event && (event?.status === "Pending") && (
+    //             <>
+    //               {/* Event Status */}
+    //               <div>
+    //                 <div className="w-full flex justify-between">
+    //                   <div className="w-1/2">
+    //                     <p>Event Status: </p>
+    //                   </div>
+    //                   <div className="flex items-center justify-end text-yellow-600 font-medium gap-2 w-full">
+    //                     {event.status}
+    //                     <Clock10 />
+    //                   </div>
+    //                 </div>
+    //               </div>
+    //             </>
+    //           )}
+
+    //         </div>
+    //       </div>
+    //       {/* Placeholder */}
+    //       {event.needSponsorship && event?.status === "Accepted" && (
+    //         <div className="bg-white py-4 px-6 rounded-[10px] shadow-md border border-gray-200">
+    //           <p className="text-sm text-gray-700 mb-2">
+    //             This event needs sponsorship.
+    //           </p>
+    //           <button
+    //             onClick={() =>
+    //               router.push(
+    //                 `/donationdrive-list/details?id=${event.donationDriveId}`
+    //               )
+    //             }
+    //             className="text-sm mt-4 bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
+    //           >
+    //             View Donation Drive
+    //           </button>
+    //         </div>
+    //       )}
+    //     </div>
+    //   </div>
+    //   {/* Featured Stories Section - Carousel */}
+    //   <div className="mt-16">
+    //     <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">
+    //       Featured Stories
+    //     </h2>
+
+    //     {isLoading ? (
+    //       <p className="text-gray-500 text-center">
+    //         Loading featured stories...
+    //       </p>
+    //     ) : sortedStories.length === 0 ? (
+    //       <p className="text-gray-500 text-center">
+    //         No featured stories found.
+    //       </p>
+    //     ) : (
+    //       <div className="relative">
+    //         {/* Previous button */}
+    //         <button
+    //           onClick={prevSlide}
+    //           disabled={currentIndex === 0}
+    //           className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
+    //                 ${
+    //                   currentIndex === 0
+    //                     ? "opacity-30 cursor-not-allowed"
+    //                     : "opacity-70 hover:opacity-100"
+    //                 }`}
+    //           aria-label="Previous stories"
+    //         >
+    //           <ChevronLeft size={24} />
+    //         </button>
+
+    //         {/* Stories grid - always 3 columns on larger screens */}
+    //         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
+    //           {visibleStories.length === 0 && (
+    //             <div className="col-span-3 text-center text-gray-500">
+    //               No other stories available at this time.
+    //             </div>
+    //           )}
+    //           {visibleStories.map((story) => (
+    //             <div
+    //               key={story.featuredId}
+    //               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+    //               onClick={() =>
+    //                 router.push(`/scholarship/featured/${story.featuredId}`)
+    //               }
+    //             >
+    //               {story.image && (
+    //                 <div
+    //                   className="h-40 bg-cover bg-center"
+    //                   style={{ backgroundImage: `url(${story.image})` }}
+    //                 />
+    //               )}
+    //               <div className="p-4">
+    //                 <h3 className="font-semibold text-lg text-gray-800 truncate">
+    //                   {story.title}
+    //                 </h3>
+    //                 <p className="text-sm text-gray-500 mt-1">
+    //                   {formatDate(story.datePosted)}
+    //                 </p>
+    //                 <p className="text-sm text-gray-700 mt-2 line-clamp-3">
+    //                   {story.text}
+    //                 </p>
+    //               </div>
+    //             </div>
+    //           ))}
+    //         </div>
+
+    //         {/* Next button */}
+    //         <button
+    //           onClick={nextSlide}
+    //           disabled={currentIndex >= maxIndex}
+    //           className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
+    //                 ${
+    //                   currentIndex >= maxIndex
+    //                     ? "opacity-30 cursor-not-allowed"
+    //                     : "opacity-70 hover:opacity-100"
+    //                 }`}
+    //           aria-label="Next stories"
+    //         >
+    //           <ChevronRight size={24} />
+    //         </button>
+
+    //         {/* Pagination dots */}
+    //         {sortedStories.length > 3 && (
+    //           <div className="flex justify-center mt-6 gap-2">
+    //             {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+    //               <button
+    //                 key={idx}
+    //                 onClick={() => setCurrentIndex(idx)}
+    //                 className={`h-2 w-2 rounded-full ${
+    //                   idx === currentIndex ? "bg-blue-500" : "bg-gray-300"
+    //                 }`}
+    //                 aria-label={`Go to slide ${idx + 1}`}
+    //               />
+    //             ))}
+    //           </div>
+    //         )}
+    //       </div>
+    //     )}
+    //   </div>
+    // </div>
+    // </>
   )
 }
 
