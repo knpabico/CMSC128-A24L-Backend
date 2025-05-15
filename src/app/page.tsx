@@ -68,13 +68,8 @@ import Landing from "@/components/Landing";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useEducation } from "@/context/EducationContext";
 import { useScholarship } from "@/context/ScholarshipContext";
-import { Oswald } from "next/font/google";
 import Image from "next/image";
-
-const oswald = Oswald({
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700"],
-});
+import { Timestamp } from "firebase/firestore";
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
@@ -128,10 +123,20 @@ export default function Home() {
     );
   };
 
-  function formatDate(timestamp: any) {
-    if (!timestamp || !timestamp.seconds) return "Invalid Date";
-    const date = new Date(timestamp.seconds * 1000);
-    return date.toISOString().split("T")[0];
+  function formatDate(date: Timestamp | Date | null | undefined): string {
+    if (!date) return "Invalid Date";
+
+    let jsDate: Date;
+
+    if (date instanceof Date) {
+      jsDate = date;
+    } else if (date instanceof Timestamp) {
+      jsDate = date.toDate();
+    } else {
+      return "Invalid Date";
+    }
+
+    return jsDate.toISOString().split("T")[0];
   }
 
   const nextEvent = () => {
@@ -345,27 +350,25 @@ export default function Home() {
   // }
 
   // Calculate days remaining until the donation drive ends
-  function getDaysRemaining(endDate: any) {
+  function getDaysRemaining(endDate: string) {
     try {
-      // Clear time portions to calculate full days
-      // const endDateOnly = new Date(endDate);
-      // endDateOnly.setHours(0, 0, 0, 0);
-
-      // const todayOnly = new Date(now);
-      // todayOnly.setHours(0, 0, 0, 0);
-
+      // Parse the string date in YYYY-MM-DD format
       const todayOnly = new Date(); // Current date
-      const endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
+      todayOnly.setHours(0, 0, 0, 0);
+
+      // Create date from the YYYY-MM-DD string
+      const endDateOnly = new Date(endDate);
+      endDateOnly.setHours(0, 0, 0, 0);
 
       // Calculate difference in days
       const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
       const differenceInDays = Math.ceil(
         differenceInTime / (1000 * 60 * 60 * 24)
       );
+
       if (differenceInDays <= 0) return "Expired";
       else if (differenceInDays === 1) return "1 day left";
       else return `${differenceInDays} days left`;
-      // Return 0 if ended or negative
     } catch (err) {
       return `Error: ${err}`;
     }
@@ -1117,6 +1120,7 @@ export default function Home() {
                                       width={0}
                                       height={0}
                                       sizes="100vw"
+                                      className="w-full"
                                       priority
                                       src={event.image}
                                       alt={event.title}
