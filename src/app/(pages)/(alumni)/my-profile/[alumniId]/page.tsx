@@ -1500,6 +1500,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
+          degreeType={degreeType}
         />
       )}
       {addDoctoral && (
@@ -1511,6 +1512,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
+          degreeType={degreeType}
         />
       )}
       {addAffiliation && (
