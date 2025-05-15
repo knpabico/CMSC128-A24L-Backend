@@ -21,6 +21,7 @@ import { uploadImage } from "@/lib/upload";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { AddStudent } from "./add-student-form";
+import { StudentFormData } from "../../add/page";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
@@ -53,14 +54,14 @@ const ScholarshipDetailPage: React.FC = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alumList, setAlumniList] = useState<Alumnus[]>([]);
   const [isInformationOpen, setIsInformationOpen] = useState(false);
   const [isStudentInformationOpen, setIsStudentInformationOpen] =
     useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ const ScholarshipDetailPage: React.FC = () => {
           if (data.alumList && data.alumList.length > 0) {
             // Fetch Alumni details for each alumId
             const alumniList = await Promise.all(
-              data.alumList.map(async (alumId: any) => {
+              data.alumList.map(async (alumId: string) => {
                 try {
                   const alumRef = doc(db, "alumni", alumId);
                   const alumSnap = await getDoc(alumRef);
@@ -212,7 +213,7 @@ const ScholarshipDetailPage: React.FC = () => {
   });
 
   //forms for student
-  const [studentForms, setStudentForms] = useState<any[]>([]);
+  const [studentForms, setStudentForms] = useState<StudentFormData[]>([]);
 
   //for adding student form
   const addStudentForm = () => {
@@ -225,7 +226,6 @@ const ScholarshipDetailPage: React.FC = () => {
         shortBackground: "",
         address: "",
         emailAddress: "",
-        background: "",
       },
     ]);
   };
@@ -236,14 +236,17 @@ const ScholarshipDetailPage: React.FC = () => {
   };
 
   //for updating student form
-  const updateStudentForm = (index: number, updatedStudentData: any) => {
+  const updateStudentForm = (
+    index: number,
+    updatedStudentData: StudentFormData
+  ) => {
     const updatedStudentForms = [...studentForms];
     updatedStudentForms[index] = updatedStudentData;
     setStudentForms(updatedStudentForms);
   };
 
   //function for saving the new students to firestore
-  const saveStudents = async (students: any[]) => {
+  const saveStudents = async (students: StudentFormData[]) => {
     let newStudentList = [];
     for (let i = 0; i < students.length; i++) {
       //ensure students[i] is not empty
@@ -295,7 +298,7 @@ const ScholarshipDetailPage: React.FC = () => {
     if (!scholarship?.scholarshipId) return;
     let updatedData = { ...editData };
 
-    if (image && image !== scholarship.image) {
+    if (image && preview !== scholarship.image) {
       try {
         setIsSubmitting(true);
         const data = await uploadImage(
@@ -334,8 +337,8 @@ const ScholarshipDetailPage: React.FC = () => {
     }
   };
 
-  const handleImageChange = (e: any) => {
-    const file = e.target.files[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
     if (file) {
       setImage(file);
       setPreview(URL.createObjectURL(file)); //preview

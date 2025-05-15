@@ -1079,6 +1079,7 @@ export default function Home() {
                                       height={0}
                                       sizes="100vw"
                                       priority
+                                      className="w-full"
                                     />
                                   )}
                                   <>

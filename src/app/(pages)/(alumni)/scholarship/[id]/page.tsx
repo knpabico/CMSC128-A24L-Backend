@@ -45,7 +45,7 @@ const ScholarshipDetailPage: React.FC = () => {
 	const [isStudentThankYouOpen, setStudentIsThankYouOpen] = useState(false);
   const { featuredItems, isLoading } = useFeatured();
 
-	const [students, setStudents] = useState<any[]>([]);
+	const [students, setStudents] = useState<Student[]>([]);
 	const [loadingStudents, setLoadingStudents] = useState(true);
 	const [studentDetails, setstudentDetails] = useState< Student | null>(null);
   const [sortOption, setSortOption] = useState<"oldest" | "youngest" | "A-Z" | "Z-A">("A-Z");
@@ -53,7 +53,7 @@ const ScholarshipDetailPage: React.FC = () => {
   const [scholarshipStudents, setScholarshipStudents] = useState<ScholarshipStudent[]>([]);
  
   const eventStories = featuredItems.filter(
-    (story) => story.type === "scholarship"
+    (story: { type: string; }) => story.type === "scholarship"
   );
 
   const sortedStories = [...eventStories].sort((a, b) => {
@@ -200,7 +200,7 @@ const ScholarshipDetailPage: React.FC = () => {
     return <div style={{ margin: "20px" }}>Loading...</div>;
   }
 
-  const isAlreadySponsoring = scholarship?.alumList?.includes(user?.uid);
+  const isAlreadySponsoring = scholarship?.alumList?.includes(user!.uid);
 
   const filteredAndSortedStudents = [...students]
     .filter((student) => {

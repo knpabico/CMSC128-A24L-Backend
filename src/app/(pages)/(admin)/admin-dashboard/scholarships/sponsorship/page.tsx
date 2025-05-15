@@ -369,7 +369,15 @@ export default function ViewPendingScholarships() {
           <select
             id="sort"
             value={sortOption}
-            onChange={(e) => setSortOption(e.target.value as any)}
+            onChange={(e) =>
+              setSortOption(
+                e.target.value as
+                  | "newest"
+                  | "oldest"
+                  | "number of sponsors (asc)"
+                  | "number of sponsors (dsc)"
+              )
+            }
             className="flex items-center text-sm"
           >
             <option value="newest">Newest</option>

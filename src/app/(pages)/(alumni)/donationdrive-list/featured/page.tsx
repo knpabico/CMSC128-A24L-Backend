@@ -3,15 +3,17 @@
 
 import { useEffect, useState } from 'react';
 import { useDonationDrives } from '@/context/DonationDriveContext';
-import { useAuth } from '@/context/AuthContext';
-import { useBookmarks } from '@/context/BookmarkContext';
+// import { useAuth } from '@/context/AuthContext';
+// import { useBookmarks } from '@/context/BookmarkContext';
 import DonationDriveSidebar from '../components/Sidebar';
-import DonationDrivesList from '../components/DonationDrivesList';
+// import DonationDrivesList from '../components/DonationDrivesList';
 import { DonationDrive, Featured } from '@/models/models';
 import { useFeatured } from '@/context/FeaturedStoryContext';
 import { useRouter } from "next/navigation";
 import { Calendar, ChevronDown } from 'lucide-react';
-import { error } from 'console';
+// import { error } from 'console';
+import { formatDate } from '@/utils/formatDate';
+import Banner from '@/components/Banner';
 
 export default function DonationFeaturedDonationPage() {
 	const router = useRouter();
@@ -126,15 +128,9 @@ export default function DonationFeaturedDonationPage() {
 		if (error) return <div className="text-red-500 text-center p-8">{error}</div>;
 
 		const sorteddonationDriveStories = [...donationDriveStories].sort((a, b) => {
-			const dateA =
-				a.datePosted && typeof a.datePosted.toDate === "function"
-					? a.datePosted.toDate().getTime()
-					: new Date(a.datePosted).getTime();
+			const dateA = new Date(a.datePosted).getTime();
 	
-			const dateB =
-				b.datePosted && typeof b.datePosted.toDate === "function"
-					? b.datePosted.toDate().getTime()
-					: new Date(b.datePosted).getTime();
+			const dateB = new Date(b.datePosted).getTime();
 	
 			return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
 		});
@@ -142,13 +138,10 @@ export default function DonationFeaturedDonationPage() {
 		return (
 			<div className="bg-[#EAEAEA]">
 				{/*Page Title*/}
-				<div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
-					<div className="absolute inset-0 bg-blue-500/50" />
-						<div className="relative z-10">
-						<h1 className="text-5xl font-bold my-2 text-white">Donation Drives</h1>
-						<p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
-					</div>
-				</div>
+				<Banner 
+					title="Donation Drives" 
+					description="Support meaningful causes through ICS and alumni donation drives, helping create opportunities and making a lasting impact."
+				/>
 				{/* Body */}
 				<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
 					{/* Sidebar */}
@@ -207,23 +200,7 @@ export default function DonationFeaturedDonationPage() {
                           <div className="flex items-center gap-1">
                             <Calendar size={16} />
                             <p className="text-sm text-gray-600">
-                              {story.datePosted &&
-                              typeof story.datePosted.toDate === "function"
-                                ? new Date(
-                                    story.datePosted.toDate()
-                                  ).toLocaleDateString("en-US", {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })
-                                : new Date(story.datePosted).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "long",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    }
-                                  )}
+                              {formatDate(story.datePosted)}
                             </p>
                           </div>
                         </div>

@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
     disableOptimizedLoading: false,
   },
 
-  unstable_excludeFiles: ["**/not-found.tsx", "**/404.tsx", "**/error.tsx"],
   eslint: {
     ignoreDuringBuilds: true,
   },
