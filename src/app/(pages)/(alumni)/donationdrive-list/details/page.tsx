@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 // import { useRouter, useSearchParams } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useDonationContext } from "@/context/DonationContext";
 // import { useAuth } from "@/context/AuthContext";
-import { DonationDrive, Donation, Event } from "@/models/models";
+import { DonationDrive, Donation, Event, Featured } from "@/models/models";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
@@ -20,10 +20,15 @@ import {
   MapPin,
   X,
   CircleCheck,
+	ChevronLast,
+	ChevronLeft,
+	ChevronRight,
 } from "lucide-react";
 import { ThankYouDialog } from "../../../../../components/ThankYouDialog";
 import Image from "next/image";
 import SearchParamsWrapper from "@/components/SearchParamsWrapper";
+import { useFeatured } from "@/context/FeaturedStoryContext";
+import LoadingPage from "@/components/Loading";
 
 export default function DonationDriveDetailsPage() {
   return (
@@ -34,7 +39,7 @@ export default function DonationDriveDetailsPage() {
 }
 
 function DonationDriveDetailsContent() {
-  //   const router = useRouter();
+	const router = useRouter();
   const searchParams = useSearchParams();
   const donationDriveId = searchParams.get("id");
   const { getDonationDriveById } = useDonationDrives();
@@ -53,6 +58,44 @@ function DonationDriveDetailsContent() {
   const [showDonors, setShowDonors] = useState(false);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false); // Track thank you dialog
 
+	const [story, setStory] = useState<Featured | null>(null);
+	const { featuredItems } = useFeatured();
+	const [currentIndex, setCurrentIndex] = useState(0);
+
+	// Filter stories by type and exclude the current story
+	const eventStories = featuredItems.filter(
+		(story: Featured) =>
+			story.type === "donation"
+	);
+
+	const sortedStories = [...eventStories].sort((a, b) => {
+		const dateA =
+			a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
+		const dateB =
+			b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
+		return dateB.getTime() - dateA.getTime();
+	});
+
+	// Calculate the maximum index for carousel
+	const maxIndex = Math.max(0, sortedStories.length - 3);
+
+	// Move to the next story
+	const nextSlide = () => {
+		if (currentIndex < maxIndex) {
+			setCurrentIndex(currentIndex + 1);
+		}
+	};
+
+	// Move to the previous story
+	const prevSlide = () => {
+		if (currentIndex > 0) {
+			setCurrentIndex(currentIndex - 1);
+		}
+	};
+
+	// Get visible stories based on current index
+	const visibleStories = sortedStories.slice(currentIndex, currentIndex + 3);
+	
   // Format date function with improved type safety
   const formatDate = (
     timestamp: Timestamp | string | number | Date | null | undefined
@@ -452,24 +495,108 @@ function DonationDriveDetailsContent() {
                 </p>
               </div>
             </div>
-            <div>
-              {/* Target guests */}
-              {/* {event?.targetGuests && event.targetGuests.length > 0 && (
-							<div>
-							<p className="text-sm text-gray-600 mb-2">Target audience:</p>
-							<div className="flex flex-wrap gap-2">
-								{event.targetGuests.map((guest, index) => (
-								<span 
-									key={index} 
-									className="bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded-full"
-								>
-									{guest}
-								</span>
-								))}
-							</div>
-							</div>
-						)} */}
-            </div>
+						{/* Featured Stories Section - Carousel */}
+						<div className="my-16 relative">
+							<h2 className="text-2xl text-center font-bold mb-6 text-gray-800">
+								Featured Stories
+							</h2>
+
+							{loading ? (
+								<>
+									<LoadingPage />
+								</>
+							) : sortedStories.length === 0 ? (
+								<p className="text-gray-500 text-center">
+									No featured stories found.
+								</p>
+							) : (
+								<div className="w-full">
+									{/* Previous button */}
+									<button
+										onClick={prevSlide}
+										disabled={currentIndex === 0}
+										className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
+									${
+										currentIndex === 0
+											? "opacity-30 cursor-not-allowed"
+											: "opacity-70 hover:opacity-100"
+									}`}
+										aria-label="Previous stories"
+									>
+										<ChevronLeft size={24} />
+									</button>
+
+									{/* Stories grid - always 3 columns on larger screens */}
+									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
+										{visibleStories.length === 0 && (
+											<div className="col-span-3 text-center text-gray-500">
+												No other stories available at this time.
+											</div>
+										)}
+										{visibleStories.map((story) => (
+											<div
+												key={story.featuredId}
+												className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+												onClick={() =>
+													router.push(
+														`/donationdrive-list/featured/${story.featuredId}`
+													)
+												}
+											>
+												{story.image && (
+													<div
+														className="h-40 bg-cover bg-center"
+														style={{ backgroundImage: `url(${story.image})` }}
+													/>
+												)}
+												<div className="p-4">
+													<h3 className="font-semibold text-lg text-gray-800 truncate">
+														{story.title}
+													</h3>
+													<p className="text-sm text-gray-500 mt-1">
+														{formatDate(story.datePosted)}
+													</p>
+													<p className="text-sm text-gray-700 mt-2 line-clamp-3">
+														{story.text}
+													</p>
+												</div>
+											</div>
+										))}
+									</div>
+
+									{/* Next button */}
+									<button
+										onClick={nextSlide}
+										disabled={currentIndex >= maxIndex}
+										className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
+									${
+										currentIndex >= maxIndex
+											? "opacity-30 cursor-not-allowed"
+											: "opacity-70 hover:opacity-100"
+									}`}
+										aria-label="Next stories"
+									>
+										<ChevronRight size={24} />
+									</button>
+
+									{/* Pagination dots */}
+									{sortedStories.length > 3 && (
+										<div className="flex justify-center mt-6 gap-2">
+											{Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+												<button
+													key={idx}
+													onClick={() => setCurrentIndex(idx)}
+													className={`h-2 w-2 rounded-full ${
+														idx === currentIndex ? "bg-blue-500" : "bg-gray-300"
+													}`}
+													aria-label={`Go to slide ${idx + 1}`}
+												/>
+											))}
+										</div>
+									)}
+								</div>
+							)}
+						</div>
           </div>
           {/* Action Bar */}
           <div className="self-start min-w-[390px] sticky top-1/8">
