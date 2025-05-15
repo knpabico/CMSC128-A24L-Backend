@@ -213,6 +213,7 @@ export default function AdminDashboard() {
   const [isCampaignName, setIsCampaignName] = useState("None");
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
   const [isSchoModalOpen, setIsSchoModalOpen] = useState(false);
+  const [activeScholarshipTab, setActiveScholarshipTab] = useState('open');
 
   // Function to handle opening the modal
   const handleOpenModal = (alumnus: Alumnus) => {
@@ -553,8 +554,6 @@ export default function AdminDashboard() {
     
       {/* Secondary Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Event Proposals 
-        To Fix: Ipagisahin ng card ang event proposal and upcoming events (k gagawa)*/}
         {/* Combined Events Card */}
         <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow col-span-2">
           <CardHeader className="pb-0">
@@ -717,7 +716,7 @@ export default function AdminDashboard() {
             <hr className="border-t border-gray-200 w-11/12 mx-auto" />
             <div className="text-center py-3">
               <Link
-                href={`/admin-dashboard/job-postings${activeTab === 'active' ? '/active' : ''}`}
+                href={`/admin-dashboard/job-postings`}
                 className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all job postings
@@ -726,7 +725,102 @@ export default function AdminDashboard() {
           </div>
         </Card>
         
-        {/* Scholarship */}
+        {/* MAYBELLEEE PAFIX PLSS di ko mapalabas yung mga scholarships nyahahah */}
+        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-0">
+            <CardTitle className="flex items-center">
+              <Award className="h-5 w-5 mr-2 text-yellow-600" /> Scholarships
+            </CardTitle>
+            
+            {/* Tabs */}
+            <div className="flex space-x-2 mt-2 border-b border-gray-200">
+              <button
+                onClick={() => setActiveScholarshipTab('open')}
+                className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
+                  activeScholarshipTab === 'open'
+                    ? 'bg-gray-100 border-b-2 border-yellow-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Open
+              </button>
+              <button
+                onClick={() => setActiveScholarshipTab('closed')}
+                className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
+                  activeScholarshipTab === 'closed'
+                    ? 'bg-gray-100 border-b-2 border-yellow-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Closed
+              </button>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
+          {/* First check if we have any scholarships at all */}
+          {scholarships.length === 0 ? (
+            <div className="text-center py-6 text-gray-500">No scholarships available</div>
+          ) : (
+            <>
+              {/* Then filter and display based on active tab */}
+              {scholarships
+                .filter(scholarship => 
+                  activeScholarshipTab === 'open' 
+                    ? scholarship.status === 'Open' 
+                    : scholarship.status === 'Closed'
+                )
+                .map(scholarship => (
+                  <div 
+                    key={scholarship.scholarshipId} 
+                    onClick={() => handleSchoOpenModal(scholarship)}
+                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
+                  >
+                    <div className="mb-1">
+                      <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
+                      <span
+                        className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                          scholarship.status
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {scholarship.status
+                          ? 'Open'
+                          : 'Closed'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              
+              {/* Check if filtered list is empty */}
+              {scholarships.filter(scholarship => 
+                activeScholarshipTab === 'open' 
+                  ? scholarship.status === 'Open'
+                  : scholarship.status === 'Closed'
+              ).length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  No {activeScholarshipTab === 'open' ? 'Open' : 'Closed'} scholarships
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+
+          <div className="px-2 mt-auto">
+            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
+            <div className="text-center py-3">
+              <Link
+                href="/admin-dashboard/scholarships/manage"
+                className="text-blue-600 hover:underline text-sm font-medium"
+              >
+                View all scholarships
+              </Link>
+            </div>
+          </div>
+        </Card>
+
+        {/* Scholarship - can be removed if nafix na yung may tabs */}
         <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
             <CardTitle className="flex items-center">
@@ -771,7 +865,7 @@ export default function AdminDashboard() {
             <hr className="border-t border-gray-200 w-11/12 mx-auto" />
             <div className="text-center py-3">
               <Link
-                href="/admin-dashboard/manage-scholarships"
+                href="/admin-dashboard/scholarships/manage"
                 className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all scholarships
@@ -817,7 +911,7 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  {/* Labels Legend - Limited to top 6 for cleaner display */}
+                  {/* Labels Legend */}
                   <div className="space-y-1 max-h-55 overflow-y-auto w-full">
                     {sortedEntries.slice(0, 6).map(([field, count], idx) => (
                       <div key={field} className="flex items-center space-x-2 text-sm p-1 hover:bg-gray-50 rounded-md">
