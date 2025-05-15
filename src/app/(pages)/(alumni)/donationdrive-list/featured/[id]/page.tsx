@@ -7,12 +7,9 @@ import { useParams, useRouter } from "next/navigation";
 import { MoveLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFeatured } from "@/context/FeaturedStoryContext"; // make sure this exists
 import { Featured } from "@/models/models"; // your featured story model
-import Link from 'next/link';
-<<<<<<< HEAD
+import Link from "next/link";
 import Breadcrumb from "@/components/breadcrumb";
-=======
-import { Timestamp } from "firebase-admin/firestore";
->>>>>>> 6315110f9ba724e8cd40095aab9bf4522024bdc6
+import { Timestamp } from "firebase/firestore";
 
 const FeaturedDetailPage: React.FC = () => {
   const params = useParams();
@@ -27,90 +24,95 @@ const FeaturedDetailPage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Filter stories by type and exclude the current story
-  const eventStories = featuredItems.filter((story : Featured) => 
-	story.type === "donation" && story.featuredId !== featuredId
+  const eventStories = featuredItems.filter(
+    (story: Featured) =>
+      story.type === "donation" && story.featuredId !== featuredId
   );
 
   const sortedStories = [...eventStories].sort((a, b) => {
-	const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
-	const dateB = b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
-	return dateB.getTime() - dateA.getTime();
+    const dateA =
+      a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
+    const dateB =
+      b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
+    return dateB.getTime() - dateA.getTime();
   });
 
   // Calculate the maximum index for carousel
   const maxIndex = Math.max(0, sortedStories.length - 3);
-  
+
   // Move to the next story
   const nextSlide = () => {
-	if (currentIndex < maxIndex) {
-	  setCurrentIndex(currentIndex + 1);
-	}
+    if (currentIndex < maxIndex) {
+      setCurrentIndex(currentIndex + 1);
+    }
   };
-  
+
   // Move to the previous story
   const prevSlide = () => {
-	if (currentIndex > 0) {
-	  setCurrentIndex(currentIndex - 1);
-	}
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
   };
-  
+
   // Get visible stories based on current index
   const visibleStories = sortedStories.slice(currentIndex, currentIndex + 3);
 
   useEffect(() => {
-	const fetchStory = async () => {
-	  try {
-		setLoading(true);
-		const data = await getFeaturedById(featuredId);
-		if (data) {
-		  setStory(data);
-		} else {
-		  setError("Story not found.");
-		}
-	  } catch (err) {
-		console.error(err);
-		setError("Failed to load story.");
-	  } finally {
-		setLoading(false);
-	  }
-	};
+    const fetchStory = async () => {
+      try {
+        setLoading(true);
+        const data = await getFeaturedById(featuredId);
+        if (data) {
+          setStory(data);
+        } else {
+          setError("Story not found.");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load story.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-	if (featuredId) {
-	  fetchStory();
-	}
+    if (featuredId) {
+      fetchStory();
+    }
   }, [featuredId, getFeaturedById]);
 
-  const formatDate = (timestamp: Timestamp | string | number | Date | null | undefined): string => {
-	try {
-		if (!timestamp) return 'N/A';
-  
-		let date: Date;
-  
-		if (timestamp instanceof Timestamp) {
-		date = timestamp.toDate();
-		} else {
-		date = new Date(timestamp);
-		}
-  
-		return isNaN(date.getTime())
-		? 'Invalid Date'
-		: date.toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			});
-	} catch (err) {
-		console.error('Date formatting error:', err);
-		return 'Invalid Date';
-	}
+  const formatDate = (
+    timestamp: Timestamp | string | number | Date | null | undefined
+  ): string => {
+    try {
+      if (!timestamp) return "N/A";
+
+      let date: Date;
+
+      if (timestamp instanceof Timestamp) {
+        date = timestamp.toDate();
+      } else {
+        date = new Date(timestamp);
+      }
+
+      return isNaN(date.getTime())
+        ? "Invalid Date"
+        : date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+    } catch (err) {
+      console.error("Date formatting error:", err);
+      return "Invalid Date";
+    }
   };
 
   if (loading) {
-	return <div className="p-4">Loading...</div>;
+    return <div className="p-4">Loading...</div>;
   }
 
   if (error) {
-	return <div className="p-4 text-red-500">{error}</div>;
+    return <div className="p-4 text-red-500">{error}</div>;
   }
 
   const breadcrumbItems = [

@@ -1,3 +1,4 @@
+"use client";
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -21,6 +22,8 @@ import { AffiliationProvider } from "@/context/AffiliationContext";
 import { FeaturedProvider } from "@/context/FeaturedStoryContext";
 import { Inter } from "next/font/google";
 import { JobApplicationContextProvider } from "@/context/JobApplicationContext";
+import LoadingPage from "@/components/Loading";
+import { Suspense } from "react";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -52,9 +55,13 @@ export default function RootLayout({
                                       <EducationProvider>
                                         <AffiliationProvider>
                                           <body className={inter.className}>
-                                            <Navbar />
-                                            <div className="">{children}</div>
-                                            <Toaster />
+                                            <Suspense
+                                              fallback={<LoadingPage />}
+                                            >
+                                              <Navbar />
+                                              <div className="">{children}</div>
+                                              <Toaster />
+                                            </Suspense>
                                           </body>
                                         </AffiliationProvider>
                                       </EducationProvider>

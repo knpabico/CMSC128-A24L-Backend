@@ -1,32 +1,57 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-// import { useRouter, useSearchParams } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
-import { useDonationDrives } from '@/context/DonationDriveContext';
-import { useDonationContext } from '@/context/DonationContext';
-// import { useAuth } from '@/context/AuthContext';
-import { DonationDrive, Donation, Event } from '@/models/models';
-import { doc, getDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import Link from 'next/link';
-import { DonateDialog } from '../DonateDialog';
-import BookmarkButton from '@/components/ui/bookmark-button';
-import { Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
-import { ThankYouDialog } from '../../../../../components/ThankYouDialog';
+import React, { useEffect, useState } from "react";
+// import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useDonationDrives } from "@/context/DonationDriveContext";
+import { useDonationContext } from "@/context/DonationContext";
+// import { useAuth } from "@/context/AuthContext";
+import { DonationDrive, Donation, Event, Featured } from "@/models/models";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import Link from "next/link";
+import { DonateDialog } from "../DonateDialog";
+import BookmarkButton from "@/components/ui/bookmark-button";
+import {
+  Users,
+  Clock,
+  HandHeart,
+  Calendar,
+  MapPin,
+  X,
+  CircleCheck,
+	ChevronLast,
+	ChevronLeft,
+	ChevronRight,
+} from "lucide-react";
+import { ThankYouDialog } from "../../../../../components/ThankYouDialog";
 import Image from "next/image";
 import Breadcrumb from '@/components/breadcrumb';
+import SearchParamsWrapper from "@/components/SearchParamsWrapper";
+import { useFeatured } from "@/context/FeaturedStoryContext";
+import LoadingPage from "@/components/Loading";
 
+export default function DonationDriveDetailsPage() {
+  return (
+    <SearchParamsWrapper>
+      <DonationDriveDetailsContent />
+    </SearchParamsWrapper>
+  );
+}
 
-const DonationDriveDetailsPage: React.FC = () => {
-//   const router = useRouter();
+function DonationDriveDetailsContent() {
+	const router = useRouter();
   const searchParams = useSearchParams();
-  const donationDriveId = searchParams.get('id');
+  const donationDriveId = searchParams.get("id");
   const { getDonationDriveById } = useDonationDrives();
   const { getDonationsByDonationDrive } = useDonationContext();
-  const [donationDrive, setDonationDrive] = useState<DonationDrive | null>(null);
+  const [donationDrive, setDonationDrive] = useState<DonationDrive | null>(
+    null
+  );
   const [event, setEvent] = useState<Event | null>(null);
-  const [donations, setDonations] = useState<(Donation & { displayName?: string })[]>([]);
+  const [donations, setDonations] = useState<
+    (Donation & { displayName?: string })[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [eventLoading, setEventLoading] = useState(false);
   const [donationsLoading, setDonationsLoading] = useState(true);
@@ -34,114 +59,154 @@ const DonationDriveDetailsPage: React.FC = () => {
   const [showDonors, setShowDonors] = useState(false);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false); // Track thank you dialog
 
+	const [story, setStory] = useState<Featured | null>(null);
+	const { featuredItems } = useFeatured();
+	const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Format date function with improved type safety
-  const formatDate = (timestamp: Timestamp | string | number | Date | null | undefined): string => {
-	try {
-		if (!timestamp) return 'N/A';
+	// Filter stories by type and exclude the current story
+	const eventStories = featuredItems.filter(
+		(story: Featured) =>
+			story.type === "donation"
+	);
 
-		let date: Date;
+	const sortedStories = [...eventStories].sort((a, b) => {
+		const dateA =
+			a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
+		const dateB =
+			b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
+		return dateB.getTime() - dateA.getTime();
+	});
 
-		if (timestamp instanceof Timestamp) {
-		date = timestamp.toDate();
-		} else {
-		date = new Date(timestamp);
+	// Calculate the maximum index for carousel
+	const maxIndex = Math.max(0, sortedStories.length - 3);
+
+	// Move to the next story
+	const nextSlide = () => {
+		if (currentIndex < maxIndex) {
+			setCurrentIndex(currentIndex + 1);
 		}
+	};
 
-		return isNaN(date.getTime())
-		? 'Invalid Date'
-		: date.toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			});
-	} catch (err) {
-		console.error('Date formatting error:', err);
-		return 'Invalid Date';
-	}
+	// Move to the previous story
+	const prevSlide = () => {
+		if (currentIndex > 0) {
+			setCurrentIndex(currentIndex - 1);
+		}
+	};
+
+	// Get visible stories based on current index
+	const visibleStories = sortedStories.slice(currentIndex, currentIndex + 3);
+	
+  // Format date function with improved type safety
+  const formatDate = (
+    timestamp: Timestamp | string | number | Date | null | undefined
+  ): string => {
+    try {
+      if (!timestamp) return "N/A";
+
+      let date: Date;
+
+      if (timestamp instanceof Timestamp) {
+        date = timestamp.toDate();
+      } else {
+        date = new Date(timestamp);
+      }
+
+      return isNaN(date.getTime())
+        ? "Invalid Date"
+        : date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+    } catch (err) {
+      console.error("Date formatting error:", err);
+      return "Invalid Date";
+    }
   };
 
   // Format time ago
-  const formatTimeAgo = (timestamp: Timestamp | string | number | Date | null | undefined) => {
+  const formatTimeAgo = (
+    timestamp: Timestamp | string | number | Date | null | undefined
+  ) => {
     try {
-		if (!timestamp) return '';
+      if (!timestamp) return "";
 
-		let date: Date;
+      let date: Date;
 
-		if (timestamp instanceof Timestamp) {
-		date = timestamp.toDate();
-		} else {
-		date = new Date(timestamp);
-		}
+      if (timestamp instanceof Timestamp) {
+        date = timestamp.toDate();
+      } else {
+        date = new Date(timestamp);
+      }
 
-		if (isNaN(date.getTime())) return '';
+      if (isNaN(date.getTime())) return "";
 
-		const now = new Date();
-		const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+      const now = new Date();
+      const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-		if (diffInSeconds < 60) return 'just now';
-		if (diffInSeconds < 3600) {
-		const minutes = Math.floor(diffInSeconds / 60);
-		return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-		}
-		if (diffInSeconds < 86400) {
-		const hours = Math.floor(diffInSeconds / 3600);
-		return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-		}
-		if (diffInSeconds < 2592000) {
-		const days = Math.floor(diffInSeconds / 86400);
-		return `${days} day${days !== 1 ? 's' : ''} ago`;
-		}
-		if (diffInSeconds < 31536000) {
-		const months = Math.floor(diffInSeconds / 2592000);
-		return `${months} month${months !== 1 ? 's' : ''} ago`;
-		}
+      if (diffInSeconds < 60) return "just now";
+      if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+      }
+      if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+      }
+      if (diffInSeconds < 2592000) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `${days} day${days !== 1 ? "s" : ""} ago`;
+      }
+      if (diffInSeconds < 31536000) {
+        const months = Math.floor(diffInSeconds / 2592000);
+        return `${months} month${months !== 1 ? "s" : ""} ago`;
+      }
 
-		const years = Math.floor(diffInSeconds / 31536000);
-		return `${years} year${years !== 1 ? 's' : ''} ago`;
+      const years = Math.floor(diffInSeconds / 31536000);
+      return `${years} year${years !== 1 ? "s" : ""} ago`;
+    } catch (err) {
+      console.error("Time formatting error:", err);
+      return "";
+    }
+  };
 
-	} catch (err) {
-		console.error('Time formatting error:', err);
-		return '';
-	}
-	};
+  //Calculate Days Remaining
+  const getRemainingDays = (endDate: Date) => {
+    try {
+      const today = new Date(); // Current date
+      const end = typeof endDate === "string" ? new Date(endDate) : endDate; // Firestore Timestamp to JS Date
+      const diffTime = end.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-//Calculate Days Remaining
-const getRemainingDays = (endDate: Date) => {
-	try {
-		const today = new Date(); // Current date
-      	const end = (typeof endDate === 'string')? new Date(endDate) : endDate; // Firestore Timestamp to JS Date
-		const diffTime = end.getTime() - today.getTime();
-		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays <= 0) return "Expired";
+      else if (diffDays === 1) return "1 day left";
+      else return `${diffDays} days left`;
+    } catch (err) {
+      return "Invalid Date";
+    }
+  };
 
-		if (diffDays <= 0) return "Expired";
-		else if (diffDays === 1) return "1 day left";
-		else return `${diffDays} days left`;
-	} catch (err) {
-		return 'Invalid Date';
-	}
-};
-
-  // Calculate progress percentage 
+  // Calculate progress percentage
   const calculateProgress = (current: number, target: number): string => {
-    if (target <= 0 || isNaN(target) || isNaN(current)) return '0';
+    if (target <= 0 || isNaN(target) || isNaN(current)) return "0";
     const percentage = (current / target) * 100;
     return Math.min(percentage, 100).toFixed(0);
   };
 
-	// Get most recent donation
-	const recentDonation = donations.reduce((latest, donation) => {
-		return new Date(donation.date) > new Date(latest.date) ? donation : latest;
-	}, donations[0]);
-	
-	// Get the highest donation
-	const highestDonation = donations.reduce((max, donation) => {
-		return donation.amount > max.amount ? donation : max;
-	}, donations[0]);
+  // Get most recent donation
+  const recentDonation = donations.reduce((latest, donation) => {
+    return new Date(donation.date) > new Date(latest.date) ? donation : latest;
+  }, donations[0]);
+
+  // Get the highest donation
+  const highestDonation = donations.reduce((max, donation) => {
+    return donation.amount > max.amount ? donation : max;
+  }, donations[0]);
 
   useEffect(() => {
     if (!donationDriveId) {
-      setError('No donation drive ID provided');
+      setError("No donation drive ID provided");
       setLoading(false);
       return;
     }
@@ -153,7 +218,7 @@ const getRemainingDays = (endDate: Date) => {
 
         const data = await getDonationDriveById(donationDriveId);
         if (!data) {
-          throw new Error('Donation drive not found');
+          throw new Error("Donation drive not found");
         }
         setDonationDrive(data);
 
@@ -162,8 +227,12 @@ const getRemainingDays = (endDate: Date) => {
           await fetchEventDetails(data.eventId);
         }
       } catch (err) {
-        console.error('Error fetching donation drive:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load donation drive details');
+        console.error("Error fetching donation drive:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load donation drive details"
+        );
       } finally {
         setLoading(false);
       }
@@ -183,10 +252,10 @@ const getRemainingDays = (endDate: Date) => {
         const eventData = eventSnap.data() as Event;
         setEvent({ ...eventData, eventId });
       } else {
-        console.warn('Event not found for ID:', eventId);
+        console.warn("Event not found for ID:", eventId);
       }
     } catch (err) {
-      console.error('Error fetching event details:', err);
+      console.error("Error fetching event details:", err);
     } finally {
       setEventLoading(false);
     }
@@ -200,14 +269,16 @@ const getRemainingDays = (endDate: Date) => {
         setDonationsLoading(true); // Set loading to true at the start
 
         // Use the updated function with donationDriveId parameter
-        const donationsData = await getDonationsByDonationDrive(donationDriveId);
+        const donationsData = await getDonationsByDonationDrive(
+          donationDriveId
+        );
 
         // Fetch donor details for non-anonymous donations
         const enhancedDonations = await Promise.all(
           donationsData.map(async (donation) => {
             // Skip fetching details for anonymous donations
             if (donation.isAnonymous) {
-              return { ...donation, displayName: 'Anonymous' };
+              return { ...donation, displayName: "Anonymous" };
             }
 
             try {
@@ -217,16 +288,22 @@ const getRemainingDays = (endDate: Date) => {
 
               if (donorSnap.exists()) {
                 const donorData = donorSnap.data();
-                return { 
-                  ...donation, 
-                  displayName: `${donorData.firstName || ''} ${donorData.lastName || ''}`.trim() || 'Unknown'
+                return {
+                  ...donation,
+                  displayName:
+                    `${donorData.firstName || ""} ${
+                      donorData.lastName || ""
+                    }`.trim() || "Unknown",
                 };
               } else {
-                return { ...donation, displayName: 'Unknown' };
+                return { ...donation, displayName: "Unknown" };
               }
             } catch (error) {
-              console.error(`Error fetching donor info for ${donation.alumniId}:`, error);
-              return { ...donation, displayName: 'Unknown' };
+              console.error(
+                `Error fetching donor info for ${donation.alumniId}:`,
+                error
+              );
+              return { ...donation, displayName: "Unknown" };
             }
           })
         );
@@ -234,7 +311,7 @@ const getRemainingDays = (endDate: Date) => {
         setDonations(enhancedDonations);
         setDonationsLoading(false);
       } catch (err) {
-        console.error('Error fetching donations:', err);
+        console.error("Error fetching donations:", err);
       } finally {
         setDonationsLoading(false); // Make sure loading is set to false whether successful or not
       }
@@ -261,8 +338,8 @@ const getRemainingDays = (endDate: Date) => {
         <div className="p-4 bg-red-100 text-red-700 rounded-md">
           <h2 className="font-bold text-lg">Error</h2>
           <p>{error}</p>
-          <Link 
-            href="/donationdrive-list" 
+          <Link
+            href="/donationdrive-list"
             className="mt-2 inline-block text-blue-600 hover:underline"
           >
             Back to Donation Drives
@@ -276,9 +353,11 @@ const getRemainingDays = (endDate: Date) => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <h3 className="text-xl font-medium text-gray-600">Donation drive not found</h3>
-          <Link 
-            href="/donationdrive-list" 
+          <h3 className="text-xl font-medium text-gray-600">
+            Donation drive not found
+          </h3>
+          <Link
+            href="/donationdrive-list"
             className="mt-2 inline-block text-blue-600 hover:underline"
           >
             Back to Donation Drives
@@ -580,12 +659,113 @@ const getRemainingDays = (endDate: Date) => {
 					{/* Donors */}
 
 				</div>
-				hi
+				
+				{/* Featured Stories Section - Carousel */}
+						<div className="my-16 relative">
+							<h2 className="text-2xl text-center font-bold mb-6 text-gray-800">
+								Featured Stories
+							</h2>
+
+							{loading ? (
+								<>
+									<LoadingPage />
+								</>
+							) : sortedStories.length === 0 ? (
+								<p className="text-gray-500 text-center">
+									No featured stories found.
+								</p>
+							) : (
+								<div className="w-full">
+									{/* Previous button */}
+									<button
+										onClick={prevSlide}
+										disabled={currentIndex === 0}
+										className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
+									${
+										currentIndex === 0
+											? "opacity-30 cursor-not-allowed"
+											: "opacity-70 hover:opacity-100"
+									}`}
+										aria-label="Previous stories"
+									>
+										<ChevronLeft size={24} />
+									</button>
+
+									{/* Stories grid - always 3 columns on larger screens */}
+									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
+										{visibleStories.length === 0 && (
+											<div className="col-span-3 text-center text-gray-500">
+												No other stories available at this time.
+											</div>
+										)}
+										{visibleStories.map((story) => (
+											<div
+												key={story.featuredId}
+												className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+												onClick={() =>
+													router.push(
+														`/donationdrive-list/featured/${story.featuredId}`
+													)
+												}
+											>
+												{story.image && (
+													<div
+														className="h-40 bg-cover bg-center"
+														style={{ backgroundImage: `url(${story.image})` }}
+													/>
+												)}
+												<div className="p-4">
+													<h3 className="font-semibold text-lg text-gray-800 truncate">
+														{story.title}
+													</h3>
+													<p className="text-sm text-gray-500 mt-1">
+														{formatDate(story.datePosted)}
+													</p>
+													<p className="text-sm text-gray-700 mt-2 line-clamp-3">
+														{story.text}
+													</p>
+												</div>
+											</div>
+										))}
+									</div>
+
+									{/* Next button */}
+									<button
+										onClick={nextSlide}
+										disabled={currentIndex >= maxIndex}
+										className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
+									${
+										currentIndex >= maxIndex
+											? "opacity-30 cursor-not-allowed"
+											: "opacity-70 hover:opacity-100"
+									}`}
+										aria-label="Next stories"
+									>
+										<ChevronRight size={24} />
+									</button>
+
+									{/* Pagination dots */}
+									{sortedStories.length > 3 && (
+										<div className="flex justify-center mt-6 gap-2">
+											{Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+												<button
+													key={idx}
+													onClick={() => setCurrentIndex(idx)}
+													className={`h-2 w-2 rounded-full ${
+														idx === currentIndex ? "bg-blue-500" : "bg-gray-300"
+													}`}
+													aria-label={`Go to slide ${idx + 1}`}
+												/>
+											))}
+										</div>
+									)}
+								</div>
+							)}
+						</div>
+          </div>
+
 			</div>
-		</div>
 	
 	
   );
-};
-
-export default DonationDriveDetailsPage;
+}
