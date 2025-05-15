@@ -130,7 +130,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
             </div>
           </div>
           {/* Description with View More */}
-          <div className="mb-3 text-sm text-start">
+          <div className="text-sm text-start">
             <p
               className={`h-10 overflow-hidden text-clip ${
                 event.description.length > 100 ? "mb-1" : ""
@@ -141,14 +141,6 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
                 : event.description}
             </p>
 
-            <button
-              className="text-xs text-gray-600 hover:text-gray-800 pt-2"
-              onClick={() => (eventId: string) => {
-                router.push(`/events/${eventId}`);
-              }}
-            >
-              View More
-            </button>
           </div>
         </div>
       </div>

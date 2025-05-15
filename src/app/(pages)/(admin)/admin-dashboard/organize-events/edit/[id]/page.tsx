@@ -71,7 +71,13 @@ export default function EditEventPage() {
 
   // Generate years from 1925 to current year
   const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 1925 + 1 }, (_, i) => (currentYear - i).toString())
+  const years = Array.from(
+    new Set(
+      activeAlums
+        .map(alum => alum.studentNumber?.slice(0, 4))
+        .filter((year): year is string => !!year) // filter out undefined/null
+    )
+  );
 
   // Sample alumni emails for display
   const alumniEmails = activeAlums
@@ -291,8 +297,20 @@ export default function EditEventPage() {
           setErrorMessage(result.message || "Failed to update event.")
         }
       } else if (buttonType === "Finalize") {
+        const updatedEvent = {
+          eventId: currentEvent.eventId,
+          title,
+          description,
+          image,
+          date,
+          time,
+          location,
+          rsvps: currentEvent.rsvps,
+          inviteType: visibility,
+          targetGuests,
+        };
         // Finalize the event (set status to Accepted)
-        addEvent(currentEvent, true)
+        addEvent(updatedEvent, true)
         resetFormState()
         router.push("/admin-dashboard/organize-events")
       }
@@ -636,7 +654,7 @@ export default function EditEventPage() {
 
       <button
         type="submit"
-        onClick={(e) => handleSubmit(e, "Update")}
+        onClick={async (e) => await handleSubmit(e, "Update")}
         disabled={isUpdating}
         className={`w-30 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-200 ${
           "bg-[var(--primary-white)] text-[var(--primary-blue)] hover:bg-[var(--gray-600)] hover:border-[var(--gray-600)]"
@@ -648,7 +666,6 @@ export default function EditEventPage() {
       <button
         type="submit"
         onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {
-          await handleSubmit(e, "Update");
           await handleSubmit(e, "Finalize");
         }}
         disabled={isSubmitting || !formComplete}

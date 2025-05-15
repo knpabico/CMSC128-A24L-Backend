@@ -2,6 +2,7 @@
 
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { useRouter, useSearchParams } from "next/navigation";
+import SearchParamsWrapper from "@/components/SearchParamsWrapper";
 
 const title = "Manage Users";
 
@@ -16,12 +17,20 @@ const sortTypes = [
   "INACTIVE - ACTIVE",
 ];
 const sortValues = ["d", "sa", "sd", "ar", "ra", "reca", "ai", "ia"];
-// retrieve the search params which will be used for the pagination of the table
+
 export default function ManageUsersClient({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  return (
+    <SearchParamsWrapper>
+      <ManageUsersContent>{children}</ManageUsersContent>
+    </SearchParamsWrapper>
+  );
+}
+
+function ManageUsersContent({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const page = searchParams.get("page"); //get current page param
   const status = searchParams.get("status"); //get current status param

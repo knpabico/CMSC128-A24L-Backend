@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  Suspense,
+} from "react";
 import {
   collection,
   doc,
@@ -14,12 +20,13 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { useSearchParams } from "next/navigation";
 import { NewsletterItem } from "@/models/models";
-import { FirebaseError } from "firebase-admin";
+import { FirebaseError } from "firebase/app";
 import { emailNewsLettertoAlums } from "@/lib/emailTemplate";
 
 const NewsLetterContext = createContext<any>(null);
 
-export function NewsLetterProvider({
+// Context implementation separated from the provider wrapper
+function NewsLetterContextProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -29,6 +36,7 @@ export function NewsLetterProvider({
   const [newsLetters, setNewsLetters] = useState<any[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
+
   useEffect(() => {
     let unsubscribe: (() => void) | null;
 
@@ -118,6 +126,19 @@ export function NewsLetterProvider({
     >
       {children}
     </NewsLetterContext.Provider>
+  );
+}
+
+// Wrapper component with Suspense
+export function NewsLetterProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<div>Loading newsletter data...</div>}>
+      <NewsLetterContextProvider>{children}</NewsLetterContextProvider>
+    </Suspense>
   );
 }
 

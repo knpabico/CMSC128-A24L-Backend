@@ -142,6 +142,10 @@ export default function AddScholarships() {
       status: "",
       studentList: [],
     };
+		if (!image) {
+      toastError("No Image selected");
+      return;
+    }
     setIsSubmitting(true);
     const response = await addScholarship(newScholarship);
 
@@ -282,11 +286,11 @@ export default function AddScholarships() {
                 </label>
                 <input
                   id="image-upload"
+									name="photo" 
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
-                  required
                 />
               </div>
               {preview && (
