@@ -758,19 +758,17 @@ export default function AdminDashboard() {
           </CardHeader>
           
           <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
-          {/* First check if we have any scholarships at all */}
           {scholarships.length === 0 ? (
             <div className="text-center py-6 text-gray-500">No scholarships available</div>
           ) : (
             <>
-              {/* Then filter and display based on active tab */}
               {scholarships
-                .filter(scholarship => 
+                .filter((scholarship:Scholarship)=> 
                   activeScholarshipTab === 'open' 
-                    ? scholarship.status === 'Open' 
-                    : scholarship.status === 'Closed'
+                    ? scholarship.status === 'active' 
+                    : scholarship.status === 'closed'
                 )
-                .map(scholarship => (
+                .map((scholarship:Scholarship)=> (
                   <div 
                     key={scholarship.scholarshipId} 
                     onClick={() => handleSchoOpenModal(scholarship)}
@@ -786,18 +784,17 @@ export default function AdminDashboard() {
                         }`}
                       >
                         {scholarship.status
-                          ? 'Open'
-                          : 'Closed'}
+                          ? 'active'
+                          : 'closed'}
                       </span>
                     </div>
                   </div>
                 ))}
               
-              {/* Check if filtered list is empty */}
-              {scholarships.filter(scholarship => 
+              {scholarships.filter((scholarship:Scholarship) => 
                 activeScholarshipTab === 'open' 
-                  ? scholarship.status === 'Open'
-                  : scholarship.status === 'Closed'
+                  ? scholarship.status === 'active'
+                  : scholarship.status === 'closed'
               ).length === 0 && (
                 <div className="text-center py-6 text-gray-500">
                   No {activeScholarshipTab === 'open' ? 'Open' : 'Closed'} scholarships
