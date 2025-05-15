@@ -76,7 +76,13 @@ export default function CreateEventPage() {
 
   // Generate years from 1925 to current year
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 1925 + 1 }, (_, i) => (currentYear - i).toString());
+  const years = Array.from(
+    new Set(
+      activeAlums
+        .map(alum => alum.studentNumber?.slice(0, 4))
+        .filter((year): year is string => !!year) // filter out undefined/null
+    )
+  );
 
   // Sample alumni emails for display
   const alumniEmails = activeAlums

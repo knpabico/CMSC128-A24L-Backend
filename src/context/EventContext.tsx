@@ -207,23 +207,24 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        const rsvpId = await createRSVP();
+        if(updatedTargetGuests.length > 0){
+          const rsvpId = await createRSVP();
 
-        // Update the event document
-        const updateData: any = {
-          ...newEvent,
-          rsvps: rsvpId,
-          status: "Accepted",
-          datePosted: new Date(),
-        };
+          // Update the event document
+          const updateData: any = {
+            ...newEvent,
+            rsvps: rsvpId,
+            status: "Accepted",
+            datePosted: new Date(),
+          };
 
-        console.log(newEvent.inviteType)
+          if (newEvent.inviteType !== "all") {
+            updateData.targetGuests = updatedTargetGuests;
+          }
 
-        if (newEvent.inviteType !== "all") {
-          updateData.targetGuests = updatedTargetGuests;
-        }
-
-        await updateDoc(docRef, updateData);
+          await updateDoc(docRef, updateData);
+        } 
+        
         await addNewsLetter(newEvent.eventId, "event");
       }
 
