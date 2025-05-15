@@ -1,6 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
 import { useParams, useRouter } from "next/navigation"
 import { useEvents } from "@/context/EventContext"
 import { useRsvpDetails } from "@/context/RSVPContext"
@@ -15,34 +14,6 @@ import BookmarkButton from "@/components/ui/bookmark-button"
 import Breadcrumb from "@/components/breadcrumb"
 import Image from "next/image"
 import { Button } from "@mui/material"
-=======
-import { useParams, useRouter } from "next/navigation";
-import { useEvents } from "@/context/EventContext";
-import { useRsvpDetails } from "@/context/RSVPContext";
-import type { Event, RSVP } from "@/models/models";
-import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
-import {
-  MoveLeft,
-  Calendar,
-  Clock,
-  MapPin,
-  Users,
-  CircleCheck,
-  ImageOff,
-  X,
-  Clock2,
-  CircleX,
-  CircleAlert,
-  Clock10,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { useFeatured } from "@/context/FeaturedStoryContext";
-import ProposeEventForm from "../components/ProposeEventForm";
-import Link from "next/link";
-import BookmarkButton from "@/components/ui/bookmark-button";
->>>>>>> 6315110f9ba724e8cd40095aab9bf4522024bdc6
 
 const EventPageAlumni = () => {
   const { events, setShowForm, showForm, handleDelete } = useEvents();
@@ -143,7 +114,6 @@ const EventPageAlumni = () => {
     });
   };
 
-<<<<<<< HEAD
   const breadcrumbItems = [
     { label: "Events", href: "/events" },
     { label: `${event?.title}`, href: "#", active: true },
@@ -204,286 +174,16 @@ const EventPageAlumni = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin size={20}/> {event.location}
-=======
-  if (!eventId || events.length === 0) return <p>Loading...</p>;
-
-  return (
-    <div className="w-full px-6 md:px-10 lg:px-20 pt-6 pb-10">
-      <Link
-        href="/events"
-        className="text-sm mb-4 inline-flex gap-2 items-center hover:underline"
-      >
-        <MoveLeft className="size-[17px]" />
-        Back to Events
-      </Link>
-
-      <div className="flex justify-between items-center p-3">
-        <h1 className="text-3xl lg:text-5xl font-bold text-gray-800">
-          {event?.title || "Event Details"}
-        </h1>
-        {event?.status === "Accepted" && (
-          <BookmarkButton entryId={event.eventId} type="event" size="lg" />
-        )}
-      </div>
-
-      {/* Event Body */}
-      <div className="flex flex-col xl:flex-row xl:gap-10 w-full">
-        {/* Body */}
-        <div className="flex flex-col gap-[10px] w-full">
-          {/* Image */}
-          {event?.image ? (
-            <div className="relative">
-              {event ? (
-                <img
-                  src={event.image}
-                  alt={event.title}
-                  className="object-fit w-full bg-center h-[230px] md:h-[350px] lg:h-[400px]"
-                />
-              ) : null}
-            </div>
-          ) : (
-            <div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
-              <span className="text-blue-500 font-medium">
-                <ImageOff className="size-[50px]" />
-              </span>
-            </div>
-          )}
-          {/* Accepted */}
-          {event && event?.status === "Accepted" && (
-            <div className="mt-5 px-5">
-              <div className=" flex justify-between items-center gap-4">
-                <div className="flex gap-1 items-center justify-center">
-                  <Calendar className="size-[20px]" />
-                  <p className="text-sm">{formatDate(event.datePosted)}</p>
-                </div>
-                <div className="flex gap-1 items-center justify-center">
-                  <Clock className="size-[20px]" />
-                  <p className="text-sm">{event.time}</p>
-                </div>
-                <div className="flex gap-1 items-center justify-center">
-                  <MapPin className="size-[20px]" />
-                  <p className="text-sm">{event.location}</p>
-                </div>
-                <div className="flex gap-1 items-center justify-center">
-                  <Users className="size-[20px]" />
-                  <p className="text-sm">
-                    {event.numofAttendees || 0} attendees
-                  </p>
->>>>>>> 6315110f9ba724e8cd40095aab9bf4522024bdc6
                 </div>
 
               </div>
             </div>
-<<<<<<< HEAD
 
             {/* Event Description */}
             <div className="w-full px-8 pb-8">
               <h1 className="text-sm">{event?.description}</h1>
             </div>
 
-=======
-          )}
-          {/* Pending */}
-          {event &&
-            (event?.status === "Pending" ||
-              event?.status === "Draft" ||
-              event?.status === "Rejected") && (
-              <div className="mt-5 px-5">
-                <div className=" flex justify-between items-center gap-4">
-                  <div className="flex gap-1 items-center justify-center">
-                    <Calendar className="size-[20px]" />
-                    <p className="text-sm">{formatDate(event.datePosted)}</p>
-                  </div>
-                  <div className="flex gap-1 items-center justify-center">
-                    <Clock className="size-[20px]" />
-                    <p className="text-sm">{event.time}</p>
-                  </div>
-                  <div className="flex gap-1 items-center justify-center">
-                    <MapPin className="size-[20px]" />
-                    <p className="text-sm">{event.location}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          {/* Event description */}
-          <p className="mb-6">
-            {event ? event.description : "No description added."}
-          </p>
-        </div>
-
-        {/* Action Bar */}
-        <div className="self-start min-w-[390px] sticky top-1/8">
-          {/* Side bar */}
-          <div className="flex flex-col gap-[10px] w-full">
-            {/* Invitation Status */}
-            <div className="bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex flex-col gap-2 w-full shadow-md border border-gray-200">
-              {event && event?.status === "Accepted" && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-green-600 font-medium gap-2 w-full">
-                        Approved
-                        <CircleCheck />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Registration Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Availability:</p>
-                      </div>
-                      <div className="flex items-center justify-end font-medium gap-2 w-full">
-                        {event?.stillAccepting ? (
-                          <>
-                            <span className="text-green-600 flex items-center gap-2">
-                              Still accepting guests
-                              <CircleCheck />
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-red-600 flex items-center gap-2">
-                              Registration closed
-                              <X />
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* RSVP status */}
-                  <div className="w-full flex justify-between">
-                    <div className="w-full">
-                      <p>RSVP Status: </p>
-                    </div>
-                    {alumniRsvpStatus === "Pending" ? (
-                      <div className="flex items-center justify-end text-yellow-600 font-medium gap-2 w-full">
-                        Pending
-                        <Clock2 />
-                      </div>
-                    ) : alumniRsvpStatus === "Accepted" ? (
-                      <div className="flex items-center justify-end text-green-600 font-medium gap-2 w-full">
-                        Going
-                        <CircleCheck />
-                      </div>
-                    ) : alumniRsvpStatus === "Rejected" ? (
-                      <div className="flex items-center justify-end text-red-600 font-medium gap-2 w-full">
-                        Not Going
-                        <CircleX />
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {/* RSVP Buttons */}
-                  {alumniRsvpStatus === "Pending" && (
-                    <div className="flex gap-2 p-2">
-                      <button
-                        onClick={handleAccept}
-                        className="text-sm bg-[#0856BA] w-1/2 px-1 py-[5px] rounded-full text-white font-semibold hover:bg-blue-400 hover:cursor-pointer"
-                      >
-                        Going
-                      </button>
-
-                      <button
-                        className="text-sm bg-[#FFFF] w-1/2 px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
-                        onClick={handleReject}
-                      >
-                        Not Going
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {event && event?.status === "Rejected" && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-red-600 font-medium gap-2 w-full">
-                        {event.status}
-                        <CircleX />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {event && event?.status === "Draft" && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-grey-600 font-medium gap-2 w-full">
-                        {event.status}
-                        <CircleAlert />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 p-2">
-                    <button
-                      onClick={() => {
-                        setEdit(true);
-                        setShowForm(true);
-                      }}
-                      className="text-sm bg-[#0856BA] w-1/2 px-1 py-[5px] rounded-full text-white font-semibold hover:bg-blue-400 hover:cursor-pointer"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleDelete(event.eventId);
-                        router.back();
-                      }}
-                      className="text-sm bg-[#FFFF] w-1/2 px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:text-blue-300 hover:bg-white hover:cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                  {/* Propose Event Form */}
-                  <ProposeEventForm
-                    isOpen={showForm}
-                    onClose={() => setShowForm(false)}
-                    isEditing={isEditing}
-                    isDetails={true}
-                    setDetailsPage={setDetailsPage}
-                    editingEventId={event.eventId}
-                    setEdit={setEdit}
-                  />
-                </>
-              )}
-
-              {event && event?.status === "Pending" && (
-                <>
-                  {/* Event Status */}
-                  <div>
-                    <div className="w-full flex justify-between">
-                      <div className="w-1/2">
-                        <p>Event Status: </p>
-                      </div>
-                      <div className="flex items-center justify-end text-yellow-600 font-medium gap-2 w-full">
-                        {event.status}
-                        <Clock10 />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
->>>>>>> 6315110f9ba724e8cd40095aab9bf4522024bdc6
           </div>
 
           {/* Sidebar - now using sticky positioning instead of fixed */}
@@ -704,7 +404,6 @@ const EventPageAlumni = () => {
         </div>
       </div>
     </div>
-<<<<<<< HEAD
 
 
     // <>
@@ -1085,9 +784,5 @@ const EventPageAlumni = () => {
     // </>
   )
 }
-=======
-  );
-};
->>>>>>> 6315110f9ba724e8cd40095aab9bf4522024bdc6
 
 export default EventPageAlumni;
