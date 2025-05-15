@@ -1488,7 +1488,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
-          degreeType={degreeType}
+          degreeType={"bachelors"}
         />
       )}
       {addMasters && (
@@ -1500,7 +1500,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
-          degreeType={degreeType}
+          degreeType={"masters"}
         />
       )}
       {addDoctoral && (
@@ -1512,7 +1512,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
-          degreeType={degreeType}
+          degreeType={"doctoral"}
         />
       )}
       {addAffiliation && (
