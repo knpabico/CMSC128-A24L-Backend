@@ -256,7 +256,11 @@ const ScholarshipDetailPage: React.FC = () => {
                 ) : (
                   <button
                     onClick={() => setIsConfirmationOpen(true)}
-                    className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md"
+                    className={`flex items-center justify-end text-white 
+                      ${scholarship?.status==="closed" 
+                      ?"bg-gray-400 font-medium gap-3 w-fit px-4 py-3 rounded-full cursor-not-allowed shadow-black-500 shadow-md"
+                      :"bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md"}`}
+                    disabled={scholarship?.status==="closed"}
                   >
                     <HandCoins className="size-6" />
                     Join as a Sponsor
