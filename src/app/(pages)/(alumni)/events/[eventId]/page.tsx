@@ -155,7 +155,7 @@ const EventPageAlumni = () =>
           {/* Main content - reduced width to accommodate sidebar */}
           <div className="bg-white shadow-md w-2/3 h-full rounded-2xl flex flex-col gap-4 overflow-hidden">
             {/* Event image section */}
-            <div className="bg-pink-500 w-full h-[50vh] overflow-hidden">
+            <div className="w-full h-[50vh] overflow-hidden">
               {event?.image ? (
                 <img
                   src={event.image}
@@ -368,7 +368,7 @@ const EventPageAlumni = () =>
                     key={story.featuredId}
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
                     onClick={() =>
-                      router.push(`/scholarship/featured/${story.featuredId}`)
+                      router.push(`/events/featured/${story.featuredId}`)
                     }
                   >
                     {story.image && (

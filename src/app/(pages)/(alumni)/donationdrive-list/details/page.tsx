@@ -14,6 +14,7 @@ import BookmarkButton from '@/components/ui/bookmark-button';
 import { MoveLeft, Users, Clock, HandHeart, Calendar, MapPin, X, CircleCheck } from 'lucide-react';
 import { ThankYouDialog } from '../../../../../components/ThankYouDialog';
 import Image from "next/image";
+import Breadcrumb from '@/components/breadcrumb';
 
 
 const DonationDriveDetailsPage: React.FC = () => {
@@ -265,303 +266,303 @@ const getRemainingDays = (endDate: any) => {
     );
   }
 
+  const breadcrumbItems = [
+    { label: "Donation Drives", href: "/donationdrive-list" },
+    { label: `${event?.title || donationDrive.campaignName}`, href: "#", active: true },
+  ]
+
   return (
-    <div className="bg-[#EAEAEA] mx-auto px-10 py-10">
-		<div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[85px] h-screen">
-			{/* Title */}
-			<div className="flex justify-between items-center">
-				<h1 className="text-3xl lg:text-5xl font-bold text-gray-800">{donationDrive.isEvent && event ? event.title : donationDrive.campaignName}</h1>
-				<BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="lg" />
-			</div>
+	<div className="px-[10%] pt-10 pb-30">
+		  <div className="flex flex-col gap-3">
+			
+			<Breadcrumb items={breadcrumbItems} />
 
-			{/* Event Body */}
-			<div className='flex flex-col xl:flex-row xl:gap-10 w-full'>
-				{/* Body */}
-				<div className='flex flex-col gap-[10px] w-full'>
-					{/* Image */}
-					{event?.image || donationDrive.image ? (
-						<div className="relative">
-							{donationDrive.isEvent && event ? (
-								<img src={event.image} alt={event.title} className="object-fit w-full bg-center h-[230px] md:h-[350px] lg:h-[400px]" />
-							) : (
-								<img src={donationDrive.image} alt={donationDrive.campaignName} className="object-fit w-full bg-center h-[230px] md:h-[350px] lg:h-[400px]" />
-							)}
-						</div>
-					) : (
-						<div className="relative flex items-center justify-center bg-blue-100 bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]">
-							<Image
-								width={0}
-								height={0}
-								sizes="100vw"
-								src="/default-image.jpg"
-								alt="Default alumni image"
-								className="w-full h-full object-cover"
-							/>
-						</div>
-					)}
-					{/* Event details */}
-					{donationDrive.isEvent && event && (
-						<div className='mt-5 px-5'>
-							<div className=' flex justify-between items-center gap-4'>
-								<div className='flex gap-1 items-center justify-center'>
-									<Calendar className='size-[20px]' />
-									<p className='text-sm'>{formatDate(event.datePosted)}</p>
-								</div>
-								<div className='flex gap-1 items-center justify-center'>
-									<Clock className='size-[20px]' />
-									<p className='text-sm'>{event.time}</p>
-								</div>
-								<div className='flex gap-1 items-center justify-center'>
-									<MapPin className='size-[20px]' />
-									<p className='text-sm'>{event.location}</p>
-								</div>
-								<div className='flex gap-1 items-center justify-center'>
-									<Users className='size-[20px]' />
-									<p className='text-sm'>{event.numofAttendees || 0} attendees</p>
-								</div>
-							</div>
-						</div>
-					)}
-					{/* Event description */}
-					<p className="mb-6">{donationDrive.isEvent && event ? event.description : donationDrive.description}</p>
-					{/* Event Detaisl */}
-					<div className="grid lg:grid-cols-2 gap-6 mb-6">
-						{/* Creator Details */}
-						{/* <div>
-							<h3 className="font-semibold text-gray-700 mb-2">Creator Information</h3>
-							<p className="text-gray-600">
-								<span className="font-medium">Name:</span> {sponsorship.creatorName || 'N/A'}
-							</p>
-							<p className="text-gray-600">
-								<span className="font-medium">Type:</span> {sponsorship.creatorType || 'N/A'}
-							</p>
-						</div> */}
-						{/* Campaign Details */}
-						<div>
-							<h3 className="font-semibold text-gray-700 mb-2">Campaign Details</h3>
-							<p className="text-gray-600">
-								<span className="font-medium">Start:</span> {formatDate(donationDrive.startDate)}
-							</p>
-							<p className="text-gray-600">
-								<span className="font-medium">End:</span> {formatDate(donationDrive.endDate)}
-							</p>
-							<p className="text-gray-600">
-								<span className="font-medium">Date Posted:</span> {formatDate(donationDrive.datePosted)} 
-								<span className="text-gray-400 text-sm ml-2">({formatTimeAgo(donationDrive.datePosted)})</span>
-							</p>
-
-						</div>
-						{/* Beneficiary Details */}
-						<div>
-							<h3 className="font-semibold text-gray-700 mb-2">Beneficiary Information</h3>
-							<p className="text-gray-600">
-								<span className="font-medium">Beneficiaries:</span> {donationDrive.beneficiary?.join(', ') || 'N/A'}
-							</p>
-							<p className="text-gray-600">
-								<span className="font-medium">Event Related:</span> {donationDrive.isEvent ? 'Yes' : 'No'}
-							</p>
-						</div>
-					</div>
-					<div>
-						{/* Target guests */}
-						{/* {event?.targetGuests && event.targetGuests.length > 0 && (
-							<div>
-							<p className="text-sm text-gray-600 mb-2">Target audience:</p>
-							<div className="flex flex-wrap gap-2">
-								{event.targetGuests.map((guest, index) => (
-								<span 
-									key={index} 
-									className="bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded-full"
-								>
-									{guest}
-								</span>
-								))}
-							</div>
-							</div>
-						)} */}
-					</div>
-				</div>
-				{/* Action Bar */}
-				<div className='self-start min-w-[390px] sticky top-1/8'>
-					{/* Side bar */}
-					<div className='flex flex-col gap-[10px] w-full'>
-						{/* Invitation Status */}
-						<div className='bg-[#FFFF] py-[10px] px-[20px] rounded-[10px] flex flex-col gap-2 w-full shadow-md border border-gray-200'>
-							{ donationDrive.isEvent && event && (
-								<div >
-									<div className='w-full flex justify-between'>
-										<div className='w-1/2'>
-											<p>Event Status: </p>
-										</div>
-										<div className='w-full flex'>
-											{event?.stillAccepting ? (
-												<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
-													Still accepting guests
-													<CircleCheck />
-												</div>
-											) : (
-												<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
-													<X />
-													Registration closed
-												</div>
-											)}
-										</div>
-									</div>
-								</div>
-							)}
-							<div className='w-full flex justify-between'>
-								<div className='w-full'>
-									<p>Donation Status: </p>
-								</div>
-								<div className='w-full flex'>
-									{donationDrive.status == 'active' ? (
-										<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
-											Active
-											<CircleCheck />
-										</div>
-									) : (
-										<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
-											Closed
-											<X />
-										</div>
-									)}
-								</div>
-							</div>
-						</div>
-						{/* Donation Bar */}
-						<div className='bg-[#FFFF] py-[30px] px-[20px] rounded-[10px] flex flex-col gap-3 shadow-md border border-gray-200'>
-							{/* Progress bar */}
-							<div className="">
-								<div className="flex justify-between mb-1">
-									<div className='flex gap-2'>
-										<Users className='size-[20px] text-[#616161]'/>
-										<span className="text-sm text-gray-500"> {donationDrive.donorList.length ?? '0'} Patrons</span>
-									</div>
-									<div className='flex gap-2'>
-										<Clock className='size-[17px] text-[#616161]'/>
-										<span className="text-sm text-gray-500">{getRemainingDays(donationDrive.endDate)}</span>
-									</div>
-								</div>
-								<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-									<div 
-										className="h-full bg-blue-500 rounded-full" 
-										style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}
-									></div>
-								</div>
-								<div className="flex justify-between my-1 text-sm">
-									<span className="font-medium">₱ {donationDrive.currentAmount.toLocaleString()}</span>
-									<span className="text-gray-500"> ₱ {donationDrive.targetAmount.toLocaleString()}</span>
-								</div>
-							</div>
-							{donationDrive.donorList.length > 0 && recentDonation && highestDonation &&(
-								<>
-									{/* Recent Donation */}
-									{/* <div className='flex items-center justify-between'>
-										<div className='flex items-center gap-3'>
-											<HandHeart className='size-[17px]' />
-											<div>
-												<p className='text-sm'>
-													{recentDonation.isAnonymous ? 'Anonymous' : recentDonation.displayName || 'Unknown'}
-												</p>
-												<p className='text-xs'>
-													₱{recentDonation.amount?.toLocaleString() || '0'}
-												</p>
-											</div>
-										</div>
-										<div>
-											<p className='text-xs'>Recent Donation</p>
-										</div>
-									</div> */}
-
-									{/* Top Donation */}
-									<div className='flex items-center justify-between'>
-										<div className='flex items-center gap-3'>
-											<HandHeart className='size-[17px]' />
-											<div>
-												<p className='text-sm'>
-													{highestDonation.isAnonymous ? 'Anonymous' : highestDonation.displayName || 'Unknown'}
-												</p>
-												<p className='text-xs'>
-													₱{highestDonation.amount?.toLocaleString() || '0'}
-												</p>
-											</div>
-										</div>
-										<div>
-											<p className='text-xs'>Major Donation</p>
-										</div>
-									</div>
-								</>
-							)}
-							{/* Buttons */}
-							<div className='flex gap-[10px] w-full'>
-								<div className='w-full'> 
-									<DonateDialog drive={donationDrive} onDonationSuccess={handleDonationSuccess}/> 
-								</div>
-								<button className='text-sm bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:bg-gray-100 hover:cursor-pointer'
-									onClick={() => setShowDonors(true)}> 
-									View All Donations
-								</button>
-							</div>
-						</div>
-					</div>
-					{showDonors && (
-						<div className="bg-[#FFFF] py-[30px] px-[30px] rounded-[10px] mt-3 shadow-md border border-gray-200">
-							<div className='flex justify-between items-start'>
-								<h3 className="font-semibold text-l mb-4">Donation History</h3>
-								<button onClick={() => setShowDonors(false)}>
-									<X className='size-[17px] hover:cursor-pointer hover:text-gray-600'/>
-								</button>
-							</div>
-							<div className="bg-gray-50 rounded-lg h-[25svh]">
-								{donationsLoading ? (
-									<div className="flex justify-center py-4">
-										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-									</div>
-								) : donations.length > 0 ? (
-									<div className="overflow-y-auto h-full">
-										<table className="min-w-full divide-y divide-gray-200">
-											<thead className="bg-gray-100">
-												<tr>
-													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-														Donor
-													</th>
-													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-														Amount
-													</th>
-													{/* <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-														Date
-													</th> */}
-												</tr>
-											</thead>
-											<tbody className="bg-white divide-y divide-gray-200">
-												{donations.map((donation) => (
-													<tr key={donation.donationId} className="hover:bg-gray-50">
-														<td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-															{donation.isAnonymous ? 'Anonymous' : donation.displayName || 'Unknown'}
-														</td>
-														<td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-															${donation.amount?.toLocaleString() || '0'}
-														</td>
-														{/* <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-															{formatDate(donation.date)}
-														</td> */}
-													</tr>
-												))}
-											</tbody>
-										</table>
-									</div>
+			{/* Main content area with relative positioning for proper layout */}
+			<div className="w-full flex gap-5 relative">
+				{/* Main content - reduced width to accommodate sidebar */}
+				<div className="bg-white shadow-md w-2/3 h-full rounded-2xl flex flex-col gap-4 overflow-hidden">
+					{/* Event image section */}
+					<div className="w-full h-[50vh] overflow-hidden">
+						{event?.image || donationDrive.image ? (
+							<>
+								{donationDrive.isEvent && event ? (
+									<img
+										src={event.image}
+										alt={event.title}
+										className="object-cover w-full h-full bg-center"
+									/>
 								) : (
-									<p className="text-gray-500 py-4 text-center">No donations have been made for this sponsorship yet.</p>
+									<img
+										src={donationDrive.image}
+										alt={donationDrive.campaignName}
+										className="object-cover w-full h-full bg-center"
+									/>
 								)}
+							</>
+						) : (
+							<Image
+								src="/default-image.jpg"
+								alt={event.title}
+								width={800}
+								height={400}
+								className="object-cover w-full h-full"
+							/>
+						)}
+					</div>
+
+					{/* Event Title */}
+					<div className="w-full px-8 pt-3 flex flex-col gap-1">
+						
+						<div className="flex items-start justify-between">
+							<h1 className="text-4xl font-bold">
+								{donationDrive.isEvent && event ? event.title : donationDrive.campaignName}
+							</h1>
+							<BookmarkButton entryId={donationDrive.donationDriveId} type="donationdrive" size="lg" />
+							</div>
+
+						{donationDrive.isEvent && event && (
+							<div className="text-[14px] text-gray-500">
+								Posted on {formatDate(event.datePosted)}
+							</div>
+						)}
+
+						{/* Event Details */}
+						{donationDrive.isEvent && event && (
+							<div className="flex gap-5 text-sm pt-3 text-gray-700">
+								<div className="flex items-center gap-2">
+									<Calendar size={20}/> {formatDate(event.datePosted)}
+								</div>
+								<div className="flex items-center gap-2">
+									<Clock size={20}/> {event.time}
+								</div>
+								<div className="flex items-center gap-2">
+									<MapPin size={20}/> {event.location}
+								</div>
+
+							</div>
+						)}
+					</div>
+
+					{/* Event Description */}
+					<div className="w-full px-8 pb-8 text-[14px]">
+						<div className="grid lg:grid-cols-2 gap-6 mb-6">
+							<div>
+								<h3 className="font-semibold text-gray-700 mb-2">Campaign Details</h3>
+								<p className="text-gray-600">
+									<span className="font-medium">Start:</span> {formatDate(donationDrive.startDate)}
+								</p>
+								<p className="text-gray-600">
+									<span className="font-medium">End:</span> {formatDate(donationDrive.endDate)}
+								</p>
+								<p className="text-gray-600">
+									<span className="font-medium">Date Posted:</span> {formatDate(donationDrive.datePosted)} 
+									<span className="text-gray-400 text-sm ml-2">({formatTimeAgo(donationDrive.datePosted)})</span>
+								</p>
+							</div>
+							<div>
+								<h3 className="font-semibold text-gray-700 mb-2">Beneficiary Information</h3>
+								<p className="text-gray-600">
+									<span className="font-medium">Beneficiaries:</span> {donationDrive.beneficiary?.join(', ') || 'N/A'}
+								</p>
+								<p className="text-gray-600">
+									<span className="font-medium">Event Related:</span> {donationDrive.isEvent ? 'Yes' : 'No'}
+								</p>
 							</div>
 						</div>
-					)}
+
+						
+						
+						<h1 className="text-sm">{donationDrive.isEvent && event ? event.description : donationDrive.description}</h1>
+					</div>
+
 				</div>
-				{isThankYouOpen && (<ThankYouDialog />)}
+
+				{/* Sidebar - now using sticky positioning instead of fixed */}
+				<div className="w-1/3 sticky top-4 self-start flex flex-col gap-3 pl-5">
+					{/* First sidebar card */}
+					<div className="bg-white shadow-md rounded-2xl px-6 py-4 flex flex-col gap-3 text-sm">
+						{ donationDrive.isEvent && event && (
+							<div >
+								<div className='w-full flex justify-between'>
+									<div className='w-1/2'>
+										<p>Event Status: </p>
+									</div>
+									<div className='w-full flex'>
+										{event?.stillAccepting ? (
+											<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
+												Still accepting guests
+												<CircleCheck />
+											</div>
+										) : (
+											<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
+												<X />
+												Registration closed
+											</div>
+										)}
+									</div>
+								</div>
+							</div>
+						)}
+						<div className='w-full flex justify-between'>
+	 							<div className='w-full'>
+	 								<p>Donation Status: </p>
+	 							</div>
+	 							<div className='w-full flex'>
+	 								{donationDrive.status == 'active' ? (
+	 									<div className="flex items-center justify-end  text-green-600 font-medium gap-2 w-full">
+	 										Active
+	 										<CircleCheck />
+	 									</div>
+	 								) : (
+	 									<div className="flex items-center justify-end  text-red-600 font-medium gap-2 w-full">
+	 										Closed
+	 										<X />
+	 									</div>
+	 								)}
+	 							</div>
+	 						</div>
+						</div>
+
+						<div>
+						{/* Donation Bar */}
+						<div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-sm">
+	 						{/* Progress bar */}
+	 						<div className="">
+	 							<div className="flex justify-between mb-1">
+	 								<div className='flex gap-2'>
+	 									<Users className='size-[20px] text-[#616161]'/>
+	 									<span className="text-sm text-gray-500"> {donationDrive.donorList.length ?? '0'} Patrons</span>
+	 								</div>
+	 								<div className='flex gap-2'>
+	 									<Clock className='size-[17px] text-[#616161]'/>
+	 									<span className="text-sm text-gray-500">{getRemainingDays(donationDrive.endDate)}</span>
+	 								</div>
+	 							</div>
+	 							<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+	 								<div 
+	 									className="h-full bg-blue-500 rounded-full" 
+	 									style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}
+	 								></div>
+	 							</div>
+	 							<div className="flex justify-between my-1 text-sm">
+	 								<span className="font-medium">₱ {donationDrive.currentAmount.toLocaleString()}</span>
+	 								<span className="text-gray-500"> ₱ {donationDrive.targetAmount.toLocaleString()}</span>
+	 							</div>
+	 						</div>
+	 						{donationDrive.donorList.length > 0 && recentDonation && highestDonation &&(
+	 							<>
+	 								{/* Recent Donation */}
+	 								{/* <div className='flex items-center justify-between'>
+	 									<div className='flex items-center gap-3'>
+	 										<HandHeart className='size-[17px]' />
+	 										<div>
+	 											<p className='text-sm'>
+	 												{recentDonation.isAnonymous ? 'Anonymous' : recentDonation.displayName || 'Unknown'}
+	 											</p>
+	 											<p className='text-xs'>
+	 												₱{recentDonation.amount?.toLocaleString() || '0'}
+	 											</p>
+	 										</div>
+	 									</div>
+	 									<div>
+	 										<p className='text-xs'>Recent Donation</p>
+	 									</div>
+	 								</div> */}
+
+	 								{/* Top Donation */}
+	 								<div className='flex items-center justify-between'>
+	 									<div className='flex items-center gap-3'>
+	 										<HandHeart className='size-[17px]' />
+	 										<div>
+	 											<p className='text-sm'>
+	 												{highestDonation.isAnonymous ? 'Anonymous' : highestDonation.displayName || 'Unknown'}
+	 											</p>
+	 											<p className='text-xs'>
+	 												₱{highestDonation.amount?.toLocaleString() || '0'}
+	 											</p>
+	 										</div>
+	 									</div>
+	 									<div>
+	 										<p className='text-xs'>Major Donation</p>
+	 									</div>
+	 								</div>
+	 							</>
+	 						)}
+	 						{/* Buttons */}
+	 						<div className='flex gap-[10px] w-full'>
+	 							<div className='w-full'> 
+	 								<DonateDialog drive={donationDrive} onDonationSuccess={handleDonationSuccess}/> 
+	 							</div>
+	 							<button className='text-sm bg-[#FFFF] w-full px-1 py-[5px] rounded-full text-[#0856BA] font-semibold border-[#0856BA] border-2 hover:bg-gray-100 hover:cursor-pointer'
+	 								onClick={() => setShowDonors(true)}> 
+	 								View All Donations
+	 							</button>
+	 						</div>
+	 					</div>
+	 				</div>
+	 				{showDonors && (
+						<div className="bg-white shadow-md rounded-2xl px-6 py-4 flex flex-col gap-3 text-sm">
+	 						<div className='flex justify-between items-start'>
+	 							<h3 className="font-semibold text-l mb-4">Donation History</h3>
+	 							<button onClick={() => setShowDonors(false)}>
+	 								<X className='size-[17px] hover:cursor-pointer hover:text-gray-600'/>
+	 							</button>
+	 						</div>
+	 						<div className="bg-gray-50 rounded-lg h-[25svh]">
+	 							{donationsLoading ? (
+	 								<div className="flex justify-center py-4">
+	 									<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+	 								</div>
+	 							) : donations.length > 0 ? (
+	 								<div className="overflow-y-auto h-full">
+	 									<table className="min-w-full divide-y divide-gray-200">
+	 										<thead className="bg-gray-100">
+	 											<tr>
+	 												<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+	 													Donor
+	 												</th>
+	 												<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+	 													Amount
+	 												</th>
+	 												{/* <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+	 													Date
+	 												</th> */}
+	 											</tr>
+	 										</thead>
+	 										<tbody className="bg-white divide-y divide-gray-200">
+	 											{donations.map((donation) => (
+	 												<tr key={donation.donationId} className="hover:bg-gray-50">
+	 													<td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+	 														{donation.isAnonymous ? 'Anonymous' : donation.displayName || 'Unknown'}
+	 													</td>
+	 													<td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+	 														${donation.amount?.toLocaleString() || '0'}
+	 													</td>
+	 													{/* <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+	 														{formatDate(donation.date)}
+	 													</td> */}
+	 												</tr>
+	 											))}
+	 										</tbody>
+	 									</table>
+	 								</div>
+	 							) : (
+	 								<p className="text-gray-500 py-4 text-center">No donations have been made for this sponsorship yet.</p>
+	 							)}
+	 						</div>
+	 					</div>
+	 				)}
+					</div>
+
+					{isThankYouOpen && (<ThankYouDialog />)}
 					{/* Donors */}
+
+				</div>
+				hi
 			</div>
-		</div>    
-    </div>
+		</div>
+	
+	
   );
 };
 

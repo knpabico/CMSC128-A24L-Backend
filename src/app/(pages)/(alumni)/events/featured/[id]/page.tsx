@@ -2,10 +2,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { MoveLeft } from "lucide-react";
 import { useFeatured } from "@/context/FeaturedStoryContext"; // make sure this exists
 import { Featured } from "@/models/models"; // your featured story model
+import Breadcrumb from "@/components/breadcrumb";
 
 const FeaturedDetailPage: React.FC = () => {
   const params = useParams();
@@ -20,6 +22,10 @@ const FeaturedDetailPage: React.FC = () => {
 
   const eventStories = featuredItems.filter((story: { type: string; }) => story.type === "event");
 
+  const breadcrumbItems = [
+    { label: "Events", href: "/events" },
+    { label: `${story?.title}`, href: "#", active: true },
+  ]
 
   const sortedStories = [...eventStories].sort((a, b) => {
     const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
@@ -87,44 +93,62 @@ const FeaturedDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-[#F8F8F8] mx-auto px-10 py-8 min-h-screen">
-      <div className="text-sm mb-4 inline-flex gap-2 items-center hover:underline hover:cursor-pointer">
-        <button onClick={goBack} className="flex items-center gap-2">
-          <MoveLeft className="size-[17px]" />
-          Back to Stories
-        </button>
+    <div className="px-[20%] pt-10 pb-30 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+      <div className="bg-white shadow-md h-full rounded-2xl flex flex-col gap-4 overflow-hidden">
+        <div className="w-full h-[50vh] overflow-hidden">
+          {story?.image ? (
+            <img
+              src={story.image}
+              alt={story.title}
+              className="object-cover w-full h-full bg-center"
+            />
+          ) : (
+            <Image
+              src="/default-image.jpg"
+              alt={story.title}
+              width={800}
+              height={400}
+              className="object-cover w-full h-full"
+            />
+          )}
+        </div>
+      
+        {/* Event Title */}
+        <div className="w-full px-8 pt-3 flex flex-col gap-1">
+          
+          <div className="flex items-start justify-between">
+            <h1 className="text-4xl font-bold">
+              {story?.title}
+            </h1>
+          </div>
+
+          <div className="text-[14px] text-gray-500">
+            Posted on {formatDate(story?.datePosted)}
+          </div>
+        </div>
+
+        {/* Event Description */}
+        <div className="w-full px-8 pb-8">
+          <h1 className="text-sm">{story?.text}</h1>
+        </div>
+
       </div>
 
-      <div className="flex flex-col gap-[20px] md:px-[50px] xl:px-[200px]">
-        <h1 className="text-4xl font-bold text-gray-800">{story?.title}</h1>
-
-        {story?.image && (
-          <div
-            className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px] rounded-md"
-            style={{ backgroundImage: `url(${story.image})` }}
-          />
-        )}
-
-        <p className="mt-5 text-lg">{story?.text}</p>
-
-        <p className="text-sm text-gray-600 mt-10">
-          Published:{" "}
-          {formatDate(story?.datePosted)}
-        </p>
-      </div>
-
-
- 
       {/* Featured Stories Section */}
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Featured Stories</h2>
+      <div className="mt-10">
+        <div className="pt-5 pb-10 flex items-center justify-center text-2xl font-bold">
+          Featured Stories
+        </div>
 
         {loading ? (
           <p className="text-gray-500">Loading featured stories...</p>
         ) : sortedStories.length === 0 ? (
           <p className="text-gray-500">No featured stories found.</p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
             {sortedStories.map((story) => (
               <div
                 key={story.featuredId}
@@ -155,10 +179,6 @@ const FeaturedDetailPage: React.FC = () => {
       </div>
 
     </div>
-    
-
-
-
   );
 };
 
