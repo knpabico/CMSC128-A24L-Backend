@@ -424,7 +424,16 @@ export default function CreateEventPage() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && batchInputValue.trim()) {
               e.preventDefault()
-              addBatchInput()
+
+              const year = batchInputValue.trim();
+              const activeYears = activeAlums
+                .map((a) => a.studentNumber?.slice(0, 4))
+                .filter((y): y is string => !!y); // Ensure only strings
+
+              // Only allow if year exists in activeAlums
+              if (activeYears.includes(year)) {
+                addBatchInput();
+              }
             }
           }}
           placeholder={selectedBatches.length === 0 ? "Type or select graduation years" : ""}
@@ -506,7 +515,16 @@ export default function CreateEventPage() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && alumniInputValue.trim()) {
               e.preventDefault()
-              addAlumniInput()
+              
+              const email = alumniInputValue.trim().toLowerCase();
+              const activeEmails = activeAlums
+                .map((a) => a.email?.trim().toLowerCase())
+                .filter((y): y is string => !!y); // Ensure only strings
+
+              // Only allow if email exists in activeAlums
+              if (activeEmails.includes(email)) {
+                addAlumniInput()
+              }
             }
           }}
           placeholder={selectedAlumni.length === 0 ? "Type or select alumni emails" : ""}
