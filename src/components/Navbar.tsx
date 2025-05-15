@@ -116,6 +116,11 @@ export default function Navbar() {
           label: "Add Scholarship Drive",
           path: "/admin-dashboard/scholarships/add",
         },
+				{
+          id: "view-pending-sponsorship",
+          label: "View Pending Sponsorships",
+          path: "/admin-dashboard/scholarships/sponsorship",
+        },
       ],
     },
     {

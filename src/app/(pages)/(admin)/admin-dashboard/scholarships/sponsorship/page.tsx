@@ -374,20 +374,12 @@ export default function ViewPendingScholarships() {
                 e.target.value as
                   | "newest"
                   | "oldest"
-                  | "number of sponsors (asc)"
-                  | "number of sponsors (dsc)"
               )
             }
             className="flex items-center text-sm"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
-            <option value="number of sponsors (asc)">
-              Number of Sponsors (ASC)
-            </option>
-            <option value="number of sponsors (dsc)">
-              Number of Sponsors (DSC)
-            </option>
           </select>
         </div>
       </div>
