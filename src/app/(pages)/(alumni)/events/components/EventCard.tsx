@@ -5,6 +5,7 @@ import { Event, RSVP } from "@/models/models";
 import BookmarkButton from "@/components/ui/bookmark-button";
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react"
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Users, Clock, MapPin, Calendar } from "lucide-react";
 import Image from "next/image";
@@ -20,6 +21,10 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
   const { user, alumInfo } = useAuth();
   const { rsvpDetails } = useRsvpDetails();
   const {} = useEvents();
+
+  const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(
+    undefined
+  );
 
   const formatDate = (timestamp: any) => {
     try {
@@ -43,13 +48,20 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
 
   const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
 
-  let alumniRsvpStatus: string | undefined = undefined;
-
-  if (alumInfo?.alumniId && matchingRSVP?.alums) {
-    alumniRsvpStatus = matchingRSVP.alums[alumInfo.alumniId]?.status;
-  }
-
-  return (
+  useEffect(() => {
+    if (alumInfo?.alumniId && matchingRSVP?.alums) {
+      const status = matchingRSVP.alums[alumInfo.alumniId]?.status;
+      setAlumniRsvpStatus(status);
+    }
+  }, [alumInfo?.alumniId, matchingRSVP]);
+  
+  const matchedRsvp = rsvps.find(
+    (rsvp) =>
+      rsvp.postId === event?.eventId &&
+      rsvp.alums?.[alumInfo?.alumniId]
+  );
+  
+  return matchedRsvp ? (
     <div>
       <div
         className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
@@ -145,7 +157,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
         </div>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 export default EventCard;
