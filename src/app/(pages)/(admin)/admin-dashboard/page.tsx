@@ -777,16 +777,18 @@ export default function AdminDashboard() {
                     <div className="mb-1">
                       <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
                       <span
-                        className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                        className={` px-2 py-0.5 text-xs rounded-full ${
                           scholarship.status == 'active'
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}
                       >
                         {scholarship.status == 'active'
-                          ? 'active'
-                          : 'closed'}
+                          ? 'Active'
+                          : 'Closed'}
                       </span>
+                      <p className="text-xs text-black-500">Sponsors: {scholarship.alumList.length != 0 ? scholarship.alumList.length : '0' }</p>
+
                     </div>
                   </div>
                 ))}
