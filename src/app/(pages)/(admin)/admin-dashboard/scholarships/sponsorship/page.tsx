@@ -59,8 +59,6 @@ export default function ViewPendingScholarships() {
   const [sortOption, setSortOption] = useState<
     | "newest"
     | "oldest"
-    | "number of sponsors (asc)"
-    | "number of sponsors (dsc)"
   >("newest");
   const sortScholarships = (scholarships: Scholarship[]) =>
     [...scholarships].sort((a, b) => {
@@ -73,10 +71,6 @@ export default function ViewPendingScholarships() {
           return (
             new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime()
           );
-        case "number of sponsors (asc)":
-          return a.alumList.length - b.alumList.length; // ascending = small to big
-        case "number of sponsors (dsc)":
-          return b.alumList.length - a.alumList.length; // descending = big to small
         default:
           return 0;
       }
@@ -374,20 +368,12 @@ export default function ViewPendingScholarships() {
                 e.target.value as
                   | "newest"
                   | "oldest"
-                  | "number of sponsors (asc)"
-                  | "number of sponsors (dsc)"
               )
             }
             className="flex items-center text-sm"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
-            <option value="number of sponsors (asc)">
-              Number of Sponsors (ASC)
-            </option>
-            <option value="number of sponsors (dsc)">
-              Number of Sponsors (DSC)
-            </option>
           </select>
         </div>
       </div>
