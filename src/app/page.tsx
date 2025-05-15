@@ -5,26 +5,24 @@ import { useAlums } from "@/context/AlumContext";
 import { useAuth } from "@/context/AuthContext";
 // import { useWorkExperience } from "@/context/WorkExperienceContext";
 import {
-  Alumnus,
-  Announcement,
-  // Career,
-  Education,
-  JobOffering,
-  NewsletterItem,
-  // WorkExperience,
-  Event,
-  // Donation,
-  DonationDrive,
-  Scholarship,
-} from "@/models/models";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Alumnus,
+  Announcement,
+  // Donation,
+  DonationDrive,
+  // Career,
+  Education,
+  // WorkExperience,
+  Event,
+  JobOffering,
+  NewsletterItem,
+  Scholarship,
+} from "@/models/models";
 import {
   Award,
   Briefcase,
@@ -39,6 +37,8 @@ import {
   // PhilippinePeso,
   Users,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   // JSXElementConstructor,
   Key,
@@ -49,40 +49,35 @@ import {
   useState,
 } from "react";
 // import { Card } from "@/components/ui/card";
-import PendingPage from "../components/PendingPage";
-import RejectedPage from "../components/RejectedPage";
-import {
-  // NewsLetterProvider,
-  useNewsLetters,
-} from "@/context/NewsLetterContext";
+import CollapseText from "@/components/CollapseText";
 import {
   // AnnouncementProvider,
   useAnnouncement,
 } from "@/context/AnnouncementContext";
-import { useJobOffer } from "@/context/JobOfferContext";
 import { useEvents } from "@/context/EventContext";
-import React from "react";
+import { useJobOffer } from "@/context/JobOfferContext";
+import {
+  // NewsLetterProvider,
+  useNewsLetters,
+} from "@/context/NewsLetterContext";
+import PendingPage from "../components/PendingPage";
+import RejectedPage from "../components/RejectedPage";
 // import { useDonationContext } from "@/context/DonationContext";
-import { useDonationDrives } from "@/context/DonationDriveContext";
-import { useScholarship } from "@/context/ScholarshipContext";
-// import { log } from "console";
-import CollapseText from "@/components/CollapseText";
-import Image from "next/image";
-// import { ListItem } from "@mui/material";
-import { useEducation } from "@/context/EducationContext";
-// import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
-import Landing from "@/components/Landing";
 import Footer from "@/components/Footer";
-// import { Oswald } from "next/font/google";
+import Landing from "@/components/Landing";
+import { useDonationDrives } from "@/context/DonationDriveContext";
+import { useEducation } from "@/context/EducationContext";
+import { useScholarship } from "@/context/ScholarshipContext";
+import { Oswald } from "next/font/google";
+import Image from "next/image";
 
-// const oswald = Oswald({
-//   subsets: ["latin"],
-//   weight: ["200", "300", "400", "500", "600", "700"],
-// });
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700"],
+});
 
 const sortTypes = ["Latest", "Earliest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
-// const SORT_TAGS = ["Earliest", "Latest"];
 
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status } = useAuth();
@@ -92,28 +87,24 @@ export default function Home() {
   const { events } = useEvents();
   const { alums } = useAlums();
   const { donationDrives } = useDonationDrives();
-  // const { userWorkExperience } = useWorkExperience();
   const { scholarships } = useScholarship();
   const router = useRouter();
   const [selectedSort, setSelectedSort] = useState("Latest");
-  // const [latestFirst, setLatestFirst] = useState(true);
-
-  // const searchParams = useSearchParams();
-  // const sort = searchParams.get("sort"); //get current sort param
+  const [latestFirst, setLatestFirst] = useState(true);
 
   const [currentDonationIndex, setCurrentDonationIndex] = useState(0);
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
   const { userEducation } = useEducation();
   const [filteredEducation, setFilteredEducation] = useState<Education[]>([]);
-  // const [acceptedJobs, setAcceptedJobs] = useState<JobOffering[]>([]);
+  const [acceptedJobs, setAcceptedJobs] = useState<JobOffering[]>([]);
 
-  // useEffect(() => {
-  //   const filtered = jobOffers.filter(
-  //     (job: { status: string }) =>
-  //       job.status === "Accepted" || job.status === "Closed"
-  //   );
-  //   setAcceptedJobs(filtered);
-  // }, [jobOffers]);
+  useEffect(() => {
+    const filtered = jobOffers.filter(
+      (job: { status: string }) =>
+        job.status === "Accepted" || job.status === "Closed"
+    );
+    setAcceptedJobs(filtered);
+  }, [jobOffers]);
 
   useEffect(() => {
     if (user?.uid) {
@@ -187,22 +178,23 @@ export default function Home() {
   // ]);
 
   // const [currentIndex, setCurrentIndex] = useState(0);
+  // const [isUploading, setIsUploading] = useState(false);
 
-  // Handle next slide
+  // // Handle next slide
   // const nextSlide = () => {
   //   setCurrentIndex((prevIndex) =>
   //     prevIndex === images.length - 1 ? 0 : prevIndex + 1
   //   );
   // };
 
-  // Handle previous slide
+  // // Handle previous slide
   // const prevSlide = () => {
   //   setCurrentIndex((prevIndex) =>
   //     prevIndex === 0 ? images.length - 1 : prevIndex - 1
   //   );
   // };
 
-  // Auto-advance slides every 3 seconds for endless slideshow effect
+  // // Auto-advance slides every 3 seconds for endless slideshow effect
   // useEffect(() => {
   //   if (images.length <= 1) return;
 
@@ -213,8 +205,8 @@ export default function Home() {
   //   return () => clearInterval(interval);
   // }, [images.length]);
 
-  // Calculate positions for each image for endless carousel effect
-  // const getImageStyle = (index: number) => {
+  // // Calculate positions for each image for endless carousel effect
+  // const getImageStyle = (index) => {
   //   // Handle wrapping for endless effect
   //   const totalImages = images.length;
   //   if (totalImages <= 1) {
@@ -258,7 +250,7 @@ export default function Home() {
   //   };
   // };
 
-  // Handle image upload
+  // // Handle image upload
   // const handleImageUpload = (event) => {
   //   if (event.target.files && event.target.files[0]) {
   //     const file = event.target.files[0];
@@ -279,7 +271,7 @@ export default function Home() {
   //   }
   // };
 
-  // Handle image removal
+  // // Handle image removal
   // const handleRemoveImage = (id) => {
   //   const newImages = images.filter((img) => img.id !== id);
   //   setImages(newImages);
@@ -289,6 +281,43 @@ export default function Home() {
   //     setCurrentIndex(Math.max(0, newImages.length - 1));
   //   }
   // };
+
+  // // Start upload process
+  // const startUpload = () => {
+  //   setIsUploading(true);
+  // };
+
+  // // Cancel upload
+  // const cancelUpload = () => {
+  //   setIsUploading(false);
+  // };
+
+  // const carouselImages = [
+  //   {
+  //     src: "/images/alumni-1.jpg", // Update with your actual image paths
+  //     alt: "Alumni gathering at reunion",
+  //   },
+  //   {
+  //     src: "/images/campus-life.jpg",
+  //     alt: "Campus life at ICS",
+  //   },
+  //   {
+  //     src: "/images/graduation.jpg",
+  //     alt: "Graduation ceremony",
+  //   },
+  //   {
+  //     src: "/images/alumni-event.jpg",
+  //     alt: "Alumni networking event",
+  //   },
+  //   {
+  //     src: "/images/research-lab.jpg",
+  //     alt: "Research laboratory at ICS",
+  //   },
+  //   {
+  //     src: "/images/alumni-success.jpg",
+  //     alt: "Alumni success story",
+  //   },
+  // ];
 
   // function adminHeader(announcement) {
   //   // Use announcement author's image if available, fallback to ICS logo
@@ -305,11 +334,7 @@ export default function Home() {
 
   //   return (
   //     <>
-  //       <Image
-  //         width={0}
-  //         height={0}
-  //         sizes="100vw"
-  //         priority
+  //       <img
   //         src={authorPic}
   //         className="w-10 h-10 object-cover object-top rounded-full border border-[#DADADA]"
   //         alt={authorName}
@@ -322,16 +347,15 @@ export default function Home() {
   // Calculate days remaining until the donation drive ends
   function getDaysRemaining(endDate: any) {
     try {
-      const todayOnly = new Date(); // Current date
-      let endDateOnly;
+      // Clear time portions to calculate full days
+      // const endDateOnly = new Date(endDate);
+      // endDateOnly.setHours(0, 0, 0, 0);
 
-      // Check if endDate is a Firestore Timestamp (has toDate method)
-      if (endDate && typeof endDate.toDate === "function") {
-        endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
-      } else {
-        // Handle as regular string date
-        endDateOnly = new Date(endDate);
-      }
+      // const todayOnly = new Date(now);
+      // todayOnly.setHours(0, 0, 0, 0);
+
+      const todayOnly = new Date(); // Current date
+      const endDateOnly = endDate.toDate(); // Firestore Timestamp to JS Date
 
       // Calculate difference in days
       const differenceInTime = endDateOnly.getTime() - todayOnly.getTime();
@@ -343,31 +367,9 @@ export default function Home() {
       else return `${differenceInDays} days left`;
       // Return 0 if ended or negative
     } catch (err) {
-      return `Not Available: ${err}`;
+      return `Error: ${err}`;
     }
   }
-
-  const getImageSrc = (newsLetter: NewsletterItem) => {
-    if (
-      newsLetter.category === "announcement" ||
-      newsLetter.category === "event" ||
-      newsLetter.category === "scholarship" ||
-      newsLetter.category === "donation_drive"
-    ) {
-      return "/ics-logo.jpg";
-    } else if (newsLetter.category === "job_offering") {
-      const jobOffering = jobOffers.find(
-        (jobOffer: JobOffering) => jobOffer.jobId === newsLetter.referenceId
-      );
-      if (!jobOffering || jobOffering.alumniId === "Admin") {
-        return "/ics-logo.jpg";
-      }
-      // You seem to be missing a return value for this case
-      return "/ics-logo.jpg"; // or whatever the default should be
-    } else {
-      return ""; // or a default image
-    }
-  };
 
   if (loading || (user && !alumInfo)) return <LoadingPage />;
   else if (!user && !isAdmin) {
@@ -432,19 +434,21 @@ export default function Home() {
         <div className="w-full px-[10%]">
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
-            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA]">
+            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-screen overflow-y-scroll">
               <Image
-                sizes="100vw"
                 width={0}
                 height={0}
+                sizes="100vw"
                 priority
-                alt={alumInfo!.lastName}
                 src={
                   alumInfo!.image === ""
                     ? "/default-profile.jpg"
                     : alumInfo!.image
                 }
                 className="w-20 h-20 md:w-40 md:h-40 lg:w-50 lg:h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
+                alt={`${alumInfo!.lastName}, ${alumInfo!.firstName} ${
+                  alumInfo!.suffix ? alumInfo!.suffix : ""
+                }`}
               />
               <p className="text-lg md:text-[20px] text-center font-bold justify-self-center">
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
@@ -459,7 +463,7 @@ export default function Home() {
                 </i>
               </div>
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-3">
                 {/* <p className="text-xs md:text-[14px]">
                   Std. No. {alumInfo!.studentNumber}
                 </p> */}
@@ -517,7 +521,7 @@ export default function Home() {
                         <button
                           onClick={() => {
                             setSelectedSort(sortType);
-                            // setLatestFirst(sortType === "Latest");
+                            setLatestFirst(sortType === "Latest");
                             handleSortChange(sortValues[index]);
                           }}
                           className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 focus:outline-none ${
@@ -544,13 +548,46 @@ export default function Home() {
                     {/* user info */}
                     <div className="flex flex-row mb-[20px] px-4 md:px-[20px] mt-[20px] gap-2 items-center">
                       <Image
-                        priority
-                        alt="pic"
                         width={0}
                         height={0}
                         sizes="100vw"
-                        src={getImageSrc(newsLetter)}
+                        priority
+                        src={
+                          newsLetter.category === "announcement" ||
+                          newsLetter.category === "event" ||
+                          newsLetter.category === "scholarship" ||
+                          newsLetter.category === "donation_drive"
+                            ? "/ics-logo.jpg"
+                            : newsLetter.category === "job_offering"
+                            ? (() => {
+                                const jobOffering = jobOffers.find(
+                                  (jobOffer: JobOffering) =>
+                                    jobOffer.jobId === newsLetter.referenceId
+                                );
+                                if (
+                                  !jobOffering ||
+                                  jobOffering.alumniId === "Admin"
+                                ) {
+                                  if (jobOffering.image)
+                                    return jobOffering.image;
+                                  else return "/ics-logo.jpg";
+                                } else if (jobOffering.image)
+                                  return jobOffering.image;
+                                else
+                                  return (
+                                    jobOffering &&
+                                    alums.find(
+                                      (alum: Alumnus) =>
+                                        alum.alumniId === jobOffering.alumniId
+                                    )?.image
+                                  );
+                              })()
+                            : ""
+                        }
                         className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-cover object-top rounded-full border border-[#DADADA]"
+                        alt={`${alumInfo!.lastName}, ${alumInfo!.firstName} ${
+                          alumInfo!.suffix ? alumInfo!.suffix : ""
+                        }`}
                       />
                       <p className="text-sm md:text-[16px]">
                         {newsLetter.category === "announcement" ||
@@ -596,7 +633,7 @@ export default function Home() {
                     {/* if newsletter is announcement */}
                     {newsLetter.category === "announcement" &&
                       (() => {
-                        const announcement: Announcement = announces.find(
+                        const announcement = announces.find(
                           (announce: Announcement) =>
                             announce.announcementId === newsLetter.referenceId
                         );
@@ -619,13 +656,13 @@ export default function Home() {
                                 ""
                               ) : (
                                 <Image
-                                  alt={announcement.title}
                                   width={0}
                                   height={0}
                                   sizes="100vw"
                                   priority
                                   src={announcement.image}
                                   className="w-full rounded-b-[10px]"
+                                  alt={announcement.title}
                                 />
                               )}
                             </div>
@@ -654,11 +691,11 @@ export default function Home() {
                     {/* if newsletter is a job post */}
                     {newsLetter.category === "job_offering" &&
                       (() => {
-                        const jobOffering: JobOffering = jobOffers.find(
+                        const jobOffering = jobOffers.find(
                           (jobOffer: JobOffering) =>
-                            jobOffer.jobId === newsLetter.referenceId &&
-                            (jobOffer.status === "Accepted" ||
-                              jobOffer.status === "Closed")
+                            (jobOffer.jobId === newsLetter.referenceId &&
+                              jobOffer.status === "Accepted") ||
+                            jobOffer.status === "Closed"
                         );
                         return jobOffering ? (
                           <div className="px-4 md:px-[20px]">
@@ -802,24 +839,38 @@ export default function Home() {
                                 ) : (
                                   <img src={jobOffering.image}></img>
                                 )} */}
-                                <div className="flex gap-1">
-                                  <button
-                                    onClick={() =>
-                                      router.push(`/joboffer-list`)
-                                    }
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                {jobOffering.status === "Closed" ? (
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() =>
+                                        router.push(`/joboffer-list`)
+                                      }
+                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                    >
+                                      View more job offers
+                                    </button>
+                                    <button className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white">
+                                      Apply
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex gap-1">
+                                    {/* <button
+                                    onClick={() => router.push(`/joboffer-list`)}
+                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                                   >
                                     View more job offers
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      router.push(`/joboffer-list/`)
-                                    }
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
-                                  >
-                                    Apply
-                                  </button>
-                                </div>
+                                  </button> */}
+                                    <button
+                                      onClick={() =>
+                                        router.push(`/joboffer-list/`)
+                                      }
+                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                    >
+                                      Apply
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -862,10 +913,10 @@ export default function Home() {
                                 ""
                               ) : (
                                 <Image
-                                  priority
                                   width={0}
                                   height={0}
                                   sizes="100vw"
+                                  priority
                                   src={donationDrive.image}
                                   className="w-full"
                                   alt="Donation drive"
@@ -878,23 +929,21 @@ export default function Home() {
                                     <div className="flex gap-2 items-center">
                                       <Users className="size-4 text-[#616161]" />
                                       <span className="text-[13px] md:text-[15px] text-gray-500">
-                                        {donationDrives[currentDonationIndex]
-                                          .donorList?.length || 0}{" "}
+                                        {" "}
+                                        {donationDrive.donorList?.length ||
+                                          0}{" "}
                                         Patrons
                                       </span>
                                     </div>
-                                    {getDaysRemaining(
-                                      donationDrives[currentDonationIndex]
-                                        .endDate
-                                    ) === "Not Available" ? (
+                                    {getDaysRemaining(donationDrive.endDate) ===
+                                    "Not Available" ? (
                                       ""
                                     ) : (
                                       <div className="flex gap-2 items-center">
                                         <Clock className="size-4 text-[#616161]" />
                                         <span className="text-[13px] md:text-[15px] text-gray-500">
                                           {getDaysRemaining(
-                                            donationDrives[currentDonationIndex]
-                                              .endDate
+                                            donationDrive.endDate
                                           )}
                                         </span>
                                       </div>
@@ -903,18 +952,12 @@ export default function Home() {
 
                                   {/* progress bar */}
                                   <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden my-[5px]">
-                                    {donationDrives[currentDonationIndex]
-                                      .currentAmount === 0 ? (
+                                    {donationDrive.currentAmount === 0 ? (
                                       <div
                                         className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center py-0.5 leading-none rounded-full"
                                         style={{
                                           width: `${Math.min(
-                                            ((donationDrives[
-                                              currentDonationIndex
-                                            ].currentAmount || 0) /
-                                              donationDrives[
-                                                currentDonationIndex
-                                              ].targetAmount) *
+                                            (0 / donationDrive.targetAmount) *
                                               100,
                                             100
                                           )}%`,
@@ -925,12 +968,9 @@ export default function Home() {
                                         className="bg-blue-500 h-2 text-[10px] font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
                                         style={{
                                           width: `${Math.min(
-                                            ((donationDrives[
-                                              currentDonationIndex
-                                            ].currentAmount || 0) /
-                                              donationDrives[
-                                                currentDonationIndex
-                                              ].targetAmount) *
+                                            ((donationDrive.currentAmount ||
+                                              0) /
+                                              donationDrive.targetAmount) *
                                               100,
                                             100
                                           )}%`,
@@ -1005,10 +1045,10 @@ export default function Home() {
                               ""
                             ) : (
                               <Image
-                                priority
                                 width={0}
                                 height={0}
                                 sizes="100vw"
+                                priority
                                 src={scholarship.image}
                                 className="w-full"
                                 alt="Donation drive"
@@ -1018,9 +1058,9 @@ export default function Home() {
                             <div className="flex gap-1">
                               <button
                                 onClick={() => router.push(`/scholarship`)}
-                                className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
+                                className="w-full h-[30px] cursor-pointer rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
                               >
-                                View more sponsorships
+                                View more scholarships
                               </button>
                               <button
                                 onClick={() =>
@@ -1059,37 +1099,59 @@ export default function Home() {
                                   key={event.eventId}
                                 >
                                   <div className="flex flex-col gap-[20px] px-4 md:px-[20px]">
-                                    <div>
+                                    <div className="flex flex-col gap-[20px]">
                                       <p className="text-xl md:text-[24px] font-semibold">
                                         {event.title}
                                       </p>
-                                      <p className="text-[13px] md:text-[15px] mt-2">
-                                        {event.description}
-                                      </p>
+                                      <CollapseText
+                                        text={event.description}
+                                        maxChars={500}
+                                      />
                                     </div>
                                   </div>
 
                                   {event.image === "" ? (
-                                    <Image
-                                      alt="Event"
-                                      src="/default-image.jpg"
-                                      width={0}
-                                      height={0}
-                                      sizes="100vw"
-                                      priority
-                                      className="w-full h-auto object-cover"
-                                    />
+                                    <hr className="w-[95%] text-gray-300 place-self-center"></hr>
                                   ) : (
                                     <Image
-                                      alt="Event"
-                                      src={event.image}
                                       width={0}
                                       height={0}
                                       sizes="100vw"
                                       priority
-                                      className="w-full"
+                                      src={event.image}
+                                      alt={event.title}
                                     />
                                   )}
+
+                                  <div className="flex justify-between mx-[30px] text-[15px] gap-[30px] my-[5px] ">
+                                    <div className="flex gap-2 items-center">
+                                      <Calendar className="size-5 text-[#616161]" />
+                                      <span className="text-[15px] text-gray-500">
+                                        {new Date(
+                                          event.date
+                                        ).toLocaleDateString()}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex gap-2  items-center">
+                                      <Clock className="size-5 text-[#616161]" />
+                                      <span className="text-[15px] text-gray-500">
+                                        {new Date(
+                                          event.date
+                                        ).toLocaleTimeString([], {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex flex-row text-[15px] gap-[3px] items-center place-self-start">
+                                      <MapPin className="size-5 text-[#616161] " />
+                                      <span className="text-[15px] text-gray-500">
+                                        {event.location}
+                                      </span>
+                                    </div>
+                                  </div>
                                   <>
                                     {event.needSponsorship === true && (
                                       <>
@@ -1397,17 +1459,13 @@ export default function Home() {
                   <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
                     <div className="w-full">
                       <Image
-                        alt={events[currentEventIndex].title}
                         width={0}
                         height={0}
-                        priority
                         sizes="100vw"
-                        src={
-                          events[currentEventIndex].image === ""
-                            ? "/ICS2.jpg"
-                            : events[currentEventIndex].image
-                        }
+                        priority
+                        src={events[currentEventIndex].image}
                         className="mb-[10px] h-[150px] w-full object-cover"
+                        alt={events[currentEventIndex].title}
                       />
                       <div className="flex flex-col text-[15px]">
                         <p className="font-semibold">
