@@ -13,7 +13,9 @@ import {
 import type { Timestamp } from 'firebase/firestore'; 
 import { RegStatus } from '@/types/alumni/regStatus';
 import { useAlums } from '@/context/AlumContext';
-
+import { Badge } from '@/components/ui/badge';
+import { Avatar } from '@/components/ui/avatar';
+import { Mail, Phone, Calendar, MapPin, BookOpen, Briefcase, Activity } from 'lucide-react';
 
 interface AlumniDetailsModalProps {
   alumnus: Alumnus | null;
@@ -69,7 +71,7 @@ const AlumniDetailsModal = ({
     }
   };
 
-  // Helper function to format dates safely
+  // Helper function to format dates from Timestamp
   const formatDateWithDay = (raw?: Timestamp): string => {
     if (!raw) return 'N/A';
 
@@ -83,146 +85,220 @@ const AlumniDetailsModal = ({
     return `${m}/${d}/${y}`;
   };
 
+  // Status badge style mapper
+  const statusStyles = {
+    pending: "bg-amber-100 text-amber-800 border-amber-200",
+    approved: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    rejected: "bg-red-100 text-red-800 border-red-200"
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-        
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            {alumnus.firstName} {alumnus.middleName} {alumnus.lastName} {alumnus.suffix}
-            <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-              alumnus.regStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-              alumnus.regStatus === 'approved' ? 'bg-green-100 text-green-800' : 
-              'bg-red-100 text-red-800'
-            }`}>
-              {alumnus.regStatus === 'pending' ? 'Pending' : 
-               alumnus.regStatus === 'approved' ? 'Approved' : 'Rejected'}
-            </span>
-          </DialogTitle>
-        </DialogHeader>
-        <img
-          src={alumnus.image}
-          alt={alumnus.title}
-          className="w-full h-40 object-cover rounded-md"
-        />
-
-        <div className="overflow-auto px-1 py-2 space-y-4 my-4 flex-1">
-            {/* Personal Information */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="font-semibold text-gray-700 mb-2">Personal Information</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex flex-col">
-                <span className="text-gray-500">Student Number</span>
-                <span className="font-medium">{alumnus.studentNumber || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Email</span>
-                <span className="font-medium">{alumnus.email || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Age</span>
-                <span className="font-medium">{alumnus.age || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Birth Date</span>
-                <span className="font-medium">{formatDateWithDay(alumnus.birthDate)}</span>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        {/* Header with profile image and basic info */}
+        <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
+          <div className="flex items-center gap-5">
+            <Avatar className="h-20 w-20 border-4 border-white shadow-md">
+              {alumnus.image ? (
+                <img 
+                  src={alumnus.image} 
+                  alt={`${alumnus.firstName} ${alumnus.lastName}`}
+                  className="aspect-square object-cover" 
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-800 text-xl font-semibold">
+                  {alumnus.firstName?.[0]}{alumnus.lastName?.[0]}
+                </div>
+              )}
+            </Avatar>
+            
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold">
+                {alumnus.firstName} {alumnus.middleName} {alumnus.lastName} {alumnus.suffix}
+              </h2>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge className={`font-medium border ${statusStyles[alumnus.regStatus]}`}>
+                  {alumnus.regStatus.charAt(0).toUpperCase() + alumnus.regStatus.slice(1)}
+                </Badge>
+                {alumnus.jobTitle && (
+                  <span className="text-sm opacity-90 flex items-center">
+                    <Briefcase className="h-3.5 w-3.5 mr-1" />
+                    {alumnus.jobTitle}
+                  </span>
+                )}
               </div>
             </div>
           </div>
-
-          {/* Academic & Professional Information */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="font-semibold text-gray-700 mb-2">Academic & Professional</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex flex-col">
-                <span className="text-gray-500">Graduation Year</span>
-                <span className="font-medium">{alumnus.graduationYear?.toString() || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Job Title</span>
-                <span className="font-medium">{alumnus.jobTitle?.toString() || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col col-span-2">
-                <span className="text-gray-500">Fields of Interest</span>
-                <span className="font-medium">
-                  {alumnus.fieldOfInterest?.length > 0 
-                    ? alumnus.fieldOfInterest.join(', ') 
-                    : 'None specified'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Address & Contact */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="font-semibold text-gray-700 mb-2">Address & Contact</h3>
-            <div className="grid grid-cols-1 gap-2 text-sm">
-              <div className="flex flex-col">
-                <span className="text-gray-500">Address</span>
-                <span className="font-medium">
-                  {alumnus.address?.length > 0 ? alumnus.address.join(', ') : 'No address provided'}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Contact Privacy</span>
-                <span className="font-medium">{alumnus.contactPrivacy ? 'Private' : 'Public'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Newsletter Subscription</span>
-                <span className="font-medium">{alumnus.subscribeToNewsletter ? 'Subscribed' : 'Not Subscribed'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Registration & System Information */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="font-semibold text-gray-700 mb-2">Registration & System</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex flex-col">
-                <span className="text-gray-500">Registration Status</span>
-                <span className="font-medium capitalize">{alumnus.regStatus}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Approval Date</span>
-                <span className="font-medium">{formatDateSafe(alumnus.approvalDate)}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Last Login</span>
-                <span className="font-medium">{formatDateSafe(alumnus.lastLogin)}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Alumni Student Number:</span>
-                <span className="font-medium">{alumnus.studentNumber}</span>
-              </div>
-            </div>
-          </div>
-
-
         </div>
 
-        <DialogFooter className="flex flex-wrap gap-2 justify-between sm:justify-end">
-          {alumnus.regStatus === 'pending' && (
-            <>
-              <Button 
-                onClick={handleApprove}
-                disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                Approve Registration
-              </Button>
-              <Button 
-                onClick={handleReject}
-                disabled={isSubmitting}
-                variant="destructive"
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Reject Registration
-              </Button>
-            </>
-          )}
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
+        {/* Main content scrollable area */}
+        <div className="overflow-auto flex-1 p-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Personal Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
+              
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <Mail className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <div className="text-sm text-gray-500">Email</div>
+                    <div className="font-medium">{alumnus.email || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <div className="text-sm text-gray-500">Birth Date</div>
+                    <div className="font-medium">{formatDateWithDay(alumnus.birthDate)}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <BookOpen className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <div className="text-sm text-gray-500">Student Number</div>
+                    <div className="font-medium">{alumnus.studentNumber || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <div className="text-sm text-gray-500">Address</div>
+                    <div className="font-medium">
+                      {alumnus.address?.length > 0 
+                        ? alumnus.address.join(', ') 
+                        : 'No address provided'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Academic & Professional */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Academic & Professional</h3>
+              
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <BookOpen className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <div className="text-sm text-gray-500">Graduation Year</div>
+                    <div className="font-medium">{alumnus.graduationYear?.toString() || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <Briefcase className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <div className="text-sm text-gray-500">Job Title</div>
+                    <div className="font-medium">{alumnus.jobTitle || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <Activity className="h-4 w-4 text-gray-500 mr-2 mt-1" />
+                  <div>
+                    <div className="text-sm text-gray-500">Fields of Interest</div>
+                    <div className="font-medium">
+                      {alumnus.fieldOfInterest?.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {alumnus.fieldOfInterest.map(field => (
+                            <Badge key={field} variant="outline" className="bg-blue-50">
+                              {field}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        'None specified'
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Contact & Privacy */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Contact & Privacy</h3>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="bg-gray-100 p-2 rounded-md">
+                    <div className="text-sm font-medium">Contact Privacy</div>
+                    <Badge variant={alumnus.contactPrivacy ? "secondary" : "outline"} className="mt-1">
+                      {alumnus.contactPrivacy ? 'Private' : 'Public'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="bg-gray-100 p-2 rounded-md">
+                    <div className="text-sm font-medium">Newsletter</div>
+                    <Badge variant={alumnus.subscribeToNewsletter ? "secondary" : "outline"} className="mt-1">
+                      {alumnus.subscribeToNewsletter ? 'Subscribed' : 'Not Subscribed'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* System Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">System Information</h3>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-100 p-2 rounded-md">
+                  <div className="text-xs text-gray-500">Registration Status</div>
+                  <div className="font-medium capitalize">{alumnus.regStatus}</div>
+                </div>
+                
+                <div className="bg-gray-100 p-2 rounded-md">
+                  <div className="text-xs text-gray-500">Approval Date</div>
+                  <div className="font-medium">{formatDateSafe(alumnus.approvalDate)}</div>
+                </div>
+                
+                <div className="bg-gray-100 p-2 rounded-md">
+                  <div className="text-xs text-gray-500">Last Login</div>
+                  <div className="font-medium">{formatDateSafe(alumnus.lastLogin)}</div>
+                </div>
+                
+                <div className="bg-gray-100 p-2 rounded-md">
+                  <div className="text-xs text-gray-500">Age</div>
+                  <div className="font-medium">{alumnus.age || 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer with action buttons */}
+        <DialogFooter className="px-6 py-4 border-t bg-gray-50">
+          <div className="w-full flex justify-between">
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+            
+            {alumnus.regStatus === 'pending' && (
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleReject}
+                  disabled={isSubmitting}
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Reject
+                </Button>
+                <Button 
+                  onClick={handleApprove}
+                  disabled={isSubmitting}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Approve
+                </Button>
+              </div>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -13,7 +13,8 @@ import {
 import type { Timestamp } from 'firebase/firestore'; 
 import { RegStatus } from '@/types/alumni/regStatus';
 import { useEvents } from '@/context/EventContext';
-
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, MapPin, Users, Gift, User } from 'lucide-react';
 
 interface ProEventDetailsModalProps {
   proEvent: Event | null;
@@ -47,7 +48,7 @@ const ProEventDetailsModal = ({
     }
   };
   
-  const handleReject =() => {
+  const handleReject = () => {
     setIsSubmitting(true);
     try {
       onUpdateEventStat(proEvent.eventId, 'Rejected');
@@ -85,91 +86,126 @@ const ProEventDetailsModal = ({
     return `${m}/${d}/${y}`;
   };
 
+  // Status badge style mapper
+  const statusStyles = {
+    Pending: "bg-amber-100 text-amber-800 border-amber-200",
+    Accepted: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    Rejected: "bg-red-100 text-red-800 border-red-200"
+  };
+
   return (
     <Dialog open={isEventProOpen} onOpenChange={onProEventClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              {proEvent.title}
-              <span
-              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                  proEvent.status === 'Pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : proEvent.status === 'Accepted'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}
-              >
-                {proEvent.status === 'Accepted'
-                  ? 'Accepted'
-                  : proEvent.status === 'Pending'
-                  ? 'Pending'
-                  : 'Rejected'}
-              </span>
-
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 my-4">
-          {/* Personal Information */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="font-semibold text-gray-700 mb-2">Proposal Event Information</h3>
-            <img
-                src={proEvent.image}
-                alt={proEvent.title}
-                className="w-full h-40 object-cover rounded-md"
-              />
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex flex-col">
-                <span className="text-gray-500">Proposed By: </span>
-                <span className="font-medium">{proEvent.creatorName || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Time:</span>
-                <span className="font-medium">{proEvent.time || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">location</span>
-                <span className="font-medium">{proEvent.location || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Number of Attendees:</span>
-                <span className="font-medium">{proEvent.numofAttendees || 'N/A'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">Donation Drive:</span>
-                <span className="font-medium">{getCampaignName}</span>
-
-              </div>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        {/* Header with event title and status */}
+        <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">{proEvent.title}</h2>
+              <Badge className={`font-medium border ${statusStyles[proEvent.status]}`}>
+                {proEvent.status}
+              </Badge>
+            </div>
+            <div className="flex items-center mt-2">
+              <User className="h-4 w-4 mr-1" />
+              <span className="text-sm opacity-90">Proposed by: {proEvent.creatorName || 'N/A'}</span>
             </div>
           </div>
-
-
         </div>
 
-        <DialogFooter className="flex flex-wrap gap-2 justify-between sm:justify-end">
-          {proEvent.status === 'Pending' && (
-            <>
-              <Button 
-                onClick={handleApprove}
-                disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                Approve Registration
-              </Button>
-              <Button 
-                onClick={handleReject}
-                disabled={isSubmitting}
-                variant="destructive"
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Reject Registration
-              </Button>
-            </>
+        {/* Event image banner */}
+        <div className="w-full h-56 overflow-hidden">
+          {proEvent.image ? (
+            <img
+              src={proEvent.image}
+              alt={proEvent.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500">No image available</span>
+            </div>
           )}
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
+        </div>
+        
+        {/* Main content scrollable area */}
+        <div className="overflow-auto flex-1 p-6">
+          <div className="space-y-6">
+            {/* Event Details */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Event Details</h3>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <Clock className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Time</div>
+                    <div className="font-medium">{proEvent.time || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <MapPin className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Location</div>
+                    <div className="font-medium">{proEvent.location || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <Users className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Number of Attendees</div>
+                    <div className="font-medium">{proEvent.numofAttendees || 'N/A'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <Gift className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Donation Drive</div>
+                    <div className="font-medium">{getCampaignName || 'None'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Description section - if your Event model has a description */}
+            {proEvent.description && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Description</h3>
+                <p className="text-gray-700">{proEvent.description}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer with action buttons */}
+        <DialogFooter className="px-6 py-4 border-t bg-gray-50">
+          <div className="w-full flex justify-between">
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+            
+            {proEvent.status === 'Pending' && (
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleReject}
+                  disabled={isSubmitting}
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Reject
+                </Button>
+                <Button 
+                  onClick={handleApprove}
+                  disabled={isSubmitting}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Approve
+                </Button>
+              </div>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

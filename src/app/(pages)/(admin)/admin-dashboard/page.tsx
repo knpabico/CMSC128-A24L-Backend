@@ -13,7 +13,9 @@ import AlumniDetailsModal from '@/components/ui/ActivateAlumniDetails';
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { useJobOffer } from "@/context/JobOfferContext";
-import { CheckCircle, XCircle, Activity, Users, Briefcase, Calendar, Award, MapPin, CreditCard} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, XCircle, Activity, Users, Briefcase, Calendar, Award, MapPin, CreditCard, Building, DollarSign, Clock} from 'lucide-react';
 import { useDonationContext } from "@/context/DonationContext";
 
 import { RegStatus } from "@/types/alumni/regStatus";
@@ -213,6 +215,7 @@ export default function AdminDashboard() {
   const [isCampaignName, setIsCampaignName] = useState("None");
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
   const [isSchoModalOpen, setIsSchoModalOpen] = useState(false);
+  const [activeScholarshipTab, setActiveScholarshipTab] = useState('open');
 
   // Function to handle opening the modal
   const handleOpenModal = (alumnus: Alumnus) => {
@@ -553,8 +556,6 @@ export default function AdminDashboard() {
     
       {/* Secondary Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Event Proposals 
-        To Fix: Ipagisahin ng card ang event proposal and upcoming events (k gagawa)*/}
         {/* Combined Events Card */}
         <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow col-span-2">
           <CardHeader className="pb-0">
@@ -717,7 +718,7 @@ export default function AdminDashboard() {
             <hr className="border-t border-gray-200 w-11/12 mx-auto" />
             <div className="text-center py-3">
               <Link
-                href={`/admin-dashboard/job-postings${activeTab === 'active' ? '/active' : ''}`}
+                href={`/admin-dashboard/job-postings`}
                 className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all job postings
@@ -726,52 +727,81 @@ export default function AdminDashboard() {
           </div>
         </Card>
         
-        {/* Scholarship */}
+        {/* MAYBELLEEE PAFIX PLSS di ko mapalabas yung mga scholarships nyahahah */}
         <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
             <CardTitle className="flex items-center">
               <Award className="h-5 w-5 mr-2 text-yellow-600" /> Scholarships
             </CardTitle>
-            <div className="pt-1">
-              <hr className="border-t border-gray-200 mx-auto" />
+            
+            {/* Tabs */}
+            <div className="flex space-x-2 mt-2 border-b border-gray-200">
+              <button
+                onClick={() => setActiveScholarshipTab('open')}
+                className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
+                  activeScholarshipTab === 'open'
+                    ? 'bg-gray-100 border-b-2 border-yellow-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Open
+              </button>
+              <button
+                onClick={() => setActiveScholarshipTab('closed')}
+                className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
+                  activeScholarshipTab === 'closed'
+                    ? 'bg-gray-100 border-b-2 border-yellow-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Closed
+              </button>
             </div>
           </CardHeader>
           
           <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
-            {scholarships.length > 0 ? (
-              scholarships.map((scholarship: Scholarship) => (
-                <div 
-                  key={scholarship.scholarshipId} 
-                  onClick={() => handleSchoOpenModal(scholarship)}
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
-                >
-                  <div className="mb-1">
-                    <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
-                    <span
-                    className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                        scholarship.status
-                          ? 
-                          'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {scholarship.status
-                        ? 'Open'
-                        : 'Closed'}
-                    </span>
+          {scholarships.length === 0 ? (
+            <div className="text-center py-6 text-gray-500">No scholarships available</div>
+          ) : (
+            <>
+              {scholarships
+                .filter((scholarship:Scholarship)=> 
+                  activeScholarshipTab === 'open' 
+                    ? scholarship.status === 'active' 
+                    : scholarship.status === 'closed'
+                )
+                .map((scholarship:Scholarship)=> (
+                  <div 
+                    key={scholarship.scholarshipId} 
+                    onClick={() => handleSchoOpenModal(scholarship)}
+                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
+                  >
+                    <div className="mb-1">
+                      <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
+                      <p className="text-xs text-black-500">Sponsors: {scholarship.alumList.length != 0 ? scholarship.alumList.length : '0' }</p>
+                      <p className="text-xs text-black-500">Date Posted: {scholarship.datePosted.toLocaleDateString()}</p>
+                    </div>
                   </div>
+                ))}
+              
+              {scholarships.filter((scholarship:Scholarship) => 
+                activeScholarshipTab === 'open' 
+                  ? scholarship.status === 'active'
+                  : scholarship.status === 'closed'
+              ).length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  No {activeScholarshipTab === 'open' ? 'Open' : 'Closed'} scholarships
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-6 text-gray-500">No active scholarships</div>
-            )}
-          </CardContent>
+              )}
+            </>
+          )}
+        </CardContent>
 
           <div className="px-2 mt-auto">
             <hr className="border-t border-gray-200 w-11/12 mx-auto" />
             <div className="text-center py-3">
               <Link
-                href="/admin-dashboard/manage-scholarships"
+                href="/admin-dashboard/scholarships/manage"
                 className="text-blue-600 hover:underline text-sm font-medium"
               >
                 View all scholarships
@@ -779,6 +809,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         </Card>
+
       </div>
 
       {/* Map and Top Fields */}
@@ -817,7 +848,7 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  {/* Labels Legend - Limited to top 6 for cleaner display */}
+                  {/* Labels Legend */}
                   <div className="space-y-1 max-h-55 overflow-y-auto w-full">
                     {sortedEntries.slice(0, 6).map(([field, count], idx) => (
                       <div key={field} className="flex items-center space-x-2 text-sm p-1 hover:bg-gray-50 rounded-md">
@@ -843,132 +874,222 @@ export default function AdminDashboard() {
 
     {/* Job Posting */}
     <div className="md:col-span-3">
-      {/* Modal for job details */}
-      {isJobModalOpen && selectedJob && (
-        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
+      
+    {/* Modal for job details */}
+    {isJobModalOpen && selectedJob && (
+      <Dialog open={isJobModalOpen} onOpenChange={closeModal}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+          {/* Header with job title */}
+          <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
+            <div className="flex justify-between items-center">
+              <div>
                 <h2 className="text-2xl font-bold">{selectedJob.position}</h2>
-                <button 
-                  onClick={closeModal}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <XCircle size={24} />
-                </button>
-              </div>
-              {selectedJob.image &&
-              <img
-                src={selectedJob.image}
-                alt={selectedJob.position}
-                className="w-full h-40 object-cover rounded-md"
-              />
-              }
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p className="text-lg font-semibold">{selectedJob.company}</p>
-                  <p className="text-gray-600">{selectedJob.location}</p>
-                  <p className="text-gray-600">{selectedJob.employmentType}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Salary Range: {selectedJob.salaryRange}</p>
-                  <p className="text-gray-600">Experience: {selectedJob.experienceLevel}</p>
-                  {/* <p className="text-gray-600">Posted: {selectedJob.datePosted.toLocaleDateString()}</p> */}
-                </div>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Job Description</h3>
-                <p className="text-gray-700">{selectedJob.jobDescription}</p>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Required Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedJob.requiredSkill.map((skill, index) => (
-                    <span 
-                      key={index} 
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-lg font-semibold mb-3">Status Management</h3>
-                <p className="mb-3">Current Status: <span className={`font-semibold ${selectedJob.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>{selectedJob.status}</span></p>
-                
-                <div className="flex gap-3">
-                  {selectedJob.status === 'Pending' ? (
-                    <button
-                      onClick={() => updateJobStatus(selectedJob.jobId, 'Active')}
-                      className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors"
-                    >
-                      <CheckCircle size={18} /> Approve
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => updateJobStatus(selectedJob.jobId, 'Pending')}
-                      className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors"
-                    >
-                      <CheckCircle size={18} /> Mark as Pending
-                    </button>
-                  )}
-                  
-                  <button
-                    onClick={() => updateJobStatus(selectedJob.jobId, 'Rejected')}
-                    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors"
+                <div className="flex items-center mt-1">
+                  <Badge variant="outline" className="bg-white bg-opacity-20 text-white border-white border-opacity-30">
+                    {selectedJob.employmentType}
+                  </Badge>
+                  <Badge 
+                    className={`ml-2 ${
+                      selectedJob.status === 'Active' 
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
+                        : selectedJob.status === 'Pending'
+                        ? 'bg-amber-100 text-amber-800 border-amber-200'
+                        : 'bg-red-100 text-red-800 border-red-200'
+                    }`}
                   >
-                    <XCircle size={18} /> Reject
-                  </button>
+                    {selectedJob.status}
+                  </Badge>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {selectedScholarship && (
-        <Dialog open={isSchoModalOpen} onOpenChange={handleSchoCloseModal}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">{selectedScholarship.title}</DialogTitle>
+          {/* Image banner */}
+          {selectedJob.image && (
+            <div className="w-full h-56 overflow-hidden">
+              <img
+                src={selectedJob.image}
+                alt={selectedJob.position}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          {/* Main content scrollable area */}
+          <div className="overflow-auto flex-1 p-6">
+            <div className="space-y-6">
+              {/* Company and Job Details */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <Building className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Company</div>
+                    <div className="font-medium">{selectedJob.company}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <MapPin className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Location</div>
+                    <div className="font-medium">{selectedJob.location}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <DollarSign className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Salary Range</div>
+                    <div className="font-medium">{selectedJob.salaryRange}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <Briefcase className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Experience Level</div>
+                    <div className="font-medium">{selectedJob.experienceLevel}</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Job Description */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Job Description</h3>
+                <p className="text-gray-700">{selectedJob.jobDescription}</p>
+              </div>
+              
+              {/* Required Skills */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Required Skills</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedJob.requiredSkill.map((skill, index) => (
+                    <Badge 
+                      key={index} 
+                      variant="outline"
+                      className="bg-blue-50 text-blue-800 border-blue-200"
+                    >
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer with action buttons */}
+          <div className="px-6 py-4 border-t bg-gray-50">
+            <h3 className="text-lg font-semibold mb-3">Status Management</h3>
+            <div className="flex justify-between items-center">
+              
+              <div className="flex gap-2">
+                {selectedJob.status === 'Pending' ? (
+                  <Button
+                    onClick={() => updateJobStatus(selectedJob.jobId, 'Active')}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle size={16} className="mr-2" /> Approve
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => updateJobStatus(selectedJob.jobId, 'Pending')}
+                    variant="outline"
+                    className="border-amber-500 text-amber-600 hover:bg-amber-50"
+                  >
+                    <Clock size={16} className="mr-2" /> Mark as Pending
+                  </Button>
+                )}
+                
+                <Button
+                  onClick={() => updateJobStatus(selectedJob.jobId, 'Rejected')}
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <XCircle size={16} className="mr-2" /> Reject
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
+
+    {/* Scholarship Modal */}
+    {selectedScholarship && (
+      <Dialog open={isSchoModalOpen} onOpenChange={handleSchoCloseModal}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+          {/* Header with scholarship title */}
+          <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
+            <DialogHeader className="p-0">
+              <DialogTitle className="text-2xl font-bold">{selectedScholarship.title}</DialogTitle>
+              <div className="flex items-center mt-1">
+                <Badge 
+                  className={`${
+                    selectedScholarship.status === 'Active' 
+                      ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
+                      : selectedScholarship.status === 'Pending'
+                      ? 'bg-amber-100 text-amber-800 border-amber-200'
+                      : 'bg-red-100 text-red-800 border-red-200'
+                  }`}
+                >
+                  {selectedScholarship.status}
+                </Badge>
+              </div>
             </DialogHeader>
+          </div>
 
-            <div className="space-y-4">
-              {selectedScholarship && 
+          {/* Image banner */}
+          {selectedScholarship.image && (
+            <div className="w-full h-56 overflow-hidden">
               <img
                 src={selectedScholarship.image}
                 alt={selectedScholarship.title}
-                className="w-full h-40 object-cover rounded-md"
+                className="w-full h-full object-cover"
               />
-              }
-              <div>
-                <p className="text-sm text-gray-700">
-                  <strong>Description:</strong> {selectedScholarship.description}
-                </p>
-                <p className="text-sm text-gray-700">
-                  <strong>Status:</strong> {selectedScholarship.status}
-                </p>
-                <p className="text-sm text-gray-700">
-                  <strong>Date Posted:</strong> {new Date(selectedScholarship.datePosted).toLocaleDateString()}
-                </p>
-                <p className="text-sm text-gray-700">
-                  <strong>Applicants:</strong> {selectedScholarship.alumList.length}
-                </p>
-              </div>
             </div>
+          )}
 
-            <DialogFooter>
-              <DialogClose asChild>
-                <button className="px-4 py-2 border rounded hover:bg-gray-100">Close</button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+          {/* Main content scrollable area */}
+          <div className="overflow-auto flex-1 p-6">
+            <div className="space-y-6">
+              {/* Description */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Description</h3>
+                <p className="text-gray-700">{selectedScholarship.description}</p>
+              </div>
+              
+              {/* Details */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <Calendar className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Date Posted</div>
+                    <div className="font-medium">{new Date(selectedScholarship.datePosted).toLocaleDateString()}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <Users className="h-5 w-5 text-[#0856BA] mr-3" />
+                  <div>
+                    <div className="text-sm text-gray-500">Applicants</div>
+                    <div className="font-medium">{selectedScholarship.alumList.length}</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Add more details here as needed */}
+            </div>
+          </div>
+
+          {/* Footer with close button */}
+          <DialogFooter className="px-6 py-4 border-t bg-gray-50">
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )}
     </div>
 
       </div>
