@@ -26,7 +26,7 @@ export default function Banner(
       </div>
       
       {/* Content Container */}
-      <div className="relative h-full container mx-auto px-[10%]">
+      <div className="relative z-10 h-full container mx-auto px-[10%]">
         <div className="flex flex-col justify-center h-full max-w-3xl">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             {title}
