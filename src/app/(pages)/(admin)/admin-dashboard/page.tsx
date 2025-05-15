@@ -776,19 +776,8 @@ export default function AdminDashboard() {
                   >
                     <div className="mb-1">
                       <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
-                      <span
-                        className={` px-2 py-0.5 text-xs rounded-full ${
-                          scholarship.status == 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {scholarship.status == 'active'
-                          ? 'Active'
-                          : 'Closed'}
-                      </span>
                       <p className="text-xs text-black-500">Sponsors: {scholarship.alumList.length != 0 ? scholarship.alumList.length : '0' }</p>
-
+                      <p className="text-xs text-black-500">Date Posted: {scholarship.datePosted.toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))}
@@ -819,59 +808,6 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        {/* Scholarship - can be removed if nafix na yung may tabs */}
-        <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-0">
-            <CardTitle className="flex items-center">
-              <Award className="h-5 w-5 mr-2 text-yellow-600" /> Scholarships
-            </CardTitle>
-            <div className="pt-1">
-              <hr className="border-t border-gray-200 mx-auto" />
-            </div>
-          </CardHeader>
-          
-          <CardContent className="flex-1 overflow-y-auto py-4 max-h-60 space-y-2">
-            {scholarships.length > 0 ? (
-              scholarships.map((scholarship: Scholarship) => (
-                <div 
-                  key={scholarship.scholarshipId} 
-                  onClick={() => handleSchoOpenModal(scholarship)}
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
-                >
-                  <div className="mb-1">
-                    <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
-                    <span
-                    className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                        scholarship.status
-                          ? 
-                          'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {scholarship.status
-                        ? 'Open'
-                        : 'Closed'}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-6 text-gray-500">No active scholarships</div>
-            )}
-          </CardContent>
-
-          <div className="px-2 mt-auto">
-            <hr className="border-t border-gray-200 w-11/12 mx-auto" />
-            <div className="text-center py-3">
-              <Link
-                href="/admin-dashboard/scholarships/manage"
-                className="text-blue-600 hover:underline text-sm font-medium"
-              >
-                View all scholarships
-              </Link>
-            </div>
-          </div>
-        </Card>
       </div>
 
       {/* Map and Top Fields */}
