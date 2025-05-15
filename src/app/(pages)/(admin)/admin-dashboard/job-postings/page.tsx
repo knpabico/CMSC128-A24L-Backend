@@ -186,7 +186,10 @@ export default function Users() {
           </div>
           <div
             className="cursor-pointer hover:text-blue-600"
-            onClick={goBackToList}
+            onClick={() => {
+              goBackToList();
+              setCurrentPage('list');
+            }}
           >
             Manage Job Posting
           </div>
@@ -343,19 +346,25 @@ export default function Users() {
               {/* Revised buttons */}
               {isEditing && (
                 <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
-                  <button
+                    <button
                     type="button"
-                    onClick={() => setIsEditing(false)}
+                    onClick={() => {
+                      setIsEditing(false);
+                      goBackToList();
+                      setCurrentPage("list");
+                    }}
                     className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-                  >
+                    >
                     Cancel
-                  </button>
+                    </button>
                   <button
                     type="submit"
                     className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                     onClick={() => {
                       setIsEditing(false);
                       handleEdit(editedJob);
+                      goBackToList();
+                      setCurrentPage("list");
                     }}
                   >
                     Save Changes

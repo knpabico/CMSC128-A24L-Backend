@@ -1076,7 +1076,7 @@ export default function Home() {
                           </div>
                         ) : (
                           <p className="text-[12px] md:text-[14px] mx-4 md:mx-[20px] my-[10px] italic text-gray-500">
-                            Announcement not found
+                            Scholarship not found
                           </p>
                         );
                       })()}
