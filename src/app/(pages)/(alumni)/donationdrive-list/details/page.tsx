@@ -379,6 +379,7 @@ function DonationDriveDetailsContent() {
     <div className="px-[10%] pt-10 pb-30">
       <div className="flex flex-col gap-3">
         <Breadcrumb items={breadcrumbItems} />
+
         {/* Main content area with relative positioning for proper layout */}
         <div className="w-full flex gap-5 relative">
           {/* Main content - reduced width to accommodate sidebar */}
@@ -714,7 +715,109 @@ function DonationDriveDetailsContent() {
           {isThankYouOpen && <ThankYouDialog />}
           {/* Donors */}
         </div>
-        hi
+
+        {/* Featured Stories Section - Carousel */}
+        <div className="my-16 relative">
+          <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">
+            Featured Stories
+          </h2>
+
+          {loading ? (
+            <>
+              <LoadingPage />
+            </>
+          ) : sortedStories.length === 0 ? (
+            <p className="text-gray-500 text-center">
+              No featured stories found.
+            </p>
+          ) : (
+            <div className="w-full">
+              {/* Previous button */}
+              <button
+                onClick={prevSlide}
+                disabled={currentIndex === 0}
+                className={`absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 z-10 bg-white rounded-full p-2 shadow-md
+									${
+                    currentIndex === 0
+                      ? "opacity-30 cursor-not-allowed"
+                      : "opacity-70 hover:opacity-100"
+                  }`}
+                aria-label="Previous stories"
+              >
+                <ChevronLeft size={24} />
+              </button>
+
+              {/* Stories grid - always 3 columns on larger screens */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
+                {visibleStories.length === 0 && (
+                  <div className="col-span-3 text-center text-gray-500">
+                    No other stories available at this time.
+                  </div>
+                )}
+                {visibleStories.map((story) => (
+                  <div
+                    key={story.featuredId}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                    onClick={() =>
+                      router.push(
+                        `/donationdrive-list/featured/${story.featuredId}`
+                      )
+                    }
+                  >
+                    {story.image && (
+                      <div
+                        className="h-40 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${story.image})` }}
+                      />
+                    )}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-lg text-gray-800 truncate">
+                        {story.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {formatDate(story.datePosted)}
+                      </p>
+                      <p className="text-sm text-gray-700 mt-2 line-clamp-3">
+                        {story.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Next button */}
+              <button
+                onClick={nextSlide}
+                disabled={currentIndex >= maxIndex}
+                className={`absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 z-10 bg-white rounded-full p-2 shadow-md
+									${
+                    currentIndex >= maxIndex
+                      ? "opacity-30 cursor-not-allowed"
+                      : "opacity-70 hover:opacity-100"
+                  }`}
+                aria-label="Next stories"
+              >
+                <ChevronRight size={24} />
+              </button>
+
+              {/* Pagination dots */}
+              {sortedStories.length > 3 && (
+                <div className="flex justify-center mt-6 gap-2">
+                  {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`h-2 w-2 rounded-full ${
+                        idx === currentIndex ? "bg-blue-500" : "bg-gray-300"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
