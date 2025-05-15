@@ -201,7 +201,7 @@ export default function AddDonationDrive() {
 								<label htmlFor="image-upload" className="text-sm font-medium flex items-center cursor-pointer justify-center gap-3  py-2">
 									<Asterisk size={16} className="text-red-600"/>
 									<Upload className="size-5"/>
-									Upload Backgournd Photo
+									Upload Background Photo
 								</label>
 								<input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
 							</div>

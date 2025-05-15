@@ -206,7 +206,7 @@ export default function Navbar() {
     { label: "Scholarships", path: "/scholarship" },
     { label: "Jobs", path: "/joboffer-list" },
     { label: "Alumni", path: "/alumni-list" },
-    { label: "Story", path: "/create-story" },
+    // { label: "Story", path: "/create-story" },
   ];
 
   const handleNavClick = (path) => {
