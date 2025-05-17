@@ -13,7 +13,7 @@ import { useAlums } from "@/context/AlumContext";
 
 export default function CreateEventPage() {
   const router = useRouter();
-  const { activeAlums } = useAlums();
+  const { activeAlums, alums } = useAlums();
 
   // Get event context values
   const {
@@ -78,15 +78,16 @@ export default function CreateEventPage() {
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     new Set(
-      activeAlums
+      alums
+        .filter(alum => alum.activeStatus === true)
         .map(alum => alum.studentNumber?.slice(0, 4))
         .filter((year): year is string => !!year) // filter out undefined/null
     )
   );
 
   // Sample alumni emails for display
-  const alumniEmails = activeAlums
-    ? activeAlums
+  const alumniEmails = alums
+    ? alums
         .filter((alum: { email: string; activeStatus: boolean; }) => alum.email && alum.activeStatus === true)
         .map((alum: { email: string; }) => alum.email)
     : [];

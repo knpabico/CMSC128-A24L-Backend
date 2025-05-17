@@ -2,12 +2,14 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@mui/material";
 import ModalInput from "@/components/ModalInputForm";
 import { useEvents } from "@/context/EventContext";
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/context/AuthContext";
+import { Asterisk, ChevronDown, Upload, X } from "lucide-react";
+import { useAlums } from "@/context/AlumContext";
 
 interface ProposeEventFormProps {
   isOpen: boolean;
@@ -50,8 +52,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
       preview,
       setPreview
       } = useEvents();
-
   const { user, alumInfo } = useAuth();
+  const { alums } = useAlums();
+  const router = useRouter();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmForm, setConfirmForm] = useState(false);
@@ -59,11 +62,26 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   const [visibility, setVisibility] = useState("all");
   const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
-  const router = useRouter();
-
+  const [isSticky, setIsSticky] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
   const [isConfirming, setisConfirming] = useState(false);
+
+  // Refs
+  const placeholderRef = useRef(null);
+  const formContainerRef = useRef(null);
+  const batchDropdownRef = useRef<HTMLDivElement>(null);
+  const batchMainInputRef = useRef<HTMLInputElement>(null);
+  const alumniDropdownRef = useRef<HTMLDivElement>(null);
+  const alumniMainInputRef = useRef<HTMLInputElement>(null);
+
+  // Dropdown state
+  const [isBatchDropdownOpen, setIsBatchDropdownOpen] = useState(false);
+  const [batchSearchTerm, setBatchSearchTerm] = useState("");
+  const [batchInputValue, setBatchInputValue] = useState("");
+
+  const [isAlumniDropdownOpen, setIsAlumniDropdownOpen] = useState(false);
+  const [alumniSearchTerm, setAlumniSearchTerm] = useState("");
+  const [alumniInputValue, setAlumniInputValue] = useState("");
 
   useEffect(() => {
     if (isEditing && events) {
@@ -119,6 +137,316 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
     setPreview(null);
   };
 
+  // Generate years from 1925 to current year
+  const currentYear = new Date().getFullYear();
+  const years = Array.from(
+    new Set(
+      alums
+        .filter(alum => alum.activeStatus === true)
+        .map(alum => alum.studentNumber?.slice(0, 4))
+        .filter((year): year is string => !!year) // filter out undefined/null
+    )
+  );
+
+   // Sample alumni emails for display
+  const alumniEmails = alums
+    ? alums
+        .filter((alum: { email: string; activeStatus: boolean; }) => alum.email && alum.activeStatus === true)
+        .map((alum: { email: string; }) => alum.email)
+    : [];
+
+  // Filtered years based on search term
+  const filteredBatchYears = years.filter((year) => year.toLowerCase().includes(batchSearchTerm.toLowerCase()));
+
+  // Filtered alumni emails based on search term
+  const filteredAlumniEmails = alumniEmails.filter((email: string) =>
+    email.toLowerCase().includes(alumniSearchTerm.toLowerCase()),
+  );
+
+  // Effects
+  useEffect(() => {
+    // Update visibility-dependent UI
+    const showBatchSelect = visibility === "batch"
+    const showAlumniSelect = visibility === "alumni"
+
+    // Sync selected batches and alumni with the context when visibility changes
+    if (visibility === "batch" && selectedBatches.length > 0) {
+      setSelectedBatches(selectedBatches);
+    } else if (visibility === "alumni" && selectedAlumni.length > 0) {
+      setSelectedAlumni(selectedAlumni);
+    }
+  }, [visibility, selectedBatches, selectedAlumni]);
+
+  useEffect(() => {
+    if (isBatchDropdownOpen && batchMainInputRef.current) {
+      batchMainInputRef.current.focus();
+    }
+  }, [isBatchDropdownOpen]);
+
+  useEffect(() => {
+    if (isAlumniDropdownOpen && alumniMainInputRef.current) {
+      alumniMainInputRef.current.focus();
+    }
+  }, [isAlumniDropdownOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (batchDropdownRef.current && !batchDropdownRef.current.contains(event.target as Node)) {
+        setIsBatchDropdownOpen(false);
+        setBatchSearchTerm("");
+        setBatchInputValue("");
+      }
+      if (alumniDropdownRef.current && !alumniDropdownRef.current.contains(event.target as Node)) {
+        setIsAlumniDropdownOpen(false);
+        setAlumniSearchTerm("");
+        setAlumniInputValue("");
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!placeholderRef.current) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSticky(!entry.isIntersecting)
+      },
+      {
+        threshold: 0,
+        rootMargin: "0px",
+      },
+    );
+
+    observer.observe(placeholderRef.current);
+    return () => observer.disconnect();
+  }, [])
+
+  // Batch selection handlers
+  const toggleBatchYear = (year: string) => {
+    if (selectedBatches.includes(year)) {
+      setSelectedBatches(selectedBatches.filter((item) => item !== year));
+    } else {
+      setSelectedBatches([...selectedBatches, year]);
+    }
+  };
+
+  const removeBatchYear = (year: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    e.stopPropagation();
+    setSelectedBatches(selectedBatches.filter((item) => item !== year));
+  };
+
+  const addBatchInput = () => {
+    if (batchInputValue.trim()) {
+      const year = batchInputValue.trim();
+      const yearNum = Number.parseInt(year);
+      if (!isNaN(yearNum) && yearNum >= 1925 && yearNum <= currentYear) {
+        if (!selectedBatches.includes(year)) {
+          setSelectedBatches([...selectedBatches, year]);
+        }
+        setBatchInputValue("");
+        setBatchSearchTerm("");
+      }
+    }
+  };
+
+  // Alumni selection handlers
+  const toggleAlumniEmail = (email: string) => {
+    if (selectedAlumni.includes(email)) {
+      setSelectedAlumni(selectedAlumni.filter((item) => item !== email));
+    } else {
+      setSelectedAlumni([...selectedAlumni, email]);
+    }
+  };
+
+  const removeAlumniEmail = (email: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    e.stopPropagation()
+    setSelectedAlumni(selectedAlumni.filter((item) => item !== email));
+  };
+
+  const addAlumniInput = () => {
+    if (alumniInputValue.trim()) {
+      const email = alumniInputValue.trim();
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (emailRegex.test(email)) {
+        if (!selectedAlumni.includes(email)) {
+          setSelectedAlumni([...selectedAlumni, email])
+        }
+        setAlumniInputValue("");
+        setAlumniSearchTerm("");
+      }
+    }
+  };
+
+  const renderBatchSelector = () => (
+    <div className="ml-6 relative text-sm" ref={batchDropdownRef}>
+      <div className="flex flex-wrap items-center min-h-12 p-1 border border-gray-300 rounded-md">
+        {selectedBatches.length > 0 && (
+          <>
+            {selectedBatches.map((year) => (
+              <div key={year} className="flex items-center bg-blue-100 text-blue-800 rounded-md px-2 py-1 m-1">
+                <span>{year}</span>
+                <X
+                  size={16}
+                  className="ml-1 cursor-pointer text-blue-600 hover:text-blue-800"
+                  onClick={(e) => removeBatchYear(year, e)}
+                />
+              </div>
+            ))}
+          </>
+        )}
+        <input
+          ref={batchMainInputRef}
+          type="text"
+          value={batchInputValue}
+          onChange={(e) => {
+            setBatchInputValue(e.target.value)
+            setBatchSearchTerm(e.target.value)
+            if (!isBatchDropdownOpen) setIsBatchDropdownOpen(true)
+          }}
+          onFocus={() => setIsBatchDropdownOpen(true)}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && batchInputValue.trim()) {
+              e.preventDefault()
+              addBatchInput()
+            }
+          }}
+          placeholder={selectedBatches.length === 0 ? "Type or select graduation years" : ""}
+          className="flex-grow outline-none text-sm min-w-20 px-2 py-1"
+        />
+        <div className="ml-auto cursor-pointer p-1" onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}>
+          <ChevronDown
+            size={20}
+            className={`text-gray-400 transition-transform ${isBatchDropdownOpen ? "rotate-180" : ""}`}
+          />
+        </div>
+      </div>
+
+      {isBatchDropdownOpen && (
+        <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
+          <div className="overflow-y-auto max-h-72">
+            {filteredBatchYears.length > 0 ? (
+              filteredBatchYears.map((year) => (
+                <div
+                  key={year}
+                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                    selectedBatches.includes(year) ? "bg-gray-50" : ""
+                  }`}
+                  onClick={() => toggleBatchYear(year)}
+                >
+                  <div className="flex items-center">
+                    <div
+                      className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
+                        selectedBatches.includes(year) ? "bg-blue-500 border-blue-500" : "border-gray-300"
+                      }`}
+                    >
+                      {selectedBatches.includes(year) && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
+                        </svg>
+                      )}
+                    </div>
+                    {year}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-3 text-sm text-gray-500">No results found</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderAlumniSelector = () => (
+    <div className="ml-6 relative" ref={alumniDropdownRef}>
+      <div className="flex flex-wrap items-center min-h-12 p-1 border border-gray-300 rounded-md">
+        {selectedAlumni.length > 0 && (
+          <>
+            {selectedAlumni.map((email) => (
+              <div key={email} className="flex items-center bg-green-100 text-green-800 rounded-md px-2 py-1 m-1">
+                <span className="text-xs">{email}</span>
+                <X
+                  size={16}
+                  className="ml-1 cursor-pointer text-green-600 hover:text-green-800"
+                  onClick={(e) => removeAlumniEmail(email, e)}
+                />
+              </div>
+            ))}
+          </>
+        )}
+        <input
+          ref={alumniMainInputRef}
+          type="text"
+          value={alumniInputValue}
+          onChange={(e) => {
+            setAlumniInputValue(e.target.value)
+            setAlumniSearchTerm(e.target.value)
+            if (!isAlumniDropdownOpen) setIsAlumniDropdownOpen(true)
+          }}
+          onFocus={() => setIsAlumniDropdownOpen(true)}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && alumniInputValue.trim()) {
+              e.preventDefault()
+              addAlumniInput()
+            }
+          }}
+          placeholder={selectedAlumni.length === 0 ? "Type or select alumni emails" : ""}
+          className="flex-grow outline-none text-sm min-w-20 px-2 py-1"
+        />
+        <div className="ml-auto cursor-pointer p-1" onClick={() => setIsAlumniDropdownOpen(!isAlumniDropdownOpen)}>
+          <ChevronDown
+            size={20}
+            className={`text-gray-400 transition-transform ${isAlumniDropdownOpen ? "rotate-180" : ""}`}
+          />
+        </div>
+      </div>
+
+      {isAlumniDropdownOpen && (
+        <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
+          <div className="overflow-y-auto max-h-72">
+            {filteredAlumniEmails.length > 0 ? (
+              filteredAlumniEmails.map((email: string) => (
+              <div
+                key={email}
+                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
+                selectedAlumni.includes(email) ? "bg-gray-50" : ""
+                }`}
+                onClick={() => toggleAlumniEmail(email)}
+              >
+                <div className="flex items-center">
+                <div
+                  className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
+                  selectedAlumni.includes(email) ? "bg-green-500 border-green-500" : "border-gray-300"
+                  }`}
+                >
+                  {selectedAlumni.includes(email) && (
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
+                  </svg>
+                  )}
+                </div>
+                {email}
+                </div>
+              </div>
+              ))
+            ) : (
+              <div className="px-4 py-3 text-sm text-gray-500">No results found</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const requiredSentence =
     "I certify on my honor that the proposed event details are accurate, correct, and complete.";
 
@@ -130,7 +458,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
     location.trim() !== "";
 
   if (!isOpen) return null;
-
+  
   return (
     <>
       {/* Event Proposal Modal */}
@@ -152,6 +480,17 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             className="w-full mb-4 p-2 border rounded"
             required
           />
+
+          {/* Location Field */}
+          <input
+            type="text"
+            placeholder="Event Location"
+            value={location}
+            onChange={(e) => setEventLocation(e.target.value)}
+            className="w-full mb-4 p-2 border rounded"
+            required
+          />
+
           <Button onClick={() => setIsModalOpen(true)}>
             Need AI help for description?
           </Button>
@@ -192,16 +531,6 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             </div>
           </div>
 
-          {/* Location Field */}
-          <input
-            type="text"
-            placeholder="Location"
-            value={location}
-            onChange={(e) => setEventLocation(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-            required
-          />
-
           <label htmlFor="image-upload" className="text-[14px] cursor-pointer px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             Upload Photo
           </label>
@@ -225,145 +554,81 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               />
             </div>
           )}
-          <div className="space-y-4 bg-white-700 p-4 text-black rounded-md w-80">
-            {/* Open to All */}
-            <label className="flex items-center space-x-2">
-              <input
-                type="radio"
-                name="visibility"
-                value="all"
-                checked={visibility === "all"}
-                onChange={() => {
-                  setVisibility("all");
-                  // Clear both to properly show the RSVP
-                  setSelectedAlumni([]);
-                  setSelectedBatches([]);
-                }}
-              />
-              <span>Open to all</span>
-            </label>
+          {/* Target Audience */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <p className="text-sm font-medium flex items-center">
+                <Asterisk size={16} className="text-red-600" /> Target Audience
+              </p>
 
-            {/* Batch Option */}
-            <label className="flex items-start space-x-2">
-              <input
-                type="radio"
-                name="visibility"
-                value="batch"
-                checked={visibility === "batch"}
-                onChange={() => {
-                  setVisibility("batch");
-                  setSelectedAlumni([]); // Clear the Selected Batches List
-                }}
-              />
-              <div className="flex flex-col w-full">
-                <span>Batch:</span>
-                {visibility === "batch" && (
-                  <>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {selectedBatches.map((batch, index) => (
-                        <span
-                          key={index}
-                          className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center"
-                        >
-                          {batch}
-                          {/* Remove Button */}
-                          <button 
-                            type="button"
-                            className="ml-2 text-red-500 font-bold"
-                            onClick={() =>
-                              setSelectedBatches((prev) =>
-                                prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedBatches
-                              )
-                            }
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                    {/* User Input */}
-                    <input
-                      type="text"
-                      className="text-black mt-2 p-2 rounded-md w-full"
-                      placeholder="e.g. 2022"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          const value = e.currentTarget.value.trim();
-                          // Check if the value is not empty and not already in the selectedBatches list
-                          if (value && !selectedBatches.includes(value)) {
-                            // Add the new value to the selectedBatches list
-                            setSelectedBatches([...selectedBatches, value]);
-                            e.currentTarget.value = "";
-                          }
-                        }
-                      }}
-                    />
-                    <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the batch.</p>
-                  </>
-                )}
-              </div>
-            </label>
+              <div className="flex flex-col gap-3">
+                {/* Option 1: Open to All */}
+                <div className="flex items-center">
+                  <input
+                    id="visibility-all"
+                    type="radio"
+                    name="visibility"
+                    value="all"
+                    checked={visibility === "all"}
+                    onChange={() => {
+                      setVisibility("all")
+                      setSelectedAlumni([])
+                      setSelectedBatches([])
+                    }}
+                    className="cursor-pointer h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <label htmlFor="visibility-all" className="ml-2 text-sm cursor-pointer">
+                    Open to All
+                  </label>
+                </div>
 
-            {/* Alumni Option */}
-            <label className="flex items-start space-x-2 mt-4">
-              <input
-                type="radio"
-                name="visibility"
-                value="alumni"
-                checked={visibility === "alumni"}
-                onChange={() => {
-                  setVisibility("alumni");
-                  setSelectedBatches([]); // Clear the Selected Alumni List
-                }}
-              />
-              <div className="flex flex-col w-full">
-                <span>Alumni:</span>
-                {visibility === "alumni" && (
-                  <>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {selectedAlumni.map((email, index) => (
-                        <span
-                          key={index}
-                          className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center"
-                        >
-                          {email}
-                          <button
-                            type="button"
-                            className="ml-2 text-red-500 font-bold"
-                            onClick={() =>
-                              setSelectedAlumni((prev) =>
-                                prev.filter((_, i) => i !== index) // Filter out the item at the current index to remove it from selectedAlumni
-                              )
-                            }
-                          >
-                            x
-                          </button>
-                        </span>
-                      ))}
-                    </div>
+                {/* Option 2: Batch */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center">
                     <input
-                      type="text"
-                      className="text-black mt-2 p-2 rounded-md w-full"
-                      placeholder="e.g. email1@up.edu.ph"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          const value = e.currentTarget.value.trim();
-                          // Check if the value is not empty and not already in the selectedAlumni list
-                          if (value && !selectedAlumni.includes(value)) {
-                            // Add the new value to the selectedAlumni list
-                            setSelectedAlumni([...selectedAlumni, value]);
-                            e.currentTarget.value = "";
-                          }
-                        }
+                      id="visibility-batch"
+                      type="radio"
+                      name="visibility"
+                      value="batch"
+                      checked={visibility === "batch"}
+                      onChange={() => {
+                        setVisibility("batch")
+                        setSelectedAlumni([])
                       }}
+                      className="cursor-pointer h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                     />
-                    <p className="text-gray-500 text-sm mt-2">Press "Enter" to add the alumni.</p>
-                  </>
-                )}
+                    <label htmlFor="visibility-batch" className="ml-2 text-sm cursor-pointer">
+                      By Graduation Year
+                    </label>
+                  </div>
+
+                  {visibility === "batch" && renderBatchSelector()}
+                </div>
+
+                {/* Option 3: Alumni */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center">
+                    <input
+                      id="visibility-alumni"
+                      type="radio"
+                      name="visibility"
+                      value="alumni"
+                      checked={visibility === "alumni"}
+                      onChange={() => {
+                        setVisibility("alumni")
+                        setSelectedBatches([])
+                      }}
+                      className="cursor-pointer h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <label htmlFor="visibility-alumni" className="ml-2 text-sm cursor-pointer">
+                      Specific Alumni
+                    </label>
+                  </div>
+
+                  {visibility === "alumni" && renderAlumniSelector()}
+                </div>
               </div>
-            </label>
+            </div>
           </div>
 
           {errorMessage && (
