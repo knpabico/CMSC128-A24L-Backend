@@ -85,7 +85,7 @@ export function EducationProvider({ children }: { children: React.ReactNode }) {
       return { success: true, message: "success" };
     } catch (error) {
 
-      toast.error((error as FirebaseError).message);
+      toast.error("Degree addition failed. Please try again.");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
