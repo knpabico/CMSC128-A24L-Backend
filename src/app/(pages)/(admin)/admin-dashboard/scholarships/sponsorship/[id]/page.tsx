@@ -301,7 +301,9 @@ export default function SponsorshipDetails() {
                 <div className="text-center w-full py-4">
                   <AlertCircle className="size-6 text-yellow-500 mx-auto mb-2" />
                   <p className="font-medium text-gray-500">
-                    The sponsorship is not yet approved
+                    {sponsorship?.status === "pending"
+                      ? "The sponsorship is not yet approved"
+                      : "The sponsorship was rejected"}
                   </p>
                 </div>
               )}

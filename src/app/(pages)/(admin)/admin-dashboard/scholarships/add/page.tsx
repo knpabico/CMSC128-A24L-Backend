@@ -104,7 +104,8 @@ export default function AddScholarships() {
         if (response.success) {
           newStudentList.push(response.studentId); //push the studentId to the list
         } else {
-          console.error("Error adding student: ", response.message);
+          //console.error("Error adding student: ", response.message);
+          toastError("Unable to add student.");
         }
       }
     }
@@ -142,7 +143,7 @@ export default function AddScholarships() {
       status: "",
       studentList: [],
     };
-		if (!image) {
+    if (!image) {
       toastError("No Image selected");
       return;
     }
@@ -286,7 +287,7 @@ export default function AddScholarships() {
                 </label>
                 <input
                   id="image-upload"
-									name="photo" 
+                  name="photo"
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
