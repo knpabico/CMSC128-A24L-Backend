@@ -78,7 +78,7 @@ export default function SponsorshipDetails() {
           setScholarship(scholarshipDetails);
         }
       } catch (error) {
-        console.error("Error fetching sponsorship details:", error);
+        //console.error("Error fetching sponsorship details:", error);
       } finally {
         setLoading(false);
       }

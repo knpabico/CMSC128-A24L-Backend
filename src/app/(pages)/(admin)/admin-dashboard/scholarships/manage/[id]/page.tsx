@@ -22,6 +22,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { AddStudent } from "./add-student-form";
 import { StudentFormData } from "../../add/page";
+import { toast } from "sonner";
 
 const ScholarshipDetailPage: React.FC = () => {
   const params = useParams();
@@ -101,10 +102,10 @@ const ScholarshipDetailPage: React.FC = () => {
                     return { id: alumId, fullName: "Unknown" };
                   }
                 } catch (error) {
-                  console.error(
-                    `Error fetching alumni info for ${alumId}:`,
-                    error
-                  );
+                  // console.error(
+                  //   `Error fetching alumni info for ${alumId}:`,
+                  //   error
+                  // );
                   return { id: alumId, fullName: "Unknown" };
                 }
               })
@@ -120,7 +121,7 @@ const ScholarshipDetailPage: React.FC = () => {
         }
       } catch (err) {
         setError("Error loading scholarship details");
-        console.error(err);
+        //console.error(err);
       } finally {
         setLoading(false);
       }
@@ -132,7 +133,7 @@ const ScholarshipDetailPage: React.FC = () => {
         const studentList = await getStudentsByScholarshipId(scholarshipId);
         setStudents(studentList);
       } catch (error) {
-        console.error("Error fetching students:", error);
+        //console.error("Error fetching students:", error);
       } finally {
         setLoadingStudents(false);
       }
@@ -192,7 +193,7 @@ const ScholarshipDetailPage: React.FC = () => {
         setScholarshipStudentMapping(scholarshipStudentMap);
         setSponsorAlumMapping(scholarshipSponsor);
       } catch (error) {
-        console.error("Error fetching scholarshipStudent:", error);
+        //console.error("Error fetching scholarshipStudent:", error);
 
         return [];
       } finally {
@@ -266,7 +267,8 @@ const ScholarshipDetailPage: React.FC = () => {
         if (response.success) {
           newStudentList.push(response.studentId); //push the studentId to the list
         } else {
-          console.error("Error adding student: ", response.message);
+          //console.error("Error adding student: ", response.message);
+          toastError("Unable to add student");
         }
       }
     }
@@ -279,14 +281,18 @@ const ScholarshipDetailPage: React.FC = () => {
       });
       //check reponse if success or not
       if (updateScholarshipResponse.success) {
-        console.log(
-          `You have successfully added the student/s to the scholarship.`
+        // console.log(
+        //   `You have successfully added the student/s to the scholarship.`
+        // );
+        toastSuccess(
+          "You have successfully added the student/s to the scholarship."
         );
       } else {
-        console.error(
-          "Error adding student: ",
-          updateScholarshipResponse.message
-        );
+        // console.error(
+        //   "Error adding student: ",
+        //   updateScholarshipResponse.message
+        // );
+        toastError("Unable to add student");
       }
     }
 
@@ -309,14 +315,14 @@ const ScholarshipDetailPage: React.FC = () => {
           updatedData.image = data.url;
           setIsError(false);
           setMessage("Image uploaded successfully!");
-          console.log("Image URL:", data.url);
+          //console.log("Image URL:", data.url);
         } else {
           setMessage(data.result || "Image upload failed.");
           setIsError(true);
           return;
         }
       } catch (error) {
-        console.error("Error uploading image:", error);
+        //console.error("Error uploading image:", error);
         toastError("Image upload error.");
         return;
       }

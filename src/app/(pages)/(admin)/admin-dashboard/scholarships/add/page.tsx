@@ -104,8 +104,7 @@ export default function AddScholarships() {
         if (response.success) {
           newStudentList.push(response.studentId); //push the studentId to the list
         } else {
-          //console.error("Error adding student: ", response.message);
-          toastError("Unable to add student.");
+          toastError("Unable to add student");
         }
       }
     }
@@ -117,14 +116,11 @@ export default function AddScholarships() {
       });
       //check reponse if success or not
       if (updateScholarshipResponse.success) {
-        console.log(
-          `You have successfully added the student/s to the scholarship.`
+        toastSuccess(
+          "You have successfully added the student/s to the scholarship."
         );
       } else {
-        console.error(
-          "Error adding student: ",
-          updateScholarshipResponse.message
-        );
+        toastError("Unable to add student");
       }
     }
 
@@ -160,7 +156,7 @@ export default function AddScholarships() {
       setPreview(null);
       setIsSubmitting(false);
     } else {
-      console.error("Error adding scholarship: ", response.message);
+      toastError("Unable to add scholarship");
     }
   };
 
@@ -190,13 +186,12 @@ export default function AddScholarships() {
       if (data.success) {
         setIsError(false);
         setMessage("Image uploaded successfully!");
-        console.log("Image URL:", data.url); // URL of the uploaded image
       } else {
         setMessage(data.result);
         setIsError(true);
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
+      toastError("Unable to upload image");
     }
   };
 
