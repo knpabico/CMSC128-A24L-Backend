@@ -1284,7 +1284,7 @@ export default function Home() {
             <div className="w-full lg:w-[350px] lg:sticky lg:top-23 lg:self-start flex flex-col items-center gap-[5px]">
               {/* Donation Sample */}
               {donationDrives.length > 0 && (
-                <div className="border border-[#DADADA] w-full flex flex-row bg-white py-[5px] rounded-lg items-center">
+                <div className="border border-[#DADADA] w-full flex flex-row bg-white py-[5px] rounded-lg items-center h-[310px]">
                   {/* left button (previous) */}
                   <button
                     onClick={previousDonation}
@@ -1312,22 +1312,30 @@ export default function Home() {
                   </button>
 
                   {/* donation contents */}
-                  <div className="w-full flex flex-col py-[10px] place-items-center">
-                    {donationDrives[currentDonationIndex].image === "" ? (
-                      ""
-                    ) : (
-                      <Image
-                        width={0}
-                        height={0}
-                        sizes="100vw"
-                        priority
-                        src={donationDrives[currentDonationIndex].image}
-                        className="mb-[10px] h-[150px] object-cover w-full"
-                        alt="Donation drive"
-                      />
-                    )}
+                  <div className="w-full flex flex-col py-[10px] place-items-center h-full overflow-hidden">
+                    <div className="h-[150px] w-full mb-[10px]">
+                      {donationDrives[currentDonationIndex].image === "" ? (
+                        <div className="h-full w-full bg-gray-100 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="size-12 text-gray-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                            <circle cx="9" cy="9" r="2" />
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <Image
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          priority
+                          src={donationDrives[currentDonationIndex].image}
+                          className="h-full w-full object-cover"
+                          alt="Donation drive"
+                        />
+                      )}
+                    </div>
                     <div className="w-full">
-                      <p className="font-semibold mb-2">
+                      <p className="font-semibold mb-2 line-clamp-2 h-[48px]">
                         {donationDrives[currentDonationIndex].campaignName}
                       </p>
                       <div className="flex justify-between mb-1">
@@ -1339,20 +1347,16 @@ export default function Home() {
                             Patrons
                           </span>
                         </div>
-                        {getDaysRemaining(
-                          donationDrives[currentDonationIndex].endDate
-                        ) === "Not Available" ? (
-                          ""
-                        ) : (
-                          <div className="flex gap-2 items-center">
-                            <Clock className="size-4 text-[#616161]" />
-                            <span className="text-[13px] text-gray-500">
-                              {getDaysRemaining(
-                                donationDrives[currentDonationIndex].endDate
-                              )}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex gap-2 items-center">
+                          <Clock className="size-4 text-[#616161]" />
+                          <span className="text-[13px] text-gray-500">
+                            {getDaysRemaining(
+                              donationDrives[currentDonationIndex].endDate
+                            ) === "Not Available" 
+                              ? "No deadline" 
+                              : getDaysRemaining(donationDrives[currentDonationIndex].endDate)}
+                          </span>
+                        </div>
                       </div>
 
                       {/* progress bar */}
@@ -1432,7 +1436,7 @@ export default function Home() {
 
               {/* Event Sample */}
               {events.length > 0 && (
-                <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center">
+                <div className="border border-[#DADADA] w-full flex flex-row bg-[#FFFFFF] py-[5px] rounded-lg items-center h[350px]">
                   {/* left button (previous) */}
                   <button
                     onClick={previousEvent}
@@ -1460,22 +1464,22 @@ export default function Home() {
                   </button>
 
                   {/* event contents */}
-                  <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center">
-                    <div className="w-full">
+                  <div className="w-full flex flex-col bg-[#FFFFFF] rounded-lg py-[10px] place-items-center h-full overflow-hidden">
+                    <div className="h-[150px] w-full mb-[10px]">
                       <Image
                         width={0}
                         height={0}
                         sizes="100vw"
                         priority
                         src={events[currentEventIndex].image}
-                        className="mb-[10px] h-[150px] w-full object-cover"
+                        className="h-full w-full object-cover"
                         alt={events[currentEventIndex].title}
                       />
-                      <div className="flex flex-col text-[15px]">
-                        <p className="font-semibold">
-                          {events[currentEventIndex].title}
-                        </p>
-                      </div>
+                    </div>
+                    <div className="w-full">
+                      <p className="font-semibold line-clamp-2 h-[48px]">
+                        {events[currentEventIndex].title}
+                      </p>
 
                       <div className="flex flex-col gap-[10px] content-stretch">
                         <div className="flex justify-between text-[13px] gap-[30px] mt-[10px]">
@@ -1488,7 +1492,7 @@ export default function Home() {
                             </span>
                           </div>
 
-                          <div className="flex gap-2  items-center">
+                          <div className="flex gap-2 items-center">
                             <Clock className="size-4 text-[#616161]" />
                             <span className="text-[13px] text-gray-500">
                               {new Date(
@@ -1503,7 +1507,7 @@ export default function Home() {
 
                         <div className="flex flex-row text-[13px] gap-[3px] items-center place-self-start">
                           <MapPin className="size-4 text-[#616161] " />
-                          <span className="text-[13px] text-gray-500">
+                          <span className="text-[13px] text-gray-500 line-clamp-1">
                             {events[currentEventIndex].location}
                           </span>
                         </div>

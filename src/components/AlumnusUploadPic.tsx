@@ -24,9 +24,12 @@ export default function AlumnusUploadPic({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   //getting the file (image uploaded)
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
     const selectedFile = event.target.files?.[0];
     console.log(event);
     if (selectedFile) {
@@ -122,7 +125,11 @@ export default function AlumnusUploadPic({
               {!imgUploading ? (
                 <button
                   onClick={handleUpload}
-                  className="w-50 bg-[#0856ba] text-white py-2 px-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                  disabled={!selectedFile}
+                  className={`px-4 py-2 rounded ${selectedFile 
+                      ? 'bg-blue-500 hover:bg-blue-600 text-white' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
                 >
                   Upload Image
                 </button>
