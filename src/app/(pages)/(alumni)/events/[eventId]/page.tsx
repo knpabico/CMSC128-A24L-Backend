@@ -25,6 +25,8 @@ const EventPageAlumni = () => {
   } = useEvents()
 
   const [isEditing, setEdit] = useState<boolean>(false)
+  const [isDetails, setDetailsPage] = useState<boolean>(false)
+  
   const { rsvpDetails, handleAlumAccept, handleAlumReject } = useRsvpDetails();
   const { alumInfo } = useAuth();
   const params = useParams();
@@ -354,11 +356,16 @@ const EventPageAlumni = () => {
                   <p className="bg-amber-200 px-3 py-1 rounded-full text-amber-900">
                     Waiting for approval
                   </p>
-                ) : event.status === "Rejected" && (
+                ) : event.status === "Rejected" ? (
                   <p className="bg-red-200 px-3 py-1 rounded-full text-red-900">
                     Proposal has been declined
                   </p>
-                )}
+                ) : event.status === "Draft" && (
+                  <p className="bg-gray-200 px-3 py-1 rounded-full text-gray-900">
+                    Proposal not yet submitted
+                  </p>
+                )
+                }
               </div>
             </div>
 
