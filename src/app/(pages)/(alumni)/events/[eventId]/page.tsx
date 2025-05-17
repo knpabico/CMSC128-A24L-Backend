@@ -6,31 +6,26 @@ import { useRsvpDetails } from "@/context/RSVPContext"
 import type { Event, RSVP } from "@/models/models"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, ImageOff, X, Clock2, CircleX,CircleAlert, Clock10, ChevronLeft, ChevronRight } from "lucide-react"
+import { Calendar, Clock, MapPin, ChevronLeft, ChevronRight } from "lucide-react"
 import { useFeatured } from "@/context/FeaturedStoryContext"
-import ProposeEventForm from "../components/ProposeEventForm"
 import Link from "next/link"
 import BookmarkButton from "@/components/ui/bookmark-button"
 import Breadcrumb from "@/components/breadcrumb"
 import Image from "next/image"
-import { Button } from "@mui/material"
 
 const EventPageAlumni = () => {
-  const { events, setShowForm, showForm, handleDelete } = useEvents();
+  const { events } = useEvents();
 
   const { rsvpDetails, handleAlumAccept, handleAlumReject } = useRsvpDetails();
   const { alumInfo } = useAuth();
   const params = useParams();
   const router = useRouter();
   const { featuredItems, isLoading } = useFeatured();
-  const [isEditing, setEdit] = useState<boolean>(false);
-  const [isDetails, setDetailsPage] = useState<boolean>(false);
 
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
-
   const rsvps = rsvpDetails as RSVP[];
-  const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
+  const matchingRSVP = rsvps.find((rsvp) => rsvp.rsvpId === event?.rsvps);
 
   const eventStories = featuredItems.filter(
     (story: { type: string }) => story.type === "event"
