@@ -123,7 +123,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("Error:", error);
 
-      toast.error(error.message);
+      toast.error("Profile update failed. Please try again.");
       return { success: false, error: error.message };
     }
   };

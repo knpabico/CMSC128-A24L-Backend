@@ -105,7 +105,7 @@ export function WorkExperienceProvider({
         workExperienceId: newDocRef.id,
       };
     } catch (error) {
-      toast.error((error as FirebaseError).message);
+      toast.error("Work addition failed. Please try again.");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -158,7 +158,7 @@ export function WorkExperienceProvider({
       toast.success("Work updated successfully!");
       return { success: true, message: "Edited Successfully" };
     } catch (error) {
-      toast.error((error as FirebaseError).message);
+      toast.error("Work update failed. Please try again.");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
