@@ -61,7 +61,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
       rsvp.alums?.[alumInfo?.alumniId]
   );
 
-  return matchedRsvp ? (
+  return matchedRsvp || event.creatorId === alumInfo?.alumniId ? (
     <div>
       <div
         className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
