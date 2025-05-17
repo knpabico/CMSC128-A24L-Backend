@@ -32,7 +32,7 @@ export const uploadToFirebase = async (image: any, alumniId: string) => {
     if (data.success) {
       // setIsError(false);
       // setMessage("Image uploaded successfully!");
-      console.log("Image URL:", data.url); // URL of the uploaded image
+      //console.log("Image URL:", data.url); // URL of the uploaded image
       const alumniRef = doc(db, "alumni", alumniId);
       const alumniDoc = await getDoc(alumniRef);
 
@@ -43,10 +43,10 @@ export const uploadToFirebase = async (image: any, alumniId: string) => {
     } else {
       // setMessage(data.result);
       // setIsError(true);
-      console.log(data.result);
+      //console.log(data.result);
     }
   } catch (error) {
-    console.error("Error uploading image:", error);
+    //console.error("Error uploading image:", error);
   }
 };
 
@@ -119,7 +119,7 @@ export const AlumPhotoUpload = ({
     setFirstClick(true);
   };
 
-  console.log("photoURL:" + user?.photoURL);
+  //console.log("photoURL:" + user?.photoURL);
 
   return (
     <div>

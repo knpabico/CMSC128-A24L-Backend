@@ -84,7 +84,7 @@ export const VerificationCodeModal: FC<VerificationCodeModalProps> = ({
   const generateVerificationCode = (): void => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setVerificationCode(code);
-    console.log("Generated verification code (hidden from user):", code);
+    //console.log("Generated verification code (hidden from user):", code);
     sendVerificationCode(code, email);
   };
 

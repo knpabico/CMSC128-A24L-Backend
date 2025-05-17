@@ -306,7 +306,7 @@ export default function RegistrationForm() {
   useEffect(() => {
     if (isGoogleSignIn) {
       setCurrentPart(currentPart + 1);
-      console.log(form);
+      //console.log(form);
     }
   }, []);
 
@@ -333,9 +333,9 @@ export default function RegistrationForm() {
     setIsVerify(false);
     setIsLoadingModal(false);
 
-    console.log("Testing sign-up:");
-    console.log(data);
-    console.log("ALUM IMAGE", alumImage);
+    //console.log("Testing sign-up:");
+    //console.log(data);
+    //console.log("ALUM IMAGE", alumImage);
 
     //display error or success toast message
     if (response?.error) {
@@ -413,7 +413,7 @@ export default function RegistrationForm() {
   //callback for image upload
   const handleImageUpload = (image: File | null): void => {
     setImage(image);
-    console.log("Uploaded image:", image);
+    //console.log("Uploaded image:", image);
   };
 
   //for proceeding to the "Your Profile" part after validating the user credentials
@@ -482,8 +482,11 @@ export default function RegistrationForm() {
               {currentPart === 0 && (
                 <div className="flex h-screen bg-white">
                   <div className="fixed top-10 left-[5%] z-99">
-                    <Link href="/login"  className="flex gap-2 items-center text-[var(--primary-blue)] text-[14px] hover:underline font-light">
-                      <MoveLeft size={18}/> Back
+                    <Link
+                      href="/login"
+                      className="flex gap-2 items-center text-[var(--primary-blue)] text-[14px] hover:underline font-light"
+                    >
+                      <MoveLeft size={18} /> Back
                     </Link>
                   </div>
                   <div className="flex w-[50%] justify-center items-center">
@@ -639,15 +642,37 @@ export default function RegistrationForm() {
                                       multiple
                                       id="field-of-interest"
                                       options={[
-                                        "Artificial Intelligence", "Machine Learning", "Data Science", 
-                                        "Cybersecurity", "Computer Vision", "Natural Language Processing", 
-                                        "Software Engineering", "Human-Computer Interaction", "Computer Graphics", 
-                                        "Robotics", "Quantum Computing", "Bioinformatics", "Theoretical Computer Science",
-                                        "Computer Networks", "Operating Systems", "Database Systems", "Cloud Computing",
-                                        "Distributed Systems", "Embedded Systems", "Game Development", "Web Development",
-                                        "Mobile Application Development", "Augmented Reality", "Virtual Reality", 
-                                        "Information Retrieval", "Big Data", "Internet of Things", "Blockchain",
-                                        "DevOps", "Digital Forensics", "Other"
+                                        "Artificial Intelligence",
+                                        "Machine Learning",
+                                        "Data Science",
+                                        "Cybersecurity",
+                                        "Computer Vision",
+                                        "Natural Language Processing",
+                                        "Software Engineering",
+                                        "Human-Computer Interaction",
+                                        "Computer Graphics",
+                                        "Robotics",
+                                        "Quantum Computing",
+                                        "Bioinformatics",
+                                        "Theoretical Computer Science",
+                                        "Computer Networks",
+                                        "Operating Systems",
+                                        "Database Systems",
+                                        "Cloud Computing",
+                                        "Distributed Systems",
+                                        "Embedded Systems",
+                                        "Game Development",
+                                        "Web Development",
+                                        "Mobile Application Development",
+                                        "Augmented Reality",
+                                        "Virtual Reality",
+                                        "Information Retrieval",
+                                        "Big Data",
+                                        "Internet of Things",
+                                        "Blockchain",
+                                        "DevOps",
+                                        "Digital Forensics",
+                                        "Other",
                                       ]}
                                       value={field.value || []}
                                       onChange={(event, newValue) => {
@@ -657,7 +682,6 @@ export default function RegistrationForm() {
                                         }
                                       }}
                                       renderInput={(params) => (
-
                                         //may chinange ako here field.value?.length > 0 --> field.value?.length || 0 to avoid error
                                         <TextField
                                           {...params}
