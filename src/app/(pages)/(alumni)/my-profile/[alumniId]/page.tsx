@@ -72,6 +72,7 @@ const UserProfile = () => {
   const { updateAlumniDetails } = useAlums();
 
   const [uploading, setUploading] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [deleteModal, setDeleteModal] = useState(false);
@@ -189,41 +190,26 @@ const UserProfile = () => {
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
 
   const fields = [
-    "Artificial Intelligence (AI)",
-    "Machine Learning (ML)",
-    "Data Science",
-    "Cybersecurity",
-    "Software Engineering",
-    "Computer Networks",
-    "Computer Graphics and Visualization",
-    "Human-Computer Interaction (HCI)",
-    "Theoretical Computer Science",
-    "Operating Systems",
-    "Databases",
-    "Web Development",
-    "Mobile Development",
-    "Cloud Computing",
-    "Embedded Systems",
-    "Robotics",
-    "Game Development",
-    "Quantum Computing",
-    "DevOps and System Administration",
-    "Information Systems",
-    "Others",
+    "Artificial Intelligence", "Machine Learning", "Data Science", 
+    "Cybersecurity", "Computer Vision", "Natural Language Processing", 
+    "Software Engineering", "Human-Computer Interaction", "Computer Graphics", 
+    "Robotics", "Quantum Computing", "Bioinformatics", "Theoretical Computer Science",
+    "Computer Networks", "Operating Systems", "Database Systems", "Cloud Computing",
+    "Distributed Systems", "Embedded Systems", "Game Development", "Web Development",
+    "Mobile Application Development", "Augmented Reality", "Virtual Reality", 
+    "Information Retrieval", "Big Data", "Internet of Things", "Blockchain",
+    "DevOps", "Digital Forensics", "Other"
   ];
 
-  const handleFieldsSelect = (field: string) => {
-    if (!selectedFields.includes(field)) {
+  const handleFieldsSelect = (field) => {
+    if (selectedFields.length < 5 && !selectedFields.includes(field)) {
       setSelectedFields([...selectedFields, field]);
     }
-
-    console.log("here is my intereste:", selectedFields);
+    setIsOpen(false);
   };
-
-  const handleFieldRemove = (fieldToRemove: string) => {
-    setSelectedFields(
-      selectedFields.filter((field) => field !== fieldToRemove)
-    );
+  
+  const handleFieldRemove = (field) => {
+    setSelectedFields(selectedFields.filter(f => f !== field));
   };
 
   //function for calculating age (year only) based from birthdate
@@ -1061,69 +1047,60 @@ const UserProfile = () => {
                   </div>
 
                   {/* FIELDS OF INTEREST */}
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     <div>
                       <p className="font-semibold">Fields of Interest</p>
                       <p className="font-light text-xs mb-1">
-                        Selected: {selectedFields.length}/5 &nbsp;&nbsp;{" "}
+                        Selected: {selectedFields.length}/5 &nbsp;&nbsp; 
                         {selectedFields.length >= 5 && (
-                          <span className="text-red-500 font-medium">
-                            Maximum has been reached: 5
-                          </span>
+                          <span className="text-red-500 font-medium">Maximum has been reached: 5</span>
                         )}
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        {/* Display fields */}
-                        {selectedFields.map((tag) => (
+                      
+                      {/* Selected fields tags */}
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {selectedFields.map((field) => (
                           <div
-                            key={tag}
-                            className="bg-[#c2d5ef] px-4 py-2 rounded-md cursor-pointer text-sm flex items-center justify-between space-x-5"
+                            key={field}
+                            className="bg-blue-100 px-3 py-2 rounded-md text-sm flex items-center justify-between space-x-2"
                           >
-                            <span>{tag}</span>
-                            <XIcon
-                              className="text-gray-700 hover:text-red-500 cursor-pointer w-4 h-4"
-                              onClick={() => handleFieldRemove(tag)}
+                            <span>{field}</span>
+                            <XIcon 
+                              className="text-gray-700 hover:text-red-500 cursor-pointer w-4 h-4" 
+                              onClick={() => handleFieldRemove(field)}
                             />
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Dropdown */}
+                      <div className="relative w-full">
+                        <button
+                          className="w-full flex items-center justify-between bg-white px-4 py-2 rounded-md border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          onClick={() => setIsOpen(!isOpen)}
+                          disabled={selectedFields.length >= 5}
+                        >
+                          <span>{selectedFields.length >= 5 ? "Maximum fields selected" : "Select a field"}</span>
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                        
+                        {isOpen && selectedFields.length < 5 && (
+                          <div className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-auto">
+                            {fields
+                              .filter(field => !selectedFields.includes(field))
+                              .map(field => (
+                                <div
+                                  key={field}
+                                  className="px-4 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-2"
+                                  onClick={() => handleFieldsSelect(field)}
+                                >
+                                  <span>{field}</span>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-
-                    {/* List of all tags */}
-                    {selectedFields.length < 5 && (
-                      <div className="flex flex-wrap gap-2">
-                        {fields
-                          .filter((field) => !selectedFields.includes(field))
-                          .map((field) => (
-                            <button
-                              key={field}
-                              className="bg-gray-200 px-4 py-2 rounded-md cursor-pointer hover:bg-gray-300 text-sm"
-                              onClick={() => handleFieldsSelect(field)}
-                            >
-                              {field}
-                            </button>
-                          ))}
-                      </div>
-                    )}
-
-                    {selectedFields.length >= 5 && (
-                      <div>
-                        <div className="flex flex-wrap gap-2">
-                          {fields
-                            .filter((field) => !selectedFields.includes(field))
-                            .map((field) => (
-                              <button
-                                key={field}
-                                disabled
-                                className="bg-gray-200 px-4 py-2 rounded-md cursor-not-allowed text-gray-500 text-sm"
-                                onClick={() => handleFieldsSelect(field)}
-                              >
-                                {field}
-                              </button>
-                            ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
                 <button
@@ -1511,7 +1488,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
-          degreeType={degreeType}
+          degreeType={"bachelors"}
         />
       )}
       {addMasters && (
@@ -1523,6 +1500,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
+          degreeType={"masters"}
         />
       )}
       {addDoctoral && (
@@ -1534,6 +1512,7 @@ const UserProfile = () => {
           }}
           userId={alumInfo?.alumniId ?? ""}
           setSuccess={setSuccess}
+          degreeType={"doctoral"}
         />
       )}
       {addAffiliation && (

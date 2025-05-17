@@ -10,6 +10,67 @@ import { XIcon, PencilIcon, MapPin } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CareerDocumentUpload, uploadDocToFirebase } from "./career-document";
 import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const industryOptions = [
+  "Software Development",
+  "Web Development",
+  "Mobile App Development",
+  "Artificial Intelligence/Machine Learning",
+  "Data Science & Analytics",
+  "Cloud Computing",
+  "Cybersecurity",
+  "Game Development",
+  "Blockchain & Cryptocurrency",
+  "Internet of Things (IoT)",
+  "Robotics & Automation",
+  "Bioinformatics",
+  "FinTech (Financial Technology)",
+  "EdTech (Educational Technology)",
+  "HealthTech/MedTech",
+  "E-commerce",
+  "Telecommunications",
+  "IT Consulting",
+  "Computer Hardware & Semiconductors",
+  "Network Infrastructure",
+  "DevOps & System Administration",
+  "Database Administration",
+  "Computer Vision",
+  "Natural Language Processing",
+  "Virtual Reality/Augmented Reality",
+  "Quantum Computing",
+  "Digital Marketing & SEO",
+  "Business Intelligence",
+  "Enterprise Resource Planning (ERP)",
+  "User Experience/Interface Design",
+  "Computer Graphics & Animation",
+  "High-Performance Computing",
+  "Geographic Information Systems (GIS)",
+  "Computer Forensics",
+  "IT Support & Services",
+  "Information Systems Management",
+  "Human-Computer Interaction",
+  "Embedded Systems",
+  "Computer Engineering",
+  "Aerospace Computing",
+  "Defense & Military Technology",
+  "Smart Cities & Urban Technologies",
+  "Information Security",
+  "Big Data",
+  "Digital Twins Technology",
+  "Computer-Aided Design (CAD)",
+  "Social Media & Digital Platforms",
+  "Supply Chain Technology",
+  "Speech Recognition & Processing",
+  "Computational Science",
+  "Other"
+];
 
 const AddWorkExperience: React.FC<{
   open: boolean;
@@ -163,7 +224,7 @@ const AddWorkExperience: React.FC<{
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <Card className="w-full max-w-xl bg-white border-none shadow-2xl">
+      <Card className="w-full max-w-xl bg-white border-none shadow-2xl overflow-y-auto max-h-[90vh]">
         <CardHeader>
           <div className="flex items-center justify-between relative">
             <p className="text-xl font-bold pb-3">Add work experience</p>
@@ -187,13 +248,22 @@ const AddWorkExperience: React.FC<{
             <div className="grid grid-cols-12 gap-x-4 gap-y-3 pb-3">
               <div className="col-span-6">
                 <p className="text-xs font-light">Industry*</p>
-                <input
-                  placeholder="Web Development"
+                <Select
                   value={industry}
-                  onChange={(e) => setIndustry(e.target.value)}
+                  onValueChange={(value) => setIndustry(value)}
                   required
-                  className="appearance-none py-2 px-3 w-full border border-gray-500 rounded-md"
-                />
+                >
+                  <SelectTrigger className="bg-white appearance-none py-0 px-3 h-[40.5px] w-full text-md border border-gray-500 rounded-md">
+                    <SelectValue placeholder="Web Development" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white max-h-60 overflow-y-auto">
+                    {industryOptions.map((ind) => (
+                      <SelectItem key={ind} value={ind}>
+                        {ind}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="col-span-6">
                 <p className="text-xs font-light">Job Title*</p>

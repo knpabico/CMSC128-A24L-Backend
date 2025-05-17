@@ -11,10 +11,10 @@ import { ProofOfPaymentDialog } from "./proof-of-payment-dialog";
 import SearchParamsWrapper from "@/components/SearchParamsWrapper";
 
 const sortTypes = [
-  "MOST RECENT FIRST",
-  "OLDEST DONATION FIRST",
-  "AMOUNT DONATED (ASC)",
-  "AMOUNT DONATED (DESC)",
+  "Latest Donation First",
+  "Oldest Donation First",
+  "Amount Donated (ASC)",
+  "Amount Donated (DESC)",
 ]; //sort types
 const sortValues = ["mrf", "odf", "asc", "desc"]; //sort values (query params)
 
