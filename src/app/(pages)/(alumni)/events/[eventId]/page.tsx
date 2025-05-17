@@ -4,9 +4,10 @@ import { useParams, useRouter } from "next/navigation"
 import { useEvents } from "@/context/EventContext"
 import { useRsvpDetails } from "@/context/RSVPContext"
 import type { Event, RSVP } from "@/models/models"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { Calendar, Clock, MapPin, ChevronLeft, ChevronRight } from "lucide-react"
+import { useAlums } from "@/context/AlumContext"
 import { useFeatured } from "@/context/FeaturedStoryContext"
 import Link from "next/link"
 import BookmarkButton from "@/components/ui/bookmark-button"
@@ -26,6 +27,12 @@ const EventPageAlumni = () => {
   const event = events.find((e: Event) => e.eventId === eventId);
   const rsvps = rsvpDetails as RSVP[];
   const matchingRSVP = rsvps.find((rsvp) => rsvp.rsvpId === event?.rsvps);
+
+  const { activeAlums, alums } = useAlums()
+
+  // RSVPs
+    const [rsvpFilter, setRsvpFilter] = useState("All");
+    const [rsvpSort, setRsvpSort] = useState<"asc" | "desc">("asc");
 
   const eventStories = featuredItems.filter(
     (story: { type: string }) => story.type === "event"
@@ -56,6 +63,42 @@ const EventPageAlumni = () => {
   const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(
     undefined
   );
+
+  const filteredAndSortedRsvps = useMemo(() => {
+    if (!event) return [];
+
+    // Filter RSVPs
+    const filteredRsvps = rsvpDetails
+      .filter((rsvp: { rsvpId: any, postId: any }) => rsvp.postId === event.eventId && rsvp.rsvpId === event.rsvps)
+      .flatMap((rsvp: { alums: any; rsvpId: any }) =>
+        Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
+          const { status } = alumData as { status: string };
+          const alumni = alums.find((a: { alumniId: string }) => a.alumniId === alumniId);
+
+          return {
+            alumniId,
+            alumni,
+            status,
+            rsvpId: rsvp.rsvpId,
+          };
+        })
+      )
+      // Apply status filter
+      .filter((rsvpItem: { status: string }) => 
+        rsvpFilter === "All" || rsvpItem.status === rsvpFilter
+      )
+      // Sort by name
+      .sort((a: { alumni: { firstName: any; lastName: any } }, b: { alumni: { firstName: any; lastName: any } }) => {
+        if (!a.alumni || !b.alumni) return 0;
+        const nameA = `${a.alumni.firstName} ${a.alumni.lastName}`.toLowerCase();
+        const nameB = `${b.alumni.firstName} ${b.alumni.lastName}`.toLowerCase();
+        return rsvpSort === "asc" 
+          ? nameA.localeCompare(nameB) 
+          : nameB.localeCompare(nameA);
+      });
+
+    return filteredRsvps;
+  }, [event, rsvpDetails, alums, rsvpFilter, rsvpSort]);
 
   useEffect(() => {
     if (alumInfo?.alumniId && matchingRSVP?.alums) {
@@ -178,7 +221,106 @@ const EventPageAlumni = () => {
             <div className="w-full px-8 pb-8">
               <h1 className="text-sm">{event?.description}</h1>
             </div>
+            <div className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">
+            
+            {event.creatorId === alumInfo?.alumniId && (
+              <div className="flex flex-col space-y-4 mb-4">
+                {/* Filter and Sort Options */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-[14px]">Filter by</span>
+                  <select
+                    value={rsvpFilter}
+                    onChange={(e) => setRsvpFilter(e.target.value)}
+                    className="text-[14px] px-2 py-1.5 bg-gray-200 rounded-lg cursor-pointer"
+                  >
+                    <option value="All">All Status</option>
+                    <option value="Accepted">Going</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Rejected">Not Going</option>
+                  </select>
 
+                  <button
+                    onClick={() => setRsvpSort(rsvpSort === "asc" ? "desc" : "asc")}
+                    className="ml-2 text-[14px] px-2 py-1 bg-[var(--blue-300)] text-white rounded-lg"
+                  >
+                    Sort {rsvpSort === "asc" ? "A-Z" : "Z-A"}
+                  </button>
+                </div>
+
+                {/* Attendees Header */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Attendees</h3>
+                  {filteredAndSortedRsvps.filter(r => r.status === "Accepted").length > 0 && (
+                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                      {
+                        filteredAndSortedRsvps.filter(r => r.status === "Accepted").length
+                      } {
+                        filteredAndSortedRsvps.filter(r => r.status === "Accepted").length === 1
+                          ? "alumnus" : "alumni"
+                      } going
+                    </span>
+                  )}
+                </div>
+
+                {/* Table or Empty Message */}
+                {filteredAndSortedRsvps.length > 0 ? (
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-blue-100">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Name</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredAndSortedRsvps.map((rsvpItem, index) => {
+                          const isEven = index % 2 === 0;
+                          const rowClass = isEven ? "bg-white" : "bg-gray-50";
+                          const { alumni, status, alumniId, rsvpId } = rsvpItem;
+
+                          return (
+                            <tr key={`${rsvpId}-${alumniId}`} className={rowClass}>
+                              {alumni ? (
+                                <>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {`${alumni.firstName} ${alumni.middleName} ${alumni.lastName}`}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {alumni.email || "N/A"}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {status === "Accepted" ? (
+                                      <span className="px-2 py-1 rounded-full bg-green-100 text-green-800">Going</span>
+                                    ) : status === "Rejected" ? (
+                                      <span className="px-2 py-1 rounded-full bg-red-100 text-red-800">Not Going</span>
+                                    ) : status === "Pending" ? (
+                                      <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                    ) : (
+                                      <span className="text-gray-500">{status || "N/A"}</span>
+                                    )}
+                                  </td>
+                                </>
+                              ) : (
+                                <td colSpan={3} className="px-6 py-4 text-sm text-red-500">
+                                  Alumni details not found for ID: {alumniId}
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-500">No attendees yet</p>
+                  </div>
+                )}
+              </div>
+            )}
+  
+            </div>
           </div>
 
           {/* Sidebar - now using sticky positioning instead of fixed */}
