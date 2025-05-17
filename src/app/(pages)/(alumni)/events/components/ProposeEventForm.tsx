@@ -555,7 +555,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             </div>
           )}
           {/* Target Audience */}
-          <div className="space-y-4">
+          <div className="my-[20px] space-y-4">
             <div className="space-y-2">
               <p className="text-sm font-medium flex items-center">
                 <Asterisk size={16} className="text-red-600" /> Target Audience
