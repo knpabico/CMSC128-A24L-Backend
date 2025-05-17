@@ -168,8 +168,24 @@ const EventPageAlumni = () => {
   ]
 
   if (!eventId || events.length === 0) return <p>Loading...</p>  
+  if (!event) 
+  {
+    return (
+      <div className="px-[10%] pt-10 pb-30">
+        <div className="flex flex-col gap-3">
+          
+          <Breadcrumb items={breadcrumbItems} />
+          <div className="text-center py-10 text-gray-500">
+            This event has been deleted.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  return (
+  else
+  {
+     return (
     <>
     <div className="px-[10%] pt-10 pb-30">
       <div className="flex flex-col gap-3">
@@ -611,6 +627,8 @@ const EventPageAlumni = () => {
       setEdit={setEdit}
     />
     </>
+    )
+  }
 
 
     // <>
@@ -989,7 +1007,6 @@ const EventPageAlumni = () => {
     //   </div>
     // </div>
     // </>
-  )
 }
 
 export default EventPageAlumni;
