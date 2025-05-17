@@ -25,7 +25,7 @@ export const uploadDocToFirebase = async (
     if (data.success) {
       //setIsError(false);
       //setMessage("Document uploaded successfully!");
-      console.log("Document URL:", data.url);
+      //console.log("Document URL:", data.url);
       const workRef = doc(db, "work_experience", workExperienceId);
       const workDoc = await getDoc(workRef);
 
@@ -36,10 +36,10 @@ export const uploadDocToFirebase = async (
     } else {
       //setMessage(data.result);
       //setIsError(true);
-      console.log(data.result);
+      //console.log(data.result);
     }
   } catch (error) {
-    console.error("Error uploading document:", error);
+    //console.error("Error uploading document:", error);
     // setMessage("Error uploading document");
     // setIsError(true);
   }

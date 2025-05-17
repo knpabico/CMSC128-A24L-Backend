@@ -56,10 +56,7 @@ export default function ViewPendingScholarships() {
   const [statusFilter, setStatusFilter] = useState("pending");
   const [currentProcessingId, setCurrentProcessingId] = useState("");
 
-  const [sortOption, setSortOption] = useState<
-    | "newest"
-    | "oldest"
-  >("newest");
+  const [sortOption, setSortOption] = useState<"newest" | "oldest">("newest");
   const sortScholarships = (scholarships: Scholarship[]) =>
     [...scholarships].sort((a, b) => {
       switch (sortOption) {
@@ -132,7 +129,7 @@ export default function ViewPendingScholarships() {
         setSponsorAlumMapping(scholarshipSponsor);
         setStudentScholarMapping(studentScholar);
       } catch (error) {
-        console.error("Error fetching scholarshipStudent:", error);
+        //console.error("Error fetching scholarshipStudent:", error);
 
         return [];
       } finally {
@@ -364,11 +361,7 @@ export default function ViewPendingScholarships() {
             id="sort"
             value={sortOption}
             onChange={(e) =>
-              setSortOption(
-                e.target.value as
-                  | "newest"
-                  | "oldest"
-              )
+              setSortOption(e.target.value as "newest" | "oldest")
             }
             className="flex items-center text-sm"
           >

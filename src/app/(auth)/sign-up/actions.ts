@@ -18,7 +18,7 @@ export const validateFirebaseEmail = async (email: string) => {
 
     return snapshot.empty && snapshot1.empty; // true = email not found, false = email exists
   } catch (error) {
-    console.error("Error checking email in Firestore:", error);
+    //console.error("Error checking email in Firestore:", error);
     return false;
   }
 };
@@ -255,7 +255,7 @@ export const registerUser = async (
   },
   isGoogleSignIn: boolean
 ) => {
-  console.log("userCred: ", userInfo);
+  //console.log("userCred: ", userInfo);
   // validate the data one more time in the server side
   const validation = await signUpFormSchema.safeParseAsync(data);
 

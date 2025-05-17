@@ -54,7 +54,7 @@ export default function ManageScholarship() {
   //  Scholarship Deletion
   const handleDelete = (scholarship: Scholarship) => {
     if (!scholarship.scholarshipId) {
-      console.error("No scholarship ID provided.");
+      //console.error("No scholarship ID provided.");
       return;
     }
     deleteScholarship(scholarship.scholarshipId);
@@ -67,7 +67,7 @@ export default function ManageScholarship() {
     isActive: boolean
   ) => {
     if (!scholarship.scholarshipId) {
-      console.error("No scholarship ID provided.");
+      //console.error("No scholarship ID provided.");
       return;
     }
     const newStatus = isActive ? "active" : "closed";
