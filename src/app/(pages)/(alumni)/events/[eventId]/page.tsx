@@ -223,7 +223,7 @@ const EventPageAlumni = () => {
             </div>
             <div className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">
             
-            {event.creatorId === alumInfo?.alumniId && (
+            {event.creatorId === alumInfo?.alumniId && event.status === "Accepted" ? (
               <div className="flex flex-col space-y-4 mb-4">
                 {/* Filter and Sort Options */}
                 <div className="flex items-center space-x-2">
@@ -318,7 +318,7 @@ const EventPageAlumni = () => {
                   </div>
                 )}
               </div>
-            )}
+            ) : null}
   
             </div>
           </div>
@@ -329,90 +329,99 @@ const EventPageAlumni = () => {
             <div className="bg-white shadow-md rounded-2xl px-6 py-4 flex flex-col gap-3 text-sm">
               <div className="flex gap-2 items-center">
                 <p className="font-semibold">Event Status:</p>
-                {event?.stillAccepting ? (
+                {event?.stillAccepting && event.status === "Accepted" ? (
                   <p className="bg-amber-200 px-3 py-1 rounded-full text-amber-900">
                     Still accepting guests
                   </p>
-                ) : (
+                ) : !(event?.stillAccepting) && event.status === "Accepted" ? (
                   <p className="bg-red-200 px-3 py-1 rounded-full text-red-900">
                     Registration closed
                   </p>
+                ) : event.status === "Pending" ? (
+                  <p className="bg-amber-200 px-3 py-1 rounded-full text-amber-900">
+                    Waiting for approval
+                  </p>
+                ) : event.status === "Rejected" && (
+                  <p className="bg-red-200 px-3 py-1 rounded-full text-red-900">
+                    Proposal has been declined
+                  </p>
                 )}
-                
               </div>
             </div>
 
             {/* RSVP card */}
-            <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-sm">
-              
-              {event.inviteType === "all" ? (
-                <div className="flex flex-col items-center gap-1">
-                  <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">This event is open to all.</h2>
-                  <p className="text-gray-500 text-center px-10">Respond early if you’d like to secure your spot in advance.</p>
-                </div> 
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <div className="flex justify-center">
-                    <Image 
-                      src="/rsvp-icon.png"
-                      alt="RSVP"
-                      width={60}
-                      height={100}
-                    />
-                  </div>
-
+            {event.status === "Accepted" ? 
+              (<div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-sm">
+                
+                {event.inviteType === "all" ? (
                   <div className="flex flex-col items-center gap-1">
-                    <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">You have been invited to this event.</h2>
-                    <p className="text-gray-500">Please respond to the invitation.</p>
+                    <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">This event is open to all.</h2>
+                    <p className="text-gray-500 text-center px-10">Respond early if you’d like to secure your spot in advance.</p>
+                  </div> 
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-center">
+                      <Image 
+                        src="/rsvp-icon.png"
+                        alt="RSVP"
+                        width={60}
+                        height={100}
+                      />
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1">
+                      <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">You have been invited to this event.</h2>
+                      <p className="text-gray-500">Please respond to the invitation.</p>
+                    </div>
                   </div>
-                </div>
-              )}
-              
-              <div>
-                {alumniRsvpStatus === "Pending" ? (
-                  <div className="flex justify-between gap-2">
-                    <button
-                      onClick={handleAccept}
-                      className="w-full bg-green-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
-                    >
+                )}
+                
+                <div>
+                  {alumniRsvpStatus === "Pending" ? (
+                    <div className="flex justify-between gap-2">
+                      <button
+                        onClick={handleAccept}
+                        className="w-full bg-green-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                      >
+                        {event.inviteType === "all" ? (
+                          <p>Going</p>
+                        ) : (
+                          <p>Accept</p>
+                        )}
+                        
+                      </button>
+                      <button
+                        onClick={handleReject}
+                        className="w-full bg-red-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                      >
+                        {event.inviteType === "all" ? (
+                          <p>Not Going</p>
+                        ) : (
+                          <p>Decline</p>
+                        )}
+                      </button>
+                    </div>
+                  ) : alumniRsvpStatus === "Accepted" ? (
+                    <div className="w-full bg-green-300 text-green-600 flex items-center justify-center p-2 rounded-full font-semibold">
                       {event.inviteType === "all" ? (
                         <p>Going</p>
                       ) : (
-                        <p>Accept</p>
+                        <p>You accepted the invitation.</p>
                       )}
-                      
-                    </button>
-                    <button
-                      onClick={handleReject}
-                      className="w-full bg-red-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
-                    >
+                    </div>
+                  ) : alumniRsvpStatus === "Rejected" ? (
+                    <div className="w-full bg-gray-300 text-gray-600 flex items-center justify-center p-2 rounded-full font-semibold">
                       {event.inviteType === "all" ? (
                         <p>Not Going</p>
                       ) : (
-                        <p>Decline</p>
+                        <p>You declined the invitation.</p>
                       )}
-                    </button>
-                  </div>
-                ) : alumniRsvpStatus === "Accepted" ? (
-                  <div className="w-full bg-green-300 text-green-600 flex items-center justify-center p-2 rounded-full font-semibold">
-                    {event.inviteType === "all" ? (
-                      <p>Going</p>
-                    ) : (
-                      <p>You accepted the invitation.</p>
-                    )}
-                  </div>
-                ) : alumniRsvpStatus === "Rejected" ? (
-                  <div className="w-full bg-gray-300 text-gray-600 flex items-center justify-center p-2 rounded-full font-semibold">
-                    {event.inviteType === "all" ? (
-                      <p>Not Going</p>
-                    ) : (
-                      <p>You declined the invitation.</p>
-                    )}
-                  </div>
-                ) : null }
+                    </div>
+                  ) : null }
+                </div>
               </div>
-            </div>
-
+            ) : null}
+            
             {/* Donation card */}
             {event.needSponsorship && event?.status === "Accepted" && (
               <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-[14px]">
