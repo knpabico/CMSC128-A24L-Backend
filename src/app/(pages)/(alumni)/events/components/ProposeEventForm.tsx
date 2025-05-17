@@ -63,6 +63,8 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
 
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [isConfirming, setisConfirming] = useState(false);
+
   useEffect(() => {
     if (isEditing && events) {
       const eventToEdit = events.find((event: { eventId: string | null; }) => event.eventId === editingEventId);
@@ -456,6 +458,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             onSubmit={async (e) => {
               e.preventDefault();
 
+              if (isConfirming) return; // Prevent double submission
+              setisConfirming(true);
+
               if (userInput !== requiredSentence) {
                 alert("Please type the sentence exactly to confirm.");
                 return;
@@ -466,19 +471,26 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                 visibility === "alumni" ? selectedAlumni :
                 [];
 
-              if(isDetails){
-                await handleEdit(editingEventId, {title, description, location, date, time, targetGuests, status: "Pending", inviteType: visibility }, image);
-              } else {
-                await handleSave(e, image, targetGuests, visibility, "Pending");
-              }
-              
-              
-              router.push(`/events/proposed`)
+              try {
+                if (isDetails) {
+                  await handleEdit(editingEventId, {
+                    title, description, location, date, time,
+                    targetGuests,
+                    status: "Pending",
+                    inviteType: visibility
+                  }, image);
+                } else {
+                  await handleSave(e, image, targetGuests, visibility, "Pending");
+                }
 
-              resetFormState();
-              onClose();
-              setDetailsPage(false);
-              setConfirmForm(false);
+                router.push(`/events/proposed`);
+                resetFormState();
+                onClose();
+                setDetailsPage(false);
+                setConfirmForm(false);
+              } finally {
+                setisConfirming(false);
+              }
             }}
               className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
             >
@@ -520,7 +532,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                 type="submit"
                 className="bg-[#0856BA] text-white p-2 w-1/3 rounded-[30px]"
                 >
-                Confirm
+                {isConfirming ? "Confirming..." : "Confirm"}
               </button>
             </div>
           </form>

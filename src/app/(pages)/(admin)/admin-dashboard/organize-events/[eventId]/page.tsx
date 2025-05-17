@@ -991,7 +991,6 @@ export default function EventPageAdmin() {
           </div>
         )}
 
-        {}
         <div className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">
           <div className="flex items-center space-x-2 mb-4">
             {/* Status Filter */}
