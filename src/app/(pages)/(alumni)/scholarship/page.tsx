@@ -691,7 +691,7 @@ const filteredUserScholarshipStudent = [...userScholarshipStudent]
                         </div>
                         {/* Description */}
                         <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
-                          <p className="text-start">
+                          <p className="text-start whitespace-pre-wrap">
                             {story.text && story.text.length > 150
                               ? story.text.slice(0, 150) + "..."
                               : story.text}
@@ -924,7 +924,7 @@ const filteredUserScholarshipStudent = [...userScholarshipStudent]
                           </div>
                           {/* Description */}
                           <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
-                            <p className="text-start">
+                            <p className="text-start whitespace-pre-wrap">
                               {scholarship.description.length > 150
                                 ? scholarship.description.slice(0, 150) + "..."
                                 : scholarship.description}

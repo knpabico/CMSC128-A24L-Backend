@@ -243,15 +243,15 @@ const DonationDriveCard = ({
           {/* Description */}
           {drive.isEvent && event ? (
             <div className="mb-5 text-sm h-10 overflow-hidden text-clip">
-              <p className="text-start">
+              <p className="text-start whitespace-pre-wrap">
                 {event.description.length > 100
                   ? event.description.slice(0, 100) + "..."
                   : event.description}
               </p>
             </div>
           ) : (
-            <div className="mb-5 text-sm h-19 overflow-hidden text-clip">
-              <p className="text-start">
+            <div className="mb-5 text-sm h-19 overflow-hidden text-clip ">
+              <p className="text-start whitespace-pre-wrap">
                 {drive.description.length > 200
                   ? drive.description.slice(0, 200) + "..."
                   : drive.description}

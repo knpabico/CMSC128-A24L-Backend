@@ -273,7 +273,7 @@ const ScholarshipDetailPage: React.FC = () => {
             }}
           />
           {/* Event description */}
-          <p className="mt-5">{scholarship?.description}</p>
+          <p className="mt-5 whitespace-pre-wrap">{scholarship?.description}</p>
           {/* Event Details */}
           <div className="grid grid-cols-2 w-full items-center">
             {/* Date */}

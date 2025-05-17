@@ -488,7 +488,7 @@ function DonationDriveDetailsContent() {
                 </div>
               </div>
 
-              <h1 className="text-sm">
+              <h1 className="text-sm whitespace-pre-wrap">
                 {donationDrive.isEvent && event
                   ? event.description
                   : donationDrive.description}

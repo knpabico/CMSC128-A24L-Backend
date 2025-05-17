@@ -13,7 +13,7 @@ const CollapseText: React.FC<Props> = ({ text, maxChars}) => {
 
   return (
     <div className="flex flex-row flex-wrap">
-      <p className='text-justify text-[15px]'>{displayText}
+      <p className='text-justify text-[15px] whitespace-pre-wrap'>{displayText}
       {isLongText && (
         <button
           onClick={() => setCollapsed(!collapsed)}

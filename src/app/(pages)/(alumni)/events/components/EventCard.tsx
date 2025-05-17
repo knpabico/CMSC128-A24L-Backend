@@ -132,7 +132,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
           {/* Description with View More */}
           <div className="text-sm text-start">
             <p
-              className={`h-10 overflow-hidden text-clip ${
+              className={`h-10 overflow-hidden text-clip whitespace-pre-wrap ${
                 event.description.length > 100 ? "mb-1" : ""
               }`}
             >

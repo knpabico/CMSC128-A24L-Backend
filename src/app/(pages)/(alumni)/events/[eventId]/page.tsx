@@ -181,7 +181,7 @@ const EventPageAlumni = () => {
 
             {/* Event Description */}
             <div className="w-full px-8 pb-8">
-              <h1 className="text-sm">{event?.description}</h1>
+              <h1 className="text-sm whitespace-pre-wrap">{event?.description}</h1>
             </div>
 
           </div>

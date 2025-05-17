@@ -77,7 +77,7 @@ const AnnouncementPage = () => {
               })}
             </p>
           </div>
-          <p className="text-justify">{announcement?.description}</p>
+          <p className="text-justify whitespace-pre-wrap">{announcement?.description}</p>
         </div> 
       </div>
                           
@@ -100,9 +100,9 @@ const AnnouncementPage = () => {
                     <p className="font-semibold text-[15px] px-5 text-justify">{item.title}</p>}
                       
                     {item.description.length > 70 
-                    ? <p className="text-xs px-5 text-justify">{item.description.slice(0, 70) + "..."}</p> 
+                    ? <p className="text-xs px-5 text-justify whitespace-pre-wrap">{item.description.slice(0, 70) + "..."}</p> 
                     : 
-                    <p className="text-xs px-5 text-justify">{item.description}</p>}
+                    <p className="text-xs px-5 text-justify whitespace-pre-wrap">{item.description}</p>}
                   </div>
 
                   <button 

@@ -173,11 +173,11 @@ export default function Announcements() {
                             </p>
 
                             {user.description.length > 700 ? (
-                              <p className="text-justify">
+                              <p className="text-justify whitespace-pre-wrap">
                                 {user.description.slice(0, 700) + "..."}
                               </p>
                             ) : (
-                              <p className="text-justify">{user.description}</p>
+                              <p className="text-justify whitespace-pre-wrap">{user.description}</p>
                             )}
                             <div className="flex gap-2 my-6 mt-10 place-self-center items-center">
                               <span className="text-sm font-medium">Tags:</span>
