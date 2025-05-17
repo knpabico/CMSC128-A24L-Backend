@@ -13,10 +13,18 @@ import Link from "next/link"
 import BookmarkButton from "@/components/ui/bookmark-button"
 import Breadcrumb from "@/components/breadcrumb"
 import Image from "next/image"
+import ProposeEventForm from "../components/ProposeEventForm";
 
 const EventPageAlumni = () => {
-  const { events } = useEvents();
+  const 
+  {
+    events,
+    setShowForm,
+    showForm,
+    handleDelete,
+  } = useEvents()
 
+  const [isEditing, setEdit] = useState<boolean>(false)
   const { rsvpDetails, handleAlumAccept, handleAlumReject } = useRsvpDetails();
   const { alumInfo } = useAuth();
   const params = useParams();
@@ -160,6 +168,7 @@ const EventPageAlumni = () => {
   if (!eventId || events.length === 0) return <p>Loading...</p>  
 
   return (
+    <>
     <div className="px-[10%] pt-10 pb-30">
       <div className="flex flex-col gap-3">
         
@@ -584,6 +593,17 @@ const EventPageAlumni = () => {
         </div>
       </div>
     </div>
+
+    <ProposeEventForm
+      isOpen={showForm}
+      onClose={() => setShowForm(false)}
+      isEditing={isEditing}
+      isDetails={true}
+      setDetailsPage={setDetailsPage}
+      editingEventId={event.eventId}
+      setEdit={setEdit}
+    />
+    </>
 
 
     // <>
