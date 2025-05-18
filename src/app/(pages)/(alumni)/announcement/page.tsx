@@ -32,7 +32,7 @@ function formatDate(timestamp: any) {
 
 
 const FILTER_TAGS = ["Donation Update", "Event Update", "General Announcement"];
-const SORT_TAGS = ["Earliest", "Latest"];
+const SORT_TAGS = ["Oldest", "Latest"];
 
 export default function Announcements() {
   const { announces, isLoading } = useAnnouncement();

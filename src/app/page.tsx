@@ -71,7 +71,7 @@ import { useScholarship } from "@/context/ScholarshipContext";
 import Image from "next/image";
 import { Timestamp } from "firebase/firestore";
 
-const sortTypes = ["Latest", "Earliest"]; //sort types
+const sortTypes = ["Latest", "Oldest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
 
 export default function Home() {
@@ -403,7 +403,7 @@ export default function Home() {
                     priority
                     src={
                       item.image === ""
-                        ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
+                        ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
                         : item.image
                     }
                     alt={item.title}
@@ -434,10 +434,10 @@ export default function Home() {
     else if (status === "rejected") return <RejectedPage />;
     else
       return (
-        <div className="w-full px-[10%]">
+        <div className="w-full px-[3%]">
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
-            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-screen overflow-y-scroll">
+            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 text-center flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">
               <Image
                 width={0}
                 height={0}
@@ -842,38 +842,32 @@ export default function Home() {
                                 ) : (
                                   <img src={jobOffering.image}></img>
                                 )} */}
-                                {jobOffering.status === "Closed" ? (
-                                  <div className="flex gap-1">
-                                    <button
-                                      onClick={() =>
-                                        router.push(`/joboffer-list`)
-                                      }
-                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
-                                    >
-                                      View more job offers
-                                    </button>
-                                    <button className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white">
-                                      Apply
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="flex gap-1">
-                                    {/* <button
-                                    onClick={() => router.push(`/joboffer-list`)}
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
-                                  >
-                                    View more job offers
-                                  </button> */}
-                                    <button
-                                      onClick={() =>
-                                        router.push(`/joboffer-list/`)
-                                      }
-                                      className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
-                                    >
-                                      Apply
-                                    </button>
-                                  </div>
-                                )}
+                                {(() => {
+                                  const jobOffering = jobOffers.find(
+                                    (jobOffer: JobOffering) =>
+                                      jobOffer.jobId === newsLetter.referenceId
+                                  );
+                                  if (jobOffering.alumniId !== alumInfo?.alumniId) {
+                                    return jobOffering.status === 'Closed' ?
+                                    <div className="flex gap-1">
+                                      <button
+                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
+                                      >
+                                        Apply
+                                      </button>
+                                    </div> : 
+                                    <div className="flex gap-1">
+                                      <button
+                                        onClick={() => router.push(`/joboffer-list/`)}
+                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                      >
+                                        Apply
+                                      </button>
+                                    </div>;
+                                  } else {
+                                    return <div></div>
+                                  };
+                                })()}
                               </div>
                             </div>
                           </div>

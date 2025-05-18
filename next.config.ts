@@ -40,6 +40,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ics.uplb.edu.ph",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.pixabay.com",
+      },
     ],
   },
 };
