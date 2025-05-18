@@ -944,7 +944,7 @@ export default function Home() {
                               {scholarship.title}
                             </p>
                             <CollapseText
-                              text={scholarship.description}
+                              text={scholarship.description + " "}
                               maxChars={500}
                               className='text-justify'
                             />
@@ -997,7 +997,7 @@ export default function Home() {
                           <div className="flex flex-col gap-[20px] px-4 md:px-[20px]">
                             <div className="flex flex-col gap-[20px]">
                               <p className="text-xl md:text-[24px] font-semibold">{event.title}</p>
-                              <CollapseText text={event.description} maxChars={500} className="text-[13px] md:text-[15px] mt-2"/>
+                              <CollapseText text={event.description + " "} maxChars={500} className="text-[13px] md:text-[15px] mt-2"/>
                             </div>
                           </div>
                         
