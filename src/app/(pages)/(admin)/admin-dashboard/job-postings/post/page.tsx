@@ -149,6 +149,7 @@ export default function PostJobPage() {
                     value={position}
                     onChange={(e) => setPosition(e.target.value)}
                     className="w-full p-1.5 border rounded text-sm"
+                    maxLength={200}
                     required
                   />
                 </div>
@@ -225,6 +226,7 @@ export default function PostJobPage() {
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                     className="w-full p-1.5 border rounded resize-none text-sm"
+                    maxLength={2000}
                     style={{ height: "110px" }}
                     required
                   />
@@ -258,6 +260,7 @@ export default function PostJobPage() {
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
                     className="w-full p-1.5 border rounded text-sm"
+                    maxLength={200}
                     required
                   />
                 </div>
@@ -271,6 +274,7 @@ export default function PostJobPage() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     className="w-full p-1.5 border rounded text-sm"
+                    maxLength={200}
                     required
                   />
                 </div>
@@ -321,8 +325,11 @@ export default function PostJobPage() {
                       onChange={(e) => setSalaryRange(e.target.value)}
                       onInput={(e) => {
                         const value = (e.target as HTMLInputElement).value;
-                        if (!/^[0-9-]*$/.test(value)) {
-                          (e.target as HTMLInputElement).value = value.replace(/[^0-9-]/g, "");
+                        if (!/^\d+(-\d+)?$/.test(value)) {
+                          (e.target as HTMLInputElement).value = value
+                            .replace(/[^0-9-]/g, "")            // Remove non-digit and non-dash characters
+                            .replace(/^-/g, "")                 // Remove a dash if it's the first character
+                            .replace(/(-.*)-+/g, "$1");         // Remove any extra dashes after the first one
                         }
                       }}
                       pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"

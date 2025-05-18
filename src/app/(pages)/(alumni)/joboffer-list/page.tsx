@@ -45,6 +45,7 @@ import JobApplicationModal from "@/components/JobApplicationModal";
 import { useJobApplicationContext } from "@/context/JobApplicationContext";
 import { useAlums } from "@/context/AlumContext";
 import SearchParamsWrapper from "@/components/SearchParamsWrapper";
+import CollapseText from "@/components/CollapseText";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -678,13 +679,13 @@ function JobOffersContent() {
                                 )}
                               </div>
                               <div className="flex-1">
-                                <h2 className="font-semibold text-md">
+                                <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   {job.position}
                                 </h2>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   {job.company}
                                 </p>
-                                <p className="text-xs text-[#0856BA] flex items-center">
+                                <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
                                   {job.location}
                                 </p>
@@ -784,13 +785,13 @@ function JobOffersContent() {
                                   )}
                                 </div>
                                 <div className="flex-1">
-                                  <h2 className="font-semibold text-md">
+                                  <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                     {job.position}
                                   </h2>
-                                  <p className="text-sm text-gray-600">
+                                  <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                     {job.company}
                                   </p>
-                                  <p className="text-xs text-[#0856BA] flex items-center">
+                                  <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                     <MapPin className="w-3.5 h-3.5 mr-1" />
                                     {job.location}
                                   </p>
@@ -899,13 +900,13 @@ function JobOffersContent() {
                                       )}
                                     </div>
                                     <div>
-                                      <h2 className="font-semibold text-md">
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.position}
                                       </h2>
-                                      <p className="text-sm text-gray-600">
+                                      <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.company}
                                       </p>
-                                      <p className="text-xs text-[#0856BA] flex items-center">
+                                      <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         <MapPin className="w-3.5 h-3.5 mr-1" />
                                         {job.location}
                                       </p>
@@ -1085,7 +1086,7 @@ function JobOffersContent() {
                                 </div>
                                 {!job.company || !job.location ? (
                                   <div>
-                                    <h2 className="font-semibold text-md">
+                                    <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       {job.position}
                                     </h2>
                                     <p className="text-sm text-gray-500">
@@ -1094,13 +1095,13 @@ function JobOffersContent() {
                                   </div>
                                 ) : (
                                   <div>
-                                    <h2 className="font-semibold text-md">
+                                    <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       {job.position}
                                     </h2>
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       {job.company}
                                     </p>
-                                    <p className="text-xs text-[#0856BA] flex items-center">
+                                    <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       <MapPin className="w-3.5 h-3.5 mr-1" />
                                       {job.location || "No location added yet."}
                                     </p>
@@ -1172,14 +1173,14 @@ function JobOffersContent() {
                                         className="w-15 h-15 object-contain rounded-md border border-gray-200"
                                       />
                                     ) : (
-                                      <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                      <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.company.charAt(0).toUpperCase()}
                                       </div>
                                     )}
                                   </div>
                                   {!job.company || !job.location ? (
                                     <div>
-                                      <h2 className="font-semibold text-md">
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.position}
                                       </h2>
                                       <p className="text-sm text-gray-500">
@@ -1190,13 +1191,13 @@ function JobOffersContent() {
                                     </div>
                                   ) : (
                                     <div>
-                                      <h2 className="font-semibold text-md">
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.position}
                                       </h2>
-                                      <p className="text-sm text-gray-600">
+                                      <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.company}
                                       </p>
-                                      <p className="text-xs text-[#0856BA] flex items-center">
+                                      <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         <MapPin className="w-3.5 h-3.5 mr-1" />
                                         {job.location ||
                                           "No location added yet."}
@@ -1291,12 +1292,12 @@ function JobOffersContent() {
             </div>
 
             {/* Right Column - Job Details */}
-            <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
+            <div className="bg-white rounded-lg p-4 h-180 flex flex-col overflow-y-auto">
               {selectedJob ? (
-                <div className="w-full space-y-4">
+                <div className="w-full space-y-4 flex flex-col h-full">
                   <div className="flex items-start">
                     {/* Company Logo */}
-                    <div className="mr-4">
+                    <div className="mr-4 flex-shrink-0">
                       {selectedJob.image ? (
                         <Image
                           width={0}
@@ -1321,7 +1322,7 @@ function JobOffersContent() {
                         {selectedJob.company}
                       </p>
                       <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 text-[#0856BA] mr-1" />
+                        <MapPin className="w-4 h-4 min-w-4 text-[#0856BA] mr-1" />
                         <span className="ml-1 font-semibold text-[#0856BA]">
                           {selectedJob.location}
                         </span>
@@ -1376,9 +1377,9 @@ function JobOffersContent() {
 
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Job Description</h3>
-                    <p className="text-sm text-gray-700">
-                      {selectedJob.jobDescription}
-                    </p>
+                    <CollapseText 
+                    text={selectedJob.jobDescription} 
+                    maxChars={500} />
                   </div>
 
                   <div className="mb-4">
@@ -1402,7 +1403,7 @@ function JobOffersContent() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-400 mt-4">
+                  <p className="text-xs text-gray-400 mt-auto pt-4">
                     Posted on {formatDate(selectedJob.datePosted)}
                   </p>
                   {sidebarFilter !== "Create Jobs" &&
@@ -1418,15 +1419,23 @@ function JobOffersContent() {
                         selectedJob.jobId === job.jobId &&
                         job.alumniId === user!.uid
                     ) && (
+                      <div className="sticky bottom-0 pt-4 pb-2 bg-white">
+                        {/* <h3 className="font-semibold mb-2">
+                          Interested in this job?
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Click the button below to apply.
+                        </p> */}
                       <Button
                         variant={"outline"}
-                        className="w-full cursor-pointer hover:bg-[#0856BA] hover:text-white transition-colors duration-200"
+                        className="w-full cursor-pointer rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                         onClick={() => {
                           setApplyModalOpen(true);
                         }}
                       >
                         Apply
                       </Button>
+                      </div>
                     )}
 
                   {sidebarFilter === "Create Jobs" && (
@@ -1612,6 +1621,7 @@ function JobOffersContent() {
                       value={position}
                       onChange={(e) => setPosition(e.target.value)}
                       className="w-full p-1.5 border rounded text-sm"
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -1701,7 +1711,8 @@ function JobOffersContent() {
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                       className="w-full p-1.5 border rounded resize-none text-sm"
-                      style={{ height: "110px" }} // Increased height (4x the original)
+                      style={{ height: "110px" }} 
+                      maxLength={2000}
                       required
                     />
                     <Button
@@ -1735,6 +1746,7 @@ function JobOffersContent() {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       className="w-full p-1.5 border rounded text-sm"
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -1748,6 +1760,7 @@ function JobOffersContent() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       className="w-full p-1.5 border rounded text-sm"
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -1805,10 +1818,12 @@ function JobOffersContent() {
                         onChange={(e) => setSalaryRange(e.target.value)}
                         onInput={(e) => {
                           const value = (e.target as HTMLInputElement).value;
-                          if (!/^[0-9-]*$/.test(value)) {
-                            (e.target as HTMLInputElement).value =
-                              value.replace(/[^0-9-]/g, "");
-                          }
+                          if (!/^\d+(-\d+)?$/.test(value)) {
+                          (e.target as HTMLInputElement).value = value
+                            .replace(/[^0-9-]/g, "")            // Remove non-digit and non-dash characters
+                            .replace(/^-/g, "")                 // Remove a dash if it's the first character
+                            .replace(/(-.*)-+/g, "$1");         // Remove any extra dashes after the first one
+                        }
                         }}
                         pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
                         className="w-full pl-8 p-1.5 border rounded text-sm"
@@ -1826,7 +1841,7 @@ function JobOffersContent() {
                       value={requiredSkill.join(", ")}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="w-full p-1.5 border rounded placeholder:text-sm"
+                      className="w-full p-1.5 border rounded placeholder:text"
                       required
                     />
                   </div>
