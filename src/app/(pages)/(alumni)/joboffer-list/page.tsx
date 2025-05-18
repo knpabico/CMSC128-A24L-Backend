@@ -1294,7 +1294,7 @@ function JobOffersContent() {
             {/* Right Column - Job Details */}
             <div className="bg-white rounded-lg p-4 h-180 flex flex-col overflow-y-auto">
               {selectedJob ? (
-                <div className="w-full space-y-4">
+                <div className="w-full space-y-4 flex flex-col h-full">
                   <div className="flex items-start">
                     {/* Company Logo */}
                     <div className="mr-4 flex-shrink-0">
@@ -1419,15 +1419,23 @@ function JobOffersContent() {
                         selectedJob.jobId === job.jobId &&
                         job.alumniId === user!.uid
                     ) && (
+                      <div className="sticky bottom-0 pt-4 pb-2 bg-white">
+                        {/* <h3 className="font-semibold mb-2">
+                          Interested in this job?
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Click the button below to apply.
+                        </p> */}
                       <Button
                         variant={"outline"}
-                        className="w-full cursor-pointer hover:bg-[#0856BA] hover:text-white transition-colors duration-200"
+                        className="w-full cursor-pointer rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                         onClick={() => {
                           setApplyModalOpen(true);
                         }}
                       >
                         Apply
                       </Button>
+                      </div>
                     )}
 
                   {sidebarFilter === "Create Jobs" && (
