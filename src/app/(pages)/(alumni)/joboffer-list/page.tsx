@@ -679,13 +679,13 @@ function JobOffersContent() {
                                 )}
                               </div>
                               <div className="flex-1">
-                                <h2 className="font-semibold text-md">
+                                <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   {job.position}
                                 </h2>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   {job.company}
                                 </p>
-                                <p className="text-xs text-[#0856BA] flex items-center">
+                                <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
                                   {job.location}
                                 </p>
@@ -785,13 +785,13 @@ function JobOffersContent() {
                                   )}
                                 </div>
                                 <div className="flex-1">
-                                  <h2 className="font-semibold text-md">
+                                  <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                     {job.position}
                                   </h2>
-                                  <p className="text-sm text-gray-600">
+                                  <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                     {job.company}
                                   </p>
-                                  <p className="text-xs text-[#0856BA] flex items-center">
+                                  <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                     <MapPin className="w-3.5 h-3.5 mr-1" />
                                     {job.location}
                                   </p>
@@ -900,13 +900,13 @@ function JobOffersContent() {
                                       )}
                                     </div>
                                     <div>
-                                      <h2 className="font-semibold text-md">
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.position}
                                       </h2>
-                                      <p className="text-sm text-gray-600">
+                                      <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.company}
                                       </p>
-                                      <p className="text-xs text-[#0856BA] flex items-center">
+                                      <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         <MapPin className="w-3.5 h-3.5 mr-1" />
                                         {job.location}
                                       </p>
@@ -1086,7 +1086,7 @@ function JobOffersContent() {
                                 </div>
                                 {!job.company || !job.location ? (
                                   <div>
-                                    <h2 className="font-semibold text-md">
+                                    <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       {job.position}
                                     </h2>
                                     <p className="text-sm text-gray-500">
@@ -1095,13 +1095,13 @@ function JobOffersContent() {
                                   </div>
                                 ) : (
                                   <div>
-                                    <h2 className="font-semibold text-md">
+                                    <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       {job.position}
                                     </h2>
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       {job.company}
                                     </p>
-                                    <p className="text-xs text-[#0856BA] flex items-center">
+                                    <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                       <MapPin className="w-3.5 h-3.5 mr-1" />
                                       {job.location || "No location added yet."}
                                     </p>
@@ -1173,14 +1173,14 @@ function JobOffersContent() {
                                         className="w-15 h-15 object-contain rounded-md border border-gray-200"
                                       />
                                     ) : (
-                                      <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                      <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.company.charAt(0).toUpperCase()}
                                       </div>
                                     )}
                                   </div>
                                   {!job.company || !job.location ? (
                                     <div>
-                                      <h2 className="font-semibold text-md">
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.position}
                                       </h2>
                                       <p className="text-sm text-gray-500">
@@ -1191,13 +1191,13 @@ function JobOffersContent() {
                                     </div>
                                   ) : (
                                     <div>
-                                      <h2 className="font-semibold text-md">
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.position}
                                       </h2>
-                                      <p className="text-sm text-gray-600">
+                                      <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         {job.company}
                                       </p>
-                                      <p className="text-xs text-[#0856BA] flex items-center">
+                                      <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                         <MapPin className="w-3.5 h-3.5 mr-1" />
                                         {job.location ||
                                           "No location added yet."}
@@ -1292,12 +1292,12 @@ function JobOffersContent() {
             </div>
 
             {/* Right Column - Job Details */}
-            <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
+            <div className="bg-white rounded-lg p-4 h-180 flex flex-col overflow-y-auto">
               {selectedJob ? (
                 <div className="w-full space-y-4">
                   <div className="flex items-start">
                     {/* Company Logo */}
-                    <div className="mr-4">
+                    <div className="mr-4 flex-shrink-0">
                       {selectedJob.image ? (
                         <Image
                           width={0}
@@ -1322,7 +1322,7 @@ function JobOffersContent() {
                         {selectedJob.company}
                       </p>
                       <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 text-[#0856BA] mr-1" />
+                        <MapPin className="w-4 h-4 min-w-4 text-[#0856BA] mr-1" />
                         <span className="ml-1 font-semibold text-[#0856BA]">
                           {selectedJob.location}
                         </span>
@@ -1403,7 +1403,7 @@ function JobOffersContent() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-400 mt-4">
+                  <p className="text-xs text-gray-400 mt-auto pt-4">
                     Posted on {formatDate(selectedJob.datePosted)}
                   </p>
                   {sidebarFilter !== "Create Jobs" &&
@@ -1833,7 +1833,7 @@ function JobOffersContent() {
                       value={requiredSkill.join(", ")}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="w-full p-1.5 border rounded placeholder:text-sm"
+                      className="w-full p-1.5 border rounded placeholder:text"
                       required
                     />
                   </div>
