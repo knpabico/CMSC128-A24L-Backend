@@ -64,7 +64,8 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
   const [isSticky, setIsSticky] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isConfirming, setisConfirming] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Refs
   const placeholderRef = useRef(null);
@@ -645,26 +646,32 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               onClick={async (e) => {
                 e.preventDefault();
 
+                if (isSaving) return; // Prevent double submission
+                setIsSaving(true);
+
                 const targetGuests =
                   visibility === "batch"
                     ? selectedBatches
                     : visibility === "alumni"
                     ? selectedAlumni
                     : [];
-                
-                if(isEditing && editingEventId){
-                  await handleEdit(editingEventId, {title, description, location, date, time, targetGuests, inviteType: visibility }, image);
-                } else {
-                  await handleSave(e, image, targetGuests, visibility, "Draft");
-                } 
+                try{
+                  if(isEditing && editingEventId){
+                    await handleEdit(editingEventId, {title, description, location, date, time, targetGuests, inviteType: visibility }, image);
+                  } else {
+                    await handleSave(e, image, targetGuests, visibility, "Draft");
+                  } 
 
-                resetFormState();
+                  resetFormState();
 
-                onClose();
+                  onClose();
+                } finally {
+                  setIsSaving(false)
+                }
               }}
               className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
             >
-              Save As Draft
+              {isSaving ? "Saving..." : "Save as Draft"}
             </button>
               <button
                 type="button"
@@ -724,7 +731,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               e.preventDefault();
 
               if (isConfirming) return; // Prevent double submission
-              setisConfirming(true);
+              setIsConfirming(true);
 
               if (userInput !== requiredSentence) {
                 alert("Please type the sentence exactly to confirm.");
@@ -754,7 +761,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                 setDetailsPage(false);
                 setConfirmForm(false);
               } finally {
-                setisConfirming(false);
+                setIsConfirming(false);
               }
             }}
               className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-40"
