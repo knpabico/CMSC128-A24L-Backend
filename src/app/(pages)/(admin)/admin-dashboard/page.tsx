@@ -879,11 +879,21 @@ export default function AdminDashboard() {
     {isJobModalOpen && selectedJob && (
       <Dialog open={isJobModalOpen} onOpenChange={closeModal}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-          {/* Header with job title */}
-          <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
-            <div className="flex justify-between items-center">
+          <DialogHeader className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
+            <div className="flex gap-4">
+              {selectedJob.image && (
+                <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-white">
+                  <img
+                    src={selectedJob.image}
+                    alt={`${selectedJob.company} logo`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
               <div>
-                <h2 className="text-2xl font-bold">{selectedJob.position}</h2>
+                <DialogTitle className="text-2xl font-bold mb-1 line-clamp-2">
+                  {selectedJob.position}
+                </DialogTitle>
                 <div className="flex items-center mt-1">
                   <Badge variant="outline" className="bg-white bg-opacity-20 text-white border-white border-opacity-30">
                     {selectedJob.employmentType}
@@ -902,18 +912,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Image banner */}
-          {selectedJob.image && (
-            <div className="w-full h-56 overflow-hidden">
-              <img
-                src={selectedJob.image}
-                alt={selectedJob.position}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
+          </DialogHeader>
 
           {/* Main content scrollable area */}
           <div className="overflow-auto flex-1 p-6">
@@ -956,7 +955,7 @@ export default function AdminDashboard() {
               {/* Job Description */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Job Description</h3>
-                <p className="text-gray-700">{selectedJob.jobDescription}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{selectedJob.jobDescription}</p>
               </div>
               
               {/* Required Skills */}
@@ -978,8 +977,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* Footer with action buttons */}
-          <div className="px-6 py-4 border-t bg-gray-50">
-            <h3 className="text-lg font-semibold mb-3">Status Management</h3>
+          <DialogFooter className="px-6 py-4 border-t bg-gray-50">
+            {/* <h3 className="text-lg font-semibold mb-3">Status Management</h3> */}
             <div className="flex justify-between items-center">
               
               <div className="flex gap-2">
@@ -1009,7 +1008,7 @@ export default function AdminDashboard() {
                 </Button>
               </div>
             </div>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     )}
@@ -1019,26 +1018,25 @@ export default function AdminDashboard() {
       <Dialog open={isSchoModalOpen} onOpenChange={handleSchoCloseModal}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
           {/* Header with scholarship title */}
-          <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
-            <DialogHeader className="p-0">
-              <DialogTitle className="text-2xl font-bold">{selectedScholarship.title}</DialogTitle>
-              <div className="flex items-center mt-1">
-                <Badge 
-                  className={`${
-                    selectedScholarship.status === 'Active' 
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
-                      : selectedScholarship.status === 'Pending'
-                      ? 'bg-amber-100 text-amber-800 border-amber-200'
-                      : 'bg-red-100 text-red-800 border-red-200'
-                  }`}
-                >
-                  {selectedScholarship.status}
-                </Badge>
-              </div>
-            </DialogHeader>
-          </div>
+          <DialogHeader className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
+            <div className="flex gap-4"> 
+                <DialogTitle className="text-2xl font-bold mb-1 line-clamp-2">
+                  {selectedScholarship.title}
+                </DialogTitle>
+                <div className="flex items-center mt-1">
+                  <Badge 
+                    className={`${
+                      selectedScholarship.status === 'active' 
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
+                        : 'bg-red-100 text-red-800 border-red-200'
+                    }`}
+                  >
+                    {selectedScholarship.status}
+                  </Badge>
+                </div>
+            </div>
+          </DialogHeader>
 
-          {/* Image banner */}
           {selectedScholarship.image && (
             <div className="w-full h-56 overflow-hidden">
               <img
@@ -1055,7 +1053,7 @@ export default function AdminDashboard() {
               {/* Description */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Description</h3>
-                <p className="text-gray-700">{selectedScholarship.description}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{selectedScholarship.description}</p>
               </div>
               
               {/* Details */}
@@ -1064,7 +1062,9 @@ export default function AdminDashboard() {
                   <Calendar className="h-5 w-5 text-[#0856BA] mr-3" />
                   <div>
                     <div className="text-sm text-gray-500">Date Posted</div>
-                    <div className="font-medium">{new Date(selectedScholarship.datePosted).toLocaleDateString()}</div>
+                    <div className="font-medium">
+                      {new Date(selectedScholarship.datePosted).toLocaleDateString()}
+                    </div>
                   </div>
                 </div>
                 
@@ -1076,8 +1076,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              
-              {/* Add more details here as needed */}
             </div>
           </div>
 

@@ -95,6 +95,9 @@ const AlumniDetailsModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>{`${alumnus.firstName} ${alumnus.lastName} Details`}</DialogTitle>
+        </DialogHeader>
         {/* Header with profile image and basic info */}
         <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
           <div className="flex items-center gap-5">

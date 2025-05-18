@@ -95,22 +95,25 @@ const ProEventDetailsModal = ({
 
   return (
     <Dialog open={isEventProOpen} onOpenChange={onProEventClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-        {/* Header with event title and status */}
-        <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">{proEvent.title}</h2>
-              <Badge className={`font-medium border ${statusStyles[proEvent.status]}`}>
-                {proEvent.status}
-              </Badge>
-            </div>
-            <div className="flex items-center mt-2">
-              <User className="h-4 w-4 mr-1" />
-              <span className="text-sm opacity-90">Proposed by: {proEvent.creatorName || 'N/A'}</span>
-            </div>
+    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogHeader className="sr-only">
+        <DialogTitle>{proEvent.title} Details</DialogTitle>
+      </DialogHeader>
+      {/* Header with event title and status */}
+      <div className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">{proEvent.title}</h2>
+            <Badge className={`font-medium border ${statusStyles[proEvent.status]}`}>
+              {proEvent.status}
+            </Badge>
+          </div>
+          <div className="flex items-center mt-2">
+            <User className="h-4 w-4 mr-1" />
+            <span className="text-sm opacity-90">Proposed by: {proEvent.creatorName || 'N/A'}</span>
           </div>
         </div>
+      </div>
 
         {/* Event image banner */}
         <div className="w-full h-56 overflow-hidden">
@@ -173,7 +176,7 @@ const ProEventDetailsModal = ({
             {proEvent.description && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Description</h3>
-                <p className="text-gray-700">{proEvent.description}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{proEvent.description}</p>
               </div>
             )}
           </div>
