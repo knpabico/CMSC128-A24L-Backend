@@ -1377,7 +1377,9 @@ function JobOffersContent() {
 
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Job Description</h3>
-                    <CollapseText text={selectedJob.jobDescription} maxChars={500} />
+                    <CollapseText 
+                    text={selectedJob.jobDescription} 
+                    maxChars={500} />
                   </div>
 
                   <div className="mb-4">
