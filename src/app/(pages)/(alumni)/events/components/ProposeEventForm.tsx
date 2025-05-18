@@ -84,6 +84,8 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   const [alumniSearchTerm, setAlumniSearchTerm] = useState("");
   const [alumniInputValue, setAlumniInputValue] = useState("");
 
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
   useEffect(() => {
     if (isEditing && events) {
       const eventToEdit = events.find((event: { eventId: string | null; }) => event.eventId === editingEventId);
@@ -481,6 +483,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                   onChange={(e) => setEventTitle(e.target.value)}
                   className="w-full p-2 border border-gray-500 rounded"
                   required
+                  maxLength={100}
               />
           </div>
           <div>
@@ -493,7 +496,21 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                   onChange={(e) => setEventDescription(e.target.value)}
                   className="w-full p-2 border border-gray-500 rounded"
                   required
+                  maxLength={2000}
+                  rows={showFullDescription ? 6 : 3}
               />
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>{description.length}/2000</span>
+                {description.length > 200 && (
+                  <button
+                    type="button"
+                    className="text-blue-600 underline ml-2"
+                    onClick={() => setShowFullDescription((prev) => !prev)}
+                  >
+                    {showFullDescription ? "Show less" : "Show more"}
+                  </button>
+                )}
+              </div>
               <Button onClick={() => setIsModalOpen(true)}>
                 Need AI help for description?
               </Button>
@@ -511,6 +528,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                   onChange={(e) => setEventLocation(e.target.value)}
                   className="w-full p-2 border border-gray-500 rounded"
                   required
+                  maxLength={200}
               />
           </div>
 
@@ -573,15 +591,23 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               />
           </div>
           {fileName && (
-            <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>
+            <p className="mt-2 text-sm text-gray-600">
+              Selected file: {
+                fileName.length > 100
+                  ? fileName.slice(0, 97) + "..."
+                  : fileName
+              }
+            </p>
           )}
           {preview && (
             <div className="mt-2">
-              <img
-                src={preview}
-                alt="Preview"
-                className="w-32 h-32 object-cover rounded-md"
-              />
+              <div style={{ width: 40, height: 40, overflow: "hidden", borderRadius: 8, border: "1px solid #ccc" }}>
+                <img
+                  src={preview}
+                  alt="Preview"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
             </div>
           )}
           {/* Target Audience */}
