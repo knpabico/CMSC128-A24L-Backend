@@ -777,39 +777,33 @@ export default function Home() {
                                     />
                                   </div>
                                 </div>
-                                {/* {jobOffering.image === "" ? (
-                                  ""
-                                ) : (
-                                  <img src={jobOffering.image}></img>
-                                )} */}
-                                {jobOffering.status === 'Closed' ?
-                                <div className="flex gap-1">
-                                  {/* <button
-                                    onClick={() => router.push(`/joboffer-list`)}
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
-                                  >
-                                    View more job offers
-                                  </button> */}
-                                  <button
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
-                                  >
-                                    Apply
-                                  </button>
-                                </div> : 
-                                <div className="flex gap-1">
-                                  {/* <button
-                                    onClick={() => router.push(`/joboffer-list`)}
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] bg-white text-[#0856BA] text-[12px] hover:bg-blue-100 hover:text-blue-900"
-                                  >
-                                    View more job offers
-                                  </button> */}
-                                  <button
-                                    onClick={() => router.push(`/joboffer-list/`)}
-                                    className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
-                                  >
-                                    Apply
-                                  </button>
-                                </div>}
+                                {(() => {
+                                  const jobOffering = jobOffers.find(
+                                    (jobOffer: JobOffering) =>
+                                      jobOffer.jobId === newsLetter.referenceId
+                                  );
+                                  if (jobOffering.alumniId !== alumInfo?.alumniId) {
+                                    return jobOffering.status === 'Closed' ?
+                                    <div className="flex gap-1">
+                                      <button
+                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
+                                      >
+                                        Apply
+                                      </button>
+                                    </div> : 
+                                    <div className="flex gap-1">
+                                      <button
+                                        onClick={() => router.push(`/joboffer-list/`)}
+                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                      >
+                                        Apply
+                                      </button>
+                                    </div>;
+                                  } else {
+                                    return <div></div>
+                                  };
+                                })()}
+                                
                               </div>
                             </div>
                           </div>
