@@ -471,7 +471,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               </h2>
           </div>
           <div>
-              <p className="text-xs font-light">Title*</p>
+              <p className="text-xs font-light flex items-center">
+                <Asterisk size={16} className="text-red-600" /> Title
+              </p>
               <input
                   type="text"
                   placeholder="Title"
@@ -482,7 +484,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
               />
           </div>
           <div>
-              <p className="text-xs font-light">Description*</p>
+              <p className="text-xs font-light flex items-center">
+                <Asterisk size={16} className="text-red-600" /> Description
+              </p>
               <textarea
                   placeholder="Description"
                   value={description}
@@ -497,7 +501,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
 
           {/* Location Field */}
            <div>
-              <p className="text-xs font-light">Location*</p>
+              <p className="text-xs font-light flex items-center">
+                <Asterisk size={16} className="text-red-600" /> Location
+              </p>
               <input
                   type="text"
                   placeholder="Location"
@@ -523,7 +529,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             {/* Date and Time Fields - Placed Side by Side */}
             <div className="flex gap-3">
                 <div className="w-1/2">
-                    <p className="text-xs font-light">Date*</p>
+                    <p className="text-xs font-light flex items-center">
+                      <Asterisk size={16} className="text-red-600" /> Date
+                    </p>
                     <input
                         type="date"
                         value={date}
@@ -536,7 +544,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                     />
                 </div>
                 <div className="w-1/2">
-                    <p className="text-xs font-light">Time*</p>
+                    <p className="text-xs font-light flex items-center">
+                      <Asterisk size={16} className="text-red-600" /> Time
+                    </p>
                     <input
                         type="time"
                         value={time}
@@ -576,9 +586,9 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
           )}
           {/* Target Audience */}
           <div className="my-[20px] space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-2 bg-gray-100 p-3 rounded-md">
               <p className="text-sm font-medium flex items-center">
-                <Asterisk size={16} className="text-red-600" /> Target Audience
+                <Asterisk size={16} className="text-red-600" /> Visible to
               </p>
 
               <div className="flex flex-col gap-3">
