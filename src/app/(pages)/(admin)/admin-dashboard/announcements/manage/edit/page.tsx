@@ -128,16 +128,16 @@ export default function AddAnnouncement() {
       {/* Header with Edit button */}
       <div className={`${isEditing ? 'w-full py-1' : 'w-full'}`}>
         <div className="flex items-center justify-between">
-          <div className="font-bold text-3xl">
+          <span className="font-bold text-3xl text-wrap">
             {title || "Announcement"}
-          </div>
+          </span>
           {!isEditing && (
-            <div 
+            <span 
               onClick={handleEditClick}
               className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
             >
               <Pencil size={18} /> Edit Announcement
-            </div>
+            </span>
           )}
         </div>
       </div>
@@ -155,6 +155,7 @@ export default function AddAnnouncement() {
                   type="text"
                   placeholder="Announcement Title"
                   value={title}
+                  maxLength={200}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full border-none text-xl font-bold rounded-md focus:outline-none"
                   required

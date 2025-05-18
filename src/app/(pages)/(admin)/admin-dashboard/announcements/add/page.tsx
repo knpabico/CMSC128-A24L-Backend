@@ -130,6 +130,7 @@ export default function AddAnnouncement() {
                   type="text"
                   placeholder="Announcement Title"
                   value={title}
+                  maxLength={200}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full border-none text-xl font-bold rounded-md focus:outline-none"
                   required
