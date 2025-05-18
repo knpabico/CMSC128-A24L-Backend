@@ -8,7 +8,7 @@ import ModalInput from "@/components/ModalInputForm";
 import { useEvents } from "@/context/EventContext";
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/context/AuthContext";
-import { Asterisk, ChevronDown, Upload, X } from "lucide-react";
+import { Asterisk, ChevronDown, Upload, X, XIcon } from "lucide-react";
 import { useAlums } from "@/context/AlumContext";
 
 interface ProposeEventFormProps {
@@ -463,38 +463,51 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   return (
     <>
       {/* Event Proposal Modal */}
-      <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full z-20">
-        <form className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[400px] z-30">
-        <h2 className="text-xl font-bold mb-4">Propose Event</h2>
-          <input
-            type="text"
-            placeholder="Event Title"
-            value={title}
-            onChange={(e) => setEventTitle(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-            required
-          />
-          <textarea
-            placeholder="Event Description"
-            value={description}
-            onChange={(e) => setEventDescription(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-            required
-          />
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <form className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md max-h-[90vh] overflow-auto space-y-5">
+          <div className="bg-white z-30 w-full flex justify-between items-start">
+              <h2 className="text-2xl font-semibold">
+              Propose Event
+              </h2>
+          </div>
+          <div>
+              <p className="text-xs font-light">Title*</p>
+              <input
+                  type="text"
+                  placeholder="Title"
+                  value={title}
+                  onChange={(e) => setEventTitle(e.target.value)}
+                  className="w-full p-2 border border-gray-500 rounded"
+                  required
+              />
+          </div>
+          <div>
+              <p className="text-xs font-light">Description*</p>
+              <textarea
+                  placeholder="Description"
+                  value={description}
+                  onChange={(e) => setEventDescription(e.target.value)}
+                  className="w-full p-2 border border-gray-500 rounded"
+                  required
+              />
+              <Button onClick={() => setIsModalOpen(true)}>
+                Need AI help for description?
+              </Button>
+          </div>
 
           {/* Location Field */}
-          <input
-            type="text"
-            placeholder="Event Location"
-            value={location}
-            onChange={(e) => setEventLocation(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-            required
-          />
+           <div>
+              <p className="text-xs font-light">Location*</p>
+              <input
+                  type="text"
+                  placeholder="Location"
+                  value={location}
+                  onChange={(e) => setEventLocation(e.target.value)}
+                  className="w-full p-2 border border-gray-500 rounded"
+                  required
+              />
+          </div>
 
-          <Button onClick={() => setIsModalOpen(true)}>
-            Need AI help for description?
-          </Button>
           <ModalInput
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
@@ -506,43 +519,49 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
           />
 
           {/* Date and Time Fields - Placed Side by Side */}
-          <div className="flex gap-4 mb-4">
-            <div className="w-1/2">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setEventDate(e.target.value)}
-                className="w-full p-2 border rounded text-center"
-                required
-                min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                  .toISOString()
-                  .split("T")[0]}
-              />
+          <div className="space-y-3">
+            {/* Date and Time Fields - Placed Side by Side */}
+            <div className="flex gap-3">
+                <div className="w-1/2">
+                    <p className="text-xs font-light">Date*</p>
+                    <input
+                        type="date"
+                        value={date}
+                        onChange={(e) => setEventDate(e.target.value)}
+                        className="w-full p-2 border border-gray-500 rounded text-center"
+                        required
+                        min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                        .toISOString()
+                        .split("T")[0]}
+                    />
+                </div>
+                <div className="w-1/2">
+                    <p className="text-xs font-light">Time*</p>
+                    <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => setEventTime(e.target.value)}
+                        className="w-full p-2 border border-gray-500 rounded text-center"
+                        required
+                        min="08:00"
+                        max="22:00"
+                    />
+                </div>
             </div>
-            <div className="w-1/3">
+        </div>
+          
+          <div className="mt-5">
+              <label htmlFor="image-upload" className="text-[14px] cursor-pointer px-3 py-2 border bg-blue-500 border-gray-200 rounded shadow-xs hover:bg-gray-200">
+                  Upload Photo
+              </label>
               <input
-                type="time"
-                value={time}
-                onChange={(e) => setEventTime(e.target.value)}
-                className="w-full p-2 border rounded text-center"
-                required
-                min="08:00"
-                max="22:00"
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
               />
-            </div>
           </div>
-
-          <label htmlFor="image-upload" className="text-[14px] cursor-pointer px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            Upload Photo
-          </label>
-          <input
-            id="image-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="hidden"
-          />
-
           {fileName && (
             <p className="mt-2 text-sm text-gray-600">Selected file: {fileName}</p>
           )}
@@ -637,7 +656,14 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                 )}
 
           <div className="flex justify-between mt-4">
-            <button type="button" onClick={onClose} className="text-gray-500">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-10 px-5 flex items-center justify-center rounded-full 
+                        bg-gray-200 border border-gray-400 text-sm font-semibold text-gray-700 
+                        shadow-inner shadow-white/10 transition-all duration-300 
+                        hover:bg-gray-300 hover:text-gray-800 hover:shadow-lg"
+            >
               Cancel
             </button>
             <div className="flex gap-2 my-5">
@@ -669,7 +695,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                   setIsSaving(false)
                 }
               }}
-              className="bg-[#BFBFBF] text-white p-2 rounded-[22px]"
+              className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
             >
               {isSaving ? "Saving..." : "Save as Draft"}
             </button>
@@ -714,7 +740,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                       form?.reportValidity(); // Show browser's validation tooltips
                     }
                   }}
-                  className="bg-[#0856BA] text-white p-3 rounded-[25px]"
+                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                 >
                   Propose
                 </button>
