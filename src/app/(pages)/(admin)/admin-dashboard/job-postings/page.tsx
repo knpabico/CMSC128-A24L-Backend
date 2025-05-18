@@ -80,12 +80,14 @@ export default function Users() {
   const [jobToDelete, setJobToDelete] = useState<JobOffering | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState<JobOffering | null>(null);
-
+  
   const filterJobs = (status: string) => {
-    return jobOffers.filter((job: JobOffering) => {
+    const filteredJobs = jobOffers.filter((job: JobOffering) => {
       const matchesStatus =
         status === "Accepted"
           ? job.status === "Accepted" || job.status === "Closed"
+          : status === "Draft"
+          ? job.status === status && job.alumniId === "Admin"
           : job.status === status;
       const matchesSearch =
         job.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -93,6 +95,7 @@ export default function Users() {
         job.location?.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesStatus && matchesSearch;
     });
+    return filteredJobs;
   };
 
   const tabs = ["Accepted", "Pending", "Rejected", "Draft", "Applications"];
@@ -109,7 +112,7 @@ export default function Users() {
       (job: { status: string }) => job.status === "Rejected"
     ).length,
     drafts: jobOffers.filter(
-      (job: { status: string }) => job.status === "Draft"
+      (job: JobOffering) => job.status === "Draft" && job.alumniId === "Admin"
     ).length,
     applications: jobOffers.filter((job: JobOffering) => {
       return jobApplications.some(
