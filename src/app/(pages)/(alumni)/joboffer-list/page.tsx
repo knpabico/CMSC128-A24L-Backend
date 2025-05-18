@@ -45,6 +45,7 @@ import JobApplicationModal from "@/components/JobApplicationModal";
 import { useJobApplicationContext } from "@/context/JobApplicationContext";
 import { useAlums } from "@/context/AlumContext";
 import SearchParamsWrapper from "@/components/SearchParamsWrapper";
+import CollapseText from "@/components/CollapseText";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -1376,9 +1377,7 @@ function JobOffersContent() {
 
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Job Description</h3>
-                    <p className="text-sm text-gray-700">
-                      {selectedJob.jobDescription}
-                    </p>
+                    <CollapseText text={selectedJob.jobDescription} maxChars={500} />
                   </div>
 
                   <div className="mb-4">
