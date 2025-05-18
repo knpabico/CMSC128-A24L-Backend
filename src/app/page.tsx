@@ -75,9 +75,9 @@ import JobOffers from "./(pages)/(alumni)/joboffer-list/page";
 import Footer from "@/components/Footer";
 import Landing from "@/components/Landing";
 
-const sortTypes = ["Latest", "Earliest"]; //sort types
+const sortTypes = ["Latest", "Oldest"]; //sort types
 const sortValues = ["nf", "of"]; //sort values (query params)
-const SORT_TAGS = ["Earliest", "Latest"];
+const SORT_TAGS = ["Oldest", "Latest"];
 
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status, isGoogleSignIn } =
@@ -405,7 +405,7 @@ export default function Home() {
                   <img
                     src={
                       item.image === ""
-                        ? "https://www.shutterstock.com/image-vector/cute-cat-wear-dino-costume-600nw-2457633459.jpg"
+                        ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
                         : item.image
                     }
                     alt={item.title}
@@ -440,7 +440,7 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
 
             {/* Profile Panel */}
-            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-screen overflow-y-scroll">
+            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 text-center flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[600px] overflow-y-scroll">
               <img
                 src={
                   alumInfo!.image === ""
