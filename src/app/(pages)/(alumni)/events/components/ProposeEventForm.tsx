@@ -752,7 +752,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                   }}
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                 >
-                  Propose
+                  {isConfirming ? "Proposing..." : "Propose"}
                 </button>
             </div>
           </div>

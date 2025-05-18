@@ -232,7 +232,7 @@ const EventPageAlumni = () => {
               {/* Event Details */}
               <div className="flex gap-5 text-sm pt-3 text-gray-700">
                 <div className="flex items-center gap-2">
-                  <Calendar size={20}/> {formatDate(event.datePosted)}
+                  <Calendar size={20}/> {formatDate(event.date)}
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock size={20}/> {event.time}
