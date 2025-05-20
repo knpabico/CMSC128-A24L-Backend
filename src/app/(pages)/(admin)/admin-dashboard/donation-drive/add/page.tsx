@@ -181,7 +181,7 @@ export default function AddDonationDrive() {
 							<label htmlFor="bio" className="text-sm font-medium flex items-center">
                 <Asterisk size={16} className="text-red-600"/> Target Amount
               </label>
-							<input type="number" placeholder="Target Amount" value={targetAmount} onChange={(e) => setTargetAmount(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" required />
+							<input type="number" placeholder="Target Amount" value={targetAmount} min={1} onChange={(e) => setTargetAmount(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" required />
 						</div>
 						{/* End Date */}
 						<div className="space-y-1">
