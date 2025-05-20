@@ -67,6 +67,9 @@ export default function AddDonationDrive() {
 		getDonationDriveById,
 		getEventById,
 		fetchAlumnusById,
+		setImageChange,
+        setPaymayaChange,
+        setGcashChange,
 	} = useDonationDrives();
 	const [isSticky, setIsSticky] = useState(false);
 	const buttonsContainerRef = useRef(null);
@@ -111,7 +114,10 @@ export default function AddDonationDrive() {
 				setPreviewPaymaya(null); 
 				setImage(null); 
 				setFileName("");
-				setPreview(null); 				
+				setPreview(null); 	
+				setImageChange(false);
+      			setPaymayaChange(false);
+      			setGcashChange(false);			
 			}
 		}
 		setReset();

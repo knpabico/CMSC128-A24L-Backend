@@ -60,6 +60,9 @@ export default function AddDonationDrive() {
 			getDonationDriveById,
 			getEventById,
 			fetchAlumnusById,
+			setImageChange,
+        	setPaymayaChange,
+        	setGcashChange,
 		} = useDonationDrives();
 	const router = useRouter();
   const buttonsContainerRef = useRef(null);
@@ -329,6 +332,9 @@ export default function AddDonationDrive() {
 				targetAmount,
 				endDate,
 			});
+			setImageChange(false);
+     		setPaymayaChange(false);
+      		setGcashChange(false);
 			result.success
 			?toastSuccess("Donation drive successfully edited")
 			:toastError(result.message);

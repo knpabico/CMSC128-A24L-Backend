@@ -37,6 +37,9 @@ export default function ManageDonationDrive() {
     setStatus,
     setBeneficiary,
     fetchAlumnusById,
+    setImageChange,
+    setPaymayaChange,
+    setGcashChange,
   } = useDonationDrives();
 
   const [localDrives, setLocalDrives] = useState<DonationDrive[]>([]);
@@ -175,6 +178,9 @@ export default function ManageDonationDrive() {
       setImage(null);
       setFileName("");
       setPreview(null);
+      setImageChange(false);
+      setPaymayaChange(false);
+      setGcashChange(false);
     };
 
     setReset();

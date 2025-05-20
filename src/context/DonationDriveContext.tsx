@@ -356,6 +356,9 @@ export function DonationDriveProvider({
       setPreviewGcash(null);
       setPreviewPaymaya(null);
       setFromEvent(false);
+      setImageChange(false);
+      setPaymayaChange(false);
+      setGcashChange(false);
     } else {
       console.error("Error adding donation drive:", response.message);
     }
@@ -392,10 +395,12 @@ export function DonationDriveProvider({
     const drive = await getDonationDriveById(donationDriveId);
     try {
       if (qrGcashChange) {
+        var beDelete = false;
         var toDelete = null;
         if(drive?.qrGcash !== ""){
           const fileURL = drive?.qrGcash;
-          toDelete = ref(storage, fileURL);         
+          toDelete = await ref(storage, fileURL);  
+          beDelete = true;       
         }  
         const uploadResult = await uploadImage(qrGcash!, `donation-drive/qr_gcash/${docRef.id}`);
         if (uploadResult.success) {
@@ -406,7 +411,7 @@ export function DonationDriveProvider({
           console.error( "Gcash QR Code upload failed" );
           uploadError = true;
         }
-        if(toDelete !== null){
+        if(beDelete){
           deleteObject(toDelete).then(() => {
             // File deleted successfully
             console.log("Gcash QR code deleted successfully");
@@ -417,10 +422,12 @@ export function DonationDriveProvider({
         }        
       }
       if (qrPaymayaChange) {
+        var beDelete = false;
         var toDelete = null;
         if(drive?.qrPaymaya !== ""){
           const fileURL = drive?.qrPaymaya;
-          toDelete = ref(storage, fileURL);                   
+          toDelete = await ref(storage, fileURL);
+          beDelete = true;                    
         }
         const uploadResult = await uploadImage(qrPaymaya!, `donation-drive/qr_paymaya/${docRef.id}`);
         if (uploadResult.success) {
@@ -431,7 +438,7 @@ export function DonationDriveProvider({
           console.error ( "Paymaya QR Code upload failed" );
           uploadError = true;
         }
-        if(toDelete !== null){         
+        if(beDelete){         
           deleteObject(toDelete).then(() => {
             // File deleted successfully
             console.log("Paymaya QR code deleted successfully");
@@ -442,10 +449,12 @@ export function DonationDriveProvider({
         }
       }
       if (imageChange) {
+        var beDelete = false;
         var toDelete = null;
         if(drive?.image !== ""){
           const fileURL = drive?.image;
-          toDelete = ref(storage, fileURL);          
+          toDelete = await ref(storage, fileURL);  
+          beDelete = true;         
         }
         const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
         if (uploadResult.success) {
@@ -456,7 +465,7 @@ export function DonationDriveProvider({
           console.error("Image upload failed");
           uploadError = true;
         }
-        if(toDelete !== null){       
+        if(beDelete){       
           deleteObject(toDelete).then(() => {
             // File deleted successfully
             console.log("Image deleted successfully");
@@ -546,6 +555,9 @@ export function DonationDriveProvider({
         getDonationDriveById,
         getEventById,
         fetchAlumnusById,
+        setImageChange,
+        setPaymayaChange,
+        setGcashChange,
       }}
     >
       {children}
