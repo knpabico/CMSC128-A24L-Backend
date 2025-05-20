@@ -84,8 +84,10 @@ export default function AddDonationDrive() {
 
 		try {
 			setIsSubmitting(true);
-			await handleSave(e);
-			toastSuccess("Donation drive successfully created");
+			const result = await handleSave(e);
+			result.success
+			?toastSuccess("Donation drive successfully created")
+			:toastError(result.message);
 		} catch (error) {
 			console.error("Error saving donation drive:", error);
 			toastError("Failed to create donation drive.");

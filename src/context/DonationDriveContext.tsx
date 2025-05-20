@@ -247,6 +247,7 @@ export function DonationDriveProvider({
  };
 
   const addDonationDrive = async (driveData: DonationDrive) => {
+    var uploadError = false;
     if(!isEvent){
       driveData.creatorType = "admin";
       driveData.creatorId = "";
@@ -260,49 +261,55 @@ export function DonationDriveProvider({
         const uploadResult = await uploadImage(qrGcash, `donation-drive/qr_gcash/${docRef.id}`);
         if (uploadResult.success) {
           driveData.qrGcash = uploadResult.url;
-          
-          await setDoc(docRef, driveData);
         } else {
           console.error("Gcash QR Code upload failed");
+          uploadError = true;
+          return { success: false, message: "Error uploading image file" };
         }
       } else {
         console.error("No Gcash QR Code provided");
+        uploadError = true;
+        return { success: false, message: "No Gcash QR Code provided" };
       }
       if (qrPaymaya) {
         const uploadResult = await uploadImage(qrPaymaya, `donation-drive/qr_paymaya/${docRef.id}`);
         if (uploadResult.success) {
           driveData.qrPaymaya = uploadResult.url;
-          
-          await setDoc(docRef, driveData);
         } else {
           console.error("Paymaya QR Code upload failed");
+          uploadError = true;
+          return { success: false, message: "Error uploading image file" };
         }
       } else {
         console.error("No Paymaya QR Code provided");
+        uploadError = true;
+        return { success: false, message: "No Paymaya QR Code provided" };
       }
       if (image) {
         const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
         if (uploadResult.success) {
           driveData.image = uploadResult.url;
-          
-          await setDoc(docRef, driveData);
         } else {
           console.error("Image upload failed");
+          uploadError = true;
+          return { success: false, message: "Error uploading image file" };
         }
       } else {
         console.error("No image provided");
+        uploadError = true;
+        return { success: false, message: "No image provided" };
       }
-
-      driveData.donationDriveId = docRef.id;
-      await setDoc(doc(db, "donation_drive", docRef.id), driveData);
-      await addNewsLetter(driveData.donationDriveId, "donation_drive");
-      if (driveData.isEvent) {
-        await updateDoc(doc(db, "event", eventId), {donationDriveId: docRef.id});
+      if(uploadError){
+        return { success: false, message: "Error uploading image file" };
+      }else{
+        driveData.donationDriveId = docRef.id;
+        await setDoc(doc(db, "donation_drive", docRef.id), driveData);
+        await addNewsLetter(driveData.donationDriveId, "donation_drive");  
+        if (driveData.isEvent) {
+          await updateDoc(doc(db, "event", eventId), {donationDriveId: docRef.id});
+        }
+        return { success: true, message: "Donation drive added successfully." };              
       }
-      if (driveData.isEvent) {
-        await updateDoc(doc(db, "event", eventId), {donationDriveId: docRef.id});
-      }
-      return { success: true, message: "Donation drive added successfully." };
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
@@ -352,6 +359,7 @@ export function DonationDriveProvider({
     } else {
       console.error("Error adding donation drive:", response.message);
     }
+    return { success: response.success, message: response.message };
   };
 
   const handleAddEventRelated = async (event: Event) => {
@@ -378,31 +386,17 @@ export function DonationDriveProvider({
     donationDriveId: string,
     updatedData: Partial<DonationDrive>
   ) => {
+    var uploadError = false;
     const docRef = doc(db, "donation_drive", donationDriveId);
     const storage = getStorage();
     const drive = await getDonationDriveById(donationDriveId);
     try {
-      await updateDoc(doc(db, "donation_drive", donationDriveId), updatedData);
-      setDonationDrives((prev) =>
-        prev.map((donationDrive) =>
-          donationDrive.donationDriveId === donationDriveId
-            ? { ...donationDrive, ...updatedData }
-            : donationDrive
-        )
-      );
       if (qrGcashChange) {
-        if(drive?.qrGcash !== ""||drive?.qrGcash !== null){
+        var toDelete = null;
+        if(drive?.qrGcash !== ""){
           const fileURL = drive?.qrGcash;
-          const fileRef = ref(storage, fileURL);
-          deleteObject(fileRef).then(() => {
-            // File deleted successfully
-            console.log("Gcash QR code deleted successfully");
-          }).catch((error) => {
-            // Handle any errors
-            console.error("Error deleting Gcash QR code:", error);
-          });          
-        }
-
+          toDelete = ref(storage, fileURL);         
+        }  
         const uploadResult = await uploadImage(qrGcash!, `donation-drive/qr_gcash/${docRef.id}`);
         if (uploadResult.success) {
           const qrGcashUrl = uploadResult.url;
@@ -410,13 +404,35 @@ export function DonationDriveProvider({
           console.log("Gcash QR code edited successfully");
         } else {
           console.error( "Gcash QR Code upload failed" );
+          uploadError = true;
         }
+        if(toDelete !== null){
+          deleteObject(toDelete).then(() => {
+            // File deleted successfully
+            console.log("Gcash QR code deleted successfully");
+          }).catch((error) => {
+            // Handle any errors
+            console.error("Error deleting Gcash QR code:", error);
+          });          
+        }        
       }
       if (qrPaymayaChange) {
-        if(drive?.qrPaymaya !== ""||drive?.qrPaymaya !== null){
+        var toDelete = null;
+        if(drive?.qrPaymaya !== ""){
           const fileURL = drive?.qrPaymaya;
-          const fileRef = ref(storage, fileURL);          
-          deleteObject(fileRef).then(() => {
+          toDelete = ref(storage, fileURL);                   
+        }
+        const uploadResult = await uploadImage(qrPaymaya!, `donation-drive/qr_paymaya/${docRef.id}`);
+        if (uploadResult.success) {
+          const qrPaymayaUrl = uploadResult.url;
+          await updateDoc(docRef, {qrPaymaya: qrPaymayaUrl});
+          console.log("Paymaya QR code edited successfully");
+        } else {
+          console.error ( "Paymaya QR Code upload failed" );
+          uploadError = true;
+        }
+        if(toDelete !== null){         
+          deleteObject(toDelete).then(() => {
             // File deleted successfully
             console.log("Paymaya QR code deleted successfully");
           }).catch((error) => {
@@ -424,22 +440,24 @@ export function DonationDriveProvider({
             console.error("Error deleting Paymaya QR code:", error);
           });          
         }
-
-        const uploadResult = await uploadImage(qrPaymaya!, `donation-drive/qr_paymaya/${docRef.id}`);
-        if (uploadResult.success) {
-          const qrPaymayaUrl = uploadResult.url;
-          await updateDoc(docRef, {qrPaymaya: qrPaymayaUrl});
-          console.log("Paymaya QR code edited successfully");
-        } else {
-          console.log("paymaya fail");
-          console.error ( "Paymaya QR Code upload failed" );
-        }
       }
       if (imageChange) {
-        if(drive?.image !== ""||drive?.image !== null){
+        var toDelete = null;
+        if(drive?.image !== ""){
           const fileURL = drive?.image;
-          const fileRef = ref(storage, fileURL);          
-          deleteObject(fileRef).then(() => {
+          toDelete = ref(storage, fileURL);          
+        }
+        const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
+        if (uploadResult.success) {
+          const imageUrl = uploadResult.url;
+          await updateDoc(docRef, {image: imageUrl});
+          console.log("Image edited successfully");
+        } else {
+          console.error("Image upload failed");
+          uploadError = true;
+        }
+        if(toDelete !== null){       
+          deleteObject(toDelete).then(() => {
             // File deleted successfully
             console.log("Image deleted successfully");
           }).catch((error) => {
@@ -447,40 +465,24 @@ export function DonationDriveProvider({
             console.error("Error deleting Image:", error);
           });
         }
-
-        const uploadResult = await uploadImage(image, `donation-drive/${docRef.id}`);
-        if (uploadResult.success) {
-          const imageUrl = uploadResult.url;
-          await updateDoc(docRef, {image: imageUrl});
-          console.log("Image edited successfully");
-        } else {
-          console.log("image fail");
-          console.error("Image upload failed");
-        }
       }
-      return { success: true, message: "Donation drive edited successfully." };
+      if(uploadError){
+        return { success: false, message: "Error uploading image file" };
+      }{
+        await updateDoc(doc(db, "donation_drive", donationDriveId), updatedData);
+        setDonationDrives((prev) =>
+          prev.map((donationDrive) =>
+            donationDrive.donationDriveId === donationDriveId
+              ? { ...donationDrive, ...updatedData }
+              : donationDrive
+          )
+        );      
+        return { success: true, message: "Donation drive edited successfully." };        
+      }
     } catch (error) {
       return { success: false, message: (error as FirebaseError).message };
     }
   };
-
-  // const handleDelete = async (donationDrive: DonationDrive) => {
-  //   try {
-  //     if (donationDrive.isEvent) {
-  //       await updateDoc(doc(db, "event", donationDrive.eventId), {donationDriveId: ""});
-  //     }
-
-  //     await deleteDoc(doc(db, "donation_drive", donationDrive.donationDriveId));
-  //     setDonationDrives((prev) =>
-  //       prev.filter(
-  //         (driveData) => driveData.donationDriveId !== donationDrive.donationDriveId
-  //       )
-  //     );
-  //     return { success: true, message: "Donation drive deleted successfully." };
-  //   } catch (error) {
-  //     return { success: false, message: (error as FirebaseError).message };
-  //   }
-  // };
 
   return (
     <DonationDriveContext.Provider

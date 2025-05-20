@@ -1,7 +1,7 @@
 "use client";
 
 import { ProofOfPaymentDialog } from "@/app/(pages)/(alumni)/donationdrive-list/donations/ProofOfPaymentDialog";
-import { toastSuccess } from "@/components/ui/sonner";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { db } from "@/lib/firebase";
@@ -322,14 +322,16 @@ export default function AddDonationDrive() {
 			setIsSubmitting(true);
 			setIsError(false);
 			setMessage("");
-			await handleEdit(donationDriveId, {
+			const result = await handleEdit(donationDriveId, {
 				campaignName,
 				description,
 				beneficiary,
 				targetAmount,
 				endDate,
-		});
-			toastSuccess("Donation drive successfully edited");
+			});
+			result.success
+			?toastSuccess("Donation drive successfully edited")
+			:toastError(result.message);
 			setIsEditing(false);
 		} catch (error) {
 			console.error("Error saving donation drive:", error);
