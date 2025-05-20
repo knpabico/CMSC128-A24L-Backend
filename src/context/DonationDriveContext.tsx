@@ -410,6 +410,7 @@ export function DonationDriveProvider({
         } else {
           console.error( "Gcash QR Code upload failed" );
           uploadError = true;
+          beDelete = false;
         }
         if(beDelete){
           deleteObject(toDelete).then(() => {
@@ -437,6 +438,7 @@ export function DonationDriveProvider({
         } else {
           console.error ( "Paymaya QR Code upload failed" );
           uploadError = true;
+          beDelete = false;
         }
         if(beDelete){         
           deleteObject(toDelete).then(() => {
@@ -464,6 +466,7 @@ export function DonationDriveProvider({
         } else {
           console.error("Image upload failed");
           uploadError = true;
+          beDelete = false;
         }
         if(beDelete){       
           deleteObject(toDelete).then(() => {
