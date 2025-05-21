@@ -40,6 +40,7 @@ export default function EventPageAdmin() {
     setEventTime,
     fileName,
     setFileName,
+    setPreview
   } = useEvents()
 
   const { handleAddEventRelated } = useDonationDrives()
@@ -169,6 +170,7 @@ export default function EventPageAdmin() {
     setFileName("")
     setErrorMessage("")
     setButton("")
+    setPreview(null)
   }
 
   return (

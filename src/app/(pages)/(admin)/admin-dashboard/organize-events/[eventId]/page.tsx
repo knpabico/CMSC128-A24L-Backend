@@ -55,6 +55,7 @@ export default function EventPageAdmin() {
   const [isEditMode, setIsEditMode] = useState(false)
   const [isSticky, setIsSticky] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // Refs
   const placeholderRef = useRef(null)
@@ -786,6 +787,7 @@ export default function EventPageAdmin() {
                 onChange={(e) => setEventTitle(e.target.value)}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${!isEditing ? "bg-gray-100" : ""}`}
                 required
+                maxLength={100}
                 disabled={!isEditMode && !isEditing}
               />
             </div>
@@ -804,6 +806,8 @@ export default function EventPageAdmin() {
                   onChange={(e) => setEventDescription(e.target.value)}
                   required
                   disabled={!isEditMode && !isEditing}
+                  maxLength={2000}
+                  rows={showFullDescription ? 6 : 3}
                 />
               </div>
 
@@ -840,6 +844,7 @@ export default function EventPageAdmin() {
                 placeholder="Location"
                 required
                 disabled={!isEditMode && !isEditing}
+                maxLength={200}
               />
             </div>
 
@@ -991,7 +996,6 @@ export default function EventPageAdmin() {
           </div>
         )}
 
-        {}
         <div className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">
           <div className="flex items-center space-x-2 mb-4">
             {/* Status Filter */}

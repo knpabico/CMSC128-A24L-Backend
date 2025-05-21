@@ -13,7 +13,7 @@ import { useAlums } from "@/context/AlumContext";
 
 export default function CreateEventPage() {
   const router = useRouter();
-  const { activeAlums } = useAlums();
+  const { activeAlums, alums } = useAlums();
 
   // Get event context values
   const {
@@ -46,6 +46,7 @@ export default function CreateEventPage() {
   const [selectedButton, setButton] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // Refs
   const placeholderRef = useRef(null);
@@ -78,15 +79,16 @@ export default function CreateEventPage() {
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     new Set(
-      activeAlums
+      alums
+        .filter(alum => alum.activeStatus === true)
         .map(alum => alum.studentNumber?.slice(0, 4))
         .filter((year): year is string => !!year) // filter out undefined/null
     )
   );
 
   // Sample alumni emails for display
-  const alumniEmails = activeAlums
-    ? activeAlums
+  const alumniEmails = alums
+    ? alums
         .filter((alum: { email: string; activeStatus: boolean; }) => alum.email && alum.activeStatus === true)
         .map((alum: { email: string; }) => alum.email)
     : [];
@@ -623,6 +625,7 @@ export default function CreateEventPage() {
                 onChange={(e) => setEventTitle(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 required
+                maxLength={100}
               />
             </div>
 
@@ -639,9 +642,22 @@ export default function CreateEventPage() {
                   value={description}
                   onChange={(e) => setEventDescription(e.target.value)}
                   required
+                  maxLength={2000}
+                  rows={showFullDescription ? 6 : 3}                  
                 />
               </div>
-
+                            <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>{description.length}/2000</span>
+                {description.length > 200 && (
+                  <button
+                    type="button"
+                    className="text-blue-600 underline ml-2"
+                    onClick={() => setShowFullDescription((prev) => !prev)}
+                  >
+                    {showFullDescription ? "Show less" : "Show more"}
+                  </button>
+                )}
+              </div>
               <Button onClick={() => setIsModalOpen(true)} className="mt-2">
                 Need AI help for description?
               </Button>
@@ -668,6 +684,7 @@ export default function CreateEventPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Location"
                 required
+                maxLength={200}
               />
             </div>
 
