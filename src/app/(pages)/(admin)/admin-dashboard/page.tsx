@@ -609,7 +609,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveEventsTab('upcoming')}
                 className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
                   activeEventsTab === 'upcoming'
-                    ? 'border-b-2 border-green-500 text-green-600'
+                    ? 'border-b-2 border-purple-500 text-purple-600'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
