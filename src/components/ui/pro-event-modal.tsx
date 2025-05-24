@@ -14,7 +14,7 @@ import type { Timestamp } from 'firebase/firestore';
 import { RegStatus } from '@/types/alumni/regStatus';
 import { useEvents } from '@/context/EventContext';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, Users, Gift, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Gift, User, CheckCircle, XCircle} from 'lucide-react';
 
 interface ProEventDetailsModalProps {
   proEvent: Event | null;
@@ -95,7 +95,7 @@ const ProEventDetailsModal = ({
 
   return (
     <Dialog open={isEventProOpen} onOpenChange={onProEventClose}>
-    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 [&>button]:hidden">
       <DialogHeader className="sr-only">
         <DialogTitle>{proEvent.title} Details</DialogTitle>
       </DialogHeader>
@@ -197,14 +197,14 @@ const ProEventDetailsModal = ({
                   variant="destructive"
                   className="bg-red-600 hover:bg-red-700"
                 >
-                  Reject
+                  <XCircle size={16} className="mr-2" />Reject
                 </Button>
                 <Button 
                   onClick={handleApprove}
                   disabled={isSubmitting}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  Approve
+                  <CheckCircle size={16} className="mr-2" />Approve
                 </Button>
               </div>
             )}

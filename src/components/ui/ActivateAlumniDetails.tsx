@@ -15,7 +15,7 @@ import { RegStatus } from '@/types/alumni/regStatus';
 import { useAlums } from '@/context/AlumContext';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
-import { Mail, Phone, Calendar, MapPin, BookOpen, Briefcase, Activity } from 'lucide-react';
+import { Mail, Phone, Calendar, MapPin, BookOpen, Briefcase, Activity, CheckCircle, XCircle } from 'lucide-react';
 
 interface AlumniDetailsModalProps {
   alumnus: Alumnus | null;
@@ -94,7 +94,7 @@ const AlumniDetailsModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 [&>button]:hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>{`${alumnus.firstName} ${alumnus.lastName} Details`}</DialogTitle>
         </DialogHeader>
@@ -290,14 +290,14 @@ const AlumniDetailsModal = ({
                   variant="destructive"
                   className="bg-red-600 hover:bg-red-700"
                 >
-                  Reject
+                  <XCircle size={16} className="mr-2" />Reject
                 </Button>
                 <Button 
                   onClick={handleApprove}
                   disabled={isSubmitting}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  Approve
+                  <CheckCircle size={16} className="mr-2" />Approve
                 </Button>
               </div>
             )}
