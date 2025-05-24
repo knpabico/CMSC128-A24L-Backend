@@ -89,7 +89,7 @@ export default function AllEventsPage()
                 description="Reconnect through ICS and alumni events that nurture unity, inspire growth, and strengthen our sense of community."
                 />
             {/* Body */}
-            <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+            <div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
                 {/* Sidebar */}
                 <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
                 <EventSidebar />

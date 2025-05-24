@@ -87,7 +87,7 @@ export default function Announcements() {
         description="Stay connected with the ICS community through timely announcements, academic news, and upcoming events."
       />
 
-      <div className="mx-[30px] xl:mx-[10%] lg:mx-[50px] my-[40px] static">
+      <div className="mx-[10%] my-[40px] static">
         <div className="flex flex-row gap-[40px] mt-6">
           {/* Sidebar */}
           <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">

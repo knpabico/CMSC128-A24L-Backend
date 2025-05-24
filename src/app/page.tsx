@@ -434,10 +434,10 @@ export default function Home() {
     else if (status === "rejected") return <RejectedPage />;
     else
       return (
-        <div className="w-full px-[3%]">
+        <div className="w-full px-[10%]">
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
-            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 text-center flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">
+            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 text-center flex flex-col gap-3 items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">
               <Image
                 width={0}
                 height={0}
@@ -453,53 +453,11 @@ export default function Home() {
                   alumInfo!.suffix ? alumInfo!.suffix : ""
                 }`}
               />
-              <p className="text-lg md:text-[20px] text-center font-bold justify-self-center">
+              <p className="text-lg md:text-[18px] text-center font-bold justify-self-center">
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
                 {alumInfo!.suffix ? alumInfo!.suffix : ""}
               </p>
               <p className="text-xs md:text-[14px]">{alumInfo!.email}</p>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="text-xs md:text-[14px] text-center wrap-break-word px-2">
-                <i>
-                  Currently based on {alumInfo!.address[1]},{" "}
-                  {alumInfo!.address[2]}
-                </i>
-              </div>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center gap-3">
-                {/* <p className="text-xs md:text-[14px]">
-                  Std. No. {alumInfo!.studentNumber}
-                </p> */}
-                {filteredEducation.map((edu) => (
-                  <div
-                    key={edu.educationId}
-                    className="text-xs md:text-sm items-center justify-items-center"
-                  >
-                    <div className="flex flex-row items-center gap-3">
-                      <GraduationCap className="size-4" />
-                      <span>{edu.major}</span>
-                    </div>
-                    {/* <p>Graduated: {edu.yearGraduated}</p> */}
-                    <p className="text-xs md:text-[13px]">{edu.university}</p>
-                  </div>
-                ))}
-              </div>
-              {alumInfo!.fieldOfInterest[0] && (
-                <>
-                  <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-                  <div className="flex flex-wrap justify-center gap-2 px-2">
-                    {alumInfo!.fieldOfInterest.map((interest) => (
-                      <div
-                        key={interest}
-                        className="text-xs md:text-[14px] text-center wrap-normal border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px]"
-                      >
-                        {interest}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
                 className="w-full h-[30px] cursor-pointer rounded-full text-white bg-[#0856BA] hover:bg-blue-600"
@@ -511,7 +469,7 @@ export default function Home() {
             {/* Feed  */}
             <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
               {/*sorting dropdown*/}
-              <div className="flex flex-row w-full justify-end mb-3">
+              {/* <div className="flex flex-row w-full justify-end mb-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-white border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10 focus:outline-none">
                     {selectedSort}
@@ -539,7 +497,7 @@ export default function Home() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
+              </div> */}
 
               {/* Feed Content */}
               <div className="scroll-smooth flex flex-col w-full gap-[5px]">

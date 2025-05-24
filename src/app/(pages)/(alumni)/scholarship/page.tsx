@@ -543,7 +543,7 @@ const filteredUserScholarshipStudent = [...userScholarshipStudent]
       />
 
       {/* Tabs */}
-      <div className="my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[100px] xl:mx-[200px] static">
+      <div className="my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static">
         <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7">
           <button
             onClick={() => setActiveTab("all")}

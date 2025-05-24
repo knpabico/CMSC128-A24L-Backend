@@ -402,7 +402,7 @@ function JobOffersContent() {
         description="Discover job opportunities through ICS and alumni partnerships, bridging the gap between education and career success for ICS graduates."
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="px-[10%] py-4">
         <div className="flex justify-between items-center mb-4">
           <button
             className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${

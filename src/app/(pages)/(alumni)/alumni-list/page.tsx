@@ -151,7 +151,7 @@ export default function Users() {
           <h1 className="text-xl font-semibold">Loading...</h1>
         </div>
       ) : (
-        <div className="container mx-auto px-4 md:px-8 lg:px-16 py-8 flex flex-col gap-6">
+        <div className=" mx-[10%] py-8 flex flex-col gap-6">
           {/* Filter Bar */}
           <div className="bg-white rounded-xl flex flex-wrap gap-3 p-3 items-center shadow-sm">
             <div className="text-sm font-medium">Filter by:</div>
