@@ -653,7 +653,7 @@ function JobOffersContent() {
                         {currentJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white shadow-md p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -759,7 +759,7 @@ function JobOffersContent() {
                           (job: JobOffering, index: Key | null | undefined) => (
                             <div
                               key={index}
-                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              className={`bg-white shadow-md p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                                 selectedJob?.jobId === job.jobId
                                   ? "border-blue-500"
                                   : "border-gray-200"
@@ -872,7 +872,7 @@ function JobOffersContent() {
                             return (
                               <div
                                 key={index}
-                                className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                                className={`bg-white shadow-md p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                                   selectedJob?.jobId === job.jobId
                                     ? "border-blue-500"
                                     : "border-gray-200"
@@ -1057,7 +1057,7 @@ function JobOffersContent() {
                         return (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white shadow-md p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                               selectedJob?.jobId === job.jobId
                                 ? "border-blue-500"
                                 : "border-gray-200"
@@ -1151,7 +1151,7 @@ function JobOffersContent() {
                           (job: JobOffering, index: Key | null | undefined) => (
                             <div
                               key={index}
-                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              className={`bg-white shadow-md p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
                                 selectedJob?.jobId === job.jobId
                                   ? "border-blue-500"
                                   : "border-gray-200"
@@ -1292,7 +1292,7 @@ function JobOffersContent() {
             </div>
 
             {/* Right Column - Job Details */}
-            <div className="bg-white rounded-lg p-4 h-180 flex flex-col overflow-y-auto">
+            <div className="bg-white rounded-lg p-4 h-180 flex flex-col overflow-y-auto shadow-md">
               {selectedJob ? (
                 <div className="w-full space-y-4 flex flex-col h-full">
                   <div className="flex items-start">
