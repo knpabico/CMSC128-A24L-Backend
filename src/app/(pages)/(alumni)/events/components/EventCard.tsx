@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { Event, RSVP } from "@/models/models";
 import BookmarkButton from "@/components/ui/bookmark-button";
-import { useEffect, useState } from "react"
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react"
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { Users, Clock, MapPin, Calendar } from "lucide-react";
 import Image from "next/image";
@@ -21,6 +21,10 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
   const { user, alumInfo } = useAuth();
   const { rsvpDetails } = useRsvpDetails();
   const {} = useEvents();
+
+  const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(
+    undefined
+  );
 
   const formatDate = (timestamp: any) => {
     try {
@@ -42,11 +46,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
 
   const rsvps = rsvpDetails as RSVP[];
 
-  const matchingRSVP = rsvps.find((rsvp) => rsvp.rsvpId === event?.rsvps);
-
-  const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(
-    undefined
-  );
+  const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
 
   useEffect(() => {
     if (alumInfo?.alumniId && matchingRSVP?.alums) {
@@ -60,8 +60,8 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
       rsvp.postId === event?.eventId &&
       rsvp.alums?.[alumInfo?.alumniId]
   );
-
-  return matchedRsvp || event.creatorId === alumInfo?.alumniId ? (
+  
+  return matchedRsvp ? (
     <div>
       <div
         className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
@@ -144,7 +144,7 @@ const EventCard = ({ event, type, showBookmark = false }: EventCardProps) => {
           {/* Description with View More */}
           <div className="text-sm text-start">
             <p
-              className={`h-10 overflow-hidden text-clip whitespace-pre-wrap ${
+              className={`h-10 overflow-hidden text-clip ${
                 event.description.length > 100 ? "mb-1" : ""
               }`}
             >
