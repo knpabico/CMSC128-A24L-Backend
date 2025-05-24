@@ -51,6 +51,7 @@ export default function EditEventPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [currentEvent, setCurrentEvent] = useState(null)
   const [isSticky, setIsSticky] = useState(false)
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // Refs
   const placeholderRef = useRef(null)
@@ -706,6 +707,7 @@ export default function EditEventPage() {
                 onChange={(e) => setEventTitle(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 required
+                maxLength={100}
               />
             </div>
 
@@ -722,9 +724,22 @@ export default function EditEventPage() {
                   value={description}
                   onChange={(e) => setEventDescription(e.target.value)}
                   required
+                  maxLength={2000}
+                  rows={showFullDescription ? 6 : 3}
                 />
               </div>
-
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>{description.length}/2000</span>
+                {description.length > 200 && (
+                  <button
+                    type="button"
+                    className="text-blue-600 underline ml-2"
+                    onClick={() => setShowFullDescription((prev) => !prev)}
+                  >
+                    {showFullDescription ? "Show less" : "Show more"}
+                  </button>
+                )}
+              </div>
               {(
                 <button
                   type="button"
@@ -757,6 +772,7 @@ export default function EditEventPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Location"
                 required
+                maxLength={200}
               />
             </div>
 

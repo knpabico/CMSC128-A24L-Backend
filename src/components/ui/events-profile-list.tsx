@@ -140,7 +140,7 @@ const EventsProfileList = (
     
     // Get the alums object from the RSVP
     function alumsRsvp(event: Event) {
-        const matchingRsvp = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
+        const matchingRsvp = rsvps.find((rsvp) => rsvp.rsvpId === event?.rsvps);
         return matchingRsvp?.alums;
     }
 
@@ -190,7 +190,7 @@ const EventsProfileList = (
           }`}>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {events.map((event) => {
-                const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
+                const matchingRSVP = rsvps.find((rsvp) => rsvp.rsvpId === event?.rsvps);
                 if (alumInfo?.alumniId && matchingRSVP?.alums) {
                     alumniRsvpStatus = matchingRSVP.alums[alumInfo.alumniId]?.status;
                 } else{

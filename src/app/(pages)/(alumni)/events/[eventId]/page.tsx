@@ -4,33 +4,45 @@ import { useParams, useRouter } from "next/navigation"
 import { useEvents } from "@/context/EventContext"
 import { useRsvpDetails } from "@/context/RSVPContext"
 import type { Event, RSVP } from "@/models/models"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { MoveLeft, Calendar, Clock, MapPin, Users, CircleCheck, ImageOff, X, Clock2, CircleX,CircleAlert, Clock10, ChevronLeft, ChevronRight } from "lucide-react"
+import { Calendar, Clock, MapPin, ChevronLeft, ChevronRight, UserRoundPen } from "lucide-react"
+import { useAlums } from "@/context/AlumContext"
 import { useFeatured } from "@/context/FeaturedStoryContext"
-import ProposeEventForm from "../components/ProposeEventForm"
 import Link from "next/link"
 import BookmarkButton from "@/components/ui/bookmark-button"
 import Breadcrumb from "@/components/breadcrumb"
 import Image from "next/image"
-import { Button } from "@mui/material"
+import ProposeEventForm from "../components/ProposeEventForm";
 
 const EventPageAlumni = () => {
-  const { events, setShowForm, showForm, handleDelete } = useEvents();
+  const 
+  {
+    events,
+    setShowForm,
+    showForm,
+    handleDelete,
+  } = useEvents()
 
+  const [isEditing, setEdit] = useState<boolean>(false)
+  const [isDetails, setDetailsPage] = useState<boolean>(false)
+  
   const { rsvpDetails, handleAlumAccept, handleAlumReject } = useRsvpDetails();
   const { alumInfo } = useAuth();
   const params = useParams();
   const router = useRouter();
   const { featuredItems, isLoading } = useFeatured();
-  const [isEditing, setEdit] = useState<boolean>(false);
-  const [isDetails, setDetailsPage] = useState<boolean>(false);
 
   const eventId = params?.eventId as string;
   const event = events.find((e: Event) => e.eventId === eventId);
-
   const rsvps = rsvpDetails as RSVP[];
-  const matchingRSVP = rsvps.find((rsvp) => rsvp.postId === event?.eventId);
+  const matchingRSVP = rsvps.find((rsvp) => rsvp.rsvpId === event?.rsvps);
+
+  const { activeAlums, alums } = useAlums()
+
+  // RSVPs
+    const [rsvpFilter, setRsvpFilter] = useState("All");
+    const [rsvpSort, setRsvpSort] = useState<"asc" | "desc">("asc");
 
   const eventStories = featuredItems.filter(
     (story: { type: string }) => story.type === "event"
@@ -61,6 +73,42 @@ const EventPageAlumni = () => {
   const [alumniRsvpStatus, setAlumniRsvpStatus] = useState<string | undefined>(
     undefined
   );
+
+  const filteredAndSortedRsvps = useMemo(() => {
+    if (!event) return [];
+
+    // Filter RSVPs
+    const filteredRsvps = rsvpDetails
+      .filter((rsvp: { rsvpId: any, postId: any }) => rsvp.postId === event.eventId && rsvp.rsvpId === event.rsvps)
+      .flatMap((rsvp: { alums: any; rsvpId: any }) =>
+        Object.entries(rsvp.alums || {}).map(([alumniId, alumData]) => {
+          const { status } = alumData as { status: string };
+          const alumni = alums.find((a: { alumniId: string }) => a.alumniId === alumniId);
+
+          return {
+            alumniId,
+            alumni,
+            status,
+            rsvpId: rsvp.rsvpId,
+          };
+        })
+      )
+      // Apply status filter
+      .filter((rsvpItem: { status: string }) => 
+        rsvpFilter === "All" || rsvpItem.status === rsvpFilter
+      )
+      // Sort by name
+      .sort((a: { alumni: { firstName: any; lastName: any } }, b: { alumni: { firstName: any; lastName: any } }) => {
+        if (!a.alumni || !b.alumni) return 0;
+        const nameA = `${a.alumni.firstName} ${a.alumni.lastName}`.toLowerCase();
+        const nameB = `${b.alumni.firstName} ${b.alumni.lastName}`.toLowerCase();
+        return rsvpSort === "asc" 
+          ? nameA.localeCompare(nameB) 
+          : nameB.localeCompare(nameA);
+      });
+
+    return filteredRsvps;
+  }, [event, rsvpDetails, alums, rsvpFilter, rsvpSort]);
 
   useEffect(() => {
     if (alumInfo?.alumniId && matchingRSVP?.alums) {
@@ -120,8 +168,25 @@ const EventPageAlumni = () => {
   ]
 
   if (!eventId || events.length === 0) return <p>Loading...</p>  
+  if (!event) 
+  {
+    return (
+      <div className="px-[10%] pt-10 pb-30">
+        <div className="flex flex-col gap-3">
+          
+          <Breadcrumb items={breadcrumbItems} />
+          <div className="text-center py-10 text-gray-500">
+            This event has been deleted.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  return (
+  else
+  {
+     return (
+    <>
     <div className="px-[10%] pt-10 pb-30">
       <div className="flex flex-col gap-3">
         
@@ -167,13 +232,17 @@ const EventPageAlumni = () => {
               {/* Event Details */}
               <div className="flex gap-5 text-sm pt-3 text-gray-700">
                 <div className="flex items-center gap-2">
-                  <Calendar size={20}/> {formatDate(event.datePosted)}
+                  <Calendar size={20}/> {formatDate(event.date)}
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock size={20}/> {event.time}
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin size={20}/> {event.location}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <UserRoundPen size={20}/> {event.creatorName !== "Admin" ? "Proposed By " + event.creatorName : "Created By Admin"}
                 </div>
 
               </div>
@@ -183,7 +252,106 @@ const EventPageAlumni = () => {
             <div className="w-full px-8 pb-8">
               <h1 className="text-sm whitespace-pre-wrap">{event?.description}</h1>
             </div>
+            <div className="bg-white flex flex-col justify-between rounded-2xl w-full p-4 relative">
+            
+            {event.creatorId === alumInfo?.alumniId && event.status === "Accepted" ? (
+              <div className="flex flex-col space-y-4 mb-4">
+                {/* Filter and Sort Options */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-[14px]">Filter by</span>
+                  <select
+                    value={rsvpFilter}
+                    onChange={(e) => setRsvpFilter(e.target.value)}
+                    className="text-[14px] px-2 py-1.5 bg-gray-200 rounded-lg cursor-pointer"
+                  >
+                    <option value="All">All Status</option>
+                    <option value="Accepted">Going</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Rejected">Not Going</option>
+                  </select>
 
+                  <button
+                    onClick={() => setRsvpSort(rsvpSort === "asc" ? "desc" : "asc")}
+                    className="ml-2 text-[14px] px-2 py-1 bg-[var(--blue-300)] text-white rounded-lg"
+                  >
+                    Sort {rsvpSort === "asc" ? "A-Z" : "Z-A"}
+                  </button>
+                </div>
+
+                {/* Attendees Header */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Attendees</h3>
+                  {filteredAndSortedRsvps.filter(r => r.status === "Accepted").length > 0 && (
+                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                      {
+                        filteredAndSortedRsvps.filter(r => r.status === "Accepted").length
+                      } {
+                        filteredAndSortedRsvps.filter(r => r.status === "Accepted").length === 1
+                          ? "alumnus" : "alumni"
+                      } going
+                    </span>
+                  )}
+                </div>
+
+                {/* Table or Empty Message */}
+                {filteredAndSortedRsvps.length > 0 ? (
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-blue-100">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Name</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredAndSortedRsvps.map((rsvpItem, index) => {
+                          const isEven = index % 2 === 0;
+                          const rowClass = isEven ? "bg-white" : "bg-gray-50";
+                          const { alumni, status, alumniId, rsvpId } = rsvpItem;
+
+                          return (
+                            <tr key={`${rsvpId}-${alumniId}`} className={rowClass}>
+                              {alumni ? (
+                                <>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {`${alumni.firstName} ${alumni.middleName} ${alumni.lastName}`}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {alumni.email || "N/A"}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {status === "Accepted" ? (
+                                      <span className="px-2 py-1 rounded-full bg-green-100 text-green-800">Going</span>
+                                    ) : status === "Rejected" ? (
+                                      <span className="px-2 py-1 rounded-full bg-red-100 text-red-800">Not Going</span>
+                                    ) : status === "Pending" ? (
+                                      <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                    ) : (
+                                      <span className="text-gray-500">{status || "N/A"}</span>
+                                    )}
+                                  </td>
+                                </>
+                              ) : (
+                                <td colSpan={3} className="px-6 py-4 text-sm text-red-500">
+                                  Alumni details not found for ID: {alumniId}
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-500">No attendees yet</p>
+                  </div>
+                )}
+              </div>
+            ) : null}
+  
+            </div>
           </div>
 
           {/* Sidebar - now using sticky positioning instead of fixed */}
@@ -192,90 +360,134 @@ const EventPageAlumni = () => {
             <div className="bg-white shadow-md rounded-2xl px-6 py-4 flex flex-col gap-3 text-sm">
               <div className="flex gap-2 items-center">
                 <p className="font-semibold">Event Status:</p>
-                {event?.stillAccepting ? (
+                {event?.stillAccepting && event.status === "Accepted" ? (
                   <p className="bg-amber-200 px-3 py-1 rounded-full text-amber-900">
                     Still accepting guests
                   </p>
-                ) : (
+                ) : !(event?.stillAccepting) && event.status === "Accepted" ? (
                   <p className="bg-red-200 px-3 py-1 rounded-full text-red-900">
                     Registration closed
                   </p>
-                )}
-                
+                ) : event.status === "Pending" ? (
+                  <p className="bg-amber-200 px-3 py-1 rounded-full text-amber-900">
+                    Waiting for approval
+                  </p>
+                ) : event.status === "Rejected" ? (
+                  <p className="bg-red-200 px-3 py-1 rounded-full text-red-900">
+                    Proposal has been declined
+                  </p>
+                ) : event.status === "Draft" && (
+                  <p className="bg-gray-200 px-3 py-1 rounded-full text-gray-900">
+                    Proposal not yet submitted
+                  </p>
+                )
+                }
               </div>
             </div>
 
             {/* RSVP card */}
-            <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-sm">
-              
-              {event.inviteType === "all" ? (
-                <div className="flex flex-col items-center gap-1">
-                  <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">This event is open to all.</h2>
-                  <p className="text-gray-500 text-center px-10">Respond early if you’d like to secure your spot in advance.</p>
-                </div> 
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <div className="flex justify-center">
-                    <Image 
-                      src="/rsvp-icon.png"
-                      alt="RSVP"
-                      width={60}
-                      height={100}
-                    />
-                  </div>
-
+            {event.status === "Accepted" ? 
+              (<div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-sm">
+                
+                {event.inviteType === "all" ? (
                   <div className="flex flex-col items-center gap-1">
-                    <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">You have been invited to this event.</h2>
-                    <p className="text-gray-500">Please respond to the invitation.</p>
+                    <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">This event is open to all.</h2>
+                    <p className="text-gray-500 text-center px-10">Respond early if you’d like to secure your spot in advance.</p>
+                  </div> 
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-center">
+                      <Image 
+                        src="/rsvp-icon.png"
+                        alt="RSVP"
+                        width={60}
+                        height={100}
+                      />
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1">
+                      <h2 className="text-[18px] font-semibold text-[var(--blue-700)]">You have been invited to this event.</h2>
+                      <p className="text-gray-500">Please respond to the invitation.</p>
+                    </div>
                   </div>
-                </div>
-              )}
-              
-              <div>
-                {alumniRsvpStatus === "Pending" ? (
-                  <div className="flex justify-between gap-2">
-                    <button
-                      onClick={handleAccept}
-                      className="w-full bg-green-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
-                    >
+                )}
+                
+                <div>
+                  {alumniRsvpStatus === "Pending" ? (
+                    <div className="flex justify-between gap-2">
+                      <button
+                        onClick={handleAccept}
+                        className="w-full bg-green-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                      >
+                        {event.inviteType === "all" ? (
+                          <p>Going</p>
+                        ) : (
+                          <p>Accept</p>
+                        )}
+                        
+                      </button>
+                      <button
+                        onClick={handleReject}
+                        className="w-full bg-red-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                      >
+                        {event.inviteType === "all" ? (
+                          <p>Not Going</p>
+                        ) : (
+                          <p>Decline</p>
+                        )}
+                      </button>
+                    </div>
+                  ) : alumniRsvpStatus === "Accepted" ? (
+                    <div className="w-full bg-green-300 text-green-600 flex items-center justify-center p-2 rounded-full font-semibold">
                       {event.inviteType === "all" ? (
                         <p>Going</p>
                       ) : (
-                        <p>Accept</p>
+                        <p>You accepted the invitation.</p>
                       )}
-                      
-                    </button>
-                    <button
-                      onClick={handleReject}
-                      className="w-full bg-red-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
-                    >
+                    </div>
+                  ) : alumniRsvpStatus === "Rejected" ? (
+                    <div className="w-full bg-gray-300 text-gray-600 flex items-center justify-center p-2 rounded-full font-semibold">
                       {event.inviteType === "all" ? (
                         <p>Not Going</p>
                       ) : (
-                        <p>Decline</p>
+                        <p>You declined the invitation.</p>
                       )}
-                    </button>
-                  </div>
-                ) : alumniRsvpStatus === "Accepted" ? (
-                  <div className="w-full bg-green-300 text-green-600 flex items-center justify-center p-2 rounded-full font-semibold">
-                    {event.inviteType === "all" ? (
-                      <p>Going</p>
-                    ) : (
-                      <p>You accepted the invitation.</p>
-                    )}
-                  </div>
-                ) : alumniRsvpStatus === "Rejected" ? (
-                  <div className="w-full bg-gray-300 text-gray-600 flex items-center justify-center p-2 rounded-full font-semibold">
-                    {event.inviteType === "all" ? (
-                      <p>Not Going</p>
-                    ) : (
-                      <p>You declined the invitation.</p>
-                    )}
-                  </div>
-                ) : null }
+                    </div>
+                  ) : null }
+                </div>
               </div>
-            </div>
+            ) : null}
 
+            {/* Edit card */}
+            {event.status === "Draft" ? 
+              (<div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-sm">                
+                <div>
+                    <div className="flex justify-between gap-2">
+                      <button
+                        onClick={() => 
+                        {
+                          setEdit(true)
+                          setShowForm(true)
+                        }}
+                        className="w-full bg-green-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => 
+                        {
+                          handleDelete(event.eventId)
+                          router.back()
+                        }}
+                        className="w-full bg-red-500 flex items-center justify-center p-2 rounded-full font-semibold text-white cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                </div>
+              </div>
+            ) : null}
+            
             {/* Donation card */}
             {event.needSponsorship && event?.status === "Accepted" && (
               <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col gap-3 text-[14px]">
@@ -404,6 +616,19 @@ const EventPageAlumni = () => {
         </div>
       </div>
     </div>
+
+    <ProposeEventForm
+      isOpen={showForm}
+      onClose={() => setShowForm(false)}
+      isEditing={isEditing}
+      isDetails={true}
+      setDetailsPage={setDetailsPage}
+      editingEventId={event.eventId}
+      setEdit={setEdit}
+    />
+    </>
+    )
+  }
 
 
     // <>
@@ -782,7 +1007,6 @@ const EventPageAlumni = () => {
     //   </div>
     // </div>
     // </>
-  )
 }
 
 export default EventPageAlumni;

@@ -8,6 +8,7 @@ import { Event } from "@/models/models";
 import Banner from "@/components/Banner";
 import ProposeEventForm from "./components/ProposeEventForm";
 import { FilePlus2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function AllEventsPage()
 {
@@ -16,6 +17,14 @@ export default function AllEventsPage()
     const [sortOption, setSortOption] = useState<string>('event-closest');
     const [isEditing, setEdit] = useState<boolean>(false);
     const [isDetails, setDetailsPage] = useState<boolean>(false);
+    const pathname = usePathname(); 
+
+     // Close modal when navigating on other pages
+    useEffect(() => {
+        return () => {
+            setShowForm(false);
+        };
+    }, [pathname, setShowForm]);
 
     useEffect(() =>
     {
