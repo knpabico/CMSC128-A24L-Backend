@@ -103,15 +103,15 @@ const StatusFilterDropdown = ({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-gray-700">Status:</span>
+      <span className="text-sm text-blue-500">Filter:</span>
       <div className="relative">
         <button
           onClick={toggleDropdown}
-          className="flex items-center justify-between min-w-32 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className=" flex items-center justify-between gap-3 w-28 rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          <span className="text-gray-900">{getDisplayText()}</span>
+          <span className="text-blue-500">{getDisplayText()}</span>
           <ChevronDown
             size={16}
             className={`text-gray-500 transition-transform ${
@@ -176,17 +176,17 @@ const SortControlDropdown = ({
     }
   };
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-gray-700">Sort:</span>
+    <div className="flex items-center gap-2 ml-3">
+      <span className="text-sm text-blue-500">Sort by:</span>
 
       <div className="relative">
         <button
           onClick={toggleDropdown}
-          className="flex items-center justify-between min-w-36 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className=" flex items-center justify-between gap-3 w-45 rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500 text-sm  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          <span className="text-gray-900">{getDisplayText()}</span>
+          <span className="text-blue-500">{getDisplayText()}</span>
           <ChevronDown
             size={16}
             className={`text-gray-500 transition-transform ${
@@ -543,7 +543,7 @@ const filteredUserScholarshipStudent = [...userScholarshipStudent]
       />
 
       {/* Tabs */}
-      <div className="my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[100px] xl:mx-[200px] static">
+      <div className="my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static">
         <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7">
           <button
             onClick={() => setActiveTab("all")}
@@ -621,7 +621,7 @@ const filteredUserScholarshipStudent = [...userScholarshipStudent]
 
         <div className="flex flex-col gap-[10px] w-full mb-10">
           {/* Filter and Sort Controls */}
-          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-2 lg:py-1 flex flex-col items-start lg:flex-row lg:justify-between lg:items-center shadow-md border border-gray-200">
+          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex flex-col items-start lg:flex-row lg:justify-between lg:items-center shadow-md border border-gray-200">
             <h2 className="text-md lg:text-lg font-semibold">
               {activeTab === "all"
                 ? "All Scholarships"
@@ -640,7 +640,6 @@ const filteredUserScholarshipStudent = [...userScholarshipStudent]
                     setActiveFilter={setStatusFilter}
                     options={statusFilterOptions}
                   />
-                  <div>|</div>
                 </div>
               ) : (
                 <div></div> /* Empty div as placeholder for layout when filter is not shown */
