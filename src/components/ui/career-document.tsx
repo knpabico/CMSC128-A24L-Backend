@@ -26,7 +26,6 @@ export const uploadDocToFirebase = async (
     if (data.success) {
       //setIsError(false);
       //setMessage("Document uploaded successfully!");
-      console.log("Document URL:", data.url);
       const workRef = doc(db, "work_experience", workExperienceId);
       const workDoc = await getDoc(workRef);
 
@@ -37,10 +36,8 @@ export const uploadDocToFirebase = async (
     } else {
       //setMessage(data.result);
       //setIsError(true);
-      console.log(data.result);
     }
   } catch (error) {
-    console.error("Error uploading document:", error);
     // setMessage("Error uploading document");
     // setIsError(true);
   }
@@ -63,9 +60,21 @@ export const CareerDocumentUpload = ({
   //ref for resetting current value of the file input button
   const fileInput = useRef(null);
 
-  const handleDocumentChange = (e) => {
-    const file = e.target.files[0];
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+
+    //max document size set to 10MB (DOLE INSPIRED)
+    const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
     if (file) {
+      //check if document size exceeds 10MB
+      if (file.size > MAX_DOCUMENT_SIZE) {
+        setMessage("Selected document size exceeds 10MB limit");
+        setIsError(true);
+        return;
+      }
+
+      setIsError(false);
+      setMessage("");
       setDocument(file);
       setDocumentType(file.type);
       //update document setter
@@ -167,7 +176,7 @@ export const CareerDocumentUpload = ({
       )}
 
       <p className="text-xs font-extralight pt-2">
-        Accepted formats: PDF, DOC, DOCX, and images
+        Accepted formats: PDF, DOC, DOCX, and images (up to 10MB)
       </p>
 
       {preview && (
@@ -187,6 +196,14 @@ export const CareerDocumentUpload = ({
           <p className="text-red-500 text-sm">Please select a valid document</p>
         </>
       )}
+
+      <p
+        className={`text-center mt-20 ${
+          isError ? "text-red-500" : "text-green-500"
+        }`}
+      >
+        {message}
+      </p>
     </div>
   );
 };

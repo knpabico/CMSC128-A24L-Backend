@@ -209,7 +209,7 @@ export const AlumDocumentUpload = ({
 
       <p
         className={`text-center mt-20 ${
-          isError ? "text-red-500" : "text-green-600"
+          isError ? "text-red-500" : "text-green-500"
         }`}
       >
         {message}
