@@ -143,6 +143,40 @@ const ScholarshipDetailPage: React.FC = () => {
 		
   }, [scholarshipId, getScholarshipById, getStudentsByScholarshipId, getScholarshipStudentsByScholarshipId]);
 
+useEffect(() => {
+  const checkAndUpdateScholarshipStatus = async () => {
+    if (!scholarship || !students.length || !scholarshipStudents.length) return;
+    
+    // Check if all students have approved status
+    const allStudentsApproved = students.every(student => 
+      getStudentStatus(student.studentId) === "approved"
+    );
+    
+    // If all students are approved and scholarship is not already closed
+    if (allStudentsApproved && scholarship.status !== "closed") {
+      try {
+        // Update scholarship status to closed
+        const result = await updateScholarship(scholarshipId, {
+          status: "closed"
+        });
+        
+        if (result.success) {
+          setScholarship(prev => prev ? {
+            ...prev,
+            status: "closed"
+          } : null);
+        }
+      } catch (error) {
+        console.error("Error updating scholarship status:", error);
+      }
+    }
+  };
+  
+  checkAndUpdateScholarshipStatus();
+}, [scholarship, students, scholarshipStudents, scholarshipId, updateScholarship]);
+
+
+
   // Get the actual status from database
   const getStudentStatus = (studentId: string) => {
   // Get all scholarshipStudent records for this student
@@ -291,18 +325,34 @@ const ScholarshipDetailPage: React.FC = () => {
                     <CircleCheck className="size-6" />
                     Interested in Sponsoring
                   </button>
-                ) : (
-                  <button
-                    onClick={() => setIsConfirmationOpen(true)}
-                    className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md"
-                  >
-                    <HandCoins className="size-6" />
-                    Join as a Sponsor
-                  </button>
+                   ) : scholarship?.status === "closed" ? (
+                    <button
+                      disabled
+                      className="flex items-center justify-end text-white bg-gray-500 font-medium gap-3 w-fit px-4 py-3 rounded-full shadow-black-500 shadow-md cursor-not-allowed"
+                      title="This scholarship is now closed - all students have been sponsored"
+                    >
+                      <HandCoins className="size-6" />
+                      Join as a Sponsor
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setIsConfirmationOpen(true)}
+                      className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md"
+                      disabled={scholarship?.status === "closed" || scholarship?.alumList.includes(user?.uid)}
+                    >
+                      <HandCoins className="size-6" />
+                      Join as a Sponsor
+                    </button>
                 )}
               </>
             )}
+            
           </div>
+          {scholarship?.status === "closed" && (
+            <div className="text-red-600 font-semibold text-left">
+              This scholarship is no longer accepting sponsors.
+            </div>
+          )}
           {/* Image */}
           <div
             className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]"
