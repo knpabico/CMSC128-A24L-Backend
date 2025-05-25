@@ -72,21 +72,21 @@ return (
 			{/* Main content */}
 			<div className='flex flex-col gap-[10px] w-full mb-10'>
 				{/* Filter tabs */}
-				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
 					<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
 					<div className="flex justify-between items-center gap-2">
 						<div className="flex items-center">
-							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="flex items-center text-sm" >
+							<label htmlFor="sort" className="mr-2 text-sm text-blue-500">Filter:</label>
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500" >
 								<option value="all">All</option>
 								<option value="active">Active</option>
 								<option value="completed">Closed </option>
 							</select>
 						</div>
-						<div>|</div>
+						<div className='w-1'></div>
 						<div className="flex items-center">
-							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-							<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+							<label htmlFor="sort" className="mr-2 text-sm text-blue-500">Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500" >
 								<option value="newest">Newest</option>
 								<option value="oldest">Oldest</option>
 								<option value="amount-high">Amount (High to Low)</option>

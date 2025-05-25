@@ -100,12 +100,12 @@ export default function Announcements() {
           {/* Main */}
           <div className="flex-1 flex-col">
             {/* Sort  */}
-            <div className="bg-white rounded-lg px-5 py-1 flex justify-between items-center shadow-md mb-[10px]">
+            <div className="bg-white rounded-lg px-5 py-3 flex justify-between items-center shadow-md mb-[10px]">
               <h2 className="text-md lg:text-lg font-semibold">
                 {activeFilter || "All Announcements"}
               </h2>
               <div className="flex items-center">
-                <label htmlFor="sort" className="mr-2 text-sm">
+                <label htmlFor="sort" className="mr-2 text-sm text-blue-500">
                   Sort by:
                 </label>
                 <select
@@ -115,7 +115,7 @@ export default function Announcements() {
                     setSelectedSort(value);
                     setLatestFirst(value === "Latest");
                   }}
-                  className="text-sm rounded py-1 px-2"
+                  className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500"
                 >
                   {SORT_TAGS.map((tag) => (
                     <option key={tag} value={tag}>

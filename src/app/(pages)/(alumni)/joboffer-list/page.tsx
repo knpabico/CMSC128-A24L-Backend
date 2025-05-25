@@ -402,10 +402,10 @@ function JobOffersContent() {
         description="Discover job opportunities through ICS and alumni partnerships, bridging the gap between education and career success for ICS graduates."
       />
 
-      <div className="px-[10%] py-4">
-        <div className="flex justify-between items-center mb-4">
+      <div className="px-[10%] py-10">
+        <div className=" bg-white rounded-lg flex items-center justify-between px-5 py-3 mb-4 shadow-sm">
           <button
-            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
+            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 ${
               activeFilters.length > 0
                 ? "opacity-100"
                 : "opacity-0 pointer-events-none"
@@ -423,18 +423,18 @@ function JobOffersContent() {
           </button>
 
           <div className="flex space-x-3">
-            <div className="mb-4">
+            <div className="">
               <input
                 type="text"
                 placeholder="Search jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm  text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
               />
             </div>
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm  text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -499,7 +499,7 @@ function JobOffersContent() {
             </div>
 
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -508,7 +508,17 @@ function JobOffersContent() {
         </div>
 
         <div className="flex">
-          <div>
+          <div className="flex flex-col gap-2">
+            {/* Post a Job Button */}
+            <Button
+              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-full hover:bg-[#063d8c] transition-all cursor-pointer"
+              onClick={() => setShowForm(!showForm)}
+            >
+              <Pencil className="w-5 h-5" />
+              <p className="group w-max relative py-1 transition-all font-semibold">
+                Post a Job
+              </p>
+            </Button>
             {/* Sidebar */}
             <div className="bg-[#FFFFFF] flex flex-col px-10 py-8 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
               <button
@@ -617,17 +627,6 @@ function JobOffersContent() {
                 </p>
               </button>
             </div>
-
-            {/* Post a Job Button */}
-            <Button
-              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-[10px] hover:bg-[#063d8c] transition-all"
-              onClick={() => setShowForm(!showForm)}
-            >
-              <Pencil className="w-5 h-5" />
-              <p className="group w-max relative py-1 transition-all font-semibold">
-                Post a Job
-              </p>
-            </Button>
           </div>
 
           {/* Main content revised yass */}
