@@ -476,7 +476,13 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                           return startB - startA;
                         })
                         .map((w: WorkExperience, index: number) => (
-                          <tr key={index}>
+                          <tr key={index}
+                          onClick={() => {
+                            // Update selectedLocation and activeMarker on row click
+                            setSelectedLocation({ lat: w.latitude, lng: w.longitude });
+                            setActiveMarker(index);
+                          }}
+                          >
                             <td className="py-1">{w.jobTitle}</td>
                             <td className="py-1 px-3">{w.company}</td>
                             <td className="py-1">{w.industry}</td>
