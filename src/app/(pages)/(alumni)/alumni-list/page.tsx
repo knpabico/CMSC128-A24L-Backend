@@ -4,11 +4,75 @@ import { db } from "@/lib/firebase";
 import { Alumnus, Education, WorkExperience } from "@/models/models";
 import { collection, getDocs, query, where } from "firebase/firestore"; // Import missing Firebase functions
 import { ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Banner from "@/components/Banner";
 import Image from "next/image";
-import { set } from "zod";
+import { set, string } from "zod";
 import { useAuth } from "@/context/AuthContext";
+import { Slider, Typography } from "@mui/material";
+
+//for filtering
+const fieldOfWorkFilters = [
+  "Software Development",
+  "Web Development",
+  "Mobile App Development",
+  "Artificial Intelligence/Machine Learning",
+  "Data Science & Analytics",
+  "Cloud Computing",
+  "Cybersecurity",
+  "Game Development",
+  "Blockchain & Cryptocurrency",
+  "Internet of Things (IoT)",
+  "Robotics & Automation",
+  "Bioinformatics",
+  "FinTech (Financial Technology)",
+  "EdTech (Educational Technology)",
+  "HealthTech/MedTech",
+  "E-commerce",
+  "Telecommunications",
+  "IT Consulting",
+  "Computer Hardware & Semiconductors",
+  "Network Infrastructure",
+  "DevOps & System Administration",
+  "Database Administration",
+  "Computer Vision",
+  "Natural Language Processing",
+  "Virtual Reality/Augmented Reality",
+  "Quantum Computing",
+  "Digital Marketing & SEO",
+  "Business Intelligence",
+  "Enterprise Resource Planning (ERP)",
+  "User Experience/Interface Design",
+  "Computer Graphics & Animation",
+  "High-Performance Computing",
+  "Geographic Information Systems (GIS)",
+  "Computer Forensics",
+  "IT Support & Services",
+  "Information Systems Management",
+  "Human-Computer Interaction",
+  "Embedded Systems",
+  "Computer Engineering",
+  "Aerospace Computing",
+  "Defense & Military Technology",
+  "Smart Cities & Urban Technologies",
+  "Information Security",
+  "Big Data",
+  "Digital Twins Technology",
+  "Computer-Aided Design (CAD)",
+  "Social Media & Digital Platforms",
+  "Supply Chain Technology",
+  "Speech Recognition & Processing",
+  "Computational Science",
+  "Other",
+];
+
+const attainment = ["Bachelor's", "Master's", "PhD"];
+const attainmentRecord = {
+  bachelors: "Bachelor's",
+  masters: "Master's",
+  doctoral: "PhD",
+};
+const yearGraduated = ["< 5 years ago", "< 10 years ago"];
 export default function Users() {
   const { alums, isLoading } = useAlums();
   const [filteredAlums, setFilteredAlums] = useState<Alumnus[]>([]);
@@ -23,18 +87,73 @@ export default function Users() {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  const filterCategories = {
-    "Gratuation Year": [],
-    "Educational Attainment": ["Bachelor's", "Master's", "PhD"],
-    "Field of Interest": [],
-    Status: ["Active", "Inactive"],
-    Location: [],
-    Affiliation: [],
+  //for field of work filter
+  const [showFieldOfWorkFilter, setShowFieldOfWorkFilter] = useState(false);
+  const [fieldOfWorkFilter, setFieldOfWorkFilter] = useState<string[]>([]);
+
+  //for attainment filter
+  const [showAttainmentFilter, setShowAttainmentFilter] = useState(false);
+  const [attainmentFilter, setAttainmentFilter] = useState<string[]>([]);
+
+  //for graduation year filter
+  const [showGraduationYearFilter, setShowGraduationYearFilter] =
+    useState(false);
+  const [graduationYearFilter, setGraduationYearFilter] = useState<
+    [number, number]
+  >([1980, 2025]);
+
+  const fieldOfWorkContainerRef = useRef<HTMLDivElement>(null);
+  const attainmentContainerRef = useRef<HTMLDivElement>(null);
+  const graduationYearContainerRef = useRef<HTMLDivElement>(null);
+
+  //TO DO
+  //FILTER for graduation year, field of work, or affiliation
+
+  const handleFieldOfWorkFilter = (fieldOfWork: string) => {
+    setFieldOfWorkFilter((current) => {
+      //if a field of work filter is clicked when it is already selected, it will be removed
+      if (current.includes(fieldOfWork)) {
+        return current.filter(
+          (existingFieldOfWork) => existingFieldOfWork !== fieldOfWork
+        );
+        //selected field of work will be added to the list of selected filters
+      } else {
+        return [...current, fieldOfWork];
+      }
+    });
   };
+
+  const handleAttainmentFilter = (Attainment: string) => {
+    setAttainmentFilter((current) => {
+      //if a field of work filter is clicked when it is already selected, it will be removed
+      if (current.includes(Attainment)) {
+        return current.filter(
+          (existingAttainment) => existingAttainment !== Attainment
+        );
+        //selected field of work will be added to the list of selected filters
+      } else {
+        return [...current, Attainment];
+      }
+    });
+  };
+
+  //getting updated attainmentMapping when there are changes
+  const attainmentMapping = useMemo(() => {
+    const attainment = Object.values(educationMapping).flat();
+    const attainmentMap = new Map<string, typeof attainment>();
+
+    for (const educ of attainment) {
+      if (!attainmentMap.has(educ.alumniId)) {
+        attainmentMap.set(educ.alumniId, []);
+      }
+      attainmentMap.get(educ.alumniId).push(educ);
+    }
+
+    return attainmentMap;
+  }, [educationMapping]);
 
   useEffect(() => {
     //remove current user from alumni list
-    console.log(user?.uid);
     let filteredAlumni = alums.filter(
       (alum: Alumnus) => alum.alumniId !== user?.uid
     );
@@ -44,8 +163,75 @@ export default function Users() {
       a.firstName.toLowerCase().localeCompare(b.firstName.toLocaleLowerCase())
     );
 
+    //filter alums based on selected field of work/s
+    if (fieldOfWorkFilter.length > 0) {
+      filteredAlumni = filteredAlumni.filter((alum: Alumnus) =>
+        alum.fieldOfInterest?.some((field) => fieldOfWorkFilter.includes(field))
+      );
+    }
+
+    //filter alums based on educational attainment
+    if (attainmentFilter.length > 0) {
+      //filter alumni by attainment
+      filteredAlumni = filteredAlumni.filter((alum: Alumnus) => {
+        const education = attainmentMapping.get(alum.alumniId) || [];
+        return education.some((educ) =>
+          attainmentFilter.includes(attainmentRecord[educ.type])
+        );
+      });
+    }
+
+    // //filter for year graduated
+    // if (graduationYearFilter.length == 2) {
+    //   filteredAlumni = filteredAlumni.filter((alum: Alumnus) => {
+    //     const education = attainmentMapping.get(alum.alumniId) || [];
+
+    //     return education.some((educ) => {
+    //       const gradYear = parseInt(educ.yearGraduated);
+    //       return (
+    //         gradYear >= graduationYearFilter[0] &&
+    //         gradYear <= graduationYearFilter[1]
+    //       );
+    //     });
+    //   });
+    // }
+
+    //sort alphabetically by first name
+    filteredAlumni = filteredAlumni.sort((a: Alumnus, b: Alumnus) =>
+      a.firstName.toLowerCase().localeCompare(b.firstName.toLocaleLowerCase())
+    );
+
     setFilteredAlums(filteredAlumni);
-  }, [alums]);
+  }, [
+    alums,
+    fieldOfWorkFilter,
+    attainmentFilter,
+    attainmentMapping,
+    graduationYearFilter,
+  ]);
+
+  //close filter dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+
+      const clickedOutside =
+        (!fieldOfWorkContainerRef.current ||
+          !fieldOfWorkContainerRef.current.contains(target)) &&
+        (!attainmentContainerRef.current ||
+          !attainmentContainerRef.current.contains(target));
+
+      if (clickedOutside) {
+        setShowFieldOfWorkFilter(false);
+        setShowAttainmentFilter(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     //function to fetch work experience while being mapped to alumniId
@@ -164,18 +350,152 @@ export default function Users() {
           {/* Filter Bar */}
           <div className="bg-white rounded-xl flex flex-wrap gap-3 p-3 items-center shadow-sm">
             <div className="text-sm font-medium">Filter by:</div>
-            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Attainment</div>
-              <ChevronDown size={16} />
+
+            {/*FIELD OF WORK FILTER*/}
+            <div
+              ref={fieldOfWorkContainerRef}
+              className="relative inline-block bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors"
+            >
+              <button
+                onClick={() => setShowFieldOfWorkFilter(!showFieldOfWorkFilter)}
+                className="flex items-center gap-1 w-full"
+              >
+                Field of Work
+                <ChevronDown size={16} />
+              </button>
+
+              {showFieldOfWorkFilter && (
+                <div className="absolute z-30 mt-2 w-[1200px] bg-white rounded-lg shadow-lg border border-gray-200">
+                  <div className="p-4">
+                    <h3 className="font-semibold mb-2">Field of Work</h3>
+                    <div className="grid grid-cols-4 gap-1">
+                      {fieldOfWorkFilters.map((field) => (
+                        <div
+                          key={field}
+                          className="items-start gap-2 break-words"
+                        >
+                          <input
+                            type="checkbox"
+                            id={field}
+                            checked={fieldOfWorkFilter.includes(field)}
+                            onChange={() => handleFieldOfWorkFilter(field)}
+                            className="rounded border-gray-300 mt-1"
+                          />
+                          <label
+                            htmlFor={field}
+                            className="text-sm cursor-pointer"
+                          >
+                            {field}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-end items-center mt-2">
+                      {fieldOfWorkFilter.length > 0 && (
+                        <button
+                          className="text-red-700 rounded text-sm"
+                          onClick={() => {
+                            setFieldOfWorkFilter([]);
+                          }}
+                        >
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Field of Work</div>
-              <ChevronDown size={16} />
+
+            {/*attainment filter*/}
+            <div className="relative inline-block" ref={attainmentContainerRef}>
+              <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
+                <button
+                  onClick={() => setShowAttainmentFilter(!showAttainmentFilter)}
+                  className="flex items-center gap-1 w-full"
+                >
+                  Attainment
+                  <ChevronDown size={16} />
+                </button>
+              </div>
+
+              {showAttainmentFilter && (
+                <div className="absolute mt-2 bg-white p-4 rounded shadow-lg z-10 border border-gray-200 w-60">
+                  <h3 className="font-semibold mb-2">Attainment</h3>
+                  <div className="space-y-2">
+                    {attainment.map((filter) => (
+                      <div key={filter} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={filter}
+                          checked={attainmentFilter.includes(filter)}
+                          onChange={() => handleAttainmentFilter(filter)}
+                          className="mr-2"
+                        />
+                        <label htmlFor={filter}>{filter}</label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Graduation Year</div>
-              <ChevronDown size={16} />
+
+            {/* Graduation Year Filter */}
+            <div
+              className="relative inline-block"
+              ref={graduationYearContainerRef}
+            >
+              <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
+                <button
+                  onClick={() =>
+                    setShowGraduationYearFilter(!showGraduationYearFilter)
+                  }
+                  className="flex items-center gap-1 w-full"
+                >
+                  Graduation Year
+                  <ChevronDown size={16} />
+                </button>
+              </div>
+
+              {showGraduationYearFilter && (
+                <div className="absolute mt-2 bg-white p-4 rounded shadow-lg z-10 border border-gray-200 w-72">
+                  <h3 className="font-semibold mb-2">Graduation Year</h3>
+                  <div className="space-y-4">
+                    <Slider
+                      value={graduationYearFilter}
+                      onChange={(_, newValue) =>
+                        setGraduationYearFilter(newValue as [number, number])
+                      }
+                      valueLabelDisplay="auto"
+                      min={1980}
+                      max={new Date().getFullYear()}
+                      step={1}
+                    />
+
+                    <div className="text-sm text-center text-gray-700">
+                      Showing alumni from{" "}
+                      <strong>{graduationYearFilter[0]}</strong> to{" "}
+                      <strong>{graduationYearFilter[1]}</strong>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <button
+                        className="text-red-700 rounded text-sm"
+                        onClick={() =>
+                          setGraduationYearFilter([
+                            1980,
+                            new Date().getFullYear(),
+                          ])
+                        }
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
+
             <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
               <div>Location</div>
               <ChevronDown size={16} />
