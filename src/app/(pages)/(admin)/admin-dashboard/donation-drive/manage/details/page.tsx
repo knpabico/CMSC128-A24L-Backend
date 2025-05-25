@@ -5,8 +5,9 @@ import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { db } from "@/lib/firebase";
+import { serverFirestoreDB } from "@/lib/firebase/serverSDK";
 import { Donation, DonationDrive, Event } from "@/models/models";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Asterisk, Calendar, ChevronRight, CirclePlus, Clock, MapPin, Pencil, Trash2, Upload, Users2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -63,6 +64,7 @@ export default function AddDonationDrive() {
 			setImageChange,
         	setPaymayaChange,
         	setGcashChange,
+			handleDonationVerifier
 		} = useDonationDrives();
 	const router = useRouter();
   const buttonsContainerRef = useRef(null);
@@ -317,7 +319,25 @@ export default function AddDonationDrive() {
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
         </div>
       );
+    };
+
+  const handleverify = async (donation: Donation, currentAmount: number) => {
+		try {
+			setIsError(false);
+			setMessage("");
+			const result = await handleDonationVerifier(donation,currentAmount);
+			result.success
+			?toastSuccess(result.message)
+			:toastError(result.message);
+		} catch (error) {
+			console.error("Donation Verifiction:", error);
+			setMessage("Failed to verify donation.");
+			setIsError(true);
+		} finally {
+	  window.location.reload();
     }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -450,6 +470,9 @@ export default function AddDonationDrive() {
 														Anonymous
 													</th>
 													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Verify
+													</th>
+													<th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 														Proof
 													</th>
 												</tr>
@@ -472,6 +495,18 @@ export default function AddDonationDrive() {
 														<td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
 																{donation.isAnonymous ? "Anonymous" : "Not Anonymous"}
 														</td>
+														{donation.verified === false?
+															<td>
+																<button onClick={() => { handleverify(donation,donationDrive.currentAmount); }} // Adjust with the correct image path
+																	className="text-blue-500 hover:underline text-sm">
+																		Verify
+																</button>																
+															</td>
+															:
+															<td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+																Verified
+															</td>												
+														}
 														<td>
 															<button onClick={() => { setSelectedDonationId(donation.donationId); setSelectedImage(donation.imageProof); }} // Adjust with the correct image path
 																className="text-blue-500 hover:underline text-sm">

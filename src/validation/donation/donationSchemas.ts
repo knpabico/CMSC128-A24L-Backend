@@ -10,5 +10,6 @@ export const donationDataSchema = z.object({
   alumniId: z.string(),
   isAnonymous: z.boolean().default(false),
   imageProof: z.string().optional(),
-  date: z.date().optional() 
+  date: z.date().optional(),
+  verified: z.boolean().default(false),
 });

@@ -38,6 +38,7 @@ export const createDonation = async (donationData: {
   amount: number;
   isAnonymous: boolean;
   imageProof?: string;
+  verified: boolean;
 }) => {
   try {
     // Validate input using Zod
@@ -53,34 +54,6 @@ export const createDonation = async (donationData: {
 
     // Write the document
     await donationRef.set(completeData)
-
-    const donationDriveRef = serverFirestoreDB.collection("donation_drive").doc(parsedData.donationDriveId);
-
-    // Fetch current data
-    const donationDriveSnap = await donationDriveRef.get();
-    const donationDriveData = donationDriveSnap.data();
-
-    if (!donationDriveData) throw new Error("Donation drive not found");
-
-    const newAmount = (donationDriveData.currentAmount || 0) + parsedData.amount;
-
-    let updateData: Record<string, any> = {
-      currentAmount: newAmount,
-    };
-
-    // if (!parsedData.isAnonymous) {
-    //   const existingDonors = donationDriveData.donorList || [];
-    //   const newDonorList = [...new Set([...existingDonors, parsedData.alumniId])];
-
-    //   updateData.donorList = newDonorList;
-    // }
-
-      const existingDonors = donationDriveData.donorList || [];
-      existingDonors.push(parsedData.alumniId); // allow duplicates
-      updateData.donorList = existingDonors;
-    
-
-await donationDriveRef.update(updateData);
 
     return donationId;
   } catch (error) {

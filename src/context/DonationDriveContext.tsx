@@ -13,13 +13,14 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
-import { DonationDrive, Event } from "@/models/models";
+import { Donation, DonationDrive, Event } from "@/models/models";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
 import { FirebaseError } from "firebase/app";
 import { uploadImage } from "@/lib/upload";
 import { getStorage, ref, deleteObject } from "firebase/storage";
 import { toastSuccess } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
+import { serverFirestoreDB } from "@/lib/firebase/serverSDK";
 
 const DonationDriveContext = createContext<any>(null);
 
@@ -496,6 +497,20 @@ export function DonationDriveProvider({
     }
   };
 
+  const handleDonationVerifier = async(donation: Donation, currentAmount: number) => {
+    try {
+      if (!donation.verified){
+        const newAmount = (currentAmount || 0) + donation.amount;
+
+        await updateDoc(doc(db, "donation_drive", donation.donationDriveId), {currentAmount:  newAmount});		
+        await updateDoc(doc(db, "donation", donation.donationId), {verified: true});		
+      }		
+      return { success: true, message: "Donation verified." };
+    } catch (error) {
+      return { success: true, message: (error as FirebaseError).message };
+    }
+  }
+
   return (
     <DonationDriveContext.Provider
       value={{
@@ -561,6 +576,7 @@ export function DonationDriveProvider({
         setImageChange,
         setPaymayaChange,
         setGcashChange,
+        handleDonationVerifier,
       }}
     >
       {children}
