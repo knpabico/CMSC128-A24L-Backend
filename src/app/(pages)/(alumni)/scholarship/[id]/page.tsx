@@ -51,6 +51,7 @@ const ScholarshipDetailPage: React.FC = () => {
   const [sortOption, setSortOption] = useState<"oldest" | "youngest" | "A-Z" | "Z-A">("A-Z");
   const [filterOption, setFilterOption] = useState<"all" | "available" |"pending" | "approved">("all");
   const [scholarshipStudents, setScholarshipStudents] = useState<ScholarshipStudent[]>([]);
+  const [sponsoringStudents, setSponsoringStudents] = useState<Set<string>>(new Set());
  
   const eventStories = featuredItems.filter(
     (story: { type: string; }) => story.type === "scholarship"
@@ -142,9 +143,67 @@ const ScholarshipDetailPage: React.FC = () => {
 		
   }, [scholarshipId, getScholarshipById, getStudentsByScholarshipId, getScholarshipStudentsByScholarshipId]);
 
+useEffect(() => {
+  const checkAndUpdateScholarshipStatus = async () => {
+    if (!scholarship || !students.length || !scholarshipStudents.length) return;
+    
+    // Check if all students have approved status
+    const allStudentsApproved = students.every(student => 
+      getStudentStatus(student.studentId) === "approved"
+    );
+    
+    // If all students are approved and scholarship is not already closed
+    if (allStudentsApproved && scholarship.status !== "closed") {
+      try {
+        // Update scholarship status to closed
+        const result = await updateScholarship(scholarshipId, {
+          status: "closed"
+        });
+        
+        if (result.success) {
+          setScholarship(prev => prev ? {
+            ...prev,
+            status: "closed"
+          } : null);
+        }
+      } catch (error) {
+        console.error("Error updating scholarship status:", error);
+      }
+    }
+  };
+  
+  checkAndUpdateScholarshipStatus();
+}, [scholarship, students, scholarshipStudents, scholarshipId, updateScholarship]);
+
+
+
+  // Get the actual status from database
   const getStudentStatus = (studentId: string) => {
-    const scholarshipStudent = scholarshipStudents.find((ss) => ss.studentId === studentId);
-    return scholarshipStudent?.status || "available";
+  // Get all scholarshipStudent records for this student
+  const allStatuses = scholarshipStudents
+    .filter((ss) => ss.studentId === studentId)
+    .map((ss) => ss.status);
+
+  // If any status is approved, always return approved
+  if (allStatuses.includes("approved")) return "approved";
+  // Otherwise, return the most recent or fallback to "available"
+  if (allStatuses.includes("pending")) return "pending";
+  if (allStatuses.includes("rejected")) return "rejected";
+  return "available";
+};
+  // Check if student is available for sponsorship (available, pending, or rejected)
+  const isStudentAvailableForSponsorship = (studentId: string) => {
+    const status = getStudentStatus(studentId);
+    return status === "available" || status === "pending" || status === "rejected";
+  };
+
+  // Get display status (show "Available" for rejected students, keep pending as pending, actual status for others)
+  const getDisplayStatus = (studentId: string) => {
+    const actualStatus = getStudentStatus(studentId);
+    if (actualStatus === "rejected") {
+      return "available";
+    }
+    return actualStatus; // This will show "pending" as "pending", "approved" as "approved", etc.
   };
 
   const handleSponsor = async () => {
@@ -178,18 +237,31 @@ const ScholarshipDetailPage: React.FC = () => {
   const handleStudentSponsor = async (studentId: string) => {
     if (!user || !scholarship) return;
 
-    const newStudentSponsor: ScholarshipStudent = {
-      ScholarshipStudentId: "",
-      studentId: studentId,
-      alumId: user.uid,
-      scholarshipId: scholarship.scholarshipId,
-      status: "pending", //accepted  or pending
-      pdf: "",
-    }
+    // Add student to sponsoring set to disable button
+    setSponsoringStudents(prev => new Set(prev).add(studentId));
 
-    const result = await addScholarshipStudent(newStudentSponsor);
-		toastSuccess("Your sponsorship request has been submitted successfully!")
-    console.log(result.message);
+    try {
+      const newStudentSponsor: ScholarshipStudent = {
+        ScholarshipStudentId: "",
+        studentId: studentId,
+        alumId: user.uid,
+        scholarshipId: scholarship.scholarshipId,
+        status: "pending", //accepted  or pending
+        pdf: "",
+      }
+
+      const result = await addScholarshipStudent(newStudentSponsor);
+      toastSuccess("Your sponsorship request has been submitted successfully!")
+      console.log(result.message);
+    } catch (error) {
+      // Remove from sponsoring set if there was an error
+      setSponsoringStudents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(studentId);
+        return newSet;
+      });
+      console.error("Error sponsoring student:", error);
+    }
   }
 
   const goBack = () => {
@@ -204,9 +276,9 @@ const ScholarshipDetailPage: React.FC = () => {
 
   const filteredAndSortedStudents = [...students]
     .filter((student) => {
-      const status = getStudentStatus(student.studentId);
+      const displayStatus = getDisplayStatus(student.studentId);
       if (filterOption === "all") return true; // Include all students if "all" is selected
-      return status === filterOption; // Include only students matching the selected status
+      return displayStatus === filterOption; // Include only students matching the selected status
     })
     .sort((a, b) => {
       switch (sortOption) {
@@ -253,18 +325,34 @@ const ScholarshipDetailPage: React.FC = () => {
                     <CircleCheck className="size-6" />
                     Interested in Sponsoring
                   </button>
-                ) : (
-                  <button
-                    onClick={() => setIsConfirmationOpen(true)}
-                    className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md"
-                  >
-                    <HandCoins className="size-6" />
-                    Join as a Sponsor
-                  </button>
+                   ) : scholarship?.status === "closed" ? (
+                    <button
+                      disabled
+                      className="flex items-center justify-end text-white bg-gray-500 font-medium gap-3 w-fit px-4 py-3 rounded-full shadow-black-500 shadow-md cursor-not-allowed"
+                      title="This scholarship is now closed - all students have been sponsored"
+                    >
+                      <HandCoins className="size-6" />
+                      Join as a Sponsor
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setIsConfirmationOpen(true)}
+                      className="flex items-center justify-end text-white bg-blue-600 font-medium gap-3 w-fit px-4 py-3 rounded-full hover:bg-blue-500 hover:cursor-pointer shadow-black-500 shadow-md"
+                      disabled={scholarship?.status === "closed" || scholarship?.alumList.includes(user?.uid)}
+                    >
+                      <HandCoins className="size-6" />
+                      Join as a Sponsor
+                    </button>
                 )}
               </>
             )}
+            
           </div>
+          {scholarship?.status === "closed" && (
+            <div className="text-red-600 font-semibold text-left">
+              This scholarship is no longer accepting sponsors.
+            </div>
+          )}
           {/* Image */}
           <div
             className="bg-cover bg-center h-[230px] md:h-[350px] lg:h-[400px]"
@@ -337,7 +425,7 @@ const ScholarshipDetailPage: React.FC = () => {
                   <DialogTitle className="text-center"> Thank you for your interest in our scholarship program. </DialogTitle>
                 </DialogHeader>
                 <p className="text-sm text-center">
-									Take your time in choosing a scholar whose journey you’d like to support — your generosity can help shape their future.
+									Take your time in choosing a scholar whose journey you'd like to support — your generosity can help shape their future.
                 </p>
                 <DialogFooter className="mt-5">
                   <button
@@ -423,65 +511,96 @@ const ScholarshipDetailPage: React.FC = () => {
 																<button 
 																	className={`flex text-sm rounded-full px-3 py-1 shadow-lg transition-colors justify-center items-center gap-2
 																		${(() => {
-																			const status = getStudentStatus(student.studentId)?.toLowerCase();
+																			const status = getDisplayStatus(student.studentId)?.toLowerCase();
 																			
 																			switch(status) {
 																				case 'approved':
 																					return 'bg-green-500 text-white hover:bg-green-600';
 																				case 'pending':
 																					return 'bg-yellow-500 text-white hover:bg-yellow-600';
-																				case 'rejected':
-																					return 'bg-red-500 text-white hover:bg-red-600';
+																				case 'available':
+																					return 'bg-gray-400 text-white hover:bg-gray-500';
 																				default:
 																					return 'bg-gray-400 text-white hover:bg-gray-500';
 																			}
 																		})()}`}
 																>
 																	{(() => {
-																		const status = getStudentStatus(student.studentId)?.toLowerCase();
+																		const status = getDisplayStatus(student.studentId)?.toLowerCase();
 																		
 																		switch(status) {
 																			case 'approved':
 																				return <CircleCheck className="size-4" />;
 																			case 'pending':
 																				return <Clock className="size-4" />;
-																			case 'rejected':
-																				return <CircleX className="size-4" />;
+																			case 'available':
+																				return <HelpCircle className="size-4" />;
 																			default:
 																				return <HelpCircle className="size-4" />;
 																		}
 																	})()}
 																	
 																	<span className="whitespace-nowrap">
-																		{getStudentStatus(student.studentId) 
-																			? getStudentStatus(student.studentId).charAt(0).toUpperCase() + getStudentStatus(student.studentId).slice(1)
-																			: "None"}
+																		{getDisplayStatus(student.studentId) 
+																			? getDisplayStatus(student.studentId).charAt(0).toUpperCase() + getDisplayStatus(student.studentId).slice(1)
+																			: "Available"}
 																	</span>
 																</button>
 															</div>
 															
 															{/* Sponsorship column */}
 															<div className="w-1/6 flex justify-center">
-																<button 
-																	onClick={() => {
-																		setstudentDetails(student);
-																		setIsStudentConfirmationOpen(true);
-																	}}
-																	className={`text-sm rounded-full px-3 py-1 text-white shadow-lg transition-colors
-																		${
-																				!isAlreadySponsoring || getStudentStatus(student.studentId) !== "available"
-																						? "bg-gray-400 cursor-not-allowed"
-																						: "bg-blue-600 hover:bg-blue-500 cursor-pointer"
-																		}`}
-																	disabled={getStudentStatus(student.studentId) !== "available" || !isAlreadySponsoring}
-																	title={
-																		getStudentStatus(student.studentId) === "available"
-																			? "Sponsor this student"
-																			: getStudentStatus(student.studentId) === "pending"
-																			? "This student's sponsorship is pending approval"
-																			: "This student is already sponsored"
-																	}
-																>
+                                <button
+                                  onClick={() => {
+                                    setstudentDetails(student);
+                                    setIsStudentConfirmationOpen(true);
+                                  }}
+                                  className={`text-sm rounded-full px-3 py-1 text-white shadow-lg transition-colors
+                                    ${
+                                      getStudentStatus(student.studentId) === "approved"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : !isAlreadySponsoring ||
+                                          !isStudentAvailableForSponsorship(student.studentId) ||
+                                          sponsoringStudents.has(student.studentId) ||
+                                          // Disable if this user already has a pending sponsorship for this student
+                                          scholarshipStudents.some(
+                                            ss =>
+                                              ss.studentId === student.studentId &&
+                                              ss.alumId === user?.uid &&
+                                              ss.status === "pending"
+                                          )
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-blue-600 hover:bg-blue-500 cursor-pointer"
+                                    }`}
+                                  disabled={
+                                    getStudentStatus(student.studentId) === "approved" ||
+                                    !isStudentAvailableForSponsorship(student.studentId) ||
+                                    !isAlreadySponsoring ||
+                                    sponsoringStudents.has(student.studentId) ||
+                                     scholarshipStudents.some(
+                                      ss =>
+                                        ss.studentId === student.studentId &&
+                                        ss.alumId === user?.uid &&
+                                        ss.status === "pending"
+                                    )
+                                                                }
+                                  title={
+                                    getStudentStatus(student.studentId) === "approved"
+                                      ? "This student is already sponsored"
+                                      : scholarshipStudents.some(
+                                        ss =>
+                                          ss.studentId === student.studentId &&
+                                          ss.alumId === user?.uid &&
+                                          ss.status === "pending"
+                                      )
+                                    ? "You already have a pending sponsorship request for this student"
+                                      : sponsoringStudents.has(student.studentId)
+                                      ? "Sponsorship request already submitted"
+                                      : isStudentAvailableForSponsorship(student.studentId)
+                                      ? "Sponsor this student"
+                                      : "This student is not available for sponsorship"
+                                  }
+                                >
 																	Sponsor
 																</button>
 															</div>

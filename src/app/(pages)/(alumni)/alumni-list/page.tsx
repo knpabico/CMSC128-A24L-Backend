@@ -151,16 +151,16 @@ export default function Users() {
           <h1 className="text-xl font-semibold">Loading...</h1>
         </div>
       ) : (
-        <div className="container mx-auto px-4 md:px-8 lg:px-16 py-8 flex flex-col gap-6">
+        <div className=" mx-[10%] py-10 flex flex-col gap-4">
           {/* Filter Bar */}
-          <div className="bg-white rounded-xl flex flex-wrap gap-3 p-3 items-center shadow-sm">
-            <div className="text-sm font-medium">Filter by:</div>
-            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Any Date</div>
+          <div className="bg-white rounded-xl flex flex-wrap gap-3 px-5 py-3 items-center shadow-sm">
+            <div className="text-sm text-blue-500">Filter:</div>
+            <div className="px-3 py-1.5 rounded-full text-blue-500 flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-blue-500">
+              <div>Degree</div>
               <ChevronDown size={16} />
             </div>
-            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Status</div>
+            <div className="px-3 py-1.5 rounded-full text-blue-500 flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-blue-500">
+              <div>Year Graduated</div>
               <ChevronDown size={16} />
             </div>
           </div>

@@ -1,6 +1,6 @@
 // AlumniDetailsModal.tsx
 import { useState } from 'react';
-import { Alumnus } from '@/models/models';
+import { Alumnus, Education } from '@/models/models';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,6 +13,8 @@ import {
 import type { Timestamp } from 'firebase/firestore'; 
 import { RegStatus } from '@/types/alumni/regStatus';
 import { useAlums } from '@/context/AlumContext';
+import { useWorkExperience } from "@/context/WorkExperienceContext";
+import { useEducation } from '@/context/EducationContext';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Mail, Phone, Calendar, MapPin, BookOpen, Briefcase, Activity, CheckCircle, XCircle } from 'lucide-react';
@@ -31,10 +33,18 @@ const AlumniDetailsModal = ({
   onUpdateRegStatus,
 }: AlumniDetailsModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  const { allEducation } = useEducation();
+
+  // Filter the education entries for the given alumniId
   
-  // Safety check
+  const { allWorkExperience } = useWorkExperience();
   if (!alumnus) return null;
   
+  const educationForAlumni = allEducation.filter(
+    (edu) => edu.alumniId === alumnus.alumniId
+  );
   const handleApprove = async () => {
     setIsSubmitting(true);
     try {
@@ -47,6 +57,16 @@ const AlumniDetailsModal = ({
     }
   };
   
+  
+
+
+
+  const presentJobs = allWorkExperience.filter(
+    (exp) =>
+      exp.alumniId === alumnus.alumniId && exp.endYear.toLowerCase() === "present"
+  );
+
+
   const handleReject = async () => {
     setIsSubmitting(true);
     try {
@@ -189,7 +209,18 @@ const AlumniDetailsModal = ({
                   <BookOpen className="h-4 w-4 text-gray-500 mr-2" />
                   <div>
                     <div className="text-sm text-gray-500">Graduation Year</div>
-                    <div className="font-medium">{alumnus.graduationYear?.toString() || 'N/A'}</div>
+                    {educationForAlumni.length > 0 ? (
+                      educationForAlumni.map((edu) => (
+                        <div key={edu.educationId}>
+                          <p>
+                            <strong>{edu.university}</strong> - {edu.yearGraduated} <br />
+                            {edu.major} ({edu.type})
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No education records found.</p>
+                    )}
                   </div>
                 </div>
                 
@@ -197,7 +228,19 @@ const AlumniDetailsModal = ({
                   <Briefcase className="h-4 w-4 text-gray-500 mr-2" />
                   <div>
                     <div className="text-sm text-gray-500">Job Title</div>
-                    <div className="font-medium">{alumnus.jobTitle || 'N/A'}</div>
+
+                    {presentJobs.map((job) => (
+                      <div key={job.workExperienceId}>
+                        <p>
+                          <strong>{job.jobTitle}</strong> at {job.company}<br />
+                          {/* {job.industry} — {job.location} */}
+                        </p>
+                      </div>
+                    ))}
+                    {presentJobs.length === 0 &&                         
+                        <p>
+                        No present job
+                        </p>}
                   </div>
                 </div>
                 

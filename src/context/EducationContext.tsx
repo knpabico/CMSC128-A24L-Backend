@@ -124,6 +124,7 @@ export function EducationProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
   };
+  
 
   const editEducation = async (EducationEntry: { EducationId: string }) => {
     try {

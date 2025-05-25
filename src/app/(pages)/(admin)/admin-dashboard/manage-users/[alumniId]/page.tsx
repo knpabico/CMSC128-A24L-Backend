@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
+import MapComponentA from "@/components/ui/map";
 import {
   MapPin,
   Cake,
@@ -29,6 +30,7 @@ import Link from "next/link";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { formatDate } from "@/utils/formatDate";
+import MapComponent from "../../google-maps/map";
 
 export default function AlumPage() {
   const { alums, loading: alumsloading } = useAlums();
@@ -44,6 +46,11 @@ export default function AlumPage() {
   const [work, setWork] = useState<WorkExperience[]>([]);
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
   const { isLoaded } = useGoogleMaps();
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
+const [activeMarker, setActiveMarker] = useState<number | null>(null);
+
+
+  
 
   const calculateAge = (birthDate: Date) => {
     //current date
@@ -586,6 +593,16 @@ export default function AlumPage() {
                   <p className="pl-9 pt-3">None</p>
                 )}
               </div>
+
+              <MapComponentA
+                workExperienceList={work}
+                onLocationClick={(lat, lng, index) => {
+                  setSelectedLocation({ lat, lng });
+                  setActiveMarker(index);
+                }}
+                selectedLocation={selectedLocation}
+                activeMarker={activeMarker}
+              />
             </div>
           </div>
         </div>

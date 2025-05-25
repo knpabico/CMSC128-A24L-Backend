@@ -465,72 +465,102 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
   return (
     <>
       {/* Event Proposal Modal */}
-      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-20">
-        <form className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md max-h-[90vh] overflow-auto space-y-5">
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-100">
+        <form className="text-sm bg-white p-6 rounded-2xl shadow-lg w-11/12 max-w-[50vw] max-h-[80vh] overflow-auto space-y-5">
           <div className="bg-white z-30 w-full flex justify-between items-start">
               <h2 className="text-2xl font-semibold">
               Propose Event
               </h2>
           </div>
-          <div>
-              <p className="text-xs font-light flex items-center">
-                <Asterisk size={16} className="text-red-600" /> Title
-              </p>
-              <input
-                  type="text"
-                  placeholder="Title"
-                  value={title}
-                  onChange={(e) => setEventTitle(e.target.value)}
-                  className="w-full p-2 border border-gray-500 rounded"
-                  required
-                  maxLength={100}
-              />
-          </div>
-          <div>
-              <p className="text-xs font-light flex items-center">
-                <Asterisk size={16} className="text-red-600" /> Description
-              </p>
-              <textarea
-                  placeholder="Description"
-                  value={description}
-                  onChange={(e) => setEventDescription(e.target.value)}
-                  className="w-full p-2 border border-gray-500 rounded"
-                  required
-                  maxLength={2000}
-                  rows={showFullDescription ? 6 : 3}
-              />
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <span>{description.length}/2000</span>
-                {description.length > 200 && (
-                  <button
-                    type="button"
-                    className="text-blue-600 underline ml-2"
-                    onClick={() => setShowFullDescription((prev) => !prev)}
-                  >
-                    {showFullDescription ? "Show less" : "Show more"}
-                  </button>
-                )}
-              </div>
-              <Button onClick={() => setIsModalOpen(true)}>
-                Need AI help for description?
-              </Button>
+
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium flex items-center">
+              <Asterisk size={16} className="text-red-600"/> Title
+            </label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Title"
+              value={title}
+              required
+              maxLength={100}
+              onChange={(e) => setEventTitle(e.target.value)}
+            />
           </div>
 
-          {/* Location Field */}
-           <div>
-              <p className="text-xs font-light flex items-center">
-                <Asterisk size={16} className="text-red-600" /> Location
-              </p>
-              <input
-                  type="text"
-                  placeholder="Location"
-                  value={location}
-                  onChange={(e) => setEventLocation(e.target.value)}
-                  className="w-full p-2 border border-gray-500 rounded"
-                  required
-                  maxLength={200}
-              />
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium flex items-center">
+              <Asterisk size={16} className="text-red-600"/> Description
+            </label>
+            <textarea
+              className="resize-none w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Description"
+              value={description}
+              required
+              maxLength={2000}
+              onChange={(e) => setEventDescription(e.target.value)}
+              rows={10}
+            />
+            <div className="text-xs text-gray-500">{description.length}/2000</div>
+            <Button onClick={() => setIsModalOpen(true)}>
+              Need AI help for description?
+            </Button>
           </div>
+
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium flex items-center">
+              <Asterisk size={16} className="text-red-600"/> Location
+            </label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Location"
+              value={location}
+              required
+              maxLength={200}
+              onChange={(e) => setEventLocation(e.target.value)}
+            />
+          </div>
+
+          {/* Date and Time */}
+            <div className="flex gap-4 text-[14px]">
+              <div className="space-y-2">
+                <label htmlFor="date" className="text-sm font-medium flex items-center">
+                  <Asterisk size={16} className="text-red-600" /> Date
+                </label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  onKeyDown={(e) => e.preventDefault()} // prevent manual typing
+                  className="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  min={
+                    date
+                    ? new Date(date).toISOString().split("T")[0]
+                    : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                        .toISOString()
+                        .split("T")[0]
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="time" className="text-sm font-medium flex items-center">
+                  <Asterisk size={16} className="text-red-600" /> Time
+                </label>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setEventTime(e.target.value)}
+                  className="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  min="08:00"
+                  max="22:00"
+                />
+              </div>
+            </div>
+          
 
           <ModalInput
             isOpen={isModalOpen}
@@ -542,45 +572,10 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             subtitle="Get AI-generated description for your event. Only fill in the applicable fields."
           />
 
-          {/* Date and Time Fields - Placed Side by Side */}
-          <div className="space-y-3">
-            {/* Date and Time Fields - Placed Side by Side */}
-            <div className="flex gap-3">
-                <div className="w-1/2">
-                    <p className="text-xs font-light flex items-center">
-                      <Asterisk size={16} className="text-red-600" /> Date
-                    </p>
-                    <input
-                        type="date"
-                        value={date}
-                        onChange={(e) => setEventDate(e.target.value)}
-                        className="w-full p-2 border border-gray-500 rounded text-center"
-                        required
-                        min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                        .toISOString()
-                        .split("T")[0]}
-                    />
-                </div>
-                <div className="w-1/2">
-                    <p className="text-xs font-light flex items-center">
-                      <Asterisk size={16} className="text-red-600" /> Time
-                    </p>
-                    <input
-                        type="time"
-                        value={time}
-                        onChange={(e) => setEventTime(e.target.value)}
-                        className="w-full p-2 border border-gray-500 rounded text-center"
-                        required
-                        min="08:00"
-                        max="22:00"
-                    />
-                </div>
-            </div>
-        </div>
-          
-          <div className="mt-5">
-              <label htmlFor="image-upload" className="text-[14px] cursor-pointer px-3 py-2 border bg-blue-500 border-gray-200 rounded shadow-xs hover:bg-gray-200">
-                  Upload Photo
+        
+          <div className="mt-10">
+              <label htmlFor="image-upload" className="text-[14px] flex items-center gap-2 w-35 cursor-pointer px-3 py-2 border border-gray-300 rounded-md shadow-xs hover:bg-gray-200">
+                  <Upload size={14} /> Upload Photo
               </label>
               <input
                   id="image-upload"
@@ -590,8 +585,10 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                   className="hidden"
               />
           </div>
+
+          
           {fileName && (
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="text-sm text-gray-600">
               Selected file: {
                 fileName.length > 100
                   ? fileName.slice(0, 97) + "..."
@@ -600,8 +597,8 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             </p>
           )}
           {preview && (
-            <div className="mt-2">
-              <div style={{ width: 40, height: 40, overflow: "hidden", borderRadius: 8, border: "1px solid #ccc" }}>
+            <div className="">
+              <div style={{ width: 80, height: 80, overflow: "hidden", borderRadius: 8, border: "1px solid #ccc" }}>
                 <img
                   src={preview}
                   alt="Preview"
@@ -612,7 +609,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
           )}
           {/* Target Audience */}
           <div className="my-[20px] space-y-4">
-            <div className="space-y-2 bg-gray-100 p-3 rounded-md">
+            <div className="space-y-2 p-3 rounded-md">
               <p className="text-sm font-medium flex items-center">
                 <Asterisk size={16} className="text-red-600" /> Visible to
               </p>
@@ -778,7 +775,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
                   }}
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
                 >
-                  Propose
+                  Submit
                 </button>
             </div>
           </div>
