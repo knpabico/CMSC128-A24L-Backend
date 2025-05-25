@@ -9,6 +9,7 @@ import Banner from "@/components/Banner";
 import ProposeEventForm from "./components/ProposeEventForm";
 import { FilePlus2 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function AllEventsPage()
 {
