@@ -23,7 +23,7 @@ const containerStyle = {
   height: "500px",
 };
 
-const MapComponent: React.FC<MapComponentProps> = ({
+const MapComponentA: React.FC<MapComponentProps> = ({
   workExperienceList,
   onLocationClick,
   selectedLocation,
@@ -187,4 +187,4 @@ const MapComponent: React.FC<MapComponentProps> = ({
   );
 };
 
-export default MapComponent;
+export default MapComponentA;
