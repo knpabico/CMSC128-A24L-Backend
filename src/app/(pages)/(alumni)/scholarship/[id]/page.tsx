@@ -145,10 +145,18 @@ const ScholarshipDetailPage: React.FC = () => {
 
   // Get the actual status from database
   const getStudentStatus = (studentId: string) => {
-    const scholarshipStudent = scholarshipStudents.find((ss) => ss.studentId === studentId);
-    return scholarshipStudent?.status || "available";
-  };
+  // Get all scholarshipStudent records for this student
+  const allStatuses = scholarshipStudents
+    .filter((ss) => ss.studentId === studentId)
+    .map((ss) => ss.status);
 
+  // If any status is approved, always return approved
+  if (allStatuses.includes("approved")) return "approved";
+  // Otherwise, return the most recent or fallback to "available"
+  if (allStatuses.includes("pending")) return "pending";
+  if (allStatuses.includes("rejected")) return "rejected";
+  return "available";
+};
   // Check if student is available for sponsorship (available, pending, or rejected)
   const isStudentAvailableForSponsorship = (studentId: string) => {
     const status = getStudentStatus(studentId);
@@ -492,36 +500,57 @@ const ScholarshipDetailPage: React.FC = () => {
 															
 															{/* Sponsorship column */}
 															<div className="w-1/6 flex justify-center">
-																<button 
-																	onClick={() => {
-																		setstudentDetails(student);
-																		setIsStudentConfirmationOpen(true);
-																	}}
-																	className={`text-sm rounded-full px-3 py-1 text-white shadow-lg transition-colors
-																		${
-																				!isAlreadySponsoring || 
-																				!isStudentAvailableForSponsorship(student.studentId) || 
-																				sponsoringStudents.has(student.studentId) ||
-																				getStudentStatus(student.studentId) === "approved"
-																						? "bg-gray-400 cursor-not-allowed"
-																						: "bg-blue-600 hover:bg-blue-500 cursor-pointer"
-																		}`}
-																	disabled={
-																		!isStudentAvailableForSponsorship(student.studentId) || 
-																		!isAlreadySponsoring || 
-																		sponsoringStudents.has(student.studentId) ||
-																		getStudentStatus(student.studentId) === "approved"
-																	}
-																	title={
-																		sponsoringStudents.has(student.studentId)
-																			? "Sponsorship request already submitted"
-																			: getStudentStatus(student.studentId) === "approved"
-																			? "This student is already sponsored"
-																			: isStudentAvailableForSponsorship(student.studentId)
-																			? "Sponsor this student"
-																			: "This student is not available for sponsorship"
-																	}
-																>
+                                <button
+                                  onClick={() => {
+                                    setstudentDetails(student);
+                                    setIsStudentConfirmationOpen(true);
+                                  }}
+                                  className={`text-sm rounded-full px-3 py-1 text-white shadow-lg transition-colors
+                                    ${
+                                      getStudentStatus(student.studentId) === "approved"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : !isAlreadySponsoring ||
+                                          !isStudentAvailableForSponsorship(student.studentId) ||
+                                          sponsoringStudents.has(student.studentId) ||
+                                          // Disable if this user already has a pending sponsorship for this student
+                                          scholarshipStudents.some(
+                                            ss =>
+                                              ss.studentId === student.studentId &&
+                                              ss.alumId === user?.uid &&
+                                              ss.status === "pending"
+                                          )
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-blue-600 hover:bg-blue-500 cursor-pointer"
+                                    }`}
+                                  disabled={
+                                    getStudentStatus(student.studentId) === "approved" ||
+                                    !isStudentAvailableForSponsorship(student.studentId) ||
+                                    !isAlreadySponsoring ||
+                                    sponsoringStudents.has(student.studentId) ||
+                                     scholarshipStudents.some(
+                                      ss =>
+                                        ss.studentId === student.studentId &&
+                                        ss.alumId === user?.uid &&
+                                        ss.status === "pending"
+                                    )
+                                                                }
+                                  title={
+                                    getStudentStatus(student.studentId) === "approved"
+                                      ? "This student is already sponsored"
+                                      : scholarshipStudents.some(
+                                        ss =>
+                                          ss.studentId === student.studentId &&
+                                          ss.alumId === user?.uid &&
+                                          ss.status === "pending"
+                                      )
+                                    ? "You already have a pending sponsorship request for this student"
+                                      : sponsoringStudents.has(student.studentId)
+                                      ? "Sponsorship request already submitted"
+                                      : isStudentAvailableForSponsorship(student.studentId)
+                                      ? "Sponsor this student"
+                                      : "This student is not available for sponsorship"
+                                  }
+                                >
 																	Sponsor
 																</button>
 															</div>
