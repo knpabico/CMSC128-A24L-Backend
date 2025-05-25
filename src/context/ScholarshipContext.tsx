@@ -17,7 +17,12 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { FirebaseError } from "firebase/app";
-import { Scholarship, Student, ScholarshipStudent, Alumnus } from "@/models/models";
+import {
+  Scholarship,
+  Student,
+  ScholarshipStudent,
+  Alumnus,
+} from "@/models/models";
 import { useNewsLetters } from "./NewsLetterContext";
 
 const ScholarshipContext = createContext<any>(null);
@@ -411,29 +416,40 @@ export function ScholarshipProvider({
     }
   };
 
-const getAlumniById = async (id: string): Promise<Pick<Alumnus, 'firstName' | 'middleName' | 'lastName' | 'alumniId' | 'address' | 'suffix' | 'email'> | null> => {
-  try {
-    const alumniDoc = doc(db, "alumni", id);
-    const alumniSnapshot = await getDoc(alumniDoc);
-    
-    if (alumniSnapshot.exists()) {
-      const data = alumniSnapshot.data();
-      return {
-        alumniId: alumniSnapshot.id,
-        firstName: data.firstName,
-        middleName: data.middleName || "",
-        lastName: data.lastName,
-        suffix: data.suffix || "",
-        address: Array.isArray(data.address) ? data.address : [data.address], // Ensure address is an array
-        email: data.email || data.emailAddress, // Handle potential field name difference
-      };
+  const getAlumniById = async (
+    id: string
+  ): Promise<Pick<
+    Alumnus,
+    | "firstName"
+    | "middleName"
+    | "lastName"
+    | "alumniId"
+    | "address"
+    | "suffix"
+    | "email"
+  > | null> => {
+    try {
+      const alumniDoc = doc(db, "alumni", id);
+      const alumniSnapshot = await getDoc(alumniDoc);
+
+      if (alumniSnapshot.exists()) {
+        const data = alumniSnapshot.data();
+        return {
+          alumniId: alumniSnapshot.id,
+          firstName: data.firstName,
+          middleName: data.middleName || "",
+          lastName: data.lastName,
+          suffix: data.suffix || "",
+          address: Array.isArray(data.address) ? data.address : [data.address], // Ensure address is an array
+          email: data.email || data.emailAddress, // Handle potential field name difference
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error("Error fetching alumni by ID:", err);
+      throw new Error("Failed to load alumni details");
     }
-    return null;
-  } catch (err) {
-    console.error("Error fetching alumni by ID:", err);
-    throw new Error("Failed to load alumni details");
-  }
-};
+  };
 
   // ScholarshipStudent-related functions
   const addScholarshipStudent = async (
@@ -597,6 +613,15 @@ const getAlumniById = async (id: string): Promise<Pick<Alumnus, 'firstName' | 'm
     }
   };
 
+  const getAllScholarshipStudents = async (): Promise<ScholarshipStudent[]> => {
+    const q = query(
+      collection(db, "scholarship_student"),
+      where("status", "==", "approved")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data()) as ScholarshipStudent[];
+  };
+
   // Get all scholarship applications for a specific scholarship
   const getScholarshipStudentsByScholarshipId = async (
     scholarshipId: string
@@ -702,7 +727,7 @@ const getAlumniById = async (id: string): Promise<Pick<Alumnus, 'firstName' | 'm
         getScholarshipStudentsByStudentId,
         getScholarshipStudentsByAlumId,
         getStudentsByScholarshipId,
-
+        getAllScholarshipStudents,
         //Alumni-related
         getAlumniById,
 

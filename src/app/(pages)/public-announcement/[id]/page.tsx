@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import { useAnnouncement } from "@/context/AnnouncementContext";
 import { Announcement } from "@/models/models";
 import Image from "next/image";
-import { formatDate } from "@/utils/formatDate";
 import LoadingPage from "@/components/Loading";
 const Page = () => {
   const { id } = useParams();
