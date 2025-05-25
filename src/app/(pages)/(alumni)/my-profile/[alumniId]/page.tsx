@@ -1344,7 +1344,11 @@ const UserProfile = () => {
                             <div className="flex space-x-10">
                               <button
                                 className="flex items-center space-x-2 cursor-pointer"
-                                onClick={() => openMap(index)}
+                                onClick={() => {
+                                  // Update selectedLocation and activeMarker on row click
+                                  setSelectedLocation({ lat: item.latitude, lng: item.longitude });
+                                  setActiveMarker(index);
+                                }}
                               >
                                 <p className="text-[#3675c5]">
                                   <MapPin />
