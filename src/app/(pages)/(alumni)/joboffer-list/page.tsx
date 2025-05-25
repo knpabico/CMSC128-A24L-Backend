@@ -1377,9 +1377,10 @@ function JobOffersContent() {
 
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Job Description</h3>
-                    <CollapseText 
-                    text={selectedJob.jobDescription} 
-                    maxChars={500} />
+                    <CollapseText
+                      text={selectedJob.jobDescription}
+                      maxChars={500}
+                    />
                   </div>
 
                   <div className="mb-4">
@@ -1426,15 +1427,15 @@ function JobOffersContent() {
                         <p className="text-sm text-gray-500 mb-4">
                           Click the button below to apply.
                         </p> */}
-                      <Button
-                        variant={"outline"}
-                        className="w-full cursor-pointer rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-                        onClick={() => {
-                          setApplyModalOpen(true);
-                        }}
-                      >
-                        Apply
-                      </Button>
+                        <Button
+                          variant={"outline"}
+                          className="w-full cursor-pointer rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+                          onClick={() => {
+                            setApplyModalOpen(true);
+                          }}
+                        >
+                          Apply
+                        </Button>
                       </div>
                     )}
 
@@ -1711,7 +1712,7 @@ function JobOffersContent() {
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                       className="w-full p-1.5 border rounded resize-none text-sm"
-                      style={{ height: "110px" }} 
+                      style={{ height: "110px" }}
                       maxLength={2000}
                       required
                     />
@@ -1819,11 +1820,11 @@ function JobOffersContent() {
                         onInput={(e) => {
                           const value = (e.target as HTMLInputElement).value;
                           if (!/^\d+(-\d+)?$/.test(value)) {
-                          (e.target as HTMLInputElement).value = value
-                            .replace(/[^0-9-]/g, "")            // Remove non-digit and non-dash characters
-                            .replace(/^-/g, "")                 // Remove a dash if it's the first character
-                            .replace(/(-.*)-+/g, "$1");         // Remove any extra dashes after the first one
-                        }
+                            (e.target as HTMLInputElement).value = value
+                              .replace(/[^0-9-]/g, "") // Remove non-digit and non-dash characters
+                              .replace(/^-/g, "") // Remove a dash if it's the first character
+                              .replace(/(-.*)-+/g, "$1"); // Remove any extra dashes after the first one
+                          }
                         }}
                         pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
                         className="w-full pl-8 p-1.5 border rounded text-sm"

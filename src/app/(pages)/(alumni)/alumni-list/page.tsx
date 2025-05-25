@@ -4,12 +4,14 @@ import { db } from "@/lib/firebase";
 import { Alumnus, Education, WorkExperience } from "@/models/models";
 import { collection, getDocs, query, where } from "firebase/firestore"; // Import missing Firebase functions
 import { ChevronDown } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Banner from "@/components/Banner";
 import Image from "next/image";
+import { set } from "zod";
+import { useAuth } from "@/context/AuthContext";
 export default function Users() {
   const { alums, isLoading } = useAlums();
+  const [filteredAlums, setFilteredAlums] = useState<Alumnus[]>([]);
   //const [workExperience, setWorkExperience] = useState<WorkExperience[]>([]);
   const [workExperience, setWorkExperience] = useState<
     Record<string, WorkExperience[]>
@@ -19,41 +21,42 @@ export default function Users() {
   >({});
   const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
-  const router = useRouter();
+  const filterCategories = {
+    "Gratuation Year": [],
+    "Educational Attainment": ["Bachelor's", "Master's", "PhD"],
+    "Field of Interest": [],
+    Status: ["Active", "Inactive"],
+    Location: [],
+    Affiliation: [],
+  };
 
-  // const fetchWorkExperience = async (alumniId: string) => {
-  //   setLoading(true);
-  //   setSelectedAlumniId(alumniId);
+  useEffect(() => {
+    //remove current user from alumni list
+    console.log(user?.uid);
+    let filteredAlumni = alums.filter(
+      (alum: Alumnus) => alum.alumniId !== user?.uid
+    );
 
-  //   try {
-  //     const q = query(
-  //       collection(db, "work_experience"),
-  //       where("alumniId", "==", alumniId)
-  //     );
-  //     const querySnapshot = await getDocs(q);
+    //sort alphabetically by first name
+    filteredAlumni = filteredAlumni.sort((a: Alumnus, b: Alumnus) =>
+      a.firstName.toLowerCase().localeCompare(b.firstName.toLocaleLowerCase())
+    );
 
-  //     const workExperienceList: WorkExperience[] = querySnapshot.docs.map(
-  //       (doc) => doc.data() as WorkExperience
-  //     );
-  //     setWorkExperience(workExperienceList);
-  //   } catch (error) {
-  //     console.error("Error fetching work experience:", error);
-  //   }
-
-  //   setLoading(false);
-  // };
+    setFilteredAlums(filteredAlumni);
+  }, [alums]);
 
   useEffect(() => {
     //function to fetch work experience while being mapped to alumniId
     const mapWorkExperience = async () => {
-      if (alums.length === 0) return;
-      if (!alums) return;
+      if (filteredAlums.length === 0) return;
+      if (!filteredAlums) return;
       setLoading(true);
 
       try {
         //fetch educationList of alums
-        const fetchWorkExperience = alums.map(async (alum: Alumnus) => {
+        const fetchWorkExperience = filteredAlums.map(async (alum: Alumnus) => {
           const alumniId = alum.alumniId;
           const q = query(
             collection(db, "work_experience"),
@@ -90,18 +93,18 @@ export default function Users() {
     };
 
     mapWorkExperience();
-  }, [alums]);
+  }, [filteredAlums]);
 
   useEffect(() => {
     //function to fetch education while being mapped to alumniId
     const mapEducation = async () => {
-      if (alums.length === 0) return;
-      if (!alums) return;
+      if (filteredAlums.length === 0) return;
+      if (!filteredAlums) return;
       setLoading(true);
 
       try {
-        //fetch educationList of alums
-        const fetchEducation = alums.map(async (alum: Alumnus) => {
+        //fetch educationList of filteredAlums
+        const fetchEducation = filteredAlums.map(async (alum: Alumnus) => {
           const alumniId = alum.alumniId;
           const q = query(
             collection(db, "education"),
@@ -110,8 +113,14 @@ export default function Users() {
 
           const querySnapshot = await getDocs(q);
 
-          const educationList = querySnapshot.docs.map(
+          let educationList = querySnapshot.docs.map(
             (doc) => doc.data() as Education
+          );
+
+          //sort educationList by yearGraduated in descending order
+          educationList = educationList.sort(
+            (a: Education, b: Education) =>
+              Number(b.yearGraduated) - Number(a.yearGraduated)
           );
 
           return { alumniId, educationList };
@@ -137,7 +146,7 @@ export default function Users() {
     };
 
     mapEducation();
-  }, [alums]);
+  }, [filteredAlums]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -156,18 +165,30 @@ export default function Users() {
           <div className="bg-white rounded-xl flex flex-wrap gap-3 p-3 items-center shadow-sm">
             <div className="text-sm font-medium">Filter by:</div>
             <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Any Date</div>
+              <div>Attainment</div>
               <ChevronDown size={16} />
             </div>
             <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Status</div>
+              <div>Field of Work</div>
+              <ChevronDown size={16} />
+            </div>
+            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
+              <div>Graduation Year</div>
+              <ChevronDown size={16} />
+            </div>
+            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
+              <div>Location</div>
+              <ChevronDown size={16} />
+            </div>
+            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
+              <div>Affiliation</div>
               <ChevronDown size={16} />
             </div>
           </div>
 
           {/* Alumni Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {alums.map((alum, index) => (
+            {filteredAlums.map((alum, index) => (
               <div
                 key={index}
                 className="bg-white shadow-md rounded-lg flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow"
@@ -177,7 +198,6 @@ export default function Users() {
                   {isLoading ? (
                     <div className="w-full h-full animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
                   ) : alum.image ? (
-
                     <Image
                       width={0}
                       height={0}
