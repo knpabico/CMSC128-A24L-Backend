@@ -77,8 +77,8 @@ return (
 					<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
 					<div className="flex justify-between items-center gap-2">
 						<div className="flex items-center">
-							<label htmlFor="sort" className="mr-2 text-sm text-blue-500">Filter:</label>
-							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500" >
+							<label htmlFor="sort" className="mr-2 text-sm text-[var(--primary-blue)]">Filter:</label>
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)]" >
 								<option value="all">All</option>
 								<option value="active">Active</option>
 								<option value="completed">Closed </option>
@@ -86,8 +86,8 @@ return (
 						</div>
 						<div className='w-1'></div>
 						<div className="flex items-center">
-							<label htmlFor="sort" className="mr-2 text-sm text-blue-500">Sort by:</label>
-							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500" >
+							<label htmlFor="sort" className="mr-2 text-sm text-[var(--primary-blue)]">Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)]" >
 								<option value="newest">Newest</option>
 								<option value="oldest">Oldest</option>
 								<option value="amount-high">Amount (High to Low)</option>

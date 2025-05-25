@@ -103,15 +103,15 @@ const StatusFilterDropdown = ({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-blue-500">Filter:</span>
+      <span className="text-sm text-[var(--primary-blue)]">Filter:</span>
       <div className="relative">
         <button
           onClick={toggleDropdown}
-          className=" flex items-center justify-between gap-3 w-28 rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className=" flex items-center justify-between gap-3 w-28 rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)] text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--primary-blue)]"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          <span className="text-blue-500">{getDisplayText()}</span>
+          <span className="text-[var(--primary-blue)]">{getDisplayText()}</span>
           <ChevronDown
             size={16}
             className={`text-gray-500 transition-transform ${
@@ -177,16 +177,16 @@ const SortControlDropdown = ({
   };
   return (
     <div className="flex items-center gap-2 ml-3">
-      <span className="text-sm text-blue-500">Sort by:</span>
+      <span className="text-sm text-[var(--primary-blue)]">Sort by:</span>
 
       <div className="relative">
         <button
           onClick={toggleDropdown}
-          className=" flex items-center justify-between gap-3 w-45 rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500 text-sm  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className=" flex items-center justify-between gap-3 w-45 rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)] text-sm  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--primary-blue)]"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          <span className="text-blue-500">{getDisplayText()}</span>
+          <span className="text-[var(--primary-blue)]">{getDisplayText()}</span>
           <ChevronDown
             size={16}
             className={`text-gray-500 transition-transform ${
@@ -435,7 +435,7 @@ const ScholarshipPage: React.FC = () => {
   if (loading || featuredLoading)
     return (
       <div className="flex justify-center p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--primary-blue)]"></div>
       </div>
     );
 

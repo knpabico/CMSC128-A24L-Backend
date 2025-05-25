@@ -430,12 +430,12 @@ function JobOffersContent() {
                 placeholder="Search jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm  text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
               />
             </div>
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm  text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -500,7 +500,7 @@ function JobOffersContent() {
             </div>
 
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -533,13 +533,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Job Postings"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>All Job Posts</span>
                   {sidebarFilter !== "Job Postings" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -554,13 +554,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Saved Jobs"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Saved Jobs</span>
                   {sidebarFilter !== "Saved Jobs" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -575,13 +575,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Create Jobs"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Created Jobs</span>
                   {sidebarFilter !== "Create Jobs" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -596,13 +596,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Applied Jobs"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Applied Jobs</span>
                   {sidebarFilter !== "Applied Jobs" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -617,13 +617,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Drafts"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Drafts</span>
                   {sidebarFilter !== "Drafts" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -653,9 +653,9 @@ function JobOffersContent() {
                         {currentJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                               selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
+                                ? "border-[var(--primary-blue)]"
                                 : "border-gray-200"
                             }`}
                             onClick={() => setSelectedJob(job)}
@@ -759,9 +759,9 @@ function JobOffersContent() {
                           (job: JobOffering, index: Key | null | undefined) => (
                             <div
                               key={index}
-                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                                 selectedJob?.jobId === job.jobId
-                                  ? "border-blue-500"
+                                  ? "border-[var(--primary-blue)]"
                                   : "border-gray-200"
                               }`}
                               onClick={() => setSelectedJob(job)}
@@ -872,9 +872,9 @@ function JobOffersContent() {
                             return (
                               <div
                                 key={index}
-                                className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                                className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                                   selectedJob?.jobId === job.jobId
-                                    ? "border-blue-500"
+                                    ? "border-[var(--primary-blue)]"
                                     : "border-gray-200"
                                 }`}
                                 onClick={() => setSelectedJob(job)}
@@ -1057,9 +1057,9 @@ function JobOffersContent() {
                         return (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                               selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
+                                ? "border-[var(--primary-blue)]"
                                 : "border-gray-200"
                             }`}
                             onClick={() => setSelectedJob(job)}
@@ -1151,9 +1151,9 @@ function JobOffersContent() {
                           (job: JobOffering, index: Key | null | undefined) => (
                             <div
                               key={index}
-                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                                 selectedJob?.jobId === job.jobId
-                                  ? "border-blue-500"
+                                  ? "border-[var(--primary-blue)]"
                                   : "border-gray-200"
                               }`}
                               onClick={() => setSelectedJob(job)}
@@ -1215,7 +1215,7 @@ function JobOffersContent() {
 
                                   {/* Edit button */}
                                   <button
-                                    className="text-gray-500 hover:text-blue-500 transition-colors"
+                                    className="text-gray-500 hover:text-[var(--primary-blue)] transition-colors"
                                     onClick={(e) => {
                                       handleEditDraft(job);
                                       setShowForm(true);
@@ -1547,7 +1547,7 @@ function JobOffersContent() {
                                     href={`https://mail.google.com/mail/?view=cm&fs=1&to=${applicant?.email}&su=Job Application Update for ${selectedJob.position} at ${selectedJob.company}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors flex items-center gap-1"
+                                    className="px-3 py-1 bg-[var(--primary-blue)] text-white rounded-md text-sm hover:bg-blue-600 transition-colors flex items-center gap-1"
                                   >
                                     <Mail className="w-4 h-4" />
                                     Email
@@ -1618,7 +1618,7 @@ function JobOffersContent() {
                     </label>
                     <input
                       type="text"
-                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       placeholder="e.g. Software Engineer"
                       value={position}
                       required
@@ -1638,7 +1638,7 @@ function JobOffersContent() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
                             employmentType ? 'text-black ' : 'text-gray-500'
                           }`}
                         >
@@ -1678,7 +1678,7 @@ function JobOffersContent() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
                             jobType ? 'text-black ' : 'text-gray-500'
                           }`}
                         >
@@ -1715,7 +1715,7 @@ function JobOffersContent() {
                       placeholder="e.g., Outline the role, responsibilities, and key qualifications for this position."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
-                      className="text-sm w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                      className="text-sm w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] resize-none"
                       style={{ height: "110px" }} 
                       maxLength={2000}
                       required
@@ -1750,7 +1750,7 @@ function JobOffersContent() {
                       placeholder="Company"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       maxLength={200}
                       required
                     />
@@ -1764,7 +1764,7 @@ function JobOffersContent() {
                       placeholder="Location"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       maxLength={200}
                       required
                     />
@@ -1781,7 +1781,7 @@ function JobOffersContent() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
                             experienceLevel ? 'text-black ' : 'text-gray-500'
                           }`}
                         >
@@ -1833,7 +1833,7 @@ function JobOffersContent() {
                         }
                         }}
                         pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
-                        className="pl-8 p-1.5 text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="pl-8 p-1.5 text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
 
                         required
                       />
@@ -1849,7 +1849,7 @@ function JobOffersContent() {
                       value={requiredSkill.join(", ")}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       required
                     />
                   </div>
@@ -1863,7 +1863,7 @@ function JobOffersContent() {
                 </label>
                 <div className="flex items-center gap-4">
                   <label className="cursor-pointer">
-                    <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-blue)] transition-colors">
                       Choose File
                     </div>
                     <input
