@@ -1,16 +1,11 @@
 "use client";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience } from "@/models/models";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import DonutChart from "@/components/charts/DonutChart";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import ReportSummaryCard from "@/components/ReportSummaryCard";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronRight, ClipboardList } from "lucide-react";
 
 const StatisticalReports = () => {
@@ -53,24 +48,157 @@ const StatisticalReports = () => {
     );
   }, [alums]);
 
+  // Memoize chart data to prevent unnecessary recalculations
+  const activeInactiveData = useMemo(
+    () => ({
+      labels: ["Active", "Inactive"],
+      data: [
+        approvedActiveAlums.length,
+        approvedAlums.length - approvedActiveAlums.length,
+      ],
+    }),
+    [approvedActiveAlums.length, approvedAlums.length]
+  );
+
+  const newsletterData = useMemo(
+    () => ({
+      labels: ["Subscribed", "Not Subscribed"],
+      data: [
+        alumsSubscribedToNewsletters.length,
+        approvedAlums.length - alumsSubscribedToNewsletters.length,
+      ],
+    }),
+    [alumsSubscribedToNewsletters.length, approvedAlums.length]
+  );
+
+  const employmentData = useMemo(
+    () => ({
+      labels: ["Employed", "Unemployed"],
+      data: [
+        currentWorkExperience.length,
+        approvedAlums.length - currentWorkExperience.length,
+      ],
+    }),
+    [currentWorkExperience.length, approvedAlums.length]
+  );
+
+  const locationData = useMemo(
+    () => ({
+      labels: ["Philippines", "Other Countries"],
+      data: [
+        philippineWorkExperience.length,
+        currentWorkExperience.length - philippineWorkExperience.length,
+      ],
+    }),
+    [philippineWorkExperience.length, currentWorkExperience.length]
+  );
+
+  // Memoize the report summary data to prevent ReportSummaryCard from re-rendering
+  const reportSummaryData = useMemo(() => {
+    const employmentRate = Math.round(
+      (currentWorkExperience.length / approvedAlums.length) * 100
+    );
+    const subscriptionRate = Math.round(
+      (alumsSubscribedToNewsletters.length / approvedAlums.length) * 100
+    );
+    const philippinesPercentage =
+      currentWorkExperience.length > 0
+        ? Math.round(
+            (philippineWorkExperience.length / currentWorkExperience.length) *
+              100
+          )
+        : 0;
+    const activePercentage = Math.round(
+      (approvedActiveAlums.length / approvedAlums.length) * 100
+    );
+    const inactivePercentage = Math.round(
+      ((approvedAlums.length - approvedActiveAlums.length) /
+        approvedAlums.length) *
+        100
+    );
+
+    return `
+    // Alumni Overview
+    Total Number of alumni: ${approvedAlums.length} 
+    Active alumni: ${approvedActiveAlums.length} 
+    Inactive alumni: ${approvedAlums.length - approvedActiveAlums.length} 
+    
+    // Newsletter Metrics
+    Number of alumni subscribed to newsletters: ${
+      alumsSubscribedToNewsletters.length
+    } 
+    Number of alumni not subscribed to newsletters: ${
+      approvedAlums.length - alumsSubscribedToNewsletters.length
+    } 
+    Newsletter subscription rate: ${subscriptionRate}%
+    
+    // Employment Status
+    Number of Alumni currently employed: ${currentWorkExperience.length} 
+    Number of alumni currently unemployed: ${
+      approvedAlums.length - currentWorkExperience.length
+    }
+    Employment rate: ${employmentRate}%
+    
+    // Work Location
+    Number of alumni currently working in Philippines: ${
+      philippineWorkExperience.length
+    }
+    Number of alumni working abroad: ${
+      currentWorkExperience.length - philippineWorkExperience.length
+    }
+    Percentage working in Philippines: ${philippinesPercentage}%
+    
+    // Activity Metrics
+    Active alumni percentage: ${activePercentage}%
+    Inactive alumni percentage: ${inactivePercentage}%
+    
+    // Date Context
+    Current date: ${new Date().toLocaleDateString()}
+    Report generated on: ${new Date().toLocaleString()}
+    `;
+  }, [
+    approvedAlums.length,
+    approvedActiveAlums.length,
+    alumsSubscribedToNewsletters.length,
+    currentWorkExperience.length,
+    philippineWorkExperience.length,
+  ]);
+
   const [expandedCards, setExpandedCards] = useState({
     active: false,
     inactive: false,
     newsletter: false,
   });
 
-  const toggleCard = (type: "active" | "inactive" | "newsletter") => {
-    setExpandedCards((prev) => ({
-      ...prev,
-      [type]: !prev[type],
-    }));
-  };
+  // Use useCallback to memoize the toggle function
+  const toggleCard = useCallback(
+    (type: "active" | "inactive" | "newsletter") => {
+      setExpandedCards((prev) => ({
+        ...prev,
+        [type]: !prev[type],
+      }));
+    },
+    []
+  );
+
+  // Memoize the toggle handlers to prevent child re-renders
+  const toggleActive = useCallback(() => toggleCard("active"), [toggleCard]);
+  const toggleInactive = useCallback(
+    () => toggleCard("inactive"),
+    [toggleCard]
+  );
+  const toggleNewsletter = useCallback(
+    () => toggleCard("newsletter"),
+    [toggleCard]
+  );
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-7xl mx-auto">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2">
-        <div className="hover:text-[#0856BA] cursor-pointer transition-colors">Home</div>
+        <div className="hover:text-[#0856BA] cursor-pointer transition-colors">
+          Home
+        </div>
         <div>
           <ChevronRight size={15} />
         </div>
@@ -103,37 +231,7 @@ const StatisticalReports = () => {
             </div>
             <div className="p-4 flex-1 flex flex-col justify-center">
               <div className="p-2 rounded-lg h-100 overflow-auto">
-                <ReportSummaryCard
-                  data={`
-                  // Alumni Overview
-                  Total Number of alumni: ${approvedAlums.length} 
-                  Active alumni: ${approvedActiveAlums.length} 
-                  Inactive alumni: ${approvedAlums.length - approvedActiveAlums.length} 
-                  
-                  // Newsletter Metrics
-                  Number of alumni subscribed to newsletters: ${alumsSubscribedToNewsletters.length} 
-                  Number of alumni not subscribed to newsletters: ${approvedAlums.length - alumsSubscribedToNewsletters.length} 
-                  Newsletter subscription rate: ${Math.round((alumsSubscribedToNewsletters.length / approvedAlums.length) * 100)}%
-                  
-                  // Employment Status
-                  Number of Alumni currently employed: ${currentWorkExperience.length} 
-                  Number of alumni currently unemployed: ${approvedAlums.length - currentWorkExperience.length}
-                  Employment rate: ${Math.round((currentWorkExperience.length / approvedAlums.length) * 100)}%
-                  
-                  // Work Location
-                  Number of alumni currently working in Philippines: ${philippineWorkExperience.length}
-                  Number of alumni working abroad: ${currentWorkExperience.length - philippineWorkExperience.length}
-                  Percentage working in Philippines: ${Math.round((philippineWorkExperience.length / currentWorkExperience.length) * 100)}%
-                  
-                  // Activity Metrics
-                  Active alumni percentage: ${Math.round((approvedActiveAlums.length / approvedAlums.length) * 100)}%
-                  Inactive alumni percentage: ${Math.round(((approvedAlums.length - approvedActiveAlums.length) / approvedAlums.length) * 100)}%
-                  
-                  // Date Context
-                  Current date: ${new Date().toLocaleDateString()}
-                  Report generated on: ${new Date().toLocaleString()}
-                `}
-                />
+                <ReportSummaryCard data={reportSummaryData} />
               </div>
             </div>
           </div>
@@ -150,25 +248,23 @@ const StatisticalReports = () => {
             </div>
             <div className="flex-1 flex items-center justify-center p-3">
               <div className="flex-1 bg-white border-none">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                        Active vs Inactive Alumni
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex justify-center pt-0">
-                      <DonutChart
-                        labels={["Active", "Inactive"]}
-                        data={[
-                          approvedActiveAlums.length,
-                          approvedAlums.length - approvedActiveAlums.length,
-                        ]}
-                      />
-                    </CardContent>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                    Active vs Inactive Alumni
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center pt-0">
+                  <DonutChart
+                    labels={activeInactiveData.labels}
+                    data={activeInactiveData.data}
+                  />
+                </CardContent>
               </div>
             </div>
             <div className="mt-4 text-center w-full">
               <p className="text-sm text-gray-600 mt-1">
-                Active: {approvedActiveAlums.length} | Inactive: {approvedAlums.length - approvedActiveAlums.length}
+                Active: {approvedActiveAlums.length} | Inactive:{" "}
+                {approvedAlums.length - approvedActiveAlums.length}
               </p>
             </div>
           </div>
@@ -188,13 +284,9 @@ const StatisticalReports = () => {
           <div className="flex-1 flex items-center justify-center p-3">
             <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
               <DonutChart
-                        labels={["Subscribed", "Not Subscribed"]}
-                        data={[
-                          alumsSubscribedToNewsletters.length,
-                          approvedAlums.length - alumsSubscribedToNewsletters.length,
-                        ]}
-                      />
-                      
+                labels={newsletterData.labels}
+                data={newsletterData.data}
+              />
             </div>
           </div>
         </div>
@@ -210,12 +302,9 @@ const StatisticalReports = () => {
           <div className="flex-1 flex items-center justify-center p-3">
             <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
               <DonutChart
-                      labels={["Employed", "Unemployed"]}
-                      data={[
-                        currentWorkExperience.length,
-                        approvedAlums.length - currentWorkExperience.length,
-                      ]}
-                    />
+                labels={employmentData.labels}
+                data={employmentData.data}
+              />
             </div>
           </div>
         </div>
@@ -231,173 +320,167 @@ const StatisticalReports = () => {
           <div className="flex-1 flex items-center justify-center p-3">
             <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
               <DonutChart
-                      labels={["Philippines", "Other Countries"]}
-                      data={[
-                        philippineWorkExperience.length,
-                        currentWorkExperience.length -
-                          philippineWorkExperience.length,
-                      ]}
-                    />
+                labels={locationData.labels}
+                data={locationData.data}
+              />
             </div>
           </div>
         </div>
       </div>
 
       {/* Expandable Alumni Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Active Alumni Card */}
-                    <div className="flex flex-col">
-                      <Card
-                        className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
-                        onClick={() => toggleCard("active")}
-                      >
-                        <CardHeader className="px-4 py-3">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <CardTitle className="text-gray-700 text-base">
-                                Active Alumni
-                              </CardTitle>
-                              {!isLoading && (
-                                <div className="text-[#0856BA] font-bold text-2xl">
-                                  {approvedActiveAlums.length}
-                                </div>
-                              )}
-                            </div>
-                            <div className="bg-gray-50 rounded-full p-1.5 text-[#0856BA]">
-                              {expandedCards.active ? (
-                                <ChevronDown size={16} />
-                              ) : (
-                                <ChevronRight size={16} />
-                              )}
-                            </div>
-                          </div>
-                        </CardHeader>
-                        {expandedCards.active && (
-                          <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
-                            {isLoading ? (
-                              <p className="text-gray-500 py-2 text-sm">Loading...</p>
-                            ) : (
-                              <ul className="divide-y divide-gray-200">
-                                {approvedActiveAlums.map(
-                                  (alum: Alumnus, index: number) => (
-                                    <li
-                                      key={index}
-                                      className="py-1.5 text-gray-700 text-sm flex items-center"
-                                    >
-                                      <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
-                                      {alum.firstName} {alum.lastName}
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                            )}
-                          </CardContent>
-                        )}
-                      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Active Alumni Card */}
+        <div className="flex flex-col">
+          <Card
+            className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
+            onClick={toggleActive}
+          >
+            <CardHeader className="px-4 py-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-gray-700 text-base">
+                    Active Alumni
+                  </CardTitle>
+                  {!isLoading && (
+                    <div className="text-[#0856BA] font-bold text-2xl">
+                      {approvedActiveAlums.length}
                     </div>
-      
-                    {/* Inactive Alumni Card */}
-                    <div className="flex flex-col">
-                      <Card
-                        className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
-                        onClick={() => toggleCard("inactive")}
+                  )}
+                </div>
+                <div className="bg-gray-50 rounded-full p-1.5 text-[#0856BA]">
+                  {expandedCards.active ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            {expandedCards.active && (
+              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
+                {isLoading ? (
+                  <p className="text-gray-500 py-2 text-sm">Loading...</p>
+                ) : (
+                  <ul className="divide-y divide-gray-200">
+                    {approvedActiveAlums.map((alum: Alumnus, index: number) => (
+                      <li
+                        key={alum.alumniId || index}
+                        className="py-1.5 text-gray-700 text-sm flex items-center"
                       >
-                        <CardHeader className="px-4 py-3">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <CardTitle className="text-gray-700 text-base">
-                                Inactive Alumni
-                              </CardTitle>
-                              {!isLoading && (
-                                <div className="text-[#0856BA] font-bold text-2xl">
-                                  {inactiveAlums.length}
-                                </div>
-                              )}
-                            </div>
-                            <div className="bg-gray-50 rounded-full p-1.5 text-[#0856BA]">
-                              {expandedCards.inactive ? (
-                                <ChevronDown size={16} />
-                              ) : (
-                                <ChevronRight size={16} />
-                              )}
-                            </div>
-                          </div>
-                        </CardHeader>
-                        {expandedCards.inactive && (
-                          <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
-                            {isLoading ? (
-                              <p className="text-gray-500 py-2 text-sm">Loading...</p>
-                            ) : (
-                              <ul className="divide-y divide-gray-200">
-                                {inactiveAlums.map((alum: Alumnus, index: number) => (
-                                  <li
-                                    key={index}
-                                    className="py-1.5 text-gray-700 text-sm flex items-center"
-                                  >
-                                    <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
-                                    {alum.firstName} {alum.lastName}
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </CardContent>
-                        )}
-                      </Card>
+                        <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                        {alum.firstName} {alum.lastName}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        </div>
+
+        {/* Inactive Alumni Card */}
+        <div className="flex flex-col">
+          <Card
+            className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
+            onClick={toggleInactive}
+          >
+            <CardHeader className="px-4 py-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-gray-700 text-base">
+                    Inactive Alumni
+                  </CardTitle>
+                  {!isLoading && (
+                    <div className="text-[#0856BA] font-bold text-2xl">
+                      {inactiveAlums.length}
                     </div>
-      
-                    {/* Newsletter Subscribers Card */}
-                    <div className="flex flex-col">
-                      <Card
-                        className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
-                        onClick={() => toggleCard("newsletter")}
+                  )}
+                </div>
+                <div className="bg-gray-50 rounded-full p-1.5 text-[#0856BA]">
+                  {expandedCards.inactive ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            {expandedCards.inactive && (
+              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
+                {isLoading ? (
+                  <p className="text-gray-500 py-2 text-sm">Loading...</p>
+                ) : (
+                  <ul className="divide-y divide-gray-200">
+                    {inactiveAlums.map((alum: Alumnus, index: number) => (
+                      <li
+                        key={alum.alumniId || index}
+                        className="py-1.5 text-gray-700 text-sm flex items-center"
                       >
-                        <CardHeader className="px-4 py-3">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <CardTitle className="text-gray-700 text-base">
-                                Newsletter Subscribers
-                              </CardTitle>
-                              {!isLoading && (
-                                <div className="text-[#0856BA] font-bold text-2xl">
-                                  {alumsSubscribedToNewsletters.length}
-                                </div>
-                              )}
-                            </div>
-                            <div className="bg-gray-50 rounded-full p-1.5 text-[#0856BA]">
-                              {expandedCards.newsletter ? (
-                                <ChevronDown size={16} />
-                              ) : (
-                                <ChevronRight size={16} />
-                              )}
-                            </div>
-                          </div>
-                        </CardHeader>
-                        {expandedCards.newsletter && (
-                          <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
-                            {isLoading ? (
-                              <p className="text-gray-500 py-2 text-sm">Loading...</p>
-                            ) : (
-                              <ul className="divide-y divide-gray-200">
-                                {alumsSubscribedToNewsletters.map(
-                                  (alum: Alumnus, index: number) => (
-                                    <li
-                                      key={index}
-                                      className="py-1.5 text-gray-700 text-sm flex items-center"
-                                    >
-                                      <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
-                                      {alum.firstName} {alum.lastName}
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                            )}
-                          </CardContent>
-                        )}
-                      </Card>
+                        <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                        {alum.firstName} {alum.lastName}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        </div>
+
+        {/* Newsletter Subscribers Card */}
+        <div className="flex flex-col">
+          <Card
+            className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
+            onClick={toggleNewsletter}
+          >
+            <CardHeader className="px-4 py-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-gray-700 text-base">
+                    Newsletter Subscribers
+                  </CardTitle>
+                  {!isLoading && (
+                    <div className="text-[#0856BA] font-bold text-2xl">
+                      {alumsSubscribedToNewsletters.length}
                     </div>
-                  </div>
+                  )}
+                </div>
+                <div className="bg-gray-50 rounded-full p-1.5 text-[#0856BA]">
+                  {expandedCards.newsletter ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            {expandedCards.newsletter && (
+              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
+                {isLoading ? (
+                  <p className="text-gray-500 py-2 text-sm">Loading...</p>
+                ) : (
+                  <ul className="divide-y divide-gray-200">
+                    {alumsSubscribedToNewsletters.map(
+                      (alum: Alumnus, index: number) => (
+                        <li
+                          key={alum.alumniId || index}
+                          className="py-1.5 text-gray-700 text-sm flex items-center"
+                        >
+                          <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                          {alum.firstName} {alum.lastName}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default StatisticalReports;

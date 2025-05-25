@@ -28,6 +28,7 @@ export function AnnouncementProvider({
   children: React.ReactNode;
 }) {
   const [announces, setAnnounce] = useState<Announcement[]>([]);
+  const [publicAnnouncements, setPublicAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -64,6 +65,9 @@ export function AnnouncementProvider({
           } as Announcement;
         });
         setAnnounce(announcements);
+        setPublicAnnouncements(
+          announcements.filter((announcement) => announcement.isPublic)
+        );
         setLoading(false);
       },
       (error) => {
@@ -237,10 +241,24 @@ const handleEdit = async (e: React.FormEvent, removeImage = false) => {
     }
   };
 
+   const togglePublic = async (announcementId: string, currentState: boolean) => {
+    try {
+      const docRef = doc(db, "Announcement", announcementId);
+      await updateDoc(docRef, {
+        isPublic: !currentState
+      });
+      return { success: true, message: "Status updated successfully" };
+    } catch (error) {
+      console.error("Error toggling public status:", error);
+      return { success: false, message: (error as FirebaseError).message };
+    }
+  };
+
   return (
     <AnnouncementContext.Provider
       value={{
         announces,
+        publicAnnouncements,
         isLoading,
         isEdit,
         addAnnouncement,
@@ -266,6 +284,7 @@ const handleEdit = async (e: React.FormEvent, removeImage = false) => {
         fileName,
         setCurrentAnnouncementId,
         setIsPublic,
+        togglePublic
       }}
     >
       {children}

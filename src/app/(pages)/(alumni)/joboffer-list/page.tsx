@@ -37,6 +37,7 @@ import {
   Bookmark as BookmarkIcon,
   Mail,
   User,
+  Asterisk,
 } from "lucide-react";
 import Banner from "@/components/Banner";
 import { set } from "zod";
@@ -402,10 +403,11 @@ function JobOffersContent() {
         description="Discover job opportunities through ICS and alumni partnerships, bridging the gap between education and career success for ICS graduates."
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex justify-between items-center mb-4">
+      <div className="px-[10%] py-10">
+        {/*Job filter and sort */}
+        <div className=" bg-white rounded-lg flex items-center justify-between px-5 py-3 mb-4 shadow-sm">
           <button
-            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
+            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 ${
               activeFilters.length > 0
                 ? "opacity-100"
                 : "opacity-0 pointer-events-none"
@@ -423,18 +425,18 @@ function JobOffersContent() {
           </button>
 
           <div className="flex space-x-3">
-            <div className="mb-4">
+            <div className="">
               <input
                 type="text"
                 placeholder="Search jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
               />
             </div>
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -452,7 +454,7 @@ function JobOffersContent() {
               </button>
 
               {showFilterDropdown && (
-                <div className="absolute mt-2 right-0 bg-white p-2 rounded shadow-lg z-20 border border-gray-200 w-40">
+                <div className="absolute mt-2 right-0 bg-white p-2 rounded shadow-lg  border border-gray-200 w-40">
                   {["None", ...Object.keys(filterCategories)].map(
                     (filterCategory) => (
                       <div
@@ -499,7 +501,7 @@ function JobOffersContent() {
             </div>
 
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -508,7 +510,7 @@ function JobOffersContent() {
         </div>
 
         <div className="flex">
-          <div>
+          <div className="flex flex-col gap-2">
             {/* Sidebar */}
             <div className="bg-[#FFFFFF] flex flex-col px-10 py-8 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
               <button
@@ -522,13 +524,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Job Postings"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>All Job Posts</span>
                   {sidebarFilter !== "Job Postings" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -543,13 +545,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Saved Jobs"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Saved Jobs</span>
                   {sidebarFilter !== "Saved Jobs" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -564,13 +566,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Create Jobs"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Created Jobs</span>
                   {sidebarFilter !== "Create Jobs" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -585,13 +587,13 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Applied Jobs"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Applied Jobs</span>
                   {sidebarFilter !== "Applied Jobs" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
@@ -606,21 +608,20 @@ function JobOffersContent() {
                 <p
                   className={`group w-max relative py-1 transition-all ${
                     sidebarFilter === "Drafts"
-                      ? "font-semibold border-b-3 border-blue-500"
+                      ? "font-semibold border-b-3 border-[var(--primary-blue)]"
                       : "text-gray-700 group"
                   }`}
                 >
                   <span>Drafts</span>
                   {sidebarFilter !== "Drafts" && (
-                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-[var(--primary-blue)] transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
                   )}
                 </p>
               </button>
             </div>
-
             {/* Post a Job Button */}
             <Button
-              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-[10px] hover:bg-[#063d8c] transition-all"
+              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-full hover:bg-[#063d8c] transition-all cursor-pointer"
               onClick={() => setShowForm(!showForm)}
             >
               <Pencil className="w-5 h-5" />
@@ -653,9 +654,9 @@ function JobOffersContent() {
                         {currentJobs.map((job, index) => (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                               selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
+                                ? "border-[var(--primary-blue)]"
                                 : "border-gray-200"
                             }`}
                             onClick={() => setSelectedJob(job)}
@@ -759,9 +760,9 @@ function JobOffersContent() {
                           (job: JobOffering, index: Key | null | undefined) => (
                             <div
                               key={index}
-                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                                 selectedJob?.jobId === job.jobId
-                                  ? "border-blue-500"
+                                  ? "border-[var(--primary-blue)]"
                                   : "border-gray-200"
                               }`}
                               onClick={() => setSelectedJob(job)}
@@ -872,9 +873,9 @@ function JobOffersContent() {
                             return (
                               <div
                                 key={index}
-                                className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                                className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                                   selectedJob?.jobId === job.jobId
-                                    ? "border-blue-500"
+                                    ? "border-[var(--primary-blue)]"
                                     : "border-gray-200"
                                 }`}
                                 onClick={() => setSelectedJob(job)}
@@ -1057,9 +1058,9 @@ function JobOffersContent() {
                         return (
                           <div
                             key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                               selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
+                                ? "border-[var(--primary-blue)]"
                                 : "border-gray-200"
                             }`}
                             onClick={() => setSelectedJob(job)}
@@ -1151,9 +1152,9 @@ function JobOffersContent() {
                           (job: JobOffering, index: Key | null | undefined) => (
                             <div
                               key={index}
-                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-[var(--primary-blue)] ${
                                 selectedJob?.jobId === job.jobId
-                                  ? "border-blue-500"
+                                  ? "border-[var(--primary-blue)]"
                                   : "border-gray-200"
                               }`}
                               onClick={() => setSelectedJob(job)}
@@ -1215,7 +1216,7 @@ function JobOffersContent() {
 
                                   {/* Edit button */}
                                   <button
-                                    className="text-gray-500 hover:text-blue-500 transition-colors"
+                                    className="text-gray-500 hover:text-[var(--primary-blue)] transition-colors"
                                     onClick={(e) => {
                                       handleEditDraft(job);
                                       setShowForm(true);
@@ -1375,14 +1376,14 @@ function JobOffersContent() {
                     )}
                   </div>
 
-                  <div className="mb-4">
+                  <div className="space-y-1">
                     <h3 className="font-semibold mb-2">Job Description</h3>
                     <CollapseText 
                     text={selectedJob.jobDescription} 
                     maxChars={500} />
                   </div>
 
-                  <div className="mb-4">
+                  <div className="space-y-1">
                     <h3 className="font-semibold mb-2">Required Skills</h3>
                     <div className="pl-[25px]">
                       {selectedJob.requiredSkill &&
@@ -1547,7 +1548,7 @@ function JobOffersContent() {
                                     href={`https://mail.google.com/mail/?view=cm&fs=1&to=${applicant?.email}&su=Job Application Update for ${selectedJob.position} at ${selectedJob.company}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors flex items-center gap-1"
+                                    className="px-3 py-1 bg-[var(--primary-blue)] text-white rounded-md text-sm hover:bg-blue-600 transition-colors flex items-center gap-1"
                                   >
                                     <Mail className="w-4 h-4" />
                                     Email
@@ -1597,38 +1598,39 @@ function JobOffersContent() {
           Post a Job
         </Button> */}
         {showForm && (
-          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md flex justify-center items-center w-full h-full">
+          <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
             <form
               onSubmit={handleSubmit}
-              className="bg-white p-6 rounded-lg border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
+              className="bg-white p-6 rounded-2xl border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[100vh] overflow-y-auto"
             >
-              <div className="bg-white z-30 w-full border-b px-6 pt-6 pb-3">
+              <div className="bg-white  w-full  pb-3">
                 <h2 className="text-2xl font-semibold">
                   Post a Job Opportunity
                 </h2>
               </div>
 
-              <div className="grid grid-cols-2 gap-6 mt-5">
+              <div className="grid grid-cols-2 gap-6 mt-5 ">
                 {/* Left Column ng form */}
-                <div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Job Position<span className="text-red-500">*</span>
+                <div className="flex flex-col gap-4">
+
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Job Position
                     </label>
                     <input
                       type="text"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       placeholder="e.g. Software Engineer"
                       value={position}
-                      onChange={(e) => setPosition(e.target.value)}
-                      className="w-full p-1.5 border rounded text-sm"
-                      maxLength={200}
                       required
+                      maxLength={100}
+                      onChange={(e) => setPosition(e.target.value)}
                     />
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Employment Type<span className="text-red-500">*</span>
+                  <div className="space-y-1 ">
+                    <label htmlFor="name" className="text-sm flex items-center ">
+                      <Asterisk size={16} className="text-red-600"/> Employment Type
                     </label>
                     <DropdownMenu
                       open={employmentTypeOpen}
@@ -1637,13 +1639,15 @@ function JobOffersContent() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
+                            employmentType ? 'text-black ' : 'text-gray-500'
+                          }`}
                         >
                           {employmentType || "Select Employment Type"}
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-1 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border border-gray-300 rounded shadow-md">
                         {filterCategories["Employment Type"].map((type) => (
                           <Button
                             key={type}
@@ -1664,9 +1668,9 @@ function JobOffersContent() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Job Type<span className="text-red-500">*</span>
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Job Type
                     </label>
                     <DropdownMenu
                       open={jobTypeOpen}
@@ -1675,13 +1679,15 @@ function JobOffersContent() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
+                            jobType ? 'text-black ' : 'text-gray-500'
+                          }`}
                         >
                           {jobType || "Select Job Type"}
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border border-gray-300 rounded shadow-md">
                         {filterCategories["Job Type"].map((type) => (
                           <Button
                             key={type}
@@ -1702,15 +1708,15 @@ function JobOffersContent() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Job Description<span className="text-red-500">*</span>
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Job Description
                     </label>
                     <textarea
-                      placeholder="E.g., Outline the role, responsibilities, and key qualifications for this position."
+                      placeholder="e.g., Outline the role, responsibilities, and key qualifications for this position."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
-                      className="w-full p-1.5 border rounded resize-none text-sm"
+                      className="text-sm w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] resize-none"
                       style={{ height: "110px" }} 
                       maxLength={2000}
                       required
@@ -1735,39 +1741,39 @@ function JobOffersContent() {
                 </div>
 
                 {/* Right Column ng form */}
-                <div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Company Name<span className="text-red-500">*</span>
+                <div className="flex flex-col gap-4">
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Company Name
                     </label>
                     <input
                       type="text"
                       placeholder="Company"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full p-1.5 border rounded text-sm"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       maxLength={200}
                       required
                     />
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Location<span className="text-red-500">*</span>
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Location
                     </label>
                     <input
                       type="text"
                       placeholder="Location"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="w-full p-1.5 border rounded text-sm"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       maxLength={200}
                       required
                     />
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Experience Level<span className="text-red-500">*</span>
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Experience Level
                     </label>
                     <DropdownMenu
                       open={experienceLevelOpen}
@@ -1776,13 +1782,15 @@ function JobOffersContent() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-between border rounded p-2 bg-white text-left font-normal"
+                          className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
+                            experienceLevel ? 'text-black ' : 'text-gray-500'
+                          }`}
                         >
                           {experienceLevel || "Select Experience Level"}
                           <ChevronDown className="h-4 w-4 ml-2" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-[300px] bg-white p-2 border rounded shadow-md">
+                      <DropdownMenuContent className="w-[300px] bg-white p-1 border border-gray-300 rounded shadow-md">
                         {filterCategories["Experience Level"].map((level) => (
                           <Button
                             key={level}
@@ -1803,9 +1811,9 @@ function JobOffersContent() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Salary Range<span className="text-red-500">*</span>
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Salary Range
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -1826,37 +1834,37 @@ function JobOffersContent() {
                         }
                         }}
                         pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
-                        className="w-full pl-8 p-1.5 border rounded text-sm"
+                        className="pl-8 p-1.5 text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
+
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Required Skills<span className="text-red-500">*</span>
+                  <div className="space-y-1">
+                    <label htmlFor="name" className="text-sm flex items-center">
+                      <Asterisk size={16} className="text-red-600"/> Required Skills
                     </label>
                     <input
                       type="text"
                       value={requiredSkill.join(", ")}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="w-full p-1.5 border rounded placeholder:text"
+                      className="text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
                       required
                     />
                   </div>
                 </div>
               </div>
 
-              <hr className="my-2 border-t border-gray-300" />
 
-              <div className="mb-6 pt-2 pl-1">
-                <label className="block text-sm font-medium mb-1">
-                  Company Logo<span className="text-red-500">*</span>
+              <div className="space-y-1 mt-3">
+                <label htmlFor="name" className="text-sm flex items-center">
+                  <Asterisk size={16} className="text-red-600"/> Company Logo
                 </label>
                 <div className="flex items-center gap-4">
                   <label className="cursor-pointer">
-                    <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-blue)] transition-colors">
                       Choose File
                     </div>
                     <input
@@ -1891,7 +1899,7 @@ function JobOffersContent() {
                 <div>
                   <button
                     type="button"
-                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all  hover:bg-red-700 hover:text-white hover:shadow-lg cursor-pointer"
                     onClick={() => {
                       setShowForm(false);
                       setPosition("");
@@ -1912,7 +1920,7 @@ function JobOffersContent() {
                 </div>
 
                 {/* Right side - Save as Draft and Submit buttons */}
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                   <button
                     type="button"
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"

@@ -1,10 +1,11 @@
 "use client";
 import ModalInput from "@/components/ModalInputForm";
 import { useAnnouncement } from "@/context/AnnouncementContext";
-import { ArrowLeft, ChevronRight, Pencil, Plus, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowLeft, Asterisk, ChevronRight, Pencil, Plus, Upload, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toastError } from "@/components/ui/sonner";
+import { Button } from "@mui/material";
 
 export default function AddAnnouncement() {
   const {
@@ -28,7 +29,15 @@ export default function AddAnnouncement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
+  const [isSticky, setIsSticky] = useState(false);
   const router = useRouter();
+  const placeholderRef = useRef(null);
+
+  const 
+    formComplete =
+    title !== "" &&
+    description !== "" &&
+    type !== "";
 
   useEffect(() => {
     if (imageFile) {
@@ -41,6 +50,22 @@ export default function AddAnnouncement() {
     }
   }, [image, imageFile]);
 
+  useEffect(() => {
+    if (!placeholderRef.current) return
+  
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSticky(!entry.isIntersecting)
+      },
+      {
+        threshold: 0,
+        rootMargin: "0px",
+      },
+    );
+  
+    observer.observe(placeholderRef.current);
+    return () => observer.disconnect();
+  }, [])
 
   const getImageFromContext = async () => {
     if (imageFile) return imageFile;
@@ -49,6 +74,26 @@ export default function AddAnnouncement() {
       return null
     };
   };
+
+  const handleStickySubmit = async () => {
+  if (!type || type.length === 0) {
+    toastError("Please select at least one announcement type.");
+    return;
+  }
+
+  try {
+    const syntheticEvent = {
+      preventDefault: () => {},
+      target: {} // Add any other properties you need
+    } as React.FormEvent<HTMLFormElement>;
+    
+    await handleEdit(syntheticEvent, removeImage);
+    setIsEditing(false);
+    router.push("/admin-dashboard/announcements/manage");
+  } catch (error) {
+    toastError("Error updating announcement");
+  }
+};
 
   const handleImageChangeLocal = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -104,7 +149,7 @@ export default function AddAnnouncement() {
       <div className="flex items-center gap-2">
         <button 
           onClick={() => router.push("/admin-dashboard")}
-          className="cursor-pointer rounded-full transition"
+          className="cursor-pointer hover:underline rounded-full transition"
         >
           Home
         </button>
@@ -113,7 +158,7 @@ export default function AddAnnouncement() {
         </div>
         <button 
           onClick={() => router.push("/admin-dashboard/announcements/manage")}
-          className="cursor-pointer rounded-full transition"
+          className="cursor-pointer hover:underline rounded-full transition"
         >
           Manage Announcements
         </button>
@@ -146,55 +191,114 @@ export default function AddAnnouncement() {
       <form onSubmit={handleFormSubmit}>
         <div className="flex flex-col gap-3">
           <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
-            <div className="flex flex-col gap-3">
-              
+            <div className="flex flex-col">
+              <div className="flex flex-col gap-5">
+
               {/* Title */}
-              <div className="space-y-2">
-                <input
+                <div className="space-y-2 text-[14px]">
+                  <label htmlFor="title" className="text-sm font-medium flex items-center">
+                    <Asterisk size={16} className="text-red-600" /> Announcement Title
+                  </label>                
+                  {isEditing ? 
+                  <input
                   id="title"
                   type="text"
                   placeholder="Announcement Title"
                   value={title}
                   maxLength={200}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full border-none text-xl font-bold rounded-md focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   required
                   disabled={!isEditing}
-                />
+                /> : <input
+                  id="title"
+                  type="text"
+                  placeholder="Announcement Title"
+                  value={title}
+                  maxLength={200}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  required
+                  disabled={!isEditing}
+                />}
               </div>
 
-              {/* Description */}
-              <div className="space-y-2">
-                <textarea
-                  id="description"
-                  placeholder="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full resize-y border-none rounded-md focus:outline-none"
-                  required
-                  disabled={!isEditing}
-                />
+                {/* Description */}
+                <div className="flex flex-col">
+                  <div className="space-y-2 text-[14px]">
+                    <label htmlFor="title" className="text-sm font-medium flex items-center">
+                      <Asterisk size={16} className="text-red-600" /> Description
+                    </label>
+                    {isEditing ? <textarea
+                      id="description"
+                      placeholder="Description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="w-full h-32 overflow-y-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      required
+                      disabled={!isEditing}
+                    /> :
+                    <textarea
+                      id="description"
+                      placeholder="Description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="w-full h-32 overflow-y-auto px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      required
+                      disabled={!isEditing}
+                    />
+                    }
+                  </div>
+                </div>
               </div>
+              
+              {isEditing ? 
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>{description.length}/2000</span>
+                {description.length > 200}
+              </div> :
+              <div className="flex justify-between items-center text-xs text-gray-500 mb-5">
+                <span>{description.length}/2000</span>
+                {description.length > 200}
+              </div>}
+
+                {/* AI */}
+                {isEditing && 
+                <>
+                <Button
+                    onClick={() => setIsModalOpen(true)}
+                    className="pl-2 text-[#0856BA] hover:text-blue-700 font-semibold text-sm bg-transparent hover:bg-transparent"
+                  >
+                  Need AI help for description?
+                </Button>
+                  <ModalInput
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onSubmit={(response) => setDescription(response)}
+                    title="AI Assistance for Announcement"
+                    type="announcement"
+                    subtitle="Get AI-generated description for your announcement. Only fill in the applicable fields."
+                    mainTitle={title}
+                  />
+                </>
+              }
+
 
               {/* Image Upload */}
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  <div className="relative bg-amber-300 h-32 w-32 rounded-md flex items-center justify-center overflow-hidden">
-                    <div 
-                      className={`relative bg-amber-300 ${isEditing ? 'hover:bg-amber-400 cursor-pointer' : ''} h-32 w-32 rounded-md flex items-center justify-center overflow-hidden`}
-                      onClick={() => isEditing && document.getElementById("image-upload")?.click()}
-                    >
-                      {imagePreview ? (
-                        <img
-                          src={imagePreview}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center w-full h-full">
-                          <Plus size={24} className="mt-5"/>
-                          <span className="text-sm">Upload an image</span>
-                        </div>
-                      )}
+              <div className="flex flex-col w-100 gap-2">
+                <label htmlFor="image" className="text-sm font-medium flex items-center">
+                  Upload Image
+                  {/* <Asterisk size={16} className="text-red-600" /> Upload Image */}
+                </label>
+                {!imagePreview &&  !isEditing ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center"
+                    onClick={() => document.getElementById("image-upload")?.click()}>
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-2">
+                      <label htmlFor="image">
+                        <span className="mt-2 block text-sm font-medium text-gray-700">Click to upload or drag and drop</span>
+                        <span className="mt-1 block text-xs text-gray-500">PNG, JPG, GIF, WEBP up to 10MB</span>
+                      </label>
                       <input
                         type="file"
                         id="image-upload"
@@ -203,23 +307,67 @@ export default function AddAnnouncement() {
                         className="hidden"
                         disabled={!isEditing}
                       /> 
-                    </div> 
-                    {imagePreview && isEditing && (
-                      <button 
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <X size={16} />
-                      </button>
-                    )} 
+                    </div>
                   </div>
-                </div>
+                ) : !imagePreview &&  isEditing ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer"
+                    onClick={() => document.getElementById("image-upload")?.click()}>
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-2">
+                      <label htmlFor="image">
+                        <span className="mt-2 block text-sm font-medium text-gray-700">Click to upload or drag and drop</span>
+                        <span className="mt-1 block text-xs text-gray-500">PNG, JPG, GIF, WEBP up to 10MB</span>
+                      </label>
+                      <input
+                        type="file"
+                        id="image-upload"
+                        accept="image/*"
+                        onChange={handleImageChangeLocal}
+                        className="hidden"
+                        disabled={!isEditing}
+                      /> 
+                    </div>
+                  </div>
+                ) : imagePreview && isEditing ? (
+                  <div className="relative mt-2 cursor-pointer">
+                    <div className="relative h-64 overflow-hidden rounded-lg  cursor-pointer">
+                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover  cursor-pointer" />
+                      <button
+                        type="button"
+                        className="absolute top-2 right-2 rounded-full bg-white p-1 text-gray-500 shadow-md cursor-pointer hover:text-gray-700"
+                        onClick={() => {
+                          setImagePreview(null);
+                          setImageFile(null);
+                          setAnnounceImage(null);
+                        }}                      >
+                        <X className="h-5 w-5  cursor-pointer" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative mt-2 cursor-pointer">
+                    <div className="relative h-64 overflow-hidden rounded-lg  cursor-pointer">
+                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover  cursor-pointer" />
+                      <button
+                        type="button"
+                        className="absolute top-2 right-2 rounded-full bg-white p-1 text-gray-500 shadow-md cursor-pointer hover:text-gray-700"
+                        onClick={() => {
+                          setImagePreview(null);
+                          setImageFile(null);
+                          setAnnounceImage(null);
+                        }}                      >
+                        <X className="h-5 w-5  cursor-pointer" />
+                      </button>
+                    </div>
+                  </div>
+                  )}
               </div>
 
               {/* Announcement Type */}
               <div className="space-y-2 mt-5 mb-10">
-                <p className="block text-sm font-medium">Announcement type</p>
+                <label htmlFor="image" className="text-sm font-medium flex items-center">
+                  <Asterisk size={16} className="text-red-600" /> Announcement Type
+                </label>
                 <div className="flex space-x-6">                  
                   <label className="ml-2 block text-sm flex items-center gap-2">
                     <input
@@ -256,51 +404,63 @@ export default function AddAnnouncement() {
                   </label>
                 </div>
               </div>
-
-              {/* AI - only show when editing */}
-              {isEditing && (
-                <div>
-                  <button 
-                    type="button"
-                    onClick={() => setIsModalOpen(true)}
-                    className="pl-2 text-[#0856BA] hover:text-blue-700 font-semibold text-sm bg-transparent hover:bg-transparent"
-                  >
-                    Need AI help for description?
-                  </button>
-                  <ModalInput
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    onSubmit={(response) => setDescription(response)}
-                    title="AI Assistance for Announcement"
-                    type="announcement"
-                    subtitle="Get AI-generated description for your announcement. Only fill in the applicable fields."
-                    mainTitle={title}
-                  />
-                </div>
-              )}
             </div>          
           </div>
-          
-          {/* Cancel and Update buttons - only show when editing */}
-          {isEditing && (
-            <div className="fixed right-0 left-64 bottom-0 border-t border-x border-blue-700 bg-white rounded-t-2xl p-4 flex justify-end gap-2">
+
+          <div ref={placeholderRef}>
+            
+            {/* Post and Cancel */}
+            {isEditing && 
+            <div ref={placeholderRef} className="text-sm bg-white rounded-2xl p-4 flex justify-end gap-2">
               <button
                 type="button"
-                onClick={handleCancelClick}
-                className="px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition"
+                onClick={() => router.push("/admin-dashboard/announcements/manage")}
+                className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-8 py-2 rounded-full hover:bg-blue-700 transition"
-              >
-                Update
+                disabled={!formComplete}
+                className={`flex items-center justify-center gap-2 ${
+                  formComplete
+                    ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
+                    : "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)] cursor-not-allowed"
+                } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}              >
+                Finalize Announcement
               </button>
+              </div>}
+              </div>
             </div>
-          )}
-        </div>
-      </form>
+          </form>
+
+          {isSticky && isEditing &&
+            <div
+              className="text-sm bg-[var(--primary-white)] fixed bottom-0 rounded-t-2xl gap-2 p-4 flex justify-end"
+              style={{ width: "calc(96% - 256px)", boxShadow: "0 -4px 6px -1px rgba(0,0,0,0.1)" }}
+            >            
+            <button
+              type="button"
+              onClick={() => router.push("/admin-dashboard/announcements/manage")}
+              className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button" 
+              onClick={handleStickySubmit} 
+              disabled={!formComplete}
+              className={`flex items-center justify-center gap-2 ${
+                formComplete
+                  ? "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)]"
+                  : "bg-[var(--primary-blue)] text-[var(--primary-white)] hover:bg-[var(--blue-600)] hover:border-[var(--blue-600)] cursor-not-allowed"
+              } border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full`}
+            >
+              Finalize Announcement
+            </button>
+          </div>
+          }
     </div>
+    
   );
 }

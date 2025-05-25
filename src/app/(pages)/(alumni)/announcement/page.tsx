@@ -87,7 +87,7 @@ export default function Announcements() {
         description="Stay connected with the ICS community through timely announcements, academic news, and upcoming events."
       />
 
-      <div className="mx-[30px] xl:mx-[10%] lg:mx-[50px] my-[40px] static">
+      <div className="mx-[10%] my-[40px] static">
         <div className="flex flex-row gap-[40px] mt-6">
           {/* Sidebar */}
           <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
@@ -100,13 +100,13 @@ export default function Announcements() {
           {/* Main */}
           <div className="flex-1 flex-col">
             {/* Sort  */}
-            <div className="bg-white rounded-lg px-5 py-1 flex justify-between items-center shadow-md mb-[10px]">
+            <div className="bg-white rounded-lg px-5 py-3 flex justify-between items-center shadow-md mb-[10px]">
               <h2 className="text-md lg:text-lg font-semibold">
                 {activeFilter || "All Announcements"}
               </h2>
               <div className="flex items-center">
-                <label htmlFor="sort" className="mr-2 text-sm">
-                  Sort by:
+                <label htmlFor="sort" className="mr-2 text-sm text-[var(--primary-blue)]">
+                  Sort by: 
                 </label>
                 <select
                   defaultValue={selectedSort}
@@ -115,7 +115,7 @@ export default function Announcements() {
                     setSelectedSort(value);
                     setLatestFirst(value === "Latest");
                   }}
-                  className="text-sm rounded py-1 px-2"
+                  className="text-sm rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)]"
                 >
                   {SORT_TAGS.map((tag) => (
                     <option key={tag} value={tag}>
