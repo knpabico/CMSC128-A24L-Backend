@@ -405,7 +405,7 @@ function DonationDriveDetailsContent() {
               ) : (
                 <Image
                   src="/default-image.jpg"
-                  alt={event.title}
+                  alt={event?.title || "Default event image"}
                   width={800}
                   height={400}
                   className="object-cover w-full h-full"
