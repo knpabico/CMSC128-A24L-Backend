@@ -457,7 +457,7 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                         <th className="py-1 w-3/13 px-3">Company</th>
                         <th className="py-1 w-3/13">Industry</th>
                         <th className="py-1 w-3/13 px-3">From - To</th>
-                        <th className="py-1 w-1/13">Loc</th>
+                        {/* <th className="py-1 w-1/13">Loc</th> */}
                         <th className="py-1 w-1/13 pl-1">Proof</th>
                       </tr>
                     </thead>
@@ -489,12 +489,12 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                             <td className="py-1 px-3">
                               {w.startYear} - {w.endYear}
                             </td>
-                            <td className="py-1">
+                            {/* <td className="py-1">
                               <MapPin
                                 className="text-[#3675c5] cursor-pointer"
                                 onClick={() => openMap(index)}
                               />
-                            </td>
+                            </td> */}
                             <td className="py-1 pl-1">
                               {w.proofOfEmployment !== "" &&
                               w.endYear === "present" ? (
