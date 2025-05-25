@@ -80,8 +80,8 @@ export default function CreateEventPage() {
   const years = Array.from(
     new Set(
       alums
-        .filter(alum => alum.activeStatus === true)
-        .map(alum => alum.studentNumber?.slice(0, 4))
+        .filter((alum) => alum.activeStatus === true)
+        .map((alum) => alum.studentNumber?.slice(0, 4))
         .filter((year): year is string => !!year) // filter out undefined/null
     )
   );
@@ -89,16 +89,21 @@ export default function CreateEventPage() {
   // Sample alumni emails for display
   const alumniEmails = alums
     ? alums
-        .filter((alum: { email: string; activeStatus: boolean; }) => alum.email && alum.activeStatus === true)
-        .map((alum: { email: string; }) => alum.email)
+        .filter(
+          (alum: { email: string; activeStatus: boolean }) =>
+            alum.email && alum.activeStatus === true
+        )
+        .map((alum: { email: string }) => alum.email)
     : [];
 
   // Filtered years based on search term
-  const filteredBatchYears = years.filter((year) => year.toLowerCase().includes(batchSearchTerm.toLowerCase()));
+  const filteredBatchYears = years.filter((year) =>
+    year.toLowerCase().includes(batchSearchTerm.toLowerCase())
+  );
 
   // Filtered alumni emails based on search term
   const filteredAlumniEmails = alumniEmails.filter((email: string) =>
-    email.toLowerCase().includes(alumniSearchTerm.toLowerCase()),
+    email.toLowerCase().includes(alumniSearchTerm.toLowerCase())
   );
 
   // Breadcrumb configuration
@@ -110,19 +115,19 @@ export default function CreateEventPage() {
 
   // Reset form state
   const resetFormState = () => {
-    setEventTitle("")
-    setEventDescription("")
-    setEventDate("")
-    setEventTime("")
-    setEventLocation("")
-    setEventImage("")
-    setVisibility("all")
-    setSelectedBatches([])
-    setSelectedAlumni([])
-    setFileName("")
-    setErrorMessage("")
-    setButton("")
-    setPreview(null)
+    setEventTitle("");
+    setEventDescription("");
+    setEventDate("");
+    setEventTime("");
+    setEventLocation("");
+    setEventImage("");
+    setVisibility("all");
+    setSelectedBatches([]);
+    setSelectedAlumni([]);
+    setFileName("");
+    setErrorMessage("");
+    setButton("");
+    setPreview(null);
   };
 
   // Handle form submission
@@ -133,13 +138,20 @@ export default function CreateEventPage() {
 
     // Check form completion first
     if (!formComplete) {
-      setErrorMessage("Please fill out all required fields before proposing the event.");
+      setErrorMessage(
+        "Please fill out all required fields before proposing the event."
+      );
       setIsSubmitting(false);
       return;
     }
 
     // Store the selected guests
-    const targetGuests = visibility === "batch" ? selectedBatches : visibility === "alumni" ? selectedAlumni : []
+    const targetGuests =
+      visibility === "batch"
+        ? selectedBatches
+        : visibility === "alumni"
+        ? selectedAlumni
+        : [];
 
     // Validate batch inputs if batch visibility is selected
     if (visibility === "batch") {
@@ -162,8 +174,14 @@ export default function CreateEventPage() {
         setIsSubmitting(false);
         return;
       }
-      if (selectedAlumni.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
-        setErrorMessage("Please ensure all alumni inputs are valid email addresses.");
+      if (
+        selectedAlumni.some(
+          (email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        )
+      ) {
+        setErrorMessage(
+          "Please ensure all alumni inputs are valid email addresses."
+        );
         setIsSubmitting(false);
         return;
       }
@@ -209,13 +227,13 @@ export default function CreateEventPage() {
     resetFormState();
     setIsSubmitting(false);
     router.push("/admin-dashboard/organize-events");
-  }
+  };
 
   // Effects
   useEffect(() => {
     // Update visibility-dependent UI
-    const showBatchSelect = visibility === "batch"
-    const showAlumniSelect = visibility === "alumni"
+    const showBatchSelect = visibility === "batch";
+    const showAlumniSelect = visibility === "alumni";
 
     // Sync selected batches and alumni with the context when visibility changes
     if (visibility === "batch" && selectedBatches.length > 0) {
@@ -239,40 +257,46 @@ export default function CreateEventPage() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (batchDropdownRef.current && !batchDropdownRef.current.contains(event.target as Node)) {
+      if (
+        batchDropdownRef.current &&
+        !batchDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsBatchDropdownOpen(false);
         setBatchSearchTerm("");
         setBatchInputValue("");
       }
-      if (alumniDropdownRef.current && !alumniDropdownRef.current.contains(event.target as Node)) {
+      if (
+        alumniDropdownRef.current &&
+        !alumniDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsAlumniDropdownOpen(false);
         setAlumniSearchTerm("");
         setAlumniInputValue("");
       }
-    }
+    };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [])
+    };
+  }, []);
 
   useEffect(() => {
-    if (!placeholderRef.current) return
+    if (!placeholderRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsSticky(!entry.isIntersecting)
+        setIsSticky(!entry.isIntersecting);
       },
       {
         threshold: 0,
         rootMargin: "0px",
-      },
+      }
     );
 
     observer.observe(placeholderRef.current);
     return () => observer.disconnect();
-  }, [])
+  }, []);
 
   // Batch selection handlers
   const toggleBatchYear = (year: string) => {
@@ -283,7 +307,10 @@ export default function CreateEventPage() {
     }
   };
 
-  const removeBatchYear = (year: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+  const removeBatchYear = (
+    year: string,
+    e: React.MouseEvent<SVGSVGElement, MouseEvent>
+  ) => {
     e.stopPropagation();
     setSelectedBatches(selectedBatches.filter((item) => item !== year));
   };
@@ -311,8 +338,11 @@ export default function CreateEventPage() {
     }
   };
 
-  const removeAlumniEmail = (email: string, e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-    e.stopPropagation()
+  const removeAlumniEmail = (
+    email: string,
+    e: React.MouseEvent<SVGSVGElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
     setSelectedAlumni(selectedAlumni.filter((item) => item !== email));
   };
 
@@ -320,10 +350,10 @@ export default function CreateEventPage() {
     if (alumniInputValue.trim()) {
       const email = alumniInputValue.trim();
       // Basic email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (emailRegex.test(email)) {
         if (!selectedAlumni.includes(email)) {
-          setSelectedAlumni([...selectedAlumni, email])
+          setSelectedAlumni([...selectedAlumni, email]);
         }
         setAlumniInputValue("");
         setAlumniSearchTerm("");
@@ -359,8 +389,12 @@ export default function CreateEventPage() {
           <Upload className="mx-auto h-12 w-12 text-gray-400" />
           <div className="mt-2">
             <label htmlFor="image" className="cursor-pointer">
-              <span className="mt-2 block text-sm font-medium text-gray-700">Click to upload or drag and drop</span>
-              <span className="mt-1 block text-xs text-gray-500">PNG, JPG, GIF, WEBP up to 10MB</span>
+              <span className="mt-2 block text-sm font-medium text-gray-700">
+                Click to upload or drag and drop
+              </span>
+              <span className="mt-1 block text-xs text-gray-500">
+                PNG, JPG, GIF, WEBP up to 10MB
+              </span>
               <input
                 id="image"
                 name="image"
@@ -375,14 +409,18 @@ export default function CreateEventPage() {
       ) : (
         <div className="relative mt-2">
           <div className="relative h-64 overflow-hidden rounded-lg">
-            <img src={preview || "/placeholder.svg"} alt="Preview" className="h-full w-full object-cover" />
+            <img
+              src={preview || "/placeholder.svg"}
+              alt="Preview"
+              className="h-full w-full object-cover"
+            />
             <button
               type="button"
               className="absolute top-2 right-2 rounded-full bg-white p-1 text-gray-500 shadow-md hover:text-gray-700"
               onClick={() => {
-                setPreview(null)
-                setEventImage("")
-                setFileName("")
+                setPreview(null);
+                setEventImage("");
+                setFileName("");
               }}
             >
               <X className="h-5 w-5" />
@@ -391,7 +429,9 @@ export default function CreateEventPage() {
         </div>
       )}
 
-      <p className="text-xs text-gray-500 mt-1">Accepted formats: JPG, JPEG, PNG, GIF, WEBP</p>
+      <p className="text-xs text-gray-500 mt-1">
+        Accepted formats: JPG, JPEG, PNG, GIF, WEBP
+      </p>
     </div>
   );
 
@@ -401,7 +441,10 @@ export default function CreateEventPage() {
         {selectedBatches.length > 0 && (
           <>
             {selectedBatches.map((year) => (
-              <div key={year} className="flex items-center bg-blue-100 text-blue-800 rounded-md px-2 py-1 m-1">
+              <div
+                key={year}
+                className="flex items-center bg-blue-100 text-blue-800 rounded-md px-2 py-1 m-1"
+              >
                 <span>{year}</span>
                 <X
                   size={16}
@@ -417,25 +460,34 @@ export default function CreateEventPage() {
           type="text"
           value={batchInputValue}
           onChange={(e) => {
-            setBatchInputValue(e.target.value)
-            setBatchSearchTerm(e.target.value)
-            if (!isBatchDropdownOpen) setIsBatchDropdownOpen(true)
+            setBatchInputValue(e.target.value);
+            setBatchSearchTerm(e.target.value);
+            if (!isBatchDropdownOpen) setIsBatchDropdownOpen(true);
           }}
           onFocus={() => setIsBatchDropdownOpen(true)}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             if (e.key === "Enter" && batchInputValue.trim()) {
-              e.preventDefault()
-              addBatchInput()
+              e.preventDefault();
+              addBatchInput();
             }
           }}
-          placeholder={selectedBatches.length === 0 ? "Type or select graduation years" : ""}
+          placeholder={
+            selectedBatches.length === 0
+              ? "Type or select graduation years"
+              : ""
+          }
           className="flex-grow outline-none text-sm min-w-20 px-2 py-1"
         />
-        <div className="ml-auto cursor-pointer p-1" onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}>
+        <div
+          className="ml-auto cursor-pointer p-1"
+          onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}
+        >
           <ChevronDown
             size={20}
-            className={`text-gray-400 transition-transform ${isBatchDropdownOpen ? "rotate-180" : ""}`}
+            className={`text-gray-400 transition-transform ${
+              isBatchDropdownOpen ? "rotate-180" : ""
+            }`}
           />
         </div>
       </div>
@@ -455,11 +507,17 @@ export default function CreateEventPage() {
                   <div className="flex items-center">
                     <div
                       className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
-                        selectedBatches.includes(year) ? "bg-blue-500 border-blue-500" : "border-gray-300"
+                        selectedBatches.includes(year)
+                          ? "bg-blue-500 border-blue-500"
+                          : "border-gray-300"
                       }`}
                     >
                       {selectedBatches.includes(year) && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
                           <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
                         </svg>
                       )}
@@ -469,7 +527,9 @@ export default function CreateEventPage() {
                 </div>
               ))
             ) : (
-              <div className="px-4 py-3 text-sm text-gray-500">No results found</div>
+              <div className="px-4 py-3 text-sm text-gray-500">
+                No results found
+              </div>
             )}
           </div>
         </div>
@@ -483,7 +543,10 @@ export default function CreateEventPage() {
         {selectedAlumni.length > 0 && (
           <>
             {selectedAlumni.map((email) => (
-              <div key={email} className="flex items-center bg-green-100 text-green-800 rounded-md px-2 py-1 m-1">
+              <div
+                key={email}
+                className="flex items-center bg-green-100 text-green-800 rounded-md px-2 py-1 m-1"
+              >
                 <span className="text-xs">{email}</span>
                 <X
                   size={16}
@@ -499,25 +562,32 @@ export default function CreateEventPage() {
           type="text"
           value={alumniInputValue}
           onChange={(e) => {
-            setAlumniInputValue(e.target.value)
-            setAlumniSearchTerm(e.target.value)
-            if (!isAlumniDropdownOpen) setIsAlumniDropdownOpen(true)
+            setAlumniInputValue(e.target.value);
+            setAlumniSearchTerm(e.target.value);
+            if (!isAlumniDropdownOpen) setIsAlumniDropdownOpen(true);
           }}
           onFocus={() => setIsAlumniDropdownOpen(true)}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             if (e.key === "Enter" && alumniInputValue.trim()) {
-              e.preventDefault()
-              addAlumniInput()
+              e.preventDefault();
+              addAlumniInput();
             }
           }}
-          placeholder={selectedAlumni.length === 0 ? "Type or select alumni emails" : ""}
+          placeholder={
+            selectedAlumni.length === 0 ? "Type or select alumni emails" : ""
+          }
           className="flex-grow outline-none text-sm min-w-20 px-2 py-1"
         />
-        <div className="ml-auto cursor-pointer p-1" onClick={() => setIsAlumniDropdownOpen(!isAlumniDropdownOpen)}>
+        <div
+          className="ml-auto cursor-pointer p-1"
+          onClick={() => setIsAlumniDropdownOpen(!isAlumniDropdownOpen)}
+        >
           <ChevronDown
             size={20}
-            className={`text-gray-400 transition-transform ${isAlumniDropdownOpen ? "rotate-180" : ""}`}
+            className={`text-gray-400 transition-transform ${
+              isAlumniDropdownOpen ? "rotate-180" : ""
+            }`}
           />
         </div>
       </div>
@@ -527,31 +597,39 @@ export default function CreateEventPage() {
           <div className="overflow-y-auto max-h-72">
             {filteredAlumniEmails.length > 0 ? (
               filteredAlumniEmails.map((email: string) => (
-              <div
-                key={email}
-                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
-                selectedAlumni.includes(email) ? "bg-gray-50" : ""
-                }`}
-                onClick={() => toggleAlumniEmail(email)}
-              >
-                <div className="flex items-center">
                 <div
-                  className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
-                  selectedAlumni.includes(email) ? "bg-green-500 border-green-500" : "border-gray-300"
+                  key={email}
+                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
+                    selectedAlumni.includes(email) ? "bg-gray-50" : ""
                   }`}
+                  onClick={() => toggleAlumniEmail(email)}
                 >
-                  {selectedAlumni.includes(email) && (
-                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                  </svg>
-                  )}
+                  <div className="flex items-center">
+                    <div
+                      className={`w-4 h-4 mr-2 border rounded-sm flex items-center justify-center ${
+                        selectedAlumni.includes(email)
+                          ? "bg-green-500 border-green-500"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {selectedAlumni.includes(email) && (
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
+                        </svg>
+                      )}
+                    </div>
+                    {email}
+                  </div>
                 </div>
-                {email}
-                </div>
-              </div>
               ))
             ) : (
-              <div className="px-4 py-3 text-sm text-gray-500">No results found</div>
+              <div className="px-4 py-3 text-sm text-gray-500">
+                No results found
+              </div>
             )}
           </div>
         </div>
@@ -564,8 +642,8 @@ export default function CreateEventPage() {
       <button
         type="button"
         onClick={() => {
-          resetFormState() // Reset the form state
-          router.push("/admin-dashboard/organize-events") // Navigate back to the events page
+          resetFormState(); // Reset the form state
+          router.push("/admin-dashboard/organize-events"); // Navigate back to the events page
         }}
         className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-200"
       >
@@ -597,6 +675,7 @@ export default function CreateEventPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Add Event | ICS-ARMS</title>
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="w-full">
@@ -614,7 +693,10 @@ export default function CreateEventPage() {
           <div className="flex flex-col gap-5">
             {/* Event Title */}
             <div className="space-y-2 text-[14px]">
-              <label htmlFor="title" className="text-sm font-medium flex items-center">
+              <label
+                htmlFor="title"
+                className="text-sm font-medium flex items-center"
+              >
                 <Asterisk size={16} className="text-red-600" /> Event Title
               </label>
               <input
@@ -632,7 +714,10 @@ export default function CreateEventPage() {
             <div className="flex flex-col">
               {/* Description */}
               <div className="space-y-2 text-[14px]">
-                <label htmlFor="description" className="text-sm font-medium flex items-center">
+                <label
+                  htmlFor="description"
+                  className="text-sm font-medium flex items-center"
+                >
                   <Asterisk size={16} className="text-red-600" /> Description
                 </label>
                 <textarea
@@ -643,10 +728,10 @@ export default function CreateEventPage() {
                   onChange={(e) => setEventDescription(e.target.value)}
                   required
                   maxLength={2000}
-                  rows={showFullDescription ? 6 : 3}                  
+                  rows={showFullDescription ? 6 : 3}
                 />
               </div>
-                            <div className="flex justify-between items-center text-xs text-gray-500">
+              <div className="flex justify-between items-center text-xs text-gray-500">
                 <span>{description.length}/2000</span>
                 {description.length > 200 && (
                   <button
@@ -674,7 +759,10 @@ export default function CreateEventPage() {
 
             {/* Location */}
             <div className="space-y-2 text-[14px] w-1/2">
-              <label htmlFor="location" className="text-sm font-medium flex items-center">
+              <label
+                htmlFor="location"
+                className="text-sm font-medium flex items-center"
+              >
                 <Asterisk size={16} className="text-red-600" /> Location
               </label>
               <input
@@ -691,7 +779,10 @@ export default function CreateEventPage() {
             {/* Date and Time */}
             <div className="flex gap-4 text-[14px]">
               <div className="space-y-2">
-                <label htmlFor="date" className="text-sm font-medium flex items-center">
+                <label
+                  htmlFor="date"
+                  className="text-sm font-medium flex items-center"
+                >
                   <Asterisk size={16} className="text-red-600" /> Date
                 </label>
                 <input
@@ -704,16 +795,19 @@ export default function CreateEventPage() {
                   required
                   min={
                     date
-                    ? new Date(date).toISOString().split("T")[0]
-                    : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                        .toISOString()
-                        .split("T")[0]
+                      ? new Date(date).toISOString().split("T")[0]
+                      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                          .toISOString()
+                          .split("T")[0]
                   }
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="time" className="text-sm font-medium flex items-center">
+                <label
+                  htmlFor="time"
+                  className="text-sm font-medium flex items-center"
+                >
                   <Asterisk size={16} className="text-red-600" /> Time
                 </label>
                 <input
@@ -736,7 +830,8 @@ export default function CreateEventPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm font-medium flex items-center">
-                  <Asterisk size={16} className="text-red-600" /> Target Audience
+                  <Asterisk size={16} className="text-red-600" /> Target
+                  Audience
                 </p>
 
                 <div className="flex flex-col gap-3">
@@ -749,13 +844,16 @@ export default function CreateEventPage() {
                       value="all"
                       checked={visibility === "all"}
                       onChange={() => {
-                        setVisibility("all")
-                        setSelectedAlumni([])
-                        setSelectedBatches([])
+                        setVisibility("all");
+                        setSelectedAlumni([]);
+                        setSelectedBatches([]);
                       }}
                       className="cursor-pointer h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                     />
-                    <label htmlFor="visibility-all" className="ml-2 text-sm cursor-pointer">
+                    <label
+                      htmlFor="visibility-all"
+                      className="ml-2 text-sm cursor-pointer"
+                    >
                       Open to All
                     </label>
                   </div>
@@ -770,12 +868,15 @@ export default function CreateEventPage() {
                         value="batch"
                         checked={visibility === "batch"}
                         onChange={() => {
-                          setVisibility("batch")
-                          setSelectedAlumni([])
+                          setVisibility("batch");
+                          setSelectedAlumni([]);
                         }}
                         className="cursor-pointer h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       />
-                      <label htmlFor="visibility-batch" className="ml-2 text-sm cursor-pointer">
+                      <label
+                        htmlFor="visibility-batch"
+                        className="ml-2 text-sm cursor-pointer"
+                      >
                         By Graduation Year
                       </label>
                     </div>
@@ -793,12 +894,15 @@ export default function CreateEventPage() {
                         value="alumni"
                         checked={visibility === "alumni"}
                         onChange={() => {
-                          setVisibility("alumni")
-                          setSelectedBatches([])
+                          setVisibility("alumni");
+                          setSelectedBatches([]);
                         }}
                         className="cursor-pointer h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       />
-                      <label htmlFor="visibility-alumni" className="ml-2 text-sm cursor-pointer">
+                      <label
+                        htmlFor="visibility-alumni"
+                        className="ml-2 text-sm cursor-pointer"
+                      >
                         Specific Alumni
                       </label>
                     </div>
@@ -819,7 +923,10 @@ export default function CreateEventPage() {
         )}
 
         {/* Original buttons container */}
-        <div ref={placeholderRef} className="text-sm bg-white rounded-2xl p-4 flex justify-end gap-2">
+        <div
+          ref={placeholderRef}
+          className="text-sm bg-white rounded-2xl p-4 flex justify-end gap-2"
+        >
           {renderActionButtons()}
         </div>
       </div>
@@ -828,7 +935,10 @@ export default function CreateEventPage() {
       {isSticky && (
         <div
           className="text-sm bg-[var(--primary-white)] fixed bottom-0 rounded-t-2xl gap-2 p-4 flex justify-end"
-          style={{ width: "calc(96% - 256px)", boxShadow: "0 -4px 6px -1px rgba(0,0,0,0.1)" }}
+          style={{
+            width: "calc(96% - 256px)",
+            boxShadow: "0 -4px 6px -1px rgba(0,0,0,0.1)",
+          }}
         >
           {renderActionButtons()}
         </div>

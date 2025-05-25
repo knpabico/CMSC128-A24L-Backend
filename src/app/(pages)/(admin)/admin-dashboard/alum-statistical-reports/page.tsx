@@ -194,6 +194,7 @@ const StatisticalReports = () => {
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-7xl mx-auto">
+      <title>Statistical Reports | ICS-ARMS</title>
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2">
         <div className="hover:text-[#0856BA] cursor-pointer transition-colors">

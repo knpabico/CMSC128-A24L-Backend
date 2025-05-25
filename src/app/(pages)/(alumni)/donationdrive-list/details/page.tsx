@@ -377,6 +377,7 @@ function DonationDriveDetailsContent() {
 
   return (
     <div className="px-[10%] pt-10 pb-30">
+      <title>Donation Drive Details | ICS-ARMS</title>
       <div className="flex flex-col gap-3">
         <Breadcrumb items={breadcrumbItems} />
 

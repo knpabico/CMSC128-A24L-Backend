@@ -168,6 +168,7 @@ function DonationsContent() {
 
   return (
     <>
+      <title>Donations | ICS-ARMS</title>
       {/*sorting dropdown*/}
       <div>
         <div className="flex">

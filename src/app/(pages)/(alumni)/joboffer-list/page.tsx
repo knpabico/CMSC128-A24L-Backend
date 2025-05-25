@@ -397,6 +397,7 @@ function JobOffersContent() {
 
   return (
     <>
+      <title>Job Opportunities | ICS-ARMS</title>
       {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
       <Banner
         title="Job Opportunities"
@@ -1378,9 +1379,10 @@ function JobOffersContent() {
 
                   <div className="space-y-1">
                     <h3 className="font-semibold mb-2">Job Description</h3>
-                    <CollapseText 
-                    text={selectedJob.jobDescription} 
-                    maxChars={500} />
+                    <CollapseText
+                      text={selectedJob.jobDescription}
+                      maxChars={500}
+                    />
                   </div>
 
                   <div className="space-y-1">
@@ -1427,15 +1429,15 @@ function JobOffersContent() {
                         <p className="text-sm text-gray-500 mb-4">
                           Click the button below to apply.
                         </p> */}
-                      <Button
-                        variant={"outline"}
-                        className="w-full cursor-pointer rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-                        onClick={() => {
-                          setApplyModalOpen(true);
-                        }}
-                      >
-                        Apply
-                      </Button>
+                        <Button
+                          variant={"outline"}
+                          className="w-full cursor-pointer rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+                          onClick={() => {
+                            setApplyModalOpen(true);
+                          }}
+                        >
+                          Apply
+                        </Button>
                       </div>
                     )}
 
@@ -1612,10 +1614,10 @@ function JobOffersContent() {
               <div className="grid grid-cols-2 gap-6 mt-5 ">
                 {/* Left Column ng form */}
                 <div className="flex flex-col gap-4">
-
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Job Position
+                      <Asterisk size={16} className="text-red-600" /> Job
+                      Position
                     </label>
                     <input
                       type="text"
@@ -1629,8 +1631,12 @@ function JobOffersContent() {
                   </div>
 
                   <div className="space-y-1 ">
-                    <label htmlFor="name" className="text-sm flex items-center ">
-                      <Asterisk size={16} className="text-red-600"/> Employment Type
+                    <label
+                      htmlFor="name"
+                      className="text-sm flex items-center "
+                    >
+                      <Asterisk size={16} className="text-red-600" /> Employment
+                      Type
                     </label>
                     <DropdownMenu
                       open={employmentTypeOpen}
@@ -1640,7 +1646,7 @@ function JobOffersContent() {
                         <Button
                           variant="outline"
                           className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
-                            employmentType ? 'text-black ' : 'text-gray-500'
+                            employmentType ? "text-black " : "text-gray-500"
                           }`}
                         >
                           {employmentType || "Select Employment Type"}
@@ -1670,7 +1676,7 @@ function JobOffersContent() {
 
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Job Type
+                      <Asterisk size={16} className="text-red-600" /> Job Type
                     </label>
                     <DropdownMenu
                       open={jobTypeOpen}
@@ -1680,7 +1686,7 @@ function JobOffersContent() {
                         <Button
                           variant="outline"
                           className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
-                            jobType ? 'text-black ' : 'text-gray-500'
+                            jobType ? "text-black " : "text-gray-500"
                           }`}
                         >
                           {jobType || "Select Job Type"}
@@ -1710,14 +1716,15 @@ function JobOffersContent() {
 
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Job Description
+                      <Asterisk size={16} className="text-red-600" /> Job
+                      Description
                     </label>
                     <textarea
                       placeholder="e.g., Outline the role, responsibilities, and key qualifications for this position."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                       className="text-sm w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] resize-none"
-                      style={{ height: "110px" }} 
+                      style={{ height: "110px" }}
                       maxLength={2000}
                       required
                     />
@@ -1744,7 +1751,8 @@ function JobOffersContent() {
                 <div className="flex flex-col gap-4">
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Company Name
+                      <Asterisk size={16} className="text-red-600" /> Company
+                      Name
                     </label>
                     <input
                       type="text"
@@ -1758,7 +1766,7 @@ function JobOffersContent() {
                   </div>
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Location
+                      <Asterisk size={16} className="text-red-600" /> Location
                     </label>
                     <input
                       type="text"
@@ -1773,7 +1781,8 @@ function JobOffersContent() {
 
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Experience Level
+                      <Asterisk size={16} className="text-red-600" /> Experience
+                      Level
                     </label>
                     <DropdownMenu
                       open={experienceLevelOpen}
@@ -1783,7 +1792,7 @@ function JobOffersContent() {
                         <Button
                           variant="outline"
                           className={`font-normal w-full justify-between border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)] ${
-                            experienceLevel ? 'text-black ' : 'text-gray-500'
+                            experienceLevel ? "text-black " : "text-gray-500"
                           }`}
                         >
                           {experienceLevel || "Select Experience Level"}
@@ -1813,7 +1822,8 @@ function JobOffersContent() {
 
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Salary Range
+                      <Asterisk size={16} className="text-red-600" /> Salary
+                      Range
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -1827,15 +1837,14 @@ function JobOffersContent() {
                         onInput={(e) => {
                           const value = (e.target as HTMLInputElement).value;
                           if (!/^\d+(-\d+)?$/.test(value)) {
-                          (e.target as HTMLInputElement).value = value
-                            .replace(/[^0-9-]/g, "")            // Remove non-digit and non-dash characters
-                            .replace(/^-/g, "")                 // Remove a dash if it's the first character
-                            .replace(/(-.*)-+/g, "$1");         // Remove any extra dashes after the first one
-                        }
+                            (e.target as HTMLInputElement).value = value
+                              .replace(/[^0-9-]/g, "") // Remove non-digit and non-dash characters
+                              .replace(/^-/g, "") // Remove a dash if it's the first character
+                              .replace(/(-.*)-+/g, "$1"); // Remove any extra dashes after the first one
+                          }
                         }}
                         pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
                         className="pl-8 p-1.5 text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary-blue)]"
-
                         required
                       />
                     </div>
@@ -1843,7 +1852,8 @@ function JobOffersContent() {
 
                   <div className="space-y-1">
                     <label htmlFor="name" className="text-sm flex items-center">
-                      <Asterisk size={16} className="text-red-600"/> Required Skills
+                      <Asterisk size={16} className="text-red-600" /> Required
+                      Skills
                     </label>
                     <input
                       type="text"
@@ -1857,10 +1867,9 @@ function JobOffersContent() {
                 </div>
               </div>
 
-
               <div className="space-y-1 mt-3">
                 <label htmlFor="name" className="text-sm flex items-center">
-                  <Asterisk size={16} className="text-red-600"/> Company Logo
+                  <Asterisk size={16} className="text-red-600" /> Company Logo
                 </label>
                 <div className="flex items-center gap-4">
                   <label className="cursor-pointer">

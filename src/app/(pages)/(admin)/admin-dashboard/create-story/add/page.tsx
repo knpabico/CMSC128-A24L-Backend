@@ -25,15 +25,15 @@ export default function CreateFeaturedStoryPage() {
 
   const [preview, setPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleImageChange = (e:any) => {
+  const handleImageChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
-        setImage(file);
-        setPreview(URL.createObjectURL(file)); //preview
+      setImage(file);
+      setPreview(URL.createObjectURL(file)); //preview
     }
-};
+  };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,15 +58,22 @@ export default function CreateFeaturedStoryPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Write Featured Story | ICS-ARMS</title>
       <div className="flex items-center gap-2">
-         <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
-        <div>Home</div>
+        <span
+          className="cursor-pointer"
+          onClick={() => router.push("/admin-dashboard")}
+        >
+          <div>Home</div>
         </span>
         <div>
           <ChevronRight size={15} />
         </div>
         <div>
-          <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard/create-story")}>
+          <span
+            className="cursor-pointer"
+            onClick={() => router.push("/admin-dashboard/create-story")}
+          >
             Manage Featured Stories
           </span>
         </div>
@@ -91,7 +98,10 @@ export default function CreateFeaturedStoryPage() {
         >
           <div className="flex flex-col gap-5">
             <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium flex items-center">
+              <label
+                htmlFor="title"
+                className="text-sm font-medium flex items-center"
+              >
                 <Asterisk size={16} className="text-red-600" /> Title
               </label>
               <input
@@ -106,7 +116,10 @@ export default function CreateFeaturedStoryPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium flex items-center">
+              <label
+                htmlFor="description"
+                className="text-sm font-medium flex items-center"
+              >
                 <Asterisk size={16} className="text-red-600" /> Story
               </label>
               <textarea
@@ -118,23 +131,25 @@ export default function CreateFeaturedStoryPage() {
                 rows={5}
                 required
               />
-                <Button onClick={() => setIsModalOpen(true)} className="mt-2">
-                  Need AI help for creating a story?
-                </Button>
-                <ModalInput
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                  onSubmit={(response) => setText(response)}
-                  title="AI Assistance for Featured Story"
-                  type="story"
-                  mainTitle={title}
-                  subtitle="Get AI-generated description for your story. Only fill in the applicable fields."
-                />
+              <Button onClick={() => setIsModalOpen(true)} className="mt-2">
+                Need AI help for creating a story?
+              </Button>
+              <ModalInput
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={(response) => setText(response)}
+                title="AI Assistance for Featured Story"
+                type="story"
+                mainTitle={title}
+                subtitle="Get AI-generated description for your story. Only fill in the applicable fields."
+              />
             </div>
 
-            
             <div className="space-y-2">
-              <label htmlFor="type" className="text-sm font-medium flex items-center">
+              <label
+                htmlFor="type"
+                className="text-sm font-medium flex items-center"
+              >
                 <Asterisk size={16} className="text-red-600" /> Type
               </label>
               <select
@@ -157,9 +172,15 @@ export default function CreateFeaturedStoryPage() {
               <div className="text-sm font-medium flex items-center">
                 <Asterisk size={16} className="text-red-600" /> Featured Image:
               </div>
-              
+
               <div className="mt-3">
-                <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
                 <label
                   htmlFor="image-upload"
                   className="inline-flex items-center justify-center gap-2 bg-[#0856BA] text-white px-4 py-2 rounded-md cursor-pointer transition-colors hover:bg-[#0645a0]"
@@ -180,7 +201,6 @@ export default function CreateFeaturedStoryPage() {
                   />
                 </div>
               )}
-
             </div>
           </div>
 

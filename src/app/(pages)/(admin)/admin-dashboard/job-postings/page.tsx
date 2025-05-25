@@ -80,7 +80,7 @@ export default function Users() {
   const [jobToDelete, setJobToDelete] = useState<JobOffering | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState<JobOffering | null>(null);
-  
+
   const filterJobs = (status: string) => {
     const filteredJobs = jobOffers.filter((job: JobOffering) => {
       const matchesStatus =
@@ -182,6 +182,7 @@ export default function Users() {
 
     return (
       <div className="flex flex-col gap-5">
+        <title>View Job Posting | ICS-ARMS</title>
         <div className="flex items-center gap-2">
           <div>Home</div>
           <div>
@@ -191,7 +192,7 @@ export default function Users() {
             className="cursor-pointer hover:text-blue-600"
             onClick={() => {
               goBackToList();
-              setCurrentPage('list');
+              setCurrentPage("list");
             }}
           >
             Manage Job Posting
@@ -349,7 +350,7 @@ export default function Users() {
               {/* Revised buttons */}
               {isEditing && (
                 <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
-                    <button
+                  <button
                     type="button"
                     onClick={() => {
                       setIsEditing(false);
@@ -357,9 +358,9 @@ export default function Users() {
                       setCurrentPage("list");
                     }}
                     className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-                    >
+                  >
                     Cancel
-                    </button>
+                  </button>
                   <button
                     type="submit"
                     className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
@@ -383,6 +384,7 @@ export default function Users() {
 
   return (
     <>
+      <title>Manage Job Posting | ICS-ARMS</title>
       {/* Main content */}
       {currentPage === "list" ? (
         <div className="flex flex-col gap-5">
