@@ -7,7 +7,7 @@ import EventsList from "./components/EventsList";
 import { Event } from "@/models/models";
 import Banner from "@/components/Banner";
 import ProposeEventForm from "./components/ProposeEventForm";
-import { FilePlus2 } from "lucide-react";
+import { ChevronDown, FilePlus2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 
@@ -92,8 +92,7 @@ export default function AllEventsPage()
             {/* Body */}
             <div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
                 {/* Sidebar */}
-                <div className="flex flex-col gap-3">
-                    
+                <div className="flex flex-col gap-3">    
                     <div className='bg-[#FFFFFF] shadow-md flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
                         <EventSidebar />
                     </div>
@@ -109,21 +108,22 @@ export default function AllEventsPage()
                 {/* Main content */}
                 <div className='flex flex-col gap-[10px] w-full mb-10'>
                     {/* Filter tabs */}
-                    
                     <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
                         <h2 className="text-md lg:text-lg font-semibold">All Upcoming Events</h2>
-                        <div className="flex items-center">
-                            <label htmlFor="sort" className="mr-2 text-sm text-[var(--primary-blue)]">
-                                Sort by:
-                            </label>
-                            <select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)]" >
-                                <option value="event-closest">Upcoming Events (Soonest First)</option>
-                                <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
-                                <option value="posted-newest">Date Approved (Newest)</option>
-                                <option value="post-oldest">Date Approved (Earliest)</option>
-                            </select>
-                            {/* Propose Event */}
-                            
+                        <div className="flex justify-between items-center gap-2">
+                            <div className="flex items-center relative">
+                                <label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+                                <select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
+                                    <option value="event-closest">Upcoming Events (Soonest First)</option>
+                                    <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
+                                    <option value="posted-newest">Date Approved (Newest)</option>
+                                    <option value="post-oldest">Date Approved (Earliest)</option>
+                                </select>
+    
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+                                    <ChevronDown className="w-4 h-4" />
+                                </div>
+                            </div>		
                         </div>
                     </div>
 

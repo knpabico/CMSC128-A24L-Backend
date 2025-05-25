@@ -431,12 +431,12 @@ function JobOffersContent() {
                 placeholder="Search jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA]  focus:outline-none"
               />
             </div>
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm  text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -501,7 +501,7 @@ function JobOffersContent() {
             </div>
 
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-[2px] border-[var(--primary-blue)] text-sm text-[var(--primary-blue)] shadow-inner shadow-white/10 transition-all duration-300 "
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}

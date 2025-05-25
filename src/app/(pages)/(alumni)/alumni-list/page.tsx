@@ -155,11 +155,11 @@ export default function Users() {
           {/* Filter Bar */}
           <div className="bg-white rounded-xl flex flex-wrap gap-3 px-5 py-3 items-center shadow-sm">
             <div className="text-sm text-[var(--primary-blue)]">Filter:</div>
-            <div className="px-4 py-2 rounded-full text-[var(--primary-blue)] flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-[var(--primary-blue)]">
+            <div className="px-3 py-1.5 rounded-full text-[var(--primary-blue)] flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-[var(--primary-blue)]">
               <div>Degree</div>
               <ChevronDown size={16} />
             </div>
-            <div className="px-4 py-2 rounded-full text-[var(--primary-blue)] flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-[var(--primary-blue)]">
+            <div className="px-3 py-1.5 rounded-full text-[var(--primary-blue)] flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-[var(--primary-blue)]">
               <div>Year Graduated</div>
               <ChevronDown size={16} />
             </div>

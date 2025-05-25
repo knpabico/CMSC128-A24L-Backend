@@ -9,6 +9,7 @@ import { Calendar, ChevronRight, CircleCheck, CircleX, Clock, MapPin, Trash2, Us
 import { useParams, useRouter } from "next/navigation"
 import { useRsvpDetails } from "@/context/RSVPContext"
 import { useDonationDrives } from "@/context/DonationDriveContext"
+import Breadcrumb from "@/components/breadcrumb"
 
 export default function EventPageAdmin() {
   const router = useRouter()
@@ -173,15 +174,15 @@ export default function EventPageAdmin() {
     setPreview(null)
   }
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Events", href: "#", active: true  },
+  ];
+
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-2 text-sm text-gray-600">
-        <Link href="/admin-dashboard" className="hover:underline">
-          Home
-        </Link>
-        <ChevronRight size={15} />
-        <span className="text-[var(--primary-blue)] font-semibold">Manage Events</span>
-      </div>
+      <Breadcrumb items={breadcrumbItems} />
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Manage Events</div>
@@ -240,13 +241,13 @@ export default function EventPageAdmin() {
 
         {/* Filter Bar */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-          <div className="text-sm font-medium text-gray-600">Filter by:</div>
+          <div className="text-sm font-medium text-[var(--primary-blue)]">Filter by:</div>
           <div className="relative">
             <select
               id="sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-gray-300 px-3 py-1 rounded-md text-sm font-medium cursor-pointer hover:bg-gray-400 appearance-none pr-8"
+              className="text-[var(--primary-blue)] border-[var(--primary-blue)] border-2 px-4 py-2 rounded-full text-sm font-medium cursor-pointer appearance-none pr-8"
             >
               <option value="posted-newest">Newest</option>
               <option value="posted-oldest">Earliest</option>
@@ -254,7 +255,7 @@ export default function EventPageAdmin() {
             </select>
             <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
               <svg
-                className="w-4 h-4 text-gray-600"
+                className="w-4 h-4 text-[var(--primary-blue)]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -346,7 +347,7 @@ export default function EventPageAdmin() {
                             <div className="flex items-center justify-end gap-10 pr-5">
                               <div className="flex items-center justify-end gap-10 text-[14px]">
                                 <button
-                                  onClick={() => router.push(`/admin-dashboard/organize-events/edit/${e.eventId}`)}
+                                  onClick={() => router.push(`/admin-dashboard/organize-events/${e.eventId}`)}
                                   className="text-[var(--primary-blue)] hover:underline cursor-pointer"
                                 >
                                   View Details
@@ -395,7 +396,7 @@ export default function EventPageAdmin() {
                                 onClick={() => handleViewEventAdmin(e)}
                                 className="text-[var(--primary-blue)] hover:underline cursor-pointer"
                               >
-                                View Details
+                                Edit Details
                               </button>
                               <Trash2
                                 size={20}
@@ -413,7 +414,7 @@ export default function EventPageAdmin() {
                                   onClick={() => router.push(`/admin-dashboard/organize-events/edit/${e.eventId}`)}
                                   className="text-[var(--primary-blue)] hover:underline cursor-pointer"
                                 >
-                                  View Details
+                                  Edit Details
                                 </button>
                                 <Trash2
                                   size={20}
