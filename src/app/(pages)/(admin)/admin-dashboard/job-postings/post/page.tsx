@@ -89,7 +89,7 @@ export default function PostJobPage() {
         <div>
           <ChevronRight size={15} />
         </div>
-        <div className="cursor-pointer hover:text-blue-600" 
+        <div className="cursor-pointer hover:text-[#0856BA]" 
         onClick={goBackToList}
         >
           Manage Job Posting
