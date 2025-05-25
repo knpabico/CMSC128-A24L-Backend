@@ -105,8 +105,8 @@ const DonationDriveCard = ({
           console.log(
             `Drive ${drive.campaignName} marked as completed due to expiration`
           );
+          await deleteNewsLetter(drive.donationDriveId);
         }
-        await deleteNewsLetter(drive.donationDriveId);
       } catch (err) {
         console.error("Error checking drive expiration:", err);
       }
@@ -129,8 +129,8 @@ const DonationDriveCard = ({
           console.log(
             `Drive ${drive.campaignName} marked as completed due to target amount acquired`
           );
+          await deleteNewsLetter(drive.donationDriveId);
         }
-        await deleteNewsLetter(drive.donationDriveId);
       } catch (err) {
         console.error("Error checking drive completion:", err);
       }
