@@ -116,10 +116,15 @@ export default function Navbar() {
           label: "Add Scholarship Drive",
           path: "/admin-dashboard/scholarships/add",
         },
-				{
+        {
           id: "view-pending-sponsorship",
           label: "View Pending Sponsorships",
           path: "/admin-dashboard/scholarships/sponsorship",
+        },
+        {
+          id: "scholarship-reports",
+          label: "Scholarship Reports",
+          path: "/admin-dashboard/scholarship-reports",
         },
       ],
     },
@@ -133,7 +138,11 @@ export default function Navbar() {
           label: "Manage Job Posting",
           path: "/admin-dashboard/job-postings",
         },
-        { id: "add-jobs", label: "Add Job Posting", path: "/admin-dashboard/job-postings/post" },
+        {
+          id: "add-jobs",
+          label: "Add Job Posting",
+          path: "/admin-dashboard/job-postings/post",
+        },
         {
           id: "stats-jobs",
           label: "Statistical Report",

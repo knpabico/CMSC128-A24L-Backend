@@ -1,90 +1,73 @@
 "use client";
-import BarGraph from "@/components/charts/BarGraph";
+import React, { useEffect, useMemo, useState } from "react";
+import { useScholarship } from "@/context/ScholarshipContext";
+import {
+  Alumnus,
+  Scholarship,
+  ScholarshipStudent,
+  Student,
+} from "@/models/models";
 import DonutChart from "@/components/charts/DonutChart";
-import EventCalendar from "@/components/EventCalendar";
+import BarGraph from "@/components/charts/BarGraph";
+import { useAlums } from "@/context/AlumContext";
 import ReportSummaryCard from "@/components/ReportSummaryCard";
-import { useEvents } from "@/context/EventContext";
-import { useRsvpDetails } from "@/context/RSVPContext";
-import formatTimeString from "@/lib/timeFormatter";
-import { Event } from "@/models/models";
-import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronRight, BarChart } from "lucide-react";
 
-const Page = () => {
-  const { events, isLoading: eventLoading } = useEvents();
-  const { rsvpDetails } = useRsvpDetails();
+const ScholarshipReports = () => {
+  const { scholarshipStudents, students, scholarships } = useScholarship();
+  const { alums: alumList } = useAlums();
 
-  const approvedEvents = useMemo(() => {
-    return events.filter((event: Event) => event.status === "Accepted");
-  }, [events]);
+  const filteredStudents: ScholarshipStudent[] = useMemo(
+    () =>
+      scholarshipStudents.filter(
+        (student: ScholarshipStudent) => student.status === "approved"
+      ),
+    [scholarshipStudents]
+  );
 
-  const eventsWithDonations = useMemo(() => {
-    return approvedEvents.filter(
-      (event: Event) => event.donationDriveId !== ""
-    );
-  }, [approvedEvents]);
-
-  const upcomingEvents = useMemo(() => {
-    return approvedEvents
-      .filter((event: Event) => {
-        const eventDate = new Date(event.date);
-        const today = new Date();
-        return eventDate > today;
+  const scholarshipDetails: {
+    scholarship: Scholarship;
+    students: { studentId: string; name: string }[];
+  }[] = useMemo(() => {
+    return scholarships
+      .map((scholarship: Scholarship) => {
+        const scholarshipStudents = filteredStudents
+          .filter(
+            (student: ScholarshipStudent) =>
+              student.scholarshipId === scholarship.scholarshipId
+          )
+          .map((scholarshipStudent: ScholarshipStudent) => {
+            const student = students.find(
+              (s: Student) => s.studentId === scholarshipStudent.studentId
+            );
+            return {
+              studentId: scholarshipStudent.studentId,
+              name: student?.name || "Unknown Student",
+            };
+          });
+        return {
+          scholarship,
+          students: scholarshipStudents,
+        };
       })
-      .sort((a: Event, b: Event) => {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      });
-  }, [approvedEvents]);
+      .sort((a, b) => b.students.length - a.students.length); // Sort in descending order by number of students
+  }, [scholarships, filteredStudents, students]);
 
-  const pastEvents = useMemo(() => {
-    return approvedEvents
-      .filter((event: Event) => {
-        const eventDate = new Date(event.date);
-        const today = new Date();
-        return eventDate < today;
-      })
-      .sort((a: Event, b: Event) => {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      });
-  }, [approvedEvents]);
-
-  const eventsRSVPs = useMemo(() => {
-    return approvedEvents
-      .filter((event: Event) => {
-        const rsvp = rsvpDetails.find((r: any) => r.postId === event.eventId);
-        return rsvp?.alums && Object.keys(rsvp.alums).length > 0;
-      })
-      .sort((a: Event, b: Event) => {
-        const rsvpA = rsvpDetails.find((r: any) => r.postId === a.eventId);
-        const rsvpB = rsvpDetails.find((r: any) => r.postId === b.eventId);
-        const countA = rsvpA?.alums ? Object.keys(rsvpA.alums).length : 0;
-        const countB = rsvpB?.alums ? Object.keys(rsvpB.alums).length : 0;
-        return countB - countA; // Descending
-      });
-  }, [approvedEvents, rsvpDetails]);
-
-  const rsvpLabels = useMemo(() => {
-    return eventsRSVPs.map((event: Event) => event.title);
-  }, [eventsRSVPs]);
-
-  const rsvpData = useMemo(() => {
-    return eventsRSVPs.map((event: Event) => {
-      const rsvp = rsvpDetails.find((r: any) => r.postId === event.eventId);
-      return rsvp?.alums ? Object.keys(rsvp.alums).length : 0;
-    });
-  }, [eventsRSVPs, rsvpDetails]);
-
-  const rsvpStats = eventsRSVPs
-    .map(
-      (event: Event, index: number) =>
-        `${event.title} - ${rsvpData[index]} RSVP(s)`
-    )
-    .join("\n");
-
-  const eventDates = approvedEvents
-    .map((event: Event) => `${event.title} - ${event.date}`)
-    .join("\n");
+  const studentDetails = useMemo(
+    () =>
+      filteredStudents
+        .map((scholarshipStudent: ScholarshipStudent) =>
+          students.find(
+            (student: Student) =>
+              student.studentId === scholarshipStudent.studentId
+          )
+        )
+        .filter(
+          (student: Student): student is Student => student !== undefined
+        ),
+    [filteredStudents, students]
+  );
 
   return (
     <div className="flex flex-col gap-5">
@@ -97,7 +80,7 @@ const Page = () => {
           <ChevronRight size={15} />
         </div>
         <div className="font-medium text-[#0856BA]">
-          Events Statistical Reports
+          Scholarship Statistical Reports
         </div>
       </div>
 
@@ -107,11 +90,11 @@ const Page = () => {
           <div className="flex items-center gap-2">
             <BarChart className="w-8 h-8 text-[#0856BA]" />
             <h1 className="font-bold text-3xl text-gray-800">
-              Events Statistical Reports
+              Scholarship Statistical Reports
             </h1>
           </div>
           <div className="text-sm bg-[#0856BA] text-white px-4 py-2 rounded-full font-medium">
-            {!eventLoading && `Total Events: ${approvedEvents.length}`}
+            Total Approved Scholarships: {filteredStudents.length}
           </div>
         </div>
       </div>
@@ -120,21 +103,21 @@ const Page = () => {
       <div className="bg-white rounded-xl shadow-sm p-10 border border-gray-100">
         <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 flex items-center">
           <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-          Events Overview
+          Scholarship Overview
         </h2>
         <div className="flex flex-col lg:flex-row gap-4">
           <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
             <CardHeader className="pb-2">
               <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                Events with Donation Drives
+                Student Scholarship Distribution
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center pt-0 h-[300px]">
               <DonutChart
-                labels={["With", "Without"]}
+                labels={["With Scholarship", "Without Scholarship"]}
                 data={[
-                  eventsWithDonations.length,
-                  events.length - approvedEvents.length,
+                  studentDetails.length,
+                  students.length - studentDetails.length,
                 ]}
               />
             </CardContent>
@@ -143,14 +126,18 @@ const Page = () => {
           <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
             <CardHeader className="pb-2">
               <CardTitle className="text-center text-lg font-semibold text-gray-700">
-                Events&apos; RSVPs
+                Top Scholarships by Student Count
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center pt-0 h-[300px]">
               <BarGraph
-                type="Number of RSVPs"
-                labels={rsvpLabels.slice(0, 5)}
-                data={rsvpData.slice(0, 5)}
+                type="Number of scholars"
+                data={scholarshipDetails.map(
+                  (scholarship) => scholarship.students.length
+                )}
+                labels={scholarshipDetails.map(
+                  (scholarship) => scholarship.scholarship.title
+                )}
               />
             </CardContent>
           </Card>
@@ -159,7 +146,7 @@ const Page = () => {
 
       {/* Middle Section - Cards Grid and Report Summary */}
       <div className="flex flex-col lg:flex-row gap-4">
-        {/* Events Grid */}
+        {/* Scholarship Grid */}
         <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
             <CardHeader className="pb-3 border-b border-gray-100">
@@ -167,37 +154,77 @@ const Page = () => {
                 <div>
                   <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
                     <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-                    Events with Donations
+                    Scholarship Programs
                   </CardTitle>
-                  {!eventLoading && (
-                    <div className="text-[#0856BA] font-medium text-sm mt-1">
-                      Total: {eventsWithDonations.length}
-                    </div>
-                  )}
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Total: {scholarships.length}
+                  </div>
                 </div>
                 <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
-                  {eventsWithDonations.length}
+                  {scholarships.length}
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-4 h-[300px] overflow-y-auto">
-              {eventLoading ? (
-                <div className="flex items-center justify-center py-8 text-gray-500">
-                  <p>Loading events...</p>
-                </div>
-              ) : eventsWithDonations.length === 0 ? (
+              {scholarshipDetails.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <p>No events with donations found</p>
+                  <p>No scholarship programs found</p>
                 </div>
               ) : (
                 <ul className="divide-y divide-gray-100">
-                  {eventsWithDonations.map((event: Event, index: number) => (
+                  {scholarshipDetails.map((item, index: number) => (
+                    <li
+                      key={index}
+                      className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
+                    >
+                      <div className="flex items-center">
+                        <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                        <span className="font-medium">
+                          {item.scholarship.title}
+                        </span>
+                      </div>
+                      <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
+                        {item.students.length} scholar
+                        {item.students.length !== 1 ? "s" : ""}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+            <CardHeader className="pb-3 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                    <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                    Students with Scholarships
+                  </CardTitle>
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Total: {studentDetails.length}
+                  </div>
+                </div>
+                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                  {studentDetails.length}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 h-[300px] overflow-y-auto">
+              {studentDetails.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                  <p>No students with scholarships found</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {studentDetails.map((student: Student, index: number) => (
                     <li
                       key={index}
                       className="py-3 px-2 text-gray-700 flex items-center hover:bg-gray-50 transition-colors rounded-md"
                     >
                       <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
-                      <span className="font-medium">{event.title}</span>
+                      <span className="font-medium">{student.name}</span>
                     </li>
                   ))}
                 </ul>
@@ -211,97 +238,62 @@ const Page = () => {
                 <div>
                   <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
                     <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-                    RSVPs per Event
+                    Top Sponsors by Scholar Count
                   </CardTitle>
-                  {!eventLoading && (
-                    <div className="text-[#0856BA] font-medium text-sm mt-1">
-                      Events with RSVPs: {eventsRSVPs.length}
-                    </div>
-                  )}
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Active Sponsors:{" "}
+                    {alumList?.filter((alum) =>
+                      scholarshipStudents.some(
+                        (student) => student.alumId === alum.alumniId
+                      )
+                    ).length || 0}
+                  </div>
                 </div>
                 <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
-                  {eventsRSVPs.length}
+                  {alumList?.filter((alum) =>
+                    scholarshipStudents.some(
+                      (student) => student.alumId === alum.alumniId
+                    )
+                  ).length || 0}
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-4 h-[300px] overflow-y-auto">
-              {eventLoading ? (
-                <div className="flex items-center justify-center py-8 text-gray-500">
-                  <p>Loading events...</p>
-                </div>
-              ) : eventsRSVPs.length === 0 ? (
+              {!alumList || alumList.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <p>No events with RSVPs found</p>
+                  <p>No sponsors found</p>
                 </div>
               ) : (
                 <ul className="divide-y divide-gray-100">
-                  {eventsRSVPs.map((event: Event, index: number) => (
-                    <li
-                      key={index}
-                      className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
-                    >
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
-                        <span className="font-medium">{event.title}</span>
-                      </div>
-                      <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
-                        {rsvpData[index]} RSVPs
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
-            <CardHeader className="pb-3 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-                    <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-                    Upcoming Events
-                  </CardTitle>
-                  {!eventLoading && (
-                    <div className="text-[#0856BA] font-medium text-sm mt-1">
-                      Total: {upcomingEvents.length}
-                    </div>
-                  )}
-                </div>
-                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
-                  {upcomingEvents.length}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4 h-[300px] overflow-y-auto">
-              {eventLoading ? (
-                <div className="flex items-center justify-center py-8 text-gray-500">
-                  <p>Loading events...</p>
-                </div>
-              ) : upcomingEvents.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <p>No upcoming events found</p>
-                </div>
-              ) : (
-                <ul className="divide-y divide-gray-100">
-                  {upcomingEvents.map((event: Event, index: number) => (
-                    <li
-                      key={index}
-                      className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
-                    >
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
-                        <span className="font-medium">{event.title}</span>
-                      </div>
-                      <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full text-xs">
-                        <span className="text-gray-700">{event.date}</span>
-                        <span className="mx-1">•</span>
-                        <span className="text-[#0856BA] font-medium">
-                          {formatTimeString(event.time)}
+                  {alumList
+                    ?.map((alum) => {
+                      const scholarCount = scholarshipStudents.filter(
+                        (student) =>
+                          student.alumId === alum.alumniId &&
+                          student.status === "approved"
+                      ).length;
+                      return { alum, scholarCount };
+                    })
+                    .filter((item) => item.scholarCount > 0)
+                    .sort((a, b) => b.scholarCount - a.scholarCount)
+                    .slice(0, 10)
+                    .map((item, index: number) => (
+                      <li
+                        key={index}
+                        className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
+                      >
+                        <div className="flex items-center">
+                          <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                          <span className="font-medium">
+                            {item.alum.firstName} {item.alum.lastName}
+                          </span>
+                        </div>
+                        <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
+                          {item.scholarCount} scholar
+                          {item.scholarCount !== 1 ? "s" : ""}
                         </span>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    ))}
                 </ul>
               )}
             </CardContent>
@@ -313,44 +305,44 @@ const Page = () => {
                 <div>
                   <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
                     <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-                    Past Events
+                    Top Scholarships by Sponsor Count
                   </CardTitle>
-                  {!eventLoading && (
-                    <div className="text-[#0856BA] font-medium text-sm mt-1">
-                      Total: {pastEvents.length}
-                    </div>
-                  )}
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Showing Top 5
+                  </div>
                 </div>
                 <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
-                  {pastEvents.length}
+                  5
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-4 h-[300px] overflow-y-auto">
-              {eventLoading ? (
-                <div className="flex items-center justify-center py-8 text-gray-500">
-                  <p>Loading events...</p>
-                </div>
-              ) : pastEvents.length === 0 ? (
+              {scholarships.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <p>No past events found</p>
+                  <p>No scholarships found</p>
                 </div>
               ) : (
                 <ul className="divide-y divide-gray-100">
-                  {pastEvents.map((event: Event, index: number) => (
-                    <li
-                      key={index}
-                      className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
-                    >
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
-                        <span className="font-medium">{event.title}</span>
-                      </div>
-                      <span className="bg-gray-100 px-3 py-1 rounded-full text-xs text-gray-700">
-                        {event.date}
-                      </span>
-                    </li>
-                  ))}
+                  {scholarships
+                    .sort((a, b) => b.alumList.length - a.alumList.length)
+                    .slice(0, 5)
+                    .map((scholarship: Scholarship, index: number) => (
+                      <li
+                        key={index}
+                        className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
+                      >
+                        <div className="flex items-center">
+                          <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                          <span className="font-medium">
+                            {scholarship.title}
+                          </span>
+                        </div>
+                        <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
+                          {scholarship.alumList.length} sponsor
+                          {scholarship.alumList.length !== 1 ? "s" : ""}
+                        </span>
+                      </li>
+                    ))}
                 </ul>
               )}
             </CardContent>
@@ -370,14 +362,81 @@ const Page = () => {
               <div className="p-2 rounded-lg">
                 <ReportSummaryCard
                   data={`
-                      Total Number of events: ${approvedEvents.length} 
-                      Number of events with donation drives: ${eventsWithDonations.length}
-                      Number of RSVPs per event: ${rsvpStats} 
-                      Number of upcoming events: ${upcomingEvents.length}
-                      Number of past events: ${pastEvents.length}
-                      Also please give number of events that will happen this week and this month based on the current actual date (in Philippine Standard Time). Here are the events' dates:
-                      ${eventDates} 
-                    `}
+                  // Scholarship Reports
+                  Total Approved Scholarships: ${filteredStudents.length}
+                  Total Scholarship Programs: ${scholarships.length}
+                  Total Students: ${students.length}
+                  Students with Scholarships: ${filteredStudents.length}
+                  Students without Scholarships: ${
+                    students.length - filteredStudents.length
+                  }
+                  
+                  // Top 5 Scholarship Programs by Student Count: ${scholarships
+                    .map(
+                      (scholarship: Scholarship) => scholarship.alumList.length
+                    )
+                    .sort((a, b) => b - a)
+                    .slice(0, 5)} Corresponding Labels: ${scholarships
+                    .map((scholarship: Scholarship) => scholarship.title)
+                    .sort((a, b) => a.localeCompare(b))
+                    .slice(0, 5)}
+                  
+                  // Top Sponsors
+                  Number of Active Sponsors: ${
+                    alumList?.filter((alum) =>
+                      scholarshipStudents.some(
+                        (student) => student.alumId === alum.alumniId
+                      )
+                    ).length || 0
+                  }
+                  Top 5 Sponsors by Scholar Count: ${
+                    alumList
+                      ?.map((alum) => {
+                        const scholarships = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId === alum.alumniId &&
+                            student.status === "approved"
+                        );
+                        return scholarships.length;
+                      })
+                      .sort((a, b) => b - a)
+                      .slice(0, 5) || []
+                  } Corresponding Labels: ${
+                    alumList
+                      ?.map((alum) => {
+                        const scholarships = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId === alum.alumniId &&
+                            student.status === "approved"
+                        );
+                        return `${alum.firstName} ${alum.lastName}`;
+                      })
+                      .sort((a, b) => {
+                        const countA = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId ===
+                            alumList.find(
+                              (alum) =>
+                                `${alum.firstName} ${alum.lastName}` === a
+                            )?.alumniId
+                        ).length;
+                        const countB = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId ===
+                            alumList.find(
+                              (alum) =>
+                                `${alum.firstName} ${alum.lastName}` === b
+                            )?.alumniId
+                        ).length;
+                        return countB - countA;
+                      })
+                      .slice(0, 5) || []
+                  }
+                  
+                  // Date Context
+                  Current date: ${new Date().toLocaleDateString()}
+                  Report generated on: ${new Date().toLocaleString()}
+                  `}
                 />
               </div>
             </CardContent>
@@ -385,20 +444,88 @@ const Page = () => {
         </div>
       </div>
 
-      {/* Calendar Section - Full Width at Bottom */}
-      <Card className="bg-white h-full rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all mb-2">
-        <CardHeader className="pb-2 border-b border-gray-100">
-          <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-            <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
-            Event Calendar
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <EventCalendar />
-        </CardContent>
-      </Card>
+      {/* Additional Charts Section - Full Width at Bottom */}
+      <div className="flex flex-col lg:flex-row gap-4">
+        <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+          <CardHeader className="pb-2 border-b border-gray-100">
+            <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+              Top Scholarships by Sponsor Count
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <BarGraph
+              type="Number of sponsors"
+              data={scholarships
+                .map((scholarship: Scholarship) => scholarship.alumList.length)
+                .sort((a, b) => b - a)
+                .slice(0, 5)}
+              labels={scholarships
+                .map((scholarship: Scholarship) => scholarship.title)
+                .sort((a, b) => a.localeCompare(b))
+                .slice(0, 5)}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+          <CardHeader className="pb-2 border-b border-gray-100">
+            <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+              Top Sponsors by Scholar Count
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <BarGraph
+              type="Number of scholars"
+              data={
+                alumList
+                  ?.map((alum) => {
+                    const scholarships = scholarshipStudents.filter(
+                      (student) =>
+                        student.alumId === alum.alumniId &&
+                        student.status === "approved"
+                    );
+                    return scholarships.length;
+                  })
+                  .sort((a, b) => b - a)
+                  .slice(0, 5) || []
+              }
+              labels={
+                alumList
+                  ?.map((alum) => {
+                    const scholarships = scholarshipStudents.filter(
+                      (student) =>
+                        student.alumId === alum.alumniId &&
+                        student.status === "approved"
+                    );
+                    return `${alum.firstName} ${alum.lastName}`;
+                  })
+                  .sort((a, b) => {
+                    const countA = scholarshipStudents.filter(
+                      (student) =>
+                        student.alumId ===
+                        alumList.find(
+                          (alum) => `${alum.firstName} ${alum.lastName}` === a
+                        )?.alumniId
+                    ).length;
+                    const countB = scholarshipStudents.filter(
+                      (student) =>
+                        student.alumId ===
+                        alumList.find(
+                          (alum) => `${alum.firstName} ${alum.lastName}` === b
+                        )?.alumniId
+                    ).length;
+                    return countB - countA;
+                  })
+                  .slice(0, 5) || []
+              }
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
 
-export default Page;
+export default ScholarshipReports;
