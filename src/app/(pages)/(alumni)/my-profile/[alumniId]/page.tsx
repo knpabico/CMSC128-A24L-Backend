@@ -1347,7 +1347,7 @@ const UserProfile = () => {
                             </div>
 
                             <div className="flex space-x-10">
-                              <button
+                              {/* <button
                                 className="flex items-center space-x-2 cursor-pointer"
                                 onClick={() => openMap(index)}
                               >
@@ -1357,7 +1357,7 @@ const UserProfile = () => {
                                 <p className="text-[#3675c5] text-sm hover:underline">
                                   View in map
                                 </p>
-                              </button>
+                              </button> */}
                               <button
                                 className="flex items-center space-x-2 cursor-pointer"
                                 onClick={() => {
