@@ -6,6 +6,7 @@ import DonationDriveSidebar from './components/Sidebar';
 import DonationDrivesList from './components/DonationDrivesList';
 import { DonationDrive } from '@/models/models';
 import Banner from "@/components/Banner";
+import { ChevronDown } from 'lucide-react';
 // import { ChevronDown } from 'lucide-react';
 
 export default function AllDonationDrivesPage() {
@@ -76,27 +77,36 @@ return (
 				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
 					<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
 					<div className="flex justify-between items-center gap-2">
-						<div className="flex items-center">
+						<div className="flex items-center relative">
 							<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Filter:</label>
-							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="text-sm rounded-full py-2 px-4 border-[2px]" style={{borderColor: '#0856BA', color: '#0856BA'}} >
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
 								<option value="all">All</option>
 								<option value="active">Active</option>
 								<option value="completed">Closed </option>
 							</select>
+
+							<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+								<ChevronDown className="w-4 h-4" />
+							</div>
 						</div>
 						<div className='w-1'></div>
-						<div className="flex items-center">
+						<div className="flex items-center relative">
 							<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
-							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px]" style={{borderColor: '#0856BA', color: '#0856BA'}} >
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
 								<option value="newest">Newest</option>
 								<option value="oldest">Oldest</option>
 								<option value="amount-high">Amount (High to Low)</option>
 								<option value="amount-low">Amount (Low to High)</option>
 								<option value="progress">Progress</option>
 							</select>
+
+							<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+								<ChevronDown className="w-4 h-4" />
+							</div>
 						</div>						
 					</div>
 				</div>
+
 				{sortedDrives.length > 0 ? (
 					// Donation Cards
 					<DonationDrivesList 

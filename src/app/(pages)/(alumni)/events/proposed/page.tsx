@@ -7,7 +7,7 @@ import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 import { Event } from "@/models/models";
 import ProposeEventForm from "../components/ProposeEventForm";
-import { FilePlus2 } from "lucide-react";
+import { ChevronDown, FilePlus2 } from "lucide-react";
 import Banner from "@/components/Banner";
 
 
@@ -102,47 +102,52 @@ export default function ProposedEventsPage()
             {/* Page Title */}
             <Banner title="Events" description="Reconnect through ICS and alumni events that nurture unity, inspire growth, and strengthen our sense of community."/>
             {/* Body */}
-            <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+            <div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
                 {/* Sidebar */}
-                <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-                <EventSidebar />
+                <div className="flex flex-col gap-3">
+                    <button 
+                        className="bg-[var(--primary-blue)] text-white text-sm font-semibold rounded-full shadow-md hover:bg-[var(--blue-600)] hover:text-white flex items-center justify-center py-2 gap-2 w-full cursor-pointer"
+                        onClick={() => setShowForm(true)}
+                    >
+                        <FilePlus2 className="w-5 h-5" />
+                        Propose Event 
+                    </button>
+                    <div className='bg-[#FFFFFF] shadow-md flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+                        <EventSidebar />
+                    </div>
                 </div>
                 {/* Main content */}
                 <div className='flex flex-col gap-[10px] w-full mb-10'>
                     {/* Filter tabs */}
-                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-2 shadow-md border border-gray-200">
-                        <h2 className="text-lg font-semibold">{getStatusDisplayTitle()}</h2>
-                        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-
-                            {/* Status filter */}
-                            <div className="flex items-center">
-                                <label htmlFor="status" className="mr-2 text-sm">Status:</label>
-                                <select id="status" value={statusFilter} onChange={handleStatusFilterChange} className="text-gray-600 flex items-center text-sm" >
+                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
+                        <h2 className="text-md lg:text-lg font-semibold">{getStatusDisplayTitle()}</h2>
+                        <div className="flex justify-between items-center gap-2">
+                            <div className="flex items-center relative">
+                                <label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Status:</label>
+                                <select id="sort" value={statusFilter} onChange={handleStatusFilterChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
                                     <option value="all">All</option>
                                     <option value="Accepted">Approved</option>
                                     <option value="Pending">Pending</option>
                                     <option value="Rejected">Rejected</option>
                                     <option value="Draft">Draft</option>
                                 </select>
+
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+                                    <ChevronDown className="w-4 h-4" />
+                                </div>
                             </div>
-                            <div> | </div>
-                            {/* Sort by */}
-                            <div className="flex items-center">
-                                <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                                <select id="sort" value={sortOption} onChange={handleSortChange} className="text-gray-600 flex items-center text-sm" >
+                            <div className='w-1'></div>
+                            <div className="flex items-center relative">
+                                <label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+                                <select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
                                     <option value="newest">Newest</option>
                                     <option value="oldest">Earliest</option>
                                 </select>
-                            </div>
 
-                            {/* Propose Event */}
-                            <button 
-                                className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
-                                onClick={() => setShowForm(true)}
-                            >
-                                <FilePlus2 className="w-5 h-5" />
-                                Propose Event
-                            </button>
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+                                    <ChevronDown className="w-4 h-4" />
+                                </div>
+                            </div>						
                         </div>
                     </div>
                     

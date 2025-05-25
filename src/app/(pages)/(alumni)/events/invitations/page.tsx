@@ -8,7 +8,7 @@ import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 
 import ProposeEventForm from "../components/ProposeEventForm";
-import { FilePlus2 } from "lucide-react";
+import { ChevronDown, FilePlus2 } from "lucide-react";
 import Banner from "@/components/Banner";
 
 // Function to format the event date
@@ -108,49 +108,64 @@ export default function Invitations()
     <div className="bg-[#EAEAEA]">
       {/* Page Title */}
       <Banner title="Events" description="Reconnect through ICS and alumni events that nurture unity, inspire growth, and strengthen our sense of community."/>
-      {/* Main Content */}
-      <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
-        {/* Sidebar */}
-        <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-          <EventSidebar />
-        </div>
+      {/* Body */}
+            <div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
+                {/* Sidebar */}
+                <div className="flex flex-col gap-3">
+                    <button 
+                        className="bg-[var(--primary-blue)] text-white text-sm font-semibold rounded-full shadow-md hover:bg-[var(--blue-600)] hover:text-white flex items-center justify-center py-2 gap-2 w-full cursor-pointer"
+                        onClick={() => setShowForm(true)}
+                    >
+                        <FilePlus2 className="w-5 h-5" />
+                        Propose Event 
+                    </button>
+                    <div className='bg-[#FFFFFF] shadow-md flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+                        <EventSidebar />
+                    </div>
+                </div>
         
         {/* Main content */}
         <div className='flex flex-col gap-[10px] w-full mb-10'>
           {/* Filter and Sort Controls */}
-          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
-            <h2 className="text-md lg:text-lg font-semibold">Invitations</h2>
-            <div className="flex items-center">
-              <label htmlFor="filter" className="mr-2 text-sm">Filter by:</label>
-              <select
+
+
+        <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
+					<h2 className="text-md lg:text-lg font-semibold">Invitations</h2>
+					<div className="flex justify-between items-center gap-2">
+						<div className="flex items-center relative">
+							<label htmlFor="filter" className="mr-3 text-sm" style={{color: '#0856BA'}}>Filter:</label>
+							<select
                 id="filter"
                 value={filterOption}
                 onChange={(e) => setFilterOption(e.target.value)}
-                className="text-gray-600 flex items-center text-sm"
+                className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} 
               >
-                <option value="All">All Events</option>
+								<option value="All">All Events</option>
                 <option value="Upcoming">Upcoming</option>
                 <option value="Ongoing">Ongoing</option>
                 <option value="Done">Done</option>
-              </select>
-              <div className="mx-2"> |</div>
-              <label htmlFor="sort" className="ml-4 mr-2 text-sm">Sort by:</label>
-              <select id="sort" value={sortOption} onChange={handleSortChange} className="text-gray-600 flex items-center text-sm">
-                <option value="event-closest">Event Date (Closest First)</option>
+							</select>
+
+							<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+								<ChevronDown className="w-4 h-4" />
+							</div>
+						</div>
+						<div className='w-1'></div>
+						<div className="flex items-center relative">
+							<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
+								<option value="event-closest">Event Date (Closest First)</option>
                 <option value="event-farthest">Event Date (Farthest First)</option>
                 <option value="posted-newest">Date Posted (Newest First)</option>
                 <option value="posted-oldest">Date Posted (Oldest First)</option>
-              </select>
-              {/* Propose Event */}
-              <button 
-                  className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
-                  onClick={() => setShowForm(true)}
-              >
-                  <FilePlus2 className="w-5 h-5" />
-                  Propose Event
-              </button>
-            </div>
-          </div>
+							</select>
+
+							<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+								<ChevronDown className="w-4 h-4" />
+							</div>
+						</div>						
+					</div>
+				</div>
 
           <ProposeEventForm 
               isOpen={showForm}

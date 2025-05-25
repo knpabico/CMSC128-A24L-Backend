@@ -10,6 +10,7 @@ import DonationDriveSidebar from "../components/Sidebar";
 import { ProofOfPaymentDialog } from "./ProofOfPaymentDialog";
 import SearchParamsWrapper from "@/components/SearchParamsWrapper";
 import Banner from "@/components/Banner";
+import { ChevronDown } from "lucide-react";
 
 const sortTypes = [
   "Most recent first",
@@ -181,7 +182,7 @@ const DonationsContent: React.FC = () => {
         description="Support meaningful causes through ICS and alumni donation drives, helping create opportunities and making a lasting impact."
       />
       {/* Body */}
-      <div className="my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static ">
+      <div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
         {/* Sidebar */}
         <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7">
           <DonationDriveSidebar />
@@ -189,27 +190,26 @@ const DonationsContent: React.FC = () => {
         {/* Main content */}
         <div className="flex flex-col gap-[10px] w-full mb-10">
           {/* Sort Tab */}
-          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200 ">
-            <h2 className="text-lg font-semibold">Your Donations</h2>
-            <div className="flex items-center">
-              <label htmlFor="sort" className="mr-2 text-sm">
-                Sort by:
-              </label>
-              <select
-                id="sort"
-                defaultValue={getDefaultSort()}
-                onChange={(e) => {
-                  handleSortChange(e.target.value);
-                }}
-              >
-                {sortTypes.map((sortType, index) => (
-                  <option key={index} value={sortValues[index]}>
-                    {sortType}
-                  </option>
-                ))}
-              </select>
+          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
+            <h2 className="text-md lg:text-lg font-semibold">Your Donations</h2>
+            <div className="flex justify-between items-center gap-2">
+              <div className="flex items-center relative">
+                <label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+                <select id="sort" defaultValue={getDefaultSort()} onChange={(e) => {handleSortChange(e.target.value);}} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
+                  {sortTypes.map((sortType, index) => (
+                    <option key={index} value={sortValues[index]}>
+                      {sortType}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </div>				
             </div>
           </div>
+
           {displayError && <p className="text-red-500">{displayError}</p>}
           {showLoading && <p>Loading...</p>}
 
