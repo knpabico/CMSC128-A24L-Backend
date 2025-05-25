@@ -49,6 +49,9 @@ export default function AlumPage() {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 const [activeMarker, setActiveMarker] = useState<number | null>(null);
 
+
+  
+
   const calculateAge = (birthDate: Date) => {
     //current date
     const current_date = new Date();

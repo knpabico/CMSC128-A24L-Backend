@@ -173,29 +173,22 @@ export default function AdminDashboard() {
     day: "numeric",
   });
   
-  const getFieldInterestCounts = (alums: Alumnus[]) => {
-    const counts: Record<string, number> = {}; //rereturn ito like this 
-                                              // [<field> count]
-    fields.forEach(field => {
-      counts[field] = 0;
+  const getJobTitleCounts = (workExperiences: WorkExperience[]) => {
+    const jobTitleCounts: Record<string, number> = {};
+  
+    workExperiences.forEach(exp => {
+      const title = exp.jobTitle?.trim() || "Unspecified";
+      if (jobTitleCounts[title]) {
+        jobTitleCounts[title]++;
+      } else {
+        jobTitleCounts[title] = 1;
+      }
     });
-    
-    // Count occurrences
-    alums.forEach(alum => {
-      alum.fieldOfInterest?.forEach(field => {
-        if (counts.hasOwnProperty(field)) {
-          counts[field]++;
-        } else {
-          counts["Others"]++; 
-        }
-      });
-    });
-    
-    return counts;
+  
+    return jobTitleCounts;
   };
   
-  const fieldCounts = getFieldInterestCounts(alums);
-  console.log(alums, "alumnis", getActiveAlums(alums));
+  const jobTitleStats = getJobTitleCounts(allWorkExperience);
 
   const presentWorkExperiences = allWorkExperience.filter(
     (exp:WorkExperience) => exp.endYear === "present"
@@ -289,7 +282,7 @@ export default function AdminDashboard() {
     }
   };
   
-  const sortedEntries = Object.entries(fieldCounts).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+  const sortedEntries = Object.entries(jobTitleStats).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
     
     return (
       <div className="p-2 md:p-6 w-full bg-gray-10 min-h-screen">
