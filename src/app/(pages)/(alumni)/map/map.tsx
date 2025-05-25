@@ -32,7 +32,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const mapRef = useRef<google.maps.Map | null>(null);
   const { isLoaded } = useGoogleMaps();
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
-  const [zoom, setZoom] = useState(3);
+  const [zoom, setZoom] = useState(0);
   const [animatedMarker, setAnimatedMarker] = useState<{
     lat: number;
     lng: number;
@@ -44,7 +44,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (selectedLocation && mapRef.current) {
       animateMapAndMarker(selectedLocation);
-      smoothZoom(13);
+      smoothZoom(20);
     }
   }, [selectedLocation]);
 

@@ -592,14 +592,14 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
               </div>
 
               <MapComponentA
-    workExperienceList={work}
-    onLocationClick={(lat, lng, index) => {
-      setSelectedLocation({ lat, lng });
-      setActiveMarker(index);
-    }}
-    selectedLocation={selectedLocation}
-    activeMarker={activeMarker}
-  />
+                workExperienceList={work}
+                onLocationClick={(lat, lng, index) => {
+                  setSelectedLocation({ lat, lng });
+                  setActiveMarker(index);
+                }}
+                selectedLocation={selectedLocation}
+                activeMarker={activeMarker}
+              />
             </div>
           </div>
         </div>
