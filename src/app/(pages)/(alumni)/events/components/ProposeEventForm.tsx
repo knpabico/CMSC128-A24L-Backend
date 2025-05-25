@@ -692,10 +692,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="h-10 px-5 flex items-center justify-center rounded-full 
-                        bg-gray-200 border border-gray-400 text-sm font-semibold text-gray-700 
-                        shadow-inner shadow-white/10 transition-all duration-300 
-                        hover:bg-gray-300 hover:text-gray-800 hover:shadow-lg"
+              className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all  hover:bg-red-700 hover:text-white hover:shadow-lg cursor-pointer"
             >
               Cancel
             </button>
