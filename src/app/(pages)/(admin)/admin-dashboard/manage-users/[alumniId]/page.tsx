@@ -477,11 +477,6 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                         })
                         .map((w: WorkExperience, index: number) => (
                           <tr key={index}
-                          onClick={() => {
-                            // Update selectedLocation and activeMarker on row click
-                            setSelectedLocation({ lat: w.latitude, lng: w.longitude });
-                            setActiveMarker(index);
-                          }}
                           >
                             <td className="py-1">{w.jobTitle}</td>
                             <td className="py-1 px-3">{w.company}</td>
@@ -489,12 +484,16 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                             <td className="py-1 px-3">
                               {w.startYear} - {w.endYear}
                             </td>
-                            {/* <td className="py-1">
+                            <td className="py-1">
                               <MapPin
                                 className="text-[#3675c5] cursor-pointer"
-                                onClick={() => openMap(index)}
+                                onClick={() => {
+                                  // Update selectedLocation and activeMarker on row click
+                                  setSelectedLocation({ lat: w.latitude, lng: w.longitude });
+                                  setActiveMarker(index);
+                                }}
                               />
-                            </td> */}
+                            </td>
                             <td className="py-1 pl-1">
                               {w.proofOfEmployment !== "" &&
                               w.endYear === "present" ? (
