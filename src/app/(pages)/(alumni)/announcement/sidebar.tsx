@@ -32,7 +32,7 @@ const AnnouncementsSidebar = ({ activeFilter = "", setActiveFilter }: Announceme
   };
 
   return (
-    <div className="w-[200px] h-max">
+    <div className="w-[220px] h-max">
       <ul className="flex flex-col gap-1">
         {sidebarItems.map((item) => {
           const Icon = item.icon;

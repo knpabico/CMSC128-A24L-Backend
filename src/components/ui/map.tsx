@@ -23,7 +23,7 @@ const containerStyle = {
   height: "500px",
 };
 
-const MapComponent: React.FC<MapComponentProps> = ({
+const MapComponentA: React.FC<MapComponentProps> = ({
   workExperienceList,
   onLocationClick,
   selectedLocation,
@@ -32,7 +32,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const mapRef = useRef<google.maps.Map | null>(null);
   const { isLoaded } = useGoogleMaps();
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
-  const [zoom, setZoom] = useState(0);
+  const [zoom, setZoom] = useState(3);
   const [animatedMarker, setAnimatedMarker] = useState<{
     lat: number;
     lng: number;
@@ -44,7 +44,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (selectedLocation && mapRef.current) {
       animateMapAndMarker(selectedLocation);
-      smoothZoom(20);
+      smoothZoom(13);
     }
   }, [selectedLocation]);
 
@@ -187,4 +187,4 @@ const MapComponent: React.FC<MapComponentProps> = ({
   );
 };
 
-export default MapComponent;
+export default MapComponentA;

@@ -146,63 +146,65 @@ const ScholarshipDetailPage: React.FC = () => {
   }, [scholarshipId, getStudentsByScholarshipId]);
 
   //useEffect to fetch scholarshipStudent with mapping
-  useEffect(() => {
-    //function to fetch scholarshipStudent while being mapped to studentId
-    const mapScholarshipStudent = async () => {
-      if (students.length === 0) return;
-      if (!students) return;
-      setLoading(true);
+useEffect(() => {
+  //function to fetch scholarshipStudent while being mapped to studentId
+  const mapScholarshipStudent = async () => {
+    if (students.length === 0) return;
+    if (!students) return;
+    setLoading(true);
 
-      try {
-        //fetch educationList of students
-        const fetchScholarshipStudent = students.map(
-          async (student: Student) => {
-            const studentId = student.studentId;
+    try {
+      //fetch educationList of students
+      const fetchScholarshipStudent = students.map(
+        async (student: Student) => {
+          const studentId = student.studentId;
 
-            //get scholarshipStudent list by filtering by studentId
-            const scholarshipStudentList = scholarshipStudents.filter(
-              (scholarshipStudent: ScholarshipStudent) =>
-                scholarshipStudent.studentId === studentId
+          //get scholarshipStudent list by filtering by studentId and only approved ones
+          const scholarshipStudentList = scholarshipStudents.filter(
+            (scholarshipStudent: ScholarshipStudent) =>
+              scholarshipStudent.studentId === studentId &&
+              scholarshipStudent.status === 'approved' // Only show approved scholarships
+          );
+
+          return { studentId, scholarshipStudentList };
+        }
+      );
+
+      const scholarshipStudent = await Promise.all(fetchScholarshipStudent);
+
+      //intialize as empty education record
+      const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
+      const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
+      scholarshipStudent.forEach((stud) => {
+        stud.scholarshipStudentList.forEach(
+          (scholarshipStudent: ScholarshipStudent) => {
+            //finding the alumId in the alumList
+            const alumSponsor = alumList.find(
+              (alum) => alum.alumniId === scholarshipStudent.alumId
             );
-
-            return { studentId, scholarshipStudentList };
+            scholarshipSponsor[scholarshipStudent.ScholarshipStudentId] =
+              alumSponsor;
           }
         );
 
-        const scholarshipStudent = await Promise.all(fetchScholarshipStudent);
+        scholarshipStudentMap[stud.studentId] = stud.scholarshipStudentList;
+      });
 
-        //intialize as empty education record
-        const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
-        const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
-        scholarshipStudent.forEach((stud) => {
-          stud.scholarshipStudentList.forEach(
-            (scholarshipStudent: ScholarshipStudent) => {
-              //finding the alumId in the alumList
-              const alumSponsor = alumList.find(
-                (alum) => alum.alumniId === scholarshipStudent.alumId
-              );
-              scholarshipSponsor[scholarshipStudent.ScholarshipStudentId] =
-                alumSponsor;
-            }
-          );
+      //set educationMap
+      setScholarshipStudentMapping(scholarshipStudentMap);
+      setSponsorAlumMapping(scholarshipSponsor);
+    } catch (error) {
+      //console.error("Error fetching scholarshipStudent:", error);
 
-          scholarshipStudentMap[stud.studentId] = stud.scholarshipStudentList;
-        });
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        //set educationMap
-        setScholarshipStudentMapping(scholarshipStudentMap);
-        setSponsorAlumMapping(scholarshipSponsor);
-      } catch (error) {
-        //console.error("Error fetching scholarshipStudent:", error);
+  mapScholarshipStudent();
+}, [students, scholarshipStudents]);
 
-        return [];
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    mapScholarshipStudent();
-  }, [students, scholarshipStudents]);
 
   const router = useRouter();
 
@@ -492,13 +494,14 @@ const ScholarshipDetailPage: React.FC = () => {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {students.map((student) => {
-                          const hasScholarships =
+                          const approvedScholarships =
                             scholarshipStudentMapping[student.studentId] &&
-                            scholarshipStudentMapping[student.studentId]
-                              .length > 0;
+                            scholarshipStudentMapping[student.studentId].length > 0
+                              ? scholarshipStudentMapping[student.studentId]
+                              : [];
 
-                          // If student has no scholarships, display a single row
-                          if (!hasScholarships) {
+                          // Show student with no scholarships or with approved scholarships only
+                          if (approvedScholarships.length === 0) {
                             return (
                               <tr key={student.studentId}>
                                 <td className="px-6 py-2">
@@ -532,49 +535,35 @@ const ScholarshipDetailPage: React.FC = () => {
                             );
                           }
 
-                          // If student has scholarships, map through them
-                          return scholarshipStudentMapping[
-                            student.studentId
-                          ].map((scholarshipStudent, index) => (
-                            <tr
-                              key={`${student.studentId}-${scholarshipStudent.ScholarshipStudentId}`}
-                              className={
-                                index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                              }
-                            >
-                              {/* Only show student info in the first row of their scholarships */}
+                          // For students with approved scholarships, show only the first approved one
+                          const firstApprovedScholarship = approvedScholarships[0];
+                          return (
+                            <tr key={student.studentId}>
                               <td className="px-6 py-2">
-                                {index === 0 && (
-                                  <>
-                                    <div className="font-medium text-gray-900">
-                                      {student.name}
-                                    </div>
-                                    <div className="text-sm text-gray-500 max-w-xs">
-                                      <div
-                                        className="line-clamp-2 hover:line-clamp-none"
-                                        title={student.shortBackground}
-                                      >
-                                        {student.shortBackground}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
+                                <div className="font-medium text-gray-900">
+                                  {student.name}
+                                </div>
+                                <div className="text-sm text-gray-500 max-w-xs">
+                                  <div
+                                    className="line-clamp-2 hover:line-clamp-none"
+                                    title={student.shortBackground}
+                                  >
+                                    {student.shortBackground}
+                                  </div>
+                                </div>
                               </td>
-
                               <td className="px-6 py-2 whitespace-nowrap text-center">
                                 {student.emailAddress}
                               </td>
-
                               <td className="px-6 py-2 whitespace-nowrap text-center">
                                 {student.studentNumber}
                               </td>
-
                               <td className="px-6 py-2 whitespace-nowrap text-center">
                                 <button
                                   className="bg-blue-500 text-white px-5 py-1 rounded-full cursor-pointer text-sm hover:bg-blue-400"
                                   onClick={() =>
                                     navigateToDetail(
-                                      scholarshipStudent.ScholarshipStudentId
+                                      firstApprovedScholarship.ScholarshipStudentId
                                     )
                                   }
                                 >
@@ -582,7 +571,7 @@ const ScholarshipDetailPage: React.FC = () => {
                                 </button>
                               </td>
                             </tr>
-                          ));
+                          );
                         })}
                       </tbody>
                     </table>
