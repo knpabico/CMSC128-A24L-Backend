@@ -1,6 +1,7 @@
 "use client";
 
 import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page";
+import Breadcrumb from "@/components/breadcrumb";
 import JobApplicationModalAdmin from "@/components/JobApplicationModalAdmin";
 import {
   Dialog,
@@ -176,33 +177,18 @@ export default function Users() {
     router.push("/admin-dashboard/job-postings");
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Job Posting", href: "#", active: true },
+  ];
+
   // Render view page for a job posting
   const renderViewPage = () => {
     if (!viewingJob) return null;
 
     return (
       <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-2">
-          <div>Home</div>
-          <div>
-            <ChevronRight size={15} />
-          </div>
-          <div
-            className="cursor-pointer hover:text-blue-600"
-            onClick={() => {
-              goBackToList();
-              setCurrentPage('list');
-            }}
-          >
-            Manage Job Posting
-          </div>
-          <div>
-            <ChevronRight size={15} />
-          </div>
-          <div className="font-bold text-[var(--primary-blue)]">
-            View Job Posting
-          </div>
-        </div>
+        <Breadcrumb items={breadcrumbItems} />
 
         <div className="w-full">
           {/* Header Section */}
@@ -386,13 +372,7 @@ export default function Users() {
       {/* Main content */}
       {currentPage === "list" ? (
         <div className="flex flex-col gap-5">
-          <div className="flex items-center gap-2">
-            <div>Home</div>
-            <div>
-              <ChevronRight size={15} />
-            </div>
-            <div>Manage Job Posting</div>
-          </div>
+          <Breadcrumb items={breadcrumbItems} />
           <div className="w-full">
             <div className="flex items-center justify-between">
               <div className="font-bold text-3xl">Manage Job Posting</div>
@@ -400,19 +380,19 @@ export default function Users() {
                 <input
                   type="text"
                   placeholder="Search jobs..."
-                  className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                  className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-2 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <div
-                  className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
+                <button
                   onClick={() =>
-                    router.push("/admin-dashboard/job-postings/post")
-                  }
+                          router.push("/admin-dashboard/job-postings/post")
+                        }
+                  className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                 >
-                  <CirclePlus size={18} />
-                  Create a Job Post
-                </div>
+                  + Create a Job Post
+                </button>
+                
               </div>
             </div>
           </div>

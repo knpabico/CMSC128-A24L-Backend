@@ -435,6 +435,15 @@ export default function Home() {
     else
       return (
         <div className="w-full px-[10%]">
+          <div>
+            <Image
+              src="/network-bg.png"
+              alt="Background Image"
+              width={1000}
+              height={1000}
+              className="fixed top-5 left-0 w-full h-full object-cover opacity-30 "
+            />
+          </div>
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
             <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start text-center flex flex-col gap-1 items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">

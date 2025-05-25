@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight, CirclePlus, Ellipsis, EllipsisVertical, Eye,
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toastSuccess } from "@/components/ui/sonner";
+import Breadcrumb from "@/components/breadcrumb";
 
 function formatDate(timestamp: any) {
     if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -204,50 +205,42 @@ export default function ManageAnnouncements() {
     }
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Announcements", href: "#", active: true },
+  ];
+
+
   return (
     <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-2">
-            <button 
-                onClick={() => router.push("/admin-dashboard")}
-                className="cursor-pointer rounded-full transition"
-            >
-                Home
-            </button>
-            <div>
-                <ChevronRight size={15} />
-            </div>
-            <div className="font-bold text-[var(--primary-blue)]">
-                Manage Announcements
-            </div>
-        </div>
+        <Breadcrumb items={breadcrumbItems} />
 
         <div className="w-full">
             <div className="flex items-center justify-between">
                 <div className="font-bold text-3xl">
                     Manage Announcements
                 </div>
-                <button 
-                    type="button"
-                    onClick={() => 
+                <button
+                  onClick={() => 
                         {router.push("/admin-dashboard/announcements/add"); 
                         handleAddClick();}
                     }
-                      className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600"
+                  className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                 >
-                    + Add Announcement
+                  + Add Announcement
                 </button>
             </div>
         </div>
     
         {/* Filter Bar */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-          <div className="text-sm font-medium">Filter by:</div>
+          <div className="text-sm font-medium text-[var(--primary-blue)]">Filter by:</div>
           
           {/* Date Filter */}
           <div className="relative">
             <div 
               id="date-filter-button"
-              className={`bg-gray-300 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400 ${dateFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
+              className={`border-2 border-[var(--primary-blue)] text-[var(--primary-blue)] pl-4 pr-2 py-2 rounded-full flex gap-1 items-center justify-between font-medium cursor-pointer  ${dateFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
               onClick={() => setShowDateDropdown(!showDateDropdown)}
             >
               <div className="text-xs">{getDateFilterText()}</div>
@@ -266,7 +259,7 @@ export default function ManageAnnouncements() {
                     setShowDateDropdown(false);
                   }}
                 >
-                  <span>All Time</span>
+                  <span>All Time </span>
                   {dateFilter === "all" && <div className="w-2 h-2 rounded-full bg-blue-600"></div>}
                 </div>
                 <div 
@@ -297,7 +290,7 @@ export default function ManageAnnouncements() {
           <div className="relative">
             <div 
               id="type-filter-button"
-              className={`bg-gray-300 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400 ${typeFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
+              className={`text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] pl-4 pr-2 py-2 rounded-full flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400 ${typeFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
               onClick={() => setShowTypeDropdown(!showTypeDropdown)}
             >
               <div className="text-xs">{getTypeFilterText()}</div>
