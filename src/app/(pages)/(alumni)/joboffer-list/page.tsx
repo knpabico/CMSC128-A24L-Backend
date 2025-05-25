@@ -1043,7 +1043,7 @@ function JobOffersContent() {
                     <p className="text-lg">No applied jobs found.</p>
                   </div>
                 ) : (
-                  <div>
+                  <div className="space-y-2">
                     {jobApplications
                       .filter(
                         (offer: JobApplication) =>
@@ -1215,7 +1215,7 @@ function JobOffersContent() {
 
                                   {/* Edit button */}
                                   <button
-                                    className="text-gray-500 hover:text-blue-500 transition-colors"
+                                    className="text-gray-500 hover:text-[#0856BA] transition-all"
                                     onClick={(e) => {
                                       handleEditDraft(job);
                                       setShowForm(true);
