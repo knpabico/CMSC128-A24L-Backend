@@ -77,7 +77,7 @@ const sortValues = ["nf", "of"]; //sort values (query params)
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status } = useAuth();
   const { newsLetters } = useNewsLetters();
-  const { announces } = useAnnouncement();
+  const { announces, publicAnnouncements } = useAnnouncement();
   const { jobOffers } = useJobOffer();
   const { events } = useEvents();
   const { alums } = useAlums();
@@ -389,7 +389,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {announces.map((item: Announcement) => (
+            {publicAnnouncements.map((item: Announcement) => (
               <Link
                 href={`/announcements/${item.announcementId}`}
                 key={item.announcementId}

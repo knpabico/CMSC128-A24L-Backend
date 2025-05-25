@@ -23,7 +23,8 @@ export default function ManageAnnouncements() {
     setType,
     setAnnounceImage,
     setIsEdit,
-    handleDelete
+    handleDelete,
+    togglePublic
   } = useAnnouncement();
 
 
@@ -58,20 +59,6 @@ export default function ManageAnnouncements() {
     setType([]);
     setIsEdit(false);
     router.push("/admin-dashboard/announcements/add");
-  };
-
-  // Toggle scholarship status (active/closed)
-  const handleStatusToggle = async (
-    announcement: Announcement,
-    isActive: boolean
-  ) => {
-    if (!announcement.announcementId) {
-      //console.error("No scholarship ID provided.");
-      return;
-    }
-    const newStatus = isActive ? "active" : "closed";
-    // await updateScholarship(scholarship.scholarshipId, { status: newStatus });
-    toastSuccess(`${announcement.title} status has been set to ${newStatus}.`);
   };
 
   const handleEditClick = (announcement: Announcement) => {
@@ -410,7 +397,7 @@ export default function ManageAnnouncements() {
             </div>
             <div className="w-1/2 flex justify-end items-center">
               <div className="w-1/6 flex items-center justify-center font-semibold">
-                Active
+                Public
               </div>
               <div className="w-1/6 flex items-center justify-center font-semibold">
                 Actions
@@ -484,23 +471,19 @@ export default function ManageAnnouncements() {
                     <div className="w-1/6 flex items-center justify-center">
                       <div className="flex flex-col items-center">
                         <button
-                          onClick={() =>
-                          {}
-                          }
+                          onClick={async () => {
+                            const result = await togglePublic(announcement.announcementId, announcement.isPublic);
+                            if (result.success) {
+                              toastSuccess(`Announcement is now ${!announcement.isPublic ? 'public' : 'private'}`);
+                            }
+                          }}
                           className={`relative inline-flex items-center h-6 rounded-full w-11 focus:outline-none 
-                            ${
-                            announcement.title !== "closed"
-                              ? "bg-blue-500"
-                              : "bg-gray-300"
-                          }`
-                        }
+                            ${announcement.isPublic ? "bg-blue-500" : "bg-gray-300"}`}
                         >
-                          <span className="sr-only">Toggle status</span>
+                          <span className="sr-only">Toggle public status</span>
                           <span
                             className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                              announcement.title !== "closed"
-                                ? "translate-x-6"
-                                : "translate-x-1"
+                              announcement.isPublic ? "translate-x-6" : "translate-x-1"
                             }`}
                           />
                         </button>
