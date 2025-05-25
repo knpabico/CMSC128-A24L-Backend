@@ -9,6 +9,8 @@ import { workFieldOptions } from "@/data/work-field-options";
 import { techStackOptions } from "@/data/tech-stack-options";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Trash2Icon, PlusCircleIcon } from "lucide-react";
+import ICSARMSLogo from "../../../app/images/ICS_ARMS_logo_white.png";
+import { MoveLeft } from "lucide-react";
 
 // components
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
@@ -82,7 +84,11 @@ import { Education } from "./sign-up-fields/education";
 import { Affiliation } from "./sign-up-fields/affiliation";
 import { NameAndPhoto } from "./sign-up-fields/name-and-photo";
 import { UserCredentials } from "./sign-up-fields/credentials";
-import { AlumPhotoUpload, uploadToFirebase } from "./sign-up-fields/alum_photo";
+import {
+  AlumPhotoUpload,
+  updateAlumPhoto,
+  uploadToFirebase,
+} from "./sign-up-fields/alum_photo";
 
 import Image from "next/image";
 import physciImage from "./physci.png";
@@ -91,6 +97,7 @@ import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationCodeModal } from "./sign-up-fields/emailverify";
 import { TextField, Autocomplete } from "@mui/material";
+// import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
 
 // =================================================== NOTES ==========================================================================
 // MODEL
@@ -161,7 +168,7 @@ const formParts = [
       "career",
       "acceptTerms",
       "subscribeToNewsletter",
-      "contactPrivacy"
+      "contactPrivacy",
     ],
   },
 ];
@@ -191,6 +198,7 @@ export default function RegistrationForm() {
   const [isVerified, setIsVerified] = useState(false);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
   const [hasCurrentJob, setHasCurrentJob] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   function splitName(fullName: string | null | undefined) {
     if (!fullName) {
@@ -298,7 +306,7 @@ export default function RegistrationForm() {
   useEffect(() => {
     if (isGoogleSignIn) {
       setCurrentPart(currentPart + 1);
-      console.log(form);
+      //console.log(form);
     }
   }, []);
 
@@ -325,15 +333,18 @@ export default function RegistrationForm() {
     setIsVerify(false);
     setIsLoadingModal(false);
 
-    console.log("Testing sign-up:");
-    console.log(data);
-    console.log(alumImage);
+    //console.log("Testing sign-up:");
+    //console.log(data);
+    //console.log("ALUM IMAGE", alumImage);
 
     //display error or success toast message
     if (response?.error) {
       toastError(response.message);
       setIsLoading(false);
       return;
+    }
+    if (isGoogleSignIn && !alumImage) {
+      updateAlumPhoto(user!.photoURL ?? "", user!.uid);
     }
 
     //upload alum photo to firebase storage
@@ -402,7 +413,7 @@ export default function RegistrationForm() {
   //callback for image upload
   const handleImageUpload = (image: File | null): void => {
     setImage(image);
-    console.log("Uploaded image:", image);
+    //console.log("Uploaded image:", image);
   };
 
   //for proceeding to the "Your Profile" part after validating the user credentials
@@ -470,9 +481,17 @@ export default function RegistrationForm() {
               {/*USER CREDENTIALS SECTION */}
               {currentPart === 0 && (
                 <div className="flex h-screen bg-white">
+                  <div className="fixed top-10 left-[5%] z-99">
+                    <Link
+                      href="/login"
+                      className="flex gap-2 items-center text-[var(--primary-blue)] text-[14px] hover:underline font-light"
+                    >
+                      <MoveLeft size={18} /> Back
+                    </Link>
+                  </div>
                   <div className="flex w-[50%] justify-center items-center">
                     <div className="flex flex-col w-full mx-41 items-center">
-                      <p className="text-5xl font-bold text-[#0856ba] pb-10">
+                      <p className="text-5xl font-bold text-[var(--primary-blue)] pb-10">
                         Create an account
                       </p>
 
@@ -485,19 +504,19 @@ export default function RegistrationForm() {
                               type="button"
                               onClick={goNext}
                               disabled={disableGoNext}
-                              className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                              className="bg-[var(--primary-blue)] text-white p-3 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                             >
                               Sign up
                             </Button>
                           </div>
 
-                          <div className="flex justify-center items-center space-x-2">
+                          <div className="flex justify-center items-center space-x-2 text-[14px]">
                             <p>Already have an account?</p>
                             <button
                               disabled={
                                 form.formState.isSubmitting || isLoading
                               }
-                              className="hover:underline text-[#0856ba]"
+                              className="hover:underline text-[var(--primary-blue)]"
                             >
                               <Link href="/login">Log in</Link>
                             </button>
@@ -514,7 +533,15 @@ export default function RegistrationForm() {
                       className="w-full h-full object-cover"
                       layout="fill"
                     />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-70 h-70 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  flex items-center justify-center">
+                      <Image
+                        src={ICSARMSLogo}
+                        alt="ICS ARMS Logo"
+                        className="shadow-xl"
+                        width={200}
+                        height={200}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -526,7 +553,7 @@ export default function RegistrationForm() {
                       onClick={() => {
                         goBack();
                       }}
-                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[#0856ba] rounded-full cursor-pointer"
+                      className="pl-45 italic hover:underline flex items-center justify-center space-x-5 col-span-6 text-[var(--primary-blue)] rounded-full cursor-pointer"
                     >
                       <ChevronLeft />
                       <p>Back</p>
@@ -615,27 +642,37 @@ export default function RegistrationForm() {
                                       multiple
                                       id="field-of-interest"
                                       options={[
-                                        "Artificial Intelligence (AI)",
-                                        "Machine Learning (ML)",
+                                        "Artificial Intelligence",
+                                        "Machine Learning",
                                         "Data Science",
                                         "Cybersecurity",
+                                        "Computer Vision",
+                                        "Natural Language Processing",
                                         "Software Engineering",
-                                        "Computer Networks",
-                                        "Computer Graphics and Visualization",
-                                        "Human-Computer Interaction (HCI)",
-                                        "Theoretical Computer Science",
-                                        "Operating Systems",
-                                        "Databases",
-                                        "Web Development",
-                                        "Mobile Development",
-                                        "Cloud Computing",
-                                        "Embedded Systems",
+                                        "Human-Computer Interaction",
+                                        "Computer Graphics",
                                         "Robotics",
-                                        "Game Development",
                                         "Quantum Computing",
-                                        "DevOps and System Administration",
-                                        "Information Systems",
-                                        "Others"
+                                        "Bioinformatics",
+                                        "Theoretical Computer Science",
+                                        "Computer Networks",
+                                        "Operating Systems",
+                                        "Database Systems",
+                                        "Cloud Computing",
+                                        "Distributed Systems",
+                                        "Embedded Systems",
+                                        "Game Development",
+                                        "Web Development",
+                                        "Mobile Application Development",
+                                        "Augmented Reality",
+                                        "Virtual Reality",
+                                        "Information Retrieval",
+                                        "Big Data",
+                                        "Internet of Things",
+                                        "Blockchain",
+                                        "DevOps",
+                                        "Digital Forensics",
+                                        "Other",
                                       ]}
                                       value={field.value || []}
                                       onChange={(event, newValue) => {
@@ -645,29 +682,36 @@ export default function RegistrationForm() {
                                         }
                                       }}
                                       renderInput={(params) => (
+                                        //may chinange ako here field.value?.length > 0 --> field.value?.length || 0 to avoid error
                                         <TextField
                                           {...params}
-                                          placeholder={field.value?.length > 0 ? "" : "Select your fields of interest"}
+                                          placeholder={
+                                            field.value?.length || 0
+                                              ? ""
+                                              : "Select your fields of interest"
+                                          }
                                           InputProps={{
                                             ...params.InputProps,
-                                            style: { padding: 3 }
+                                            style: { padding: 3 },
                                           }}
                                           inputProps={{
                                             ...params.inputProps,
-                                            style: { padding: '3px 9px' }
+                                            style: { padding: "3px 9px" },
                                           }}
                                           sx={{
-                                            '& .MuiOutlinedInput-notchedOutline': {
-                                              border: 'none',
-                                              borderRadius: '5px'
-                                            }
+                                            "& .MuiOutlinedInput-notchedOutline":
+                                              {
+                                                border: "none",
+                                                borderRadius: "5px",
+                                              },
                                           }}
                                         />
                                       )}
                                     />
                                   </FormControl>
                                   <p className="text-xs text-gray-500 mt-1">
-                                    {(field.value?.length || 0)}/5 selected &nbsp;&nbsp; Max: 5
+                                    {field.value?.length || 0}/5 selected
+                                    &nbsp;&nbsp; Max: 5
                                   </p>
                                   <FormMessage />
                                 </FormItem>
@@ -933,7 +977,7 @@ export default function RegistrationForm() {
                           {/*PAST WORK EXPERIENCE*/}
                           <div className="mt-5">
                             <p className="text-sm font-semibold pb-2">
-                              Work Experience
+                              Past Work Experience
                             </p>
                             {career.map((car, index) => (
                               <div key={car.id} className="relative pb-5">
@@ -1026,14 +1070,19 @@ export default function RegistrationForm() {
                                     />
                                   </FormControl>
                                   <FormLabel>
-                                    <p>I consent to making my email address visible to other alumni.</p>
+                                    <p>
+                                      I consent to making my email address
+                                      visible to other alumni.
+                                    </p>
                                   </FormLabel>
                                 </div>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                          <p className="font-light text-xs pl-6 pt-1">(You can change this preference later.)</p>
+                          <p className="font-light text-xs pl-6 pt-1">
+                            (You can change this preference later.)
+                          </p>
                         </div>
 
                         {/* subscribeToNewsletter form field */}
@@ -1057,17 +1106,33 @@ export default function RegistrationForm() {
                             </FormItem>
                           )}
                         />
-                        
                       </div>
 
-                      <div className="flex flex-col items-start px-5">
+                      <div
+                        className={`flex flex-row items-center justify-between ${
+                          isGoogleSignIn ? "space-x-2" : "px-5 space-x-4"
+                        }`}
+                      >
                         <Button
-                          className="w-50 col-span-6 bg-[#0856ba] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                          className="w-50 col-span-6 bg-[var(--primary-blue)] text-white p-5 rounded-full cursor-pointer hover:bg-[#92b2dc]"
                           variant="outline"
                           type="submit"
                         >
                           Submit
                         </Button>
+                        {(isGoogleSignIn || isGoogleLoading) && (
+                          <Button
+                            className="w-1/2 border-2 border-blue-500 text-blue-500 p-5 rounded-full cursor-pointer hover:bg-blue-100 hover:text-blue-700"
+                            disabled={isGoogleLoading}
+                            onClick={() => {
+                              setIsGoogleLoading(true);
+                              form.reset();
+                              logOut();
+                            }}
+                          >
+                            Log Out
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

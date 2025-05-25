@@ -267,4 +267,80 @@ export const handleYearInput = (e: any) => {
 export const signUpFormSchema = baseSchema
   .and(passwordSchema)
   .and(ageAndBirthDateSchema)
-  .and(studentNumberAndGraduationYearSchema);
+  .and(studentNumberAndGraduationYearSchema)
+  .superRefine((data, ctx) => {
+    //superRefine for validating each of the years
+    // Get the birth year from the birthDate as a number
+    const birthYear = new Date(data.birthDate).getFullYear();
+
+    //get the year in the student number
+    const studentNumberYear = parseInt(data.studentNumber.slice(0, 4), 10);
+
+    //check if the student number year is not after the birth year
+    if (studentNumberYear <= birthYear) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Student number year must be after the birth year",
+        path: ["studentNumber"],
+      });
+    }
+
+    // Function for validating each year
+    const validateYear = (
+      yearField: string | undefined,
+      field: string,
+      index: number,
+      fieldOfField: string
+    ) => {
+      //check if the year field is empty
+      if (!yearField) return;
+      //parse the year field to an integer for checking
+      const year = parseInt(yearField, 10);
+      //the year must be after the birth year
+      if (!isNaN(year) && year <= birthYear) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Year must be after the birth year",
+          path: [field, index, fieldOfField],
+        });
+      }
+    };
+
+    // Check affiliation
+    data.affiliation?.forEach((aff, i) => {
+      //validate year joined
+      if (aff) validateYear(aff.yearJoined, "affiliation", i, "yearJoined");
+    });
+
+    // Check bachelors
+    data.bachelors?.forEach((bach, i) => {
+      //validate year graduated
+      validateYear(bach.yearGraduated, "bachelors", i, "yearGraduated");
+    });
+
+    // Check masters
+    data.masters?.forEach((mast, i) => {
+      //validate year graduated
+      if (mast) validateYear(mast.yearGraduated, "masters", i, "yearGraduated");
+    });
+
+    // Check doctoral
+    data.doctoral?.forEach((doc, i) => {
+      //validate year graduated
+      if (doc) validateYear(doc.yearGraduated, "doctoral", i, "yearGraduated");
+    });
+
+    // Check career
+    data.career?.forEach((car, i) => {
+      //validate start year
+      validateYear(car.startYear, "career", i, "startYear");
+      //validate  end year
+      validateYear(car.endYear, "career", i, "endYear");
+    });
+
+    // Check currentJob
+    data.currentJob?.forEach((curr, i) => {
+      //validate start year
+      validateYear(curr.startYear, "currentJob", i, "startYear");
+    });
+  });

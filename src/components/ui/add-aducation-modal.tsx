@@ -19,6 +19,7 @@ const AddEducationModal = ({
   onClose: () => void;
   userId: string;
   setSuccess: (success: boolean) => void;
+  degreeType: string;
 }) => {
   const [university, setUniversity] = useState<string>("");
   const [type, setType] = useState<string>("");
@@ -43,7 +44,7 @@ const AddEducationModal = ({
       setMajor("");
       onClose();
     }
-    setSnackbarOpen(true);
+    // setSnackbarOpen(true);
   };
 
 
@@ -52,7 +53,7 @@ const AddEducationModal = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <Card className="w-full max-w-xl bg-white border-none shadow-2xl">
+      <Card className="w-full max-w-xl bg-white border-none shadow-2xl overflow-y-auto max-h-[90vh]">
         <CardHeader>
           <div className="flex items-center justify-between relative">
             {degreeType == "bachelors" && (<p className="text-xl font-bold pb-3">Add bachelor's degree</p>)}
@@ -135,7 +136,7 @@ const AddEducationModal = ({
         </CardHeader>
       </Card>
 
-      <Snackbar
+      {/* <Snackbar
         open={error}
         onClose={() => setError(false)}
         autoHideDuration={2000}
@@ -144,7 +145,7 @@ const AddEducationModal = ({
         <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg">
             Please Enter Some Details
           </div>
-      </Snackbar>
+      </Snackbar> */}
     </div>
   );
 };

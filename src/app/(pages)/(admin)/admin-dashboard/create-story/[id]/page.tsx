@@ -9,13 +9,23 @@ import { Asterisk, ChevronRight, Pencil, Upload } from "lucide-react";
 
 const FeaturedStoryDetailPage: React.FC = () => {
   const params = useParams();
+  const router = useRouter();
   const { getFeaturedById, updateFeatured } = useFeatured();
-  const [featured, setFeatured] = useState(null);
+  
+  interface Featured {
+    featuredId: string;
+    title: string;
+    text: string;
+    image: string;
+    type: string;
+  }
+  
+  const [featured, setFeatured] = useState<Featured | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const featuredId = params?.id as string;
 
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [image, setImage] = useState(null);
@@ -110,11 +120,15 @@ const FeaturedStoryDetailPage: React.FC = () => {
     <>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
+          <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
           <div>Home</div>
+          </span>
           <div>
             <ChevronRight size={15} />
           </div>
+           <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard/create-story")}>
           <div>Manage Featured Stories</div>
+          </span>
           <div>
             <ChevronRight size={15} />
           </div>

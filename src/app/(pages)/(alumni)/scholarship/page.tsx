@@ -13,12 +13,23 @@ import {
   Filter,
   ChevronDown,
   Calendar,
+  CircleCheck,
+  CircleX,
+  HelpCircle,
 } from "lucide-react";
 import { useBookmarks } from "@/context/BookmarkContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useFeatured } from "@/context/FeaturedStoryContext";
-import { Featured } from "@/models/models";
+import {
+  Featured,
+  Scholarship,
+  ScholarshipStudent,
+  Student,
+} from "@/models/models";
+import Banner from "@/components/Banner";
+import { PdfPreviewDialog } from "./PdfPreviewDialog";
+import Image from "next/image";
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -35,7 +46,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor} capitalize`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${bgColor} ${textColor} capitalize`}
     >
       {status}
     </span>
@@ -43,16 +54,24 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 // Status Filter Component
-type FilterOption = "all" | "active" | "closed";
+type FilterOption =
+  | "all"
+  | "active"
+  | "closed"
+  | "approved"
+  | "pending"
+  | "rejected";
 
 interface StatusFilterProps {
   activeFilter: FilterOption;
   setActiveFilter: (filter: FilterOption) => void;
+  options?: FilterOption[];
 }
 
 const StatusFilterDropdown = ({
   activeFilter = "all",
   setActiveFilter,
+  options = ["all", "active", "closed"],
 }: StatusFilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -71,73 +90,59 @@ const StatusFilterDropdown = ({
         return "Active";
       case "closed":
         return "Closed";
+      case "approved":
+        return "Approved";
+      case "pending":
+        return "Pending";
+      case "rejected":
+        return "Rejected";
       default:
         return "All";
     }
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-gray-700">Status:</span>
-      <div className="relative">
-        <button
-          onClick={toggleDropdown}
-          className="flex items-center justify-between min-w-32 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-        >
-          <span className="text-gray-900">{getDisplayText()}</span>
-          <ChevronDown
-            size={16}
-            className={`text-gray-500 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-        {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-            <ul className="py-1" role="listbox">
-              <li role="option" aria-selected={activeFilter === "all"}>
+  <div className="flex items-center gap-2">
+    <span className="text-sm" style={{color: '#0856BA'}}>Filter:</span>
+    <div className="relative">
+      <button
+        onClick={toggleDropdown}
+        className=" flex items-center justify-between gap-3 w-28 rounded-full py-2 px-4 border-[2px] text-sm hover:bg-gray-50 focus:outline-none focus:ring-2"
+        style={{borderColor: '#0856BA', color: '#0856BA'}}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <span style={{color: '#0856BA'}}>{getDisplayText()}</span>
+        <ChevronDown
+          size={16}
+          className={`text-gray-500 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+          <ul className="py-1" role="listbox">
+            {options.map((option) => (
+              <li key={option} role="option" aria-selected={activeFilter === option}>
                 <button
                   className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    activeFilter === "all"
-                      ? "bg-blue-50 text-blue-600"
+                    activeFilter === option
+                      ? "text-gray-700"
                       : "text-gray-700"
                   }`}
-                  onClick={() => selectOption("all")}
+                  style={activeFilter === option ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                  onClick={() => selectOption(option)}
                 >
-                  All
+                  {option.charAt(0).toUpperCase() + option.slice(1)}
                 </button>
               </li>
-              <li role="option" aria-selected={activeFilter === "active"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    activeFilter === "active"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("active")}
-                >
-                  Active
-                </button>
-              </li>
-              <li role="option" aria-selected={activeFilter === "closed"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    activeFilter === "closed"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("closed")}
-                >
-                  Closed
-                </button>
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
+  </div>
   );
 };
 
@@ -173,122 +178,226 @@ const SortControlDropdown = ({
     }
   };
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-gray-700">Sort:</span>
+  <div className="flex items-center gap-2 ml-3">
+    <span className="text-sm" style={{color: '#0856BA'}}>Sort by:</span>
 
-      <div className="relative">
-        <button
-          onClick={toggleDropdown}
-          className="flex items-center justify-between min-w-36 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-        >
-          <span className="text-gray-900">{getDisplayText()}</span>
-          <ChevronDown
-            size={16}
-            className={`text-gray-500 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </button>
+    <div className="relative">
+      <button
+        onClick={toggleDropdown}
+        className=" flex items-center justify-between gap-3 w-45 rounded-full py-2 px-4 border-[2px] text-sm  hover:bg-gray-50 focus:outline-none focus:ring-2"
+        style={{borderColor: '#0856BA', color: '#0856BA', focusRingColor: '#0856BA'}}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <span style={{color: '#0856BA'}}>{getDisplayText()}</span>
+        <ChevronDown
+          size={16}
+          className={`text-gray-500 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
 
-        {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-            <ul className="py-1" role="listbox">
-              <li role="option" aria-selected={sortOrder === "latest"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    sortOrder === "latest"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("latest")}
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+          <ul className="py-1" role="listbox">
+            <li role="option" aria-selected={sortOrder === "latest"}>
+              <button
+                className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                  sortOrder === "latest"
+                    ? "text-gray-700"
+                    : "text-gray-700"
+                }`}
+                style={sortOrder === "latest" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                onClick={() => selectOption("latest")}
+              >
+                Latest first
+              </button>
+            </li>
+            <li role="option" aria-selected={sortOrder === "oldest"}>
+              <button
+                className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                  sortOrder === "oldest"
+                    ? "text-gray-700"
+                    : "text-gray-700"
+                }`}
+                style={sortOrder === "oldest" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                onClick={() => selectOption("oldest")}
+              >
+                Oldest first
+              </button>
+            </li>
+
+            {/* Only show sponsor-related options if the active tab is not "stories" */}
+            {activeTab !== "stories" && (
+              <>
+                <li
+                  role="option"
+                  aria-selected={sortOrder === "most-sponsors"}
                 >
-                  Latest first
-                </button>
-              </li>
-              <li role="option" aria-selected={sortOrder === "oldest"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    sortOrder === "oldest"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("oldest")}
+                  <button
+                    className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                      sortOrder === "most-sponsors"
+                        ? "text-gray-700"
+                        : "text-gray-700"
+                    }`}
+                    style={sortOrder === "most-sponsors" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                    onClick={() => selectOption("most-sponsors")}
+                  >
+                    Most sponsors
+                  </button>
+                </li>
+                <li
+                  role="option"
+                  aria-selected={sortOrder === "least-sponsors"}
                 >
-                  Oldest first
-                </button>
-              </li>
-
-              {/* Only show sponsor-related options if the active tab is not "stories" */}
-              {activeTab !== "stories" && (
-                <>
-                  <li
-                    role="option"
-                    aria-selected={sortOrder === "most-sponsors"}
+                  <button
+                    className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                      sortOrder === "least-sponsors"
+                        ? "text-gray-700"
+                        : "text-gray-700"
+                    }`}
+                    style={sortOrder === "least-sponsors" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                    onClick={() => selectOption("least-sponsors")}
                   >
-                    <button
-                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                        sortOrder === "most-sponsors"
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-gray-700"
-                      }`}
-                      onClick={() => selectOption("most-sponsors")}
-                    >
-                      Most sponsors
-                    </button>
-                  </li>
-                  <li
-                    role="option"
-                    aria-selected={sortOrder === "least-sponsors"}
-                  >
-                    <button
-                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                        sortOrder === "least-sponsors"
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-gray-700"
-                      }`}
-                      onClick={() => selectOption("least-sponsors")}
-                    >
-                      Least sponsors
-                    </button>
-                  </li>
-                </>
-              )}
-            </ul>
-          </div>
-        )}
-      </div>
+                    Least sponsors
+                  </button>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
     </div>
   );
 };
 
+
 const ScholarshipPage: React.FC = () => {
-  const { scholarships, loading, error } = useScholarship();
+  const { scholarships, students, scholarshipStudents, loading, error } =
+    useScholarship();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "closed">(
-    "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<FilterOption>("all");
   const [sortOrder, setSortOrder] = useState<
     "latest" | "oldest" | "most-sponsors" | "least-sponsors"
   >("latest");
   const router = useRouter();
 
   const { featuredItems, isLoading: featuredLoading } = useFeatured();
+  const [selectedScholarshipStudentId, setSelectedScholarshipStudentId] =
+    useState<string | null>(null);
+  const [userScholarshipStudent, setUserScholarshipStudent] = useState<
+    ScholarshipStudent[]
+  >([]);
   const [scholarshipStories, setScholarshipStories] = useState<Featured[]>([]);
+  const [scholarshipMapping, setScholarshipMapping] = useState<
+    Record<string, string>
+  >({});
+  const [studentMapping, setStudentMapping] = useState<Record<string, string>>(
+    {}
+  );
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   useEffect(() => {
     // Filter featured items with type "scholarship"
     if (featuredItems && featuredItems.length > 0) {
       const filteredStories = featuredItems.filter(
-        (item: Featured) =>
-          item.type === "scholarship" && item.status !== "deleted"
+        (item: Featured) => item.type === "scholarship"
       );
       setScholarshipStories(filteredStories);
     }
   }, [featuredItems]);
+
+  useEffect(() => {
+    //function to fetch student while being mapped to studentId
+    const mapStudent = async () => {
+      if (students.length === 0) return;
+      if (!students) return;
+
+      try {
+        //intialize as empty record
+        const studentMap: Record<string, string> = {};
+        //fetch student
+        const fetchStudent = students.forEach((student: Student) => {
+          studentMap[student.studentId] = student.name;
+        });
+        //set scholarship student map
+        setStudentMapping(studentMap);
+      } catch (error) {
+        console.error("Error fetching scholarshipStudent:", error);
+        return [];
+      }
+    };
+
+    //function to fetch scholarship while being mapped to scholarshipId
+    const mapScholarship = async () => {
+      if (scholarshipStudents.length === 0) return;
+      if (!scholarshipStudents) return;
+
+      try {
+        //intialize as empty record
+        const scholarshipMap: Record<string, string> = {};
+        //fetch student
+        const fetchScholarship = scholarships.forEach(
+          (scholarships: Scholarship) => {
+            scholarshipMap[scholarships.scholarshipId] = scholarships.title;
+          }
+        );
+        //set scholarship student map
+        setScholarshipMapping(scholarshipMap);
+      } catch (error) {
+        console.error("Error fetching scholarshipStudent:", error);
+        return [];
+      }
+    };
+
+    const fetchUserScholarshipStudent = async () => {
+      if (scholarshipStudents.length === 0) return;
+      if (!scholarshipStudents) return;
+
+      try {
+        //fetch scholarshipStudent of user
+        const scholarshipStudentList = scholarshipStudents.filter(
+          (scholarship: ScholarshipStudent) => scholarship.alumId === user?.uid
+        );
+        //set user scholarship student
+        setUserScholarshipStudent(scholarshipStudentList);
+      } catch (error) {
+        console.error("Error fetching scholarshipStudent:", error);
+        return [];
+      }
+    };
+
+    mapStudent();
+    mapScholarship();
+    fetchUserScholarshipStudent();
+  }, [students, scholarships, scholarshipStudents]);
+
+  const formatDate = (date: any) => {
+    if (!date) return "Unknown date";
+
+    const dateObj = date instanceof Date ? date : new Date(date);
+
+    if (isNaN(dateObj.getTime())) {
+      if (date?.toDate && typeof date.toDate === "function") {
+        return date.toDate().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+      return "Invalid date";
+    }
+
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   const handleToggleBookmark = async (
     e: React.MouseEvent,
@@ -308,7 +417,7 @@ const ScholarshipPage: React.FC = () => {
   };
 
   // Function to determine if scholarship is active based on deadline
-  const isScholarshipActive = (scholarship: any) => {
+  const isScholarshipActive = (scholarship: Scholarship) => {
     if (scholarship.status === "deleted") return false;
 
     if (scholarship.status) {
@@ -320,7 +429,7 @@ const ScholarshipPage: React.FC = () => {
   };
 
   // Get scholarship status
-  const getScholarshipStatus = (scholarship: any) => {
+  const getScholarshipStatus = (scholarship: Scholarship) => {
     if (scholarship.status === "deleted") return "deleted";
 
     if (scholarship.status) {
@@ -344,18 +453,18 @@ const ScholarshipPage: React.FC = () => {
   const tabFilteredScholarships = (() => {
     // Remove all scholarships with status "deleted"
     const nonDeletedScholarships = scholarships.filter(
-      (scholarship: any) => getScholarshipStatus(scholarship) !== "deleted"
+      (scholarship: Scholarship) => getScholarshipStatus(scholarship) !== "deleted"
     );
 
     switch (activeTab) {
       case "saved":
-        return nonDeletedScholarships.filter((scholarship: any) =>
+        return nonDeletedScholarships.filter((scholarship: Scholarship) =>
           isBookmarked(scholarship.scholarshipId)
         );
       case "myScholars":
         // Only show scholarships where the current user is in the alumList
         return user
-          ? nonDeletedScholarships.filter((scholarship: any) =>
+          ? nonDeletedScholarships.filter((scholarship: Scholarship) =>
               scholarship.alumList.includes(user.uid)
             )
           : [];
@@ -371,13 +480,13 @@ const ScholarshipPage: React.FC = () => {
     if (statusFilter === "all") {
       return tabFilteredScholarships;
     } else if (statusFilter === "active") {
-      return tabFilteredScholarships.filter((scholarship: any) =>
+      return tabFilteredScholarships.filter((scholarship: Scholarship) =>
         isScholarshipActive(scholarship)
       );
     } else {
       // closed
       return tabFilteredScholarships.filter(
-        (scholarship: any) => !isScholarshipActive(scholarship)
+        (scholarship: Scholarship) => !isScholarshipActive(scholarship)
       );
     }
   })();
@@ -407,42 +516,42 @@ const ScholarshipPage: React.FC = () => {
 
   // Sort the scholarship stories based on datePosted
   const sortedScholarshipStories = [...scholarshipStories].sort((a, b) => {
-    const dateA =
-      a.datePosted && typeof a.datePosted.toDate === "function"
-        ? a.datePosted.toDate().getTime()
-        : new Date(a.datePosted).getTime();
+    const dateA = a.datePosted && new Date(a.datePosted).getTime();
 
-    const dateB =
-      b.datePosted && typeof b.datePosted.toDate === "function"
-        ? b.datePosted.toDate().getTime()
-        : new Date(b.datePosted).getTime();
+    const dateB = b.datePosted && new Date(b.datePosted).getTime();
 
     return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
   });
 
+  // Filtering and sorting for myScholars tab
+const filteredUserScholarshipStudent = [...userScholarshipStudent]
+  .filter((scholarshipStudent) => {
+    const status = scholarshipStudent.status?.toLowerCase();
+    if (activeTab === "myScholars") {
+      if (statusFilter === "all") {
+        return ["approved", "pending", "rejected"].includes(status);
+      }
+      return status === statusFilter;
+    }
+    return true;
+  });
+
+  // Status filter options based on tab
+  const statusFilterOptions: FilterOption[] =
+    activeTab === "myScholars"
+      ? ["all", "approved", "pending", "rejected"]
+      : ["all", "active", "closed"];
+
   return (
     <div className="bg-[#EAEAEA] h-full">
       {/*Page Title*/}
-      <div
-        className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50"
-        style={{ backgroundImage: 'url("/ICS2.jpg")' }}
-      >
-        <div className="absolute inset-0 bg-blue-500/50" />
-        <div className="relative z-10">
-          <h1 className="text-5xl font-bold my-2 text-white">Scholarships</h1>
-          <p className="text-white text-sm md:text-base">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
-            porta, ligula non sagittis tempus, risus erat aliquam mi, nec
-            vulputate dolor nunc et eros. Fusce fringilla, neque et ornare
-            eleifend, enim turpis maximus quam, vitae luctus dui sapien in
-            ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam
-            hendrerit eget.
-          </p>
-        </div>
-      </div>
+      <Banner
+        title="Scholarship Drives"
+        description="Make a difference by participating in ICS and alumni scholarship drives, providing essential support for the next generation of ICS scholars."
+      />
 
       {/* Tabs */}
-      <div className="my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[100px] xl:mx-[200px] static">
+      <div className="my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static">
         <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7">
           <button
             onClick={() => setActiveTab("all")}
@@ -520,7 +629,7 @@ const ScholarshipPage: React.FC = () => {
 
         <div className="flex flex-col gap-[10px] w-full mb-10">
           {/* Filter and Sort Controls */}
-          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-2 lg:py-1 flex flex-col items-start lg:flex-row lg:justify-between lg:items-center shadow-md border border-gray-200">
+          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex flex-col items-start lg:flex-row lg:justify-between lg:items-center shadow-md border border-gray-200">
             <h2 className="text-md lg:text-lg font-semibold">
               {activeTab === "all"
                 ? "All Scholarships"
@@ -537,18 +646,20 @@ const ScholarshipPage: React.FC = () => {
                   <StatusFilterDropdown
                     activeFilter={statusFilter}
                     setActiveFilter={setStatusFilter}
+                    options={statusFilterOptions}
                   />
-                  <div>|</div>
                 </div>
               ) : (
                 <div></div> /* Empty div as placeholder for layout when filter is not shown */
               )}
               {/* Simple Sort Control - Show on all tabs */}
+              {activeTab !== "myScholars" && (
               <SortControlDropdown
                 sortOrder={sortOrder}
                 setSortOrder={setSortOrder}
                 activeTab={activeTab}
               />
+              )}
             </div>
           </div>
 
@@ -568,14 +679,15 @@ const ScholarshipPage: React.FC = () => {
                       onClick={() => navigateToFeaturedDetail(story.featuredId)}
                     >
                       {/* Image */}
-                      <div
-                        className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
-                        style={{
-                          backgroundImage: `url("${
-                            story.image || "/ICS3.jpg"
-                          }")`,
-                        }}
-                      />
+                      <div className="relative rounded-t-[10px] h-[230px]">
+                        <Image
+                          src={story.image || "/default-image.jpg"}
+                          alt={story.title || "Scholarship story"}
+                          fill
+                          className="object-cover object-center rounded-t-[10px]"
+                          priority
+                        />
+                      </div>
                       {/* Body */}
                       <div className="px-6 pt-3 pb-6">
                         {/* Title */}
@@ -586,7 +698,7 @@ const ScholarshipPage: React.FC = () => {
                         </div>
                         {/* Description */}
                         <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
-                          <p className="text-start">
+                          <p className="text-start whitespace-pre-wrap">
                             {story.text && story.text.length > 150
                               ? story.text.slice(0, 150) + "..."
                               : story.text}
@@ -597,23 +709,7 @@ const ScholarshipPage: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <Calendar size={16} />
                             <p className="text-sm text-gray-600">
-                              {story.datePosted &&
-                              typeof story.datePosted.toDate === "function"
-                                ? new Date(
-                                    story.datePosted.toDate()
-                                  ).toLocaleDateString("en-US", {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })
-                                : new Date(story.datePosted).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "long",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    }
-                                  )}
+                              {formatDate(story.datePosted)}
                             </p>
                           </div>
                         </div>
@@ -623,6 +719,150 @@ const ScholarshipPage: React.FC = () => {
                 </div>
               )}
             </>
+          ) : activeTab === "myScholars" ? (
+            <div className="bg-[#FFFF] py-[20px] px-[20px] rounded-[10px] mt-3 shadow-md border border-gray-200">
+              <div className="overflow-x-auto">
+                {filteredUserScholarshipStudent.length > 0 ? (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="px-4 py-3 text-left text-sm font-medium uppercase tracking-wider"
+                        >
+                          Scholarship
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider"
+                        >
+                          Student
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider"
+                        >
+                          Status
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-4 py-3 text-center text-sm font-medium uppercase tracking-wider"
+                        >
+                          Agreement
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredUserScholarshipStudent.map((scholarshipStudent) => (
+                        <tr
+                          key={scholarshipStudent.ScholarshipStudentId}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-700">
+                            {
+                              scholarshipMapping[
+                                scholarshipStudent.scholarshipId
+                              ]
+                            }
+                            {/* {'Loading campaign name...'} */}
+                          </td>
+                          <td className="px-4 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
+                            {studentMapping[scholarshipStudent.studentId]}
+                          </td>
+                          <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+                            {/* Status column */}
+                            <div className="flex justify-center items-center">
+                              <button
+                                className={`flex text-sm rounded-full px-3 py-1 shadow-lg transition-colors justify-center items-center gap-2
+                                                                        ${(() => {
+                                      const status =
+                                        scholarshipStudent.status?.toLowerCase();
+
+                                      switch (status) {
+                                        case "approved":
+                                          return "bg-green-500 text-white hover:bg-green-600";
+                                        case "pending":
+                                          return "bg-yellow-500 text-white hover:bg-yellow-600";
+                                        case "rejected":
+                                          return "bg-red-500 text-white hover:bg-red-600";
+                                        default:
+                                          return "bg-gray-400 text-white hover:bg-gray-500";
+                                      }
+                                    })()}`}
+                              >
+                                {(() => {
+                                  const status =
+                                    scholarshipStudent.status.toLowerCase();
+
+                                  switch (status) {
+                                    case "approved":
+                                      return <CircleCheck className="size-4" />;
+                                    case "pending":
+                                      return <Clock className="size-4" />;
+                                    case "rejected":
+                                      return <CircleX className="size-4" />;
+                                    default:
+                                      return <HelpCircle className="size-4" />;
+                                  }
+                                })()}
+
+                                <span className="whitespace-nowrap">
+                                  {scholarshipStudent.status
+                                    ? scholarshipStudent.status
+                                        ?.charAt(0)
+                                        .toUpperCase() +
+                                      scholarshipStudent.status?.slice(1)
+                                    : "None"}
+                                </span>
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-500">
+                            <button
+                              onClick={() => {
+                                if (scholarshipStudent.status === "approved") {
+                                  setSelectedScholarshipStudentId(
+                                    scholarshipStudent.ScholarshipStudentId
+                                  );
+                                  setSelectedFile(scholarshipStudent.pdf);
+                                }
+                              }}
+                              disabled={
+                                scholarshipStudent.status !== "approved"
+                              }
+                              className={`text-sm ${
+                                scholarshipStudent.status === "approved"
+                                  ? "text-blue-500 hover:underline cursor-pointer"
+                                  : "text-gray-400 cursor-not-allowed"
+                              }`}
+                            >
+                              View PDF
+                            </button>
+                            {selectedScholarshipStudentId ===
+                              scholarshipStudent.ScholarshipStudentId &&
+                              selectedFile && (
+                                <PdfPreviewDialog
+                                  selectedFile={selectedFile}
+                                  setSelectedFile={setSelectedFile}
+                                />
+                              )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+                    <h3 className="text-xl font-medium text-gray-600">
+                      No Sponsorship have been made yet.{" "}
+                    </h3>
+                    <p className="text-gray-500 mt-2">
+                      Waiting for your first Sponsor!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           ) : (
             // Regular scholarships list display for other tabs
             <>
@@ -642,7 +882,7 @@ const ScholarshipPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-                  {sortedScholarships.map((scholarship: any) => {
+                  {sortedScholarships.map((scholarship: Scholarship) => {
                     const status = getScholarshipStatus(scholarship);
                     return (
                       <div
@@ -653,14 +893,18 @@ const ScholarshipPage: React.FC = () => {
                         }
                       >
                         {/* Image */}
-                        <div
-                          className="relative bg-cover bg-center rounded-t-[10px] h-[230px]"
-                          style={{
-                            backgroundImage: `url("${
-                              scholarship.image || "/ICS3.jpg"
-                            }")`,
-                          }}
-                        />
+                        <div className="relative rounded-t-[10px] h-[230px]">
+                          <Image
+                            src={scholarship.image || "/default-image.jpg"}
+                            alt={scholarship.title || "Scholarship"}
+                            fill
+                            className="object-cover object-center rounded-t-[10px]"
+                            priority
+                          />
+                                                    <span className="absolute bottom-2 right-2 px-2 py-1 text-lg rounded-full font-bold ">
+                                                            <StatusBadge status={status} />
+                                                    </span>
+                        </div>
                         {/* Body */}
                         <div className="px-6 pt-3 pb-6">
                           {/* Name */}
@@ -669,9 +913,6 @@ const ScholarshipPage: React.FC = () => {
                               <h2 className="text-xl font-semibold truncate">
                                 {scholarship.title}
                               </h2>
-                              <div className="flex items-center gap-2">
-                                <StatusBadge status={status} />
-                              </div>
                             </div>
                             <div
                               onClick={(e) =>
@@ -690,7 +931,7 @@ const ScholarshipPage: React.FC = () => {
                           </div>
                           {/* Description */}
                           <div className="mb-5 text-sm h-20 overflow-hidden text-clip">
-                            <p className="text-start">
+                            <p className="text-start whitespace-pre-wrap">
                               {scholarship.description.length > 150
                                 ? scholarship.description.slice(0, 150) + "..."
                                 : scholarship.description}

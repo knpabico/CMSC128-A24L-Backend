@@ -32,15 +32,15 @@ export default function FeaturedStoriesPage() {
     handleDelete,
   } = useFeatured();
 
-  const [activeTab, setActiveTab] = useState("All Stories");
+  const [activeTab, setActiveTab] = useState<"All Stories" | "Events" | "Donations" | "Scholarships">("All Stories");
   const [sortOption, setSortOption] = useState("newest");
-  const tableRef = useRef(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
-  const [storyToDelete, setStoryToDelete] = useState(null)
+  const [storyToDelete, setStoryToDelete] = useState<{ featuredId: string; title: string } | null>(null)
 
-  const tabs = ["All Stories", "Events", "Donations", "Scholarships"];
+  const tabs: Array<"All Stories" | "Events" | "Donations" | "Scholarships"> = ["All Stories", "Events", "Donations", "Scholarships"];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,7 +50,7 @@ export default function FeaturedStoriesPage() {
 
       if (tableRect.top <= 0 && !isSticky) {
         setIsSticky(true);
-        setHeaderWidth(tableRect.width);
+        setHeaderWidth(tableRect.width.toString());
       } else if (tableRect.top > 0 && isSticky) {
         setIsSticky(false);
       }
@@ -60,7 +60,7 @@ export default function FeaturedStoriesPage() {
 
     // Set initial width
     if (tableRef.current) {
-      setHeaderWidth(tableRef.current.offsetWidth);
+      setHeaderWidth(tableRef.current.offsetWidth.toString());
     }
 
     // Clean up
@@ -73,13 +73,13 @@ export default function FeaturedStoriesPage() {
   const filteredItems =
     activeTab === "All Stories"
       ? featuredItems
-      : featuredItems.filter((item) => {
+      : featuredItems.filter((item: { type: string; }) => {
           const tabTypeMap = {
             Events: "event",
             Donations: "donation",
             Scholarships: "scholarship",
           };
-          return item.type === tabTypeMap[activeTab];
+          return item.type === tabTypeMap[activeTab as keyof typeof tabTypeMap];
         });
 
   // Sort filtered items based on date
@@ -95,7 +95,7 @@ export default function FeaturedStoriesPage() {
   });
 
   // Count items for each category
-  const getCategoryCount = (category) => {
+  const getCategoryCount = (category: string) => {
     if (category === "All Stories") return featuredItems.length;
 
     const categoryTypeMap = {
@@ -105,13 +105,13 @@ export default function FeaturedStoriesPage() {
     };
 
     return featuredItems.filter(
-      (item) => item.type === categoryTypeMap[category]
+      (item: { type: any; }) => item.type === categoryTypeMap[category as keyof typeof categoryTypeMap]
     ).length;
   };
 
   const router = useRouter(); // Initialize the router
 
-  const navigateToDetail = (featuredId) => {
+  const navigateToDetail = (featuredId: any) => {
     router.push(`/admin-dashboard/create-story/${featuredId}`); // Navigate to the detail page
   };
 
@@ -126,7 +126,9 @@ export default function FeaturedStoriesPage() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
+        <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
         <div>Home</div>
+        </span>
         <div>
           <ChevronRight size={15} />
         </div>
@@ -145,7 +147,6 @@ export default function FeaturedStoriesPage() {
           </div>
         </div>
       </div>
-
 
         {/* Tabs */}
         <div className="w-full flex gap-2">
@@ -210,24 +211,28 @@ export default function FeaturedStoriesPage() {
               ref={tableRef}
             >
               {/* Sticky header */}
-              <div
+                <div
                 className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
-                  isSticky ? "fixed top-0" : ""
+                  isSticky ? "fixed top-0 left-0" : ""
                 }`}
-                style={{ width: isSticky ? headerWidth : "100%" }}
-              >
-                <div className="w-2/3 flex items-center justify-baseline font-semibold">
+                style={{
+                  width: isSticky ? `${headerWidth}px` : "100%",
+                  position: isSticky ? "fixed" : "relative",
+                }}
+                >
+                <div className="flex-grow flex items-center font-semibold">
                   Featured Story Info
                 </div>
-                <div className="w-1/3 flex justify-end items-center">
-                  <div className="w-1/3 flex items-center justify-center font-semibold">
-                    Type
-                  </div>
-                  <div className="w-1/3 flex items-center justify-center font-semibold">
-                    Actions
-                  </div>
+                <div className="w-[270px] flex items-center justify-center font-semibold mr-7">
+                  Public
                 </div>
-              </div>
+                <div className="w-[80px] flex items-center justify-center font-semibold">
+                  Type
+                </div>
+                <div className="w-[120px] flex items-center justify-center font-semibold">
+                  Actions
+                </div>
+                </div>
 
               {/* Spacer div to prevent content jump when header becomes fixed */}
               {isSticky && <div style={{ height: "56px" }}></div>}
@@ -346,7 +351,7 @@ export default function FeaturedStoriesPage() {
                 className="text-sm text-white w-full px-1 py-[5px] rounded-full font-semibold text-center flex justify-center border-red-700 bg-red-700  hover:bg-red-500 hover:cursor-pointer"
                 onClick={() => {
                   if (storyToDelete) {
-                    handleDelete(storyToDelete.title);
+                    handleDelete(storyToDelete?.featuredId);
                     setIsConfirmationOpen(false);
                   }
                 }}

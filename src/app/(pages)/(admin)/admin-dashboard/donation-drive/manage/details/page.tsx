@@ -5,7 +5,7 @@ import { toastSuccess } from "@/components/ui/sonner";
 import { useDonationContext } from "@/context/DonationContext";
 import { useDonationDrives } from "@/context/DonationDriveContext";
 import { db } from "@/lib/firebase";
-import { Donation, DonationDrive } from "@/models/models";
+import { Donation, DonationDrive, Event } from "@/models/models";
 import { doc, getDoc } from "firebase/firestore";
 import { Asterisk, Calendar, ChevronRight, CirclePlus, Clock, MapPin, Pencil, Trash2, Upload, Users2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -139,7 +139,7 @@ export default function AddDonationDrive() {
   const getRemainingDays = (endDate: any) => {
     try {
       const today = new Date(); // Current date
-      const end = new Date(endDate); // Firestore Timestamp to JS Date
+      const end = (typeof endDate === 'string')? new Date(endDate) : endDate.toDate(); // Firestore Timestamp to JS Date
       const diffTime = end.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -238,24 +238,24 @@ export default function AddDonationDrive() {
 	}, [donationDriveId]);
   
     // Fetch event details if this donation drive is related to an event
-    const fetchEventDetails = async (eventId: string) => {
-      try {
-        setEventLoading(true);
-        const eventRef = doc(db, "event", eventId);
-        const eventSnap = await getDoc(eventRef);
-  
-        if (eventSnap.exists()) {
-          const eventData = eventSnap.data() as Event;
-          // setEvent({ ...eventData, eventId });
-        } else {
-          console.warn('Event not found for ID:', eventId);
-        }
-      } catch (err) {
-        console.error('Error fetching event details:', err);
-      } finally {
-        setEventLoading(false);
-      }
-    };
+  const fetchEventDetails = async (eventId: string) => {
+	try {
+	  setEventLoading(true);
+	  const eventRef = doc(db, "event", eventId);
+	  const eventSnap = await getDoc(eventRef);
+
+	  if (eventSnap.exists()) {
+		const eventData = eventSnap.data() as Event;
+		setEvent({ ...eventData, eventId });
+	  } else {
+		console.warn('Event not found for ID:', eventId);
+	  }
+	} catch (err) {
+	  console.error('Error fetching event details:', err);
+	} finally {
+	  setEventLoading(false);
+	}
+  };
   
     useEffect(() => {
       const fetchDonations = async () => {
@@ -271,9 +271,9 @@ export default function AddDonationDrive() {
           const enhancedDonations = await Promise.all(
             donationsData.map(async (donation) => {
               // Skip fetching details for anonymous donations
-              if (donation.isAnonymous) {
-                return { ...donation, displayName: 'Anonymous' };
-              }
+              // if (donation.isAnonymous) {
+              //   return { ...donation, displayName: 'Anonymous' };
+              // }
   
               try {
                 // Directly fetch donor details from Firestore using the alumniId from the donation
@@ -385,7 +385,7 @@ export default function AddDonationDrive() {
 				<div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
 					<div className="space-y-2 flex items-center justify-between px-2">
 						<label htmlFor="name" className="text-md font-medium">
-							Donation Drive Informations
+							Donation Drive Information
 						</label>
 						<button onClick={() => setIsInformationOpen(!isInformationOpen)} className="text-sm text-blue-600 hover:underline" >
 								{isInformationOpen ? 'Hide Details' : 'Show Details'}
@@ -406,11 +406,11 @@ export default function AddDonationDrive() {
 									</div>
 								</div>
 								<div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-									<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(donationDrive.currentAmount, donationDrive.targetAmount)}%` }}></div>
+									<div className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(donationDrive!.currentAmount, donationDrive!.targetAmount)}%` }}></div>
 								</div>
 								<div className="flex justify-between my-1 text-sm">
-									<span className="font-medium">₱ {donationDrive.currentAmount.toLocaleString()}</span>
-									<span className="text-gray-500"> ₱ {donationDrive.targetAmount.toLocaleString()}</span>
+									<span className="font-medium">₱ {donationDrive!.currentAmount.toLocaleString()}</span>
+									<span className="text-gray-500"> ₱ {donationDrive!.targetAmount.toLocaleString()}</span>
 								</div>
 							</div>
 							<div className="rounded-lg py-1 px-6">

@@ -22,24 +22,28 @@ const LineGraph = ({ data, labels, type }: BarGraphProps) => {
         data: {
           labels,
           datasets: [
-            {
-              label: type,
-              data,
-              backgroundColor: "#0856BA",
-              borderColor: "#D1D5DB",
-              borderWidth: 1,
-            },
+        {
+          label: type,
+          data,
+          backgroundColor: "#0856BA",
+          borderColor: "#D1D5DB",
+          borderWidth: 1,
+        },
           ],
         },
         options: {
           responsive: true,
+          animation: {
+        duration: 1000,
+        easing: "easeInOutQuad",
+          },
           scales: {
-            x: {
-              type: "category",
-            },
-            y: {
-              beginAtZero: true,
-            },
+        x: {
+          type: "category",
+        },
+        y: {
+          beginAtZero: true,
+        },
           },
         },
       });

@@ -4,11 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { useAuth } from "@/context/AuthContext";
-import { useRsvpDetails } from "@/context/RSVPContext"; 
 import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
-import BookmarkButton from "@/components/ui/bookmark-button";
-import Link from "next/link";
+
+import ProposeEventForm from "../components/ProposeEventForm";
+import { FilePlus2 } from "lucide-react";
+import Banner from "@/components/Banner";
 
 // Function to format the event date
 function formatEventDate(dateString: string)
@@ -35,14 +36,15 @@ function getEventStatus(eventDateString: string): 'Upcoming' | 'Ongoing' | 'Done
 
 export default function Invitations()
 {
-  const { events, isLoading } = useEvents();
+  const { events, isLoading, showForm, setShowForm } = useEvents();
   const { alumInfo } = useAuth();
-  const { rsvpDetails } = useRsvpDetails(events);
 
   // State for sorting and filtering
   const [invitationEvents, setInvitationEvents] = useState<Event[]>([]);
   const [sortOption, setSortOption] = useState<string>('event-closest');
   const [filterOption, setFilterOption] = useState<string>('All');
+  const [isEditing, setEdit] = useState<boolean>(false);
+  const [isDetails, setDetailsPage] = useState<boolean>(false);
 
   // Filter the events based on the user's info and RSVP status
   useEffect(() =>
@@ -105,14 +107,7 @@ export default function Invitations()
   return (
     <div className="bg-[#EAEAEA]">
       {/* Page Title */}
-      <div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
-        <div className="absolute inset-0 bg-blue-500/50" />
-        <div className="relative z-10">
-        <h1 className="text-5xl font-bold my-2 text-white">Events</h1>
-        <p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
-        </div>
-      </div>
-
+      <Banner title="Events" description="Reconnect through ICS and alumni events that nurture unity, inspire growth, and strengthen our sense of community."/>
       {/* Main Content */}
       <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
         {/* Sidebar */}
@@ -146,8 +141,26 @@ export default function Invitations()
                 <option value="posted-newest">Date Posted (Newest First)</option>
                 <option value="posted-oldest">Date Posted (Oldest First)</option>
               </select>
+              {/* Propose Event */}
+              <button 
+                  className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
+                  onClick={() => setShowForm(true)}
+              >
+                  <FilePlus2 className="w-5 h-5" />
+                  Propose Event
+              </button>
             </div>
           </div>
+
+          <ProposeEventForm 
+              isOpen={showForm}
+              onClose={() => setShowForm(false)}
+              isEditing={isEditing}
+              isDetails={false}
+              setDetailsPage={setDetailsPage}
+              editingEventId={""}
+              setEdit={setEdit}
+          />
 
           {/* Event List */}
           {sortedEvents.length > 0 ? (

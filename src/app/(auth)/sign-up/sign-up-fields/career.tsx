@@ -1,9 +1,7 @@
 "use client";
 
 // components
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Button, TextField, Typography, Snackbar } from "@mui/material";
 import {
   FormControl,
   FormField,
@@ -11,11 +9,72 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GoogleMapsModal from "@/app/(pages)/(alumni)/google-maps/map";
 import { AlumDocumentUpload } from "./career_proof";
 import { MapPin, PencilIcon } from "lucide-react";
 import { handleYearInput } from "@/validation/auth/sign-up-form-schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const industryOptions = [
+  "Software Development",
+  "Web Development",
+  "Mobile App Development",
+  "Artificial Intelligence/Machine Learning",
+  "Data Science & Analytics",
+  "Cloud Computing",
+  "Cybersecurity",
+  "Game Development",
+  "Blockchain & Cryptocurrency",
+  "Internet of Things (IoT)",
+  "Robotics & Automation",
+  "Bioinformatics",
+  "FinTech (Financial Technology)",
+  "EdTech (Educational Technology)",
+  "HealthTech/MedTech",
+  "E-commerce",
+  "Telecommunications",
+  "IT Consulting",
+  "Computer Hardware & Semiconductors",
+  "Network Infrastructure",
+  "DevOps & System Administration",
+  "Database Administration",
+  "Computer Vision",
+  "Natural Language Processing",
+  "Virtual Reality/Augmented Reality",
+  "Quantum Computing",
+  "Digital Marketing & SEO",
+  "Business Intelligence",
+  "Enterprise Resource Planning (ERP)",
+  "User Experience/Interface Design",
+  "Computer Graphics & Animation",
+  "High-Performance Computing",
+  "Geographic Information Systems (GIS)",
+  "Computer Forensics",
+  "IT Support & Services",
+  "Information Systems Management",
+  "Human-Computer Interaction",
+  "Embedded Systems",
+  "Computer Engineering",
+  "Aerospace Computing",
+  "Defense & Military Technology",
+  "Smart Cities & Urban Technologies",
+  "Information Security",
+  "Big Data",
+  "Digital Twins Technology",
+  "Computer-Aided Design (CAD)",
+  "Social Media & Digital Platforms",
+  "Supply Chain Technology",
+  "Speech Recognition & Processing",
+  "Computational Science",
+  "Other"
+];
 
 export const Career = ({
   index,
@@ -54,21 +113,31 @@ export const Career = ({
       {/* career form field */}
 
       <div className="grid grid-cols-12 gap-x-4 gap-y-3">
-        {/* industry */}
+        {/* industry dropdown */}
         <div className="col-span-6">
           <FormField
             control={form.control}
             name={`${type}.${index}.industry`}
             render={({ field }) => (
-              <FormItem className="gap-0">
+              <FormItem className="gap-0 w-full">
                 <FormLabel className="text-xs font-light">Industry</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Cybersecurity"
-                    {...field}
-                    className="bg-white border border-gray-500"
-                  />
-                </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="bg-white border border-gray-500 w-full">
+                      <SelectValue placeholder="Select an industry" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-white overflow-y-auto">
+                    {industryOptions.map((industry) => (
+                      <SelectItem key={industry} value={industry}>
+                        {industry}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

@@ -40,7 +40,7 @@ const AddAffiliationModal = ({
       setUniversity("");
       onClose();
     }
-    setSnackbarOpen(true);
+    // setSnackbarOpen(true);
   };
 
 
@@ -50,7 +50,7 @@ const AddAffiliationModal = ({
   //Ito yung galawin mo arrianne
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <Card className="w-full max-w-xl bg-white border-none shadow-2xl">
+      <Card className="w-full max-w-xl bg-white border-none shadow-2xl overflow-y-auto max-h-[90vh]">
         <CardHeader>
           <div className="flex items-center justify-between relative">
             <p className="text-xl font-bold pb-3">Add affiliation</p>
@@ -116,7 +116,7 @@ const AddAffiliationModal = ({
         </CardHeader>
       </Card>
 
-      <Snackbar
+      {/* <Snackbar
         open={error}
         onClose={() => setError(false)}
         autoHideDuration={2000}
@@ -125,7 +125,7 @@ const AddAffiliationModal = ({
         <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg">
             Please Enter Some Details
           </div>
-      </Snackbar>
+      </Snackbar> */}
     </div>
   );
 };

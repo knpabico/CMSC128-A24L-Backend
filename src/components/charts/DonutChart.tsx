@@ -5,9 +5,11 @@ import { Chart } from "chart.js/auto";
 interface DonutChartProps {
   labels: string[];
   data: number[];
+  backgroundColor?: string[];
+  options?: boolean;
 }
 
-const DonutChart = ({ labels, data }: DonutChartProps) => {
+const DonutChart = ({ labels, data , backgroundColor,options}: DonutChartProps) => {
   const chartRef = useRef<(HTMLCanvasElement & { chart?: Chart }) | null>(null);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ const DonutChart = ({ labels, data }: DonutChartProps) => {
               {
                 label: "Number",
                 data,
-                backgroundColor: ["#0856BA", "#979FAD"],
+                backgroundColor: backgroundColor|| ["#0856BA", "#979FAD"],
                 borderColor: "#D1D5DB",
                 borderWidth: 1,
               },
@@ -34,6 +36,16 @@ const DonutChart = ({ labels, data }: DonutChartProps) => {
           },
           options: {
             responsive: true,
+            animation: {
+              duration: 1000, 
+              easing: "easeInOutQuad", 
+            },
+            plugins: {
+              legend: {
+                display: options === false? options: true
+                , 
+              },
+            },
           },
         });
         chartRef.current.chart = newChart;

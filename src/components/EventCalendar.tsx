@@ -229,7 +229,7 @@ export default function EventCalendar() {
           new Date(new Date().toDateString()).getTime()
         ) ? (
           <button
-            className="flex items-center text-blue-600"
+            className="flex items-center px-3 py-1 rounded-full text-white bg-[#0856BA] hover:bg-[#0856BA]/90 transition-colors"
             onClick={() => navigate("prev")}
           >
             <ChevronLeft size={18} className="mr-1" />
@@ -243,7 +243,7 @@ export default function EventCalendar() {
           <span>{formatDateRange()}</span>
         </div>
         <button
-          className="flex items-center text-blue-600"
+          className="flex items-center px-3 py-1 rounded-full text-white bg-[#0856BA] hover:bg-[#0856BA]/90 transition-colors"
           onClick={() => navigate("next")}
         >
           Next
@@ -295,7 +295,7 @@ export default function EventCalendar() {
               return (
                 <div
                   key={dateString}
-                  className={`min-h-24 p-1 border border-gray-200 ${
+                  className={`min-h-36 p-1 border border-gray-200 ${
                     isToday(date)
                       ? "bg-blue-50"
                       : viewMode === "month" && !isCurrentMonth
@@ -312,7 +312,7 @@ export default function EventCalendar() {
                       {date.getDate()}
                     </span>
                     {dayEvents.length > 0 && (
-                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full bg-blue-500 text-white">
+                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full bg-[#0856BA] text-white">
                         {dayEvents.length}
                       </span>
                     )}

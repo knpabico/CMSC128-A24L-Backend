@@ -5,12 +5,27 @@ import { useEvents } from "@/context/EventContext";
 import EventSidebar from "./components/Sidebar";
 import EventsList from "./components/EventsList";
 import { Event } from "@/models/models";
+import Banner from "@/components/Banner";
+import ProposeEventForm from "./components/ProposeEventForm";
+import { FilePlus2 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function AllEventsPage()
 {
-    const { events, isLoading } = useEvents();
+    const { events, isLoading, setShowForm, showForm } = useEvents();
     const [sortedEvents, setSortedEvents] = useState<Event[]>([]);
     const [sortOption, setSortOption] = useState<string>('event-closest');
+    const [isEditing, setEdit] = useState<boolean>(false);
+    const [isDetails, setDetailsPage] = useState<boolean>(false);
+    const pathname = usePathname(); 
+
+     // Close modal when navigating on other pages
+    useEffect(() => {
+        return () => {
+            setShowForm(false);
+        };
+    }, [pathname, setShowForm]);
 
     useEffect(() =>
     {
@@ -70,34 +85,57 @@ export default function AllEventsPage()
     return(
         <div className="bg-[#EAEAEA]">
             {/* Page Title */}
-            <div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
-                <div className="absolute inset-0 bg-blue-500/50" />
-                    <div className="relative z-10">
-                    <h1 className="text-5xl font-bold my-2 text-white">Events</h1>
-                    <p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
-                </div>
-            </div>
+            <Banner 
+                title="Events" 
+                description="Reconnect through ICS and alumni events that nurture unity, inspire growth, and strengthen our sense of community."
+                />
             {/* Body */}
-            <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+            <div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
                 {/* Sidebar */}
-                <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-                <EventSidebar />
+                <div className="flex flex-col gap-3">
+                    <button 
+                        className="bg-[var(--primary-blue)] text-white text-sm font-semibold rounded-full shadow-md hover:bg-[var(--blue-600)] hover:text-white flex items-center justify-center py-2 gap-2 w-full cursor-pointer"
+                        onClick={() => setShowForm(true)}
+                    >
+                        <FilePlus2 className="w-5 h-5" />
+                        Propose Event 
+                    </button>
+                    <div className='bg-[#FFFFFF] shadow-md flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+                        <EventSidebar />
+                    </div>
                 </div>
+                
                 {/* Main content */}
                 <div className='flex flex-col gap-[10px] w-full mb-10'>
                     {/* Filter tabs */}
-                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+                    
+                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
                         <h2 className="text-md lg:text-lg font-semibold">All Upcoming Events</h2>
                         <div className="flex items-center">
-                            <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-                            <select id="sort" value={sortOption} onChange={handleSortChange} className="text-gray-600 flex items-center text-sm" >
+                            <label htmlFor="sort" className="mr-2 text-sm text-blue-500">
+                                Sort by:
+                            </label>
+                            <select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500" >
                                 <option value="event-closest">Upcoming Events (Soonest First)</option>
                                 <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
                                 <option value="posted-newest">Date Approved (Newest)</option>
                                 <option value="post-oldest">Date Approved (Earliest)</option>
                             </select>
+                            {/* Propose Event */}
+                            
                         </div>
                     </div>
+
+                    <ProposeEventForm 
+                        isOpen={showForm}
+                        onClose={() => setShowForm(false)}
+                        isEditing={isEditing}
+                        isDetails={false}
+                        setDetailsPage={setDetailsPage}
+                        editingEventId={""}
+                        setEdit={setEdit}
+                    />
+
                     {sortedEvents.length > 0 ? (
                         // event cards
                         <EventsList

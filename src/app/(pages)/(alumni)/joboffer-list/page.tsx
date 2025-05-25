@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef, Key } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
-import { JobOffering } from "@/models/models";
+import {
+  Alumnus,
+  JobApplication,
+  JobOffering,
+  Bookmark,
+} from "@/models/models";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 //import { DropdownMenuTrigger,} from "@radix-ui/react-dropdown-menu";
@@ -18,7 +24,6 @@ import { useAuth } from "@/context/AuthContext";
 import ModalInput from "@/components/ModalInputForm";
 import {
   Briefcase,
-  Bookmark,
   FilePlus,
   MapPin,
   ChevronDown,
@@ -29,8 +34,18 @@ import {
   Pencil,
   Trash2,
   CheckCircle,
+  Bookmark as BookmarkIcon,
+  Mail,
+  User,
 } from "lucide-react";
+import Banner from "@/components/Banner";
 import { set } from "zod";
+import Image from "next/image";
+import JobApplicationModal from "@/components/JobApplicationModal";
+import { useJobApplicationContext } from "@/context/JobApplicationContext";
+import { useAlums } from "@/context/AlumContext";
+import SearchParamsWrapper from "@/components/SearchParamsWrapper";
+import CollapseText from "@/components/CollapseText";
 
 function formatDate(timestamp: any) {
   if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -39,6 +54,14 @@ function formatDate(timestamp: any) {
 }
 
 export default function JobOffers() {
+  return (
+    <SearchParamsWrapper>
+      <JobOffersContent />
+    </SearchParamsWrapper>
+  );
+}
+
+function JobOffersContent() {
   const {
     jobOffers,
     bookmarks,
@@ -72,9 +95,18 @@ export default function JobOffers() {
     handleSaveDraft,
     handleEditDraft,
     handleDelete,
-    updateStatus
+    updateStatus,
+    setPreview,
+    setFileName,
   } = useJobOffer();
 
+  const { addJobApplication } = useJobApplicationContext();
+  const { alums } = useAlums();
+  const { jobApplications, updateApplicationStatus } =
+    useJobApplicationContext();
+
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("jobId");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedJobsCurrentPage, setSavedJobsCurrentPage] = useState(1);
@@ -101,10 +133,12 @@ export default function JobOffers() {
     (job: JobOffering) =>
       job.status === "Accepted" &&
       (job.position.toLowerCase().includes(searchQuery) ||
-       job.company.toLowerCase().includes(searchQuery))
+        job.company.toLowerCase().includes(searchQuery))
   );
 
   const jobsPerPage = 8;
+
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
 
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchQuery(e.target.value.toLowerCase());
@@ -137,6 +171,18 @@ export default function JobOffers() {
       Status: ["Accepted", "Rejected", "Pending"],
     }),
   };
+
+  useEffect(() => {
+    if (jobId) {
+      const foundJob = currentSavedJobs.find(
+        (job: JobOffering) => job.jobId === jobId
+      );
+      if (foundJob) {
+        setSidebarFilter("Saved Jobs");
+        setSelectedJob(foundJob);
+      }
+    }
+  }, [jobId]);
 
   // Close filter dropdowns when clicking outside
   useEffect(() => {
@@ -240,11 +286,13 @@ export default function JobOffers() {
 
   // Saved Jobs pagination
   const filteredSavedJobs = bookmarks
-    .filter((bookmark) => bookmark.type === "job_offering")
-    .map((bookmark) => jobOffers.find((job) => job.jobId === bookmark.entryId))
+    .filter((bookmark: Bookmark) => bookmark.type === "job_offering")
+    .map((bookmark: Bookmark) =>
+      jobOffers.find((job: JobOffering) => job.jobId === bookmark.entryId)
+    )
     .filter(Boolean)
     .filter(
-      (job) =>
+      (job: JobOffering) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -254,11 +302,16 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
-      const dateA = a.timestamp ? a.timestamp.seconds : a.datePosted.seconds;
-      const dateB = b.timestamp ? b.timestamp.seconds : b.datePosted.seconds;
-      return latestFirst ? dateB - dateA : dateA - dateB;
-    });
+    .sort(
+      (
+        a: { timestamp: { seconds: any }; datePosted: { seconds: any } },
+        b: { timestamp: { seconds: any }; datePosted: { seconds: any } }
+      ) => {
+        const dateA = a.timestamp ? a.timestamp.seconds : a.datePosted.seconds;
+        const dateB = b.timestamp ? b.timestamp.seconds : b.datePosted.seconds;
+        return latestFirst ? dateB - dateA : dateA - dateB;
+      }
+    );
 
   const savedJobsTotalPages = Math.ceil(filteredSavedJobs.length / jobsPerPage);
   const savedJobsStartIndex = (savedJobsCurrentPage - 1) * jobsPerPage;
@@ -270,8 +323,10 @@ export default function JobOffers() {
 
   // Created Jobs pagination
   const filteredCreatedJobs = jobOffers
-    .filter((job) => job.alumniId === user?.uid && job.status !== "Draft") 
-    .filter((job) => {
+    .filter(
+      (job: JobOffering) => job.alumniId === user?.uid && job.status !== "Draft"
+    )
+    .filter((job: JobOffering) => {
       if (activeFilters.length === 0) return true;
       return activeFilters.some(
         (filter) =>
@@ -283,11 +338,16 @@ export default function JobOffers() {
           ].includes(filter) || job.requiredSkill.includes(filter)
       );
     })
-    .sort((a, b) => {
-      const dateA = a.datePosted.seconds;
-      const dateB = b.datePosted.seconds;
-      return latestFirst ? dateB - dateA : dateA - dateB;
-    });
+    .sort(
+      (
+        a: { datePosted: { seconds: any } },
+        b: { datePosted: { seconds: any } }
+      ) => {
+        const dateA = a.datePosted.seconds;
+        const dateB = b.datePosted.seconds;
+        return latestFirst ? dateB - dateA : dateA - dateB;
+      }
+    );
 
   const createdJobsTotalPages = Math.ceil(
     filteredCreatedJobs.length / jobsPerPage
@@ -301,9 +361,11 @@ export default function JobOffers() {
 
   // Draft Jobs pagination
   const filteredDraftJobs = jobOffers
-    .filter((job) => job.status === "Draft" && job.alumniId === user?.uid) // Filter drafts for current user
     .filter(
-      (job) =>
+      (job: JobOffering) => job.status === "Draft" && job.alumniId === user?.uid
+    ) // Filter drafts for current user
+    .filter(
+      (job: JobOffering) =>
         activeFilters.length === 0 ||
         activeFilters.some(
           (filter) =>
@@ -313,43 +375,37 @@ export default function JobOffers() {
             job.requiredSkill.includes(filter)
         )
     )
-    .sort((a, b) => {
-      const dateA = a.datePosted.seconds;
-      const dateB = b.datePosted.seconds;
-      return latestFirst ? dateB - dateA : dateA - dateB;
-    });
+    .sort(
+      (
+        a: { datePosted: { seconds: any } },
+        b: { datePosted: { seconds: any } }
+      ) => {
+        const dateA = a.datePosted.seconds;
+        const dateB = b.datePosted.seconds;
+        return latestFirst ? dateB - dateA : dateA - dateB;
+      }
+    );
 
   const draftJobsTotalPages = Math.ceil(filteredDraftJobs.length / jobsPerPage);
   const draftJobsStartIndex = (draftJobsCurrentPage - 1) * jobsPerPage;
   const draftJobsEndIndex = draftJobsStartIndex + jobsPerPage;
   const currentDraftJobs = filteredDraftJobs.slice(
-    draftJobsStartIndex, 
+    draftJobsStartIndex,
     draftJobsEndIndex
   );
 
   return (
     <>
       {/* Header Banner - magaadd pa ako pic wait lang guys huhu */}
-      <div
-        className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50"
-        style={{ backgroundImage: 'url("/ICS2.jpg")' }}
-      >
-        <div className="absolute inset-0 bg-blue-500/50" />
-        <div className="relative">
-          <h1 className="text-5xl font-bold my-2 text-white">Job Opportunities</h1>
-          <p className="text-white text-sm md:text-base">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat
-            aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus
-            quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit
-            eget.
-          </p>
-        </div>
-      </div>
+      <Banner
+        title="Job Opportunities"
+        description="Discover job opportunities through ICS and alumni partnerships, bridging the gap between education and career success for ICS graduates."
+      />
 
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex justify-between items-center mb-4">
+      <div className="px-[10%] py-10">
+        <div className=" bg-white rounded-lg flex items-center justify-between px-5 py-3 mb-4 shadow-sm">
           <button
-            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 mb-4 ${
+            className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 ${
               activeFilters.length > 0
                 ? "opacity-100"
                 : "opacity-0 pointer-events-none"
@@ -367,18 +423,18 @@ export default function JobOffers() {
           </button>
 
           <div className="flex space-x-3">
-          <div className="mb-4">
+            <div className="">
               <input
                 type="text"
                 placeholder="Search jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm  text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
               />
             </div>
             <div className="relative" ref={filterContainerRef}>
               <button
-                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+                className="pl-5 h-10 w-30 flex items-center justify-center rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm  text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                 onClick={() => {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowFilterOptions(false);
@@ -422,27 +478,28 @@ export default function JobOffers() {
                       {activeFilterCategory}
                     </h3>
                     <div className="space-y-2">
-                      {filterCategories[
-                        activeFilterCategory as keyof typeof filterCategories
-                      ].map((filter) => (
-                        <div key={filter} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={filter}
-                            checked={activeFilters.includes(filter)}
-                            onChange={() => toggleFilter(filter)}
-                            className="mr-2"
-                          />
-                          <label htmlFor={filter}>{filter}</label>
-                        </div>
-                      ))}
+                      {activeFilterCategory &&
+                        filterCategories[
+                          activeFilterCategory as keyof typeof filterCategories
+                        ]?.map((filter) => (
+                          <div key={filter} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={filter}
+                              checked={activeFilters.includes(filter)}
+                              onChange={() => toggleFilter(filter)}
+                              className="mr-2"
+                            />
+                            <label htmlFor={filter}>{filter}</label>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 )}
             </div>
 
             <button
-              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
+              className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-[#FFFFFF] border-[2px] border-blue-500 text-sm text-blue-500 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
               onClick={() => setLatestFirst(!latestFirst)}
             >
               {latestFirst ? "Latest First" : "Oldest First"}
@@ -451,13 +508,23 @@ export default function JobOffers() {
         </div>
 
         <div className="flex">
-          <div>
+          <div className="flex flex-col gap-2">
+            {/* Post a Job Button */}
+            <Button
+              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-full hover:bg-[#063d8c] transition-all cursor-pointer"
+              onClick={() => setShowForm(!showForm)}
+            >
+              <Pencil className="w-5 h-5" />
+              <p className="group w-max relative py-1 transition-all font-semibold">
+                Post a Job
+              </p>
+            </Button>
             {/* Sidebar */}
             <div className="bg-[#FFFFFF] flex flex-col px-10 py-8 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
               <button
                 onClick={() => {
-                  setSidebarFilter("Job Postings")
-                  setSelectedJob(null)
+                  setSidebarFilter("Job Postings");
+                  setSelectedJob(null);
                 }}
                 className="flex items-center gap-3"
               >
@@ -477,15 +544,17 @@ export default function JobOffers() {
               </button>
               <button
                 onClick={() => {
-                  setSidebarFilter("Saved Jobs")
-                  setSelectedJob(null)
+                  setSidebarFilter("Saved Jobs");
+                  setSelectedJob(null);
                 }}
                 className="flex items-center gap-3"
               >
-                <Bookmark className="w-5 h-5" />
+                <BookmarkIcon className="w-5 h-5" />
                 <p
                   className={`group w-max relative py-1 transition-all ${
-                    sidebarFilter === "Saved Jobs" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                    sidebarFilter === "Saved Jobs"
+                      ? "font-semibold border-b-3 border-blue-500"
+                      : "text-gray-700 group"
                   }`}
                 >
                   <span>Saved Jobs</span>
@@ -496,15 +565,17 @@ export default function JobOffers() {
               </button>
               <button
                 onClick={() => {
-                  setSidebarFilter("Create Jobs")
-                  setSelectedJob(null)
+                  setSidebarFilter("Create Jobs");
+                  setSelectedJob(null);
                 }}
                 className="flex items-center gap-3"
               >
                 <FilePlus className="w-5 h-5" />
                 <p
                   className={`group w-max relative py-1 transition-all ${
-                    sidebarFilter === "Create Jobs" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                    sidebarFilter === "Create Jobs"
+                      ? "font-semibold border-b-3 border-blue-500"
+                      : "text-gray-700 group"
                   }`}
                 >
                   <span>Created Jobs</span>
@@ -515,15 +586,38 @@ export default function JobOffers() {
               </button>
               <button
                 onClick={() => {
-                  setSidebarFilter("Drafts")
-                  setSelectedJob(null)
+                  setSidebarFilter("Applied Jobs");
+                  setSelectedJob(null);
+                }}
+                className="flex items-center gap-3"
+              >
+                <Mail className="w-5 h-5" />
+                <p
+                  className={`group w-max relative py-1 transition-all ${
+                    sidebarFilter === "Applied Jobs"
+                      ? "font-semibold border-b-3 border-blue-500"
+                      : "text-gray-700 group"
+                  }`}
+                >
+                  <span>Applied Jobs</span>
+                  {sidebarFilter !== "Applied Jobs" && (
+                    <span className="absolute -bottom-0 left-1/2 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:left-0 group-hover:w-full"></span>
+                  )}
+                </p>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarFilter("Drafts");
+                  setSelectedJob(null);
                 }}
                 className="flex items-center gap-3"
               >
                 <FileText className="w-5 h-5" />
                 <p
                   className={`group w-max relative py-1 transition-all ${
-                    sidebarFilter === "Drafts" ? "font-semibold border-b-3 border-blue-500" : "text-gray-700 group"
+                    sidebarFilter === "Drafts"
+                      ? "font-semibold border-b-3 border-blue-500"
+                      : "text-gray-700 group"
                   }`}
                 >
                   <span>Drafts</span>
@@ -533,19 +627,8 @@ export default function JobOffers() {
                 </p>
               </button>
             </div>
-
-            {/* Post a Job Button */}
-            <Button
-              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-[10px] hover:bg-[#063d8c] transition-all"
-              onClick={() => setShowForm(!showForm)}
-            >
-              <Pencil className="w-5 h-5" />
-              <p className="group w-max relative py-1 transition-all font-semibold">
-                Post a Job</p>
-            </Button>
           </div>
 
-          
           {/* Main content revised yass */}
           <div className="flex-1 flex-col grid grid-cols-2 gap-4 pl-4 min-h-[600px]">
             {/* Left Column - Job Listings */}
@@ -579,7 +662,11 @@ export default function JobOffers() {
                             <div className="flex">
                               <div className="mr-2">
                                 {job.image ? (
-                                  <img
+                                  <Image
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    priority
                                     src={job.image}
                                     alt={`${job.company} logo`}
                                     className="w-15 h-15 object-contain rounded-md border border-gray-200"
@@ -591,13 +678,13 @@ export default function JobOffers() {
                                 )}
                               </div>
                               <div className="flex-1">
-                                <h2 className="font-semibold text-md">
+                                <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   {job.position}
                                 </h2>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   {job.company}
                                 </p>
-                                <p className="text-xs text-[#0856BA] flex items-center">
+                                <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                                   <MapPin className="w-3.5 h-3.5 mr-1" />
                                   {job.location}
                                 </p>
@@ -667,52 +754,58 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentSavedJobs.map((job, index) => (
-                          <div
-                            key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
-                                : "border-gray-200"
-                            }`}
-                            onClick={() => setSelectedJob(job)}
-                          >
-                            <div className="flex">
-                              <div className="mr-3">
-                                {job.image ? (
-                                  <img
-                                    src={job.image}
-                                    alt={`${job.company} logo`}
-                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                        {currentSavedJobs.map(
+                          (job: JobOffering, index: Key | null | undefined) => (
+                            <div
+                              key={index}
+                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                                selectedJob?.jobId === job.jobId
+                                  ? "border-blue-500"
+                                  : "border-gray-200"
+                              }`}
+                              onClick={() => setSelectedJob(job)}
+                            >
+                              <div className="flex">
+                                <div className="mr-3">
+                                  {job.image ? (
+                                    <Image
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
+                                      src={job.image}
+                                      alt={`${job.company} logo`}
+                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                    />
+                                  ) : (
+                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                      {job.company.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                    {job.position}
+                                  </h2>
+                                  <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                    {job.company}
+                                  </p>
+                                  <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                    <MapPin className="w-3.5 h-3.5 mr-1" />
+                                    {job.location}
+                                  </p>
+                                </div>
+                                <div className="ml-2">
+                                  <BookmarkButton
+                                    entryId={job.jobId}
+                                    type="job_offering"
+                                    size="sm"
                                   />
-                                ) : (
-                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <h2 className="font-semibold text-md">
-                                  {job.position}
-                                </h2>
-                                <p className="text-sm text-gray-600">
-                                  {job.company}
-                                </p>
-                                <p className="text-xs text-[#0856BA] flex items-center">
-                                  <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
-                                </p>
-                              </div>
-                              <div className="ml-2">
-                                <BookmarkButton
-                                  entryId={job.jobId}
-                                  type="job_offering"
-                                  size="sm"
-                                />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                         {currentSavedJobs.length < jobsPerPage &&
                           [...Array(jobsPerPage - currentSavedJobs.length)].map(
                             (_, i) => (
@@ -773,107 +866,133 @@ export default function JobOffers() {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        {currentCreatedJobs.map((job, index) => (
-                          <div
-                            key={index}
-                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                              selectedJob?.jobId === job.jobId
-                                ? "border-blue-500"
-                                : "border-gray-200"
-                            }`}
-                            onClick={() => setSelectedJob(job)}
-                          >
-                            <div className="flex justify-between items-center">
-                            {/* Left side - Job details */}
-                            <div className="flex items-center">
-                              <div className="mr-3">
-                                {job.image ? (
-                                  <img
-                                    src={job.image || "/placeholder.svg"}
-                                    alt={`${job.company} logo`}
-                                    className="w-15 h-15 object-contain rounded-md border border-gray-200"
-                                  />
-                                ) : (
-                                  <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                                    {job.company.charAt(0).toUpperCase()}
-                                  </div>
-                                )}
-                              </div>
-                              <div>
-                                <h2 className="font-semibold text-md">{job.position}</h2>
-                                <p className="text-sm text-gray-600">{job.company}</p>
-                                <p className="text-xs text-[#0856BA] flex items-center">
-                                  <MapPin className="w-3.5 h-3.5 mr-1" />
-                                  {job.location}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Right side - Status and trash icon with toggle moved here */}
-                            <div className="flex items-center space-x-3">
-                              {/* Toggle switch */}
-                              {job.status !== "Pending" && (
-                              <div className="w-12 flex justify-center">
-                                  <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      className="sr-only peer"
-                                      checked={job.status === "Accepted"}
-                                      onChange={async () => {
-                                        try {
-                                          if (job.status === "Accepted") {
-                                            await updateStatus("Closed", job.jobId);
-                                          } else {
-                                            await updateStatus("Accepted", job.jobId);
-                                          }
-                                        } catch (error) {
-                                          toastError("Failed to update job status");
-                                        }
-                                      }}
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                  </label>
-                              </div>
-                              )}
-                              {job.status === "Pending" && (
-                                <div className="w-11 h-6 opacity-0">
-                                  {/* Placeholder to prevent layout shift */}
-                                </div>
-                              )}
-                              <div className="w-24 flex items-center justify-center">
-                              {/* Status label */}
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-medium ${
-                                  job.status === "Accepted"
-                                    ? "bg-green-100 text-green-700"
-                                    : job.status === "Rejected"
-                                    ? "bg-red-100 text-red-700"
-                                    : job.status === "Closed"
-                                    ? "bg-red-100 text-red-700"
-                                    : "bg-yellow-100 text-yellow-700"
+                        {currentCreatedJobs.map(
+                          (job: JobOffering, index: Key | null | undefined) => {
+                            return (
+                              <div
+                                key={index}
+                                className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                                  selectedJob?.jobId === job.jobId
+                                    ? "border-blue-500"
+                                    : "border-gray-200"
                                 }`}
+                                onClick={() => setSelectedJob(job)}
                               >
-                                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                              </span>
-                              </div>
+                                <div className="flex justify-between items-center">
+                                  {/* Left side - Job details */}
+                                  <div className="flex items-center">
+                                    <div className="mr-3">
+                                      {job.image ? (
+                                        <Image
+                                          width={0}
+                                          height={0}
+                                          sizes="100vw"
+                                          priority
+                                          src={job.image || "/placeholder.svg"}
+                                          alt={`${job.company} logo`}
+                                          className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                        />
+                                      ) : (
+                                        <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                          {job.company.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        {job.position}
+                                      </h2>
+                                      <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        {job.company}
+                                      </p>
+                                      <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        <MapPin className="w-3.5 h-3.5 mr-1" />
+                                        {job.location}
+                                      </p>
+                                    </div>
+                                  </div>
 
-                              {/* Trash button */}
-                              <button
-                                className="text-gray-500 hover:text-red-500 transition-colors mr-3"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleDelete(job.jobId);
-                                }}
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
+                                  {/* Right side - Status and trash icon with toggle moved here */}
+                                  <div className="flex items-center space-x-3">
+                                    {/* Toggle switch */}
+                                    {job.status !== "Pending" && (
+                                      <div className="w-12 flex justify-center">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                          <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={job.status === "Accepted"}
+                                            onChange={async () => {
+                                              try {
+                                                if (job.status === "Accepted") {
+                                                  await updateStatus(
+                                                    "Closed",
+                                                    job.jobId
+                                                  );
+                                                } else {
+                                                  await updateStatus(
+                                                    "Accepted",
+                                                    job.jobId
+                                                  );
+                                                }
+                                              } catch (error) {
+                                                toastError(
+                                                  "Failed to update job status"
+                                                );
+                                              }
+                                            }}
+                                          />
+                                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        </label>
+                                      </div>
+                                    )}
+                                    {job.status === "Pending" && (
+                                      <div className="w-11 h-6 opacity-0">
+                                        {/* Placeholder to prevent layout shift */}
+                                      </div>
+                                    )}
+                                    <div className="w-24 flex items-center justify-center">
+                                      {/* Status label */}
+                                      <span
+                                        className={`px-2 py-1 rounded text-xs font-medium ${
+                                          job.status === "Accepted"
+                                            ? "bg-green-100 text-green-700"
+                                            : job.status === "Rejected"
+                                            ? "bg-red-100 text-red-700"
+                                            : job.status === "Closed"
+                                            ? "bg-red-100 text-red-700"
+                                            : "bg-yellow-100 text-yellow-700"
+                                        }`}
+                                      >
+                                        {job.status.charAt(0).toUpperCase() +
+                                          job.status.slice(1)}
+                                      </span>
+                                    </div>
+
+                                    {/* Trash button */}
+                                    <button
+                                      className="text-gray-500 hover:text-red-500 transition-colors mr-3"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(job.jobId);
+                                      }}
+                                    >
+                                      <Trash2 className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        ))}
+                            );
+                          }
+                        )}
                         {currentCreatedJobs.length < jobsPerPage &&
-                          [...Array(jobsPerPage - currentCreatedJobs.length)].map((_, i) => (
-                            <div key={`empty-created-${i}`} className="h-[72px] invisible"></div>
+                          [
+                            ...Array(jobsPerPage - currentCreatedJobs.length),
+                          ].map((_, i) => (
+                            <div
+                              key={`empty-created-${i}`}
+                              className="h-[72px] invisible"
+                            ></div>
                           ))}
                       </div>
 
@@ -917,151 +1036,273 @@ export default function JobOffers() {
                     </>
                   )}
                 </div>
-                ) : sidebarFilter === "Drafts" ? (
+              ) : sidebarFilter === "Applied Jobs" ? (
+                jobApplications.length === 0 ? (
+                  <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
+                    <p className="text-lg">No applied jobs found.</p>
+                  </div>
+                ) : (
+                  <div>
+                    {jobApplications
+                      .filter(
+                        (offer: JobApplication) =>
+                          offer.applicantId === user!.uid
+                      )
+                      .map((jobOffer: JobApplication, index: number) => {
+                        const job = jobOffers.find(
+                          (job: JobOffering) => job.jobId === jobOffer.jobId
+                        );
+                        if (!job) return null;
+                        return (
+                          <div
+                            key={index}
+                            className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                              selectedJob?.jobId === job.jobId
+                                ? "border-blue-500"
+                                : "border-gray-200"
+                            }`}
+                            onClick={() => setSelectedJob(job)}
+                          >
+                            <div className="flex justify-between items-center">
+                              {/* Left side - Job details */}
+                              <div className="flex items-center">
+                                <div className="mr-3">
+                                  {job.image ? (
+                                    <Image
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      priority
+                                      src={job.image || "/placeholder.svg"}
+                                      alt={`${job.company} logo`}
+                                      className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                    />
+                                  ) : (
+                                    <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                                      {job.company?.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                </div>
+                                {!job.company || !job.location ? (
+                                  <div>
+                                    <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                      {job.position}
+                                    </h2>
+                                    <p className="text-sm text-gray-500">
+                                      Job Details not available
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                      {job.position}
+                                    </h2>
+                                    <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                      {job.company}
+                                    </p>
+                                    <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                      <MapPin className="w-3.5 h-3.5 mr-1" />
+                                      {job.location || "No location added yet."}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Right side */}
+                              <div className="flex items-center space-x-3">
+                                {/* Draft label */}
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                                    jobOffer.status === "pending"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : jobOffer.status === "accepted"
+                                      ? "bg-green-100 text-green-800"
+                                      : jobOffer.status === "rejected"
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {jobOffer.status === "pending"
+                                    ? "Pending"
+                                    : jobOffer.status === "accepted"
+                                    ? "Accepted"
+                                    : jobOffer.status === "rejected"
+                                    ? "Rejected"
+                                    : "Closed"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )
+              ) : sidebarFilter === "Drafts" ? (
                 <div className="space-y-2">
                   {filteredDraftJobs.length === 0 ? (
-                  <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
-                  <p className="text-lg">No draft jobs found.</p>
-                  </div>
+                    <div className="text-center text-gray-500 p-4 min-h-[600px] flex flex-col items-center justify-center">
+                      <p className="text-lg">No draft jobs found.</p>
+                    </div>
                   ) : (
-                  <>
-                  <div className="space-y-2">
-                  {filteredDraftJobs.map((job, index) => (
-                    <div
-                      key={index}
-                      className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
-                      selectedJob?.jobId === job.jobId
-                      ? "border-blue-500"
-                      : "border-gray-200"
-                      }`}
-                      onClick={() => setSelectedJob(job)}
-                      >
-                      <div className="flex justify-between items-center">
-                        {/* Left side - Job details */}
-                        <div className="flex items-center">
-                          <div className="mr-3">
-                            {job.image ? (
-                            <img
-                            src={job.image || "/placeholder.svg"}
-                            alt={`${job.company} logo`}
-                            className="w-15 h-15 object-contain rounded-md border border-gray-200"
-                            />
-                            ) : (
-                            <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
-                            {job.company.charAt(0).toUpperCase()}
-                            </div>
-                            )}
-                          </div>
-                          {
-                          !job.company || !job.location ? (
-                            <div>
-                              <h2 className="font-semibold text-md">{job.position}</h2>
-                              <p className="text-sm text-gray-500">
-                                This draft can't be published yet.
-                                <br/> Please complete all required fields.
-                              </p>
-                            </div>
-                          ) : (
-                          <div>
-                            <h2 className="font-semibold text-md">{job.position}</h2>
-                            <p className="text-sm text-gray-600">{job.company}</p>
-                            <p className="text-xs text-[#0856BA] flex items-center">
-                            <MapPin className="w-3.5 h-3.5 mr-1" />
-                            {job.location || "No location added yet."}
-                            </p>
-                          </div>
-                            )
-                          }
-                          </div>
+                    <>
+                      <div className="space-y-2">
+                        {filteredDraftJobs.map(
+                          (job: JobOffering, index: Key | null | undefined) => (
+                            <div
+                              key={index}
+                              className={`bg-white p-3 border-1 rounded-lg cursor-pointer hover:border-blue-500 ${
+                                selectedJob?.jobId === job.jobId
+                                  ? "border-blue-500"
+                                  : "border-gray-200"
+                              }`}
+                              onClick={() => setSelectedJob(job)}
+                            >
+                              <div className="flex justify-between items-center">
+                                {/* Left side - Job details */}
+                                <div className="flex items-center">
+                                  <div className="mr-3">
+                                    {job.image ? (
+                                      <Image
+                                        width={0}
+                                        height={0}
+                                        sizes="100vw"
+                                        priority
+                                        src={job.image || "/placeholder.svg"}
+                                        alt={`${job.company} logo`}
+                                        className="w-15 h-15 object-contain rounded-md border border-gray-200"
+                                      />
+                                    ) : (
+                                      <div className="w-15 h-15 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        {job.company.charAt(0).toUpperCase()}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {!job.company || !job.location ? (
+                                    <div>
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        {job.position}
+                                      </h2>
+                                      <p className="text-sm text-gray-500">
+                                        This draft can't be published yet.
+                                        <br /> Please complete all required
+                                        fields.
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <h2 className="font-semibold text-md max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        {job.position}
+                                      </h2>
+                                      <p className="text-sm text-gray-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        {job.company}
+                                      </p>
+                                      <p className="text-xs text-[#0856BA] flex items-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        <MapPin className="w-3.5 h-3.5 mr-1" />
+                                        {job.location ||
+                                          "No location added yet."}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
 
-                          {/* Right side */}
-                          <div className="flex items-center space-x-3">
-                          {/* Draft label */}
-                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                            Draft
+                                {/* Right side */}
+                                <div className="flex items-center space-x-3">
+                                  {/* Draft label */}
+                                  <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                                    Draft
+                                  </span>
+
+                                  {/* Edit button */}
+                                  <button
+                                    className="text-gray-500 hover:text-blue-500 transition-colors"
+                                    onClick={(e) => {
+                                      handleEditDraft(job);
+                                      setShowForm(true);
+                                    }}
+                                  >
+                                    <Pencil className="w-5 h-5" />
+                                  </button>
+
+                                  {/* Delete button */}
+                                  <button
+                                    className="text-gray-500 hover:text-red-500 transition-colors mr-3"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDelete(job.jobId);
+                                    }}
+                                  >
+                                    <Trash2 className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        )}
+                        {filteredDraftJobs.length < jobsPerPage &&
+                          [
+                            ...Array(jobsPerPage - filteredDraftJobs.length),
+                          ].map((_, i) => (
+                            <div
+                              key={`empty-draft-${i}`}
+                              className="h-[72px] invisible"
+                            ></div>
+                          ))}
+                      </div>
+
+                      {/* Pagination Controls for Draft Jobs */}
+                      {filteredDraftJobs.length > 0 && (
+                        <div className="flex justify-center mt-4 space-x-2">
+                          <button
+                            className="px-3 py-1 bg-white rounded text-sm"
+                            onClick={() =>
+                              setDraftJobsCurrentPage((prev) =>
+                                Math.max(prev - 1, 1)
+                              )
+                            }
+                            disabled={draftJobsCurrentPage === 1}
+                          >
+                            Prev
+                          </button>
+
+                          <span className="text-sm font-medium px-3 py-1">
+                            {draftJobsCurrentPage} of {draftJobsTotalPages || 1}
                           </span>
 
-                          {/* Edit button */}
                           <button
-                            className="text-gray-500 hover:text-blue-500 transition-colors"
-                            onClick={(e) => {
-                              handleEditDraft(job);
-                              setShowForm(true);
-                            }}
+                            className="px-3 py-1 bg-white rounded text-sm"
+                            onClick={() =>
+                              setDraftJobsCurrentPage((prev) =>
+                                Math.min(prev + 1, draftJobsTotalPages || 1)
+                              )
+                            }
+                            disabled={
+                              draftJobsCurrentPage === draftJobsTotalPages ||
+                              filteredDraftJobs.length <= jobsPerPage
+                            }
                           >
-                            <Pencil className="w-5 h-5" />
-                          </button>
-
-                          {/* Delete button */}
-                          <button
-                            className="text-gray-500 hover:text-red-500 transition-colors mr-3"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDelete(job.jobId);
-                            }}
-                          >
-                            <Trash2 className="w-5 h-5" />
+                            Next
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                  {filteredDraftJobs.length < jobsPerPage &&
-                    [...Array(jobsPerPage - filteredDraftJobs.length)].map((_, i) => (
-                    <div key={`empty-draft-${i}`} className="h-[72px] invisible"></div>
-                    ))}
-                  </div>
-
-                  {/* Pagination Controls for Draft Jobs */}
-                  {filteredDraftJobs.length > 0 && (
-                  <div className="flex justify-center mt-4 space-x-2">
-                    <button
-                    className="px-3 py-1 bg-white rounded text-sm"
-                    onClick={() =>
-                    setDraftJobsCurrentPage((prev) =>
-                    Math.max(prev - 1, 1)
-                    )
-                    }
-                    disabled={draftJobsCurrentPage === 1}
-                    >
-                    Prev
-                    </button>
-
-                    <span className="text-sm font-medium px-3 py-1">
-                    {draftJobsCurrentPage} of {draftJobsTotalPages || 1}
-                    </span>
-
-                    <button
-                    className="px-3 py-1 bg-white rounded text-sm"
-                    onClick={() =>
-                    setDraftJobsCurrentPage((prev) =>
-                    Math.min(prev + 1, draftJobsTotalPages || 1)
-                    )
-                    }
-                    disabled={
-                    draftJobsCurrentPage === draftJobsTotalPages ||
-                    filteredDraftJobs.length <= jobsPerPage
-                    }
-                    >
-                    Next
-                    </button>
-                  </div>
-                  )}
-                  </>
+                      )}
+                    </>
                   )}
                 </div>
-                ) : null}
-              </div>
+              ) : null}
+            </div>
 
             {/* Right Column - Job Details */}
-            <div className="bg-white rounded-lg p-4 min-h-[600px] flex flex-col">
+            <div className="bg-white rounded-lg p-4 h-180 flex flex-col overflow-y-auto">
               {selectedJob ? (
-                <div className="w-full space-y-4">
+                <div className="w-full space-y-4 flex flex-col h-full">
                   <div className="flex items-start">
                     {/* Company Logo */}
-                    <div className="mr-4">
+                    <div className="mr-4 flex-shrink-0">
                       {selectedJob.image ? (
-                        <img
+                        <Image
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          priority
                           src={selectedJob.image}
                           alt={`${selectedJob.company} logo`}
                           className="w-20 h-20 object-contain rounded-md border border-gray-200"
@@ -1080,7 +1321,7 @@ export default function JobOffers() {
                         {selectedJob.company}
                       </p>
                       <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 text-[#0856BA] mr-1" />
+                        <MapPin className="w-4 h-4 min-w-4 text-[#0856BA] mr-1" />
                         <span className="ml-1 font-semibold text-[#0856BA]">
                           {selectedJob.location}
                         </span>
@@ -1135,9 +1376,9 @@ export default function JobOffers() {
 
                   <div className="mb-4">
                     <h3 className="font-semibold mb-2">Job Description</h3>
-                    <p className="text-sm text-gray-700">
-                      {selectedJob.jobDescription}
-                    </p>
+                    <CollapseText 
+                    text={selectedJob.jobDescription} 
+                    maxChars={500} />
                   </div>
 
                   <div className="mb-4">
@@ -1152,18 +1393,191 @@ export default function JobOffers() {
                             <li
                               key={skill}
                               className="flex items-center gap-[5px]"
-                              >
-                              <CheckCircle className="size-4 text-green-500"/>
-                                {skill}
+                            >
+                              <CheckCircle className="size-4 text-green-500" />
+                              {skill}
                             </li>
                           </ul>
                         ))}
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-400 mt-4">
+                  <p className="text-xs text-gray-400 mt-auto pt-4">
                     Posted on {formatDate(selectedJob.datePosted)}
                   </p>
+                  {sidebarFilter !== "Create Jobs" &&
+                    sidebarFilter !== "Applied Jobs" &&
+                    sidebarFilter !== "Drafts" &&
+                    !jobApplications.find(
+                      (application: JobApplication) =>
+                        application.jobId === selectedJob.jobId &&
+                        application.applicantId === user!.uid
+                    ) &&
+                    !jobOffers.find(
+                      (job: JobOffering) =>
+                        selectedJob.jobId === job.jobId &&
+                        job.alumniId === user!.uid
+                    ) && (
+                      <div className="sticky bottom-0 pt-4 pb-2 bg-white">
+                        {/* <h3 className="font-semibold mb-2">
+                          Interested in this job?
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Click the button below to apply.
+                        </p> */}
+                      <Button
+                        variant={"outline"}
+                        className="w-full cursor-pointer rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+                        onClick={() => {
+                          setApplyModalOpen(true);
+                        }}
+                      >
+                        Apply
+                      </Button>
+                      </div>
+                    )}
+
+                  {sidebarFilter === "Create Jobs" && (
+                    <div className="mt-4">
+                      <h3 className="font-semibold mb-2">Applicants</h3>
+                      {jobApplications.filter(
+                        (application: JobApplication) =>
+                          application.jobId === selectedJob.jobId
+                      ).length === 0 ? (
+                        <p className="text-gray-500 text-center py-4">
+                          No applicants yet
+                        </p>
+                      ) : (
+                        jobApplications
+                          .filter(
+                            (application: JobApplication) =>
+                              application.jobId === selectedJob.jobId
+                          )
+                          .map((application: JobApplication) => {
+                            const applicant: Alumnus = alums.find(
+                              (alumni: Alumnus) =>
+                                alumni.alumniId === application.applicantId
+                            );
+                            return (
+                              <div
+                                key={application.jobApplicationId}
+                                className="border rounded-lg p-4 mb-2"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    {applicant?.image ? (
+                                      <Image
+                                        src={applicant.image}
+                                        alt={`${applicant.firstName} ${applicant.lastName}`}
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full"
+                                      />
+                                    ) : (
+                                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <User className="w-5 h-5" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">
+                                      {applicant?.firstName}{" "}
+                                      {applicant?.lastName}
+                                    </h4>
+                                    <p className="text-sm text-gray-600">
+                                      {applicant?.email}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="mt-2">
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs ${
+                                      application.status === "pending"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : application.status === "accepted"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                    }`}
+                                  >
+                                    {application.status
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                      application.status.slice(1)}
+                                  </span>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Applied on{" "}
+                                    {formatDate(application.dateApplied)}
+                                  </p>
+                                </div>
+                                <div className="mt-3 flex gap-2">
+                                  {application.status === "pending" && (
+                                    <>
+                                      <button
+                                        onClick={() => {
+                                          // Add your accept logic here
+                                          updateApplicationStatus(
+                                            application.jobApplicationId,
+                                            "accepted",
+                                            applicant,
+                                            selectedJob
+                                          );
+                                        }}
+                                        className="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transition-colors"
+                                      >
+                                        Accept
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          // Add your reject logic here
+                                          updateApplicationStatus(
+                                            application.jobApplicationId,
+                                            "rejected",
+                                            applicant,
+                                            selectedJob
+                                          );
+                                        }}
+                                        className="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
+                                      >
+                                        Reject
+                                      </button>
+                                    </>
+                                  )}
+                                  <a
+                                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${applicant?.email}&su=Job Application Update for ${selectedJob.position} at ${selectedJob.company}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors flex items-center gap-1"
+                                  >
+                                    <Mail className="w-4 h-4" />
+                                    Email
+                                  </a>
+                                </div>
+                              </div>
+                            );
+                          })
+                      )}
+                    </div>
+                  )}
+                  <JobApplicationModal
+                    isOpen={applyModalOpen}
+                    onClose={() => setApplyModalOpen(false)}
+                    onSubmit={async () => {
+                      addJobApplication(
+                        {
+                          jobApplicationId: crypto.randomUUID(),
+                          jobId: selectedJob.jobId,
+                          applicantId: user!.uid,
+                          status: "pending",
+                          dateApplied: new Date(),
+                          jobTitle: selectedJob.position,
+                          contactId: selectedJob.alumniId,
+                        } as JobApplication,
+                        selectedJob
+                      );
+                    }}
+                    jobTitle={selectedJob.position}
+                    companyName={selectedJob.company}
+                  />
                 </div>
               ) : (
                 <div className="text-center text-gray-500 h-full flex items-center justify-center w-full">
@@ -1206,6 +1620,7 @@ export default function JobOffers() {
                       value={position}
                       onChange={(e) => setPosition(e.target.value)}
                       className="w-full p-1.5 border rounded text-sm"
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -1295,7 +1710,8 @@ export default function JobOffers() {
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                       className="w-full p-1.5 border rounded resize-none text-sm"
-                      style={{ height: "110px" }} // Increased height (4x the original)
+                      style={{ height: "110px" }} 
+                      maxLength={2000}
                       required
                     />
                     <Button
@@ -1329,6 +1745,7 @@ export default function JobOffers() {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       className="w-full p-1.5 border rounded text-sm"
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -1342,6 +1759,7 @@ export default function JobOffers() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       className="w-full p-1.5 border rounded text-sm"
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -1385,30 +1803,33 @@ export default function JobOffers() {
                   </div>
 
                   <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Salary Range<span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500">₱</span>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="e.g. 10000-30000"
-                      value={salaryRange}
-                      onChange={(e) => setSalaryRange(e.target.value)}
-                      onInput={(e) => {
-                        const value = e.target.value;
-                        if (!/^[0-9-]*$/.test(value)) {
-                          e.target.value = value.replace(/[^0-9-]/g, "");
+                    <label className="block text-sm font-medium mb-1">
+                      Salary Range<span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500">₱</span>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="e.g. 10000-30000"
+                        value={salaryRange}
+                        onChange={(e) => setSalaryRange(e.target.value)}
+                        onInput={(e) => {
+                          const value = (e.target as HTMLInputElement).value;
+                          if (!/^\d+(-\d+)?$/.test(value)) {
+                          (e.target as HTMLInputElement).value = value
+                            .replace(/[^0-9-]/g, "")            // Remove non-digit and non-dash characters
+                            .replace(/^-/g, "")                 // Remove a dash if it's the first character
+                            .replace(/(-.*)-+/g, "$1");         // Remove any extra dashes after the first one
                         }
-                      }}
-                      pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
-                      className="w-full pl-8 p-1.5 border rounded text-sm"
-                      required
-                    />
+                        }}
+                        pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
+                        className="w-full pl-8 p-1.5 border rounded text-sm"
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
@@ -1416,76 +1837,82 @@ export default function JobOffers() {
                     </label>
                     <input
                       type="text"
-                      value={requiredSkill.join(', ')}
+                      value={requiredSkill.join(", ")}
                       placeholder="Required Skills (comma-separated)"
                       onChange={handleSkillChange}
-                      className="w-full p-1.5 border rounded placeholder:text-sm"
+                      className="w-full p-1.5 border rounded placeholder:text"
                       required
                     />
                   </div>
-                  </div>
+                </div>
+              </div>
+
+              <hr className="my-2 border-t border-gray-300" />
+
+              <div className="mb-6 pt-2 pl-1">
+                <label className="block text-sm font-medium mb-1">
+                  Company Logo<span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer">
+                    <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                      Choose File
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                  <span className="text-sm text-gray-500">
+                    {fileName || "No file chosen"}
+                  </span>
                 </div>
 
-                  <hr className="my-2 border-t border-gray-300" />
-
-                  <div className="mb-6 pt-2 pl-1">
-                    <label className="block text-sm font-medium mb-1">
-                      Company Logo<span className="text-red-500">*</span>
-                    </label>
-                    <div className="flex items-center gap-4">
-                      <label className="cursor-pointer">
-                        <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                          Choose File
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="hidden"
-                        />
-                      </label>
-                      <span className="text-sm text-gray-500">
-                        {fileName || "No file chosen"}
-                      </span>
-                    </div>
-
-                    {preview && (
-                      <div className="mt-3">
-                        <img
-                          src={preview}
-                          alt="Preview"
-                          className="h-20 object-contain"
-                        />
-                      </div>
-                    )}
+                {preview && (
+                  <div className="mt-3">
+                    <Image
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      priority
+                      src={preview}
+                      alt="Preview"
+                      className="h-20 object-contain"
+                    />
                   </div>
+                )}
+              </div>
 
-                  <div className="flex justify-between items-center mt-6">
+              <div className="flex justify-between items-center mt-6">
                 {/* Left side - Cancel button */}
                 <div>
-                    <button
+                  <button
                     type="button"
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
                     onClick={() => {
                       setShowForm(false);
-                      setPosition('');
-                      setEmploymentType('');
-                      setJobType('');
-                      setJobDescription('');
-                      setCompany('');
-                      setLocation('');
-                      setExperienceLevel('');
-                      setSalaryRange('');
+                      setPosition("");
+                      setEmploymentType("");
+                      setJobType("");
+                      setJobDescription("");
+                      setCompany("");
+                      setLocation("");
+                      setExperienceLevel("");
+                      setSalaryRange("");
                       setJobImage(null);
+                      setPreview(null);
+                      setFileName("");
                     }}
-                    >
+                  >
                     Cancel
-                    </button>
+                  </button>
                 </div>
 
                 {/* Right side - Save as Draft and Submit buttons */}
                 <div className="flex gap-4">
-                    <button
+                  <button
                     type="button"
                     className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
                     onClick={async (e) => {
@@ -1499,41 +1926,43 @@ export default function JobOffers() {
                         console.error("Error saving draft:", error);
                       }
                     }}
-                    >
+                  >
                     Save as Draft
-                    </button>
+                  </button>
 
-                    <button
+                  <button
                     type="submit"
                     onClick={async (e) => {
-                    if (
-                      !position ||
-                      !employmentType ||
-                      !jobType ||
-                      !jobDescription ||
-                      !company ||
-                      !location ||
-                      !experienceLevel ||
-                      !salaryRange ||
-                      !image
-                    ) {
-                      alert("Please fill in all required fields")
-                      return
-                    }
-                    try {
-                      await handleSubmit(e);
-                      toastSuccess("Job submitted successfully");
-                      setShowForm(false);
-                    } catch (error) {
-                      toastError("There was an error submitting the job. Please try again.");
-                    }
+                      if (
+                        !position ||
+                        !employmentType ||
+                        !jobType ||
+                        !jobDescription ||
+                        !company ||
+                        !location ||
+                        !experienceLevel ||
+                        !salaryRange ||
+                        !image
+                      ) {
+                        alert("Please fill in all required fields");
+                        return;
+                      }
+                      try {
+                        await handleSubmit(e);
+                        toastSuccess("Job submitted successfully");
+                        setShowForm(false);
+                      } catch (error) {
+                        toastError(
+                          "There was an error submitting the job. Please try again."
+                        );
+                      }
                     }}
-                  className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
-                >
-                  Submit
-                </button>
+                    className="h-10 px-5 flex items-center justify-center rounded-full bg-[#0856BA] border border-[#0856BA] text-sm font-semibold text-white shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#063d8c] hover:shadow-lg"
+                  >
+                    Submit
+                  </button>
                 </div>
-                </div>
+              </div>
             </form>
           </div>
         )}

@@ -5,6 +5,25 @@
     background-color: #EAEAEA ;
 }
 
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-scroll {
+    animation: scroll 50s linear infinite;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+}
+
 @theme {
   --primary-blue: #0856ba;
   --blue-100: #cce2ff;

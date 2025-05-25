@@ -5,17 +5,20 @@ import { useDonationDrives } from '@/context/DonationDriveContext';
 import DonationDriveSidebar from './components/Sidebar';
 import DonationDrivesList from './components/DonationDrivesList';
 import { DonationDrive } from '@/models/models';
+import Banner from "@/components/Banner";
+// import { ChevronDown } from 'lucide-react';
 
 export default function AllDonationDrivesPage() {
 const { donationDrives, events, isLoading } = useDonationDrives();
 const [sortedDrives, setSortedDrives] = useState<DonationDrive[]>([]);
 const [sortOption, setSortOption] = useState<string>('newest');
+const [statusOption, setStatusOption] = useState<string>('all');
 
 useEffect(() => {
 	if (donationDrives.length > 0) {
-
+	
 	const filteredDrives = donationDrives.filter(
-		(drive: { status: string }) => (drive.status === 'active' || drive.status === 'completed'));
+		(drive: { status: string }) => (statusOption ==="all"? drive.status === 'active' || drive.status === 'completed':drive.status === statusOption));
 	const sorted = [...filteredDrives].sort((a, b) => {
 		switch (sortOption) {
 		case 'newest':
@@ -43,24 +46,26 @@ useEffect(() => {
 	} else {
 	setSortedDrives([]);
 	}
-}, [donationDrives, sortOption]);
+}, [donationDrives, sortOption, statusOption]);
 
 const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 	setSortOption(e.target.value);
 };
 
+const handleStatusSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+	setStatusOption(e.target.value);
+};
+
 return (
 	<div className="bg-[#EAEAEA]">
+		
 		{/*Page Title*/}
-		<div className="relative bg-cover bg-center pt-20 pb-10 px-10 md:px-30 md:pt-30 md:pb-20 lg:px-50" style={{ backgroundImage: 'url("/ICS2.jpg")' }}>
-			<div className="absolute inset-0 bg-blue-500/50" />
-				<div className="relative z-10">
-				<h1 className="text-5xl font-bold my-2 text-white">Donation Drives</h1>
-				<p className='text-white text-sm md:text-base'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta, ligula non sagittis tempus, risus erat aliquam mi, nec vulputate dolor nunc et eros. Fusce fringilla, neque et ornare eleifend, enim turpis maximus quam, vitae luctus dui sapien in ipsum. Pellentesque mollis tempus nulla, sed ullamcorper quam hendrerit eget.</p>
-			</div>
-		</div>
+		<Banner 
+			title="Donation Drives" 
+			description="Support meaningful causes through ICS and alumni donation drives, helping create opportunities and making a lasting impact."
+		/>
 		{/* Body */}
-		<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+		<div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
 			{/* Sidebar */}
 			<div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
 				<DonationDriveSidebar />
@@ -68,17 +73,28 @@ return (
 			{/* Main content */}
 			<div className='flex flex-col gap-[10px] w-full mb-10'>
 				{/* Filter tabs */}
-				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
 					<h2 className="text-md lg:text-lg font-semibold">All Donation Drives</h2>
-					<div className="flex items-center">
-						<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-						<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
-							<option value="newest">Newest</option>
-							<option value="oldest">Oldest</option>
-							<option value="amount-high">Amount (High to Low)</option>
-							<option value="amount-low">Amount (Low to High)</option>
-							<option value="progress">Progress</option>
-						</select>
+					<div className="flex justify-between items-center gap-2">
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Filter:</label>
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="text-sm rounded-full py-2 px-4 border-[2px]" style={{borderColor: '#0856BA', color: '#0856BA'}} >
+								<option value="all">All</option>
+								<option value="active">Active</option>
+								<option value="completed">Closed </option>
+							</select>
+						</div>
+						<div className='w-1'></div>
+						<div className="flex items-center">
+							<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px]" style={{borderColor: '#0856BA', color: '#0856BA'}} >
+								<option value="newest">Newest</option>
+								<option value="oldest">Oldest</option>
+								<option value="amount-high">Amount (High to Low)</option>
+								<option value="amount-low">Amount (Low to High)</option>
+								<option value="progress">Progress</option>
+							</select>
+						</div>						
 					</div>
 				</div>
 				{sortedDrives.length > 0 ? (

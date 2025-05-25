@@ -16,14 +16,17 @@ export const UserCredentials = ({ form }: { form: any }) => {
     <>
       {/* email form field */}
       <FormField
-        disabled={isGoogleSignIn}
         control={form.control}
         name="email"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input placeholder="juandelacruz@example.com" {...field} />
+              <Input
+                placeholder="juandelacruz@example.com"
+                {...field}
+                disabled={isGoogleSignIn}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

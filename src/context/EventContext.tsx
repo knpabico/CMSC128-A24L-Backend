@@ -16,9 +16,11 @@ import { useAuth } from "./AuthContext";
 import { Event, RSVP, Alumnus } from "@/models/models";
 import { useRsvpDetails } from "@/context/RSVPContext";
 import { NewsLetterProvider, useNewsLetters } from "./NewsLetterContext";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { FirebaseError } from "firebase/app";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/lib/upload";
+import { deleteObject, ref, getStorage, listAll } from "firebase/storage";
 
 const EventContext = createContext<any>(null);
 
@@ -32,6 +34,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [description, setEventDescription] = useState("");
   const [date, setEventDate] = useState("");
   const [time, setEventTime] = useState("");
+  const [status, setEventStatus] = useState("");
   const [location, setEventLocation] = useState("");
   const [numofAttendees, setnumofAttendees] = useState(0);
   const [targetGuests, setTargetGuests] = useState<string[]>([]);
@@ -39,7 +42,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [needSponsorship, setNeedSponsorship] = useState(false);
   const router = useRouter();
 
-  const { rsvpDetails, alumniDetails } = useRsvpDetails(events);
+  const { rsvpDetails } = useRsvpDetails();
   const { user, alumInfo, isAdmin } = useAuth();
   const { addNewsLetter, deleteNewsLetter } = useNewsLetters();
 
@@ -48,6 +51,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const storage = getStorage();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null;
@@ -94,15 +98,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     return alumniSnapshot.docs.map((doc) => doc.data() as Alumnus);
   };
 
-  const addEvent = async (
-    newEvent: Event,
-    finalize: boolean,
-    create: boolean
-  ) => {
+  const addEvent = async (newEvent: Event, finalize: boolean) => {
     try {
       let docRef;
 
-      if (!finalize || create) {
+      if (!newEvent.eventId) {
         docRef = doc(collection(db, "event"));
         newEvent.eventId = docRef.id;
 
@@ -122,52 +122,73 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!image) {
-          setMessage("No image selected.");
-          setIsError(true);
-          return { success: false, message: "No image provided" };
-        }
+          newEvent.image =
+            "https://firebasestorage.googleapis.com/v0/b/cmsc-128-a24l.firebasestorage.app/o/default%2Fdefault-image.jpg?alt=media&token=5835562a-d7a0-48a0-9b07-0b2151c949fb";
+        } else {
+          const uploadResult = await uploadImage(
+            image,
+            `event/${newEvent.eventId}`
+          );
+          if (!uploadResult.success) {
+            setMessage(uploadResult.result || "Failed to upload image.");
+            setIsError(true);
+            return { success: false, message: "Image upload failed" };
+          }
 
-        const uploadResult = await uploadImage(
-          image,
-          `event/${newEvent.eventId}`
-        );
-        if (!uploadResult.success) {
-          setMessage(uploadResult.result || "Failed to upload image.");
-          setIsError(true);
-          return { success: false, message: "Image upload failed" };
+          newEvent.image = uploadResult.url;
         }
-
-        newEvent.image = uploadResult.url;
 
         await setDoc(docRef, newEvent);
-      } else {
-        docRef = doc(db, "event", newEvent.eventId);
+      }
+
+      if (typeof newEvent.rsvps === "string" && newEvent.rsvps.trim() !== "") {
+        try {
+          const rsvps = rsvpDetails as RSVP[];
+          for (const rsvp of rsvps) {
+            if (rsvp.postId === newEvent.eventId) {
+              console.log("Deleting RSVP:", rsvp.rsvpId);
+              await deleteDoc(doc(db, "RSVP", rsvp.rsvpId));
+              console.log("RSVP Deleted:", rsvp.rsvpId);
+            }
+          }
+
+          await deleteNewsLetter(newEvent.eventId);
+        } catch (error) {
+          console.error("Failed to delete RSVP or newsletter:", error);
+        }
       }
 
       // If finalizing, embed the RSVP and event update logic here
-      if (finalize || create) {
+      if (finalize) {
+        docRef = doc(db, "event", newEvent.eventId);
+
         const alums = await fetchAllAlumni();
-        const updatedRSVPIds: string[] = [];
         const updatedTargetGuests: string[] = [];
 
-        const createRSVP = async (alumniId: string) => {
+        const createRSVP = async () => {
           const rsvpRef = doc(collection(db, "RSVP"));
+
+          // Convert updatedTargetGuests (string[]) to the correct object structure
+          const alumsData: Record<string, { status: string }> = {};
+          updatedTargetGuests.forEach((alumniId) => {
+            alumsData[alumniId] = { status: "Pending" };
+          });
+
           const newRSVP: RSVP = {
             rsvpId: rsvpRef.id,
-            status: "Pending",
-            alumniId,
+            alums: alumsData,
             postId: newEvent.eventId,
           };
+
           await setDoc(rsvpRef, newRSVP);
-          updatedRSVPIds.push(rsvpRef.id);
-          updatedTargetGuests.push(alumniId);
+          return rsvpRef.id;
         };
 
         if (newEvent.inviteType === "batch") {
           for (const alumni of alums) {
             const batchYear = alumni.studentNumber?.slice(0, 4).trim();
             if (batchYear && newEvent.targetGuests.includes(batchYear)) {
-              await createRSVP(alumni.alumniId);
+              updatedTargetGuests.push(alumni.alumniId);
             }
           }
         } else if (newEvent.inviteType === "alumni") {
@@ -177,26 +198,33 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
           for (const alumni of alums) {
             const email = alumni.email?.trim().toLowerCase();
             if (email && targetEmails.includes(email)) {
-              await createRSVP(alumni.alumniId);
+              updatedTargetGuests.push(alumni.alumniId);
             }
           }
         } else if (newEvent.inviteType === "all") {
           for (const alumni of alums) {
-            await createRSVP(alumni.alumniId);
+            updatedTargetGuests.push(alumni.alumniId);
           }
         }
 
-        // Update the event document
-        const updateData: any = {
-          rsvps: updatedRSVPIds,
-          status: "Accepted",
-          datePosted: new Date(),
-        };
-        if (newEvent.inviteType !== "all") {
-          updateData.targetGuests = updatedTargetGuests;
-        }
+        if(updatedTargetGuests.length > 0){
+          const rsvpId = await createRSVP();
 
-        await updateDoc(docRef, updateData);
+          // Update the event document
+          const updateData: any = {
+            ...newEvent,
+            rsvps: rsvpId,
+            status: "Accepted",
+            datePosted: new Date(),
+          };
+
+          if (newEvent.inviteType !== "all") {
+            updateData.targetGuests = updatedTargetGuests;
+          }
+
+          await updateDoc(docRef, updateData);
+        } 
+        
         await addNewsLetter(newEvent.eventId, "event");
       }
 
@@ -208,18 +236,34 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       setEventImage(null);
       setPreview(null);
 
+      toastSuccess("Event processed successfully");
       return { success: true, message: "Event processed successfully" };
     } catch (error) {
+      toastError("Error adding event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
       setEventImage(file);
       setFileName(file.name); // Store the filename
       setPreview(URL.createObjectURL(file)); //preview
+    }
+  };
+
+
+//use to handle approve and rejecion
+  const onUpdateEventStat = async (eventId: string, status: string) => {
+    try {
+      const alumniRef = doc(db, "event", eventId);
+      await updateDoc(alumniRef,{ status: status });
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update event status:", error);
+      return { success: false, message: (error as Error).message };
     }
   };
 
@@ -232,11 +276,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
   ) => {
     e.preventDefault();
 
-    if (!image) {
-      setMessage("No image uploaded.");
-      setIsError(true);
-      return;
-    }
+    // if (!image) {
+    //   setMessage("No image uploaded.");
+    //   setIsError(true);
+    //   return;
+    // }
 
     const newEvent: Event = {
       datePosted: new Date(),
@@ -251,7 +295,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       targetGuests: selectedGuests,
       stillAccepting: true,
       needSponsorship: false,
-      rsvps: [],
+      rsvps: "",
       eventId: "",
       status,
       creatorId: "",
@@ -260,9 +304,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       donationDriveId: "",
     };
 
-    const response = await addEvent(newEvent, false, false);
+    const response = await addEvent(newEvent, false);
 
     if (response.success) {
+      toastSuccess("Event saved successfully!");
       setShowForm(false);
       setEventTitle("");
       setEventDescription("");
@@ -277,12 +322,13 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       return { success: true };
     } else {
       console.error("Error adding event:", response.message);
+      toastError("Error saving event");
     }
   };
 
   const handleDelete = async (eventId: string) => {
     try {
-      const rsvps = Object.values(rsvpDetails) as RSVP[];
+      const rsvps = rsvpDetails as RSVP[];
 
       for (const rsvp of rsvps) {
         if (rsvp.postId === eventId) {
@@ -291,24 +337,78 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       }
 
       await deleteDoc(doc(db, "event", eventId));
-      await deleteNewsLetter(eventId);
       setEvents((prev) => prev.filter((event) => event.eventId !== eventId));
+
+      await deleteNewsLetter(eventId);
+
+      toastSuccess("Event successfully deleted!");
       return { success: true, message: "Event successfully deleted" };
     } catch (error) {
+      toastError("Error deleting event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
 
-  const handleEdit = async (eventId: string, updatedData: Partial<Event>) => {
+  const deleteAllImagesInEventFolder = async (eventId: string) => {
+    const folderRef = ref(storage, `event/${eventId}`);
+
     try {
-      await updateDoc(doc(db, "event", eventId), updatedData);
+      const listResult = await listAll(folderRef);
+      const deletionPromises = listResult.items.map((itemRef) =>
+        deleteObject(itemRef)
+      );
+      await Promise.all(deletionPromises);
+      console.log(`Deleted all files in event/${eventId}`);
+    } catch (err) {
+      console.warn("Error deleting old images:", err);
+    }
+  };
+
+  const handleEdit = async (
+    eventId: string,
+    updatedData: Partial<Event>,
+    newImageFile?: File
+  ) => {
+    try {
+      const currentEvent = events.find((e) => e.eventId === eventId);
+      let newImageUrl: string | undefined = undefined;
+
+      console.log("Current Event:", newImageFile);
+
+      if (newImageFile && newImageFile !== currentEvent.image) {
+        // Delete all files inside the event folder
+        await deleteAllImagesInEventFolder(eventId);
+
+        // Upload new image
+        const uploadResult = await uploadImage(
+          newImageFile,
+          `event/${eventId}`
+        );
+        if (!uploadResult.success || !uploadResult.url) {
+          toastError("Failed to upload new image");
+          return { success: false, message: "Failed to upload new image" };
+        }
+        newImageUrl = uploadResult.url;
+      }
+
+      // Update Firestore
+      const updatePayload = {
+        ...updatedData,
+        ...(newImageUrl && { image: newImageUrl }),
+      };
+
+      await updateDoc(doc(db, "event", eventId), updatePayload);
+
       setEvents((prev) =>
         prev.map((event) =>
-          event.eventId === eventId ? { ...event, ...updatedData } : event
+          event.eventId === eventId ? { ...event, ...updatePayload } : event
         )
       );
+
+      toastSuccess("Event updated successfully!");
       return { success: true, message: "Event successfully updated" };
     } catch (error) {
+      toastError("Error updating event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -317,8 +417,10 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     try {
       const eventRef = doc(db, "event", eventId);
       await updateDoc(eventRef, { status: "Rejected" });
+      toastSuccess("Event successfully rejected.");
       return { success: true, message: "Event successfully rejected" };
     } catch (error) {
+      toastError("Error rejecting event");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -331,25 +433,25 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
     router.push(`/events/${event.eventId}`);
   };
 
-  const getEventProposals = (events:Event[]) => {
-    if (!events){
+  const getEventProposals = (events: Event[]) => {
+    if (!events) {
       return null;
-    }else{
-      const proposals = events.filter((event) => event.status != "Accepted");
+    } else {
+      const proposals = events.filter((event) => event.status === "Pending");
       console.log(proposals, "this is proposing events");
       return proposals;
     }
-  }
-  
-  const getUpcomingEvents = (events:Event[]) => {
-    if (!events){
+  };
+
+  const getUpcomingEvents = (events: Event[]) => {
+    if (!events) {
       return null;
-    }else{
+    } else {
       const Upevents = events.filter((event) => event.status == "Accepted");
       console.log(Upevents, "this is upcoming events");
       return Upevents;
     }
-  }
+  };
 
   return (
     <EventContext.Provider
@@ -368,6 +470,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         handleImageChange,
         title,
         setEventTitle,
+        status,
+        setEventStatus,
         description,
         setEventDescription,
         date,
@@ -388,8 +492,11 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         setNeedSponsorship,
         fileName,
         setFileName,
+        preview,
+        setPreview,
+        getEventProposals,
         getUpcomingEvents,
-        getEventProposals
+        onUpdateEventStat
       }}
     >
       {children}

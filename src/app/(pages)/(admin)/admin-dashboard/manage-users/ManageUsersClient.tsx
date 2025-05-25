@@ -1,8 +1,8 @@
 "use client";
 
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import SearchParamsWrapper from "@/components/SearchParamsWrapper";
 
 const title = "Manage Users";
 
@@ -17,12 +17,20 @@ const sortTypes = [
   "INACTIVE - ACTIVE",
 ];
 const sortValues = ["d", "sa", "sd", "ar", "ra", "reca", "ai", "ia"];
-// retrieve the search params which will be used for the pagination of the table
+
 export default function ManageUsersClient({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  return (
+    <SearchParamsWrapper>
+      <ManageUsersContent>{children}</ManageUsersContent>
+    </SearchParamsWrapper>
+  );
+}
+
+function ManageUsersContent({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const page = searchParams.get("page"); //get current page param
   const status = searchParams.get("status"); //get current status param
@@ -34,7 +42,7 @@ export default function ManageUsersClient({
 
   //function for handling change on sort type
   function handleSortChange(sortType: string) {
-    let sorting = sortType && sortType !== "d" ? `&sort=${sortType}` : "";
+    const sorting = sortType && sortType !== "d" ? `&sort=${sortType}` : "";
 
     //will push the parameters to the url
     router.push(
@@ -62,7 +70,7 @@ export default function ManageUsersClient({
 
   //function for handling year filter
   function handleYearFilter(year: string) {
-    let sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
+    const sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
 
     //will push the parameters to the url
     router.push(
@@ -77,7 +85,7 @@ export default function ManageUsersClient({
 
   //function for handling student number filter
   function handleSearchSN(sn: string) {
-    let sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
+    const sorting = sort && sort !== "d" ? `&sort=${sort}` : "";
 
     //will push the parameters to the url
     router.push(

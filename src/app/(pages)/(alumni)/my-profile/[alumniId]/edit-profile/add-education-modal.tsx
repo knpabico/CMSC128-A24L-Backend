@@ -2,18 +2,25 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, TextField, Typography, Snackbar } from "@mui/material";
 import { useEffect, useState } from "react";
-import GoogleMapsModal from "../../google-maps/map";
+import GoogleMapsModal from "../../../google-maps/map";
 import { Education } from "@/models/models";
-import { useEducation } from "@/context/Education";
+import { useEducation } from "@/context/EducationContext";
 
-export const AddEducationModal = ({
+interface AddEducationModalProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  userId: string;
+  setOpen: (open: boolean) => void;
+  setSuccess: (success: boolean) => void;
+}
+
+export const AddEducationModal: React.FC<AddEducationModalProps> = ({
   isOpen,
   setIsOpen,
   userId,
-  open,
   setOpen,
   setSuccess,
-}) => {
+})  => {
   const [university, setUniversity] = useState<string>("");
   const [type, setType] = useState<string>("");
   const [yearGraduated, setYearGraduated] = useState<string>("");
@@ -80,6 +87,7 @@ export const AddEducationModal = ({
                   type,
                   yearGraduated,
                   major,
+                  educationId: ""
                 });
               } else {
                 setError(true);

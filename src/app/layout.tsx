@@ -1,3 +1,4 @@
+"use client";
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -6,6 +7,7 @@ import { AlumProvider } from "@/context/AlumContext";
 import { JobOfferProvider } from "@/context/JobOfferContext";
 import { AnnouncementProvider } from "@/context/AnnouncementContext";
 import { EventProvider } from "@/context/EventContext";
+import { RsvpProvider } from "@/context/RSVPContext";
 import { DonationDriveProvider } from "@/context/DonationDriveContext";
 import { BookmarkProvider } from "@/context/BookmarkContext";
 import { Toaster } from "sonner";
@@ -16,16 +18,12 @@ import { EducationProvider } from "@/context/EducationContext";
 import MapProvider from "@/context/MapContext";
 import { ScholarshipProvider } from "@/context/ScholarshipContext";
 import { NewsLetterProvider } from "@/context/NewsLetterContext";
-import { Affiliation } from "./(auth)/sign-up/sign-up-fields/affiliation";
 import { AffiliationProvider } from "@/context/AffiliationContext";
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
 import { FeaturedProvider } from "@/context/FeaturedStoryContext";
-
 import { Inter } from "next/font/google";
-
+import { JobApplicationContextProvider } from "@/context/JobApplicationContext";
+import LoadingPage from "@/components/Loading";
+import { Suspense } from "react";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -45,29 +43,37 @@ export default function RootLayout({
               <ScholarshipProvider>
                 <BookmarkProvider>
                   <JobOfferProvider>
-                    <AnnouncementProvider>
-                      <AlumProvider>
-                        <WorkExperienceProvider>
-                          <EventProvider>
-                            <DonationContextProvider>
-                              <GoogleMapsProvider>
-                                <MapProvider>
-                                  <EducationProvider>
-                                    <AffiliationProvider>
-                                      <body className={inter.className}>
-                                        <Navbar />
-                                        <div className="">{children}</div>
-                                        <Toaster />
-                                      </body>
-                                    </AffiliationProvider>
-                                  </EducationProvider>
-                                </MapProvider>
-                              </GoogleMapsProvider>
-                            </DonationContextProvider>
-                          </EventProvider>
-                        </WorkExperienceProvider>
-                      </AlumProvider>
-                    </AnnouncementProvider>
+                    <JobApplicationContextProvider>
+                      <AnnouncementProvider>
+                        <AlumProvider>
+                          <WorkExperienceProvider>
+                            <EventProvider>
+                              <RsvpProvider>
+                                <DonationContextProvider>
+                                  <GoogleMapsProvider>
+                                    <MapProvider>
+                                      <EducationProvider>
+                                        <AffiliationProvider>
+                                          <body className={inter.className}>
+                                            <Suspense
+                                              fallback={<LoadingPage />}
+                                            >
+                                              <Navbar />
+                                              <div className="">{children}</div>
+                                              <Toaster />
+                                            </Suspense>
+                                          </body>
+                                        </AffiliationProvider>
+                                      </EducationProvider>
+                                    </MapProvider>
+                                  </GoogleMapsProvider>
+                                </DonationContextProvider>
+                              </RsvpProvider>
+                            </EventProvider>
+                          </WorkExperienceProvider>
+                        </AlumProvider>
+                      </AnnouncementProvider>
+                    </JobApplicationContextProvider>
                   </JobOfferProvider>
                 </BookmarkProvider>
               </ScholarshipProvider>

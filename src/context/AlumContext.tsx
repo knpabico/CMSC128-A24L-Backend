@@ -1,31 +1,26 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { toastError, toastSuccess } from "@/components/ui/sonner";
+import { sendEmailTemplate } from "@/lib/emailTemplate";
+import { db } from "@/lib/firebase";
+import { uploadImage } from "@/lib/upload";
+import { Alumnus, Career, Education } from "@/models/models";
+import { RegStatus } from "@/types/alumni/regStatus";
+import { FirebaseError } from "firebase/app";
 import {
   collection,
+  doc,
+  getDoc,
   onSnapshot,
+  orderBy,
   query,
   setDoc,
-  doc,
-  where,
-  getDoc,
-  orderBy,
-  addDoc,
   updateDoc,
-  QueryDocumentSnapshot,
-  DocumentData,
-  getDocs,
+  where,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
-import { Alumnus, Career, Education } from "@/models/models";
-import { FirebaseError } from "firebase-admin/app";
-import { sendEmailTemplateForNewsletter } from "@/lib/emailTemplate";
-import { sendEmailTemplate } from "@/lib/emailTemplate";
-import { toastError, toastSuccess } from "@/components/ui/sonner";
-import { uploadImage } from "@/lib/upload";
-import { messaging } from "firebase-admin";
-
 const AlumContext = createContext<any>(null);
 
 export function AlumProvider({ children }: { children: React.ReactNode }) {
@@ -123,10 +118,12 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           await updateDoc(alumniRef, updatedData);
         }
       }
-
+      toast.success("Profile updated successfully!");
       return { success: true, message: "Your changes are successfully saved" };
     } catch (error) {
       console.error("Error:", error);
+
+      toast.error("Profile update failed. Please try again.");
       return { success: false, error: error.message };
     }
   };
@@ -247,38 +244,6 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const emailNewsLettertoAlums = async (
-    title: string,
-    content: string,
-    photoURL: string,
-    category: string
-  ) => {
-    try {
-      const q = query(
-        collection(db, "alumni"),
-        where("activeStatus", "==", true),
-        where("subscribeToNewsletter", "==", true)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.docs.map(
-        async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) =>
-          await sendEmailTemplateForNewsletter(
-            photoURL,
-            title,
-            content,
-            doc.data().email,
-            category
-          )
-      );
-      // const data =
-      // if (data.success) {
-      //   toastSuccess(data.message);
-      // } else toastError(data.message);
-    } catch (error) {
-      console.error("Error sending newsletter:", error);
-    }
-  };
-
   //birthdayy
   const handleUpdateBirthday = async (alumniId: string, birthDate: Date) => {
     try {
@@ -295,7 +260,7 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     const q = query(collection(db, "alumni"));
 
-    //listener for any changes
+    // Listener for any changes
     const unsubscribeUsers = onSnapshot(
       q,
       (querySnapshot: any) => {
@@ -303,8 +268,14 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
           (doc: any) => doc.data() as Alumnus
         );
         setAlums(userList);
-        console.log(userList.length, "total");
-        setTotalAlums(userList.length);
+
+        const nonPendingAlums = userList.filter(
+          (user: Alumnus) =>
+            user.regStatus !== "pending" && user.regStatus !== "rejected"
+        );
+        console.log(nonPendingAlums.length, "non-pending total");
+        setTotalAlums(nonPendingAlums.length);
+
         setLoading(false);
       },
       (error) => {
@@ -362,6 +333,73 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  //use to handle approve and rejecion
+  const onUpdateRegStatus = async (alumniId: string, regStatus: RegStatus) => {
+    try {
+      const alumniRef = doc(db, "alumni", alumniId);
+
+      const updateData = {
+        regStatus: regStatus,
+      };
+      if (regStatus === "approved") {
+        await updateDoc(alumniRef, { activeStatus: true });
+        console.log("TOTOO ANG HIMALA");
+      }
+      await updateDoc(alumniRef, { regStatus: regStatus });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update alumni registration status:", error);
+      return { success: false, message: (error as Error).message };
+    }
+  };
+
+  const getPendingAlums = (alums: Alumnus[]) => {
+    if (!alums) {
+      return 0;
+    } else {
+      const pendingAlums = alums.filter((alum) => alum.regStatus === "pending");
+      console.log(pendingAlums, "this is pending Alums");
+      return pendingAlums;
+    }
+  };
+  const updateAlumnusActiveStatus = (alumniId: string, newStatus: boolean) => {
+    // Update in your database/backend
+    // Then update your local state
+    setAlums((prevAlums) =>
+      prevAlums.map((alum) =>
+        alum.alumniId === alumniId ? { ...alum, activeStatus: newStatus } : alum
+      )
+    );
+  };
+
+  //update the registration status from pending to approved
+  const updateAlumnusRegStatus = async (
+    alumniId: string,
+    newStatus: RegStatus
+  ) => {
+    try {
+      const alumnusRef = doc(db, "alumni", alumniId);
+      await updateDoc(alumnusRef, { regStatus: newStatus });
+
+      setAlums((prevAlums) =>
+        prevAlums.map((alum) =>
+          alum.alumniId === alumniId ? { ...alum, regStatus: newStatus } : alum
+        )
+      );
+
+      console.log(`Updated regStatus for ${alumniId} to ${newStatus}`);
+    } catch (error) {
+      console.error("Failed to update regStatus in Firebase:", error);
+    }
+  };
+
+  const getAlumEmailById = async (alumniId: string) => {
+    const alumRef = doc(db, "alumni", alumniId);
+    const docSnap = await getDoc(alumRef);
+    return docSnap.data()?.email;
+  };
+
   return (
     <AlumContext.Provider
       value={{
@@ -375,10 +413,14 @@ export function AlumProvider({ children }: { children: React.ReactNode }) {
         myCareer,
         myEducation,
         updateAlumnus,
-        emailNewsLettertoAlums,
+        updateAlumnusActiveStatus,
         totalAlums,
         getActiveAlums,
         getInactiveAlums,
+        getPendingAlums,
+        updateAlumnusRegStatus,
+        onUpdateRegStatus,
+        getAlumEmailById,
       }}
     >
       {children}

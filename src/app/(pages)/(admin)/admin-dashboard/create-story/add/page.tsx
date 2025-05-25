@@ -5,6 +5,8 @@ import { useState } from "react";
 import { ChevronRight, Asterisk, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toastSuccess, toastError } from "@/components/ui/sonner";
+import { Button } from "@mui/material";
+import ModalInput from "@/components/ModalInputForm";
 
 export default function CreateFeaturedStoryPage() {
   const router = useRouter();
@@ -21,8 +23,9 @@ export default function CreateFeaturedStoryPage() {
     setType,
   } = useFeatured();
 
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleImageChange = (e:any) => {
     const file = e.target.files[0];
@@ -32,7 +35,7 @@ export default function CreateFeaturedStoryPage() {
     }
 };
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -56,7 +59,9 @@ export default function CreateFeaturedStoryPage() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
+         <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
         <div>Home</div>
+        </span>
         <div>
           <ChevronRight size={15} />
         </div>
@@ -113,8 +118,21 @@ export default function CreateFeaturedStoryPage() {
                 rows={5}
                 required
               />
+                <Button onClick={() => setIsModalOpen(true)} className="mt-2">
+                  Need AI help for creating a story?
+                </Button>
+                <ModalInput
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                  onSubmit={(response) => setText(response)}
+                  title="AI Assistance for Featured Story"
+                  type="story"
+                  mainTitle={title}
+                  subtitle="Get AI-generated description for your story. Only fill in the applicable fields."
+                />
             </div>
 
+            
             <div className="space-y-2">
               <label htmlFor="type" className="text-sm font-medium flex items-center">
                 <Asterisk size={16} className="text-red-600" /> Type

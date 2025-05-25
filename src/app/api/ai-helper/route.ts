@@ -42,7 +42,7 @@ export async function POST(req: Request) {
           `,
         },
       ],
-      model: "llama-3.3-70b-versatile",
+      model: "llama3-70b-8192",
     });
     const summary = newSummary.choices[0]?.message.content;
     return NextResponse.json({

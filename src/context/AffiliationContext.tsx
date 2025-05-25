@@ -17,6 +17,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { Affiliation } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { toast } from "sonner";
 
 const AffiliationContext = createContext<any>(null);
 
@@ -74,8 +75,12 @@ export function AffiliationProvider({
       AffiliationEntry.affiliationId = newDocRef.id;
       AffiliationEntry.alumniId = userId;
       await setDoc(newDocRef, AffiliationEntry);
+
+      toast.success("Affiliation added successfully!");
       return { success: true, message: "success" };
     } catch (error) {
+
+      toast.error((error as FirebaseError).message);
       return { success: false, message: (error as FirebaseError).message };
     }
   };

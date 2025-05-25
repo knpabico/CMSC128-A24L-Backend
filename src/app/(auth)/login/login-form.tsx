@@ -1,16 +1,8 @@
 "use client";
-import { LoginFormSchema } from "@/validation/auth/login-form-schema";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,28 +10,25 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import Link from "next/link";
 import { toastError } from "@/components/ui/sonner";
-import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import Image from "next/image";
-import googleImage from "./google.png";
-import { updateDoc, doc, getDoc } from "firebase/firestore";
-import { Alumnus } from "@/models/models";
-import { GoogleSign } from "@/context/AuthGoogleContext";
 import { useAuth } from "@/context/AuthContext";
+import { auth, db } from "@/lib/firebase";
+import { Alumnus } from "@/models/models";
+import { LoginFormSchema } from "@/validation/auth/login-form-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import googleImage from "./google.png";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { isGoogleSignIn, signInWithGoogle } = useAuth();
+  const { signInWithGoogle } = useAuth();
   const router = useRouter();
 
   // create a react hook form
@@ -101,18 +90,22 @@ export default function LoginForm() {
 
   return (
     <div className="flex flex-col w-full mx-49 items-center">
-      <p className="text-5xl font-bold text-[#0856ba] pb-10">Welcome back!</p>
+      <p className="text-5xl font-bold text-[var(--primary-blue)] pb-10">
+        Welcome back!
+      </p>
 
       <div className="space-y-7 w-full">
-        <button
-          onClick={() => {
-            handleGoogleSignIn();
-          }}
-          className="border-2 border-[#0856ba] flex justify-center items-center p-2 rounded-full space-x-3 cursor-pointer w-full hover:bg-[#92b2dc]"
-        >
-          <Image src={googleImage} alt="hello" className="w-6 h-6" />
-          <p className="text-[#0856ba]">Sign in with Google</p>
-        </button>
+        <div className="text-[var(--primary-blue)] ">
+          <button
+            onClick={() => {
+              handleGoogleSignIn();
+            }}
+            className="border-2 border-[var(--primary-blue)] hover:bg-gray-100 flex justify-center items-center p-2 rounded-full space-x-3 cursor-pointer w-full"
+          >
+            <Image src={googleImage} alt="hello" className="w-6 h-6" />
+            <p className="">Sign in with Google</p>
+          </button>
+        </div>
 
         <hr></hr>
 
@@ -130,10 +123,7 @@ export default function LoginForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="juandelacruz@example.com"
-                        {...field}
-                      />
+                      <Input placeholder="ics@up.edu.ph" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -158,7 +148,7 @@ export default function LoginForm() {
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting || isLoading}
-                className="bg-[#0856ba] text-white p-3 rounded-full cursor-pointer hover:bg-[#92b2dc]"
+                className="bg-[var(--primary-blue)] text-white p-3 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
               >
                 Log in
               </Button>
@@ -166,9 +156,9 @@ export default function LoginForm() {
           </form>
         </Form>
 
-        <div className="flex justify-center items-center space-x-2">
+        <div className="flex justify-center items-center space-x-2 text-[14px]">
           <p>No account yet?</p>
-          <button className="hover:underline text-[#0856ba]">
+          <button className="hover:underline text-[var(--primary-blue)]">
             <Link href="/sign-up">Sign up</Link>
           </button>
         </div>

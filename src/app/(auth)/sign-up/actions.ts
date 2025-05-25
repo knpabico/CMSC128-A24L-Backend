@@ -1,14 +1,8 @@
 "use server";
 
 import { serverAuth, serverFirestoreDB } from "@/lib/firebase/serverSDK";
-import { Education, WorkExperience } from "@/models/models";
 import { signUpFormSchema } from "@/validation/auth/sign-up-form-schema";
-import { ErrorBoundaryHandler } from "next/dist/client/components/error-boundary";
-import { UserRecord } from "firebase-admin/auth";
-import { User } from "firebase/auth";
 import { z } from "zod";
-import { uploadToFirebase } from "./sign-up-fields/alum_photo";
-import { uploadDocToFirebase } from "./sign-up-fields/career_proof";
 
 //for checking if the email used in sign-up already exists in firebase auth
 export const validateFirebaseEmail = async (email: string) => {
@@ -24,7 +18,7 @@ export const validateFirebaseEmail = async (email: string) => {
 
     return snapshot.empty && snapshot1.empty; // true = email not found, false = email exists
   } catch (error) {
-    console.error("Error checking email in Firestore:", error);
+    //console.error("Error checking email in Firestore:", error);
     return false;
   }
 };
@@ -55,36 +49,30 @@ const calculateAge = (birthDate: Date) => {
 //function for saving career to the work_experience collection
 const saveCareer = async (
   career:
-    | (
-        | {
-            industry: string;
-            jobTitle: string;
-            company: string;
-            startYear: string;
-            endYear: string;
-            location: string;
-            latitude: number;
-            longitude: number;
-          }
-        | undefined
-      )[]
+    | {
+        industry?: string;
+        jobTitle?: string;
+        company?: string;
+        startYear?: string;
+        endYear?: string;
+        location?: string;
+        latitude?: number;
+        longitude?: number;
+      }[]
     | undefined,
   currentJob:
-    | (
-        | {
-            industry: string;
-            jobTitle: string;
-            company: string;
-            startYear: string;
-            endYear: string;
-            location: string;
-            latitude: number;
-            longitude: number;
-            hasProof: boolean;
-            proof?: any;
-          }
-        | undefined
-      )[]
+    | {
+        industry?: string;
+        jobTitle?: string;
+        company?: string;
+        startYear?: string;
+        endYear?: string;
+        location?: string;
+        latitude?: number;
+        longitude?: number;
+        hasProof?: boolean;
+        proof?: any;
+      }[]
     | undefined,
   alumniId: string
 ) => {
@@ -151,18 +139,12 @@ const saveCareer = async (
 
 //function for saving bachelors, masters, and doctoral to the education collection
 const saveEducation = async (
-  bachelors: { university: string; major: string; yearGraduated: string }[],
+  bachelors: { university?: string; major?: string; yearGraduated?: string }[],
   masters:
-    | (
-        | { university: string; major: string; yearGraduated: string }
-        | undefined
-      )[]
+    | { university?: string; major?: string; yearGraduated?: string }[]
     | undefined,
   doctoral:
-    | (
-        | { university: string; major: string; yearGraduated: string }
-        | undefined
-      )[]
+    | { university?: string; major?: string; yearGraduated?: string }[]
     | undefined,
   alumniId: string
 ) => {
@@ -231,14 +213,11 @@ const saveEducation = async (
 //function for saving affiliations to the affiliation collection
 const saveAffiliation = async (
   affiliation:
-    | (
-        | {
-            affiliationName: string;
-            yearJoined: string;
-            university: string;
-          }
-        | undefined
-      )[]
+    | {
+        affiliationName?: string;
+        yearJoined?: string;
+        university?: string;
+      }[]
     | undefined,
   alumniId: string
 ) => {
@@ -276,7 +255,7 @@ export const registerUser = async (
   },
   isGoogleSignIn: boolean
 ) => {
-  console.log("userCred: ", userInfo);
+  //console.log("userCred: ", userInfo);
   // validate the data one more time in the server side
   const validation = await signUpFormSchema.safeParseAsync(data);
 

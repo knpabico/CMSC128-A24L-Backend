@@ -5,7 +5,6 @@ import {
   collection,
   onSnapshot,
   query,
-  addDoc,
   where,
   doc,
   getDocs,
@@ -17,6 +16,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthContext";
 import { WorkExperience } from "@/models/models";
 import { FirebaseError } from "firebase/app";
+import { toast } from "sonner";
 
 const WorkExperienceContext = createContext<any>(null);
 
@@ -75,9 +75,9 @@ export function WorkExperienceProvider({
       const currentYear = new Date().getFullYear();
 
       const startA =
-        a.startYear === "present" ? currentYear : parseInt(a.startYear);
+        a.endYear === "present" ? 100000 : parseInt(a.endYear);
       const startB =
-        b.startYear === "present" ? currentYear : parseInt(b.startYear);
+        b.endYear === "present" ? 100000 : parseInt(b.endYear);
 
       return startB - startA;
     });
@@ -97,8 +97,15 @@ export function WorkExperienceProvider({
       workExperienceEntry.workExperienceId = newDocRef.id;
       workExperienceEntry.alumniId = userId;
       await setDoc(newDocRef, workExperienceEntry);
-      return { success: true, message: "success" };
+
+      toast.success("Work added successfully!");
+      return {
+        success: true,
+        message: "success",
+        workExperienceId: newDocRef.id,
+      };
     } catch (error) {
+      toast.error("Work addition failed. Please try again.");
       return { success: false, message: (error as FirebaseError).message };
     }
   };
@@ -139,7 +146,7 @@ export function WorkExperienceProvider({
     }
   };
 
-  const editWorkExperience = async (workExperienceEntry) => {
+  const editWorkExperience = async (workExperienceEntry:any) => {
     try {
       console.log(workExperienceEntry);
       const workExpRef = doc(
@@ -148,8 +155,10 @@ export function WorkExperienceProvider({
         workExperienceEntry.workExperienceId
       );
       await updateDoc(workExpRef, workExperienceEntry);
+      toast.success("Work updated successfully!");
       return { success: true, message: "Edited Successfully" };
     } catch (error) {
+      toast.error("Work update failed. Please try again.");
       return { success: false, message: (error as FirebaseError).message };
     }
   };

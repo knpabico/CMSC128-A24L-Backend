@@ -70,60 +70,64 @@ const GroupedBarGraph = ({
         data: {
           labels: sortedLabels,
           datasets: [
-            {
-              label: "Current Amount",
-              data: sortedCurrentAmounts,
-              backgroundColor: "#0856BA",
-              borderColor: "#0856BA",
-              borderWidth: 1,
-            },
-            {
-              label: "Target Amount",
-              data: sortedTargetAmounts,
-              backgroundColor: "#4BB543", // Green color for target
-              borderColor: "#4BB543",
-              borderWidth: 1,
-            },
+        {
+          label: "Current Amount",
+          data: sortedCurrentAmounts,
+          backgroundColor: "#0856BA",
+          borderColor: "#0856BA",
+          borderWidth: 1,
+        },
+        {
+          label: "Target Amount",
+          data: sortedTargetAmounts,
+          backgroundColor: "#16A34A", // Green color for target
+          borderColor: "#16A34A",
+          borderWidth: 1,
+        },
           ],
         },
         options: {
           responsive: true,
+          animation: {
+        duration: 1000,
+        easing: "easeInOutQuad",
+          },
           plugins: {
-            legend: {
-              position: "top",
-            },
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  let label = context.dataset.label || "";
-                  if (label) {
-                    label += ": ";
-                  }
-                  if (context.parsed.y !== null) {
-                    label += "₱" + context.parsed.y.toLocaleString();
-                  }
-                  return label;
-                },
-              },
+        legend: {
+          position: "top",
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+          let label = context.dataset.label || "";
+          if (label) {
+            label += ": ";
+          }
+          if (context.parsed.y !== null) {
+            label += "₱" + context.parsed.y.toLocaleString();
+          }
+          return label;
             },
           },
+        },
+          },
           scales: {
-            x: {
-              type: "category",
-              ticks: {
-                autoSkip: true,
-                maxRotation: 45,
-                minRotation: 45,
-              },
+        x: {
+          type: "category",
+          ticks: {
+            autoSkip: true,
+            maxRotation: 45,
+            minRotation: 45,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+          return "₱" + value.toLocaleString();
             },
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function (value) {
-                  return "₱" + value.toLocaleString();
-                },
-              },
-            },
+          },
+        },
           },
         },
       });
