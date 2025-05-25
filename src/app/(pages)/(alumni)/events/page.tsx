@@ -112,10 +112,10 @@ export default function AllEventsPage()
                     <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
                         <h2 className="text-md lg:text-lg font-semibold">All Upcoming Events</h2>
                         <div className="flex items-center">
-                            <label htmlFor="sort" className="mr-2 text-sm text-blue-500">
+                            <label htmlFor="sort" className="mr-2 text-sm text-[var(--primary-blue)]">
                                 Sort by:
                             </label>
-                            <select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500" >
+                            <select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)]" >
                                 <option value="event-closest">Upcoming Events (Soonest First)</option>
                                 <option value="event-farthest">Upcoming Events (Furthest Ahead)</option>
                                 <option value="posted-newest">Date Approved (Newest)</option>
