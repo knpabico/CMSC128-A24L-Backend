@@ -107,8 +107,8 @@ export default function Announcements() {
                 {activeFilter || "All Announcements"}
               </h2>
               <div className="flex items-center">
-                <label htmlFor="sort" className="mr-2 text-sm text-blue-500">
-                  Sort by:
+                <label htmlFor="sort" className="mr-2 text-sm text-[var(--primary-blue)]">
+                  Sort by: 
                 </label>
                 <select
                   defaultValue={selectedSort}
@@ -117,7 +117,7 @@ export default function Announcements() {
                     setSelectedSort(value);
                     setLatestFirst(value === "Latest");
                   }}
-                  className="text-sm rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500"
+                  className="text-sm rounded-full py-2 px-4 border-[2px] border-[var(--primary-blue)] text-[var(--primary-blue)]"
                 >
                   {SORT_TAGS.map((tag) => (
                     <option key={tag} value={tag}>

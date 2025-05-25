@@ -499,7 +499,42 @@ export default function Home() {
             {/* Feed  */}
             <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
               
+              {/*sorting dropdown*/}
+              <div className="flex w-full items-center p-3 pl-4 justify-between mb-3 bg-white rounded-[10px] border border-[#DADADA]">
+                <div className="font-bold text-xl mt-1 flex gap-1">
+                  <p className="text-[#0856BA]">Welcome,</p> {alumInfo!.firstName}!
+                </div>
+                <div className="flex gap-2 items-center text-[14px] text-[#0856BA]">
+                  Sort:
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="px-4 py-1 items-center flex flex-row rounded-full bg-white border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10 focus:outline-none">
+                      {selectedSort}
+                      <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+                    </DropdownMenuTrigger>
 
+                    <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">
+                      {sortTypes.map((sortType, index) => (
+                        <DropdownMenuItem key={sortType} asChild>
+                          <button
+                            onClick={() => {
+                              setSelectedSort(sortType);
+                              setLatestFirst(sortType === "Latest");
+                              handleSortChange(sortValues[index]);
+                            }}
+                            className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 focus:outline-none ${
+                              selectedSort === sortType
+                                ? "bg-white text-[#0856BA] font-semibold"
+                                : ""
+                            }`}
+                          >
+                            {sortType}
+                          </button>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
               {/* Feed Content */}
               <div className="scroll-smooth flex flex-col w-full gap-[5px]">
                 {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
