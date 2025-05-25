@@ -89,8 +89,8 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
 		}
     // Optimistically update the UI - only for amount
     // This will show the progress bar updating immediately
-    const currentAmount = drive.currentAmount || 0;
-    drive.currentAmount = currentAmount + data.amount;
+    // const currentAmount = drive.currentAmount || 0;
+    // drive.currentAmount = currentAmount + data.amount;
 
     // add the ID of the donation drive and the ID of the user to the donation data
     const donationData = {
@@ -138,7 +138,7 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
       toastError("Failed to process donation. Please try again.");
       
       // Revert the optimistic update
-      drive.currentAmount = currentAmount;
+      // drive.currentAmount = currentAmount;
       
       // Refresh to ensure UI is in sync with server
       // refreshDonationDrives();
