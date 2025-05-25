@@ -11,6 +11,8 @@ import DonutChart from "@/components/charts/DonutChart";
 import BarGraph from "@/components/charts/BarGraph";
 import { useAlums } from "@/context/AlumContext";
 import ReportSummaryCard from "@/components/ReportSummaryCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChevronRight, BarChart } from "lucide-react";
 
 const ScholarshipReports = () => {
   const { scholarshipStudents, students, scholarships } = useScholarship();
@@ -68,68 +70,49 @@ const ScholarshipReports = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Scholarship Reports
-          </h1>
-          <p className="text-gray-600">
-            Comprehensive overview of scholarship programs and student
-            participation
-          </p>
+    <div className="flex flex-col gap-5">
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center gap-2">
+        <div className="hover:text-[#0856BA] cursor-pointer transition-colors">
+          Home
         </div>
+        <div>
+          <ChevronRight size={15} />
+        </div>
+        <div className="font-medium text-[#0856BA]">
+          Scholarship Statistical Reports
+        </div>
+      </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-              Total Students
-            </h3>
-            <p className="text-3xl font-bold text-gray-900 mt-2">
-              {students.length}
-            </p>
+      {/* Page Title */}
+      <div className="w-full">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <BarChart className="w-8 h-8 text-[#0856BA]" />
+            <h1 className="font-bold text-3xl text-gray-800">
+              Scholarship Statistical Reports
+            </h1>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-              With Scholarships
-            </h3>
-            <p className="text-3xl font-bold text-green-600 mt-2">
-              {filteredStudents.length}
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-              Scholarship Programs
-            </h3>
-            <p className="text-3xl font-bold text-purple-600 mt-2">
-              {scholarships.length}
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-              Active Sponsors
-            </h3>
-            <p className="text-3xl font-bold text-orange-600 mt-2">
-              {alumList?.filter((alum) =>
-                scholarshipStudents.some(
-                  (student) => student.alumId === alum.alumniId
-                )
-              ).length || 0}
-            </p>
+          <div className="text-sm bg-[#0856BA] text-white px-4 py-2 rounded-full font-medium">
+            Total Approved Scholarships: {filteredStudents.length}
           </div>
         </div>
+      </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Student Scholarship Distribution */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <div className="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
-              Student Scholarship Distribution
-            </h2>
-            <div className="flex justify-center">
+      {/* Charts Section */}
+      <div className="bg-white rounded-xl shadow-sm p-10 border border-gray-100">
+        <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2 flex items-center">
+          <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+          Scholarship Overview
+        </h2>
+        <div className="flex flex-col lg:flex-row gap-4">
+          <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                Student Scholarship Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center pt-0 h-[300px]">
               <DonutChart
                 labels={["With Scholarship", "Without Scholarship"]}
                 data={[
@@ -137,99 +120,340 @@ const ScholarshipReports = () => {
                   students.length - studentDetails.length,
                 ]}
               />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Top Scholarships by Student Count */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <div className="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-              Top Scholarships by Student Count
-            </h2>
-            <BarGraph
-              type="Number of scholars"
-              data={scholarshipDetails.map(
-                (scholarship) => scholarship.students.length
-              )}
-              labels={scholarshipDetails.map(
-                (scholarship) => scholarship.scholarship.title
-              )}
-            />
-          </div>
+          <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-center text-lg font-semibold text-gray-700">
+                Top Scholarships by Student Count
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center pt-0 h-[300px]">
+              <BarGraph
+                type="Number of scholars"
+                data={scholarshipDetails.map(
+                  (scholarship) => scholarship.students.length
+                )}
+                labels={scholarshipDetails.map(
+                  (scholarship) => scholarship.scholarship.title
+                )}
+              />
+            </CardContent>
+          </Card>
         </div>
+      </div>
 
-        {/* Scholarship Details */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-            <div className="w-4 h-4 bg-purple-500 rounded-full mr-3"></div>
-            Scholarship Program Details
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {scholarshipDetails.map(
-              (
-                scholarship: {
-                  scholarship: Scholarship;
-                  students: { studentId: string; name: string }[];
-                },
-                index: number
-              ) => (
-                <div
-                  key={index}
-                  className="bg-gray-50 rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900 text-lg truncate pr-2">
-                      {scholarship.scholarship.title}
-                    </h3>
-                    <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                      {scholarship.students.length} scholar
-                      {scholarship.students.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {scholarship.students.map(
-                      (student, studentIndex: number) => (
-                        <div
-                          key={studentIndex}
-                          className="text-sm text-gray-600 bg-white px-3 py-2 rounded border"
-                        >
-                          {student.name}
-                        </div>
-                      )
-                    )}
+      {/* Middle Section - Cards Grid and Report Summary */}
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Scholarship Grid */}
+        <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+            <CardHeader className="pb-3 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                    <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                    Scholarship Programs
+                  </CardTitle>
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Total: {scholarships.length}
                   </div>
                 </div>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Students with Scholarships List */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-            <div className="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
-            Students with Scholarships
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {studentDetails.map((student: Student, index: number) => (
-              <div
-                key={index}
-                className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm font-medium text-green-800"
-              >
-                {student.name}
+                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                  {scholarships.length}
+                </div>
               </div>
-            ))}
-          </div>
+            </CardHeader>
+            <CardContent className="pt-4 h-[300px] overflow-y-auto">
+              {scholarshipDetails.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                  <p>No scholarship programs found</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {scholarshipDetails.map((item, index: number) => (
+                    <li
+                      key={index}
+                      className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
+                    >
+                      <div className="flex items-center">
+                        <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                        <span className="font-medium">
+                          {item.scholarship.title}
+                        </span>
+                      </div>
+                      <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
+                        {item.students.length} scholar
+                        {item.students.length !== 1 ? "s" : ""}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+            <CardHeader className="pb-3 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                    <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                    Students with Scholarships
+                  </CardTitle>
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Total: {studentDetails.length}
+                  </div>
+                </div>
+                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                  {studentDetails.length}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 h-[300px] overflow-y-auto">
+              {studentDetails.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                  <p>No students with scholarships found</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {studentDetails.map((student: Student, index: number) => (
+                    <li
+                      key={index}
+                      className="py-3 px-2 text-gray-700 flex items-center hover:bg-gray-50 transition-colors rounded-md"
+                    >
+                      <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                      <span className="font-medium">{student.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+            <CardHeader className="pb-3 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                    <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                    Top Sponsors by Scholar Count
+                  </CardTitle>
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Active Sponsors:{" "}
+                    {alumList?.filter((alum) =>
+                      scholarshipStudents.some(
+                        (student) => student.alumId === alum.alumniId
+                      )
+                    ).length || 0}
+                  </div>
+                </div>
+                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                  {alumList?.filter((alum) =>
+                    scholarshipStudents.some(
+                      (student) => student.alumId === alum.alumniId
+                    )
+                  ).length || 0}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 h-[300px] overflow-y-auto">
+              {!alumList || alumList.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                  <p>No sponsors found</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {alumList
+                    ?.map((alum) => {
+                      const scholarCount = scholarshipStudents.filter(
+                        (student) =>
+                          student.alumId === alum.alumniId &&
+                          student.status === "approved"
+                      ).length;
+                      return { alum, scholarCount };
+                    })
+                    .filter((item) => item.scholarCount > 0)
+                    .sort((a, b) => b.scholarCount - a.scholarCount)
+                    .slice(0, 10)
+                    .map((item, index: number) => (
+                      <li
+                        key={index}
+                        className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
+                      >
+                        <div className="flex items-center">
+                          <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                          <span className="font-medium">
+                            {item.alum.firstName} {item.alum.lastName}
+                          </span>
+                        </div>
+                        <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
+                          {item.scholarCount} scholar
+                          {item.scholarCount !== 1 ? "s" : ""}
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all overflow-hidden">
+            <CardHeader className="pb-3 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                    <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                    Top Scholarships by Sponsor Count
+                  </CardTitle>
+                  <div className="text-[#0856BA] font-medium text-sm mt-1">
+                    Showing Top 5
+                  </div>
+                </div>
+                <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
+                  5
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 h-[300px] overflow-y-auto">
+              {scholarships.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                  <p>No scholarships found</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {scholarships
+                    .sort((a, b) => b.alumList.length - a.alumList.length)
+                    .slice(0, 5)
+                    .map((scholarship: Scholarship, index: number) => (
+                      <li
+                        key={index}
+                        className="py-3 px-2 text-gray-700 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-md"
+                      >
+                        <div className="flex items-center">
+                          <span className="w-2 h-2 bg-[#0856BA] rounded-full mr-3"></span>
+                          <span className="font-medium">
+                            {scholarship.title}
+                          </span>
+                        </div>
+                        <span className="text-white bg-[#0856BA] px-3 py-1 rounded-full text-xs font-bold">
+                          {scholarship.alumList.length} sponsor
+                          {scholarship.alumList.length !== 1 ? "s" : ""}
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Analytics Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Top Scholarships by Sponsors */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <div className="w-4 h-4 bg-orange-500 rounded-full mr-3"></div>
+        {/* Report Summary - Right Side */}
+        <div className="lg:w-1/3 lg:min-w-[320px]">
+          <Card className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+            <CardHeader className="pb-1 border-b border-gray-100">
+              <CardTitle className="flex items-center text-xl font-bold text-gray-800">
+                <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
+                Report Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-y-auto h-195">
+              <div className="p-2 rounded-lg">
+                <ReportSummaryCard
+                  data={`
+                  // Scholarship Reports
+                  Total Approved Scholarships: ${filteredStudents.length}
+                  Total Scholarship Programs: ${scholarships.length}
+                  Total Students: ${students.length}
+                  Students with Scholarships: ${filteredStudents.length}
+                  Students without Scholarships: ${
+                    students.length - filteredStudents.length
+                  }
+                  
+                  // Top 5 Scholarship Programs by Student Count: ${scholarships
+                    .map(
+                      (scholarship: Scholarship) => scholarship.alumList.length
+                    )
+                    .sort((a, b) => b - a)
+                    .slice(0, 5)} Corresponding Labels: ${scholarships
+                    .map((scholarship: Scholarship) => scholarship.title)
+                    .sort((a, b) => a.localeCompare(b))
+                    .slice(0, 5)}
+                  
+                  // Top Sponsors
+                  Number of Active Sponsors: ${
+                    alumList?.filter((alum) =>
+                      scholarshipStudents.some(
+                        (student) => student.alumId === alum.alumniId
+                      )
+                    ).length || 0
+                  }
+                  Top 5 Sponsors by Scholar Count: ${
+                    alumList
+                      ?.map((alum) => {
+                        const scholarships = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId === alum.alumniId &&
+                            student.status === "approved"
+                        );
+                        return scholarships.length;
+                      })
+                      .sort((a, b) => b - a)
+                      .slice(0, 5) || []
+                  } Corresponding Labels: ${
+                    alumList
+                      ?.map((alum) => {
+                        const scholarships = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId === alum.alumniId &&
+                            student.status === "approved"
+                        );
+                        return `${alum.firstName} ${alum.lastName}`;
+                      })
+                      .sort((a, b) => {
+                        const countA = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId ===
+                            alumList.find(
+                              (alum) =>
+                                `${alum.firstName} ${alum.lastName}` === a
+                            )?.alumniId
+                        ).length;
+                        const countB = scholarshipStudents.filter(
+                          (student) =>
+                            student.alumId ===
+                            alumList.find(
+                              (alum) =>
+                                `${alum.firstName} ${alum.lastName}` === b
+                            )?.alumniId
+                        ).length;
+                        return countB - countA;
+                      })
+                      .slice(0, 5) || []
+                  }
+                  
+                  // Date Context
+                  Current date: ${new Date().toLocaleDateString()}
+                  Report generated on: ${new Date().toLocaleString()}
+                  `}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Additional Charts Section - Full Width at Bottom */}
+      <div className="flex flex-col lg:flex-row gap-4">
+        <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+          <CardHeader className="pb-2 border-b border-gray-100">
+            <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Top Scholarships by Sponsor Count
-            </h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
             <BarGraph
               type="Number of sponsors"
               data={scholarships
@@ -241,14 +465,17 @@ const ScholarshipReports = () => {
                 .sort((a, b) => a.localeCompare(b))
                 .slice(0, 5)}
             />
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Top Sponsors by Scholar Count */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <div className="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
+        <Card className="flex-1 bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all">
+          <CardHeader className="pb-2 border-b border-gray-100">
+            <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+              <span className="w-1 h-5 bg-[#0856BA] rounded mr-2"></span>
               Top Sponsors by Scholar Count
-            </h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
             <BarGraph
               type="Number of scholars"
               data={
@@ -294,90 +521,8 @@ const ScholarshipReports = () => {
                   .slice(0, 5) || []
               }
             />
-          </div>
-        </div>
-
-        {/* Report Summary */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-            <div className="w-4 h-4 bg-gray-700 rounded-full mr-3"></div>
-            Report Summary
-          </h2>
-          <ReportSummaryCard
-            data={`
-            // Scholarship Reports
-            Total Approved Scholarships: ${filteredStudents.length}
-            Total Scholarship Programs: ${scholarships.length}
-            Total Students: ${students.length}
-            Students with Scholarships: ${filteredStudents.length}
-            Students without Scholarships: ${
-              students.length - filteredStudents.length
-            }
-            
-            // Top 5 Scholarship Programs by Student Count: ${scholarships
-              .map((scholarship: Scholarship) => scholarship.alumList.length)
-              .sort((a, b) => b - a)
-              .slice(0, 5)} Corresponding Labels: ${scholarships
-              .map((scholarship: Scholarship) => scholarship.title)
-              .sort((a, b) => a.localeCompare(b))
-              .slice(0, 5)}
-            
-            // Top Sponsors
-            Number of Active Sponsors: ${
-              alumList?.filter((alum) =>
-                scholarshipStudents.some(
-                  (student) => student.alumId === alum.alumniId
-                )
-              ).length || 0
-            }
-            Top 5 Sponsors by Scholar Count: ${
-              alumList
-                ?.map((alum) => {
-                  const scholarships = scholarshipStudents.filter(
-                    (student) =>
-                      student.alumId === alum.alumniId &&
-                      student.status === "approved"
-                  );
-                  return scholarships.length;
-                })
-                .sort((a, b) => b - a)
-                .slice(0, 5) || []
-            } Corresponding Labels: ${
-              alumList
-                ?.map((alum) => {
-                  const scholarships = scholarshipStudents.filter(
-                    (student) =>
-                      student.alumId === alum.alumniId &&
-                      student.status === "approved"
-                  );
-                  return `${alum.firstName} ${alum.lastName}`;
-                })
-                .sort((a, b) => {
-                  const countA = scholarshipStudents.filter(
-                    (student) =>
-                      student.alumId ===
-                      alumList.find(
-                        (alum) => `${alum.firstName} ${alum.lastName}` === a
-                      )?.alumniId
-                  ).length;
-                  const countB = scholarshipStudents.filter(
-                    (student) =>
-                      student.alumId ===
-                      alumList.find(
-                        (alum) => `${alum.firstName} ${alum.lastName}` === b
-                      )?.alumniId
-                  ).length;
-                  return countB - countA;
-                })
-                .slice(0, 5) || []
-            }
-            
-            // Date Context
-            Current date: ${new Date().toLocaleDateString()}
-            Report generated on: ${new Date().toLocaleString()}
-            `}
-          />
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
