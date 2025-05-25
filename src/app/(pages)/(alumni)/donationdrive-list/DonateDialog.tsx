@@ -100,6 +100,7 @@ export function DonateDialog({ drive, onDonationSuccess }: {drive: DonationDrive
       donationDriveId: drive.donationDriveId,
       alumniId: alumInfo?.alumniId!,
       imageProof: "",
+	  verified: false,
     };
 
     try {
