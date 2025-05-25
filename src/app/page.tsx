@@ -391,7 +391,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {announces.map((item: Announcement) => (
               <Link
-                href={`/announcements/${item.announcementId}`}
+                href={`/public-announcement/${item.announcementId}`}
                 key={item.announcementId}
                 className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
               >
@@ -847,26 +847,30 @@ export default function Home() {
                                     (jobOffer: JobOffering) =>
                                       jobOffer.jobId === newsLetter.referenceId
                                   );
-                                  if (jobOffering.alumniId !== alumInfo?.alumniId) {
-                                    return jobOffering.status === 'Closed' ?
-                                    <div className="flex gap-1">
-                                      <button
-                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
-                                      >
-                                        Apply
-                                      </button>
-                                    </div> : 
-                                    <div className="flex gap-1">
-                                      <button
-                                        onClick={() => router.push(`/joboffer-list/`)}
-                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
-                                      >
-                                        Apply
-                                      </button>
-                                    </div>;
+                                  if (
+                                    jobOffering.alumniId !== alumInfo?.alumniId
+                                  ) {
+                                    return jobOffering.status === "Closed" ? (
+                                      <div className="flex gap-1">
+                                        <button className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white">
+                                          Apply
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="flex gap-1">
+                                        <button
+                                          onClick={() =>
+                                            router.push(`/joboffer-list/`)
+                                          }
+                                          className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                        >
+                                          Apply
+                                        </button>
+                                      </div>
+                                    );
                                   } else {
-                                    return <div></div>
-                                  };
+                                    return <div></div>;
+                                  }
                                 })()}
                               </div>
                             </div>
@@ -1310,8 +1314,26 @@ export default function Home() {
                     <div className="h-[150px] w-full mb-[10px]">
                       {donationDrives[currentDonationIndex].image === "" ? (
                         <div className="h-full w-full bg-gray-100 flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="size-12 text-gray-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="size-12 text-gray-300"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              width="18"
+                              height="18"
+                              x="3"
+                              y="3"
+                              rx="2"
+                              ry="2"
+                            />
                             <circle cx="9" cy="9" r="2" />
                             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                           </svg>
@@ -1346,9 +1368,11 @@ export default function Home() {
                           <span className="text-[13px] text-gray-500">
                             {getDaysRemaining(
                               donationDrives[currentDonationIndex].endDate
-                            ) === "Not Available" 
-                              ? "No deadline" 
-                              : getDaysRemaining(donationDrives[currentDonationIndex].endDate)}
+                            ) === "Not Available"
+                              ? "No deadline"
+                              : getDaysRemaining(
+                                  donationDrives[currentDonationIndex].endDate
+                                )}
                           </span>
                         </div>
                       </div>
