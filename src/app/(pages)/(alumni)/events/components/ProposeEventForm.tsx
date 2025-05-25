@@ -466,7 +466,7 @@ const ProposeEventForm: React.FC<ProposeEventFormProps> = ({
     <>
       {/* Event Proposal Modal */}
       <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-100">
-        <form className="text-sm bg-white p-6 rounded-2xl shadow-lg w-11/12 max-w-[50vw] max-h-[80vh] overflow-auto space-y-5">
+        <form className="text-sm bg-white p-6 rounded-2xl shadow-lg w-11/12 max-w-[50vw] max-h-[90vh] overflow-auto space-y-5">
           <div className="bg-white z-30 w-full flex justify-between items-start">
               <h2 className="text-2xl font-semibold">
               Propose Event

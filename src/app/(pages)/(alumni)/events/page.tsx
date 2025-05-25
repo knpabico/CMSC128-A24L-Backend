@@ -93,6 +93,10 @@ export default function AllEventsPage()
             <div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
                 {/* Sidebar */}
                 <div className="flex flex-col gap-3">
+                    
+                    <div className='bg-[#FFFFFF] shadow-md flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
+                        <EventSidebar />
+                    </div>
                     <button 
                         className="bg-[var(--primary-blue)] text-white text-sm font-semibold rounded-full shadow-md hover:bg-[var(--blue-600)] hover:text-white flex items-center justify-center py-2 gap-2 w-full cursor-pointer"
                         onClick={() => setShowForm(true)}
@@ -100,9 +104,6 @@ export default function AllEventsPage()
                         <FilePlus2 className="w-5 h-5" />
                         Propose Event 
                     </button>
-                    <div className='bg-[#FFFFFF] shadow-md flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-                        <EventSidebar />
-                    </div>
                 </div>
                 
                 {/* Main content */}

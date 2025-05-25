@@ -404,6 +404,7 @@ function JobOffersContent() {
       />
 
       <div className="px-[10%] py-10">
+        {/*Job filter and sort */}
         <div className=" bg-white rounded-lg flex items-center justify-between px-5 py-3 mb-4 shadow-sm">
           <button
             className={`px-3 py-2 bg-red-50 text-red-700 rounded text-sm transition-opacity duration-200 ${
@@ -510,16 +511,6 @@ function JobOffersContent() {
 
         <div className="flex">
           <div className="flex flex-col gap-2">
-            {/* Post a Job Button */}
-            <Button
-              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-full hover:bg-[#063d8c] transition-all cursor-pointer"
-              onClick={() => setShowForm(!showForm)}
-            >
-              <Pencil className="w-5 h-5" />
-              <p className="group w-max relative py-1 transition-all font-semibold">
-                Post a Job
-              </p>
-            </Button>
             {/* Sidebar */}
             <div className="bg-[#FFFFFF] flex flex-col px-10 py-8 gap-[10px] rounded-[10px] w-content h-max md:top-1/7">
               <button
@@ -628,6 +619,16 @@ function JobOffersContent() {
                 </p>
               </button>
             </div>
+            {/* Post a Job Button */}
+            <Button
+              className="flex gap-3 items-center w-full px-3 py-2 mt-2 bg-[#0856BA] text-white rounded-full hover:bg-[#063d8c] transition-all cursor-pointer"
+              onClick={() => setShowForm(!showForm)}
+            >
+              <Pencil className="w-5 h-5" />
+              <p className="group w-max relative py-1 transition-all font-semibold">
+                Post a Job
+              </p>
+            </Button>
           </div>
 
           {/* Main content revised yass */}
@@ -1600,7 +1601,7 @@ function JobOffersContent() {
           <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
             <form
               onSubmit={handleSubmit}
-              className="bg-white p-6 rounded-2xl border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto"
+              className="bg-white p-6 rounded-2xl border-0 border-gray shadow-lg w-11/12 max-w-3xl max-h-[100vh] overflow-y-auto"
             >
               <div className="bg-white  w-full  pb-3">
                 <h2 className="text-2xl font-semibold">
