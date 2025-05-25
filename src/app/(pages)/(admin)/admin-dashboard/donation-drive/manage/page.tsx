@@ -247,6 +247,7 @@ export default function ManageDonationDrive() {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Manage Donation Drives | ICS-ARMS</title>
       {/* Path */}
       <div className="flex items-center gap-2">
         <div className="hover:text-blue-600 cursor-pointer" onClick={home}>

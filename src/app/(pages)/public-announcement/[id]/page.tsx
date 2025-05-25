@@ -16,6 +16,7 @@ const Page = () => {
   }
   return (
     <>
+      <title>Announcement | ICS-ARMS</title>
       <div>{announcement.title}</div>
       <div>{announcement.description}</div>
       <Image

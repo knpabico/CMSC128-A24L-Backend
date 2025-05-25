@@ -4,7 +4,11 @@ import { useState } from "react";
 import { useJobOffer } from "@/context/JobOfferContext";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Check, ChevronDown } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ModalInput from "@/components/ModalInputForm";
 import { toastError, toastSuccess } from "@/components/ui/sonner";
 import { useRouter } from "next/navigation";
@@ -40,14 +44,14 @@ export default function PostJobPage() {
     handleSaveDraft,
     setJobImage,
     setPreview,
-    setFileName
+    setFileName,
   } = useJobOffer();
 
   const resetForm = () => {
     setPosition("");
     setCompany("");
     setLocation("");
-    setJobDescription("");      
+    setJobDescription("");
     setSalaryRange("");
     setExperienceLevel("");
     setEmploymentType("");
@@ -74,23 +78,35 @@ export default function PostJobPage() {
       "Others",
     ],
     "Employment Type": ["Full Time", "Part Time", "Contract", "Internship"],
-    Skills: ["JavaScript", "Python", "Java", "C++", "React", "Node.js", "SQL", "Figma", "Canva"],
+    Skills: [
+      "JavaScript",
+      "Python",
+      "Java",
+      "C++",
+      "React",
+      "Node.js",
+      "SQL",
+      "Figma",
+      "Canva",
+    ],
   };
 
   // Function to handle navigation back to list
   const goBackToList = () => {
-    router.push('/admin-dashboard/job-postings');
+    router.push("/admin-dashboard/job-postings");
   };
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Post a Job | ICS-ARMS</title>
       <div className="flex items-center gap-2">
         <div>Home</div>
         <div>
           <ChevronRight size={15} />
         </div>
-        <div className="cursor-pointer hover:text-blue-600" 
-        onClick={goBackToList}
+        <div
+          className="cursor-pointer hover:text-blue-600"
+          onClick={goBackToList}
         >
           Manage Job Posting
         </div>
@@ -129,10 +145,12 @@ export default function PostJobPage() {
                 await handleSubmit(e);
                 toastSuccess("Job submitted successfully.");
                 resetForm();
-                router.push('/admin-dashboard/job-postings');
+                router.push("/admin-dashboard/job-postings");
               } catch (error) {
                 console.error("Error submitting job:", error);
-                toastError("There was an error submitting the job. Please try again.");
+                toastError(
+                  "There was an error submitting the job. Please try again."
+                );
               }
             }}
           >
@@ -157,7 +175,10 @@ export default function PostJobPage() {
                   <label className="block text-sm font-medium mb-1">
                     Employment Type<span className="text-red-500">*</span>
                   </label>
-                  <DropdownMenu open={employmentTypeOpen} onOpenChange={setEmploymentTypeOpen}>
+                  <DropdownMenu
+                    open={employmentTypeOpen}
+                    onOpenChange={setEmploymentTypeOpen}
+                  >
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
@@ -179,7 +200,9 @@ export default function PostJobPage() {
                           }}
                         >
                           {type}
-                          {employmentType === type && <Check className="ml-auto h-4 w-4" />}
+                          {employmentType === type && (
+                            <Check className="ml-auto h-4 w-4" />
+                          )}
                         </Button>
                       ))}
                     </DropdownMenuContent>
@@ -189,7 +212,10 @@ export default function PostJobPage() {
                   <label className="block text-sm font-medium mb-1">
                     Job Type<span className="text-red-500">*</span>
                   </label>
-                  <DropdownMenu open={jobTypeOpen} onOpenChange={setJobTypeOpen}>
+                  <DropdownMenu
+                    open={jobTypeOpen}
+                    onOpenChange={setJobTypeOpen}
+                  >
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
@@ -211,7 +237,9 @@ export default function PostJobPage() {
                           }}
                         >
                           {type}
-                          {jobType === type && <Check className="ml-auto h-4 w-4" />}
+                          {jobType === type && (
+                            <Check className="ml-auto h-4 w-4" />
+                          )}
                         </Button>
                       ))}
                     </DropdownMenuContent>
@@ -282,7 +310,10 @@ export default function PostJobPage() {
                   <label className="block text-sm font-medium mb-1">
                     Experience Level<span className="text-red-500">*</span>
                   </label>
-                  <DropdownMenu open={experienceLevelOpen} onOpenChange={setExperienceLevelOpen}>
+                  <DropdownMenu
+                    open={experienceLevelOpen}
+                    onOpenChange={setExperienceLevelOpen}
+                  >
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
@@ -304,7 +335,9 @@ export default function PostJobPage() {
                           }}
                         >
                           {level}
-                          {experienceLevel === level && <Check className="ml-auto h-4 w-4" />}
+                          {experienceLevel === level && (
+                            <Check className="ml-auto h-4 w-4" />
+                          )}
                         </Button>
                       ))}
                     </DropdownMenuContent>
@@ -327,9 +360,9 @@ export default function PostJobPage() {
                         const value = (e.target as HTMLInputElement).value;
                         if (!/^\d+(-\d+)?$/.test(value)) {
                           (e.target as HTMLInputElement).value = value
-                            .replace(/[^0-9-]/g, "")            // Remove non-digit and non-dash characters
-                            .replace(/^-/g, "")                 // Remove a dash if it's the first character
-                            .replace(/(-.*)-+/g, "$1");         // Remove any extra dashes after the first one
+                            .replace(/[^0-9-]/g, "") // Remove non-digit and non-dash characters
+                            .replace(/^-/g, "") // Remove a dash if it's the first character
+                            .replace(/(-.*)-+/g, "$1"); // Remove any extra dashes after the first one
                         }
                       }}
                       pattern="^\d+(-\d+)?$" // Regex to allow numbers or a range like "10000-30000"
@@ -363,13 +396,24 @@ export default function PostJobPage() {
                   <div className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     Choose File
                   </div>
-                  <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
                 </label>
-                <span className="text-sm text-gray-500">{fileName || "No file chosen"}</span>
+                <span className="text-sm text-gray-500">
+                  {fileName || "No file chosen"}
+                </span>
               </div>
               {preview && (
                 <div className="mt-3">
-                  <img src={preview || "/placeholder.svg"} alt="Preview" className="h-20 object-contain" />
+                  <img
+                    src={preview || "/placeholder.svg"}
+                    alt="Preview"
+                    className="h-20 object-contain"
+                  />
                 </div>
               )}
             </div>
@@ -381,7 +425,7 @@ export default function PostJobPage() {
                   className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-gray-400 text-sm font-semibold text-gray-700 shadow-inner shadow-white/10 transition-all duration-300 hover:bg-red-700 hover:text-white hover:shadow-lg"
                   onClick={() => {
                     resetForm();
-                    router.push('/admin-dashboard/job-postings');
+                    router.push("/admin-dashboard/job-postings");
                   }}
                 >
                   Cancel

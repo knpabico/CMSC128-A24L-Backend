@@ -547,11 +547,9 @@ export default function Navbar() {
           <div
             className="hover:bg-[var(--blue-600)] cursor-pointer"
             style={{ padding: "5% 10% 5% 10%" }}
+            onClick={() => handleSignOut()}
           >
-            <button
-              className="text-white flex items-center gap-2 cursor-pointer"
-              onClick={() => handleSignOut()}
-            >
+            <button className="text-white flex items-center gap-2 cursor-pointer">
               <LogOut size={20} /> Log Out
             </button>
           </div>

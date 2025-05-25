@@ -11,7 +11,7 @@ const FeaturedStoryDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   const { getFeaturedById, updateFeatured } = useFeatured();
-  
+
   interface Featured {
     featuredId: string;
     title: string;
@@ -19,7 +19,7 @@ const FeaturedStoryDetailPage: React.FC = () => {
     image: string;
     type: string;
   }
-  
+
   const [featured, setFeatured] = useState<Featured | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +77,10 @@ const FeaturedStoryDetailPage: React.FC = () => {
     if (image && image !== featured.image) {
       try {
         setIsSubmitting(true);
-        const data = await uploadImage(image, `featured/${featured.featuredId}`);
+        const data = await uploadImage(
+          image,
+          `featured/${featured.featuredId}`
+        );
         if (data.success) {
           updatedData.image = data.url;
           setIsError(false);
@@ -118,16 +121,23 @@ const FeaturedStoryDetailPage: React.FC = () => {
 
   return (
     <>
+      <title>Edit Featured Story | ICS-ARMS</title>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
-          <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
-          <div>Home</div>
+          <span
+            className="cursor-pointer"
+            onClick={() => router.push("/admin-dashboard")}
+          >
+            <div>Home</div>
           </span>
           <div>
             <ChevronRight size={15} />
           </div>
-           <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard/create-story")}>
-          <div>Manage Featured Stories</div>
+          <span
+            className="cursor-pointer"
+            onClick={() => router.push("/admin-dashboard/create-story")}
+          >
+            <div>Manage Featured Stories</div>
           </span>
           <div>
             <ChevronRight size={15} />
@@ -201,17 +211,25 @@ const FeaturedStoryDetailPage: React.FC = () => {
               {/* Image */}
               <div className="space-y-2 text-start">
                 <div className="text-sm font-medium flex items-center">
-                  <Asterisk size={16} className="text-red-600" /> Featured Image:
+                  <Asterisk size={16} className="text-red-600" /> Featured
+                  Image:
                 </div>
-                
+
                 <div className="mt-3">
-                  <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" disabled={!isEditing} />
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={!isEditing}
+                  />
                   <label
                     htmlFor="image-upload"
                     className={`inline-flex items-center justify-center gap-2 ${
-                      isEditing 
-                      ? "bg-[#0856BA] text-white hover:bg-[#0645a0] cursor-pointer" 
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      isEditing
+                        ? "bg-[#0856BA] text-white hover:bg-[#0645a0] cursor-pointer"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     } px-4 py-2 rounded-md transition-colors`}
                   >
                     <Upload className="size-4" />
@@ -224,14 +242,14 @@ const FeaturedStoryDetailPage: React.FC = () => {
                     <p className="text-sm font-medium">Preview:</p>
                     <img
                       src={preview}
-                      alt="Uploaded Preview" 
+                      alt="Uploaded Preview"
                       style={{ width: "200px", borderRadius: "8px" }}
                       className="mt-2"
                     />
                   </div>
                 )}
               </div>
-              </div>
+            </div>
 
             {/* Buttons */}
             {isEditing && (

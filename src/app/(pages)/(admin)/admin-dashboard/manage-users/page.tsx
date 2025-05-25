@@ -139,6 +139,7 @@ const Page = () => {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Manage Users | ICS-ARMS</title>
       <div className="flex items-center gap-2">
         <Link href="/admin-dashboard" className="cursor-pointer">
           Home

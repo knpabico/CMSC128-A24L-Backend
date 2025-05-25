@@ -214,6 +214,7 @@ export default function ViewPendingScholarships() {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Manage Sponsorship | ICS-ARMS</title>
       <div className="flex items-center gap-2">
         <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
           Home
@@ -407,8 +408,7 @@ export default function ViewPendingScholarships() {
                   } `}
                 >
                   <div className="flex flex-col w-full">
-                    {
-                      scholarshipStudentMapping[scholarship.scholarshipId] &&
+                    {scholarshipStudentMapping[scholarship.scholarshipId] &&
                       scholarshipStudentMapping[scholarship.scholarshipId]
                         .filter((scholarshipStudent: ScholarshipStudent) => {
                           // Filter based on statusFilter

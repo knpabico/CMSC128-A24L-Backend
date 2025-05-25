@@ -378,6 +378,7 @@ export default function Home() {
   else if (!user && !isAdmin) {
     return (
       <div>
+        <title>ICS-ARMS</title>
         <Landing />
 
         <div
@@ -435,6 +436,7 @@ export default function Home() {
     else
       return (
         <div className="w-full px-[10%]">
+          <title>Home | ICS-ARMS</title>
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
             <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start text-center flex flex-col gap-1 items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">
@@ -457,10 +459,12 @@ export default function Home() {
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
                 {alumInfo!.suffix ? alumInfo!.suffix : ""}
               </p>
-              <p className="text-xs md:text-[14px] text-gray-700">{alumInfo!.email}</p>
+              <p className="text-xs md:text-[14px] text-gray-700">
+                {alumInfo!.email}
+              </p>
               <div className="text-xs md:text-[14px] text-gray-700 text-center wrap-break-word px-2 flex items-center gap-1">
-                  <MapPin size={14}/> {alumInfo!.address[1]},{" "}
-                  {alumInfo!.address[2]}
+                <MapPin size={14} /> {alumInfo!.address[1]},{" "}
+                {alumInfo!.address[2]}
               </div>
 
               {alumInfo!.fieldOfInterest[0] && (
@@ -489,8 +493,6 @@ export default function Home() {
 
             {/* Feed  */}
             <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
-              
-
               {/* Feed Content */}
               <div className="scroll-smooth flex flex-col w-full gap-[5px]">
                 {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (

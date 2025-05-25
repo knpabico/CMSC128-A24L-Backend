@@ -141,6 +141,7 @@ export default function Users() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <title>Alumni List | ICS-ARMS</title>
       <Banner
         title="Alumni Records"
         description="Meet your fellow alumni and learn about their UPLB degrees, graduation years, and shared interest in the field of Computer Science."
@@ -177,7 +178,6 @@ export default function Users() {
                   {isLoading ? (
                     <div className="w-full h-full animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
                   ) : alum.image ? (
-
                     <Image
                       width={0}
                       height={0}

@@ -146,65 +146,64 @@ const ScholarshipDetailPage: React.FC = () => {
   }, [scholarshipId, getStudentsByScholarshipId]);
 
   //useEffect to fetch scholarshipStudent with mapping
-useEffect(() => {
-  //function to fetch scholarshipStudent while being mapped to studentId
-  const mapScholarshipStudent = async () => {
-    if (students.length === 0) return;
-    if (!students) return;
-    setLoading(true);
+  useEffect(() => {
+    //function to fetch scholarshipStudent while being mapped to studentId
+    const mapScholarshipStudent = async () => {
+      if (students.length === 0) return;
+      if (!students) return;
+      setLoading(true);
 
-    try {
-      //fetch educationList of students
-      const fetchScholarshipStudent = students.map(
-        async (student: Student) => {
-          const studentId = student.studentId;
+      try {
+        //fetch educationList of students
+        const fetchScholarshipStudent = students.map(
+          async (student: Student) => {
+            const studentId = student.studentId;
 
-          //get scholarshipStudent list by filtering by studentId and only approved ones
-          const scholarshipStudentList = scholarshipStudents.filter(
-            (scholarshipStudent: ScholarshipStudent) =>
-              scholarshipStudent.studentId === studentId &&
-              scholarshipStudent.status === 'approved' // Only show approved scholarships
-          );
-
-          return { studentId, scholarshipStudentList };
-        }
-      );
-
-      const scholarshipStudent = await Promise.all(fetchScholarshipStudent);
-
-      //intialize as empty education record
-      const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
-      const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
-      scholarshipStudent.forEach((stud) => {
-        stud.scholarshipStudentList.forEach(
-          (scholarshipStudent: ScholarshipStudent) => {
-            //finding the alumId in the alumList
-            const alumSponsor = alumList.find(
-              (alum) => alum.alumniId === scholarshipStudent.alumId
+            //get scholarshipStudent list by filtering by studentId and only approved ones
+            const scholarshipStudentList = scholarshipStudents.filter(
+              (scholarshipStudent: ScholarshipStudent) =>
+                scholarshipStudent.studentId === studentId &&
+                scholarshipStudent.status === "approved" // Only show approved scholarships
             );
-            scholarshipSponsor[scholarshipStudent.ScholarshipStudentId] =
-              alumSponsor;
+
+            return { studentId, scholarshipStudentList };
           }
         );
 
-        scholarshipStudentMap[stud.studentId] = stud.scholarshipStudentList;
-      });
+        const scholarshipStudent = await Promise.all(fetchScholarshipStudent);
 
-      //set educationMap
-      setScholarshipStudentMapping(scholarshipStudentMap);
-      setSponsorAlumMapping(scholarshipSponsor);
-    } catch (error) {
-      //console.error("Error fetching scholarshipStudent:", error);
+        //intialize as empty education record
+        const scholarshipStudentMap: Record<string, ScholarshipStudent[]> = {};
+        const scholarshipSponsor: Record<string, Alumnus | undefined> = {};
+        scholarshipStudent.forEach((stud) => {
+          stud.scholarshipStudentList.forEach(
+            (scholarshipStudent: ScholarshipStudent) => {
+              //finding the alumId in the alumList
+              const alumSponsor = alumList.find(
+                (alum) => alum.alumniId === scholarshipStudent.alumId
+              );
+              scholarshipSponsor[scholarshipStudent.ScholarshipStudentId] =
+                alumSponsor;
+            }
+          );
 
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  };
+          scholarshipStudentMap[stud.studentId] = stud.scholarshipStudentList;
+        });
 
-  mapScholarshipStudent();
-}, [students, scholarshipStudents]);
+        //set educationMap
+        setScholarshipStudentMapping(scholarshipStudentMap);
+        setSponsorAlumMapping(scholarshipSponsor);
+      } catch (error) {
+        //console.error("Error fetching scholarshipStudent:", error);
 
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    mapScholarshipStudent();
+  }, [students, scholarshipStudents]);
 
   const router = useRouter();
 
@@ -367,6 +366,7 @@ useEffect(() => {
 
   return (
     <>
+      <title>Manage Scholarship | ICS-ARMS</title>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
           <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
@@ -496,7 +496,8 @@ useEffect(() => {
                         {students.map((student) => {
                           const approvedScholarships =
                             scholarshipStudentMapping[student.studentId] &&
-                            scholarshipStudentMapping[student.studentId].length > 0
+                            scholarshipStudentMapping[student.studentId]
+                              .length > 0
                               ? scholarshipStudentMapping[student.studentId]
                               : [];
 
@@ -536,7 +537,8 @@ useEffect(() => {
                           }
 
                           // For students with approved scholarships, show only the first approved one
-                          const firstApprovedScholarship = approvedScholarships[0];
+                          const firstApprovedScholarship =
+                            approvedScholarships[0];
                           return (
                             <tr key={student.studentId}>
                               <td className="px-6 py-2">

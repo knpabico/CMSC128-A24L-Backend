@@ -128,6 +128,7 @@ export default function SponsorshipDetails() {
 
   return (
     <>
+      <title>Sponsorship Details | ICS-ARMS</title>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
           <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
