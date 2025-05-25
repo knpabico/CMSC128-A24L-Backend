@@ -232,7 +232,7 @@ const AlumniDetailsModal = ({
                       <div key={job.workExperienceId}>
                         <p>
                           <strong>{job.jobTitle}</strong> at {job.company}<br />
-                          {job.industry} — {job.location}
+                          {/* {job.industry} — {job.location} */}
                         </p>
                       </div>
                     ))}
