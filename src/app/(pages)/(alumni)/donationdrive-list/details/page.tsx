@@ -274,7 +274,7 @@ function DonationDriveDetailsContent() {
 
         // Fetch donor details for non-anonymous donations
         const enhancedDonations = await Promise.all(
-          donationsData.map(async (donation) => {
+          donationsData.filter(donation=>donation.verified===true).map(async (donation) => {
             // Skip fetching details for anonymous donations
             if (donation.isAnonymous) {
               return { ...donation, displayName: "Anonymous" };
