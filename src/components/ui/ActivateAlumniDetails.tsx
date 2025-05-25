@@ -13,6 +13,7 @@ import {
 import type { Timestamp } from 'firebase/firestore'; 
 import { RegStatus } from '@/types/alumni/regStatus';
 import { useAlums } from '@/context/AlumContext';
+import { useWorkExperience } from "@/context/WorkExperienceContext";
 import { useEducation } from '@/context/EducationContext';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
@@ -38,6 +39,7 @@ const AlumniDetailsModal = ({
 
   // Filter the education entries for the given alumniId
   
+  const { allWorkExperience } = useWorkExperience();
   if (!alumnus) return null;
   
   const educationForAlumni = allEducation.filter(
@@ -55,6 +57,14 @@ const AlumniDetailsModal = ({
     }
   };
   
+
+
+
+  const presentJobs = allWorkExperience.filter(
+    (exp) =>
+      exp.alumniId === alumnus.alumniId && exp.endYear.toLowerCase() === "present"
+  );
+
 
   const handleReject = async () => {
     setIsSubmitting(true);
@@ -217,7 +227,19 @@ const AlumniDetailsModal = ({
                   <Briefcase className="h-4 w-4 text-gray-500 mr-2" />
                   <div>
                     <div className="text-sm text-gray-500">Job Title</div>
-                    <div className="font-medium">{alumnus.jobTitle || 'N/A'}</div>
+
+                    {presentJobs.map((job) => (
+                      <div key={job.workExperienceId}>
+                        <p>
+                          <strong>{job.jobTitle}</strong> at {job.company}<br />
+                          {job.industry} — {job.location}
+                        </p>
+                      </div>
+                    ))}
+                    {presentJobs.length === 0 &&                         
+                        <p>
+                        No present job
+                        </p>}
                   </div>
                 </div>
                 

@@ -232,6 +232,7 @@ export function WorkExperienceProvider({
         userWorkExperience,
         allWorkExperience,
         isLoading,
+        setSelectedAlumWorkExperience,
         addWorkExperience,
         deleteWorkExperience,
         editWorkExperience,
