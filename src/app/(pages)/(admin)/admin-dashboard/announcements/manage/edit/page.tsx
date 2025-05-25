@@ -287,7 +287,8 @@ export default function AddAnnouncement() {
               {/* Image Upload */}
               <div className="flex flex-col w-100 gap-2">
                 <label htmlFor="image" className="text-sm font-medium flex items-center">
-                  <Asterisk size={16} className="text-red-600" /> Upload Image
+                  Upload Image
+                  {/* <Asterisk size={16} className="text-red-600" /> Upload Image */}
                 </label>
                 {!imagePreview &&  !isEditing ? (
                   <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center"

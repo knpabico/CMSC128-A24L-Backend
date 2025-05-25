@@ -102,45 +102,47 @@ const StatusFilterDropdown = ({
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-blue-500">Filter:</span>
-      <div className="relative">
-        <button
-          onClick={toggleDropdown}
-          className=" flex items-center justify-between gap-3 w-28 rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-        >
-          <span className="text-blue-500">{getDisplayText()}</span>
-          <ChevronDown
-            size={16}
-            className={`text-gray-500 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-        {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-            <ul className="py-1" role="listbox">
-              {options.map((option) => (
-                <li key={option} role="option" aria-selected={activeFilter === option}>
-                  <button
-                    className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                      activeFilter === option
-                        ? "bg-blue-50 text-blue-600"
-                        : "text-gray-700"
-                    }`}
-                    onClick={() => selectOption(option)}
-                  >
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+  <div className="flex items-center gap-2">
+    <span className="text-sm" style={{color: '#0856BA'}}>Filter:</span>
+    <div className="relative">
+      <button
+        onClick={toggleDropdown}
+        className=" flex items-center justify-between gap-3 w-28 rounded-full py-2 px-4 border-[2px] text-sm hover:bg-gray-50 focus:outline-none focus:ring-2"
+        style={{borderColor: '#0856BA', color: '#0856BA'}}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <span style={{color: '#0856BA'}}>{getDisplayText()}</span>
+        <ChevronDown
+          size={16}
+          className={`text-gray-500 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+          <ul className="py-1" role="listbox">
+            {options.map((option) => (
+              <li key={option} role="option" aria-selected={activeFilter === option}>
+                <button
+                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                    activeFilter === option
+                      ? "text-gray-700"
+                      : "text-gray-700"
+                  }`}
+                  style={activeFilter === option ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                  onClick={() => selectOption(option)}
+                >
+                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
+  </div>
   );
 };
 
@@ -176,95 +178,101 @@ const SortControlDropdown = ({
     }
   };
   return (
-    <div className="flex items-center gap-2 ml-3">
-      <span className="text-sm text-blue-500">Sort by:</span>
+  <div className="flex items-center gap-2 ml-3">
+    <span className="text-sm" style={{color: '#0856BA'}}>Sort by:</span>
 
-      <div className="relative">
-        <button
-          onClick={toggleDropdown}
-          className=" flex items-center justify-between gap-3 w-45 rounded-full py-2 px-4 border-[2px] border-blue-500 text-blue-500 text-sm  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-        >
-          <span className="text-blue-500">{getDisplayText()}</span>
-          <ChevronDown
-            size={16}
-            className={`text-gray-500 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </button>
+    <div className="relative">
+      <button
+        onClick={toggleDropdown}
+        className=" flex items-center justify-between gap-3 w-45 rounded-full py-2 px-4 border-[2px] text-sm  hover:bg-gray-50 focus:outline-none focus:ring-2"
+        style={{borderColor: '#0856BA', color: '#0856BA', focusRingColor: '#0856BA'}}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <span style={{color: '#0856BA'}}>{getDisplayText()}</span>
+        <ChevronDown
+          size={16}
+          className={`text-gray-500 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
 
-        {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-            <ul className="py-1" role="listbox">
-              <li role="option" aria-selected={sortOrder === "latest"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    sortOrder === "latest"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("latest")}
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+          <ul className="py-1" role="listbox">
+            <li role="option" aria-selected={sortOrder === "latest"}>
+              <button
+                className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                  sortOrder === "latest"
+                    ? "text-gray-700"
+                    : "text-gray-700"
+                }`}
+                style={sortOrder === "latest" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                onClick={() => selectOption("latest")}
+              >
+                Latest first
+              </button>
+            </li>
+            <li role="option" aria-selected={sortOrder === "oldest"}>
+              <button
+                className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                  sortOrder === "oldest"
+                    ? "text-gray-700"
+                    : "text-gray-700"
+                }`}
+                style={sortOrder === "oldest" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                onClick={() => selectOption("oldest")}
+              >
+                Oldest first
+              </button>
+            </li>
+
+            {/* Only show sponsor-related options if the active tab is not "stories" */}
+            {activeTab !== "stories" && (
+              <>
+                <li
+                  role="option"
+                  aria-selected={sortOrder === "most-sponsors"}
                 >
-                  Latest first
-                </button>
-              </li>
-              <li role="option" aria-selected={sortOrder === "oldest"}>
-                <button
-                  className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                    sortOrder === "oldest"
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                  onClick={() => selectOption("oldest")}
+                  <button
+                    className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                      sortOrder === "most-sponsors"
+                        ? "text-gray-700"
+                        : "text-gray-700"
+                    }`}
+                    style={sortOrder === "most-sponsors" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                    onClick={() => selectOption("most-sponsors")}
+                  >
+                    Most sponsors
+                  </button>
+                </li>
+                <li
+                  role="option"
+                  aria-selected={sortOrder === "least-sponsors"}
                 >
-                  Oldest first
-                </button>
-              </li>
-
-              {/* Only show sponsor-related options if the active tab is not "stories" */}
-              {activeTab !== "stories" && (
-                <>
-                  <li
-                    role="option"
-                    aria-selected={sortOrder === "most-sponsors"}
+                  <button
+                    className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
+                      sortOrder === "least-sponsors"
+                        ? "text-gray-700"
+                        : "text-gray-700"
+                    }`}
+                    style={sortOrder === "least-sponsors" ? {backgroundColor: '#0856BA20', color: '#0856BA'} : {}}
+                    onClick={() => selectOption("least-sponsors")}
                   >
-                    <button
-                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                        sortOrder === "most-sponsors"
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-gray-700"
-                      }`}
-                      onClick={() => selectOption("most-sponsors")}
-                    >
-                      Most sponsors
-                    </button>
-                  </li>
-                  <li
-                    role="option"
-                    aria-selected={sortOrder === "least-sponsors"}
-                  >
-                    <button
-                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-gray-100 ${
-                        sortOrder === "least-sponsors"
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-gray-700"
-                      }`}
-                      onClick={() => selectOption("least-sponsors")}
-                    >
-                      Least sponsors
-                    </button>
-                  </li>
-                </>
-              )}
-            </ul>
-          </div>
-        )}
-      </div>
+                    Least sponsors
+                  </button>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
     </div>
   );
 };
+
 
 const ScholarshipPage: React.FC = () => {
   const { scholarships, students, scholarshipStudents, loading, error } =

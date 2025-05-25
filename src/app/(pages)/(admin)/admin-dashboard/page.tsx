@@ -875,7 +875,7 @@ export default function AdminDashboard() {
               <CardTitle className="flex items-center">
                 <Briefcase className="h-5 w-5 mr-2 text-purple-600" /> Top Fields
               </CardTitle>
-              <span className="text-xs text-gray-500">Based on Job Title</span>
+              <span className="text-xs text-gray-500">Based on current work experiences</span>
             </CardHeader>
             <CardContent className="flex-1">
               <div className="w-full flex flex-col justify-center mt-2">
