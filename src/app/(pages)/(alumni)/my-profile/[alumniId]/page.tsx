@@ -1324,6 +1324,11 @@ const UserProfile = () => {
                           <div
                             key={item.workExperienceId}
                             className="flex justify-between"
+                            onClick={() => {
+                              // Update selectedLocation and activeMarker on row click
+                              setSelectedLocation({ lat: item.latitude, lng: item.longitude });
+                              setActiveMarker(index);
+                            }}
                           >
                             <div className="flex items-center space-x-5">
                               <div className="w-6 h-6 rounded-full bg-gray-500"></div>
