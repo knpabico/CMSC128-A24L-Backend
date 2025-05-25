@@ -1324,11 +1324,6 @@ const UserProfile = () => {
                           <div
                             key={item.workExperienceId}
                             className="flex justify-between"
-                            onClick={() => {
-                              // Update selectedLocation and activeMarker on row click
-                              setSelectedLocation({ lat: item.latitude, lng: item.longitude });
-                              setActiveMarker(index);
-                            }}
                           >
                             <div className="flex items-center space-x-5">
                               <div className="w-6 h-6 rounded-full bg-gray-500"></div>
@@ -1347,9 +1342,13 @@ const UserProfile = () => {
                             </div>
 
                             <div className="flex space-x-10">
-                              {/* <button
+                              <button
                                 className="flex items-center space-x-2 cursor-pointer"
-                                onClick={() => openMap(index)}
+                                onClick={() => {
+                                  // Update selectedLocation and activeMarker on row click
+                                  setSelectedLocation({ lat: item.latitude, lng: item.longitude });
+                                  setActiveMarker(index);
+                                }}
                               >
                                 <p className="text-[#3675c5]">
                                   <MapPin />
@@ -1357,7 +1356,7 @@ const UserProfile = () => {
                                 <p className="text-[#3675c5] text-sm hover:underline">
                                   View in map
                                 </p>
-                              </button> */}
+                              </button>
                               <button
                                 className="flex items-center space-x-2 cursor-pointer"
                                 onClick={() => {
