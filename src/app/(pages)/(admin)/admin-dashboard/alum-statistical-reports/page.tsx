@@ -193,7 +193,7 @@ const StatisticalReports = () => {
   );
 
   return (
-    <div className="flex flex-col gap-4 p-2 sm:p-4 max-w-7xl mx-auto w-full overflow-hidden">
+    <div className="flex flex-col gap-4 p-4 max-w-7xl mx-auto">
       <title>Statistical Reports | ICS-ARMS</title>
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2">
@@ -207,102 +207,41 @@ const StatisticalReports = () => {
       </div>
 
       {/* Page Title */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <ClipboardList className="w-6 sm:w-8 h-6 sm:h-8 text-[#0856BA]" />
-          <h1 className="font-bold text-xl sm:text-2xl lg:text-3xl text-gray-800">
+          <ClipboardList className="w-8 h-8 text-[#0856BA]" />
+          <h1 className="font-bold text-3xl text-gray-800">
             Alumni Statistical Reports
           </h1>
         </div>
-        <div className="bg-[#0856BA] text-white px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium shadow-sm whitespace-nowrap">
+        <div className="bg-[#0856BA] text-white px-6 py-2 rounded-full text-sm font-medium shadow-sm">
           {!isLoading && `Total Alumni: ${approvedAlums.length}`}
         </div>
       </div>
 
       {/* Top Section*/}
-      <div className="flex flex-col xl:flex-row gap-3">
+      <div className="flex flex-col lg:flex-row gap-3">
         {/* Report Summary */}
-        <div className="w-full xl:w-[60%]">
+        <div className="w-full lg:w-[60%]">
           <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
-            <div className="pb-1 border-b border-gray-100 p-3 sm:p-4">
+            <div className="pb-1 border-b border-gray-100 p-3">
               <div className="text-lg font-bold text-gray-800 flex items-center">
                 <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
                 Report Summary
               </div>
             </div>
-            <div className="p-3 sm:p-4 flex-1 flex flex-col justify-center">
-              <div className="p-1 sm:p-2 rounded-lg h-100 overflow-auto max-h-[400px]">
-                <ReportSummaryCard
-                  data={`
-                  // Alumni Overview
-                  Total Number of alumni: ${approvedAlums.length} 
-                  Active alumni: ${approvedActiveAlums.length} 
-                  Inactive alumni: ${
-                    approvedAlums.length - approvedActiveAlums.length
-                  } 
-                  
-                  // Newsletter Metrics
-                  Number of alumni subscribed to newsletters: ${
-                    alumsSubscribedToNewsletters.length
-                  } 
-                  Number of alumni not subscribed to newsletters: ${
-                    approvedAlums.length - alumsSubscribedToNewsletters.length
-                  } 
-                  Newsletter subscription rate: ${Math.round(
-                    (alumsSubscribedToNewsletters.length /
-                      approvedAlums.length) *
-                      100
-                  )}%
-                  
-                  // Employment Status
-                  Number of Alumni currently employed: ${
-                    currentWorkExperience.length
-                  } 
-                  Number of alumni currently unemployed: ${
-                    approvedAlums.length - currentWorkExperience.length
-                  }
-                  Employment rate: ${Math.round(
-                    (currentWorkExperience.length / approvedAlums.length) * 100
-                  )}%
-                  
-                  // Work Location
-                  Number of alumni currently working in Philippines: ${
-                    philippineWorkExperience.length
-                  }
-                  Number of alumni working abroad: ${
-                    currentWorkExperience.length -
-                    philippineWorkExperience.length
-                  }
-                  Percentage working in Philippines: ${Math.round(
-                    (philippineWorkExperience.length /
-                      currentWorkExperience.length) *
-                      100
-                  )}%
-                  
-                  // Activity Metrics
-                  Active alumni percentage: ${Math.round(
-                    (approvedActiveAlums.length / approvedAlums.length) * 100
-                  )}%
-                  Inactive alumni percentage: ${Math.round(
-                    ((approvedAlums.length - approvedActiveAlums.length) /
-                      approvedAlums.length) *
-                      100
-                  )}%
-                  
-                  // Date Context
-                  Current date: ${new Date().toLocaleDateString()}
-                  Report generated on: ${new Date().toLocaleString()}
-                `}
-                />
+            <div className="p-4 flex-1 flex flex-col justify-center">
+              <div className="p-2 rounded-lg h-100 overflow-auto">
+                <ReportSummaryCard data={reportSummaryData} />
               </div>
             </div>
           </div>
         </div>
 
         {/* Registration Status */}
-        <div className="w-full xl:w-[40%]">
+        <div className="w-full lg:w-[40%]">
           <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all h-full flex flex-col">
-            <div className="pb-1 border-b border-gray-100 p-3 sm:p-4">
+            <div className="pb-1 border-b border-gray-100 p-3">
               <div className="text-lg font-bold text-gray-800 flex items-center">
                 <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
                 Registration Status
@@ -311,25 +250,20 @@ const StatisticalReports = () => {
             <div className="flex-1 flex items-center justify-center p-3">
               <div className="flex-1 bg-white border-none">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-center text-base sm:text-lg font-semibold text-gray-700">
+                  <CardTitle className="text-center text-lg font-semibold text-gray-700">
                     Active vs Inactive Alumni
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex justify-center pt-0">
-                  <div className="w-full max-w-[140px] sm:max-w-[160px] min-w-[100px] sm:min-w-[120px] aspect-square flex items-center justify-center mx-auto">
-                    <DonutChart
-                      labels={["Active", "Inactive"]}
-                      data={[
-                        approvedActiveAlums.length,
-                        approvedAlums.length - approvedActiveAlums.length,
-                      ]}
-                    />
-                  </div>
+                  <DonutChart
+                    labels={activeInactiveData.labels}
+                    data={activeInactiveData.data}
+                  />
                 </CardContent>
               </div>
             </div>
-            <div className="mt-4 text-center w-full p-3">
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+            <div className="mt-4 text-center w-full">
+              <p className="text-sm text-gray-600 mt-1">
                 Active: {approvedActiveAlums.length} | Inactive:{" "}
                 {approvedAlums.length - approvedActiveAlums.length}
               </p>
@@ -339,107 +273,78 @@ const StatisticalReports = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Newsletter Subscription */}
         <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
-            <div className="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
               <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
               Newsletter Subscription
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center p-3">
-            <div className="w-full max-w-[140px] sm:max-w-[160px] min-w-[100px] sm:min-w-[120px] aspect-square flex items-center justify-center mx-auto">
+            <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
               <DonutChart
-                labels={["Subscribed", "Not Subscribed"]}
-                data={[
-                  alumsSubscribedToNewsletters.length,
-                  approvedAlums.length - alumsSubscribedToNewsletters.length,
-                ]}
+                labels={newsletterData.labels}
+                data={newsletterData.data}
               />
             </div>
-          </div>
-          <div className="mt-2 text-center w-full p-2">
-            <p className="text-xs sm:text-sm text-gray-600">
-              Subscribed: {alumsSubscribedToNewsletters.length} | Not
-              Subscribed:{" "}
-              {approvedAlums.length - alumsSubscribedToNewsletters.length}
-            </p>
           </div>
         </div>
 
         {/* Employment Status */}
         <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
-            <div className="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
               <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
               Alumni Currently Employed
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center p-3">
-            <div className="w-full max-w-[140px] sm:max-w-[160px] min-w-[100px] sm:min-w-[120px] aspect-square flex items-center justify-center mx-auto">
+            <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
               <DonutChart
-                labels={["Employed", "Unemployed"]}
-                data={[
-                  currentWorkExperience.length,
-                  approvedAlums.length - currentWorkExperience.length,
-                ]}
+                labels={employmentData.labels}
+                data={employmentData.data}
               />
             </div>
-          </div>
-          <div className="mt-2 text-center w-full p-2">
-            <p className="text-xs sm:text-sm text-gray-600">
-              Employed: {currentWorkExperience.length} | Unemployed:{" "}
-              {approvedAlums.length - currentWorkExperience.length}
-            </p>
           </div>
         </div>
 
         {/* Work Location */}
-        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col sm:col-span-2 lg:col-span-1">
+        <div className="bg-white rounded-xl shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all flex flex-col">
           <div className="pb-1 border-b border-gray-100 p-3">
-            <div className="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+            <div className="text-lg font-bold text-gray-800 flex items-center">
               <span className="w-1 h-4 bg-[#0856BA] rounded mr-2"></span>
               Current Work Experience Locations
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center p-3">
-            <div className="w-full max-w-[140px] sm:max-w-[160px] min-w-[100px] sm:min-w-[120px] aspect-square flex items-center justify-center mx-auto">
+            <div className="w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
               <DonutChart
-                labels={["Philippines", "Other Countries"]}
-                data={[
-                  philippineWorkExperience.length,
-                  currentWorkExperience.length -
-                    philippineWorkExperience.length,
-                ]}
+                labels={locationData.labels}
+                data={locationData.data}
               />
             </div>
-          </div>
-          <div className="mt-2 text-center w-full p-2">
-            <p className="text-xs sm:text-sm text-gray-600">
-              Philippines: {philippineWorkExperience.length} | Abroad:{" "}
-              {currentWorkExperience.length - philippineWorkExperience.length}
-            </p>
           </div>
         </div>
       </div>
 
       {/* Expandable Alumni Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Active Alumni Card */}
         <div className="flex flex-col">
           <Card
             className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
-            onClick={() => toggleCard("active")}
+            onClick={toggleActive}
           >
-            <CardHeader className="px-3 sm:px-4 py-3">
+            <CardHeader className="px-4 py-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle className="text-gray-700 text-sm sm:text-base">
+                  <CardTitle className="text-gray-700 text-base">
                     Active Alumni
                   </CardTitle>
                   {!isLoading && (
-                    <div className="text-[#0856BA] font-bold text-xl sm:text-2xl">
+                    <div className="text-[#0856BA] font-bold text-2xl">
                       {approvedActiveAlums.length}
                     </div>
                   )}
@@ -454,24 +359,18 @@ const StatisticalReports = () => {
               </div>
             </CardHeader>
             {expandedCards.active && (
-              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-3 sm:px-4 py-2">
+              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
                 {isLoading ? (
                   <p className="text-gray-500 py-2 text-sm">Loading...</p>
-                ) : approvedActiveAlums.length === 0 ? (
-                  <p className="text-gray-500 py-2 text-sm text-center">
-                    No active alumni found
-                  </p>
                 ) : (
                   <ul className="divide-y divide-gray-200">
                     {approvedActiveAlums.map((alum: Alumnus, index: number) => (
                       <li
-                        key={index}
-                        className="py-1.5 text-gray-700 text-xs sm:text-sm flex items-center"
+                        key={alum.alumniId || index}
+                        className="py-1.5 text-gray-700 text-sm flex items-center"
                       >
-                        <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2 flex-shrink-0"></span>
-                        <span className="truncate">
-                          {alum.firstName} {alum.lastName}
-                        </span>
+                        <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                        {alum.firstName} {alum.lastName}
                       </li>
                     ))}
                   </ul>
@@ -485,16 +384,16 @@ const StatisticalReports = () => {
         <div className="flex flex-col">
           <Card
             className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
-            onClick={() => toggleCard("inactive")}
+            onClick={toggleInactive}
           >
-            <CardHeader className="px-3 sm:px-4 py-3">
+            <CardHeader className="px-4 py-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle className="text-gray-700 text-sm sm:text-base">
+                  <CardTitle className="text-gray-700 text-base">
                     Inactive Alumni
                   </CardTitle>
                   {!isLoading && (
-                    <div className="text-[#0856BA] font-bold text-xl sm:text-2xl">
+                    <div className="text-[#0856BA] font-bold text-2xl">
                       {inactiveAlums.length}
                     </div>
                   )}
@@ -509,24 +408,18 @@ const StatisticalReports = () => {
               </div>
             </CardHeader>
             {expandedCards.inactive && (
-              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-3 sm:px-4 py-2">
+              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
                 {isLoading ? (
                   <p className="text-gray-500 py-2 text-sm">Loading...</p>
-                ) : inactiveAlums.length === 0 ? (
-                  <p className="text-gray-500 py-2 text-sm text-center">
-                    No inactive alumni found
-                  </p>
                 ) : (
                   <ul className="divide-y divide-gray-200">
                     {inactiveAlums.map((alum: Alumnus, index: number) => (
                       <li
-                        key={index}
-                        className="py-1.5 text-gray-700 text-xs sm:text-sm flex items-center"
+                        key={alum.alumniId || index}
+                        className="py-1.5 text-gray-700 text-sm flex items-center"
                       >
-                        <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2 flex-shrink-0"></span>
-                        <span className="truncate">
-                          {alum.firstName} {alum.lastName}
-                        </span>
+                        <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                        {alum.firstName} {alum.lastName}
                       </li>
                     ))}
                   </ul>
@@ -537,19 +430,19 @@ const StatisticalReports = () => {
         </div>
 
         {/* Newsletter Subscribers Card */}
-        <div className="flex flex-col sm:col-span-2 lg:col-span-1">
+        <div className="flex flex-col">
           <Card
             className="bg-white overflow-hidden cursor-pointer rounded-lg shadow-sm border-none ring-1 ring-gray-100 hover:ring-[#0856BA]/20 transition-all"
-            onClick={() => toggleCard("newsletter")}
+            onClick={toggleNewsletter}
           >
-            <CardHeader className="px-3 sm:px-4 py-3">
+            <CardHeader className="px-4 py-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle className="text-gray-700 text-sm sm:text-base">
+                  <CardTitle className="text-gray-700 text-base">
                     Newsletter Subscribers
                   </CardTitle>
                   {!isLoading && (
-                    <div className="text-[#0856BA] font-bold text-xl sm:text-2xl">
+                    <div className="text-[#0856BA] font-bold text-2xl">
                       {alumsSubscribedToNewsletters.length}
                     </div>
                   )}
@@ -564,25 +457,19 @@ const StatisticalReports = () => {
               </div>
             </CardHeader>
             {expandedCards.newsletter && (
-              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-3 sm:px-4 py-2">
+              <CardContent className="pt-0 bg-gray-50 max-h-48 overflow-y-auto px-4 py-2">
                 {isLoading ? (
                   <p className="text-gray-500 py-2 text-sm">Loading...</p>
-                ) : alumsSubscribedToNewsletters.length === 0 ? (
-                  <p className="text-gray-500 py-2 text-sm text-center">
-                    No newsletter subscribers found
-                  </p>
                 ) : (
                   <ul className="divide-y divide-gray-200">
                     {alumsSubscribedToNewsletters.map(
                       (alum: Alumnus, index: number) => (
                         <li
-                          key={index}
-                          className="py-1.5 text-gray-700 text-xs sm:text-sm flex items-center"
+                          key={alum.alumniId || index}
+                          className="py-1.5 text-gray-700 text-sm flex items-center"
                         >
-                          <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2 flex-shrink-0"></span>
-                          <span className="truncate">
-                            {alum.firstName} {alum.lastName}
-                          </span>
+                          <span className="w-1.5 h-1.5 bg-[#0856BA] rounded-full mr-2"></span>
+                          {alum.firstName} {alum.lastName}
                         </li>
                       )
                     )}
