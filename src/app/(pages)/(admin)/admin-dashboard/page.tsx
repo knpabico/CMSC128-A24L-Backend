@@ -85,6 +85,8 @@ export default function AdminDashboard() {
     );
   }, [alums]);
 
+  const [activeMarker, setActiveMarker] = useState<number | null>(null);
+
   function formatDate(date: Date | Timestamp): string {
     const dateObj = date instanceof Timestamp ? date.toDate() : date;
 
@@ -161,6 +163,11 @@ export default function AdminDashboard() {
 
     closeModal();
   };
+
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const fields = [
     "Artificial Intelligence (AI)",
@@ -1042,7 +1049,15 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1">
-              <MapComponent workExperienceList={presentWorkExperiences} />
+              <MapComponent
+                workExperienceList={presentWorkExperiences}
+                onLocationClick={(lat, lng, index) => {
+                  setSelectedLocation({ lat, lng });
+                  setActiveMarker(index);
+                }}
+                selectedLocation={selectedLocation}
+                activeMarker={activeMarker}
+              />
             </CardContent>
           </Card>
         </div>
