@@ -1049,15 +1049,16 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1">
-              <MapComponent
-                workExperienceList={presentWorkExperiences}
-                onLocationClick={(lat, lng, index) => {
-                  setSelectedLocation({ lat, lng });
-                  setActiveMarker(index);
-                }}
-                selectedLocation={selectedLocation}
-                activeMarker={activeMarker}
-              />
+            {/* <MapComponent
+              workExperienceList={presentWorkExperiences}
+              onLocationClick={(lat, lng, index) => {
+                setSelectedLocation({ lat, lng });
+                setActiveMarker(index);
+              }}
+              selectedLocation={selectedLocation}
+              activeMarker={activeMarker}
+            /> */}
+            <MapComponent workExperienceList={presentWorkExperiences}/>
             </CardContent>
           </Card>
         </div>
