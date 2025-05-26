@@ -1,7 +1,12 @@
 "use client";
 import { useAlums } from "@/context/AlumContext";
 import { db } from "@/lib/firebase";
-import { Alumnus, Education, WorkExperience } from "@/models/models";
+import {
+  Affiliation,
+  Alumnus,
+  Education,
+  WorkExperience,
+} from "@/models/models";
 import { collection, getDocs, query, where } from "firebase/firestore"; // Import missing Firebase functions
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -79,6 +84,9 @@ export default function Users() {
   const [workExperience, setWorkExperience] = useState<
     Record<string, WorkExperience[]>
   >({});
+  const [affiliationMapping, setAffiliationMapping] = useState<
+    Record<string, Affiliation[]>
+  >({});
   const [educationMapping, setEducationMapping] = useState<
     Record<string, Education[]>
   >({});
@@ -105,8 +113,8 @@ export default function Users() {
   const attainmentContainerRef = useRef<HTMLDivElement>(null);
   const graduationYearContainerRef = useRef<HTMLDivElement>(null);
 
-  //TO DO
-  //FILTER for graduation year, field of work, or affiliation
+  const [countryFilter, setCountryFilter] = useState("");
+  const [affiliationFilter, setAffiliationFilter] = useState("");
 
   const handleFieldOfWorkFilter = (fieldOfWork: string) => {
     setFieldOfWorkFilter((current) => {
@@ -159,8 +167,39 @@ export default function Users() {
 
     //sort alphabetically by first name
     filteredAlumni = filteredAlumni.sort((a: Alumnus, b: Alumnus) =>
-      a.firstName.toLowerCase().localeCompare(b.firstName.toLocaleLowerCase())
+      a.firstName.toLowerCase().localeCompare(b.firstName.toLowerCase())
     );
+
+    //country search filter
+    if (countryFilter) {
+      filteredAlumni = filteredAlumni.filter((alum: Alumnus) => {
+        // Replace 'yourArrayAttribute' with the actual attribute name
+        if (alum.address && alum.address.length > 0) {
+          return alum.address[0]
+            .toLowerCase()
+            .includes(countryFilter.toLowerCase());
+        }
+        return false;
+      });
+    }
+
+    //affiliation search filter
+    if (affiliationFilter) {
+      filteredAlumni = filteredAlumni.filter((alum: Alumnus) => {
+        // Get the affiliations for this alumnus using their id
+        const affiliations = affiliationMapping[alum.alumniId];
+
+        // Check if affiliations exist and search through affiliationName
+        if (affiliations && affiliations.length > 0) {
+          return affiliations.some((affiliation: Affiliation) =>
+            affiliation.affiliationName
+              .toLowerCase()
+              .includes(affiliationFilter.toLowerCase())
+          );
+        }
+        return false;
+      });
+    }
 
     //filter alums based on selected field of work/s
     if (fieldOfWorkFilter.length > 0) {
@@ -201,7 +240,7 @@ export default function Users() {
     }
     //sort alphabetically by first name
     filteredAlumni = filteredAlumni.sort((a: Alumnus, b: Alumnus) =>
-      a.firstName.toLowerCase().localeCompare(b.firstName.toLocaleLowerCase())
+      a.firstName.toLowerCase().localeCompare(b.firstName.toLowerCase())
     );
 
     setFilteredAlums(filteredAlumni);
@@ -211,6 +250,8 @@ export default function Users() {
     attainmentFilter,
     attainmentMapping,
     graduationYearFilter,
+    countryFilter,
+    affiliationFilter,
   ]);
 
   //close filter dropdowns when clicking outside
@@ -238,6 +279,52 @@ export default function Users() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    //function to fetch affiliation while being mapped to alumniId
+    const mapAffiliation = async () => {
+      if (alums.length === 0) return;
+      if (!alums) return;
+      setLoading(true);
+
+      try {
+        //fetch educationList of alums
+        const fetchAffiliation = alums.map(async (alum: Alumnus) => {
+          const alumniId = alum.alumniId;
+          const q = query(
+            collection(db, "affiliation"),
+            where("alumniId", "==", alumniId)
+          );
+
+          const querySnapshot = await getDocs(q);
+
+          const affiliationList = querySnapshot.docs.map(
+            (doc) => doc.data() as Affiliation
+          );
+
+          return { alumniId, affiliationList };
+        });
+
+        const affil = await Promise.all(fetchAffiliation);
+
+        //intialize as empty affiliation record
+        const affiliationMap: Record<string, Affiliation[]> = {};
+        //map each alumniId to each affiliation
+        affil.forEach((data) => {
+          affiliationMap[data.alumniId] = data.affiliationList;
+        });
+
+        //set workExperience
+        setAffiliationMapping(affiliationMap);
+      } catch (error) {
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    mapAffiliation();
+  }, [alums]);
 
   useEffect(() => {
     //function to fetch work experience while being mapped to alumniId
@@ -276,8 +363,6 @@ export default function Users() {
         //set workExperience
         setWorkExperience(workExperienceMap);
       } catch (error) {
-        console.error("Error fetching work experience:", error);
-
         return [];
       } finally {
         setLoading(false);
@@ -330,7 +415,6 @@ export default function Users() {
         //set educationMap
         setEducationMapping(educationMap);
       } catch (error) {
-        console.error("Error fetching education:", error);
         return [];
       } finally {
         setLoading(false);
@@ -516,12 +600,20 @@ export default function Users() {
             </div>
 
             <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Location</div>
-              <ChevronDown size={16} />
+              <input
+                type="text"
+                placeholder="Search by Country"
+                value={countryFilter}
+                onChange={(e) => setCountryFilter(e.target.value)}
+              />
             </div>
             <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Affiliation</div>
-              <ChevronDown size={16} />
+              <input
+                type="text"
+                placeholder="Search by Affiliation"
+                value={affiliationFilter}
+                onChange={(e) => setAffiliationFilter(e.target.value)}
+              />
             </div>
           </div>
 
