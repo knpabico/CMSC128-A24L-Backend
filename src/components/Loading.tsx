@@ -4,6 +4,7 @@ import ICSARMSLogo from "../app/images/ICS_ARMS_logo.png";
 export default function LoadingPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
+      <title>ICS-ARMS</title>
       <Image
         src={ICSARMSLogo}
         alt="ICS ARMS Logo"

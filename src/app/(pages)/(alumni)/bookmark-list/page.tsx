@@ -7,17 +7,23 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function BookmarksPage() {
-  const { isLoading, entries, filteredBookmarks, sortedBookmarks, removeBookmark } = useBookmarks();
+  const {
+    isLoading,
+    entries,
+    filteredBookmarks,
+    sortedBookmarks,
+    removeBookmark,
+  } = useBookmarks();
   const [filterType, setFilterType] = useState("all");
   const [sortOption, setSortOption] = useState("latest");
-  const router=useRouter();
-  
+  const router = useRouter();
 
-  if (isLoading) return <h1 className="text-xl font-semibold p-4">Loading bookmarks...</h1>;
+  if (isLoading)
+    return <h1 className="text-xl font-semibold p-4">Loading bookmarks...</h1>;
 
   // Get filtered bookmarks
   const filtered = filteredBookmarks(filterType);
-  
+
   // Get sorted bookmarks
   const displayedBookmarks = sortedBookmarks(filtered, sortOption);
 
@@ -59,12 +65,18 @@ export default function BookmarksPage() {
         return (
           <>
             <h3 className="text-lg font-semibold pr-8">{entry.campaignName}</h3>
-            <p className="text-gray-600 line-clamp-2 my-2">{entry.description}</p>
+            <p className="text-gray-600 line-clamp-2 my-2">
+              {entry.description}
+            </p>
             {entry.totalAmount && (
-              <div className="mt-2 font-medium">Total Amount: ${entry.totalAmount.toLocaleString()}</div>
+              <div className="mt-2 font-medium">
+                Total Amount: ${entry.totalAmount.toLocaleString()}
+              </div>
             )}
             {entry.datePosted.toDate().toLocaleString() && (
-              <p className="text-sm font-medium mt-1">Date Posted: {entry.datePosted.toDate().toLocaleString()}</p>
+              <p className="text-sm font-medium mt-1">
+                Date Posted: {entry.datePosted.toDate().toLocaleString()}
+              </p>
             )}
           </>
         );
@@ -72,12 +84,26 @@ export default function BookmarksPage() {
         return (
           <>
             <h3 className="text-lg font-semibold pr-8">{entry.title}</h3>
-            <p className="text-gray-600 line-clamp-2 my-2">{entry.description}</p>
-            {entry.date && <p className="text-sm font-medium mt-1">Date: {entry.date}</p>}
-            {entry.creatorName && <p className="text-sm text-gray-700 mt-1">Organizer: {entry.creatorName}</p>}
-            {entry.rsvps && <p className="text-sm text-gray-700 mt-1">RSVPs: {entry.rsvps.length}</p>}
+            <p className="text-gray-600 line-clamp-2 my-2">
+              {entry.description}
+            </p>
+            {entry.date && (
+              <p className="text-sm font-medium mt-1">Date: {entry.date}</p>
+            )}
+            {entry.creatorName && (
+              <p className="text-sm text-gray-700 mt-1">
+                Organizer: {entry.creatorName}
+              </p>
+            )}
+            {entry.rsvps && (
+              <p className="text-sm text-gray-700 mt-1">
+                RSVPs: {entry.rsvps.length}
+              </p>
+            )}
             {entry.datePosted.toDate().toLocaleString() && (
-              <p className="text-sm font-medium mt-1">Date Posted: {entry.datePosted.toDate().toLocaleString()}</p>
+              <p className="text-sm font-medium mt-1">
+                Date Posted: {entry.datePosted.toDate().toLocaleString()}
+              </p>
             )}
           </>
         );
@@ -85,14 +111,34 @@ export default function BookmarksPage() {
         return (
           <>
             <h3 className="text-lg font-semibold pr-8">{entry.position}</h3>
-            <p className="text-gray-600 line-clamp-2 my-2">{entry.jobDescription}</p>
+            <p className="text-gray-600 line-clamp-2 my-2">
+              {entry.jobDescription}
+            </p>
             <div className="mt-2">
-              {entry.company && <p className="text-sm font-medium mt-1">Company: {entry.company}</p>}
-              {entry.salaryRange && <p className="text-sm text-gray-700 mt-1">Salary: {entry.salaryRange}</p>}
-              {entry.employmentType && <p className="text-sm text-gray-700 mt-1">Type: {entry.employmentType}</p>}
-              {entry.experienceLevel && <p className="text-sm text-gray-700 mt-1">Experience: {entry.experienceLevel}</p>}
+              {entry.company && (
+                <p className="text-sm font-medium mt-1">
+                  Company: {entry.company}
+                </p>
+              )}
+              {entry.salaryRange && (
+                <p className="text-sm text-gray-700 mt-1">
+                  Salary: {entry.salaryRange}
+                </p>
+              )}
+              {entry.employmentType && (
+                <p className="text-sm text-gray-700 mt-1">
+                  Type: {entry.employmentType}
+                </p>
+              )}
+              {entry.experienceLevel && (
+                <p className="text-sm text-gray-700 mt-1">
+                  Experience: {entry.experienceLevel}
+                </p>
+              )}
               {entry.datePosted.toDate().toLocaleString() && (
-                <p className="text-sm font-medium mt-1">Date Posted: {entry.datePosted.toDate().toLocaleString()}</p>
+                <p className="text-sm font-medium mt-1">
+                  Date Posted: {entry.datePosted.toDate().toLocaleString()}
+                </p>
               )}
             </div>
           </>
@@ -102,27 +148,36 @@ export default function BookmarksPage() {
         return (
           <>
             <h3 className="text-lg font-semibold pr-8">{entry.title}</h3>
-            <p className="text-gray-600 line-clamp-2 my-2">{entry.description}</p>
+            <p className="text-gray-600 line-clamp-2 my-2">
+              {entry.description}
+            </p>
             {entry.datePosted.toDate().toLocaleString() && (
-              <p className="text-sm font-medium mt-1">Date Posted: {entry.datePosted.toDate().toLocaleString()}</p>
+              <p className="text-sm font-medium mt-1">
+                Date Posted: {entry.datePosted.toDate().toLocaleString()}
+              </p>
             )}
           </>
         );
       default:
-        return <p className="text-gray-600 line-clamp-2 my-2">{entry.description || entry.content}</p>;
+        return (
+          <p className="text-gray-600 line-clamp-2 my-2">
+            {entry.description || entry.content}
+          </p>
+        );
     }
   };
 
   return (
     <div className="container mx-auto p-6">
+      <title>Bookmarks | ICS-ARMS</title>
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Bookmarks</h1>
-      
+
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-col">
           <label className="text-sm font-medium mb-1">Filter</label>
-          <select 
+          <select
             className="p-2 border rounded-md"
-            value={filterType} 
+            value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
             <option value="all">All</option>
@@ -132,12 +187,12 @@ export default function BookmarksPage() {
             <option value="job_offer">Job Offers</option>
           </select>
         </div>
-        
+
         <div className="flex flex-col">
           <label className="text-sm font-medium mb-1">Sort By</label>
-          <select 
+          <select
             className="p-2 border rounded-md"
-            value={sortOption} 
+            value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
           >
             <option value="latest">Latest</option>
@@ -152,29 +207,30 @@ export default function BookmarksPage() {
           <p className="text-gray-500">No bookmarks match your filter.</p>
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {displayedBookmarks.map((bookmark) => {
           const entry = entries[bookmark.entryId];
-          
+
           return (
-            <div key={bookmark.id} className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
+            <div
+              key={bookmark.id}
+              className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow relative"
+            >
               <div className="absolute top-2 right-2">
-                <BookmarkButton 
-                  entryId={bookmark.entryId} 
-                  type={bookmark.type} 
+                <BookmarkButton
+                  entryId={bookmark.entryId}
+                  type={bookmark.type}
                   size="lg"
                 />
               </div>
-              
+
               <div className="bg-gray-100 text-gray-600 text-sm rounded px-2 py-1 inline-block mb-2">
                 {getTypeDisplayText(bookmark.type)}
               </div>
-              
+
               {entry ? (
-                <>
-                  {renderTypeSpecificDetails(bookmark, entry)}
-                </>
+                <>{renderTypeSpecificDetails(bookmark, entry)}</>
               ) : (
                 <p>Loading entry details...</p>
               )}

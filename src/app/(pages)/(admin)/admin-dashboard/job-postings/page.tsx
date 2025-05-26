@@ -80,7 +80,7 @@ export default function Users() {
   const [jobToDelete, setJobToDelete] = useState<JobOffering | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState<JobOffering | null>(null);
-  
+
   const filterJobs = (status: string) => {
     const filteredJobs = jobOffers.filter((job: JobOffering) => {
       const matchesStatus =
@@ -196,7 +196,7 @@ export default function Users() {
             className="cursor-pointer hover:text-[#0856BA]"
             onClick={() => {
               goBackToList();
-              setCurrentPage('list');
+              setCurrentPage("list");
             }}
           >
             Manage Job Posting
@@ -354,7 +354,7 @@ export default function Users() {
               {/* Revised buttons */}
               {isEditing && (
                 <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
-                    <button
+                  <button
                     type="button"
                     onClick={() => {
                       setIsEditing(false);
@@ -362,9 +362,9 @@ export default function Users() {
                       setCurrentPage("list");
                     }}
                     className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-                    >
+                  >
                     Cancel
-                    </button>
+                  </button>
                   <button
                     type="submit"
                     className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
@@ -388,6 +388,7 @@ export default function Users() {
 
   return (
     <>
+      <title>Manage Job Posting | ICS-ARMS</title>
       {/* Main content */}
       {currentPage === "list" ? (
         <div className="flex flex-col gap-5">
@@ -406,13 +407,11 @@ export default function Users() {
                 <div
                   className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[#063d8c] flex items-center gap-2"
                   onClick={() =>
-                          router.push("/admin-dashboard/job-postings/post")
-                        }
-                  className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
+                    router.push("/admin-dashboard/job-postings/post")
+                  }
                 >
                   + Create a Job Post
-                </button>
-                
+                </div>
               </div>
             </div>
           </div>
@@ -763,7 +762,7 @@ export default function Users() {
                                     }}
                                     className="px-3 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 cursor-pointer flex gap-1 items-center mr-4"
                                   >
-                                    <CircleX size={18}/> 
+                                    <CircleX size={18} />
                                     Reject
                                   </button>
                                 </div>

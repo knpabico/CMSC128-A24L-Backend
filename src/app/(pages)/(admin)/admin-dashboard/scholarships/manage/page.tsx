@@ -122,6 +122,7 @@ export default function ManageScholarship() {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Manage Scholarships | ICS-ARMS</title>
       <Breadcrumb items={breadcrumbItems} />
       <div className="w-full">
         <div className="flex items-center justify-between">
@@ -136,7 +137,9 @@ export default function ManageScholarship() {
       </div>
       {/* Filter tabs */}
       <div className="bg-white rounded-xl flex gap-3 p-2 pl-4 items-center">
-        <div className="text-sm font-medium text-[var(--primary-blue)]">Filter by:</div>
+        <div className="text-sm font-medium text-[var(--primary-blue)]">
+          Filter by:
+        </div>
         <div className=" pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300">
           <select
             id="sort"
@@ -174,12 +177,8 @@ export default function ManageScholarship() {
                 <th className="w-1/2 p-4 text-left font-semibold">
                   Scholarship Info
                 </th>
-                <th className="w-1/6 p-4 text-center font-semibold">
-                  Active
-                </th>
-                <th className="w-1/6 p-4 text-center font-semibold">
-                  Actions
-                </th>
+                <th className="w-1/6 p-4 text-center font-semibold">Active</th>
+                <th className="w-1/6 p-4 text-center font-semibold">Actions</th>
               </tr>
             </thead>
 
@@ -213,7 +212,8 @@ export default function ManageScholarship() {
                           {scholarship.title}
                         </div>
                         <div className="text-sm text-gray-600">
-                          Date Posted: {scholarship.datePosted.toLocaleDateString()}
+                          Date Posted:{" "}
+                          {scholarship.datePosted.toLocaleDateString()}
                         </div>
                         <div className="text-sm text-gray-600">
                           Sponsors: {scholarship.alumList.length}

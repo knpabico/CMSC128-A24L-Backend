@@ -25,6 +25,7 @@ const Page = () => {
   }
   return (
     <>
+      <title>Announcement | ICS-ARMS</title>
       <div className="bg-[var(--primary-blue)] h-20 flex px-[10%] fixed top-0 w-full z-100 shadow-lg items-center justify-between">
         <div className="text-[var(--primary-blue)] flex justify-center items-center gap-3">
           <div>
@@ -36,10 +37,14 @@ const Page = () => {
             />
           </div>
           <div>
-            <div className={`${oswald.className} text-[14px] font-light text-white`}>
+            <div
+              className={`${oswald.className} text-[14px] font-light text-white`}
+            >
               Institute of Computer Science
             </div>
-            <div className={`${oswald.className} text-[18px] mt-[-3px] text-white`}>
+            <div
+              className={`${oswald.className} text-[18px] mt-[-3px] text-white`}
+            >
               Alumni Relations Management System
             </div>
           </div>
@@ -66,7 +71,9 @@ const Page = () => {
             <div className="bg-white h-100">
               <Image
                 src={
-                  announcement.image === "" ? "/default-image.jpg" : announcement.image
+                  announcement.image === ""
+                    ? "/default-image.jpg"
+                    : announcement.image
                 }
                 alt={announcement.title}
                 width={1000}
@@ -76,9 +83,7 @@ const Page = () => {
               />
             </div>
             <div className="p-8 flex flex-col gap-2">
-              <div className="font-bold text-3xl">
-                {announcement.title}
-              </div>
+              <div className="font-bold text-3xl">{announcement.title}</div>
               <div className="text-gray-500 text-[15px]">
                 {announcement.datePosted.toLocaleDateString("en-US", {
                   month: "long",
@@ -91,16 +96,11 @@ const Page = () => {
                   minute: "2-digit",
                 })}
               </div>
-              <div className="text-[15px]">
-                {announcement.description}
-              </div>
+              <div className="text-[15px]">{announcement.description}</div>
             </div>
           </div>
-          
         </div>
       </div>
-      
-
     </>
   );
 };

@@ -19,14 +19,15 @@ const RejectedPage = () => {
           {/* Content Header */}
           <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
             <div className="pb-5 space-y-3">
-              <HourglassIcon className="text-amber-400 w-10 h-10"/>
+              <HourglassIcon className="text-amber-400 w-10 h-10" />
               <h2 className="text-xl font-semibold text-gray-900">
                 Your account has been sent for approval.
               </h2>
             </div>
-            
+
             <p className="mt-1 text-sm text-gray-500">
-              Please wait for an email confirmation regarding your account status.
+              Please wait for an email confirmation regarding your account
+              status.
             </p>
           </div>
 

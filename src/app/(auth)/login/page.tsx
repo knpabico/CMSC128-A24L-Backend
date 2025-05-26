@@ -13,5 +13,10 @@ export default function LoginPage() {
       router.push("/sign-up");
     }
   }, [isGoogleSignIn, router]);
-  return <>{isGoogleSignIn ? <LoadingPage /> : <LoginExample />}</>;
+  return (
+    <>
+      <title>Login | ICS-ARMS</title>
+      {isGoogleSignIn ? <LoadingPage /> : <LoginExample />}
+    </>
+  );
 }

@@ -46,11 +46,11 @@ export default function AlumPage() {
   const [work, setWork] = useState<WorkExperience[]>([]);
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
   const { isLoaded } = useGoogleMaps();
-  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-const [activeMarker, setActiveMarker] = useState<number | null>(null);
-
-
-  
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [activeMarker, setActiveMarker] = useState<number | null>(null);
 
   const calculateAge = (birthDate: Date) => {
     //current date
@@ -123,6 +123,7 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
 
   return (
     <div>
+      <title>Manage User | ICS-ARMS</title>
       <div className="space-y-10 md:sticky md:top-8 z-[100] relative">
         <div className="flex items-center gap-2 w-full top-0 left-0">
           <Link href="/admin-dashboard" className="cursor-pointer">

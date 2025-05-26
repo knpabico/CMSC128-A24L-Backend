@@ -378,6 +378,7 @@ export default function Home() {
   else if (!user && !isAdmin) {
     return (
       <div>
+        <title>ICS-ARMS</title>
         <Landing />
 
         <div
@@ -435,6 +436,7 @@ export default function Home() {
     else
       return (
         <div className="w-full px-[10%]">
+          <title>Home | ICS-ARMS</title>
           <div>
             <Image
               src="/network-bg.png"
@@ -466,10 +468,12 @@ export default function Home() {
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
                 {alumInfo!.suffix ? alumInfo!.suffix : ""}
               </p>
-              <p className="text-xs md:text-[14px] text-gray-700">{alumInfo!.email}</p>
+              <p className="text-xs md:text-[14px] text-gray-700">
+                {alumInfo!.email}
+              </p>
               <div className="text-xs md:text-[14px] text-gray-700 text-center wrap-break-word px-2 flex items-center gap-1">
-                  <MapPin size={14}/> {alumInfo!.address[1]},{" "}
-                  {alumInfo!.address[2]}
+                <MapPin size={14} /> {alumInfo!.address[1]},{" "}
+                {alumInfo!.address[2]}
               </div>
 
               {alumInfo!.fieldOfInterest[0] && (
@@ -498,11 +502,11 @@ export default function Home() {
 
             {/* Feed  */}
             <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
-              
               {/*sorting dropdown*/}
               <div className="flex w-full items-center p-3 pl-4 justify-between mb-3 bg-white rounded-[10px] border border-[#DADADA]">
                 <div className="font-bold text-xl mt-1 flex gap-1">
-                  <p className="text-[#0856BA]">Welcome,</p> {alumInfo!.firstName}!
+                  <p className="text-[#0856BA]">Welcome,</p>{" "}
+                  {alumInfo!.firstName}!
                 </div>
                 <div className="flex gap-2 items-center text-[14px] text-[#0856BA]">
                   Sort:

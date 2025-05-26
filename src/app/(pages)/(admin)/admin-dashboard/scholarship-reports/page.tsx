@@ -71,6 +71,7 @@ const ScholarshipReports = () => {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Scholarship Statistical Reports | ICS-ARMS</title>
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2">
         <div className="hover:text-[#0856BA] cursor-pointer transition-colors">
@@ -308,11 +309,11 @@ const ScholarshipReports = () => {
                     Top Scholarships by Sponsor Count
                   </CardTitle>
                   <div className="text-[#0856BA] font-medium text-sm mt-1">
-                    Showing Top 5
+                    Total: {scholarships.length}
                   </div>
                 </div>
                 <div className="bg-[#0856BA] text-white rounded-full h-12 w-12 flex items-center justify-center">
-                  5
+                  {scholarships.length}
                 </div>
               </div>
             </CardHeader>
@@ -325,7 +326,6 @@ const ScholarshipReports = () => {
                 <ul className="divide-y divide-gray-100">
                   {scholarships
                     .sort((a, b) => b.alumList.length - a.alumList.length)
-                    .slice(0, 5)
                     .map((scholarship: Scholarship, index: number) => (
                       <li
                         key={index}

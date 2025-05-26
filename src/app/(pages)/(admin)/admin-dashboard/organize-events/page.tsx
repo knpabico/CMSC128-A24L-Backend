@@ -1,19 +1,28 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useEvents } from "@/context/EventContext"
-import type { Event } from "@/models/models"
-import Link from "next/link"
-import { useMemo } from "react"
-import { Calendar, ChevronRight, CircleCheck, CircleX, Clock, MapPin, Trash2, UserCheck } from "lucide-react"
-import { useParams, useRouter } from "next/navigation"
-import { useRsvpDetails } from "@/context/RSVPContext"
-import { useDonationDrives } from "@/context/DonationDriveContext"
-import Breadcrumb from "@/components/breadcrumb"
+import { useEffect, useState } from "react";
+import { useEvents } from "@/context/EventContext";
+import type { Event } from "@/models/models";
+import Link from "next/link";
+import { useMemo } from "react";
+import {
+  Calendar,
+  ChevronRight,
+  CircleCheck,
+  CircleX,
+  Clock,
+  MapPin,
+  Trash2,
+  UserCheck,
+} from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useRsvpDetails } from "@/context/RSVPContext";
+import { useDonationDrives } from "@/context/DonationDriveContext";
+import Breadcrumb from "@/components/breadcrumb";
 
 export default function EventPageAdmin() {
-  const router = useRouter()
-  const params = useParams()
+  const router = useRouter();
+  const params = useParams();
   const {
     events,
     isLoading,
@@ -41,99 +50,111 @@ export default function EventPageAdmin() {
     setEventTime,
     fileName,
     setFileName,
-    setPreview
-  } = useEvents()
+    setPreview,
+  } = useEvents();
 
-  const { handleAddEventRelated } = useDonationDrives()
+  const { handleAddEventRelated } = useDonationDrives();
 
-  const evId = params?.eventId as string
-  const ev = events.find((e: Event) => e.eventId === evId)
+  const evId = params?.eventId as string;
+  const ev = events.find((e: Event) => e.eventId === evId);
 
-  const [toggles, setToggles] = useState(events.map(() => false))
-  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails()
-  const [isEditing, setEdit] = useState(false)
-  const [editingEventId, setEditingEventId] = useState<string | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [visibility, setVisibility] = useState("default")
-  const [selectedBatches, setSelectedBatches] = useState<any[]>([])
-  const [selectedAlumni, setSelectedAlumni] = useState<any[]>([])
-  const [sortBy, setSortBy] = useState("posted-newest")
-  const [statusFilter, setStatusFilter] = useState("Accepted")
-  const [errorMessage, setErrorMessage] = useState("")
-  const [selectedButton, setButton] = useState("")
-  const [activeTab, setActiveTab] = useState("Accepted")
-  const tabs = ["Accepted", "Pending", "Rejected", "Draft"]
+  const [toggles, setToggles] = useState(events.map(() => false));
+  const { rsvpDetails, alumniDetails, isLoadingRsvp } = useRsvpDetails();
+  const [isEditing, setEdit] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [visibility, setVisibility] = useState("default");
+  const [selectedBatches, setSelectedBatches] = useState<any[]>([]);
+  const [selectedAlumni, setSelectedAlumni] = useState<any[]>([]);
+  const [sortBy, setSortBy] = useState("posted-newest");
+  const [statusFilter, setStatusFilter] = useState("Accepted");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [selectedButton, setButton] = useState("");
+  const [activeTab, setActiveTab] = useState("Accepted");
+  const tabs = ["Accepted", "Pending", "Rejected", "Draft"];
 
-  if (!events) return <div>Loading Events...</div>
+  if (!events) return <div>Loading Events...</div>;
 
   const sortedEvents = [...events].sort((x, y) => {
     switch (sortBy) {
       case "posted-newest":
-        const dateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0)
-        const dateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0)
-        return dateY.getTime() - dateX.getTime()
+        const dateX = x.datePosted?.seconds
+          ? new Date(x.datePosted.seconds * 1000)
+          : new Date(0);
+        const dateY = y.datePosted?.seconds
+          ? new Date(y.datePosted.seconds * 1000)
+          : new Date(0);
+        return dateY.getTime() - dateX.getTime();
 
       case "posted-oldest":
-        const oldDateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0)
-        const oldDateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0)
-        return oldDateX.getTime() - oldDateY.getTime()
+        const oldDateX = x.datePosted?.seconds
+          ? new Date(x.datePosted.seconds * 1000)
+          : new Date(0);
+        const oldDateY = y.datePosted?.seconds
+          ? new Date(y.datePosted.seconds * 1000)
+          : new Date(0);
+        return oldDateX.getTime() - oldDateY.getTime();
 
       case "alphabetical": {
-        return x.title.toLowerCase().localeCompare(y.title.toLowerCase())
+        return x.title.toLowerCase().localeCompare(y.title.toLowerCase());
       }
 
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
   const getFilteredEvents = () => {
     return sortedEvents.filter((event) => {
       // Filter events based on the activeTab (status)
       if (activeTab === "Draft") {
-        return event.status === "Draft" && event.creatorType === "admin" // Only show admin drafts
+        return event.status === "Draft" && event.creatorType === "admin"; // Only show admin drafts
       }
-      return event.status === activeTab // For other tabs, filter by status only
-    })
-  }
+      return event.status === activeTab; // For other tabs, filter by status only
+    });
+  };
 
-  const filteredEvents = useMemo(() => getFilteredEvents(), [sortedEvents, activeTab])
+  const filteredEvents = useMemo(
+    () => getFilteredEvents(),
+    [sortedEvents, activeTab]
+  );
 
   const formatDate = (date: any) => {
-    if (!date) return "N/A"
-    const dateObj = typeof date === "object" && date.toDate ? date.toDate() : new Date(date)
+    if (!date) return "N/A";
+    const dateObj =
+      typeof date === "object" && date.toDate ? date.toDate() : new Date(date);
 
     return dateObj.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    const eventToEdit = events.find((g: Event) => g.eventId === editingEventId)
-    setVisibility("all")
-    setSelectedAlumni([])
-    setSelectedBatches([])
+    const eventToEdit = events.find((g: Event) => g.eventId === editingEventId);
+    setVisibility("all");
+    setSelectedAlumni([]);
+    setSelectedBatches([]);
 
     if (eventToEdit) {
-      setEventTitle(eventToEdit.title)
-      setEventDescription(eventToEdit.description)
-      setEventImage(eventToEdit.image)
-      setEventDate(eventToEdit.date)
-      setEventTime(eventToEdit.time)
-      setEventLocation(eventToEdit.location)
-      setShowForm(true)
+      setEventTitle(eventToEdit.title);
+      setEventDescription(eventToEdit.description);
+      setEventImage(eventToEdit.image);
+      setEventDate(eventToEdit.date);
+      setEventTime(eventToEdit.time);
+      setEventLocation(eventToEdit.location);
+      setShowForm(true);
 
       // Properly check targetGuests for alumni and batches
       if (eventToEdit.targetGuests && eventToEdit.targetGuests.length > 0) {
         // Check if the first item is a batch (e.g., a string of length 4)
         if (eventToEdit.targetGuests[0].length === 4) {
-          setSelectedBatches(eventToEdit.targetGuests) // Set the batches
-          setVisibility("batch") // Set visibility to batches
+          setSelectedBatches(eventToEdit.targetGuests); // Set the batches
+          setVisibility("batch"); // Set visibility to batches
         } else {
-          setSelectedAlumni(eventToEdit.targetGuests) // Set the alumni
-          setVisibility("alumni") // Set visibility to alumni
+          setSelectedAlumni(eventToEdit.targetGuests); // Set the alumni
+          setVisibility("alumni"); // Set visibility to alumni
         }
       }
     }
@@ -148,37 +169,36 @@ export default function EventPageAdmin() {
     setEventTime,
     setEventLocation,
     setShowForm,
-  ])
+  ]);
 
   const formComplete =
     title.trim() !== "" &&
     description.trim() !== "" &&
     date.trim() !== "" &&
     time.trim() !== "" &&
-    location.trim() !== ""
+    location.trim() !== "";
 
   const resetFormState = () => {
-    setEdit(false)
-    setEventTitle("")
-    setEventDescription("")
-    setEventDate("")
-    setEventTime("")
-    setEventLocation("")
-    setEventImage("")
-    setVisibility("all")
-    setSelectedBatches([])
-    setSelectedAlumni([])
-    setFileName("")
-    setErrorMessage("")
-    setButton("")
-    setPreview(null)
-  }
+    setEdit(false);
+    setEventTitle("");
+    setEventDescription("");
+    setEventDate("");
+    setEventTime("");
+    setEventLocation("");
+    setEventImage("");
+    setVisibility("all");
+    setSelectedBatches([]);
+    setSelectedAlumni([]);
+    setFileName("");
+    setErrorMessage("");
+    setButton("");
+    setPreview(null);
+  };
 
   const breadcrumbItems = [
     { label: "Home", href: "/admin-dashboard" },
-    { label: "Manage Events", href: "#", active: true  },
+    { label: "Manage Events", href: "#", active: true },
   ];
-
 
   return (
     <div className="flex flex-col gap-5">
@@ -187,8 +207,9 @@ export default function EventPageAdmin() {
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Manage Events</div>
           <button
-            onClick={() => {router.push("/admin-dashboard/organize-events/add")
-              resetFormState()
+            onClick={() => {
+              router.push("/admin-dashboard/organize-events/add");
+              resetFormState();
             }}
             className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
           >
@@ -202,11 +223,13 @@ export default function EventPageAdmin() {
           {tabs.map((tab) => {
             const eventCount = events.filter((event: Event) => {
               if (tab === "Draft") {
-                return event.status === "Draft" && event.creatorType === "admin" // Only count admin drafts
+                return (
+                  event.status === "Draft" && event.creatorType === "admin"
+                ); // Only count admin drafts
               }
-              return event.status === tab // Count all events matching the tab's status
-            }).length
-            const eventCountBgColor = "bg-[var(--primary-blue)]"
+              return event.status === tab; // Count all events matching the tab's status
+            }).length;
+            const eventCountBgColor = "bg-[var(--primary-blue)]";
 
             return (
               <div
@@ -218,11 +241,15 @@ export default function EventPageAdmin() {
               >
                 {/* Blue bar above active tab */}
                 <div
-                  className={`w-full h-1 transition-colors ${activeTab === tab ? eventCountBgColor : "bg-transparent"}`}
+                  className={`w-full h-1 transition-colors ${
+                    activeTab === tab ? eventCountBgColor : "bg-transparent"
+                  }`}
                 />
                 <div
                   className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
-                    activeTab === tab ? "text-[var(--primary-blue)] bg-white" : "text-blue-200 bg-white"
+                    activeTab === tab
+                      ? "text-[var(--primary-blue)] bg-white"
+                      : "text-blue-200 bg-white"
                   }`}
                 >
                   {tab}
@@ -235,13 +262,15 @@ export default function EventPageAdmin() {
                   </div>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
         {/* Filter Bar */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-          <div className="text-sm font-medium text-[var(--primary-blue)]">Filter by:</div>
+          <div className="text-sm font-medium text-[var(--primary-blue)]">
+            Filter by:
+          </div>
           <div className="relative">
             <select
               id="sort"
@@ -261,7 +290,12 @@ export default function EventPageAdmin() {
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
               </svg>
             </div>
           </div>
@@ -275,9 +309,13 @@ export default function EventPageAdmin() {
               {/* Table Header - Using position: sticky */}
               <thead className="sticky top-0 z-50 bg-blue-100 shadow-sm text-sm text-gray-600">
                 <tr>
-                  <th className="text-left p-4 font-semibold w-2/6">Event Title</th>
+                  <th className="text-left p-4 font-semibold w-2/6">
+                    Event Title
+                  </th>
                   <th className="text-left p-4 font-semibold w-1/6">Details</th>
-                  <th className="text-right p-4 font-semibold w-3/6">Actions</th>
+                  <th className="text-right p-4 font-semibold w-3/6">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -293,14 +331,18 @@ export default function EventPageAdmin() {
                   filteredEvents.map((e: Event, index: number) => (
                     <tr
                       key={e.eventId}
-                      className={`border-t border-gray-300 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-blue-50`}
+                      className={`border-t border-gray-300 ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      } hover:bg-blue-50`}
                     >
                       {/* Title + description */}
                       <td className="p-4 w-2/5">
                         <div className="flex flex-col gap-1">
                           <div className="text-base font-bold">{e.title}</div>
                           <div className="text-sm text-gray-600">
-                            <p className="text-xs font-light">Proposed by: {e.creatorName ?? "Admin"}</p>
+                            <p className="text-xs font-light">
+                              Proposed by: {e.creatorName ?? "Admin"}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -326,17 +368,19 @@ export default function EventPageAdmin() {
                             {/* Where */}
                             <div className="flex gap-1 items-center">
                               <MapPin size={16} />
-                              <p className="text-xs truncate max-w-[150px]">{e.location}</p>
+                              <p className="text-xs truncate max-w-[150px]">
+                                {e.location}
+                              </p>
                             </div>
 
                             {/* Num of attendees */}
                             <div className="flex gap-1 items-center bg">
                               <UserCheck size={16} />
-                              <p className="text-xs">{e.numofAttendees} Going</p>
+                              <p className="text-xs">
+                                {e.numofAttendees} Going
+                              </p>
                             </div>
                           </div>
-
-                          
                         </div>
                       </td>
 
@@ -347,7 +391,11 @@ export default function EventPageAdmin() {
                             <div className="flex items-center justify-end gap-10 pr-5">
                               <div className="flex items-center justify-end gap-10 text-[14px]">
                                 <button
-                                  onClick={() => router.push(`/admin-dashboard/organize-events/${e.eventId}`)}
+                                  onClick={() =>
+                                    router.push(
+                                      `/admin-dashboard/organize-events/${e.eventId}`
+                                    )
+                                  }
                                   className="text-[var(--primary-blue)] hover:underline cursor-pointer"
                                 >
                                   View Details
@@ -359,17 +407,19 @@ export default function EventPageAdmin() {
                                 onClick={() => addEvent(e, true)}
                                 className="px-3 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 cursor-pointer flex gap-1 items-center"
                               >
-                                <CircleCheck size={18} />Approve
+                                <CircleCheck size={18} />
+                                Approve
                               </button>
                               <button
                                 onClick={() => handleReject(e.eventId)}
                                 className="px-3 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 cursor-pointer flex gap-1 items-center"
                               >
-                                <CircleX size={18}/> Reject
+                                <CircleX size={18} /> Reject
                               </button>
                             </div>
                           </div>
-                        ) : e.status === "Accepted" && e.donationDriveId === "" ? (
+                        ) : e.status === "Accepted" &&
+                          e.donationDriveId === "" ? (
                           <div className="flex items-center justify-end gap-10 text-[14px]">
                             <button
                               onClick={() => handleAddEventRelated(e)}
@@ -389,7 +439,8 @@ export default function EventPageAdmin() {
                               className="text-gray-500 hover:text-red-400 cursor-pointer"
                             />
                           </div>
-                        ) : e.status === "Accepted" || e.status === "Rejected" ? (
+                        ) : e.status === "Accepted" ||
+                          e.status === "Rejected" ? (
                           <div className="flex items-center justify-end gap-10 pr-5">
                             <div className="flex items-center justify-end gap-10 text-[14px]">
                               <button
@@ -411,7 +462,11 @@ export default function EventPageAdmin() {
                             <div className="flex items-center justify-end gap-10 pr-5">
                               <div className="flex items-center justify-end gap-10 text-[14px]">
                                 <button
-                                  onClick={() => router.push(`/admin-dashboard/organize-events/edit/${e.eventId}`)}
+                                  onClick={() =>
+                                    router.push(
+                                      `/admin-dashboard/organize-events/edit/${e.eventId}`
+                                    )
+                                  }
                                   className="text-[var(--primary-blue)] hover:underline cursor-pointer"
                                 >
                                   Edit Details
@@ -435,5 +490,5 @@ export default function EventPageAdmin() {
         </div>
       </div>
     </div>
-  )
+  );
 }

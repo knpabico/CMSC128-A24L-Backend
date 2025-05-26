@@ -22,14 +22,15 @@ import Image from "next/image";
 
 function formatDate(timestamp: any) {
   if (!timestamp) return "Invalid Date";
-  const date = new Date(timestamp?.seconds ? timestamp.seconds * 1000 : timestamp);
+  const date = new Date(
+    timestamp?.seconds ? timestamp.seconds * 1000 : timestamp
+  );
   return date.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
 }
-
 
 const FILTER_TAGS = ["Donation Update", "Event Update", "General Announcement"];
 const SORT_TAGS = ["Oldest", "Latest"];
@@ -54,11 +55,16 @@ export default function Announcements() {
 
   // Sort announcements by date
   let filteredAnnounces = [...announces].sort((a, b) => {
-    const dateA = new Date(a.datePosted?.seconds ? a.datePosted.seconds * 1000 : a.datePosted);
-    const dateB = new Date(b.datePosted?.seconds ? b.datePosted.seconds * 1000 : b.datePosted);
-    return latestFirst ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+    const dateA = new Date(
+      a.datePosted?.seconds ? a.datePosted.seconds * 1000 : a.datePosted
+    );
+    const dateB = new Date(
+      b.datePosted?.seconds ? b.datePosted.seconds * 1000 : b.datePosted
+    );
+    return latestFirst
+      ? dateB.getTime() - dateA.getTime()
+      : dateA.getTime() - dateB.getTime();
   });
-
 
   // Apply active filter (if any)
   if (activeFilter === "Saved Announcements") {
@@ -82,14 +88,13 @@ export default function Announcements() {
   return (
     <div>
       {/* Title */}
-        <Banner 
-          title="Announcements" 
-          description="Stay connected with the ICS community through timely announcements, academic news, and upcoming events."
-        />
-
+      <Banner
+        title="Announcements"
+        description="Stay connected with the ICS community through timely announcements, academic news, and upcoming events."
+      />
+      <title>Announcements | ICS-ARMS</title>
 
       <div className="mx-[10%] my-[40px] static">
-        
         <div className="flex flex-row gap-[40px] mt-6">
           {/* Sidebar */}
           <div className="bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
@@ -107,8 +112,11 @@ export default function Announcements() {
                 {activeFilter || "All Announcements"}
               </h2>
               <div className="flex items-center">
-                <label htmlFor="sort" className="mr-2 text-sm text-[var(--primary-blue)]">
-                  Sort by: 
+                <label
+                  htmlFor="sort"
+                  className="mr-2 text-sm text-[var(--primary-blue)]"
+                >
+                  Sort by:
                 </label>
                 <select
                   defaultValue={selectedSort}
@@ -179,7 +187,9 @@ export default function Announcements() {
                                 {user.description.slice(0, 700) + "..."}
                               </p>
                             ) : (
-                              <p className="text-justify whitespace-pre-wrap">{user.description}</p>
+                              <p className="text-justify whitespace-pre-wrap">
+                                {user.description}
+                              </p>
                             )}
                             <div className="flex gap-2 my-6 mt-10 place-self-center items-center">
                               <span className="text-sm font-medium">Tags:</span>

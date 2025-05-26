@@ -38,11 +38,14 @@ export default function ManageDonationDrive() {
   } = useDonationDrives();
 
   const [localDrives, setLocalDrives] = useState<DonationDrive[]>([]);
-  const [creatorNames, setCreatorNames] = useState<{ [key: string]: string }>({});
+  const [creatorNames, setCreatorNames] = useState<{ [key: string]: string }>(
+    {}
+  );
   const [sortBy, setSortBy] = useState("latest");
   const [statusFilter, setStatusFilter] = useState("all");
   const [toggles, setToggles] = useState<{ [key: string]: boolean }>({});
-  const [selectedDonationDrive, setSelectedDonationDrive] = useState<DonationDrive>();
+  const [selectedDonationDrive, setSelectedDonationDrive] =
+    useState<DonationDrive>();
 
   if (!donationDrives) return <div>Loading donation drives...</div>;
 
@@ -62,8 +65,14 @@ export default function ManageDonationDrive() {
         const dateB = b.datePosted?.toDate?.() || new Date(0);
         return dateB.getTime() - dateA.getTime();
       case "alphabetical": {
-        const aName = a.isEvent && events[a.eventId] ? events[a.eventId]!.title : a.campaignName;
-        const bName = b.isEvent && events[b.eventId] ? events[b.eventId]!.title : b.campaignName;
+        const aName =
+          a.isEvent && events[a.eventId]
+            ? events[a.eventId]!.title
+            : a.campaignName;
+        const bName =
+          b.isEvent && events[b.eventId]
+            ? events[b.eventId]!.title
+            : b.campaignName;
         return aName.toLowerCase().localeCompare(bName.toLowerCase());
       }
       default:
@@ -71,9 +80,10 @@ export default function ManageDonationDrive() {
     }
   });
 
-  const filteredDrives = statusFilter === "all" 
-    ? sortedDrives 
-    : sortedDrives.filter((drive) => drive.status === statusFilter);
+  const filteredDrives =
+    statusFilter === "all"
+      ? sortedDrives
+      : sortedDrives.filter((drive) => drive.status === statusFilter);
 
   useEffect(() => {
     if (donationDrives) {
@@ -96,7 +106,8 @@ export default function ManageDonationDrive() {
 
     const fetchCreators = async () => {
       const drivesToFetch = filteredDrives.filter(
-        (drive) => drive.creatorType === "alumni" && !creatorNames[drive.donationDriveId]
+        (drive) =>
+          drive.creatorType === "alumni" && !creatorNames[drive.donationDriveId]
       );
 
       if (drivesToFetch.length === 0) return;
@@ -108,7 +119,9 @@ export default function ManageDonationDrive() {
           try {
             const creator = await fetchAlumnusById(drive.creatorId);
             if (creator && isMounted) {
-              names[drive.donationDriveId] = `${creator.firstName} ${creator.lastName}`;
+              names[
+                drive.donationDriveId
+              ] = `${creator.firstName} ${creator.lastName}`;
             } else if (isMounted) {
               names[drive.donationDriveId] = "Unknown";
             }
@@ -166,7 +179,9 @@ export default function ManageDonationDrive() {
 
       if (localDrives) {
         const updatedDrives = localDrives.map((drive: DonationDrive) =>
-          drive.donationDriveId === driveId ? { ...drive, status: newStatus } : drive
+          drive.donationDriveId === driveId
+            ? { ...drive, status: newStatus }
+            : drive
         );
         setLocalDrives(updatedDrives);
         toastSuccess(`Donation Drive status updated successfully.`);
@@ -196,13 +211,19 @@ export default function ManageDonationDrive() {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Manage Donation Drives | ICS-ARMS</title>
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-600">
-        <div className="hover:text-blue-600 cursor-pointer hover:underline" onClick={home}>
+        <div
+          className="hover:text-blue-600 cursor-pointer hover:underline"
+          onClick={home}
+        >
           Home
         </div>
         <ChevronRight size={15} />
-        <span className="text-[var(--primary-blue)] font-semibold">Manage Donation Drives</span>
+        <span className="text-[var(--primary-blue)] font-semibold">
+          Manage Donation Drives
+        </span>
       </div>
 
       {/* Header */}
@@ -223,27 +244,35 @@ export default function ManageDonationDrive() {
         <div className="w-full flex gap-2">
           {[
             { key: "all", label: "All Drives", count: donationDrives.length },
-            { 
-              key: "active", 
-              label: "Active", 
-              count: donationDrives.filter((drive: DonationDrive) => drive.status === "active").length 
+            {
+              key: "active",
+              label: "Active",
+              count: donationDrives.filter(
+                (drive: DonationDrive) => drive.status === "active"
+              ).length,
             },
-            { 
-              key: "completed", 
-              label: "Closed", 
-              count: donationDrives.filter((drive: DonationDrive) => drive.status === "completed").length 
-            }
+            {
+              key: "completed",
+              label: "Closed",
+              count: donationDrives.filter(
+                (drive: DonationDrive) => drive.status === "completed"
+              ).length,
+            },
           ].map((tab) => (
             <div
               key={tab.key}
               onClick={() => setStatusFilter(tab.key)}
               className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
-                statusFilter === tab.key ? "bg-[var(--primary-blue)]" : "bg-white"
+                statusFilter === tab.key
+                  ? "bg-[var(--primary-blue)]"
+                  : "bg-white"
               }`}
             >
               <div
                 className={`w-full h-1 transition-colors ${
-                  statusFilter === tab.key ? "bg-[var(--primary-blue)]" : "bg-transparent"
+                  statusFilter === tab.key
+                    ? "bg-[var(--primary-blue)]"
+                    : "bg-transparent"
                 }`}
               />
               <div
@@ -268,7 +297,9 @@ export default function ManageDonationDrive() {
 
         {/* Filter Bar */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-          <div className="text-sm font-medium text-[var(--primary-blue)]">Filter by:</div>
+          <div className="text-sm font-medium text-[var(--primary-blue)]">
+            Filter by:
+          </div>
           <div className="relative">
             <select
               id="sort"
@@ -290,7 +321,12 @@ export default function ManageDonationDrive() {
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
               </svg>
             </div>
           </div>
@@ -307,7 +343,9 @@ export default function ManageDonationDrive() {
             {/* Table Header - Using position: sticky */}
             <thead className="sticky top-0 z-50 bg-blue-100 shadow-sm text-sm text-gray-600">
               <tr>
-                <th className="text-left p-4 font-semibold w-2/4">Donation Drive Info</th>
+                <th className="text-left p-4 font-semibold w-2/4">
+                  Donation Drive Info
+                </th>
                 <th className="text-center p-4 font-semibold w-1/6">Status</th>
                 <th className="text-center p-4 font-semibold w-1/6">Actions</th>
               </tr>
@@ -335,7 +373,9 @@ export default function ManageDonationDrive() {
                       <td className="p-4 w-2/4">
                         <div className="flex flex-col gap-1">
                           <div className="text-base font-bold">
-                            {drive.isEvent && ev ? ev.title : drive.campaignName}
+                            {drive.isEvent && ev
+                              ? ev.title
+                              : drive.campaignName}
                           </div>
                           <div className="text-sm text-gray-600">
                             {drive.isEvent && ev ? (
@@ -349,7 +389,9 @@ export default function ManageDonationDrive() {
                             )}
                             {drive.creatorType === "alumni" && (
                               <p className="text-xs font-light">
-                                Created by: {creatorNames[drive.donationDriveId] || "Loading..."}
+                                Created by:{" "}
+                                {creatorNames[drive.donationDriveId] ||
+                                  "Loading..."}
                               </p>
                             )}
                           </div>
@@ -383,13 +425,14 @@ export default function ManageDonationDrive() {
                         <div className="flex items-center justify-center">
                           <button
                             className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm"
-                            onClick={() => navigateToDetails(drive.donationDriveId)}
+                            onClick={() =>
+                              navigateToDetails(drive.donationDriveId)
+                            }
                           >
                             View Details
                           </button>
                         </div>
                       </td>
-
                     </tr>
                   );
                 })

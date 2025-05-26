@@ -139,13 +139,13 @@ const Page = () => {
   }, [alums]);
 
   const breadcrumbItems = [
-      { label: "Home", href: "/admin-dashboard" },
-      { label: "Manage Alumni", href: "#", active: true },
-    ];
-    
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Alumni", href: "#", active: true },
+  ];
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Manage Users | ICS-ARMS</title>
       <Breadcrumb items={breadcrumbItems} />
       <div className="w-full">
         <div className="flex items-center justify-between">
@@ -205,7 +205,9 @@ const Page = () => {
         <div className="bg-white rounded-xl flex p-2.5 px-4 items-center justify-between">
           <div className="flex gap-6">
             <div className="flex items-center gap-2">
-              <div className="text-sm text-[var(--primary-blue)]">Filter by:</div>
+              <div className="text-sm text-[var(--primary-blue)]">
+                Filter by:
+              </div>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="appearance-none px-4 py-2 text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] rounded-full flex items-center text-sm font-medium cursor-pointer">
                   <SelectValue placeholder="Select field" />
@@ -234,7 +236,9 @@ const Page = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="text-sm text-[var(--primary-blue)]">Active Status:</div>
+              <div className="text-sm text-[var(--primary-blue)]">
+                Active Status:
+              </div>
               <Select value={activeStatus} onValueChange={setActiveStatus}>
                 <SelectTrigger className="appearance-none px-4 py-2 text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] rounded-full flex items-center text-sm font-medium cursor-pointer">
                   <SelectValue placeholder="Select field" />

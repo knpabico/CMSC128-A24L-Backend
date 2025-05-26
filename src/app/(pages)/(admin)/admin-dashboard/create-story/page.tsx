@@ -27,21 +27,27 @@ import {
 import Breadcrumb from "@/components/breadcrumb";
 
 export default function FeaturedStoriesPage() {
-  const {
-    featuredItems,
-    isLoading,
-    handleDelete,
-  } = useFeatured();
+  const { featuredItems, isLoading, handleDelete } = useFeatured();
 
-  const [activeTab, setActiveTab] = useState<"All Stories" | "Events" | "Donations" | "Scholarships">("All Stories");
+  const [activeTab, setActiveTab] = useState<
+    "All Stories" | "Events" | "Donations" | "Scholarships"
+  >("All Stories");
   const [sortOption, setSortOption] = useState("newest");
   const tableRef = useRef<HTMLDivElement>(null);
   const [headerWidth, setHeaderWidth] = useState("100%");
   const [isSticky, setIsSticky] = useState(false);
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
-  const [storyToDelete, setStoryToDelete] = useState<{ featuredId: string; title: string } | null>(null)
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [storyToDelete, setStoryToDelete] = useState<{
+    featuredId: string;
+    title: string;
+  } | null>(null);
 
-  const tabs: Array<"All Stories" | "Events" | "Donations" | "Scholarships"> = ["All Stories", "Events", "Donations", "Scholarships"];
+  const tabs: Array<"All Stories" | "Events" | "Donations" | "Scholarships"> = [
+    "All Stories",
+    "Events",
+    "Donations",
+    "Scholarships",
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,7 +80,7 @@ export default function FeaturedStoriesPage() {
   const filteredItems =
     activeTab === "All Stories"
       ? featuredItems
-      : featuredItems.filter((item: { type: string; }) => {
+      : featuredItems.filter((item: { type: string }) => {
           const tabTypeMap = {
             Events: "event",
             Donations: "donation",
@@ -87,7 +93,7 @@ export default function FeaturedStoriesPage() {
   const sortedItems = [...filteredItems].sort((a, b) => {
     const dateA = a.datePosted?.toDate?.() || new Date(a.datePosted);
     const dateB = b.datePosted?.toDate?.() || new Date(b.datePosted);
-    
+
     if (sortOption === "newest") {
       return dateB.getTime() - dateA.getTime();
     } else {
@@ -106,7 +112,8 @@ export default function FeaturedStoriesPage() {
     };
 
     return featuredItems.filter(
-      (item: { type: any; }) => item.type === categoryTypeMap[category as keyof typeof categoryTypeMap]
+      (item: { type: any }) =>
+        item.type === categoryTypeMap[category as keyof typeof categoryTypeMap]
     ).length;
   };
 
@@ -121,7 +128,7 @@ export default function FeaturedStoriesPage() {
   };
 
   const toggleSortOption = () => {
-    setSortOption(prev => prev === "newest" ? "oldest" : "newest");
+    setSortOption((prev) => (prev === "newest" ? "oldest" : "newest"));
   };
 
   const breadcrumbItems = [
@@ -131,6 +138,7 @@ export default function FeaturedStoriesPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <title>Manage Featured Stories | ICS-ARMS</title>
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="w-full">
@@ -142,53 +150,52 @@ export default function FeaturedStoriesPage() {
           >
             + Write featured story
           </button>
-          
         </div>
       </div>
 
-        {/* Tabs */}
-        <div className="w-full flex gap-2">
-          {tabs.map((tab) => (
+      {/* Tabs */}
+      <div className="w-full flex gap-2">
+        {tabs.map((tab) => (
+          <div
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
+              activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-white"
+            }`}
+          >
+            {/* Blue bar above active tab */}
             <div
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`w-full flex flex-col items-center justify-end rounded-t-2xl overflow-hidden pt-0.4 cursor-pointer ${
-                activeTab === tab ? "bg-[var(--primary-blue)]" : "bg-white"
+              className={`w-full h-1 transition-colors ${
+                activeTab === tab
+                  ? "bg-[var(--primary-blue)]"
+                  : "bg-transparent"
+              }`}
+            ></div>
+            <div
+              className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
+                activeTab === tab
+                  ? "text-[var(--primary-blue)] bg-white"
+                  : "text-blue-200 bg-white"
               }`}
             >
-              {/* Blue bar above active tab */}
+              {tab}
               <div
-                className={`w-full h-1 transition-colors ${
-                  activeTab === tab
-                    ? "bg-[var(--primary-blue)]"
-                    : "bg-transparent"
-                }`}
-              ></div>
-              <div
-                className={`w-full py-3 flex items-center justify-center gap-1 rounded-t-2xl font-semibold text-base ${
-                  activeTab === tab
-                    ? "text-[var(--primary-blue)] bg-white"
-                    : "text-blue-200 bg-white"
+                className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
+                  activeTab === tab ? "bg-amber-400" : "bg-blue-200"
                 }`}
               >
-                {tab}
-                <div
-                  className={`h-6 w-6 rounded-full flex items-center justify-center text-[13px] text-white ${
-                    activeTab === tab ? "bg-amber-400" : "bg-blue-200"
-                  }`}
-                >
-                  {getCategoryCount(tab)}
-                </div>
+                {getCategoryCount(tab)}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
 
       <div className="flex flex-col gap-2">
         {/* Sorting Filter */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
           <div className="text-sm text-[var(--primary-blue)]">Sort by:</div>
-          <div 
+          <div
             className="pl-4 pr-4 py-2 rounded-full flex gap-2 items-center justify-between text-sm font-medium cursor-pointer border-2 border-[var(--primary-blue)] text-[var(--primary-blue)]"
             onClick={toggleSortOption}
           >
@@ -209,7 +216,7 @@ export default function FeaturedStoriesPage() {
               ref={tableRef}
             >
               {/* Sticky header */}
-                <div
+              <div
                 className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
                   isSticky ? "fixed top-0 left-0" : ""
                 }`}
@@ -217,7 +224,7 @@ export default function FeaturedStoriesPage() {
                   width: isSticky ? `${headerWidth}px` : "100%",
                   position: isSticky ? "fixed" : "relative",
                 }}
-                >
+              >
                 <div className="flex-grow flex items-center font-semibold">
                   Featured Story Info
                 </div>
@@ -230,7 +237,7 @@ export default function FeaturedStoriesPage() {
                 <div className="w-[120px] flex items-center justify-center font-semibold">
                   Actions
                 </div>
-                </div>
+              </div>
 
               {/* Spacer div to prevent content jump when header becomes fixed */}
               {isSticky && <div style={{ height: "56px" }}></div>}
@@ -310,9 +317,10 @@ export default function FeaturedStoriesPage() {
                       <div
                         className="w-1/3 flex items-center justify-center gap-4"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          setStoryToDelete(item)
-                          setIsConfirmationOpen(true)}}
+                          e.stopPropagation();
+                          setStoryToDelete(item);
+                          setIsConfirmationOpen(true);
+                        }}
                       >
                         <Trash2
                           size={18}
