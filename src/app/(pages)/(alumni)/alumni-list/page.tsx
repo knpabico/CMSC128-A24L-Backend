@@ -116,6 +116,10 @@ export default function Users() {
   const [countryFilter, setCountryFilter] = useState("");
   const [affiliationFilter, setAffiliationFilter] = useState("");
 
+  const [openFilter, setOpenFilter] = useState<
+    null | "fieldOfWork" | "attainment" | "yearGraduated"
+  >(null);
+
   const handleFieldOfWorkFilter = (fieldOfWork: string) => {
     setFieldOfWorkFilter((current) => {
       //if a field of work filter is clicked when it is already selected, it will be removed
@@ -268,9 +272,10 @@ export default function Users() {
           !graduationYearContainerRef.current.contains(target));
 
       if (clickedOutside) {
-        setShowFieldOfWorkFilter(false);
-        setShowAttainmentFilter(false);
-        setShowGraduationYearFilter(false);
+        // setShowFieldOfWorkFilter(false);
+        // setShowAttainmentFilter(false);
+        // setShowGraduationYearFilter(false);
+        setOpenFilter(null);
       }
     }
 
@@ -447,14 +452,19 @@ export default function Users() {
               className="relative inline-block bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors"
             >
               <button
-                onClick={() => setShowFieldOfWorkFilter(!showFieldOfWorkFilter)}
+                onClick={() => {
+                  //setShowFieldOfWorkFilter(!showFieldOfWorkFilter);
+                  setOpenFilter(
+                    openFilter === "fieldOfWork" ? null : "fieldOfWork"
+                  );
+                }}
                 className="flex items-center gap-1 w-full"
               >
                 Field of Work
                 <ChevronDown size={16} />
               </button>
 
-              {showFieldOfWorkFilter && (
+              {openFilter === "fieldOfWork" && (
                 <div className="absolute z-30 mt-2 w-[1200px] bg-white rounded-lg shadow-lg border border-gray-200">
                   <div className="p-4">
                     <h3 className="font-semibold mb-2">Field of Work</h3>
@@ -501,7 +511,12 @@ export default function Users() {
             <div className="relative inline-block" ref={attainmentContainerRef}>
               <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
                 <button
-                  onClick={() => setShowAttainmentFilter(!showAttainmentFilter)}
+                  onClick={() => {
+                    //setShowAttainmentFilter(!showAttainmentFilter);
+                    setOpenFilter(
+                      openFilter === "attainment" ? null : "attainment"
+                    );
+                  }}
                   className="flex items-center gap-1 w-full"
                 >
                   Attainment
@@ -509,7 +524,7 @@ export default function Users() {
                 </button>
               </div>
 
-              {showAttainmentFilter && (
+              {openFilter === "attainment" && (
                 <div className="absolute mt-2 bg-white p-4 rounded shadow-lg z-10 border border-gray-200 w-60">
                   <h3 className="font-semibold mb-2">Attainment</h3>
                   <div className="space-y-2">
@@ -537,9 +552,12 @@ export default function Users() {
             >
               <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
                 <button
-                  onClick={() =>
-                    setShowGraduationYearFilter(!showGraduationYearFilter)
-                  }
+                  onClick={() => {
+                    //setShowGraduationYearFilter(!showGraduationYearFilter);
+                    setOpenFilter(
+                      openFilter === "yearGraduated" ? null : "yearGraduated"
+                    );
+                  }}
                   className="flex items-center gap-1 w-full"
                 >
                   Graduation Year
@@ -547,26 +565,14 @@ export default function Users() {
                 </button>
               </div>
 
-              {showGraduationYearFilter && (
+              {openFilter === "yearGraduated" && (
                 <div className="absolute mt-2 bg-white p-4 rounded shadow-lg z-10 border border-gray-200 w-72">
                   <h3 className="font-semibold mb-2">Graduation Year</h3>
                   <div className="space-y-4">
                     <Slider
                       value={graduationYearFilter}
                       onChange={(_, newValue) => {
-                        console.log("Slider onChange triggered");
-                        console.log("newValue:", newValue);
-                        console.log("newValue type:", typeof newValue);
-                        console.log(
-                          "newValue isArray:",
-                          Array.isArray(newValue)
-                        );
-
                         const typedValue = newValue as [number, number];
-                        console.log(
-                          "Setting graduationYearFilter to:",
-                          typedValue
-                        );
                         setGraduationYearFilter(typedValue);
                       }}
                       valueLabelDisplay="auto"
