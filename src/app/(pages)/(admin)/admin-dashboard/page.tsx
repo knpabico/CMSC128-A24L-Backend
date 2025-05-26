@@ -866,7 +866,7 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1">
-            <MapComponent
+            {/* <MapComponent
               workExperienceList={presentWorkExperiences}
               onLocationClick={(lat, lng, index) => {
                 setSelectedLocation({ lat, lng });
@@ -874,7 +874,8 @@ export default function AdminDashboard() {
               }}
               selectedLocation={selectedLocation}
               activeMarker={activeMarker}
-            />
+            /> */}
+            <MapComponent workExperienceList={presentWorkExperiences}/>
             </CardContent>
           </Card>
         </div>
