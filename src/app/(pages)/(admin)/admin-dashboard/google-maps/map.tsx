@@ -1,19 +1,22 @@
 "use client";
-import { GoogleMap, MarkerF } from "@react-google-maps/api";
-import { WorkExperience, Alumnus } from "@/models/models";
-import { useState, useRef } from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-  } from "@/components/ui/dialog";import { useAlums } from "@/context/AlumContext";
 
+import { useState, useEffect, useRef } from "react";
+import {
+  GoogleMap,
+  InfoWindowF,
+  MarkerF,
+  PolylineF,
+} from "@react-google-maps/api";
+import { WorkExperience } from "@/models/models";
+import { useGoogleMaps } from "@/context/GoogleMapsContext";
 
 interface MapComponentProps {
   workExperienceList: WorkExperience[];
+  onLocationClick: (lat: number, lng: number, index: number) => void;
+  selectedLocation: { lat: number; lng: number } | null;
+  activeMarker: number | null;
 }
+
 
 const containerStyle = {
   width: "100%",
@@ -22,68 +25,152 @@ const containerStyle = {
 
 const MapComponent: React.FC<MapComponentProps> = ({
   workExperienceList,
+  onLocationClick,
+  selectedLocation,
+  activeMarker,
 }) => {
-  const { alums } = useAlums();
-
   const mapRef = useRef<google.maps.Map | null>(null);
-  const [center] = useState({ lat: 14, lng: 120 });
-  const [zoom] = useState(3);
+  const { isLoaded } = useGoogleMaps();
+  const [center, setCenter] = useState({ lat: 14, lng: 120 });
+  const [zoom, setZoom] = useState(3);
+  const [animatedMarker, setAnimatedMarker] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<WorkExperience | null>(
+    null
+  );
 
-  const [selectedWork, setSelectedWork] = useState<WorkExperience | null>(null);
-  const [selectedAlum, setSelectedAlum] = useState<Alumnus | null>(null);
+  useEffect(() => {
+    if (selectedLocation && mapRef.current) {
+      animateMapAndMarker(selectedLocation);
+      smoothZoom(13);
+    }
+  }, [selectedLocation]);
 
+  const animateMapAndMarker = (destination: { lat: number; lng: number }) => {
+    if (!mapRef.current) return;
 
-  const handleMarkerClick = (experience: WorkExperience) => {
-    const alum = alums.find((a:Alumnus) => a.alumniId === experience.alumniId);
-    setSelectedWork(experience);
-    setSelectedAlum(alum ?? null);
+    let start = animatedMarker || center;
+    let step = 0;
+    const totalSteps = 15;
+    const intervalTime = 8;
+
+    function move() {
+      if (step <= totalSteps) {
+        const progress = step / totalSteps;
+        const interpolatedLat =
+          start.lat + (destination.lat - start.lat) * progress;
+        const interpolatedLng =
+          start.lng + (destination.lng - start.lng) * progress;
+
+        setAnimatedMarker({ lat: interpolatedLat, lng: interpolatedLng });
+        mapRef.current?.panTo({ lat: interpolatedLat, lng: interpolatedLng });
+
+        step++;
+        setTimeout(move, intervalTime);
+      } else {
+        setAnimatedMarker(destination);
+        mapRef.current?.panTo(destination);
+      }
+    }
+
+    move();
   };
 
+  //sorts ecxperiencelist
+  const sortExperienceList = (
+    experienceList: WorkExperience[]
+  ): WorkExperience[] => {
+    return [...experienceList].sort((a, b) => a.startDate - b.startDate);
+  };
+
+  const smoothZoom = (targetZoom: number) => {
+    if (!mapRef.current) return;
+    let currentZoom = mapRef.current.getZoom() ?? 3;
+    const zoomInterval = setInterval(() => {
+      if (currentZoom < targetZoom) {
+        mapRef.current?.setZoom(++currentZoom);
+      } else if (currentZoom > targetZoom) {
+        mapRef.current?.setZoom(--currentZoom);
+      } else {
+        clearInterval(zoomInterval);
+      }
+    }, 120);
+  };
+
+  if (!isLoaded) return <p>Loading Map...</p>;
+
   return (
-    <>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={zoom}
-        onLoad={(map) => {
-          mapRef.current = map;
-        }}
-      >
-        {workExperienceList.map((experience) => (
-          <MarkerF
-            key={experience.workExperienceId}
-            position={{ lat: experience.latitude, lng: experience.longitude }}
-            onClick={() => handleMarkerClick(experience)}
-          />
-        ))}
-      </GoogleMap>
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={selectedLocation || center}
+      zoom={zoom}
+      onLoad={(map) => (mapRef.current = map)}
+      options={{
+        restriction: {
+          latLngBounds: {
+            north: 85,
+            south: -85,
+            west: -180,
+            east: 180,
+          },
+          strictBounds: true,
+        },
+        minZoom: 2,
+        maxZoom: 20,
+        gestureHandling: "greedy",
+      }}
+    >
+      {workExperienceList?.map((experience, index) => (
+        <MarkerF
+          key={index}
+          position={{ lat: experience.latitude, lng: experience.longitude }}
+          onClick={() => {
+            onLocationClick(experience.latitude, experience.longitude, index);
+            setSelectedPlace(experience);
+          }}
+          animation={
+            activeMarker === index ? window.google.maps.Animation.BOUNCE : null
+          }
+        />
+      ))}
 
-      {selectedWork && selectedAlum && (
-        <Dialog open={!!selectedWork} onOpenChange={() => setSelectedWork(null)}>
-        <DialogContent className="max-w-md w-full p-6 rounded-2xl shadow-xl text-left">
-            <DialogHeader>
-            <DialogTitle>{selectedWork.company}</DialogTitle>
-            <DialogDescription>
-                Details of the alumnus currently working at this company.
-            </DialogDescription>
-            </DialogHeader>
-            <div className="mt-4 space-y-2">
-            <p>
-                <strong>Job Title:</strong> {selectedWork.jobTitle}
+      {selectedPlace && (
+        <InfoWindowF
+          position={{
+            lat: selectedPlace.latitude,
+            lng: selectedPlace.longitude,
+          }}
+          zIndex={2}
+          options={{
+            pixelOffset: {
+              width: 0,
+              height: -40,
+            },
+          }}
+          onCloseClick={() => {
+            console.log("Closing InfoWindowF...");
+            setSelectedPlace(null);
+          }}
+        >
+          <div>
+            <h1 className="font-bold text-xl md:text-2xl  relative z-10">
+              {selectedPlace.company}
+            </h1>
+            <h1 className="font-bold text-xl md:text-2xl  relative z-10">
+              Location: {selectedPlace.location}
+            </h1>
+            <p className="font-normal text-sm relative z-10 my-4">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, in
+              minima! Praesentium perferendis exercitationem enim blanditiis
+              earum id aperiam autem, molestias, unde impedit natus? Eveniet
+              eaque molestiae delectus quo repudiandae?
             </p>
-            <p>
-                <strong>Alumnus:</strong> {selectedAlum.firstName} {selectedAlum.lastName}
-            </p>
-            <p>
-                <strong>Email:</strong> {selectedAlum.email}
-            </p>
-            </div>
-        </DialogContent>
-        </Dialog>
-
-
+          </div>
+        </InfoWindowF>
       )}
-    </>
+    </GoogleMap>
   );
 };
 
