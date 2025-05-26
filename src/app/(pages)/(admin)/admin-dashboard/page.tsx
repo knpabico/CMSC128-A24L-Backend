@@ -349,7 +349,7 @@ export default function AdminDashboard() {
     <div className="p-2 md:p-6 w-full bg-gray-10 min-h-screen">
       <title>Admin Dashboard | ICS-ARMS</title>
       <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Welcome, Admin!</h1>
         <div className="text-sm text-gray-500 mt-2 md:mt-0">
           Last updated: {new Date().toLocaleDateString()}{" "}
           {new Date().toLocaleTimeString()}
