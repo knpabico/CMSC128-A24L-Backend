@@ -72,7 +72,6 @@ const attainmentRecord = {
   masters: "Master's",
   doctoral: "PhD",
 };
-const yearGraduated = ["< 5 years ago", "< 10 years ago"];
 export default function Users() {
   const { alums, isLoading } = useAlums();
   const [filteredAlums, setFilteredAlums] = useState<Alumnus[]>([]);
@@ -100,7 +99,7 @@ export default function Users() {
     useState(false);
   const [graduationYearFilter, setGraduationYearFilter] = useState<
     [number, number]
-  >([1980, 2025]);
+  >([1980, new Date().getFullYear()]);
 
   const fieldOfWorkContainerRef = useRef<HTMLDivElement>(null);
   const attainmentContainerRef = useRef<HTMLDivElement>(null);
@@ -125,12 +124,12 @@ export default function Users() {
 
   const handleAttainmentFilter = (Attainment: string) => {
     setAttainmentFilter((current) => {
-      //if a field of work filter is clicked when it is already selected, it will be removed
+      //if an attainment filter is clicked when it is already selected, it will be removed
       if (current.includes(Attainment)) {
         return current.filter(
           (existingAttainment) => existingAttainment !== Attainment
         );
-        //selected field of work will be added to the list of selected filters
+        //selected attainment will be added to the list of selected filters
       } else {
         return [...current, Attainment];
       }
@@ -172,7 +171,6 @@ export default function Users() {
 
     //filter alums based on educational attainment
     if (attainmentFilter.length > 0) {
-      //filter alumni by attainment
       filteredAlumni = filteredAlumni.filter((alum: Alumnus) => {
         const education = attainmentMapping.get(alum.alumniId) || [];
         return education.some((educ) =>
@@ -181,21 +179,26 @@ export default function Users() {
       });
     }
 
-    // //filter for year graduated
-    // if (graduationYearFilter.length == 2) {
-    //   filteredAlumni = filteredAlumni.filter((alum: Alumnus) => {
-    //     const education = attainmentMapping.get(alum.alumniId) || [];
+    //graduation year filter on educational attainment
+    if (graduationYearFilter.length == 2) {
+      filteredAlumni = filteredAlumni.filter((alum: Alumnus) => {
+        const education = attainmentMapping.get(alum.alumniId) || [];
 
-    //     return education.some((educ) => {
-    //       const gradYear = parseInt(educ.yearGraduated);
-    //       return (
-    //         gradYear >= graduationYearFilter[0] &&
-    //         gradYear <= graduationYearFilter[1]
-    //       );
-    //     });
-    //   });
-    // }
+        const hasMatchingYear = education.some((educ) => {
+          const gradYear = parseInt(educ.yearGraduated);
 
+          if (isNaN(gradYear)) return false;
+
+          const inRange =
+            gradYear >= graduationYearFilter[0] &&
+            gradYear <= graduationYearFilter[1];
+
+          return inRange;
+        });
+
+        return hasMatchingYear;
+      });
+    }
     //sort alphabetically by first name
     filteredAlumni = filteredAlumni.sort((a: Alumnus, b: Alumnus) =>
       a.firstName.toLowerCase().localeCompare(b.firstName.toLocaleLowerCase())
@@ -219,11 +222,14 @@ export default function Users() {
         (!fieldOfWorkContainerRef.current ||
           !fieldOfWorkContainerRef.current.contains(target)) &&
         (!attainmentContainerRef.current ||
-          !attainmentContainerRef.current.contains(target));
+          !attainmentContainerRef.current.contains(target)) &&
+        (!graduationYearContainerRef.current ||
+          !graduationYearContainerRef.current.contains(target));
 
       if (clickedOutside) {
         setShowFieldOfWorkFilter(false);
         setShowAttainmentFilter(false);
+        setShowGraduationYearFilter(false);
       }
     }
 
@@ -236,13 +242,13 @@ export default function Users() {
   useEffect(() => {
     //function to fetch work experience while being mapped to alumniId
     const mapWorkExperience = async () => {
-      if (filteredAlums.length === 0) return;
-      if (!filteredAlums) return;
+      if (alums.length === 0) return;
+      if (!alums) return;
       setLoading(true);
 
       try {
         //fetch educationList of alums
-        const fetchWorkExperience = filteredAlums.map(async (alum: Alumnus) => {
+        const fetchWorkExperience = alums.map(async (alum: Alumnus) => {
           const alumniId = alum.alumniId;
           const q = query(
             collection(db, "work_experience"),
@@ -279,18 +285,19 @@ export default function Users() {
     };
 
     mapWorkExperience();
-  }, [filteredAlums]);
+  }, [alums]);
 
   useEffect(() => {
     //function to fetch education while being mapped to alumniId
     const mapEducation = async () => {
-      if (filteredAlums.length === 0) return;
-      if (!filteredAlums) return;
+      // Use ALL alums, not filteredAlums
+      if (alums.length === 0) return;
+      if (!alums) return;
       setLoading(true);
 
       try {
-        //fetch educationList of filteredAlums
-        const fetchEducation = filteredAlums.map(async (alum: Alumnus) => {
+        //fetch educationList of ALL alums
+        const fetchEducation = alums.map(async (alum: Alumnus) => {
           const alumniId = alum.alumniId;
           const q = query(
             collection(db, "education"),
@@ -324,7 +331,6 @@ export default function Users() {
         setEducationMapping(educationMap);
       } catch (error) {
         console.error("Error fetching education:", error);
-
         return [];
       } finally {
         setLoading(false);
@@ -332,7 +338,7 @@ export default function Users() {
     };
 
     mapEducation();
-  }, [filteredAlums]);
+  }, [alums]); // Chang
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -463,9 +469,22 @@ export default function Users() {
                   <div className="space-y-4">
                     <Slider
                       value={graduationYearFilter}
-                      onChange={(_, newValue) =>
-                        setGraduationYearFilter(newValue as [number, number])
-                      }
+                      onChange={(_, newValue) => {
+                        console.log("Slider onChange triggered");
+                        console.log("newValue:", newValue);
+                        console.log("newValue type:", typeof newValue);
+                        console.log(
+                          "newValue isArray:",
+                          Array.isArray(newValue)
+                        );
+
+                        const typedValue = newValue as [number, number];
+                        console.log(
+                          "Setting graduationYearFilter to:",
+                          typedValue
+                        );
+                        setGraduationYearFilter(typedValue);
+                      }}
                       valueLabelDisplay="auto"
                       min={1980}
                       max={new Date().getFullYear()}
