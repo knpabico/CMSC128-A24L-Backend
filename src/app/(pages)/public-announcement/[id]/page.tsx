@@ -10,11 +10,13 @@ import { Oswald } from "next/font/google";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MoveLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 const oswald = Oswald({
   subsets: ["latin"],
   weight: ["200", "300", "400", "500", "600", "700"],
 });
 const Page = () => {
+  const router = useRouter();
   const { id } = useParams();
   const { announces, isLoading } = useAnnouncement();
   const announcement: Announcement = announces.find(
@@ -27,13 +29,17 @@ const Page = () => {
     <>
       <title>Announcement | ICS-ARMS</title>
       <div className="bg-[var(--primary-blue)] h-20 flex px-[10%] fixed top-0 w-full z-100 shadow-lg items-center justify-between">
-        <div className="text-[var(--primary-blue)] flex justify-center items-center gap-3">
+        <div
+          className="text-[var(--primary-blue)] flex justify-center items-center gap-3 cursor-pointer"
+          onClick={() => router.push("/")}
+        >
           <div>
             <Image
               src={ICSARMSLogo}
               alt="ICS-ARMS Logo"
               width={40}
               height={40}
+              priority
             />
           </div>
           <div>
@@ -64,6 +70,7 @@ const Page = () => {
               alt="Background Image"
               width={1000}
               height={1000}
+              priority
               className="fixed z-0 top-5 left-0 w-full h-full object-cover opacity-10 "
             />
           </div>

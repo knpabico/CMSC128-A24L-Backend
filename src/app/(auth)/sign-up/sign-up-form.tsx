@@ -99,47 +99,6 @@ import { VerificationCodeModal } from "./sign-up-fields/emailverify";
 import { TextField, Autocomplete } from "@mui/material";
 // import LogoutButtonWithConfirmation from "@/components/LogOutButtonWithModal";
 
-// =================================================== NOTES ==========================================================================
-// MODEL
-// export interface Alumnus {
-//   // personal information
-//   name: string;
-//   email: string;
-//   password: string;
-//   passwordConfirm: string;
-//   studentNumber: string;
-//   graduationYear: string;
-//   currentLocation: string;
-
-//   // career information
-//   employmentStatus: string;	// employed, self-employed, unemployed, retired, yung purely nag-a-aral like masters di pa considered
-//   companyName?: string;		// hide this if self-employed
-//   jobTitle?: string;
-//   workField?: string;
-//   workSetup?: string;		// onsite, wfh, hybrid, remote
-//   workLocation?: string;	// hide rin ata to if self employed
-//   skills?: string[];
-//   techStack: string[];
-//   linkedinLink?: string;
-//   githubLink?: string;
-
-//   // additional information
-//   affiliations: string[];
-//   acceptTerms: boolean;
-//   subscribeToNewsletter: boolean;
-// }
-
-// add siguro years of experience
-
-// notes:
-// - yung acceptTerms, di siya i-istore sa database, required lang siya para mapindot sign up button
-// - optional yung ibang fields sa career information para sa mga retired
-// - pero kapag employed pinili, magiging required fields sila
-// - 1982 ata nagsimula ICS, so I assume na yung SN format sa year na yan ay same na nung sa ngayon??? XXXX-YYYYY
-// - Additional fields??? Years of experience? para mas maganda search filtering if may recruiter na naghahanap ng employees?
-// - Add ng 'looking for work' option sa Employment Status tapos ishow yung Field of Work at Years of Experience na input fields?
-// =====================================================================================================================================
-
 const formParts = [
   //first part, user credentials
   {
@@ -189,10 +148,6 @@ export default function RegistrationForm() {
 
   const router = useRouter();
   const { user, isGoogleSignIn, logOut } = useAuth();
-
-  // needed for the location-input component
-  const [countryName, setCountryName] = useState<string>("");
-  const [stateName, setStateName] = useState<string>("");
 
   const [isVerify, setIsVerify] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -333,10 +288,6 @@ export default function RegistrationForm() {
     setIsVerify(false);
     setIsLoadingModal(false);
 
-    //console.log("Testing sign-up:");
-    //console.log(data);
-    //console.log("ALUM IMAGE", alumImage);
-
     //display error or success toast message
     if (response?.error) {
       toastError(response.message);
@@ -375,37 +326,6 @@ export default function RegistrationForm() {
     setIsLoading(true);
 
     setIsVerify(true);
-
-    // if (isVerified && !isVerify) {
-    //   console.log("putangin");
-    //   const response = await registerUser(
-    //     data,
-    //     {
-    //       displayName: user?.displayName ?? "",
-    //       email: user?.email ?? "",
-    //       uid: user?.uid ?? "",
-    //       photoURL: user?.photoURL ?? "",
-    //     },
-    //     isGoogleSignIn
-    //   );
-    //   console.log("heyyy");
-
-    //   console.log("Testing sign-up:");
-    //   console.log(data);
-
-    //   //display error or success toast message
-    //   if (response?.error) {
-    //     toastError(response.message);
-    //     setIsLoading(false);
-    //     return;
-    //   }
-
-    //   // if successful, show a dialog that says
-    //   // wait for admin to approve the account
-    //   setShowDialog(true);
-    // } else {
-    //   toastError("Verification failed");
-    // }
   };
 
   type fieldName = keyof z.infer<typeof signUpFormSchema>;
@@ -718,28 +638,6 @@ export default function RegistrationForm() {
                               )}
                             />
                           </div>
-                          {/* <div className="">
-                            <FormField
-                              control={form.control}
-                              name="fieldOfInterest"
-                              render={({ field }) => (
-                                <FormItem className="gap-0">
-                                  <p className="text-sm font-semibold">
-                                    Field of Interest
-                                  </p>
-                                  <FormControl>
-                                    <TagsInput
-                                      value={field.value ?? []}
-                                      onValueChange={field.onChange}
-                                      placeholder="Enter your fields of interest"
-                                      className="bg-white border border-gray-500"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div> */}
 
                           {/* bachelor's form field */}
                           <div>

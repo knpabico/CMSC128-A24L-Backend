@@ -80,7 +80,19 @@ export const AlumPhotoUpload = ({
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
+
+    //max image file size set to 3MB (DOLE INSPIRED)
+    const MAX_IMAGE_SIZE = 3 * 1024 * 1024;
     if (file) {
+      //check if image exceeds 3MB
+      if (file.size > MAX_IMAGE_SIZE) {
+        setMessage("Image size exceeds 3MB limit");
+        setIsError(true);
+        return;
+      } else {
+        setIsError(false);
+      }
+
       setImage(file);
       setPreview(URL.createObjectURL(file)); //preview
       imageSetter(file);
