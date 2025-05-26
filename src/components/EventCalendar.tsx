@@ -3,9 +3,11 @@ import { useEvents } from "@/context/EventContext";
 import { Event } from "@/models/models";
 import { Calendar, ChevronLeft, ChevronRight, Users2 } from "lucide-react";
 import formatTimeString from "@/lib/timeFormatter";
+import { useRsvpDetails } from "@/context/RSVPContext";
 
 export default function EventCalendar() {
   const { events, isLoading } = useEvents();
+  const { rsvpDetails } = useRsvpDetails();
   const [viewMode, setViewMode] = useState<"week" | "month">("week"); // "week" or "month"
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -392,7 +394,14 @@ export default function EventCalendar() {
           </div>
           <div className="flex items-start text-xs text-gray-900">
             <Users2 size={14} className="text-gray-500 mr-2  flex-shrink-0" />
-            {selectedEvent.rsvps.length}
+            {rsvpDetails
+              .filter((rsvp) => rsvp.postId === selectedEvent.eventId)
+              .reduce((count, rsvp) => {
+                const acceptedAlums = Object.values(rsvp.alums || {}).filter(
+                  (alum) => alum.status === "Accepted"
+                ).length;
+                return count + acceptedAlums;
+              }, 0)}
           </div>
         </div>
       )}

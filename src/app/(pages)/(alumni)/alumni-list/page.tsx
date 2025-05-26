@@ -151,16 +151,16 @@ export default function Users() {
           <h1 className="text-xl font-semibold">Loading...</h1>
         </div>
       ) : (
-        <div className="container mx-auto px-4 md:px-8 lg:px-16 py-8 flex flex-col gap-6">
+        <div className=" mx-[10%] py-10 flex flex-col gap-4">
           {/* Filter Bar */}
-          <div className="bg-white rounded-xl flex flex-wrap gap-3 p-3 items-center shadow-sm">
-            <div className="text-sm font-medium">Filter by:</div>
-            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Any Date</div>
+          <div className="bg-white rounded-xl flex flex-wrap gap-3 px-5 py-3 items-center shadow-sm">
+            <div className="text-sm text-[var(--primary-blue)]">Filter:</div>
+            <div className="px-3 py-1.5 rounded-full text-[var(--primary-blue)] flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-[var(--primary-blue)]">
+              <div>Degree</div>
               <ChevronDown size={16} />
             </div>
-            <div className="bg-gray-200 px-3 py-1.5 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">
-              <div>Status</div>
+            <div className="px-3 py-1.5 rounded-full text-[var(--primary-blue)] flex gap-1 items-center justify-between text-sm cursor-pointer border-[2px] border-[var(--primary-blue)]">
+              <div>Year Graduated</div>
               <ChevronDown size={16} />
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function Users() {
                   </div>
                   {alum.contactPrivacy && (
                     <div
-                      className="cursor-pointer text-center text-xs text-blue-500 underline"
+                      className="cursor-pointer text-center text-xs text-[var(--primary-blue)] underline"
                       onClick={() =>
                         window.open(
                           `https://mail.google.com/mail/?view=cm&fs=1&to=${alum.email}&su=Greetings, ${alum.firstName} ${alum.lastName}`,
@@ -253,7 +253,7 @@ export default function Users() {
                     {alum.fieldOfInterest?.map((interest, idx) => (
                       <div
                         key={idx}
-                        className="text-xs px-2.5 py-1 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-50 transition-colors"
+                        className="text-xs px-2.5 py-1 rounded-md border border-[var(--primary-blue)] text-[var(--primary-blue)] hover:bg-blue-50 transition-colors"
                       >
                         {interest}
                       </div>

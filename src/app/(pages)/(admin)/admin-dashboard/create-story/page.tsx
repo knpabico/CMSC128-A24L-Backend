@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import Breadcrumb from "@/components/breadcrumb";
 
 export default function FeaturedStoriesPage() {
   const {
@@ -123,28 +124,25 @@ export default function FeaturedStoriesPage() {
     setSortOption(prev => prev === "newest" ? "oldest" : "newest");
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Featured Stories", href: "#", active: true },
+  ];
+
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
-        <div>Home</div>
-        </span>
-        <div>
-          <ChevronRight size={15} />
-        </div>
-        <div>Manage Featured Stories</div>
-      </div>
+    <div className="flex flex-col gap-5">
+      <Breadcrumb items={breadcrumbItems} />
 
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Manage Featured Stories</div>
-          <div
-            className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
+          <button
             onClick={navigateToCreate}
+            className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
           >
-            <CirclePlus size={18} />
-            Write featured story
-          </div>
+            + Write featured story
+          </button>
+          
         </div>
       </div>
 
@@ -189,9 +187,9 @@ export default function FeaturedStoriesPage() {
       <div className="flex flex-col gap-2">
         {/* Sorting Filter */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-          <div className="text-sm font-medium">Sort by:</div>
+          <div className="text-sm text-[var(--primary-blue)]">Sort by:</div>
           <div 
-            className="pl-2 pr-3 py-1 rounded-md flex gap-2 items-center justify-between text-sm font-medium cursor-pointer bg-gray-300 hover:bg-gray-400"
+            className="pl-4 pr-4 py-2 rounded-full flex gap-2 items-center justify-between text-sm font-medium cursor-pointer border-2 border-[var(--primary-blue)] text-[var(--primary-blue)]"
             onClick={toggleSortOption}
           >
             <div>{sortOption === "newest" ? "Newest" : "Oldest"}</div>

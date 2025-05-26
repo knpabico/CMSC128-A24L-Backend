@@ -12,6 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
+import Breadcrumb from "@/components/breadcrumb";
 
 export default function ManageScholarship() {
   const { scholarships, updateScholarship, deleteScholarship } =
@@ -114,40 +115,34 @@ export default function ManageScholarship() {
     router.push("/admin-dashboard");
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Scholarships", href: "#", active: true },
+  ];
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-2">
-        <div className="hover:text-blue-600 cursor-pointer" onClick={home}>
-          Home
-        </div>
-        <div>
-          <ChevronRight size={15} />
-        </div>
-        <div className="font-bold text-[var(--primary-blue)]">
-          {" "}
-          Manage Scholarships{" "}
-        </div>
-      </div>
+      <Breadcrumb items={breadcrumbItems} />
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Manage Scholarships</div>
-          <div
-            className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600"
+          <button
             onClick={create}
+            className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
           >
-            + Create Scholarship
-          </div>
+            + Create Scholarship Drive
+          </button>
         </div>
       </div>
       {/* Filter tabs */}
-      <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-        <div className="text-sm font-medium">Filter by:</div>
+      <div className="bg-white rounded-xl flex gap-3 p-2 pl-4 items-center">
+        <div className="text-sm font-medium text-[var(--primary-blue)]">Filter by:</div>
         <div className=" pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-300">
           <select
             id="sort"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as typeof sortOption)}
-            className="flex items-center text-sm"
+            className="flex items-center text-sm text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -161,62 +156,72 @@ export default function ManageScholarship() {
         </div>
       </div>
       {/* Table Container with Fixed Height for Scrolling */}
+      {/* Table Container with Fixed Height for Scrolling */}
+      {/* Table Container with Fixed Height for Scrolling */}
       <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
         <div
           className="rounded-xl overflow-hidden border border-gray-300 relative"
           ref={tableRef}
         >
-          <div
-            className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
-              isSticky ? "fixed top-0" : ""
-            }`}
-            style={{ width: isSticky ? headerWidth : "100%" }}
-          >
-            <div className="w-1/2 flex items-center justify-baseline font-semibold">
-              Scholarship Info
-            </div>
-            <div className="w-1/2 flex justify-end items-center">
-              <div className="w-1/6 flex items-center justify-center font-semibold">
-                Active
-              </div>
-              <div className="w-1/6 flex items-center justify-center font-semibold">
-                Actions
-              </div>
-              <div className="w-1/6 flex items-center justify-center"></div>
-            </div>
-          </div>
+          <table className="w-full border-collapse">
+            <thead
+              className={`sticky top-0 z-50 bg-blue-100 shadow-sm text-sm text-gray-600 ${
+                isSticky ? "fixed top-0" : ""
+              }`}
+              style={{ width: isSticky ? headerWidth : "100%" }}
+            >
+              <tr>
+                <th className="w-1/2 p-4 text-left font-semibold">
+                  Scholarship Info
+                </th>
+                <th className="w-1/6 p-4 text-center font-semibold">
+                  Active
+                </th>
+                <th className="w-1/6 p-4 text-center font-semibold">
+                  Actions
+                </th>
+              </tr>
+            </thead>
 
-          {/* Spacer div to prevent content jump when header becomes fixed */}
-          {isSticky && <div style={{ height: "56px" }}></div>}
+            {/* Spacer row to prevent content jump when header becomes fixed */}
+            {isSticky && (
+              <tbody>
+                <tr style={{ height: "56px" }}>
+                  <td colSpan={3}></td>
+                </tr>
+              </tbody>
+            )}
 
-          {/* Dynamic rows */}
-          {sortedScholarships.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
-              'No scholarships available.'
-            </div>
-          ) : (
-            <div className="">
-              {sortedScholarships.map((scholarship: Scholarship, index) => (
-                <div
-                  key={scholarship.scholarshipId}
-                  className={`w-full flex gap-4 border-t border-gray-300 ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-blue-50`}
-                >
-                  <div className="w-1/2 flex flex-col p-4 gap-1">
-                    <div className="text-base font-bold">
-                      {scholarship.title}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Date Posted: {scholarship.datePosted.toLocaleDateString()}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Sponsors: {scholarship.alumList.length}
-                    </div>
-                  </div>
-                  <div className="w-1/2 flex items-center justify-end p-5">
-                    <div className="w-1/6 flex items-center justify-center">
-                      <div className="flex flex-col items-center">
+            <tbody>
+              {sortedScholarships.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="text-center p-10 text-gray-500">
+                    No scholarships available.
+                  </td>
+                </tr>
+              ) : (
+                sortedScholarships.map((scholarship, index) => (
+                  <tr
+                    key={scholarship.scholarshipId}
+                    className={`border-t border-gray-300 ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50`}
+                  >
+                    <td className="p-4 align-top">
+                      <div className="flex flex-col gap-1">
+                        <div className="text-base font-bold">
+                          {scholarship.title}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Date Posted: {scholarship.datePosted.toLocaleDateString()}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Sponsors: {scholarship.alumList.length}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex justify-center">
                         <button
                           onClick={() =>
                             handleStatusToggle(
@@ -240,33 +245,33 @@ export default function ManageScholarship() {
                           />
                         </button>
                       </div>
-                    </div>
-                    <div className="w-1/6 flex items-center justify-center">
-                      <button
-                        className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm"
-                        onClick={() =>
-                          navigateToDetail(scholarship.scholarshipId)
-                        }
-                      >
-                        View Details
-                      </button>
-                    </div>
-                    <div className="w-1/6 flex items-center justify-center">
-                      <button
-                        className="text-red-700 hover:cursor-pointer"
-                        onClick={() => {
-                          setSelectedScholarship(scholarship);
-                          setIsConfirmationOpen(true);
-                        }}
-                      >
-                        <Trash2 className="size-6" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-10">
+                        <button
+                          className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm"
+                          onClick={() =>
+                            navigateToDetail(scholarship.scholarshipId)
+                          }
+                        >
+                          View Details
+                        </button>
+                        <button
+                          className="text-gray-500 hover:text-red-400 cursor-pointer"
+                          onClick={() => {
+                            setSelectedScholarship(scholarship);
+                            setIsConfirmationOpen(true);
+                          }}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

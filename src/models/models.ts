@@ -141,6 +141,7 @@ export interface Donation {
   date: Date;
   isAnonymous: boolean;
   imageProof: string;
+  verified: boolean;
 }
 
 export interface RSVP {

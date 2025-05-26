@@ -46,6 +46,8 @@ export default function AdminDashboard() {
   const [selectedJob, setSelectedJob] = useState<JobOffering | null>(null);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   // const { allDonations } = useDonationContext();
+
+  
   
   const inactiveAlums = useMemo(() => {
     return alums.filter(
@@ -171,29 +173,22 @@ export default function AdminDashboard() {
     day: "numeric",
   });
   
-  const getFieldInterestCounts = (alums: Alumnus[]) => {
-    const counts: Record<string, number> = {}; //rereturn ito like this 
-                                              // [<field> count]
-    fields.forEach(field => {
-      counts[field] = 0;
+  const getJobTitleCounts = (workExperiences: WorkExperience[]) => {
+    const jobTitleCounts: Record<string, number> = {};
+  
+    workExperiences.forEach(exp => {
+      const title = exp.jobTitle?.trim() || "Unspecified";
+      if (jobTitleCounts[title]) {
+        jobTitleCounts[title]++;
+      } else {
+        jobTitleCounts[title] = 1;
+      }
     });
-    
-    // Count occurrences
-    alums.forEach(alum => {
-      alum.fieldOfInterest?.forEach(field => {
-        if (counts.hasOwnProperty(field)) {
-          counts[field]++;
-        } else {
-          counts["Others"]++; 
-        }
-      });
-    });
-    
-    return counts;
+  
+    return jobTitleCounts;
   };
   
-  const fieldCounts = getFieldInterestCounts(alums);
-  console.log(alums, "alumnis", getActiveAlums(alums));
+  const jobTitleStats = getJobTitleCounts(allWorkExperience);
 
   const presentWorkExperiences = allWorkExperience.filter(
     (exp:WorkExperience) => exp.endYear === "present"
@@ -287,7 +282,7 @@ export default function AdminDashboard() {
     }
   };
   
-  const sortedEntries = Object.entries(fieldCounts).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+  const sortedEntries = Object.entries(jobTitleStats).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]);
     
     return (
       <div className="p-2 md:p-6 w-full bg-gray-10 min-h-screen">
@@ -334,15 +329,24 @@ export default function AdminDashboard() {
 
         <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-lg transition-shadow">
           <CardContent className="p-6 flex items-center">
-            <div className="bg-blue-500 rounded-full p-3 mr-4">
+            <div className="bg-blue-500 rounded-full p-3 mr-4 flex-shrink-0">
               <CreditCard className="h-6 w-6 text-white" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <p className="text-sm text-gray-500">Active Donations</p>
-              <p className="text-2xl font-bold">{activeDonations.length}</p>
+              <p className="text-2xl font-bold truncate">{activeDonations.length}</p>
               <div className="flex items-center mt-1">
-                <span className="text-xs text-green-600">
-                  {donationDrives.reduce((sum: number, drive: DonationDrive) => sum + drive.currentAmount, 0).toLocaleString()} PHP raised
+                <span className="text-xs text-green-600 truncate">
+                  {(() => {
+                    const total = donationDrives.reduce((sum: number, drive: DonationDrive) => sum + drive.currentAmount, 0);
+                    if (total >= 1000000) {
+                      return `₱${(total / 1000000).toFixed(1)}M raised`;
+                    } else if (total >= 1000) {
+                      return `₱${(total / 1000).toFixed(1)}K raised`;
+                    } else {
+                      return `₱${total.toLocaleString()} raised`;
+                    }
+                  })()}
                 </span>
               </div>
             </div>
@@ -412,11 +416,11 @@ export default function AdminDashboard() {
               {/* Pending section */}
               <div className="border-0 rounded-lg shadow-md p-4 bg-white w-full">
                 <div className="flex justify-between items-center mb-4">
-                  <div className="text-lg font-medium flex items-center">
+                  <div className="text-small font-medium flex items-center">
                     <Activity className="h-5 w-5 mr-2 text-yellow-500" />
                     <span>Pending Registration</span>
                   </div>
-                  <div className="text-xl font-bold bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+                  <div className="text-small font-bold bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
                     {getPendingAlums(alums).length}
                   </div>
                 </div>
@@ -428,7 +432,7 @@ export default function AdminDashboard() {
                       <div
                         key={alum.alumniId}
                         onClick={() => handleOpenModal(alum)}
-                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center mb-2 w-full transition-all duration-200 transform hover:translate-x-1"
+                        className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center mb-2 w-full transition-all duration-200 transform"
                       >
                         <div className="overflow-hidden">
                           <span className="font-medium text-sm truncate block">
@@ -478,7 +482,18 @@ export default function AdminDashboard() {
               </div>
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-blue-50 to-blue-100">
                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Total Raised</div>
-                <div className="text-lg sm:text-2xl font-bold text-blue-700">₱{donationDrives.reduce((sum: number, drive: DonationDrive) => sum + drive.currentAmount, 0).toLocaleString()}</div>
+                <div className="text-lg sm:text-2xl font-bold text-blue-700 truncate">
+                  {(() => {
+                    const total = donationDrives.reduce((sum: number, drive: DonationDrive) => sum + drive.currentAmount, 0);
+                    if (total >= 1000000) {
+                      return `₱${(total / 1000000).toFixed(1)}M`;
+                    } else if (total >= 1000) {
+                      return `₱${(total / 1000).toFixed(1)}K`;
+                    } else {
+                      return `₱${total.toLocaleString()}`;
+                    }
+                  })()}
+                </div>
               </div>
               <div className="rounded-lg shadow-md p-3 text-center bg-gradient-to-r from-purple-50 to-purple-100">
                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Completed</div>
@@ -559,12 +574,22 @@ export default function AdminDashboard() {
         {/* Combined Events Card */}
         <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow col-span-2">
           <CardHeader className="pb-0">
-            <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-purple-600" /> Events
+            <CardTitle className="flex justify-between items-center mb-4">
+              <div className="text-small flex items-center">
+                <Calendar className="h-5 w-5 mr-2 text-purple-600" />
+                <span>Events</span>
+              </div>
+        
+              <div className="text-small font-bold bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+                  {activeEventsTab === 'proposals'
+                    ? getEventProposals(events).length
+                    : getUpcomingEvents(events).length
+                }
+              </div>
             </CardTitle>
             
             {/* Tabs */}
-            <div className="flex w-full mt-2 border-b border-gray-200">
+            <div className="flex space-x-1 border-b border-gray-200">
               <button
                 onClick={() => setActiveEventsTab('proposals')}
                 className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
@@ -579,7 +604,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveEventsTab('upcoming')}
                 className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
                   activeEventsTab === 'upcoming'
-                    ? 'border-b-2 border-green-500 text-green-600'
+                    ? 'border-b-2 border-purple-500 text-purple-600'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -596,7 +621,7 @@ export default function AdminDashboard() {
                     <div
                       key={event.eventId}
                       onClick={() => handleOpenModalEventProposal(event)}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform"
                     >
                       <div>
                         <span className="font-medium text-sm line-clamp-1">{event.title}</span>
@@ -623,7 +648,7 @@ export default function AdminDashboard() {
                     <div
                       key={event.eventId}
                       onClick={() => handleOpenModalEventProposal(event)}
-                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
+                      className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform"
                     >
                       <div className="w-full">
                         <span className="font-medium text-sm line-clamp-1">{event.title}</span>
@@ -663,12 +688,21 @@ export default function AdminDashboard() {
         {/* Job Postings */}
         <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle className="flex items-center">
-              <Briefcase className="h-5 w-5 mr-2 text-blue-600" /> Job Postings
+            <CardTitle className="flex justify-between items-center mb-4">
+              <div className="text-small flex items-center">
+                <Briefcase className="h-5 w-5 mr-2 text-blue-600" /> 
+                <span>Job Postings</span>
+              </div>
+              <div className="text-small font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-full ml-2">
+                {activeTab === 'active' 
+                  ? jobOffers.filter((job: JobOffering) => job.status === 'Accepted').length
+                  : jobOffers.filter((job: JobOffering) => job.status === 'Pending').length
+                }
+              </div>
             </CardTitle>
             
             {/* Tabs */}
-            <div className="flex space-x-2 mt-2 border-b border-gray-200">
+            <div className="flex space-x-1 border-b border-gray-200">
               <button
                 onClick={() => setActiveTab('active')}
                 className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
@@ -702,7 +736,7 @@ export default function AdminDashboard() {
               .map((jobOffer:JobOffering) => (
                 <div
                   key={jobOffer.jobId}
-                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform hover:translate-x-1"
+                  className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer flex justify-between items-center transition-all duration-200 transform"
                   onClick={() => handleOpenJobModal(jobOffer)}
                 >
                   <div className="flex-1">
@@ -727,15 +761,23 @@ export default function AdminDashboard() {
           </div>
         </Card>
         
-        {/* MAYBELLEEE PAFIX PLSS di ko mapalabas yung mga scholarships nyahahah */}
         <Card className="border-0 shadow-md flex flex-col bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="pb-0">
-            <CardTitle className="flex items-center">
-              <Award className="h-5 w-5 mr-2 text-yellow-600" /> Scholarships
+            <CardTitle className="flex justify-between items-center mb-4">
+              <div className="text-small flex items-center">
+                <Award className="h-5 w-5 mr-2 text-yellow-600" />
+                <span>Scholarships</span>
+              </div>
+              <div className="text-small font-bold bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full ml-2">
+                {activeScholarshipTab === 'open' 
+                  ? scholarships.filter((scholarship: Scholarship) => scholarship.status === 'active').length
+                  : scholarships.filter((scholarship: Scholarship) => scholarship.status === 'closed').length
+                }
+              </div>
             </CardTitle>
             
             {/* Tabs */}
-            <div className="flex space-x-2 mt-2 border-b border-gray-200">
+            <div className="flex space-x-1 border-b border-gray-200">
               <button
                 onClick={() => setActiveScholarshipTab('open')}
                 className={`flex-1 px-3 py-1 text-xs font-medium rounded-t-lg transition-colors ${
@@ -774,7 +816,7 @@ export default function AdminDashboard() {
                   <div 
                     key={scholarship.scholarshipId} 
                     onClick={() => handleSchoOpenModal(scholarship)}
-                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform hover:translate-x-1"
+                    className="p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 cursor-pointer transition-all duration-200 transform"
                   >
                     <div className="mb-1">
                       <span className="font-medium text-sm line-clamp-1">{scholarship.title}</span>
@@ -790,7 +832,7 @@ export default function AdminDashboard() {
                   : scholarship.status === 'closed'
               ).length === 0 && (
                 <div className="text-center py-6 text-gray-500">
-                  No {activeScholarshipTab === 'open' ? 'Open' : 'Closed'} scholarships
+                  No {activeScholarshipTab === 'open' ? 'active' : 'closed'} scholarships
                 </div>
               )}
             </>
@@ -833,7 +875,7 @@ export default function AdminDashboard() {
               <CardTitle className="flex items-center">
                 <Briefcase className="h-5 w-5 mr-2 text-purple-600" /> Top Fields
               </CardTitle>
-              <span className="text-xs text-gray-500">Based on alumni interests</span>
+              <span className="text-xs text-gray-500">Based on current work experiences</span>
             </CardHeader>
             <CardContent className="flex-1">
               <div className="w-full flex flex-col justify-center mt-2">
@@ -878,7 +920,7 @@ export default function AdminDashboard() {
     {/* Modal for job details */}
     {isJobModalOpen && selectedJob && (
       <Dialog open={isJobModalOpen} onOpenChange={closeModal}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 [&>button]:hidden">
           <DialogHeader className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
             <div className="flex gap-4">
               {selectedJob.image && (
@@ -978,16 +1020,18 @@ export default function AdminDashboard() {
 
           {/* Footer with action buttons */}
           <DialogFooter className="px-6 py-4 border-t bg-gray-50">
-            {/* <h3 className="text-lg font-semibold mb-3">Status Management</h3> */}
-            <div className="flex justify-between items-center">
-              
+            <div className="w-full flex justify-between">
+              <DialogClose asChild>
+                <Button variant="outline">Close</Button>
+              </DialogClose>
+
               <div className="flex gap-2">
-                {selectedJob.status === 'Pending' ? (
-                  <Button
+              {selectedJob.status === 'Pending' ? (
+                <Button
                     onClick={() => updateJobStatus(selectedJob.jobId, 'Active')}
                     className="bg-green-600 hover:bg-green-700 text-white"
                   >
-                    <CheckCircle size={16} className="mr-2" /> Approve
+                    <CheckCircle size={16} className="mr-2" />Approve
                   </Button>
                 ) : (
                   <Button
@@ -995,7 +1039,7 @@ export default function AdminDashboard() {
                     variant="outline"
                     className="border-amber-500 text-amber-600 hover:bg-amber-50"
                   >
-                    <Clock size={16} className="mr-2" /> Mark as Pending
+                    <Clock size={16} className="mr-2" />Mark as Pending
                   </Button>
                 )}
                 
@@ -1004,10 +1048,11 @@ export default function AdminDashboard() {
                   variant="destructive"
                   className="bg-red-600 hover:bg-red-700"
                 >
-                  <XCircle size={16} className="mr-2" /> Reject
+                  <XCircle size={16} className="mr-2" />Reject
                 </Button>
-              </div>
+                </div>
             </div>
+          
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1016,8 +1061,7 @@ export default function AdminDashboard() {
     {/* Scholarship Modal */}
     {selectedScholarship && (
       <Dialog open={isSchoModalOpen} onOpenChange={handleSchoCloseModal}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-          {/* Header with scholarship title */}
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 [&>button]:hidden">
           <DialogHeader className="relative bg-gradient-to-r from-[#0856BA] to-[#064392] p-6 text-white rounded-t-lg">
             <div className="flex gap-4"> 
                 <DialogTitle className="text-2xl font-bold mb-1 line-clamp-2">

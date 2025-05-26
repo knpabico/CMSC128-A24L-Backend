@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
+import MapComponentA from "@/components/ui/map";
 import {
   MapPin,
   Cake,
@@ -29,6 +30,7 @@ import Link from "next/link";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
 import { formatDate } from "@/utils/formatDate";
+import MapComponent from "../../google-maps/map";
 
 export default function AlumPage() {
   const { alums, loading: alumsloading } = useAlums();
@@ -44,6 +46,11 @@ export default function AlumPage() {
   const [work, setWork] = useState<WorkExperience[]>([]);
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
   const { isLoaded } = useGoogleMaps();
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
+const [activeMarker, setActiveMarker] = useState<number | null>(null);
+
+
+  
 
   const calculateAge = (birthDate: Date) => {
     //current date
@@ -450,7 +457,7 @@ export default function AlumPage() {
                         <th className="py-1 w-3/13 px-3">Company</th>
                         <th className="py-1 w-3/13">Industry</th>
                         <th className="py-1 w-3/13 px-3">From - To</th>
-                        <th className="py-1 w-1/13">Loc</th>
+                        {/* <th className="py-1 w-1/13">Loc</th> */}
                         <th className="py-1 w-1/13 pl-1">Proof</th>
                       </tr>
                     </thead>
@@ -469,7 +476,8 @@ export default function AlumPage() {
                           return startB - startA;
                         })
                         .map((w: WorkExperience, index: number) => (
-                          <tr key={index}>
+                          <tr key={index}
+                          >
                             <td className="py-1">{w.jobTitle}</td>
                             <td className="py-1 px-3">{w.company}</td>
                             <td className="py-1">{w.industry}</td>
@@ -479,7 +487,11 @@ export default function AlumPage() {
                             <td className="py-1">
                               <MapPin
                                 className="text-[#3675c5] cursor-pointer"
-                                onClick={() => openMap(index)}
+                                onClick={() => {
+                                  // Update selectedLocation and activeMarker on row click
+                                  setSelectedLocation({ lat: w.latitude, lng: w.longitude });
+                                  setActiveMarker(index);
+                                }}
                               />
                             </td>
                             <td className="py-1 pl-1">
@@ -586,6 +598,16 @@ export default function AlumPage() {
                   <p className="pl-9 pt-3">None</p>
                 )}
               </div>
+
+              <MapComponentA
+                workExperienceList={work}
+                onLocationClick={(lat, lng, index) => {
+                  setSelectedLocation({ lat, lng });
+                  setActiveMarker(index);
+                }}
+                selectedLocation={selectedLocation}
+                activeMarker={activeMarker}
+              />
             </div>
           </div>
         </div>

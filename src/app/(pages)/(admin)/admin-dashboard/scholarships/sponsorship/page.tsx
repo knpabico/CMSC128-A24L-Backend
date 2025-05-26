@@ -407,7 +407,7 @@ export default function ViewPendingScholarships() {
                   } `}
                 >
                   <div className="flex flex-col w-full">
-                    {scholarship.status === "active" &&
+                    {
                       scholarshipStudentMapping[scholarship.scholarshipId] &&
                       scholarshipStudentMapping[scholarship.scholarshipId]
                         .filter((scholarshipStudent: ScholarshipStudent) => {

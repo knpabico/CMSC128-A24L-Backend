@@ -62,6 +62,7 @@ import { Scholarship } from "@/models/models";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { JobOffering } from "@/models/models";
 import { useJobOffer } from "@/context/JobOfferContext";
+import MapComponentA from "@/components/ui/map";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -147,6 +148,8 @@ const UserProfile = () => {
   const [drivesView, setDrivesView] = useState(false);
   const [scholarshipsView, setScholarshipsView] = useState(false);
   const [jobsView, setJobsView] = useState(false);
+  const [activeMarker, setActiveMarker] = useState<number | null>(null);
+
   const { bookmarks } = useBookmarks();
   if (!bookmarks) {
     return <div>Loading Bookmarks...</div>;
@@ -207,6 +210,7 @@ const UserProfile = () => {
     }
     setIsOpen(false);
   };
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   
   const handleFieldRemove = (field) => {
     setSelectedFields(selectedFields.filter(f => f !== field));
@@ -224,6 +228,8 @@ const UserProfile = () => {
     const day = birthDate.getDate();
     const month = birthDate.getMonth();
     const year = birthDate.getFullYear();
+
+
 
     //student number
 
@@ -1338,7 +1344,11 @@ const UserProfile = () => {
                             <div className="flex space-x-10">
                               <button
                                 className="flex items-center space-x-2 cursor-pointer"
-                                onClick={() => openMap(index)}
+                                onClick={() => {
+                                  // Update selectedLocation and activeMarker on row click
+                                  setSelectedLocation({ lat: item.latitude, lng: item.longitude });
+                                  setActiveMarker(index);
+                                }}
                               >
                                 <p className="text-[#3675c5]">
                                   <MapPin />
@@ -1446,6 +1456,15 @@ const UserProfile = () => {
                         Add work experience
                       </p>
                     </button>
+                  <MapComponentA
+                    workExperienceList={userWorkExperience}
+                    onLocationClick={(lat, lng, index) => {
+                      setSelectedLocation({ lat, lng });
+                      setActiveMarker(index);
+                    }}
+                    selectedLocation={selectedLocation}
+                    activeMarker={activeMarker}
+                  />
                   </div>
 
                   {alumInfo?.alumniId && (

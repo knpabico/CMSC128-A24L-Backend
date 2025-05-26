@@ -274,7 +274,7 @@ function DonationDriveDetailsContent() {
 
         // Fetch donor details for non-anonymous donations
         const enhancedDonations = await Promise.all(
-          donationsData.map(async (donation) => {
+          donationsData.filter(donation=>donation.verified===true).map(async (donation) => {
             // Skip fetching details for anonymous donations
             if (donation.isAnonymous) {
               return { ...donation, displayName: "Anonymous" };
@@ -405,7 +405,7 @@ function DonationDriveDetailsContent() {
               ) : (
                 <Image
                   src="/default-image.jpg"
-                  alt={event.title}
+                  alt={event?.title || "Default event image"}
                   width={800}
                   height={400}
                   className="object-cover w-full h-full"

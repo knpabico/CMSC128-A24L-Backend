@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight, CirclePlus, Ellipsis, EllipsisVertical, Eye,
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toastSuccess } from "@/components/ui/sonner";
+import Breadcrumb from "@/components/breadcrumb";
 
 function formatDate(timestamp: any) {
     if (!timestamp || !timestamp.seconds) return "Invalid Date";
@@ -23,8 +24,10 @@ export default function ManageAnnouncements() {
     setType,
     setAnnounceImage,
     setIsEdit,
-    handleDelete
+    handleDelete,
+    togglePublic
   } = useAnnouncement();
+
 
   const router = useRouter();
   const tableRef = useRef<HTMLDivElement>(null);
@@ -202,50 +205,42 @@ export default function ManageAnnouncements() {
     }
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Announcements", href: "#", active: true },
+  ];
+
+
   return (
     <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-2">
-            <button 
-                onClick={() => router.push("/admin-dashboard")}
-                className="cursor-pointer rounded-full transition"
-            >
-                Home
-            </button>
-            <div>
-                <ChevronRight size={15} />
-            </div>
-            <div className="font-bold text-[var(--primary-blue)]">
-                Manage Announcements
-            </div>
-        </div>
+        <Breadcrumb items={breadcrumbItems} />
 
         <div className="w-full">
             <div className="flex items-center justify-between">
                 <div className="font-bold text-3xl">
                     Manage Announcements
                 </div>
-                <button 
-                    type="button"
-                    onClick={() => 
+                <button
+                  onClick={() => 
                         {router.push("/admin-dashboard/announcements/add"); 
                         handleAddClick();}
                     }
-                    className="flex items-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
+                  className="bg-[var(--primary-blue)] text-[14px] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
                 >
-                    <CirclePlus size={18} /> Add Announcement
+                  + Add Announcement
                 </button>
             </div>
         </div>
     
         {/* Filter Bar */}
         <div className="bg-white rounded-xl flex gap-3 p-2.5 pl-4 items-center">
-          <div className="text-sm font-medium">Filter by:</div>
+          <div className="text-sm font-medium text-[var(--primary-blue)]">Filter by:</div>
           
           {/* Date Filter */}
           <div className="relative">
             <div 
               id="date-filter-button"
-              className={`bg-gray-300 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400 ${dateFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
+              className={`border-2 border-[var(--primary-blue)] text-[var(--primary-blue)] pl-4 pr-2 py-2 rounded-full flex gap-1 items-center justify-between font-medium cursor-pointer  ${dateFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
               onClick={() => setShowDateDropdown(!showDateDropdown)}
             >
               <div className="text-xs">{getDateFilterText()}</div>
@@ -264,7 +259,7 @@ export default function ManageAnnouncements() {
                     setShowDateDropdown(false);
                   }}
                 >
-                  <span>All Time</span>
+                  <span>All Time </span>
                   {dateFilter === "all" && <div className="w-2 h-2 rounded-full bg-blue-600"></div>}
                 </div>
                 <div 
@@ -295,7 +290,7 @@ export default function ManageAnnouncements() {
           <div className="relative">
             <div 
               id="type-filter-button"
-              className={`bg-gray-300 pl-2 pr-1 py-1 rounded-md flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400 ${typeFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
+              className={`text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] pl-4 pr-2 py-2 rounded-full flex gap-1 items-center justify-between text-sm font-medium cursor-pointer hover:bg-gray-400 ${typeFilter !== 'all' ? 'bg-blue-100 text-blue-700' : ''}`}
               onClick={() => setShowTypeDropdown(!showTypeDropdown)}
             >
               <div className="text-xs">{getTypeFilterText()}</div>
@@ -371,89 +366,82 @@ export default function ManageAnnouncements() {
         {isLoading && <h1>Loading...</h1>}
         
         {/* Empty state */}
-        {filteredAnnouncements.length === 0 && !isLoading && (
+        {/* {filteredAnnouncements.length === 0 && !isLoading && (
           <div className="text-center py-10 text-gray-500">
             {announces.length === 0 
               ? "No announcements found. Create your first announcement!"
               : "No announcements match your current filters."}
           </div>
-        )}
+        )} */}
         
-        {/* Announcements list */}
-        {filteredAnnouncements.map((announcement: Announcement, index: number) => (
-          <div
-            key={index}
-            className="bg-white p-6 flex flex-col rounded-lg border border-gray-300 flex justify-between items-start"
+      <div className="bg-white flex flex-col justify-between rounded-2xl overflow-hidden w-full p-4">
+        <div
+          className="rounded-xl overflow-hidden border border-gray-300 relative"
+          ref={tableRef}
+        >
+        <div
+            className={`bg-blue-100 w-full flex gap-4 p-4 text-xs z-10 shadow-sm ${
+              isSticky ? "fixed top-0" : ""
+            }`}
+            style={{ width: isSticky ? headerWidth : "100%" }}
           >
+            <div className="w-1/2 flex items-center justify-baseline font-semibold">
+              Announcement Info
+            </div>
+            <div className="w-1/2 flex justify-end items-center">
+              <div className="w-1/6 flex items-center justify-center font-semibold">
+                Public
+              </div>
+              <div className="w-1/6 flex items-center justify-center font-semibold">
+                Actions
+              </div>
+              <div className="w-1/6 flex items-center justify-center"></div>
+            </div>
+          </div>
+
+          {isSticky && <div style={{ height: "56px" }}></div>}
+
+
+        {/* Announcements list */}
+        {filteredAnnouncements.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow p-8">
+              'No scholarships available.'
+            </div>
+          ) : (
+        <div className="">
+          {filteredAnnouncements.map((announcement: Announcement, index: number) => (
+          <div
+            key={announcement.announcementId}
+            className={`w-full flex gap-4 border-t border-gray-300 ${
+            index % 2 === 0 ? "bg-white" : "bg-gray-50"
+            } hover:bg-blue-50`}
+          >
+
+
             {/* Announcement Card with Truncation */}
-            <div className="bg-white w-full flex justify-between rounded-2xl overflow-hidden p-5">
-              <div className="flex flex-col gap-1 pr-5 w-3/4">
-                <div className="text-xs text-gray-500 flex gap-10 mb-5">
-                  Date Posted: {(announcement.datePosted.toDateString())}
-                  {announcement.type && announcement.type.length > 0 && (
-                    <p> Type: {announcement.type.join(", ")} </p>
-                  )} 
-                </div>
-                
-                {/* Title with truncation */}
+            <div className="bg-white w-full flex justify-between rounded-2xl overflow-hidden p-5 gap-5">
+              <div className="w-1/2 flex flex-row p-4 gap-15">              
+                <div className="flex flex-col min-w-full max-w-full gap-3 pr-5">
+                {/* Title */}
                 <div className="relative">
                   <div className={`text-lg font-bold ${!showFullTitle ? "line-clamp-2" : ""}`}>
                     {showFullTitle ? announcement.title : announcement.title}
                   </div>
                 </div>
                 
-                {/* Content with truncation */}
+                {/* Content */}
                 <div className="text-sm text-gray-600 text-justify overflow-hidden">
                   <div className={`${!showFullContent ? "line-clamp-5" : ""}`}>
                     {showFullContent ? announcement.description : announcement.description}
                   </div>
                 </div>
-              </div>
-              
-              <div className="flex flex-col items-end justify-between gap-2 w-1/4">
-                <div className="relative">
-                  <div className="relative">
-                    <button
-                      className="text-gray-700 px-3 py-1 rounded-full cursor-pointer"
-                      onClick={() =>
-                        setShowDropdown(showDropdown === index ? null : index)
-                      }
-                    >
-                      <Ellipsis size={18} />
-                    </button>
-
-                    {showDropdown === index && (
-                      <div 
-                        ref={dropdownRef}
-                        className="absolute right-0 mt-1 w-auto bg-white rounded-md shadow-lg z-20 border border-gray-200"
-                      >
-                        <button
-                          className="px-4 py-2 text-sm w-full text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
-                          onClick={() => handleEditClick(announcement)}
-                        >
-                          <Eye size={16} />
-                          <span>View</span>
-                        </button>
-                      
-                        <button
-                          className="px-4 py-2 text-sm w-full text-red-600 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
-                          onClick={() => {
-                            if (confirm("Are you sure you want to delete this announcement?")) {
-                              toastSuccess(`You have successfully deleted announcement.`);
-                              handleDelete(announcement.announcementId);
-                              setShowDropdown(null);
-                            } 
-                            else {return};
-                          }}
-                        >
-                          <Trash2 size={16} />
-                          <span>Delete</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                <div className="flex flex-row gap-5 text-sm text-gray-600">
+                  Date Posted: {(announcement.datePosted.toDateString())}
+                  {announcement.type && announcement.type.length > 0 && (
+                    <p> Type: {announcement.type.join(", ")} </p>
+                  )} 
                 </div>
-                
+                </div>
                 {announcement.image ? (
                   <div
                     className="h-32 w-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500"
@@ -470,10 +458,60 @@ export default function ManageAnnouncements() {
                     <p className="text-center">No image</p>
                   </div>
                 )} 
+
               </div>
+                  <div className="w-1/2 flex items-center justify-end pr-1 p-5">
+                    <div className="w-1/6 flex items-center justify-center">
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={async () => {
+                            const result = await togglePublic(announcement.announcementId, announcement.isPublic);
+                            if (result.success) {
+                              toastSuccess(`Announcement is now ${!announcement.isPublic ? 'public' : 'private'}`);
+                            }
+                          }}
+                          className={`relative inline-flex items-center h-6 rounded-full w-11 focus:outline-none 
+                            ${announcement.isPublic ? "bg-blue-500" : "bg-gray-300"}`}
+                        >
+                          <span className="sr-only">Toggle public status</span>
+                          <span
+                            className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                              announcement.isPublic ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="w-1/6 flex items-center gap-5 justify-center">
+                      <button
+                        className="text-[var(--primary-blue)] hover:underline cursor-pointer text-sm"
+                        onClick={() => handleEditClick(announcement)}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                    <div className="w-1/6 flex items-center justify-center">
+                      <button
+                        className="px-4 py-2 text-sm w-full text-red-600 flex items-center gap-2 cursor-pointer"
+                          onClick={() => {
+                            if (confirm("Are you sure you want to delete this announcement?")) {
+                              toastSuccess(`You have successfully deleted announcement.`);
+                              handleDelete(announcement.announcementId);
+                              setShowDropdown(null);
+                            } 
+                            else {return};
+                          }}                     >
+                        <Trash2 className="size-6" />
+                      </button>
+                    </div>
+                  </div>
             </div>
           </div>
-        ))}
+        ))}  
+        </div>)}
+        </div>
+        
+    </div>
     </div>
   );
 }

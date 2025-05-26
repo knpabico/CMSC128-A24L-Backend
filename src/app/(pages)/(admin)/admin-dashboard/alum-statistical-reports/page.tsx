@@ -1,16 +1,11 @@
 "use client";
 import { useAlums } from "@/context/AlumContext";
 import { Alumnus, WorkExperience } from "@/models/models";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import DonutChart from "@/components/charts/DonutChart";
 import { useWorkExperience } from "@/context/WorkExperienceContext";
 import ReportSummaryCard from "@/components/ReportSummaryCard";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronRight, ClipboardList } from "lucide-react";
 
 const StatisticalReports = () => {
@@ -53,24 +48,157 @@ const StatisticalReports = () => {
     );
   }, [alums]);
 
+  // Memoize chart data to prevent unnecessary recalculations
+  const activeInactiveData = useMemo(
+    () => ({
+      labels: ["Active", "Inactive"],
+      data: [
+        approvedActiveAlums.length,
+        approvedAlums.length - approvedActiveAlums.length,
+      ],
+    }),
+    [approvedActiveAlums.length, approvedAlums.length]
+  );
+
+  const newsletterData = useMemo(
+    () => ({
+      labels: ["Subscribed", "Not Subscribed"],
+      data: [
+        alumsSubscribedToNewsletters.length,
+        approvedAlums.length - alumsSubscribedToNewsletters.length,
+      ],
+    }),
+    [alumsSubscribedToNewsletters.length, approvedAlums.length]
+  );
+
+  const employmentData = useMemo(
+    () => ({
+      labels: ["Employed", "Unemployed"],
+      data: [
+        currentWorkExperience.length,
+        approvedAlums.length - currentWorkExperience.length,
+      ],
+    }),
+    [currentWorkExperience.length, approvedAlums.length]
+  );
+
+  const locationData = useMemo(
+    () => ({
+      labels: ["Philippines", "Other Countries"],
+      data: [
+        philippineWorkExperience.length,
+        currentWorkExperience.length - philippineWorkExperience.length,
+      ],
+    }),
+    [philippineWorkExperience.length, currentWorkExperience.length]
+  );
+
+  // Memoize the report summary data to prevent ReportSummaryCard from re-rendering
+  const reportSummaryData = useMemo(() => {
+    const employmentRate = Math.round(
+      (currentWorkExperience.length / approvedAlums.length) * 100
+    );
+    const subscriptionRate = Math.round(
+      (alumsSubscribedToNewsletters.length / approvedAlums.length) * 100
+    );
+    const philippinesPercentage =
+      currentWorkExperience.length > 0
+        ? Math.round(
+            (philippineWorkExperience.length / currentWorkExperience.length) *
+              100
+          )
+        : 0;
+    const activePercentage = Math.round(
+      (approvedActiveAlums.length / approvedAlums.length) * 100
+    );
+    const inactivePercentage = Math.round(
+      ((approvedAlums.length - approvedActiveAlums.length) /
+        approvedAlums.length) *
+        100
+    );
+
+    return `
+    // Alumni Overview
+    Total Number of alumni: ${approvedAlums.length} 
+    Active alumni: ${approvedActiveAlums.length} 
+    Inactive alumni: ${approvedAlums.length - approvedActiveAlums.length} 
+    
+    // Newsletter Metrics
+    Number of alumni subscribed to newsletters: ${
+      alumsSubscribedToNewsletters.length
+    } 
+    Number of alumni not subscribed to newsletters: ${
+      approvedAlums.length - alumsSubscribedToNewsletters.length
+    } 
+    Newsletter subscription rate: ${subscriptionRate}%
+    
+    // Employment Status
+    Number of Alumni currently employed: ${currentWorkExperience.length} 
+    Number of alumni currently unemployed: ${
+      approvedAlums.length - currentWorkExperience.length
+    }
+    Employment rate: ${employmentRate}%
+    
+    // Work Location
+    Number of alumni currently working in Philippines: ${
+      philippineWorkExperience.length
+    }
+    Number of alumni working abroad: ${
+      currentWorkExperience.length - philippineWorkExperience.length
+    }
+    Percentage working in Philippines: ${philippinesPercentage}%
+    
+    // Activity Metrics
+    Active alumni percentage: ${activePercentage}%
+    Inactive alumni percentage: ${inactivePercentage}%
+    
+    // Date Context
+    Current date: ${new Date().toLocaleDateString()}
+    Report generated on: ${new Date().toLocaleString()}
+    `;
+  }, [
+    approvedAlums.length,
+    approvedActiveAlums.length,
+    alumsSubscribedToNewsletters.length,
+    currentWorkExperience.length,
+    philippineWorkExperience.length,
+  ]);
+
   const [expandedCards, setExpandedCards] = useState({
     active: false,
     inactive: false,
     newsletter: false,
   });
 
-  const toggleCard = (type: "active" | "inactive" | "newsletter") => {
-    setExpandedCards((prev) => ({
-      ...prev,
-      [type]: !prev[type],
-    }));
-  };
+  // Use useCallback to memoize the toggle function
+  const toggleCard = useCallback(
+    (type: "active" | "inactive" | "newsletter") => {
+      setExpandedCards((prev) => ({
+        ...prev,
+        [type]: !prev[type],
+      }));
+    },
+    []
+  );
+
+  // Memoize the toggle handlers to prevent child re-renders
+  const toggleActive = useCallback(() => toggleCard("active"), [toggleCard]);
+  const toggleInactive = useCallback(
+    () => toggleCard("inactive"),
+    [toggleCard]
+  );
+  const toggleNewsletter = useCallback(
+    () => toggleCard("newsletter"),
+    [toggleCard]
+  );
 
   return (
     <div className="flex flex-col gap-4 p-2 sm:p-4 max-w-7xl mx-auto w-full overflow-hidden">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2">
-        <div className="hover:text-[#0856BA] cursor-pointer transition-colors">Home</div>
+        <div className="hover:text-[#0856BA] cursor-pointer transition-colors">
+          Home
+        </div>
         <div>
           <ChevronRight size={15} />
         </div>
@@ -394,7 +522,7 @@ const StatisticalReports = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default StatisticalReports;

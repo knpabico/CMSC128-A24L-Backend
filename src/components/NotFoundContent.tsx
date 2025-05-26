@@ -1,7 +1,7 @@
 "use client";
 import LoadingPage from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
 // Separate the authentication and routing logic into a client component
@@ -9,13 +9,18 @@ function AuthChecker() {
   const { isGoogleSignIn, status, isAdmin, loading } = useAuth();
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const pathname = searchParams.get("pathname");
+
   useEffect(() => {
     if (isGoogleSignIn) {
       router.push("/sign-up");
     } else if (status !== "approved" && !isAdmin && !loading) {
-      router.push("/login");
+      if (!pathname?.startsWith("/public-announcement")) {
+        router.push("/login");
+      }
     }
-  }, [status, isAdmin, router, loading, isGoogleSignIn]);
+  }, [status, isAdmin, router, loading, isGoogleSignIn, pathname]);
 
   if (status === "approved" || isAdmin) {
     return (

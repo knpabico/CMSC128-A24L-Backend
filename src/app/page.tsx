@@ -77,7 +77,7 @@ const sortValues = ["nf", "of"]; //sort values (query params)
 export default function Home() {
   const { user, loading, alumInfo, isAdmin, status } = useAuth();
   const { newsLetters } = useNewsLetters();
-  const { announces } = useAnnouncement();
+  const { announces, publicAnnouncements } = useAnnouncement();
   const { jobOffers } = useJobOffer();
   const { events } = useEvents();
   const { alums } = useAlums();
@@ -389,9 +389,9 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {announces.map((item: Announcement) => (
+            {publicAnnouncements.map((item: Announcement) => (
               <Link
-                href={`/announcements/${item.announcementId}`}
+                href={`/public-announcement/${item.announcementId}`}
                 key={item.announcementId}
                 className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
               >
@@ -434,10 +434,19 @@ export default function Home() {
     else if (status === "rejected") return <RejectedPage />;
     else
       return (
-        <div className="w-full px-[3%]">
+        <div className="w-full px-[10%]">
+          <div>
+            <Image
+              src="/network-bg.png"
+              alt="Background Image"
+              width={1000}
+              height={1000}
+              className="fixed top-5 left-0 w-full h-full object-cover opacity-30 "
+            />
+          </div>
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
-            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start mb-5 lg:mb-0 text-center flex flex-col items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">
+            <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start text-center flex flex-col gap-1 items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">
               <Image
                 width={0}
                 height={0}
@@ -448,42 +457,21 @@ export default function Home() {
                     ? "/default-profile.jpg"
                     : alumInfo!.image
                 }
-                className="w-20 h-20 md:w-40 md:h-40 lg:w-50 lg:h-50 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
+                className="w-45 h-45 mb-5 object-cover object-top rounded-full border border-[#DADADA]"
                 alt={`${alumInfo!.lastName}, ${alumInfo!.firstName} ${
                   alumInfo!.suffix ? alumInfo!.suffix : ""
                 }`}
               />
-              <p className="text-lg md:text-[20px] text-center font-bold justify-self-center">
+              <p className="text-lg text-center font-bold justify-self-center">
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
                 {alumInfo!.suffix ? alumInfo!.suffix : ""}
               </p>
-              <p className="text-xs md:text-[14px]">{alumInfo!.email}</p>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="text-xs md:text-[14px] text-center wrap-break-word px-2">
-                <i>
-                  Currently based on {alumInfo!.address[1]},{" "}
+              <p className="text-xs md:text-[14px] text-gray-700">{alumInfo!.email}</p>
+              <div className="text-xs md:text-[14px] text-gray-700 text-center wrap-break-word px-2 flex items-center gap-1">
+                  <MapPin size={14}/> {alumInfo!.address[1]},{" "}
                   {alumInfo!.address[2]}
-                </i>
               </div>
-              <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
-              <div className="flex flex-col items-center gap-3">
-                {/* <p className="text-xs md:text-[14px]">
-                  Std. No. {alumInfo!.studentNumber}
-                </p> */}
-                {filteredEducation.map((edu) => (
-                  <div
-                    key={edu.educationId}
-                    className="text-xs md:text-sm items-center justify-items-center"
-                  >
-                    <div className="flex flex-row items-center gap-3">
-                      <GraduationCap className="size-4" />
-                      <span>{edu.major}</span>
-                    </div>
-                    {/* <p>Graduated: {edu.yearGraduated}</p> */}
-                    <p className="text-xs md:text-[13px]">{edu.university}</p>
-                  </div>
-                ))}
-              </div>
+
               {alumInfo!.fieldOfInterest[0] && (
                 <>
                   <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
@@ -491,7 +479,7 @@ export default function Home() {
                     {alumInfo!.fieldOfInterest.map((interest) => (
                       <div
                         key={interest}
-                        className="text-xs md:text-[14px] text-center wrap-normal border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px]"
+                        className="text-xs text-center wrap-normal border border-[#0856BA] text-[#0856BA] rounded-[5px] place-items-center px-[7px] py-[5px]"
                       >
                         {interest}
                       </div>
@@ -502,7 +490,7 @@ export default function Home() {
               <hr className="w-full h-0.5 bg-[#D7D7D7] md:my-3 opacity-25"></hr>
               <Button
                 onClick={() => router.push(`/my-profile/${user?.uid}`)}
-                className="w-full h-[30px] cursor-pointer rounded-full text-white bg-[#0856BA] hover:bg-blue-600"
+                className="w-full h-[30px] cursor-pointer rounded-full text-white bg-[#0856BA] hover:bg-[var(--blue-600)]"
               >
                 View Profile
               </Button>
@@ -510,37 +498,43 @@ export default function Home() {
 
             {/* Feed  */}
             <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
+              
               {/*sorting dropdown*/}
-              <div className="flex flex-row w-full justify-end mb-3">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="pl-5 h-10 w-30 items-center flex flex-row rounded-full bg-white border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10 focus:outline-none">
-                    {selectedSort}
-                    <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
-                  </DropdownMenuTrigger>
+              <div className="flex w-full items-center p-3 pl-4 justify-between mb-3 bg-white rounded-[10px] border border-[#DADADA]">
+                <div className="font-bold text-xl mt-1 flex gap-1">
+                  <p className="text-[#0856BA]">Welcome,</p> {alumInfo!.firstName}!
+                </div>
+                <div className="flex gap-2 items-center text-[14px] text-[#0856BA]">
+                  Sort:
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="px-4 py-1 items-center flex flex-row rounded-full bg-white border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10 focus:outline-none">
+                      {selectedSort}
+                      <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+                    </DropdownMenuTrigger>
 
-                  <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">
-                    {sortTypes.map((sortType, index) => (
-                      <DropdownMenuItem key={sortType} asChild>
-                        <button
-                          onClick={() => {
-                            setSelectedSort(sortType);
-                            setLatestFirst(sortType === "Latest");
-                            handleSortChange(sortValues[index]);
-                          }}
-                          className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 focus:outline-none ${
-                            selectedSort === sortType
-                              ? "bg-white text-[#0856BA] font-semibold"
-                              : ""
-                          }`}
-                        >
-                          {sortType}
-                        </button>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">
+                      {sortTypes.map((sortType, index) => (
+                        <DropdownMenuItem key={sortType} asChild>
+                          <button
+                            onClick={() => {
+                              setSelectedSort(sortType);
+                              setLatestFirst(sortType === "Latest");
+                              handleSortChange(sortValues[index]);
+                            }}
+                            className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 focus:outline-none ${
+                              selectedSort === sortType
+                                ? "bg-white text-[#0856BA] font-semibold"
+                                : ""
+                            }`}
+                          >
+                            {sortType}
+                          </button>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-
               {/* Feed Content */}
               <div className="scroll-smooth flex flex-col w-full gap-[5px]">
                 {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
@@ -847,26 +841,30 @@ export default function Home() {
                                     (jobOffer: JobOffering) =>
                                       jobOffer.jobId === newsLetter.referenceId
                                   );
-                                  if (jobOffering.alumniId !== alumInfo?.alumniId) {
-                                    return jobOffering.status === 'Closed' ?
-                                    <div className="flex gap-1">
-                                      <button
-                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
-                                      >
-                                        Apply
-                                      </button>
-                                    </div> : 
-                                    <div className="flex gap-1">
-                                      <button
-                                        onClick={() => router.push(`/joboffer-list/`)}
-                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
-                                      >
-                                        Apply
-                                      </button>
-                                    </div>;
+                                  if (
+                                    jobOffering.alumniId !== alumInfo?.alumniId
+                                  ) {
+                                    return jobOffering.status === "Closed" ? (
+                                      <div className="flex gap-1">
+                                        <button className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white">
+                                          Apply
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="flex gap-1">
+                                        <button
+                                          onClick={() =>
+                                            router.push(`/joboffer-list/`)
+                                          }
+                                          className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                        >
+                                          Apply
+                                        </button>
+                                      </div>
+                                    );
                                   } else {
-                                    return <div></div>
-                                  };
+                                    return <div></div>;
+                                  }
                                 })()}
                               </div>
                             </div>
@@ -1310,8 +1308,26 @@ export default function Home() {
                     <div className="h-[150px] w-full mb-[10px]">
                       {donationDrives[currentDonationIndex].image === "" ? (
                         <div className="h-full w-full bg-gray-100 flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="size-12 text-gray-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="size-12 text-gray-300"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              width="18"
+                              height="18"
+                              x="3"
+                              y="3"
+                              rx="2"
+                              ry="2"
+                            />
                             <circle cx="9" cy="9" r="2" />
                             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                           </svg>
@@ -1346,9 +1362,11 @@ export default function Home() {
                           <span className="text-[13px] text-gray-500">
                             {getDaysRemaining(
                               donationDrives[currentDonationIndex].endDate
-                            ) === "Not Available" 
-                              ? "No deadline" 
-                              : getDaysRemaining(donationDrives[currentDonationIndex].endDate)}
+                            ) === "Not Available"
+                              ? "No deadline"
+                              : getDaysRemaining(
+                                  donationDrives[currentDonationIndex].endDate
+                                )}
                           </span>
                         </div>
                       </div>
