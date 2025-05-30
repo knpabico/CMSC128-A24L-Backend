@@ -50,22 +50,23 @@ export default function DonationFeaturedDonationPage() {
 		};
 		return (
 			<div className="flex items-center gap-2">
-				<span className="text-sm font-medium text-gray-700">Sort:</span>
+				{/* <span className="text-sm font-medium text-gray-700">Sort:</span> */}
 
 				<div className="relative">
 					<button
 						onClick={toggleDropdown}
-						className="flex items-center justify-between min-w-36 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						// className="flex items-center justify-between min-w-36 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}}
 						aria-haspopup="listbox"
 						aria-expanded={isOpen}
 					>
-						<span className="text-gray-900">{getDisplayText()}</span>
-						<ChevronDown
+						<span className="text-[#0856BA]">{getDisplayText()}</span>
+						{/* <ChevronDown
 							size={16}
 							className={`text-gray-500 transition-transform ${
 								isOpen ? "rotate-180" : ""
 							}`}
-						/>
+						/> */}
 					</button>
 
 					{isOpen && (
@@ -143,7 +144,7 @@ export default function DonationFeaturedDonationPage() {
 					description="Support meaningful causes through ICS and alumni donation drives, helping create opportunities and making a lasting impact."
 				/>
 				{/* Body */}
-				<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+				<div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
 					{/* Sidebar */}
 					<div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7'>
 						<DonationDriveSidebar />
@@ -151,17 +152,37 @@ export default function DonationFeaturedDonationPage() {
 					{/* Main content */}
 					<div className='flex flex-col gap-[10px] w-full mb-10'>
 						{/* Filter tabs */}
-						<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+						{/* <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
 							<h2 className="text-lg font-semibold">Featured Stories</h2>
 							<div className="flex items-center">
 								<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-								{/* <select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" > */}
 								<SortControlDropdown
-                sortOrder={sortOrder}
-                setSortOrder={setSortOrder}
-              />
+									sortOrder={sortOrder}
+									setSortOrder={setSortOrder}
+								/>
+							</div>
+						</div> */}
+
+						<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
+							<h2 className="text-md lg:text-lg font-semibold">Featured Stories</h2>
+							<div className="flex justify-between items-center gap-2">
+								<div className="flex items-center relative">
+									<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+									<SortControlDropdown
+										sortOrder={sortOrder}
+										setSortOrder={setSortOrder}
+									/>
+
+									<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+										<ChevronDown className="w-4 h-4" />
+									</div>
+								</div>
 							</div>
 						</div>
+
+
+
+
 						{sorteddonationDriveStories.length > 0 ? (
 							<>
 								<div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">

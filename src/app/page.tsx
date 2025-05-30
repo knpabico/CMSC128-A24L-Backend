@@ -378,6 +378,7 @@ export default function Home() {
   else if (!user && !isAdmin) {
     return (
       <div>
+        <title>ICS-ARMS</title>
         <Landing />
 
         <div
@@ -391,7 +392,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {publicAnnouncements.map((item: Announcement) => (
               <Link
-                href={`/announcements/${item.announcementId}`}
+                href={`/public-announcement/${item.announcementId}`}
                 key={item.announcementId}
                 className="bg-white rounded-xl overflow-hidden flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 h-full"
               >
@@ -435,6 +436,16 @@ export default function Home() {
     else
       return (
         <div className="w-full px-[10%]">
+          <title>Home | ICS-ARMS</title>
+          <div>
+            <Image
+              src="/network-bg.png"
+              alt="Background Image"
+              width={1000}
+              height={1000}
+              className="fixed top-5 left-0 w-full h-full object-cover opacity-30 "
+            />
+          </div>
           <div className="flex flex-col lg:flex-row w-full my-5 relative">
             {/* Profile Panel */}
             <div className="w-full lg:w-64 lg:sticky lg:top-23 lg:self-start text-center flex flex-col gap-1 items-center bg-white p-5 rounded-[10px] border border-[#DADADA] max-h-[calc(100vh-100px)] overflow-y-auto">
@@ -457,10 +468,12 @@ export default function Home() {
                 {alumInfo!.lastName}, {alumInfo!.firstName}{" "}
                 {alumInfo!.suffix ? alumInfo!.suffix : ""}
               </p>
-              <p className="text-xs md:text-[14px] text-gray-700">{alumInfo!.email}</p>
+              <p className="text-xs md:text-[14px] text-gray-700">
+                {alumInfo!.email}
+              </p>
               <div className="text-xs md:text-[14px] text-gray-700 text-center wrap-break-word px-2 flex items-center gap-1">
-                  <MapPin size={14}/> {alumInfo!.address[1]},{" "}
-                  {alumInfo!.address[2]}
+                <MapPin size={14} /> {alumInfo!.address[1]},{" "}
+                {alumInfo!.address[2]}
               </div>
 
               {alumInfo!.fieldOfInterest[0] && (
@@ -489,8 +502,43 @@ export default function Home() {
 
             {/* Feed  */}
             <div className="w-full mt-[75px] lg:mx-5 lg:flex-1 flex flex-col ">
-              
+              {/*sorting dropdown*/}
+              <div className="flex w-full items-center p-3 pl-4 justify-between mb-3 bg-white rounded-[10px] border border-[#DADADA]">
+                <div className="font-bold text-xl mt-1 flex gap-1">
+                  <p className="text-[#0856BA]">Welcome,</p>{" "}
+                  {alumInfo!.firstName}!
+                </div>
+                <div className="flex gap-2 items-center text-[14px] text-[#0856BA]">
+                  Sort:
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="px-4 py-1 items-center flex flex-row rounded-full bg-white border border-[#0856BA] text-sm/6 font-semibold text-[#0856BA] shadow-inner shadow-white/10 focus:outline-none">
+                      {selectedSort}
+                      <ChevronDownIcon className="size-4 fill-white/60 ml-5" />
+                    </DropdownMenuTrigger>
 
+                    <DropdownMenuContent className="w-30 ml-0 bg-[#0856BA] text-white border border-[#0856BA] transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0">
+                      {sortTypes.map((sortType, index) => (
+                        <DropdownMenuItem key={sortType} asChild>
+                          <button
+                            onClick={() => {
+                              setSelectedSort(sortType);
+                              setLatestFirst(sortType === "Latest");
+                              handleSortChange(sortValues[index]);
+                            }}
+                            className={`flex w-full cursor-pointer items-center rounded-md py-1.5 px-3 focus:outline-none ${
+                              selectedSort === sortType
+                                ? "bg-white text-[#0856BA] font-semibold"
+                                : ""
+                            }`}
+                          >
+                            {sortType}
+                          </button>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
               {/* Feed Content */}
               <div className="scroll-smooth flex flex-col w-full gap-[5px]">
                 {newsLetters.map((newsLetter: NewsletterItem, index: Key) => (
@@ -797,26 +845,30 @@ export default function Home() {
                                     (jobOffer: JobOffering) =>
                                       jobOffer.jobId === newsLetter.referenceId
                                   );
-                                  if (jobOffering.alumniId !== alumInfo?.alumniId) {
-                                    return jobOffering.status === 'Closed' ?
-                                    <div className="flex gap-1">
-                                      <button
-                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white"
-                                      >
-                                        Apply
-                                      </button>
-                                    </div> : 
-                                    <div className="flex gap-1">
-                                      <button
-                                        onClick={() => router.push(`/joboffer-list/`)}
-                                        className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
-                                      >
-                                        Apply
-                                      </button>
-                                    </div>;
+                                  if (
+                                    jobOffering.alumniId !== alumInfo?.alumniId
+                                  ) {
+                                    return jobOffering.status === "Closed" ? (
+                                      <div className="flex gap-1">
+                                        <button className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#A9BEDA] text-[12px] bg-[#A9BEDA] text-white">
+                                          Apply
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="flex gap-1">
+                                        <button
+                                          onClick={() =>
+                                            router.push(`/joboffer-list/`)
+                                          }
+                                          className="w-full h-[30px] cursor-pointer mb-[20px] rounded-full border border-[1px] border-[#0856BA] hover:bg-blue-600 text-[12px] bg-[#0856BA] text-white"
+                                        >
+                                          Apply
+                                        </button>
+                                      </div>
+                                    );
                                   } else {
-                                    return <div></div>
-                                  };
+                                    return <div></div>;
+                                  }
                                 })()}
                               </div>
                             </div>
@@ -1260,8 +1312,26 @@ export default function Home() {
                     <div className="h-[150px] w-full mb-[10px]">
                       {donationDrives[currentDonationIndex].image === "" ? (
                         <div className="h-full w-full bg-gray-100 flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="size-12 text-gray-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="size-12 text-gray-300"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              width="18"
+                              height="18"
+                              x="3"
+                              y="3"
+                              rx="2"
+                              ry="2"
+                            />
                             <circle cx="9" cy="9" r="2" />
                             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                           </svg>
@@ -1296,9 +1366,11 @@ export default function Home() {
                           <span className="text-[13px] text-gray-500">
                             {getDaysRemaining(
                               donationDrives[currentDonationIndex].endDate
-                            ) === "Not Available" 
-                              ? "No deadline" 
-                              : getDaysRemaining(donationDrives[currentDonationIndex].endDate)}
+                            ) === "Not Available"
+                              ? "No deadline"
+                              : getDaysRemaining(
+                                  donationDrives[currentDonationIndex].endDate
+                                )}
                           </span>
                         </div>
                       </div>

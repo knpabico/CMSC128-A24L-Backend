@@ -43,36 +43,39 @@ export default function JobApplicationModalAdmin({
     }
   };
 
-  return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-white/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-hidden">
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-semibold">Job Applications</h2>
+   return (
+    <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-screen overflow-hidden">
+        <div className="flex items-center justify-between p-6">
+          <h2 className="font-bold text-2xl">Job Applications</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100"
+            className="text-gray-500 hover:text-gray-700"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
+        <hr className="my-2 border-t border-gray-300" />
+
         <div className="p-4 overflow-auto max-h-96">
           {applications.length === 0 ? (
             <p className="text-center text-gray-500 py-8">
               No applications found.
             </p>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-gray-300 -mt-4">
               {applications
                 .filter((app) => app.jobId === jobId)
                 .map((application: JobApplication, index: number) => {
-                  const app = alums.find(
-                    (alum: Alumnus) => alum.alumniId === application.applicantId
-                  );
-                  const job = jobs.find(
-                    (job: JobOffering) => job.jobId === application.jobId
-                  );
-                  if (!app) return null;
-                  return (
+                const app = alums.find(
+                  (alum: Alumnus) => alum.alumniId === application.applicantId
+                );
+                const job = jobs.find(
+                  (job: JobOffering) => job.jobId === application.jobId
+                );
+                if (!app) return null;
+                
+                return (
                     <div key={index} className="py-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center">
@@ -163,20 +166,20 @@ export default function JobApplicationModalAdmin({
                       </div>
                     </div>
                   );
-                })}
+              })}
             </div>
           )}
         </div>
 
-        <div className="p-4 border-t flex justify-end">
+        {/* <div className="p-4 border-t border-gray-300 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+             className="h-10 px-5 flex items-center justify-center rounded-full bg-[#FFFFFF] border border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 hover:bg-[#0856BA] hover:text-white hover:shadow-lg"
           >
             Close
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
-}
+};

@@ -64,7 +64,19 @@ export const AlumDocumentUpload = ({
 
   const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
+
+    //max document size set to 10MB (DOLE INSPIRED)
+    const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
     if (file) {
+      //check if document size exceeds 10MB
+      if (file.size > MAX_DOCUMENT_SIZE) {
+        setMessage("Selected document size exceeds 10MB limit");
+        setIsError(true);
+        return;
+      } else {
+        setIsError(false);
+      }
+
       setDocument(file);
       setDocumentType(file.type);
       //update form file
@@ -170,7 +182,7 @@ export const AlumDocumentUpload = ({
       )}
 
       <p className="text-xs font-extralight pt-2">
-        Accepted formats: PDF, DOC, DOCX, and images
+        Accepted formats: PDF, DOC, DOCX, and images (up to 10MB)
       </p>
 
       {preview && (
@@ -194,6 +206,14 @@ export const AlumDocumentUpload = ({
           )}
         </>
       )}
+
+      <p
+        className={`text-center mt-20 ${
+          isError ? "text-red-500" : "text-green-500"
+        }`}
+      >
+        {message}
+      </p>
     </div>
   );
 };

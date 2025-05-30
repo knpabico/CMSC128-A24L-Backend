@@ -8,96 +8,106 @@ import EventSidebar from "../components/Sidebar";
 import EventsList from "../components/EventsList";
 import { Event } from "@/models/models";
 import ProposeEventForm from "../components/ProposeEventForm";
-import { FilePlus2 } from "lucide-react";
+import { ChevronDown, FilePlus2 } from "lucide-react";
 import Banner from "@/components/Banner";
 
-export default function SavedEventsPage()
-{
-    const { events, isLoading, showForm, setShowForm } = useEvents();
-    const { user, alumInfo } = useAuth();
-    const { bookmarks} = useBookmarks();
-    const [savedEvents, setSavedEvents] = useState<Event[]>([]);
-    const [sortOption, setSortOption] = useState<string>('event-closest');
-    const [isEditing, setEdit] = useState<boolean>(false);
-    const [isDetails, setDetailsPage] = useState<boolean>(false);
+export default function SavedEventsPage() {
+  const { events, isLoading, showForm, setShowForm } = useEvents();
+  const { user, alumInfo } = useAuth();
+  const { bookmarks } = useBookmarks();
+  const [savedEvents, setSavedEvents] = useState<Event[]>([]);
+  const [sortOption, setSortOption] = useState<string>("event-closest");
+  const [isEditing, setEdit] = useState<boolean>(false);
+  const [isDetails, setDetailsPage] = useState<boolean>(false);
 
-    useEffect(() =>
-    {
+  useEffect(() => {
+    if (events.length > 0 && bookmarks.length > 0 && user) {
+      const eventBookmarks = bookmarks.filter(
+        (bookmark) =>
+          bookmark.type === "event" && bookmark.alumniId === alumInfo?.alumniId
+      );
 
-        if (events.length > 0 && bookmarks.length > 0 && user)
-        {
-            const eventBookmarks = bookmarks.filter(bookmark =>
-                bookmark.type === "event" &&
-                bookmark.alumniId === alumInfo?.alumniId
-            );
+      console.log("Filtered Event Bookmarks:", eventBookmarks);
 
-            console.log("Filtered Event Bookmarks:", eventBookmarks);
+      const savedEventIds = eventBookmarks.map((bookmark) => bookmark.entryId);
+      console.log("Saved Event IDs:", savedEventIds);
 
-            const savedEventIds = eventBookmarks.map(bookmark => bookmark.entryId);
-            console.log("Saved Event IDs:", savedEventIds);
-    
-            const filteredEvents = events.filter((e: { eventId: string }) =>
-                savedEventIds.includes(e.eventId)
-            );
-    
-            console.log("Filtered Events:", filteredEvents);
-    
+      const filteredEvents = events.filter((e: { eventId: string }) =>
+        savedEventIds.includes(e.eventId)
+      );
 
-            // Sort events based on the selected sort option
-            const sorted = [...filteredEvents].sort((x, y) =>
-            {
-                switch (sortOption)
-                {
-                    case 'event-closest':
-                        return new Date(x.date).getTime() - new Date(y.date).getTime();
+      console.log("Filtered Events:", filteredEvents);
 
-                    case 'event-farthest':
-                        return new Date(y.date).getTime() - new Date(x.date).getTime();
+      // Sort events based on the selected sort option
+      const sorted = [...filteredEvents].sort((x, y) => {
+        switch (sortOption) {
+          case "event-closest":
+            return new Date(x.date).getTime() - new Date(y.date).getTime();
 
-                    case 'posted-newest':
-                        const dateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
-                        const dateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
-                        return dateY.getTime() - dateX.getTime();
+          case "event-farthest":
+            return new Date(y.date).getTime() - new Date(x.date).getTime();
 
-                    case 'posted-oldest':
-                        const oldDateX = x.datePosted?.seconds ? new Date(x.datePosted.seconds * 1000) : new Date(0);
-                        const oldDateY = y.datePosted?.seconds ? new Date(y.datePosted.seconds * 1000) : new Date(0);
-                        return oldDateX.getTime() - oldDateY.getTime();
+          case "posted-newest":
+            const dateX = x.datePosted?.seconds
+              ? new Date(x.datePosted.seconds * 1000)
+              : new Date(0);
+            const dateY = y.datePosted?.seconds
+              ? new Date(y.datePosted.seconds * 1000)
+              : new Date(0);
+            return dateY.getTime() - dateX.getTime();
 
-                    default:
-                        return 0;
-                }
-            });
+          case "posted-oldest":
+            const oldDateX = x.datePosted?.seconds
+              ? new Date(x.datePosted.seconds * 1000)
+              : new Date(0);
+            const oldDateY = y.datePosted?.seconds
+              ? new Date(y.datePosted.seconds * 1000)
+              : new Date(0);
+            return oldDateX.getTime() - oldDateY.getTime();
 
-            console.log("Sorted Events:", sorted);
-            setSavedEvents(sorted);
-        } 
-        
-        else
-        {
-            setSavedEvents([]);
+          default:
+            return 0;
         }
-    }, [events, bookmarks, sortOption]);
+      });
 
-    const handleSortChange = (f: React.ChangeEvent<HTMLSelectElement>) =>
-    {
-        setSortOption(f.target.value);
+      console.log("Sorted Events:", sorted);
+      setSavedEvents(sorted);
+    } else {
+      setSavedEvents([]);
     }
+  }, [events, bookmarks, sortOption]);
 
-    return(
-        <div className="bg-[#EAEAEA]">
-            {/* Page Title */}
-            <Banner title="Events" description="Reconnect through ICS and alumni events that nurture unity, inspire growth, and strengthen our sense of community."/>
-            {/* Body */}
-            <div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
-                {/* Sidebar */}
-                <div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 '>
-                <EventSidebar />
-                </div>
-                {/* Main content */}
-                <div className='flex flex-col gap-[10px] w-full mb-10'>
-                    {/* Filter tabs */}
-                    <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
+  const handleSortChange = (f: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOption(f.target.value);
+  };
+
+  return (
+    <div className="bg-[#EAEAEA]">
+      <title>Saved Events | ICS-ARMS</title>
+      {/* Page Title */}
+      <Banner
+        title="Events"
+        description="Reconnect through ICS and alumni events that nurture unity, inspire growth, and strengthen our sense of community."
+      />
+      {/* Body */}
+      <div className="my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static">
+        {/* Sidebar */}
+        <div className="flex flex-col gap-3">
+          <div className="bg-[#FFFFFF] shadow-md flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7 ">
+            <EventSidebar />
+          </div>
+          <button
+            className="bg-[var(--primary-blue)] text-white text-sm font-semibold rounded-full shadow-md hover:bg-[var(--blue-600)] hover:text-white flex items-center justify-center py-2 gap-2 w-full cursor-pointer"
+            onClick={() => setShowForm(true)}
+          >
+            <FilePlus2 className="w-5 h-5" />
+            Propose Event
+          </button>
+        </div>
+        {/* Main content */}
+        <div className="flex flex-col gap-[10px] w-full mb-10">
+          {/* Filter tabs */}
+          {/* <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
                         <h2 className="text-md lg:text-lg font-semibold">Saved Events</h2>
                         <div className="flex items-center">
                             <label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
@@ -107,7 +117,6 @@ export default function SavedEventsPage()
                                 <option value="posted-newest">Date Approved (Newest)</option>
                                 <option value="post-oldest">Date Approved (Earliest)</option>
                             </select>
-                            {/* Propose Event */}
                             <button 
                                 className="bg-[#D9D9D9] text-black py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 hover:text-white flex items-center gap-2 mx-4"
                                 onClick={() => setShowForm(true)}
@@ -116,34 +125,76 @@ export default function SavedEventsPage()
                                 Propose Event
                             </button>
                         </div>
-                    </div>
-                    <ProposeEventForm 
-                        isOpen={showForm}
-                        onClose={() => setShowForm(false)}
-                        isEditing={isEditing}
-                        isDetails={false}
-                        setDetailsPage={setDetailsPage}
-                        editingEventId={""}
-                        setEdit={setEdit}
-                    />
+                    </div> */}
 
-                    {savedEvents.length > 0 ? (
-                        // event cards
-                        <EventsList
-                            events = {savedEvents}
-                            isLoading = {isLoading}
-                            type = {"Saved Events"}
-                            emptyMessage = "You have not bookmarked any events have been created yet."
-                        />
-                    ) : (
-                        <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
-                            <h3 className="text-xl font-medium text-gray-600">No events found</h3>
-                            <p className="text-gray-500 mt-2">There are no events with the selected filter.</p>
-                        </div>
-                    )}
+          <div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
+            <h2 className="text-md lg:text-lg font-semibold">Saved Events</h2>
+            <div className="flex justify-between items-center gap-2">
+              <div className="flex items-center relative">
+                <label
+                  htmlFor="sort"
+                  className="mr-3 text-sm"
+                  style={{ color: "#0856BA" }}
+                >
+                  Sort by:
+                </label>
+                <select
+                  id="sort"
+                  value={sortOption}
+                  onChange={handleSortChange}
+                  className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none"
+                  style={{ borderColor: "#0856BA", color: "#0856BA" }}
+                >
+                  <option value="event-closest">
+                    Upcoming Events (Soonest First)
+                  </option>
+                  <option value="event-farthest">
+                    Upcoming Events (Furthest Ahead)
+                  </option>
+                  <option value="posted-newest">Date Approved (Newest)</option>
+                  <option value="post-oldest">Date Approved (Earliest)</option>
+                </select>
+
+                <div
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                  style={{ color: "#0856BA" }}
+                >
+                  <ChevronDown className="w-4 h-4" />
                 </div>
+              </div>
             </div>
-        </div>
-    );
-}
+          </div>
 
+          <ProposeEventForm
+            isOpen={showForm}
+            onClose={() => setShowForm(false)}
+            isEditing={isEditing}
+            isDetails={false}
+            setDetailsPage={setDetailsPage}
+            editingEventId={""}
+            setEdit={setEdit}
+          />
+
+          {savedEvents.length > 0 ? (
+            // event cards
+            <EventsList
+              events={savedEvents}
+              isLoading={isLoading}
+              type={"Saved Events"}
+              emptyMessage="You have not bookmarked any events have been created yet."
+            />
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg w-full">
+              <h3 className="text-xl font-medium text-gray-600">
+                No events found
+              </h3>
+              <p className="text-gray-500 mt-2">
+                There are no events with the selected filter.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

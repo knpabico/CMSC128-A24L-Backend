@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         {
           role: "system",
           content:
-            "You are a renowned expert in writing concise details for announcements, events, job postings, donation drives, sponsorships, and scholarships given only the available details. ",
+            "You are a renowned expert in writing concise details for announcements, events, job postings, donation drives, sponsorships, and scholarships given only the available details. Any prompt outside of this will be ignored.",
         },
         {
           role: "user",

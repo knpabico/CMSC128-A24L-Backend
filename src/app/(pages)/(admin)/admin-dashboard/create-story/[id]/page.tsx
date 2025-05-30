@@ -11,7 +11,7 @@ const FeaturedStoryDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   const { getFeaturedById, updateFeatured } = useFeatured();
-  
+
   interface Featured {
     featuredId: string;
     title: string;
@@ -19,7 +19,7 @@ const FeaturedStoryDetailPage: React.FC = () => {
     image: string;
     type: string;
   }
-  
+
   const [featured, setFeatured] = useState<Featured | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +77,10 @@ const FeaturedStoryDetailPage: React.FC = () => {
     if (image && image !== featured.image) {
       try {
         setIsSubmitting(true);
-        const data = await uploadImage(image, `featured/${featured.featuredId}`);
+        const data = await uploadImage(
+          image,
+          `featured/${featured.featuredId}`
+        );
         if (data.success) {
           updatedData.image = data.url;
           setIsError(false);
@@ -118,16 +121,23 @@ const FeaturedStoryDetailPage: React.FC = () => {
 
   return (
     <>
+      <title>Edit Featured Story | ICS-ARMS</title>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-2">
-          <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard")}>
-          <div>Home</div>
+          <span
+            className="cursor-pointer"
+            onClick={() => router.push("/admin-dashboard")}
+          >
+            <div>Home</div>
           </span>
           <div>
             <ChevronRight size={15} />
           </div>
-           <span className="cursor-pointer" onClick={() => router.push("/admin-dashboard/create-story")}>
-          <div>Manage Featured Stories</div>
+          <span
+            className="cursor-pointer"
+            onClick={() => router.push("/admin-dashboard/create-story")}
+          >
+            <div>Manage Featured Stories</div>
           </span>
           <div>
             <ChevronRight size={15} />
@@ -184,11 +194,11 @@ const FeaturedStoryDetailPage: React.FC = () => {
                   htmlFor="text"
                   className="text-sm font-medium flex items-center"
                 >
-                  <Asterisk size={16} className="text-red-600" /> text
+                  <Asterisk size={16} className="text-red-600" /> Story
                 </label>
                 <textarea
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="text"
+                  placeholder="Write your story here..."
                   value={editData.text}
                   onChange={(e) =>
                     setEditData({ ...editData, text: e.target.value })
@@ -199,19 +209,29 @@ const FeaturedStoryDetailPage: React.FC = () => {
               </div>
 
               {/* Image */}
-              <div className="space-y-2 text-start">
-                <div className="text-sm font-medium flex items-center">
-                  <Asterisk size={16} className="text-red-600" /> Featured Image:
-                </div>
-                
+              <div className="space-y-2 w-100">
+                <label
+                  htmlFor="image"
+                  className="text-sm font-medium flex items-center"
+                >
+                  <Asterisk size={16} className="text-red-600" /> Featured Image
+                </label>
+
                 <div className="mt-3">
-                  <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" disabled={!isEditing} />
+                  <input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={!isEditing}
+                  />
                   <label
-                    htmlFor="image-upload"
+                    htmlFor="image"
                     className={`inline-flex items-center justify-center gap-2 ${
-                      isEditing 
-                      ? "bg-[#0856BA] text-white hover:bg-[#0645a0] cursor-pointer" 
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      isEditing
+                        ? "bg-[#0856BA] text-white hover:bg-[#0645a0] cursor-pointer"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     } px-4 py-2 rounded-md transition-colors`}
                   >
                     <Upload className="size-4" />
@@ -219,19 +239,35 @@ const FeaturedStoryDetailPage: React.FC = () => {
                   </label>
                 </div>
 
-                {preview && (
-                  <div className="mt-2">
-                    <p className="text-sm font-medium">Preview:</p>
-                    <img
-                      src={preview}
-                      alt="Uploaded Preview" 
-                      style={{ width: "200px", borderRadius: "8px" }}
-                      className="mt-2"
-                    />
+                {!preview ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-2">
+                      <span className="mt-2 block text-sm font-medium text-gray-700">
+                        Click to upload or drag and drop
+                      </span>
+                      <span className="mt-1 block text-xs text-gray-500">
+                        PNG, JPG, GIF, WEBP up to 10MB
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative mt-2">
+                    <div className="relative h-64 overflow-hidden rounded-lg">
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
                   </div>
                 )}
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Accepted formats: JPG, JPEG, PNG, GIF, WEBP
+                </p>
               </div>
-              </div>
+            </div>
 
             {/* Buttons */}
             {isEditing && (

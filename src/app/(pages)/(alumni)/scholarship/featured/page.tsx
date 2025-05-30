@@ -1,17 +1,21 @@
 "use client";
 
 import { useFeatured } from "@/context/FeaturedStoryContext";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 export default function FeaturedStoryPage() {
   const { featuredItems, isLoading } = useFeatured();
   const router = useRouter();
 
-  const eventStories = featuredItems.filter((story: { type: string; }) => story.type === "event");
+  const eventStories = featuredItems.filter(
+    (story: { type: string }) => story.type === "event"
+  );
 
   const sortedStories = [...eventStories].sort((a, b) => {
-    const dateA = a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
-    const dateB = b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
+    const dateA =
+      a.datePosted instanceof Date ? a.datePosted : new Date(a.datePosted);
+    const dateB =
+      b.datePosted instanceof Date ? b.datePosted : new Date(b.datePosted);
     return dateB.getTime() - dateA.getTime();
   });
 
@@ -24,14 +28,14 @@ export default function FeaturedStoryPage() {
       return new Date(date).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
-        day: "numeric"
+        day: "numeric",
       });
     }
 
     return dateObj.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
-      day: "numeric"
+      day: "numeric",
     });
   };
 
@@ -41,6 +45,7 @@ export default function FeaturedStoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <title>Featured Stories | ICS-ARMS</title>
       <h1 className="text-2xl font-bold mb-6">Featured Stories</h1>
 
       {isLoading && <p className="text-gray-500">Loading events...</p>}
@@ -76,9 +81,7 @@ export default function FeaturedStoryPage() {
               <p className="text-sm text-gray-500 mb-3">
                 {formatDate(story.datePosted)}
               </p>
-              <p className="text-gray-700 line-clamp-3">
-                {story.text}
-              </p>
+              <p className="text-gray-700 line-clamp-3">{story.text}</p>
             </div>
           </div>
         ))}

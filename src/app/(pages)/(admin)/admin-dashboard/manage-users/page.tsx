@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { ChevronRight } from "lucide-react";
 import { formatDate } from "@/utils/formatDate";
+import Breadcrumb from "@/components/breadcrumb";
 
 const Page = () => {
   const tableRef = useRef(null);
@@ -137,17 +138,15 @@ const Page = () => {
     setStatusCounts(counts);
   }, [alums]);
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Alumni", href: "#", active: true },
+  ];
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-2">
-        <Link href="/admin-dashboard" className="cursor-pointer">
-          Home
-        </Link>
-        <div>
-          <ChevronRight size={15} />
-        </div>
-        <div>Manage Users</div>
-      </div>
+      <title>Manage Users | ICS-ARMS</title>
+      <Breadcrumb items={breadcrumbItems} />
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="font-bold text-3xl">Alumni Management</div>
@@ -205,10 +204,12 @@ const Page = () => {
 
         <div className="bg-white rounded-xl flex p-2.5 px-4 items-center justify-between">
           <div className="flex gap-6">
-            <div className="flex items-center gap-1">
-              <div className="text-sm font-medium">Filter by:</div>
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-[var(--primary-blue)]">
+                Filter by:
+              </div>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="appearance-none px-2 h-7 bg-gray-300 rounded-md flex items-center text-xs font-medium cursor-pointer hover:bg-gray-400 border-none">
+                <SelectTrigger className="appearance-none px-4 py-2 text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] rounded-full flex items-center text-sm font-medium cursor-pointer">
                   <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-none">
@@ -234,10 +235,12 @@ const Page = () => {
               </Select>
             </div>
 
-            <div className="flex items-center gap-1">
-              <div className="text-sm font-medium">Active Status:</div>
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-[var(--primary-blue)]">
+                Active Status:
+              </div>
               <Select value={activeStatus} onValueChange={setActiveStatus}>
-                <SelectTrigger className="appearance-none px-2 h-7 bg-gray-300 rounded-md flex items-center text-xs font-medium cursor-pointer hover:bg-gray-400 border-none">
+                <SelectTrigger className="appearance-none px-4 py-2 text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] rounded-full flex items-center text-sm font-medium cursor-pointer">
                   <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-none">
@@ -263,11 +266,11 @@ const Page = () => {
               </Select>
             </div>
 
-            <div className="flex items-center gap-1">
-              <div className="text-sm font-medium">Order:</div>
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-[var(--primary-blue)]">Order:</div>
               <button
                 onClick={toggleSortDirection}
-                className="px-2 h-7 bg-gray-300 rounded-md text-xs font-medium cursor-pointer hover:bg-gray-400"
+                className="appearance-none px-4 py-2 text-[var(--primary-blue)] border-2 border-[var(--primary-blue)] rounded-full flex items-center text-sm font-medium cursor-pointer"
               >
                 {sortDirection === "asc" ? (
                   <div>

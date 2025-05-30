@@ -9,6 +9,7 @@ import DonationDriveSidebar from '../components/Sidebar';
 import DonationDrivesList from '../components/DonationDrivesList';
 import { DonationDrive } from '@/models/models';
 import Banner from '@/components/Banner';
+import { ChevronDown } from 'lucide-react';
 
 export default function SavedDrivesPage() {
   const { donationDrives, events, isLoading } = useDonationDrives();
@@ -80,7 +81,7 @@ export default function SavedDrivesPage() {
 			description="Support meaningful causes through ICS and alumni donation drives, helping create opportunities and making a lasting impact."
 		/>
 		{/* Body */}
-		<div className='my-[40px] mx-[30px] h-fit flex flex-col gap-[40px] md:flex-row lg:mx-[50px] xl:mx-[200px] static'>
+		<div className='my-[40px] mx-[10%] h-fit flex flex-col gap-[40px] md:flex-row static'>
 			{/* Sidebar */}
 			<div className='bg-[#FFFFFF] flex flex-col p-7 gap-[10px] rounded-[10px] w-content h-max md:sticky md:top-1/7'>
 				<DonationDriveSidebar />
@@ -88,30 +89,39 @@ export default function SavedDrivesPage() {
 			{/* Main content */}
 			<div className='flex flex-col gap-[10px] w-full mb-10'>
 				{/* Filter tabs */}
-				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-1 flex justify-between items-center shadow-md border border-gray-200">
-					<h2 className="text-lg font-semibold">Saved Drives</h2>
+				<div className="bg-[#FFFFFF] rounded-[10px] px-5 py-3 flex justify-between items-center shadow-md border border-gray-200">
+					<h2 className="text-md lg:text-lg font-semibold">Saved Drives</h2>
 					<div className="flex justify-between items-center gap-2">
-						<div className="flex items-center">
-							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="flex items-center text-sm" >
+						<div className="flex items-center relative">
+							<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+							<select id="sort" value={statusOption} onChange={handleStatusSortChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
 								<option value="all">All</option>
 								<option value="active">Active</option>
 								<option value="completed">Closed </option>
 							</select>
+
+							<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+								<ChevronDown className="w-4 h-4" />
+							</div>
 						</div>
-						<div>|</div>
-						<div className="flex items-center">
-							<label htmlFor="sort" className="mr-2 text-sm">Sort by:</label>
-							<select id="sort" value={sortOption} onChange={handleSortChange} className="flex items-center text-sm" >
+						<div className='w-1'></div>
+						<div className="flex items-center relative">
+							<label htmlFor="sort" className="mr-3 text-sm" style={{color: '#0856BA'}}>Sort by:</label>
+							<select id="sort" value={sortOption} onChange={handleSortChange} className="text-sm rounded-full py-2 pr-10 px-4 border-[2px] appearance-none" style={{borderColor: '#0856BA', color: '#0856BA'}} >
 								<option value="newest">Newest</option>
 								<option value="oldest">Oldest</option>
 								<option value="amount-high">Amount (High to Low)</option>
 								<option value="amount-low">Amount (Low to High)</option>
 								<option value="progress">Progress</option>
 							</select>
+
+							<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" style={{color: '#0856BA'}}>
+								<ChevronDown className="w-4 h-4" />
+							</div>
 						</div>						
 					</div>
 				</div>
+				
 				{savedDrives.length > 0 ? (
 					// Donation Cards
 					<DonationDrivesList 

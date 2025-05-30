@@ -1,6 +1,7 @@
 "use client";
 
 import PostJobPage from "@/app/(pages)/(admin)/admin-dashboard/job-postings/post/page";
+import Breadcrumb from "@/components/breadcrumb";
 import JobApplicationModalAdmin from "@/components/JobApplicationModalAdmin";
 import {
   Dialog,
@@ -19,8 +20,7 @@ import {
   CirclePlus,
   CircleX,
   Pencil,
-  ThumbsDown,
-  ThumbsUp,
+  CircleCheck,
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
@@ -80,7 +80,7 @@ export default function Users() {
   const [jobToDelete, setJobToDelete] = useState<JobOffering | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState<JobOffering | null>(null);
-  
+
   const filterJobs = (status: string) => {
     const filteredJobs = jobOffers.filter((job: JobOffering) => {
       const matchesStatus =
@@ -176,6 +176,11 @@ export default function Users() {
     router.push("/admin-dashboard/job-postings");
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin-dashboard" },
+    { label: "Manage Job Posting", href: "#", active: true },
+  ];
+
   // Render view page for a job posting
   const renderViewPage = () => {
     if (!viewingJob) return null;
@@ -188,10 +193,10 @@ export default function Users() {
             <ChevronRight size={15} />
           </div>
           <div
-            className="cursor-pointer hover:text-blue-600"
+            className="cursor-pointer hover:text-[#0856BA]"
             onClick={() => {
               goBackToList();
-              setCurrentPage('list');
+              setCurrentPage("list");
             }}
           >
             Manage Job Posting
@@ -349,7 +354,7 @@ export default function Users() {
               {/* Revised buttons */}
               {isEditing && (
                 <div className="bg-white rounded-2xl p-4 flex justify-end gap-2 mt-4">
-                    <button
+                  <button
                     type="button"
                     onClick={() => {
                       setIsEditing(false);
@@ -357,9 +362,9 @@ export default function Users() {
                       setCurrentPage("list");
                     }}
                     className="w-30 flex items-center justify-center gap-2 text-[var(--primary-blue)] border-2 px-4 py-2 rounded-full cursor-pointer hover:bg-gray-300"
-                    >
+                  >
                     Cancel
-                    </button>
+                  </button>
                   <button
                     type="submit"
                     className="flex items-center justify-center gap-2 bg-[var(--primary-blue)] text-[var(--primary-white)] border-2 border-[var(--primary-blue)] px-4 py-2 rounded-full cursor-pointer hover:bg-[var(--blue-600)]"
@@ -383,16 +388,11 @@ export default function Users() {
 
   return (
     <>
+      <title>Manage Job Posting | ICS-ARMS</title>
       {/* Main content */}
       {currentPage === "list" ? (
         <div className="flex flex-col gap-5">
-          <div className="flex items-center gap-2">
-            <div>Home</div>
-            <div>
-              <ChevronRight size={15} />
-            </div>
-            <div>Manage Job Posting</div>
-          </div>
+          <Breadcrumb items={breadcrumbItems} />
           <div className="w-full">
             <div className="flex items-center justify-between">
               <div className="font-bold text-3xl">Manage Job Posting</div>
@@ -400,18 +400,17 @@ export default function Users() {
                 <input
                   type="text"
                   placeholder="Search jobs..."
-                  className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-1 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
+                  className="pl-5 h-10 w-64 flex items-center justify-center rounded-full bg-[#FFFFFF] border-2 border-[#0856BA] text-sm font-semibold text-[#0856BA] shadow-inner shadow-white/10 transition-all duration-300 focus:border-2 focus:border-[#0856BA] hover:shadow-lg focus:outline-none"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <div
-                  className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-600 flex items-center gap-2"
+                  className="bg-[var(--primary-blue)] text-white px-4 py-2 rounded-full cursor-pointer hover:bg-[#063d8c] flex items-center gap-2"
                   onClick={() =>
                     router.push("/admin-dashboard/job-postings/post")
                   }
                 >
-                  <CirclePlus size={18} />
-                  Create a Job Post
+                  + Create a Job Post
                 </div>
               </div>
             </div>
@@ -475,18 +474,18 @@ export default function Users() {
                   }`}
                   style={{ width: isSticky ? headerWidth : "100%" }}
                 >
-                  <div className="flex-grow flex items-center pl-20 font-semibold">
+                  <div className="w-160 flex items-center pl-20 font-semibold">
                     Job Posting Info
                   </div>
                   {activeTab === "Accepted" && (
-                    <div className="w-[1px] flex items-center justify-center font-semibold">
+                    <div className="w-[1px] flex items-center justify-center font-semibold whitespace-nowrap">
                       Availability
                     </div>
                   )}
-                  <div className="w-[120px] flex items-center justify-center font-semibold mr-9">
+                  <div className="w-[170px] flex items-center justify-center font-semibold mr-13">
                     Status
                   </div>
-                  <div className="w-[280px] flex items-center justify-center font-semibold">
+                  <div className="w-[300px] flex items-center justify-center font-semibold">
                     Actions
                   </div>
                 </div>
@@ -732,7 +731,7 @@ export default function Users() {
                                 </button>
                               ) : (
                                 <button
-                                  className="text-[var(--primary-blue)] hover:underline whitespace-nowrap mr-10"
+                                  className="text-[var(--primary-blue)] flex items-center justify-end gap-10 text-[14px] hover:underline whitespace-nowrap mr-10"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleViewJob(job.jobId);
@@ -743,28 +742,28 @@ export default function Users() {
                               )}
                             </div>
 
-                            <div className="w-[140px] flex items-center justify-center">
+                            <div className="w-[180px] flex items-center justify-center">
                               {activeTab === "Pending" ? (
                                 <div className="flex gap-2">
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleReject(job.jobId);
+                                      handleAccept(job.jobId);
                                     }}
-                                    className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
+                                    className="px-3 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 cursor-pointer flex gap-1 items-center"
                                   >
-                                    <ThumbsDown size={18} />
-                                    <span>Reject</span>
+                                    <CircleCheck size={18} />
+                                    Accept
                                   </button>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleAccept(job.jobId);
+                                      handleReject(job.jobId);
                                     }}
-                                    className="text-white bg-green-500 hover:bg-green-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap mr-6"
+                                    className="px-3 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 cursor-pointer flex gap-1 items-center mr-4"
                                   >
-                                    <ThumbsUp size={18} />
-                                    <span>Accept</span>
+                                    <CircleX size={18} />
+                                    Reject
                                   </button>
                                 </div>
                               ) : activeTab === "Drafts" ? (
@@ -777,14 +776,14 @@ export default function Users() {
                                     }}
                                     className="text-white bg-red-500 hover:bg-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap"
                                   >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={20} />
                                     <span>Delete</span>
                                   </button>
                                 </div>
                               ) : (
                                 <div className="flex items-center justify-center w-full">
                                   <Trash2
-                                    size={18}
+                                    size={20}
                                     className="text-gray-500 hover:text-red-500 cursor-pointer"
                                     onClick={(e) => {
                                       e.stopPropagation();

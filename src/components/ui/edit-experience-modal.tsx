@@ -72,7 +72,6 @@ const EditWorkExperience: React.FC<{
   //callback for image upload
   const handleDocumentUpload = (document: File | null): void => {
     setCareerProof(document);
-    console.log("Uploaded document:", document);
   };
 
   const handleSubmit = async (work_experience: WorkExperience) => {
@@ -82,6 +81,7 @@ const EditWorkExperience: React.FC<{
       if (parseInt(startYear, 10) > parseInt(endYear, 10)) {
         setValidYears(false);
         setSuccess(false);
+        setIsSaving(false);
         // setSnackbar(true);
         return;
       } else {
@@ -93,6 +93,7 @@ const EditWorkExperience: React.FC<{
     if (!careerProof && endYear === "present" && !currentDocument) {
       setHasProof(false);
       setSuccess(false);
+      setIsSaving(false);
       // setSnackbar(true);
       return;
     } else {
@@ -149,6 +150,7 @@ const EditWorkExperience: React.FC<{
     setCareerProof(null);
     setHasProof(true);
     setPresentJob(endYear === "present" ? true : false);
+    setIsSaving(false);
   };
 
   const handlePresentJob = (value: boolean) => {
@@ -171,9 +173,11 @@ const EditWorkExperience: React.FC<{
           <div className="flex items-center justify-between relative">
             <div className="pb-5">
               <p className="text-xl font-bold">Edit work experience</p>
-              <p className="text-xs">You can edit the location and end year only.</p>
+              <p className="text-xs">
+                You can edit the location and end year only.
+              </p>
             </div>
-            
+
             <button
               onClick={() => {
                 resetFields();

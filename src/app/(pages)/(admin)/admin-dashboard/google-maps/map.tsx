@@ -48,6 +48,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
         onLoad={(map) => {
           mapRef.current = map;
         }}
+        options={{
+          gestureHandling: "greedy", 
+          scrollwheel: true,         
+          streetViewControl: false,
+        }}
       >
         {workExperienceList.map((experience) => (
           <MarkerF
@@ -68,6 +73,13 @@ const MapComponent: React.FC<MapComponentProps> = ({
             </DialogDescription>
             </DialogHeader>
             <div className="mt-4 space-y-2">
+            {selectedAlum.image && (
+              <img
+                src={selectedAlum.image}
+                alt={`${selectedAlum.firstName} ${selectedAlum.lastName}`}
+                className="w-32 h-32 object-cover rounded-full mx-auto mb-4"
+              />
+            )}
             <p>
                 <strong>Job Title:</strong> {selectedWork.jobTitle}
             </p>

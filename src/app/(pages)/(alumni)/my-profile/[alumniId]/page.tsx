@@ -62,6 +62,7 @@ import { Scholarship } from "@/models/models";
 import { useScholarship } from "@/context/ScholarshipContext";
 import { JobOffering } from "@/models/models";
 import { useJobOffer } from "@/context/JobOfferContext";
+import MapComponentA from "@/components/ui/map";
 
 const UserProfile = () => {
   const { user, alumInfo, loading } = useAuth();
@@ -147,6 +148,8 @@ const UserProfile = () => {
   const [drivesView, setDrivesView] = useState(false);
   const [scholarshipsView, setScholarshipsView] = useState(false);
   const [jobsView, setJobsView] = useState(false);
+  const [activeMarker, setActiveMarker] = useState<number | null>(null);
+
   const { bookmarks } = useBookmarks();
   if (!bookmarks) {
     return <div>Loading Bookmarks...</div>;
@@ -190,15 +193,37 @@ const UserProfile = () => {
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
 
   const fields = [
-    "Artificial Intelligence", "Machine Learning", "Data Science", 
-    "Cybersecurity", "Computer Vision", "Natural Language Processing", 
-    "Software Engineering", "Human-Computer Interaction", "Computer Graphics", 
-    "Robotics", "Quantum Computing", "Bioinformatics", "Theoretical Computer Science",
-    "Computer Networks", "Operating Systems", "Database Systems", "Cloud Computing",
-    "Distributed Systems", "Embedded Systems", "Game Development", "Web Development",
-    "Mobile Application Development", "Augmented Reality", "Virtual Reality", 
-    "Information Retrieval", "Big Data", "Internet of Things", "Blockchain",
-    "DevOps", "Digital Forensics", "Other"
+    "Artificial Intelligence",
+    "Machine Learning",
+    "Data Science",
+    "Cybersecurity",
+    "Computer Vision",
+    "Natural Language Processing",
+    "Software Engineering",
+    "Human-Computer Interaction",
+    "Computer Graphics",
+    "Robotics",
+    "Quantum Computing",
+    "Bioinformatics",
+    "Theoretical Computer Science",
+    "Computer Networks",
+    "Operating Systems",
+    "Database Systems",
+    "Cloud Computing",
+    "Distributed Systems",
+    "Embedded Systems",
+    "Game Development",
+    "Web Development",
+    "Mobile Application Development",
+    "Augmented Reality",
+    "Virtual Reality",
+    "Information Retrieval",
+    "Big Data",
+    "Internet of Things",
+    "Blockchain",
+    "DevOps",
+    "Digital Forensics",
+    "Other",
   ];
 
   const handleFieldsSelect = (field) => {
@@ -207,9 +232,13 @@ const UserProfile = () => {
     }
     setIsOpen(false);
   };
-  
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
   const handleFieldRemove = (field) => {
-    setSelectedFields(selectedFields.filter(f => f !== field));
+    setSelectedFields(selectedFields.filter((f) => f !== field));
   };
 
   //function for calculating age (year only) based from birthdate
@@ -686,6 +715,7 @@ const UserProfile = () => {
 
   return (
     <div>
+      <title>My Profile | ICS-ARMS</title>
       <div
         style={{ backgroundColor: "#3675c5" }}
         className="relative bg-cover bg-center pt-15 px-50 text-white shadow-md"
@@ -1051,12 +1081,14 @@ const UserProfile = () => {
                     <div>
                       <p className="font-semibold">Fields of Interest</p>
                       <p className="font-light text-xs mb-1">
-                        Selected: {selectedFields.length}/5 &nbsp;&nbsp; 
+                        Selected: {selectedFields.length}/5 &nbsp;&nbsp;
                         {selectedFields.length >= 5 && (
-                          <span className="text-red-500 font-medium">Maximum has been reached: 5</span>
+                          <span className="text-red-500 font-medium">
+                            Maximum has been reached: 5
+                          </span>
                         )}
                       </p>
-                      
+
                       {/* Selected fields tags */}
                       <div className="flex flex-wrap gap-2 mb-2">
                         {selectedFields.map((field) => (
@@ -1065,14 +1097,14 @@ const UserProfile = () => {
                             className="bg-blue-100 px-3 py-2 rounded-md text-sm flex items-center justify-between space-x-2"
                           >
                             <span>{field}</span>
-                            <XIcon 
-                              className="text-gray-700 hover:text-red-500 cursor-pointer w-4 h-4" 
+                            <XIcon
+                              className="text-gray-700 hover:text-red-500 cursor-pointer w-4 h-4"
                               onClick={() => handleFieldRemove(field)}
                             />
                           </div>
                         ))}
                       </div>
-                      
+
                       {/* Dropdown */}
                       <div className="relative w-full">
                         <button
@@ -1080,15 +1112,21 @@ const UserProfile = () => {
                           onClick={() => setIsOpen(!isOpen)}
                           disabled={selectedFields.length >= 5}
                         >
-                          <span>{selectedFields.length >= 5 ? "Maximum fields selected" : "Select a field"}</span>
+                          <span>
+                            {selectedFields.length >= 5
+                              ? "Maximum fields selected"
+                              : "Select a field"}
+                          </span>
                           <ChevronDown className="w-4 h-4" />
                         </button>
-                        
+
                         {isOpen && selectedFields.length < 5 && (
                           <div className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-auto">
                             {fields
-                              .filter(field => !selectedFields.includes(field))
-                              .map(field => (
+                              .filter(
+                                (field) => !selectedFields.includes(field)
+                              )
+                              .map((field) => (
                                 <div
                                   key={field}
                                   className="px-4 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-2"
@@ -1338,7 +1376,14 @@ const UserProfile = () => {
                             <div className="flex space-x-10">
                               <button
                                 className="flex items-center space-x-2 cursor-pointer"
-                                onClick={() => openMap(index)}
+                                onClick={() => {
+                                  // Update selectedLocation and activeMarker on row click
+                                  setSelectedLocation({
+                                    lat: item.latitude,
+                                    lng: item.longitude,
+                                  });
+                                  setActiveMarker(index);
+                                }}
                               >
                                 <p className="text-[#3675c5]">
                                   <MapPin />
@@ -1446,6 +1491,15 @@ const UserProfile = () => {
                         Add work experience
                       </p>
                     </button>
+                    <MapComponentA
+                      workExperienceList={userWorkExperience}
+                      onLocationClick={(lat, lng, index) => {
+                        setSelectedLocation({ lat, lng });
+                        setActiveMarker(index);
+                      }}
+                      selectedLocation={selectedLocation}
+                      activeMarker={activeMarker}
+                    />
                   </div>
 
                   {alumInfo?.alumniId && (

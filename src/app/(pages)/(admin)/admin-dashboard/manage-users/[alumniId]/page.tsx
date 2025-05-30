@@ -46,11 +46,11 @@ export default function AlumPage() {
   const [work, setWork] = useState<WorkExperience[]>([]);
   const [isMapOpenArray, setIsMapOpenArray] = useState<boolean[]>([]);
   const { isLoaded } = useGoogleMaps();
-  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-const [activeMarker, setActiveMarker] = useState<number | null>(null);
-
-
-  
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [activeMarker, setActiveMarker] = useState<number | null>(null);
 
   const calculateAge = (birthDate: Date) => {
     //current date
@@ -123,6 +123,7 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
 
   return (
     <div>
+      <title>Manage User | ICS-ARMS</title>
       <div className="space-y-10 md:sticky md:top-8 z-[100] relative">
         <div className="flex items-center gap-2 w-full top-0 left-0">
           <Link href="/admin-dashboard" className="cursor-pointer">
@@ -457,7 +458,7 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                         <th className="py-1 w-3/13 px-3">Company</th>
                         <th className="py-1 w-3/13">Industry</th>
                         <th className="py-1 w-3/13 px-3">From - To</th>
-                        <th className="py-1 w-1/13">Loc</th>
+                        {/* <th className="py-1 w-1/13">Loc</th> */}
                         <th className="py-1 w-1/13 pl-1">Proof</th>
                       </tr>
                     </thead>
@@ -476,7 +477,8 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                           return startB - startA;
                         })
                         .map((w: WorkExperience, index: number) => (
-                          <tr key={index}>
+                          <tr key={index}
+                          >
                             <td className="py-1">{w.jobTitle}</td>
                             <td className="py-1 px-3">{w.company}</td>
                             <td className="py-1">{w.industry}</td>
@@ -486,7 +488,11 @@ const [activeMarker, setActiveMarker] = useState<number | null>(null);
                             <td className="py-1">
                               <MapPin
                                 className="text-[#3675c5] cursor-pointer"
-                                onClick={() => openMap(index)}
+                                onClick={() => {
+                                  // Update selectedLocation and activeMarker on row click
+                                  setSelectedLocation({ lat: w.latitude, lng: w.longitude });
+                                  setActiveMarker(index);
+                                }}
                               />
                             </td>
                             <td className="py-1 pl-1">

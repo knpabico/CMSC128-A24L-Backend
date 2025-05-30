@@ -116,10 +116,15 @@ export default function Navbar() {
           label: "Add Scholarship Drive",
           path: "/admin-dashboard/scholarships/add",
         },
-				{
+        {
           id: "view-pending-sponsorship",
           label: "View Pending Sponsorships",
           path: "/admin-dashboard/scholarships/sponsorship",
+        },
+        {
+          id: "scholarship-reports",
+          label: "Scholarship Reports",
+          path: "/admin-dashboard/scholarship-reports",
         },
       ],
     },
@@ -133,7 +138,11 @@ export default function Navbar() {
           label: "Manage Job Posting",
           path: "/admin-dashboard/job-postings",
         },
-        { id: "add-jobs", label: "Add Job Posting", path: "/admin-dashboard/job-postings/post" },
+        {
+          id: "add-jobs",
+          label: "Add Job Posting",
+          path: "/admin-dashboard/job-postings/post",
+        },
         {
           id: "stats-jobs",
           label: "Statistical Report",
@@ -538,11 +547,9 @@ export default function Navbar() {
           <div
             className="hover:bg-[var(--blue-600)] cursor-pointer"
             style={{ padding: "5% 10% 5% 10%" }}
+            onClick={() => handleSignOut()}
           >
-            <button
-              className="text-white flex items-center gap-2 cursor-pointer"
-              onClick={() => handleSignOut()}
-            >
+            <button className="text-white flex items-center gap-2 cursor-pointer">
               <LogOut size={20} /> Log Out
             </button>
           </div>

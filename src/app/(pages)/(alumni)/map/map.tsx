@@ -17,6 +17,14 @@ interface MapComponentProps {
   activeMarker: number | null;
 }
 
+interface WorkExperience {
+  company: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  startDate: number;
+  endDate: number | null;
+}
 
 const containerStyle = {
   width: "100%",
@@ -32,7 +40,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const mapRef = useRef<google.maps.Map | null>(null);
   const { isLoaded } = useGoogleMaps();
   const [center, setCenter] = useState({ lat: 14, lng: 120 });
-  const [zoom, setZoom] = useState(0);
+  const [zoom, setZoom] = useState(3);
   const [animatedMarker, setAnimatedMarker] = useState<{
     lat: number;
     lng: number;
@@ -44,7 +52,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (selectedLocation && mapRef.current) {
       animateMapAndMarker(selectedLocation);
-      smoothZoom(20);
+      smoothZoom(13);
     }
   }, [selectedLocation]);
 

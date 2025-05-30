@@ -69,7 +69,7 @@ const industryOptions = [
   "Supply Chain Technology",
   "Speech Recognition & Processing",
   "Computational Science",
-  "Other"
+  "Other",
 ];
 
 const AddWorkExperience: React.FC<{
@@ -135,12 +135,12 @@ const AddWorkExperience: React.FC<{
     setCareerProof(null);
     setHasProof(true);
     setPresentJob(false);
+    setLoading(false);
   };
 
   const handleSubmit = async () => {
     setLoading(true);
     if (!alumniId) {
-      console.error("Missing alumniId. Cannot submit.");
       setMessage("Could not submit: missing alumni ID.");
       setSuccess(false);
       // setSnackbar(true);
@@ -152,6 +152,7 @@ const AddWorkExperience: React.FC<{
       if (parseInt(startYear, 10) > parseInt(endYear, 10)) {
         setValidYears(false);
         setSuccess(false);
+        setLoading(false);
         // setSnackbar(true);
         return;
       } else {
@@ -163,6 +164,7 @@ const AddWorkExperience: React.FC<{
     if (!careerProof && endYear === "present") {
       setHasProof(false);
       setSuccess(false);
+      setLoading(false);
       // setSnackbar(true);
       return;
     } else {
@@ -209,7 +211,6 @@ const AddWorkExperience: React.FC<{
   //callback for image upload
   const handleDocumentUpload = (document: File | null): void => {
     setCareerProof(document);
-    console.log("Uploaded document:", document);
   };
 
   const [presentJob, setPresentJob] = useState(
@@ -385,7 +386,11 @@ const AddWorkExperience: React.FC<{
                   </div>
                 ) : (
                   <div className="pt-1 flex gap-2 justify-start items-center">
-                    <p className="text-xs font-light">You can only have one active job marked as 'present.' Please update your current job's end year before adding a new position.</p>
+                    <p className="text-xs font-light">
+                      You can only have one active job marked as 'present.'
+                      Please update your current job's end year before adding a
+                      new position.
+                    </p>
                   </div>
                 )}
               </div>
